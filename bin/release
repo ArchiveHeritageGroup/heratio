@@ -1,0 +1,207 @@
+#!/bin/bash
+#===============================================================================
+# AtoM Heratio - Release Script
+#===============================================================================
+# Usage: ./bin/release patch|minor|major "commit message" [--issue N]
+#
+# Examples:
+#   ./bin/release patch "Fix user browse GROUP_CONCAT"
+#   ./bin/release minor "Phase 4: Admin & Settings" --issue 42
+#   ./bin/release patch "Bug fixes" --issue 15,16,17
+#===============================================================================
+set -e
+
+TYPE=${1:-patch}
+MSG=${2:-"Bug fixes and improvements"}
+ISSUE_ARG=""
+
+# Parse --issue argument
+for arg in "$@"; do
+    if [[ "$arg" == "--issue" ]]; then
+        ISSUE_ARG="next"
+    elif [[ "$ISSUE_ARG" == "next" ]]; then
+        ISSUE_ARG="$arg"
+    fi
+done
+
+cd "$(dirname "$0")/.."
+REPO="ArchiveHeritageGroup/heratio"
+
+VERSION_FILE="version.json"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo -e "${CYAN}════════════════════════════════════════════${NC}"
+echo -e "${CYAN}  AtoM Heratio - Release${NC}"
+echo -e "${CYAN}════════════════════════════════════════════${NC}"
+echo ""
+
+if [ ! -f "$VERSION_FILE" ]; then
+    echo -e "${RED}Error: version.json not found${NC}"
+    exit 1
+fi
+
+# Parse current version
+CURRENT=$(php -r "\$j=json_decode(file_get_contents('${VERSION_FILE}'),true); echo \$j['version'] ?? '1.0.0';")
+
+if [ -z "$CURRENT" ] || [ "$CURRENT" = "null" ]; then
+    echo -e "${RED}Error: Could not parse version${NC}"
+    exit 1
+fi
+
+echo -e "Current version: ${YELLOW}v${CURRENT}${NC}"
+
+# Split version
+MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+MINOR=$(echo "$CURRENT" | cut -d. -f2)
+PATCH=$(echo "$CURRENT" | cut -d. -f3)
+
+# Calculate new version
+case $TYPE in
+    patch) PATCH=$((PATCH + 1)) ;;
+    minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+    major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+    *) echo "Usage: ./bin/release patch|minor|major \"message\" [--issue N]"; exit 1 ;;
+esac
+
+NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+DATE=$(date +%Y-%m-%d)
+TAG="v${NEW_VERSION}"
+
+echo -e "New version:     ${GREEN}${TAG}${NC}"
+echo -e "Message:         ${MSG}"
+[[ -n "$ISSUE_ARG" ]] && echo -e "Issues:          #${ISSUE_ARG}"
+echo ""
+
+# Update version.json
+php -r "
+\$j = json_decode(file_get_contents('${VERSION_FILE}'), true);
+\$j['version'] = '${NEW_VERSION}';
+\$j['release_date'] = '${DATE}';
+file_put_contents('${VERSION_FILE}', json_encode(\$j, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . \"\n\");
+"
+
+#===============================================================================
+# Git operations
+#===============================================================================
+echo -e "${BLUE}[1/3] Committing changes...${NC}"
+
+# Build commit message with issue references
+COMMIT_MSG="${TAG}: ${MSG}"
+if [[ -n "$ISSUE_ARG" ]]; then
+    FIXES=""
+    IFS=',' read -ra ISSUES <<< "$ISSUE_ARG"
+    for issue in "${ISSUES[@]}"; do
+        issue=$(echo "$issue" | tr -d ' ')
+        if [[ -n "$FIXES" ]]; then
+            FIXES="$FIXES, Closes #$issue"
+        else
+            FIXES="Closes #$issue"
+        fi
+    done
+    COMMIT_MSG="${TAG}: ${MSG}
+
+${FIXES}"
+fi
+
+git add -A
+git commit -m "$COMMIT_MSG"
+
+echo -e "${BLUE}[2/3] Creating tag ${TAG}...${NC}"
+git tag -a "${TAG}" -m "${MSG}"
+
+echo -e "${BLUE}[3/3] Pushing to origin...${NC}"
+git push origin main
+git push origin "${TAG}"
+
+#===============================================================================
+# GitHub Release
+#===============================================================================
+if command -v gh &> /dev/null && gh auth status &> /dev/null 2>&1; then
+    echo ""
+    echo -e "${BLUE}Creating GitHub release...${NC}"
+
+    RELEASE_NOTES="## AtoM Heratio ${TAG}
+
+**Release Date:** ${DATE}
+
+### Changes
+${MSG}"
+
+    if [[ -n "$ISSUE_ARG" ]]; then
+        RELEASE_NOTES="${RELEASE_NOTES}
+
+### Related Issues"
+        IFS=',' read -ra ISSUES <<< "$ISSUE_ARG"
+        for issue in "${ISSUES[@]}"; do
+            issue=$(echo "$issue" | tr -d ' ')
+            RELEASE_NOTES="${RELEASE_NOTES}
+- Closes #${issue}"
+        done
+    fi
+
+    RELEASE_NOTES="${RELEASE_NOTES}
+
+### Installation
+\`\`\`bash
+git clone https://github.com/ArchiveHeritageGroup/heratio.git
+cd heratio && composer install
+cp .env.example .env && php artisan key:generate
+\`\`\`
+"
+
+    gh release create "${TAG}" \
+        --repo "$REPO" \
+        --title "AtoM Heratio ${TAG}" \
+        --notes "${RELEASE_NOTES}" 2>/dev/null || echo "  Release may already exist"
+
+    #===========================================================================
+    # Update linked issues
+    #===========================================================================
+    if [[ -n "$ISSUE_ARG" ]]; then
+        echo ""
+        echo -e "${BLUE}Updating linked issues...${NC}"
+
+        IFS=',' read -ra ISSUES <<< "$ISSUE_ARG"
+        for issue in "${ISSUES[@]}"; do
+            issue=$(echo "$issue" | tr -d ' ')
+            echo "  Completing issue #$issue..."
+
+            gh issue edit "$issue" --repo "$REPO" \
+                --remove-label "status: in-progress" \
+                --remove-label "status: parked" \
+                --remove-label "status: future" 2>/dev/null || true
+
+            gh issue close "$issue" --repo "$REPO" \
+                --comment "Completed in ${TAG}
+
+- Release: [${TAG}](https://github.com/ArchiveHeritageGroup/heratio/releases/tag/${TAG})
+- Date: ${DATE}
+- Changes: ${MSG}" 2>/dev/null || echo "    Warning: Could not close issue #$issue"
+        done
+    fi
+fi
+
+#===============================================================================
+# Summary
+#===============================================================================
+echo ""
+echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}                      RELEASE COMPLETE                         ${NC}"
+echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
+echo ""
+echo -e "  Version:  ${GREEN}${TAG}${NC}"
+echo -e "  Date:     ${DATE}"
+echo -e "  Message:  ${MSG}"
+if [[ -n "$ISSUE_ARG" ]]; then
+    echo -e "  Issues:   ${GREEN}#${ISSUE_ARG} (closed)${NC}"
+fi
+echo ""
+echo -e "  ${CYAN}https://github.com/ArchiveHeritageGroup/heratio/releases/tag/${TAG}${NC}"
+echo ""

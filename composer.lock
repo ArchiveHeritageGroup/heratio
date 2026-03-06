@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "162e1967309f42fdea47bbe4be34eef0",
+    "content-hash": "7dd166ec6b97c737003caac8acaa3ed5",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -192,6 +192,36 @@
             }
         },
         {
+            "name": "ahg/jobs-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-jobs-manage",
+                "reference": "604420046374101a063288f295974d72ae2165d8"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgJobsManage\\Providers\\AhgJobsManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgJobsManage\\": "src/"
+                }
+            },
+            "description": "Background jobs browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/repository-manage",
             "version": "dev-main",
             "dist": {
@@ -246,6 +276,36 @@
                 }
             },
             "description": "Rights holder browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/settings",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-settings",
+                "reference": "d2701c04017a0e1a328ecac6717141c8f3470c4e"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSettings\\Providers\\AhgSettingsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSettings\\": "src/"
+                }
+            },
+            "description": "Settings management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -340,6 +400,36 @@
                 "proprietary"
             ],
             "description": "AHG Bootstrap 5 Theme - Layouts, nav, footer for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/user-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-user-manage",
+                "reference": "462e2f7c5c72bbd21a50532993b74d8f0cf29d15"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgUserManage\\Providers\\AhgUserManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgUserManage\\": "src/"
+                }
+            },
+            "description": "User browse and management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8736,7 +8826,10 @@
         "ahg/storage-manage": 20,
         "ahg/term-taxonomy": 20,
         "ahg/function-manage": 20,
-        "ahg/information-object-manage": 20
+        "ahg/information-object-manage": 20,
+        "ahg/user-manage": 20,
+        "ahg/settings": 20,
+        "ahg/jobs-manage": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
