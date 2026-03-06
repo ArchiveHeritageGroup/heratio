@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c554ab6190d2cac0d27c1709174ad7e0",
+    "content-hash": "03b9e2e23d409f50cce38b384dd51adb",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -126,6 +126,33 @@
                 "proprietary"
             ],
             "description": "AHG Core - Eloquent models and base services for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/display",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-display",
+                "reference": "7267c1433e1ed143f8a8dfe9d522ae8a83c4841c"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDisplay\\AhgDisplayServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDisplay\\": "src/"
+                }
+            },
+            "description": "GLAM Display plugin for Heratio - browse, search, profiles, fields, levels",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -366,6 +393,36 @@
                 }
             },
             "description": "Repository browse and management for Heratio (ISDIAH)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/research",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-research",
+                "reference": "aa9e20c77fdc1350caa3a4003cbf6fcd68405691"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgResearch\\Providers\\AhgResearchServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgResearch\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Research Portal: researcher registration, reading room bookings, projects, evidence sets, journal, bibliographies, reports, annotations, knowledge platform, admin management",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9015,7 +9072,9 @@
         "ahg/menu-manage": 20,
         "ahg/audit-trail": 20,
         "ahg/reports": 20,
-        "ahg/iiif-collection": 20
+        "ahg/iiif-collection": 20,
+        "ahg/research": 20,
+        "ahg/display": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

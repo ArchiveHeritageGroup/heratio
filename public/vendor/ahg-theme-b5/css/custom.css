@@ -216,7 +216,7 @@ model-viewer::part(default-progress-bar) {
 /* Force buttons and content to appear above viewer */
 #identityArea,
 .border-bottom,
-section {
+#content section {
     position: relative !important;
     z-index: 10 !important;
     background-color: #fff !important;

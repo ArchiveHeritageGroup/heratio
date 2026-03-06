@@ -1,0 +1,17 @@
+{
+    "name": "ahg/display",
+    "description": "GLAM Display plugin for Heratio - browse, search, profiles, fields, levels",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "AhgDisplay\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDisplay\\AhgDisplayServiceProvider"
+            ]
+        }
+    }
+}

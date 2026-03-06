@@ -44,7 +44,7 @@
     @include('theme::partials.admin-notifications')
 
     {{-- Main content wrapper --}}
-    <div id="wrapper" class="container-xxl pt-3 flex-grow-1">
+    <div id="wrapper" class="container-xxl pt-3 flex-grow-1 pb-4">
 
       {{-- Flash messages --}}
       @include('theme::partials.alerts')
