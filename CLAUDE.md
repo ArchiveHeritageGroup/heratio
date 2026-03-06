@@ -49,7 +49,8 @@
 │   ├── ahg-information-object-manage/ ← IO browse/show (ISAD)
 │   ├── ahg-user-manage/          ← User browse/show (admin)
 │   ├── ahg-settings/             ← Settings dashboard + sections (admin)
-│   └── ahg-jobs-manage/          ← Jobs browse/show (admin)
+│   ├── ahg-jobs-manage/          ← Jobs browse/show (admin)
+│   └── ahg-iiif-collection/     ← IIIF Collection management (browse/view/edit/IIIF JSON)
 ├── bin/release                    ← Version bump + git tag + push + GH release
 ├── version.json                   ← Current version
 └── composer.json                  ← Requires all packages via path repositories

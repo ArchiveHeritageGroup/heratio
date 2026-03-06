@@ -1,0 +1,20 @@
+{
+    "name": "ahg/iiif-collection",
+    "description": "IIIF Collection management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgIiifCollection\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgIiifCollection\\Providers\\AhgIiifCollectionServiceProvider"
+            ]
+        }
+    }
+}

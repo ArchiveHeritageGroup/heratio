@@ -36,7 +36,8 @@
         "ahg/static-page": "@dev",
         "ahg/menu-manage": "@dev",
         "ahg/audit-trail": "@dev",
-        "ahg/reports": "@dev"
+        "ahg/reports": "@dev",
+        "ahg/iiif-collection": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

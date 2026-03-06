@@ -205,7 +205,9 @@
   @endif
 
   {{-- Static page content --}}
-  <div class="page p-3">
-    {!! $page->content ?? '' !!}
-  </div>
+  @if($page)
+    <div class="page p-3">
+      {!! $page->content ?? '' !!}
+    </div>
+  @endif
 @endsection
