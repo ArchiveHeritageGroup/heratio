@@ -1,0 +1,22 @@
+{
+    "name": "ahg/theme-b5",
+    "description": "AHG Bootstrap 5 Theme - Layouts, nav, footer for Heratio",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgThemeB5\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgThemeB5\\Providers\\AhgThemeB5ServiceProvider"
+            ]
+        }
+    }
+}

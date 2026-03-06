@@ -1,0 +1,309 @@
+/* =============================================================
+   AHG Voice Commands — Styles
+   ============================================================= */
+
+/* -- Navbar mic button ---------------------------------------- */
+.voice-navbar-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+.voice-navbar-btn:hover {
+  color: #fff;
+}
+.voice-navbar-btn.voice-active {
+  color: #dc3545;
+  animation: voice-pulse 1.2s ease-in-out infinite;
+}
+
+/* -- Floating mic button -------------------------------------- */
+.voice-floating-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bs-primary, #0d6efd);
+  color: #fff;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.voice-floating-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.voice-floating-btn.voice-active {
+  background: #dc3545;
+  animation: voice-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.3);
+}
+
+/* -- Pulse animation ------------------------------------------ */
+@keyframes voice-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
+  50%  { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* -- Listening indicator bar ---------------------------------- */
+.voice-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 1060;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.voice-indicator-active {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, #0d6efd, transparent);
+  background-size: 200% 100%;
+  animation: voice-indicator-slide 1.5s linear infinite;
+}
+
+@keyframes voice-indicator-slide {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* -- Toast notifications -------------------------------------- */
+.voice-toast-container {
+  position: fixed;
+  bottom: 140px;
+  right: 20px;
+  z-index: 1070;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+.voice-toast {
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: voice-toast-in 0.3s ease-out;
+  font-size: 0.875rem;
+}
+.voice-toast-exit {
+  animation: voice-toast-out 0.3s ease-in forwards;
+}
+@keyframes voice-toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes voice-toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-10px); }
+}
+
+/* -- Help modal ----------------------------------------------- */
+#voice-help-modal .modal-body h6 {
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+  padding-bottom: 0.4rem;
+  margin-top: 1rem;
+}
+#voice-help-modal .voice-cmd-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#voice-help-modal .voice-cmd-list li {
+  padding: 0.3rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#voice-help-modal .voice-cmd-list li .voice-cmd-phrase {
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.85rem;
+  color: var(--bs-primary, #0d6efd);
+}
+#voice-help-modal .voice-cmd-list li .voice-cmd-desc {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+/* -- Element highlight (Phase 2) ------------------------------ */
+.voice-highlight {
+  outline: 3px solid rgba(255, 193, 7, 0.8) !important;
+  background-color: rgba(255, 193, 7, 0.15) !important;
+  animation: voice-highlight-flash 0.6s ease-out;
+}
+@keyframes voice-highlight-flash {
+  0%   { outline-color: rgba(255, 193, 7, 1); background-color: rgba(255, 193, 7, 0.3); }
+  100% { outline-color: rgba(255, 193, 7, 0); background-color: rgba(255, 193, 7, 0); }
+}
+
+/* -- Context badges in help modal ----------------------------- */
+.voice-ctx-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+.voice-ctx-edit   { background: #ffc107; color: #000; }
+.voice-ctx-view   { background: #0dcaf0; color: #000; }
+.voice-ctx-browse { background: #198754; color: #fff; }
+.voice-ctx-global { background: #6c757d; color: #fff; }
+
+/* -- Processing indicator (Phase 5 — AI describe) ------------- */
+.voice-indicator-processing {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, #ffc107, transparent);
+  background-size: 200% 100%;
+  animation: voice-indicator-slide 1s linear infinite;
+}
+
+/* Context badge for AI */
+.voice-ctx-ai { background: #6f42c1; color: #fff; }
+
+/* -- Dictation mode (Phase 3) --------------------------------- */
+.voice-dictation-active {
+  box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.4) !important;
+  border-color: #198754 !important;
+  transition: box-shadow 0.3s;
+}
+
+/* Indicator bar — green for dictation */
+.voice-indicator-dictation {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, #198754, transparent);
+  background-size: 200% 100%;
+  animation: voice-indicator-slide 1.5s linear infinite;
+}
+
+/* Field mic icons */
+.voice-field-mic {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--bs-secondary-color, #6c757d);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+  z-index: 5;
+  line-height: 1;
+}
+.voice-field-mic:hover {
+  opacity: 1;
+  color: var(--bs-primary, #0d6efd);
+}
+.voice-field-mic.active {
+  opacity: 1;
+  color: #dc3545;
+  animation: voice-pulse 1.2s ease-in-out infinite;
+}
+.voice-field-mic-textarea {
+  top: 8px;
+  transform: none;
+}
+
+/* Interim text preview */
+.voice-interim-text {
+  display: block;
+  color: #999;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 2px 4px;
+  min-height: 1.2em;
+  pointer-events: none;
+}
+
+/* Floating btn green variant when dictating */
+.voice-floating-btn.voice-dictating {
+  background: #198754;
+  box-shadow: 0 0 0 6px rgba(25, 135, 84, 0.3);
+}
+
+/* Context badge for dictation in help modal */
+.voice-ctx-dictation { background: #198754; color: #fff; }
+
+/* -- Type-a-command popup ------------------------------------- */
+.voice-type-popup {
+  z-index: 1060;
+  animation: voice-toast-in 0.2s ease-out;
+}
+.voice-type-input {
+  width: 260px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--bs-primary, #0d6efd);
+  border-radius: 1.5rem;
+  font-size: 0.9rem;
+  outline: none;
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #212529);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.voice-type-input:focus {
+  border-color: var(--bs-primary, #0d6efd);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+.voice-type-input::placeholder {
+  color: var(--bs-secondary-color, #6c757d);
+  opacity: 0.7;
+}
+
+/* -- Responsive ----------------------------------------------- */
+@media (max-width: 575.98px) {
+  .voice-navbar-btn {
+    display: none !important;
+  }
+  .voice-floating-btn {
+    width: 44px;
+    height: 44px;
+    bottom: 70px;
+    right: 14px;
+    font-size: 1.2rem;
+  }
+  .voice-toast-container {
+    right: 14px;
+    bottom: 124px;
+    max-width: 260px;
+  }
+  .voice-field-mic {
+    font-size: 1rem;
+    padding: 4px 6px;
+  }
+  .voice-type-input {
+    width: 220px;
+    font-size: 0.85rem;
+  }
+}
+
+/* -- Dark mode ------------------------------------------------ */
+[data-bs-theme="dark"] .voice-floating-btn {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+[data-bs-theme="dark"] .voice-toast {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+[data-bs-theme="dark"] .voice-type-input {
+  background: var(--bs-body-bg, #212529);
+  color: var(--bs-body-color, #dee2e6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}

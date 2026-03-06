@@ -1,0 +1,33 @@
+/* Access Control Styles */
+
+.access-control-banner {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+}
+
+.classification-badge-sm {
+    font-size: 0.7rem;
+    padding: 0.2em 0.5em;
+    vertical-align: middle;
+}
+
+/* Classification level colors */
+.badge.bg-classification-public { background-color: #198754 !important; }
+.badge.bg-classification-internal { background-color: #0dcaf0 !important; }
+.badge.bg-classification-confidential { background-color: #0d6efd !important; }
+.badge.bg-classification-secret { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-classification-topsecret { background-color: #dc3545 !important; }
+
+/* Pulse animation for high security */
+.badge.bg-danger.classification-badge {
+    animation: security-pulse 2s ease-in-out infinite;
+}
+
+@keyframes security-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Search results badges */
+.search-result .classification-badge-sm {
+    margin-left: 0.5rem;
+}

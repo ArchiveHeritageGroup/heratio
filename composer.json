@@ -18,7 +18,8 @@
         "php": "^8.2",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "ahg/core": "@dev"
+        "ahg/core": "@dev",
+        "ahg/theme-b5": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

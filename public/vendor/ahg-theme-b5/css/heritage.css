@@ -1,0 +1,367 @@
+/**
+ * Heritage Platform Styles
+ *
+ * Modern discovery interface for archival collections.
+ */
+
+/* ============================================================================
+   CSS Variables
+   ============================================================================ */
+:root {
+    --heritage-primary: #0d6efd;
+    --heritage-transition: 0.3s ease;
+}
+
+/* ============================================================================
+   Hero Section
+   ============================================================================ */
+.heritage-hero {
+    background: #1a1a2e;
+}
+
+.heritage-hero-backgrounds {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.heritage-hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+
+.heritage-hero-bg.active {
+    opacity: 1;
+}
+
+/* Ken Burns Effect */
+.heritage-hero-bg.kenburns {
+    animation: kenburns 20s ease-in-out infinite;
+}
+
+@keyframes kenburns {
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+    50% {
+        transform: scale(1.1) translate(-2%, -1%);
+    }
+    100% {
+        transform: scale(1) translate(0, 0);
+    }
+}
+
+/* Gradient Overlay */
+.heritage-hero-overlay {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.1) 30%,
+        rgba(0, 0, 0, 0.1) 60%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+}
+
+/* Hero Content */
+.heritage-hero-content {
+    max-width: 800px;
+}
+
+.heritage-hero-tagline {
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.heritage-hero-subtext {
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Hero Caption */
+.heritage-hero-caption {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+}
+
+/* Search Form */
+.heritage-search-form {
+    position: relative;
+}
+
+.heritage-search-form .form-control {
+    border-radius: 50px 0 0 50px;
+    padding-left: 1.5rem;
+}
+
+.heritage-search-form .btn {
+    border-radius: 0 50px 50px 0;
+}
+
+.heritage-autocomplete {
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.heritage-autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.heritage-autocomplete-item:hover {
+    background: #f8f9fa;
+}
+
+/* Suggested Searches */
+.heritage-suggested-searches .btn {
+    font-size: 0.85rem;
+}
+
+/* Scroll Indicator */
+.heritage-scroll-indicator {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce-simple 1.5s infinite;
+}
+
+@keyframes bounce-simple {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+/* ============================================================================
+   Filter Cards (Explore By)
+   ============================================================================ */
+.heritage-filter-card {
+    transition: transform var(--heritage-transition), box-shadow var(--heritage-transition);
+}
+
+.heritage-filter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.heritage-filter-link {
+    color: #333;
+    transition: color var(--heritage-transition);
+}
+
+.heritage-filter-link:hover {
+    color: var(--heritage-primary);
+}
+
+.heritage-filter-link:hover .badge {
+    background: var(--heritage-primary) !important;
+    color: white !important;
+}
+
+/* ============================================================================
+   Story Cards
+   ============================================================================ */
+.heritage-story-card {
+    transition: transform var(--heritage-transition), box-shadow var(--heritage-transition);
+}
+
+.heritage-story-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.heritage-story-image img {
+    transition: transform 0.5s ease;
+}
+
+.heritage-story-card:hover .heritage-story-image img {
+    transform: scale(1.05);
+}
+
+/* ============================================================================
+   Activity Section
+   ============================================================================ */
+.heritage-avatar {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* ============================================================================
+   Recent Additions Carousel
+   ============================================================================ */
+.heritage-recent-scroll {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+}
+
+.heritage-recent-item {
+    transition: transform var(--heritage-transition);
+}
+
+.heritage-recent-item:hover {
+    transform: translateY(-4px);
+}
+
+.heritage-recent-thumb {
+    transition: box-shadow var(--heritage-transition);
+}
+
+.heritage-recent-item:hover .heritage-recent-thumb {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.heritage-scroll-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--heritage-transition);
+}
+
+.heritage-recent-scroll:hover .heritage-scroll-btn {
+    opacity: 1;
+}
+
+/* ============================================================================
+   Stats Section
+   ============================================================================ */
+.heritage-stat-number {
+    color: var(--heritage-primary);
+}
+
+/* ============================================================================
+   Search Results
+   ============================================================================ */
+.heritage-search-sidebar .card {
+    border-radius: 0.5rem;
+}
+
+.heritage-result-item {
+    transition: transform var(--heritage-transition), box-shadow var(--heritage-transition);
+}
+
+.heritage-result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.heritage-result-item .card-title a {
+    color: #212529;
+}
+
+.heritage-result-item .card-title a:hover {
+    color: var(--heritage-primary);
+}
+
+/* ============================================================================
+   Admin Config
+   ============================================================================ */
+.heritage-admin .card {
+    scroll-margin-top: 80px;
+}
+
+/* ============================================================================
+   Responsive Adjustments
+   ============================================================================ */
+@media (max-width: 991.98px) {
+    .heritage-hero-tagline {
+        font-size: 2.5rem;
+    }
+
+    .heritage-hero-subtext {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .heritage-hero {
+        min-height: 100vh;
+    }
+
+    .heritage-hero-tagline {
+        font-size: 2rem;
+    }
+
+    .heritage-hero-content {
+        padding: 0 1rem;
+    }
+
+    .heritage-scroll-btn {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+   Accessibility
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .heritage-hero-bg.kenburns {
+        animation: none;
+    }
+
+    .heritage-scroll-indicator,
+    .animate-bounce {
+        animation: none;
+    }
+
+    .heritage-filter-card,
+    .heritage-story-card,
+    .heritage-result-item,
+    .heritage-recent-item {
+        transition: none;
+    }
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+@media print {
+    .heritage-hero {
+        height: auto;
+        min-height: 0;
+        padding: 2rem;
+        background: white !important;
+    }
+
+    .heritage-hero-backgrounds,
+    .heritage-hero-overlay,
+    .heritage-scroll-indicator,
+    .heritage-search-form {
+        display: none !important;
+    }
+
+    .heritage-hero-content {
+        color: black !important;
+    }
+
+    .heritage-hero-tagline,
+    .heritage-hero-subtext {
+        text-shadow: none;
+    }
+}

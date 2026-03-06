@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="240" viewBox="0 0 180 240">
+  <rect width="180" height="240" fill="#e9ecef"/>
+  <rect x="20" y="20" width="140" height="200" fill="#dee2e6" rx="4"/>
+  <path d="M70 80 L110 80 L110 100 L90 90 L70 100 Z" fill="#adb5bd"/>
+  <circle cx="90" cy="130" r="25" fill="#adb5bd"/>
+  <rect x="50" y="170" width="80" height="8" fill="#adb5bd" rx="2"/>
+  <rect x="60" y="185" width="60" height="6" fill="#ced4da" rx="2"/>
+  <text x="90" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">No Cover</text>
+</svg>

@@ -1,0 +1,82 @@
+/* Access Control Badge Styles */
+
+.access-header {
+    background: linear-gradient(to right, #f8f9fa, transparent);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.classification-badge {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Classification level specific colors */
+.badge.bg-classification-public { background-color: #198754 !important; }
+.badge.bg-classification-internal { background-color: #0dcaf0 !important; }
+.badge.bg-classification-confidential { background-color: #0d6efd !important; }
+.badge.bg-classification-secret { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-classification-topsecret { background-color: #dc3545 !important; }
+
+/* Animated warning for high-security items */
+.badge.bg-danger.classification-badge {
+    animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Donor restriction styling */
+.donor-restrictions {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Access denied page */
+.access-denied-card {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+/* Access Control Badge Styles */
+
+.access-header {
+    background: linear-gradient(to right, #f8f9fa, transparent);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.classification-badge {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Classification level specific colors */
+.badge.bg-classification-public { background-color: #198754 !important; }
+.badge.bg-classification-internal { background-color: #0dcaf0 !important; }
+.badge.bg-classification-confidential { background-color: #0d6efd !important; }
+.badge.bg-classification-secret { background-color: #ffc107 !important; color: #000 !important; }
+.badge.bg-classification-topsecret { background-color: #dc3545 !important; }
+
+/* Animated warning for high-security items */
+.badge.bg-danger.classification-badge {
+    animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Donor restriction styling */
+.donor-restrictions {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Access denied page */
+.access-denied-card {
+    max-width: 600px;
+    margin: 2rem auto;
+}

@@ -1,0 +1,344 @@
+
+/* Constrain Mirador viewer within container */
+.iiif-viewer-container[data-viewer="mirador"] {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.iiif-viewer-container[data-viewer="mirador"] .mirador-viewer {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Ensure Mirador doesn't escape container */
+#mirador-viewer-553,
+[id^="mirador-viewer-"] {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+[id^="mirador-viewer-"] > div {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fix autocomplete dropdown text color */
+.ui-autocomplete {
+  background-color: #fff !important;
+  color: #212529 !important;
+}
+
+.ui-autocomplete .ui-menu-item {
+  color: #212529 !important;
+}
+
+.ui-autocomplete .ui-menu-item-wrapper {
+  color: #212529 !important;
+}
+
+.ui-autocomplete .ui-state-active,
+.ui-autocomplete .ui-state-focus {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+/* Select2 dropdown fix */
+.select2-container--default .select2-results__option {
+  color: #212529 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+.select2-dropdown {
+  background-color: #fff !important;
+  color: #212529 !important;
+}
+
+/* AtoM autocomplete fix */
+.autocomplete-results,
+.autocomplete ul,
+.autocomplete li {
+  background-color: #fff !important;
+  color: #212529 !important;
+}
+
+.autocomplete li:hover,
+.autocomplete li.selected {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+/* YUI autocomplete fix */
+.yui-ac-content {
+  background-color: #fff !important;
+  color: #212529 !important;
+}
+
+.yui-ac-content li {
+  color: #212529 !important;
+}
+
+.yui-ac-content li.yui-ac-highlight {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+/* YUI Autocomplete Dropdown Fixes */
+.yui-ac {
+  position: relative;
+  font-family: inherit;
+}
+
+.yui-ac-container {
+  position: absolute;
+  z-index: 9999;
+  width: 100%;
+  background-color: #fff !important;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.yui-ac-content {
+  background-color: #fff !important;
+  overflow: hidden;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.yui-ac-content ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: #fff !important;
+}
+
+.yui-ac-content li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: #212529 !important;
+  background-color: #fff !important;
+  border-bottom: 1px solid #f8f9fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yui-ac-content li:last-child {
+  border-bottom: none;
+}
+
+.yui-ac-content li:hover,
+.yui-ac-content li.yui-ac-highlight {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+.yui-ac-content li.yui-ac-prehighlight {
+  background-color: #e9ecef !important;
+  color: #212529 !important;
+}
+
+/* Fix for the input container */
+.yui-ac-input {
+  position: relative;
+}
+
+/* Shadow fix */
+.yui-ac-shadow {
+  display: none;
+}
+
+/* Ensure visibility */
+.yui-ac .yui-ac-bd {
+  background-color: #fff !important;
+}
+
+/* 3D Model Viewer containment */
+.iiif-viewer-container {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.model-wrapper {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1rem;
+}
+
+model-viewer {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Ensure user action buttons appear above viewer */
+.card.mb-4.mt-3 {
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure section content appears properly */
+section#identityArea,
+section.border-bottom {
+    position: relative;
+    z-index: 5;
+    background-color: #fff;
+}
+
+/* Fix 3D viewer containment - prevent overlap */
+.iiif-viewer-container,
+.model-wrapper,
+model-viewer {
+    position: relative !important;
+    z-index: 1 !important;
+    display: block !important;
+    overflow: visible !important;
+}
+
+model-viewer::part(default-poster),
+model-viewer::part(default-progress-bar) {
+    position: absolute !important;
+}
+
+/* Force buttons and content to appear above viewer */
+#identityArea,
+.border-bottom,
+section {
+    position: relative !important;
+    z-index: 10 !important;
+    background-color: #fff !important;
+}
+
+/* User action buttons card */
+.card.mb-4.mt-3[style*="z-index: 100"] {
+    z-index: 100 !important;
+    background-color: #fff;
+}
+
+/* ==========================================================================
+   Digital Object Viewer Container
+   ========================================================================== */
+
+.digital-object-viewer {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.digital-object-viewer .iiif-viewer-container {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+}
+
+.digital-object-viewer .osd-viewer,
+.digital-object-viewer .mirador-wrapper,
+.digital-object-viewer .model-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  z-index: 1;
+}
+
+/* Prevent viewer overflow into other sections */
+.digital-object-viewer + section,
+.digital-object-viewer + #identityArea,
+.digital-object-viewer ~ .border-bottom {
+  position: relative;
+  z-index: 10;
+  background-color: #fff;
+}
+
+/* ==========================================================================
+   Standard Digital Object Viewer (non-IIIF fallback)
+   Displays when Cantaloupe IIIF server is not available
+   ========================================================================== */
+
+.digital-object-viewer {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: none;
+  border-radius: 8px;
+}
+
+.digital-object-viewer a {
+  display: inline-block;
+}
+
+.digital-object-viewer img {
+  max-width: 100%;
+  max-height: 600px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.digital-object-viewer img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  cursor: zoom-in;
+}
+
+.digital-object-viewer video,
+.digital-object-viewer audio {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.digital-object-viewer iframe {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.digital-object-viewer .btn {
+  margin-top: 1rem;
+}
+
+/* IIIF Viewer Container (when Cantaloupe is available) */
+.iiif-viewer-container {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Fix form-select text color in card headers */
+.card-header .form-select,
+.card-header .form-control,
+.card-header select,
+.card-header input[type="text"] {
+  color: #212529 !important;
+  background-color: #fff !important;
+}
+
+.card-header .form-select option {
+  color: #212529 !important;
+  background-color: #fff !important;
+}

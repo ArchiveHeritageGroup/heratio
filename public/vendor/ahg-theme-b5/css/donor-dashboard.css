@@ -1,0 +1,123 @@
+/* Donor Dashboard Styles */
+.border-4 {
+  border-width: 4px !important;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.card-body canvas {
+  max-height: 250px;
+}
+
+.list-group-item .badge {
+  font-size: 0.7rem;
+}
+
+/* Status colors */
+.status-draft { color: #6c757d; }
+.status-active { color: #28a745; }
+.status-expired { color: #dc3545; }
+.status-terminated { color: #343a40; }
+.status-pending { color: #ffc107; }
+
+/* Priority badges */
+.priority-urgent { background-color: #dc3545 !important; }
+.priority-high { background-color: #fd7e14 !important; }
+.priority-normal { background-color: #6c757d !important; }
+.priority-low { background-color: #adb5bd !important; }
+
+/* Scrollable activity feed */
+.activity-feed {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Card hover effects */
+.card.h-100:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.15s ease-in-out;
+}
+/* Donor Dashboard Styles */
+.border-4 {
+  border-width: 4px !important;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.card-body canvas {
+  max-height: 250px;
+}
+
+.list-group-item .badge {
+  font-size: 0.7rem;
+}
+
+/* Status colors */
+.status-draft { color: #6c757d; }
+.status-active { color: #28a745; }
+.status-expired { color: #dc3545; }
+.status-terminated { color: #343a40; }
+.status-pending { color: #ffc107; }
+
+/* Priority badges */
+.priority-urgent { background-color: #dc3545 !important; }
+.priority-high { background-color: #fd7e14 !important; }
+.priority-normal { background-color: #6c757d !important; }
+.priority-low { background-color: #adb5bd !important; }
+
+/* Scrollable activity feed */
+.activity-feed {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Card hover effects */
+.card.h-100:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.15s ease-in-out;
+}
+/* Donor Dashboard Styles */
+.border-4 {
+  border-width: 4px !important;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.card-body canvas {
+  max-height: 250px;
+}
+
+.list-group-item .badge {
+  font-size: 0.7rem;
+}
+
+/* Status colors */
+.status-draft { color: #6c757d; }
+.status-active { color: #28a745; }
+.status-expired { color: #dc3545; }
+.status-terminated { color: #343a40; }
+.status-pending { color: #ffc107; }
+
+/* Priority badges */
+.priority-urgent { background-color: #dc3545 !important; }
+.priority-high { background-color: #fd7e14 !important; }
+.priority-normal { background-color: #6c757d !important; }
+.priority-low { background-color: #adb5bd !important; }
+
+/* Scrollable activity feed */
+.activity-feed {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Card hover effects */
+.card.h-100:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.15s ease-in-out;
+}

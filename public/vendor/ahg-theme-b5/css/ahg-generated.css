@@ -1,0 +1,33 @@
+/* AHG Theme - Generated CSS */
+/* Do not edit - regenerated when settings saved */
+:root {
+    --ahg-primary: #001657;
+    --ahg-secondary: #37A07F;
+    --ahg-card-header-bg: #440057;
+    --ahg-card-header-text: #ffffff;
+    --ahg-btn-bg: #005837;
+    --ahg-btn-text: #ffffff;
+    --ahg-link-color: #005837;
+    --ahg-sidebar-bg: #f8f9fa;
+    --ahg-sidebar-text: #333333;
+}
+.card-header {
+    background-color: var(--ahg-card-header-bg) !important;
+    color: var(--ahg-card-header-text) !important;
+}
+.card-header * { color: var(--ahg-card-header-text) !important; }
+.btn-primary {
+    background-color: var(--ahg-btn-bg) !important;
+    border-color: var(--ahg-btn-bg) !important;
+    color: var(--ahg-btn-text) !important;
+}
+.btn-primary:hover, .btn-primary:focus {
+    filter: brightness(0.9);
+}
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--ahg-link-color);
+}
+.sidebar, #sidebar-content {
+    background-color: var(--ahg-sidebar-bg) !important;
+    color: var(--ahg-sidebar-text) !important;
+}

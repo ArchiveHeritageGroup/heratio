@@ -1,0 +1,588 @@
+/**
+ * AHG Settings - Centralised Stylesheet
+ * All forms use CSS Custom Properties set by _dynamicStyles.php
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (defaults - overridden by _dynamicStyles.php)
+   ========================================================================== */
+:root {
+    --ahg-primary: #005837;
+    --ahg-secondary: #37A07F;
+    --ahg-card-header-bg: #005837;
+    --ahg-card-header-text: #ffffff;
+    --ahg-btn-bg: #005837;
+    --ahg-btn-text: #ffffff;
+    --ahg-link-color: #005837;
+    --ahg-sidebar-bg: #f8f9fa;
+    --ahg-sidebar-text: #333333;
+    --ahg-input-focus: rgba(0, 88, 55, 0.25);
+}
+
+/* ==========================================================================
+   Settings Layout
+   ========================================================================== */
+.ahg-settings-container {
+    display: flex;
+    min-height: calc(100vh - 200px);
+}
+
+.ahg-settings-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background-color: var(--ahg-sidebar-bg);
+    border-right: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.ahg-settings-content {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: #ffffff;
+}
+
+/* ==========================================================================
+   Sidebar Navigation
+   ========================================================================== */
+.ahg-sidebar-header {
+    background-color: var(--ahg-primary);
+    color: #ffffff;
+    padding: 1rem;
+    margin: -1rem -1rem 1rem -1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ahg-sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ahg-sidebar-nav li {
+    margin-bottom: 2px;
+}
+
+.ahg-sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--ahg-sidebar-text);
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.ahg-sidebar-nav a:hover {
+    background-color: rgba(0, 88, 55, 0.1);
+    color: var(--ahg-primary);
+}
+
+.ahg-sidebar-nav a.active {
+    background-color: var(--ahg-primary);
+    color: #ffffff;
+}
+
+.ahg-sidebar-nav a i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Quick Actions */
+.ahg-quick-actions {
+    margin-top: 1.5rem;
+}
+
+.ahg-quick-actions-header {
+    background-color: var(--ahg-secondary);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    margin: 0 -1rem 1rem -1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+.ahg-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ahg-card-header {
+    background-color: var(--ahg-card-header-bg);
+    color: var(--ahg-card-header-text);
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ahg-card-body {
+    padding: 1.5rem;
+}
+
+.ahg-card-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+.ahg-form-section {
+    margin-bottom: 2rem;
+}
+
+.ahg-form-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ahg-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ahg-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ahg-form-group {
+    margin-bottom: 1rem;
+}
+
+.ahg-form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ahg-form-row .ahg-form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* Labels */
+.ahg-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: #333333;
+}
+
+.ahg-label .required {
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+.ahg-help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Inputs */
+.ahg-input,
+.ahg-select,
+.ahg-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333333;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ahg-input:focus,
+.ahg-select:focus,
+.ahg-textarea:focus {
+    border-color: var(--ahg-primary);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem var(--ahg-input-focus);
+}
+
+.ahg-input:disabled,
+.ahg-select:disabled,
+.ahg-textarea:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Color Input */
+.ahg-color-input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.ahg-color-preview {
+    width: 200px;
+    min-height: 38px;
+    border: 1px solid #ced4da;
+    border-right: none;
+    border-radius: 0.375rem 0 0 0.375rem;
+    cursor: pointer;
+}
+
+.ahg-color-input-group .ahg-input {
+    border-radius: 0 0.375rem 0.375rem 0;
+    flex: 1;
+}
+
+/* Checkbox & Switch */
+.ahg-checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-right: 0.5rem;
+    accent-color: var(--ahg-primary);
+    cursor: pointer;
+}
+
+.ahg-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.ahg-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.ahg-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: 0.2s;
+    border-radius: 26px;
+}
+
+.ahg-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+
+.ahg-switch input:checked + .ahg-switch-slider {
+    background-color: var(--ahg-primary);
+}
+
+.ahg-switch input:checked + .ahg-switch-slider:before {
+    transform: translateX(24px);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.ahg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ahg-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.ahg-btn-primary {
+    color: var(--ahg-btn-text);
+    background-color: var(--ahg-btn-bg);
+    border-color: var(--ahg-btn-bg);
+}
+
+.ahg-btn-primary:hover:not(:disabled) {
+    filter: brightness(0.9);
+}
+
+.ahg-btn-secondary {
+    color: #ffffff;
+    background-color: var(--ahg-secondary);
+    border-color: var(--ahg-secondary);
+}
+
+.ahg-btn-secondary:hover:not(:disabled) {
+    filter: brightness(0.9);
+}
+
+.ahg-btn-outline {
+    color: var(--ahg-primary);
+    background-color: transparent;
+    border-color: var(--ahg-primary);
+}
+
+.ahg-btn-outline:hover:not(:disabled) {
+    color: #ffffff;
+    background-color: var(--ahg-primary);
+}
+
+.ahg-btn-light {
+    color: #333333;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.ahg-btn-light:hover:not(:disabled) {
+    background-color: #e9ecef;
+}
+
+.ahg-btn-danger {
+    color: #ffffff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.ahg-btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.ahg-btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.ahg-btn-block {
+    display: flex;
+    width: 100%;
+}
+
+.ahg-btn-group {
+    display: inline-flex;
+    gap: 0.5rem;
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+.ahg-table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.ahg-table th,
+.ahg-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.ahg-table thead th {
+    background-color: var(--ahg-primary);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.ahg-table tbody tr:hover {
+    background-color: rgba(0, 88, 55, 0.05);
+}
+
+.ahg-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
+.ahg-alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.ahg-alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.ahg-alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.ahg-alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.ahg-alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+/* ==========================================================================
+   Badges
+   ========================================================================== */
+.ahg-badge {
+    display: inline-flex;
+    padding: 0.25em 0.5em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+    border-radius: 0.25rem;
+}
+
+.ahg-badge-primary { background-color: var(--ahg-primary); }
+.ahg-badge-secondary { background-color: var(--ahg-secondary); }
+.ahg-badge-success { background-color: #28a745; }
+.ahg-badge-danger { background-color: #dc3545; }
+.ahg-badge-warning { background-color: #ffc107; color: #333; }
+
+/* ==========================================================================
+   Preview Panel
+   ========================================================================== */
+.ahg-preview-panel {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.ahg-preview-header {
+    background-color: var(--ahg-card-header-bg);
+    color: var(--ahg-card-header-text);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ahg-preview-body {
+    padding: 1rem;
+}
+
+.ahg-preview-link {
+    color: var(--ahg-link-color);
+}
+
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+.ahg-tabs {
+    display: flex;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.ahg-tab {
+    padding: 0.5rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    color: #6c757d;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ahg-tab:hover {
+    color: var(--ahg-primary);
+    border-bottom-color: rgba(0, 88, 55, 0.3);
+}
+
+.ahg-tab.active {
+    color: var(--ahg-primary);
+    border-bottom-color: var(--ahg-primary);
+}
+
+.ahg-tab-content {
+    display: none;
+}
+
+.ahg-tab-content.active {
+    display: block;
+}
+
+/* ==========================================================================
+   Loading
+   ========================================================================== */
+.ahg-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #e9ecef;
+    border-top-color: var(--ahg-primary);
+    border-radius: 50%;
+    animation: ahg-spin 0.8s linear infinite;
+}
+
+@keyframes ahg-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+.ahg-text-primary { color: var(--ahg-primary) !important; }
+.ahg-text-muted { color: #6c757d !important; }
+.ahg-bg-light { background-color: #f8f9fa !important; }
+.ahg-mt-3 { margin-top: 1rem !important; }
+.ahg-mb-3 { margin-bottom: 1rem !important; }
+.ahg-d-flex { display: flex !important; }
+.ahg-gap-2 { gap: 0.5rem !important; }
+.ahg-justify-end { justify-content: flex-end !important; }
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .ahg-settings-container {
+        flex-direction: column;
+    }
+    .ahg-settings-sidebar {
+        width: 100%;
+        min-width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .ahg-form-row {
+        flex-direction: column;
+    }
+    .ahg-color-preview {
+        width: 100px;
+    }
+}

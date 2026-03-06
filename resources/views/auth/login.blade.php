@@ -1,44 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Heratio</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f5f5f5; }
-        .login-container { max-width: 400px; margin: 100px auto; }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h4 class="card-title text-center mb-4">Heratio Login</h4>
+@extends('theme::layouts.1col')
 
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        @foreach ($errors->all() as $error)
-                            <p class="mb-0">{{ $error }}</p>
-                        @endforeach
-                    </div>
-                @endif
+@section('title', 'Login - ' . ($themeData['siteTitle'] ?? 'Heratio'))
+@section('body-class', 'user login')
 
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email or Username</label>
-                        <input type="text" class="form-control" id="email" name="email"
-                               value="{{ old('email') }}" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Log in</button>
-                </form>
-            </div>
+@section('content')
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow mt-4">
+        <div class="card-header">
+          <h4 class="mb-0">Log in</h4>
         </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ route('login') }}">
+            @csrf
+            <div class="mb-3">
+              <label for="email" class="form-label">Email or Username</label>
+              <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
+                     value="{{ old('email') }}" required autofocus>
+              @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Log in</button>
+          </form>
+        </div>
+      </div>
     </div>
-</body>
-</html>
+  </div>
+@endsection

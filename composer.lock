@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25cc1c5ed0dcf411a7da72eaae6f861d",
+    "content-hash": "987b88d98ccf377171418b455192dedb",
     "packages": [
         {
             "name": "ahg/core",
@@ -36,6 +36,40 @@
                 "proprietary"
             ],
             "description": "AHG Core - Eloquent models and base services for AtoM Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/theme-b5",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-theme-b5",
+                "reference": "d3c07f7079bed1f0c5a680267b2127dae18ef217"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgThemeB5\\Providers\\AhgThemeB5ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgThemeB5\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "AHG Bootstrap 5 Theme - Layouts, nav, footer for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8422,7 +8456,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "ahg/core": 20
+        "ahg/core": 20,
+        "ahg/theme-b5": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
