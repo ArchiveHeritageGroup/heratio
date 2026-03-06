@@ -80,12 +80,12 @@ class QubitUser extends QubitActor implements Authenticatable
 
     public function getRememberToken(): ?string
     {
-        return null; // AtoM does not use remember tokens
+        return null; // Heratio does not use remember tokens
     }
 
     public function setRememberToken($value): void
     {
-        // AtoM does not use remember tokens
+        // Heratio does not use remember tokens
     }
 
     public function getRememberTokenName(): string

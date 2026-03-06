@@ -12,8 +12,8 @@
     </div>
   </div>
 
-  {{-- AtoM Settings Sections --}}
-  <h2 class="h5 mb-3">AtoM Settings</h2>
+  {{-- Heratio Settings Sections --}}
+  <h2 class="h5 mb-3">Heratio Settings</h2>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
     @foreach($scopeCards as $card)
       <div class="col">

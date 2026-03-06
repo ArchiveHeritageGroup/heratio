@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "ahg/heratio",
     "type": "project",
-    "description": "AtoM Heratio - Pure Laravel replacement for AtoM archival software",
-    "keywords": ["atom", "heratio", "archives", "glam"],
+    "description": "Heratio - Pure Laravel archival management platform",
+    "keywords": ["heratio", "archives", "glam", "dam"],
     "license": "proprietary",
     "repositories": [
         {

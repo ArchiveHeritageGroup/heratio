@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
  * Reads the navigation menu from the `menu` + `menu_i18n` tables
  * and builds a nested tree using MPTT lft/rgt columns.
  *
- * Migrated from AtomFramework\Services\MenuService — changed DB import
+ * Migrated from the framework MenuService — changed DB import
  * from Capsule\Manager to Facade.
  */
 class MenuService

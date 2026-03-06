@@ -82,7 +82,7 @@ class QubitInformationObject extends QubitObject
     }
 
     /**
-     * Root information object ID (AtoM convention).
+     * Root information object ID.
      */
     const ROOT_ID = 1;
 }

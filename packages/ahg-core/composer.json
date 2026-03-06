@@ -1,6 +1,6 @@
 {
     "name": "ahg/core",
-    "description": "AHG Core - Eloquent models and base services for AtoM Heratio",
+    "description": "AHG Core - Eloquent models and base services for Heratio",
     "type": "library",
     "license": "proprietary",
     "require": {

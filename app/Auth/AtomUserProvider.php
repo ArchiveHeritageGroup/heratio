@@ -7,13 +7,13 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 
 /**
- * Custom UserProvider for AtoM's dual-layer password scheme.
+ * Custom UserProvider for Heratio's dual-layer password scheme.
  *
- * AtoM stores passwords as:
+ * Passwords are stored as:
  *   password_hash = password_hash(sha1(salt . plaintext), PASSWORD_DEFAULT)
  *
  * The inner SHA1 layer is legacy; the outer layer uses PHP's password_hash()
- * which may be Bcrypt or Argon2i depending on the AtoM version.
+ * which may be Bcrypt or Argon2i.
  */
 class AtomUserProvider implements UserProvider
 {
@@ -24,13 +24,13 @@ class AtomUserProvider implements UserProvider
 
     public function retrieveByToken($identifier, $token): ?Authenticatable
     {
-        // AtoM does not use remember tokens
+        // Heratio does not use remember tokens
         return null;
     }
 
     public function updateRememberToken(Authenticatable $user, $token): void
     {
-        // AtoM does not use remember tokens
+        // Heratio does not use remember tokens
     }
 
     public function retrieveByCredentials(array $credentials): ?Authenticatable
@@ -41,7 +41,7 @@ class AtomUserProvider implements UserProvider
             return null;
         }
 
-        // Try email first, then username (matching AtoM's QubitUser::checkCredentials order)
+        // Try email first, then username
         $user = QubitUser::where('email', $emailOrUsername)->first();
 
         if (! $user) {
@@ -63,7 +63,7 @@ class AtomUserProvider implements UserProvider
 
         $password = $credentials['password'] ?? '';
 
-        // AtoM dual-layer: SHA1(salt + password) → password_verify(sha1Hash, storedHash)
+        // Dual-layer: SHA1(salt + password) -> password_verify(sha1Hash, storedHash)
         $sha1Hash = sha1($user->salt . $password);
 
         return password_verify($sha1Hash, $user->password_hash);
@@ -71,6 +71,6 @@ class AtomUserProvider implements UserProvider
 
     public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false): void
     {
-        // AtoM manages its own password hashing; no rehashing needed
+        // Heratio manages its own password hashing; no rehashing needed
     }
 }

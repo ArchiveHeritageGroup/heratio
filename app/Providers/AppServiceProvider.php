@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register custom AtoM authentication provider
+        // Register custom Heratio authentication provider
         Auth::provider('atom', function ($app, array $config) {
             return new AtomUserProvider();
         });

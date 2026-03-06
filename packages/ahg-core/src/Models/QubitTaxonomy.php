@@ -37,7 +37,7 @@ class QubitTaxonomy extends Model
         return $this->getTranslated('name', $culture);
     }
 
-    // AtoM taxonomy ID constants
+    // Taxonomy ID constants
     const SUBJECT_ID = 35;
     const PLACE_ID = 42;
     const LEVEL_OF_DESCRIPTION_ID = 34;

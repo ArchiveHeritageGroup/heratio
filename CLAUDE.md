@@ -93,6 +93,14 @@ bin/release
 version.json (modified by bin/release only)
 ```
 
+## No ENUM Columns
+
+**NEVER use ENUM columns in database tables.** All enumerated values are managed via the Dropdown Manager. Use `VARCHAR(N)` with a COMMENT listing valid values if needed. All existing ENUMs must be migrated to Dropdown Manager entries.
+
+## Branding
+
+This is **Heratio** — not AtoM. Do NOT reference "AtoM" in code, comments, descriptions, or user-facing text. The only acceptable references to AtoM are in technical documentation explaining the migration source (e.g., CLAUDE.md, migration notes).
+
 ## Quality Standard
 
 Every page must be identical to what AtoM/Symfony delivers. Full screens, full theme, full menus, full metadata, full digital objects. If a user can tell they're on Heratio vs Symfony, it is not ready.

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 class SettingsController extends Controller
 {
     /**
-     * Scope-to-display-name mapping for AtoM setting scopes.
+     * Scope-to-display-name mapping for setting scopes.
      */
     private array $scopeLabels = [
         '_global' => 'Global settings',
@@ -52,7 +52,7 @@ class SettingsController extends Controller
     ];
 
     /**
-     * Settings dashboard: shows cards for AtoM setting scopes and AHG setting groups.
+     * Settings dashboard: shows cards for Heratio setting scopes and AHG setting groups.
      */
     public function index()
     {
@@ -106,7 +106,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Show all editable settings for a given AtoM scope.
+     * Show all editable settings for a given scope.
      */
     public function section(Request $request, string $section)
     {
