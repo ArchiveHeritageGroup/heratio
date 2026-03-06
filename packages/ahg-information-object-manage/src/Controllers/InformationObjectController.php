@@ -1,0 +1,321 @@
+<?php
+
+namespace AhgInformationObjectManage\Controllers;
+
+use AhgInformationObjectManage\Services\InformationObjectBrowseService;
+use AhgCore\Pagination\SimplePager;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class InformationObjectController extends Controller
+{
+    public function browse(Request $request)
+    {
+        $culture = app()->getLocale();
+        $service = new InformationObjectBrowseService($culture);
+
+        $params = [
+            'page' => $request->get('page', 1),
+            'limit' => $request->get('limit', 30),
+            'sort' => $request->get('sort', 'alphabetic'),
+            'subquery' => $request->get('subquery', ''),
+        ];
+
+        // Optional repository filter
+        $repositoryId = $request->get('repository');
+        if ($repositoryId) {
+            $params['filters']['repository_id'] = $repositoryId;
+        }
+
+        $result = $service->browse($params);
+
+        $pager = new SimplePager($result);
+
+        // Get list of repositories for filter dropdown
+        $repositories = DB::table('repository')
+            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $culture)
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->get();
+
+        return view('ahg-io-manage::browse', [
+            'pager' => $pager,
+            'levelNames' => $result['levelNames'] ?? [],
+            'repositoryNames' => $result['repositoryNames'] ?? [],
+            'repositories' => $repositories,
+            'selectedRepository' => $repositoryId,
+            'sortOptions' => [
+                'alphabetic' => 'Title',
+                'lastUpdated' => 'Date modified',
+                'identifier' => 'Identifier',
+            ],
+        ]);
+    }
+
+    public function show(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        // Main information object
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('object', 'information_object.id', '=', 'object.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select([
+                'information_object.id',
+                'information_object.identifier',
+                'information_object.level_of_description_id',
+                'information_object.repository_id',
+                'information_object.parent_id',
+                'information_object.lft',
+                'information_object.rgt',
+                'information_object_i18n.title',
+                'information_object_i18n.alternate_title',
+                'information_object_i18n.edition',
+                'information_object_i18n.extent_and_medium',
+                'information_object_i18n.archival_history',
+                'information_object_i18n.acquisition',
+                'information_object_i18n.scope_and_content',
+                'information_object_i18n.appraisal',
+                'information_object_i18n.accruals',
+                'information_object_i18n.arrangement',
+                'information_object_i18n.access_conditions',
+                'information_object_i18n.reproduction_conditions',
+                'information_object_i18n.physical_characteristics',
+                'information_object_i18n.finding_aids',
+                'information_object_i18n.location_of_originals',
+                'information_object_i18n.location_of_copies',
+                'information_object_i18n.related_units_of_description',
+                'information_object_i18n.rules',
+                'information_object_i18n.sources',
+                'information_object_i18n.revision_history',
+                'information_object_i18n.institution_responsible_identifier',
+                'object.created_at',
+                'object.updated_at',
+                'slug.slug',
+            ])
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Level of description name
+        $levelName = null;
+        if ($io->level_of_description_id) {
+            $levelName = DB::table('term_i18n')
+                ->where('id', $io->level_of_description_id)
+                ->where('culture', $culture)
+                ->value('name');
+        }
+
+        // Repository
+        $repository = null;
+        if ($io->repository_id) {
+            $repository = DB::table('repository')
+                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->join('slug', 'repository.id', '=', 'slug.object_id')
+                ->where('repository.id', $io->repository_id)
+                ->where('actor_i18n.culture', $culture)
+                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->first();
+        }
+
+        // Events (dates)
+        $events = DB::table('event')
+            ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+            ->where('event.object_id', $io->id)
+            ->where('event_i18n.culture', $culture)
+            ->select(
+                'event.id',
+                'event.type_id',
+                'event.actor_id',
+                'event.start_date',
+                'event.end_date',
+                'event_i18n.date as date_display',
+                'event_i18n.name as event_name'
+            )
+            ->get();
+
+        // Resolve event type names
+        $eventTypeIds = $events->pluck('type_id')->filter()->unique()->values()->toArray();
+        $eventTypeNames = [];
+        if (!empty($eventTypeIds)) {
+            $eventTypeNames = DB::table('term_i18n')
+                ->whereIn('id', $eventTypeIds)
+                ->where('culture', $culture)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        // Creators (events where type_id = 111 = creation)
+        $creators = DB::table('event')
+            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->join('slug', 'event.actor_id', '=', 'slug.object_id')
+            ->where('event.object_id', $io->id)
+            ->where('event.type_id', 111) // Creation event
+            ->where('actor_i18n.culture', $culture)
+            ->whereNotNull('event.actor_id')
+            ->select('event.actor_id as id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+            ->distinct()
+            ->get();
+
+        // Digital objects
+        $digitalObjects = DB::table('digital_object')
+            ->where('object_id', $io->id)
+            ->get();
+
+        // Notes
+        $notes = DB::table('note')
+            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $io->id)
+            ->where('note_i18n.culture', $culture)
+            ->select('note.id', 'note.type_id', 'note_i18n.content')
+            ->get();
+
+        // Resolve note type names
+        $noteTypeIds = $notes->pluck('type_id')->filter()->unique()->values()->toArray();
+        $noteTypeNames = [];
+        if (!empty($noteTypeIds)) {
+            $noteTypeNames = DB::table('term_i18n')
+                ->whereIn('id', $noteTypeIds)
+                ->where('culture', $culture)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        // Children (child information objects)
+        $children = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('information_object.parent_id', $io->id)
+            ->where('information_object_i18n.culture', $culture)
+            ->orderBy('information_object.lft')
+            ->select(
+                'information_object.id',
+                'information_object.level_of_description_id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->get();
+
+        // Resolve child level names
+        $childLevelIds = $children->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
+        $childLevelNames = [];
+        if (!empty($childLevelIds)) {
+            $childLevelNames = DB::table('term_i18n')
+                ->whereIn('id', $childLevelIds)
+                ->where('culture', $culture)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        // Parent breadcrumb chain (walk up the tree)
+        $breadcrumbs = [];
+        $parentId = $io->parent_id;
+        while ($parentId && $parentId != 1) {
+            $parent = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $parentId)
+                ->where('information_object_i18n.culture', $culture)
+                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->first();
+
+            if (!$parent) {
+                break;
+            }
+
+            array_unshift($breadcrumbs, $parent);
+            $parentId = $parent->parent_id;
+        }
+
+        // Subject access points (taxonomy_id = 35)
+        $subjects = DB::table('object_term_relation')
+            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('object_term_relation.object_id', $io->id)
+            ->where('term.taxonomy_id', 35)
+            ->where('term_i18n.culture', $culture)
+            ->select('term_i18n.name')
+            ->get();
+
+        // Place access points (taxonomy_id = 42)
+        $places = DB::table('object_term_relation')
+            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('object_term_relation.object_id', $io->id)
+            ->where('term.taxonomy_id', 42)
+            ->where('term_i18n.culture', $culture)
+            ->select('term_i18n.name')
+            ->get();
+
+        // Name access points (via relation table — actors linked as name access points)
+        $nameAccessPoints = DB::table('relation')
+            ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->where('relation.subject_id', $io->id)
+            ->where('relation.type_id', 161) // Name access point relation
+            ->where('actor_i18n.culture', $culture)
+            ->select('actor_i18n.authorized_form_of_name as name')
+            ->get();
+
+        // Genre access points (taxonomy_id = 78)
+        $genres = DB::table('object_term_relation')
+            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('object_term_relation.object_id', $io->id)
+            ->where('term.taxonomy_id', 78)
+            ->where('term_i18n.culture', $culture)
+            ->select('term_i18n.name')
+            ->get();
+
+        // Language of material
+        $languages = DB::table('information_object')
+            ->join('object_term_relation', 'information_object.id', '=', 'object_term_relation.object_id')
+            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('information_object.id', $io->id)
+            ->where('term.taxonomy_id', 7) // Language taxonomy
+            ->where('term_i18n.culture', $culture)
+            ->select('term_i18n.name')
+            ->get();
+
+        // Publication status (from status table — type_id=158 is publication status)
+        $publicationStatus = null;
+        $statusRow = DB::table('status')
+            ->where('object_id', $io->id)
+            ->where('type_id', 158)
+            ->first();
+        if ($statusRow && $statusRow->status_id) {
+            $publicationStatus = DB::table('term_i18n')
+                ->where('id', $statusRow->status_id)
+                ->where('culture', $culture)
+                ->value('name');
+        }
+
+        return view('ahg-io-manage::show', [
+            'io' => $io,
+            'levelName' => $levelName,
+            'repository' => $repository,
+            'events' => $events,
+            'eventTypeNames' => $eventTypeNames,
+            'creators' => $creators,
+            'digitalObjects' => $digitalObjects,
+            'notes' => $notes,
+            'noteTypeNames' => $noteTypeNames,
+            'children' => $children,
+            'childLevelNames' => $childLevelNames,
+            'breadcrumbs' => $breadcrumbs,
+            'subjects' => $subjects,
+            'places' => $places,
+            'nameAccessPoints' => $nameAccessPoints,
+            'genres' => $genres,
+            'languages' => $languages,
+            'publicationStatus' => $publicationStatus,
+        ]);
+    }
+}

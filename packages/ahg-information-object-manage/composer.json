@@ -1,0 +1,20 @@
+{
+    "name": "ahg/information-object-manage",
+    "description": "Information object (archival description) browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgInformationObjectManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgInformationObjectManage\\Providers\\AhgInformationObjectManageServiceProvider"
+            ]
+        }
+    }
+}

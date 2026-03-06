@@ -1,0 +1,20 @@
+{
+    "name": "ahg/function-manage",
+    "description": "Function (ISDF) browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgFunctionManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgFunctionManage\\Providers\\AhgFunctionManageServiceProvider"
+            ]
+        }
+    }
+}

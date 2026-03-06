@@ -19,7 +19,16 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "ahg/core": "@dev",
-        "ahg/theme-b5": "@dev"
+        "ahg/theme-b5": "@dev",
+        "ahg/actor-manage": "@dev",
+        "ahg/repository-manage": "@dev",
+        "ahg/donor-manage": "@dev",
+        "ahg/rights-holder-manage": "@dev",
+        "ahg/accession-manage": "@dev",
+        "ahg/storage-manage": "@dev",
+        "ahg/term-taxonomy": "@dev",
+        "ahg/function-manage": "@dev",
+        "ahg/information-object-manage": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

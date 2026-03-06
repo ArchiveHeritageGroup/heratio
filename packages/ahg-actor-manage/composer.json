@@ -1,0 +1,20 @@
+{
+    "name": "ahg/actor-manage",
+    "description": "Actor browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgActorManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgActorManage\\Providers\\AhgActorManageServiceProvider"
+            ]
+        }
+    }
+}

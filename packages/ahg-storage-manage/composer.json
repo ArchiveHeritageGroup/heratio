@@ -1,0 +1,20 @@
+{
+    "name": "ahg/storage-manage",
+    "description": "Physical storage browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgStorageManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgStorageManage\\Providers\\AhgStorageManageServiceProvider"
+            ]
+        }
+    }
+}

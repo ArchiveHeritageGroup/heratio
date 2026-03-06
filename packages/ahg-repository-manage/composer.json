@@ -1,0 +1,20 @@
+{
+    "name": "ahg/repository-manage",
+    "description": "Repository browse and management for Heratio (ISDIAH)",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRepositoryManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRepositoryManage\\Providers\\AhgRepositoryManageServiceProvider"
+            ]
+        }
+    }
+}

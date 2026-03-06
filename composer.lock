@@ -4,8 +4,68 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "987b88d98ccf377171418b455192dedb",
+    "content-hash": "162e1967309f42fdea47bbe4be34eef0",
     "packages": [
+        {
+            "name": "ahg/accession-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-accession-manage",
+                "reference": "3cfcfd5c322bfc5785a54f269f12b88d647e5770"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAccessionManage\\Providers\\AhgAccessionManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAccessionManage\\": "src/"
+                }
+            },
+            "description": "Accession browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/actor-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-actor-manage",
+                "reference": "461104198db8715dad86c9eeda830ddbdef932d9"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgActorManage\\Providers\\AhgActorManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgActorManage\\": "src/"
+                }
+            },
+            "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
         {
             "name": "ahg/core",
             "version": "dev-main",
@@ -36,6 +96,216 @@
                 "proprietary"
             ],
             "description": "AHG Core - Eloquent models and base services for AtoM Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/donor-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-donor-manage",
+                "reference": "ceba9e8bbcb963cc63737c0e1c0daf149e35200e"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDonorManage\\Providers\\AhgDonorManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDonorManage\\": "src/"
+                }
+            },
+            "description": "Donor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/function-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-function-manage",
+                "reference": "79b086237abc1b95598a150b21a5274438705fd5"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFunctionManage\\Providers\\AhgFunctionManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFunctionManage\\": "src/"
+                }
+            },
+            "description": "Function (ISDF) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/information-object-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-information-object-manage",
+                "reference": "26c18ad2aeaa13f58b55e6b2439e9a737612b3c2"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgInformationObjectManage\\Providers\\AhgInformationObjectManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgInformationObjectManage\\": "src/"
+                }
+            },
+            "description": "Information object (archival description) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/repository-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-repository-manage",
+                "reference": "d0209988c805a0d68a552b8bfeec1668cf27ba9b"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRepositoryManage\\Providers\\AhgRepositoryManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRepositoryManage\\": "src/"
+                }
+            },
+            "description": "Repository browse and management for Heratio (ISDIAH)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/rights-holder-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-rights-holder-manage",
+                "reference": "9734e4422fc1ca93fa63f58a5e0843d35f463183"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRightsHolderManage\\Providers\\AhgRightsHolderManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRightsHolderManage\\": "src/"
+                }
+            },
+            "description": "Rights holder browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/storage-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-storage-manage",
+                "reference": "59edd2681781acef7cc7edeaf0dde1bf5a865274"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgStorageManage\\Providers\\AhgStorageManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgStorageManage\\": "src/"
+                }
+            },
+            "description": "Physical storage browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/term-taxonomy",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-term-taxonomy",
+                "reference": "7c320e339a7fcc235a430515e9e7e9eaaf3fd181"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgTermTaxonomy\\Providers\\AhgTermTaxonomyServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgTermTaxonomy\\": "src/"
+                }
+            },
+            "description": "Term and taxonomy browse and management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8457,7 +8727,16 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "ahg/core": 20,
-        "ahg/theme-b5": 20
+        "ahg/theme-b5": 20,
+        "ahg/actor-manage": 20,
+        "ahg/repository-manage": 20,
+        "ahg/donor-manage": 20,
+        "ahg/rights-holder-manage": 20,
+        "ahg/accession-manage": 20,
+        "ahg/storage-manage": 20,
+        "ahg/term-taxonomy": 20,
+        "ahg/function-manage": 20,
+        "ahg/information-object-manage": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

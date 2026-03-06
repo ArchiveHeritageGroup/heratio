@@ -1,0 +1,20 @@
+{
+    "name": "ahg/donor-manage",
+    "description": "Donor browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgDonorManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDonorManage\\Providers\\AhgDonorManageServiceProvider"
+            ]
+        }
+    }
+}

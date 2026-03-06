@@ -1,0 +1,195 @@
+@extends('theme::layouts.2col')
+
+@section('title', $repository->authorized_form_of_name ?? 'Archival institution')
+@section('body-class', 'view repository')
+
+@section('sidebar')
+  @if($digitalObject)
+    <div class="mb-3">
+      <img src="/uploads/r/{{ $digitalObject->path ?? '' }}/{{ $digitalObject->name ?? '' }}"
+           class="img-fluid rounded"
+           alt="{{ $repository->authorized_form_of_name }}"
+           onerror="this.style.display='none'">
+    </div>
+  @endif
+
+  @if($holdingsCount > 0)
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Holdings</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-0">
+          <a href="{{ route('informationobject.browse', ['repository' => $repository->id]) }}">
+            {{ number_format($holdingsCount) }} description{{ $holdingsCount !== 1 ? 's' : '' }}
+          </a>
+        </p>
+      </div>
+    </div>
+  @endif
+@endsection
+
+@section('content')
+  <h1>{{ $repository->authorized_form_of_name }}</h1>
+
+  {{-- Identity area (ISDIAH 5.1) --}}
+  <section class="mb-4">
+    <h2 class="fs-5 border-bottom pb-2">Identity area</h2>
+
+    @if($repository->authorized_form_of_name)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Authorized form of name</div>
+        <div class="col-md-9">{{ $repository->authorized_form_of_name }}</div>
+      </div>
+    @endif
+
+    @if($repository->identifier)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Identifier</div>
+        <div class="col-md-9">{{ $repository->identifier }}</div>
+      </div>
+    @endif
+  </section>
+
+  {{-- Contact area (ISDIAH 5.2) --}}
+  @if($contacts->isNotEmpty())
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Contact area</h2>
+      @foreach($contacts as $contact)
+        <div class="card mb-2">
+          <div class="card-body">
+            @if($contact->contact_person)
+              <div><strong>Contact person:</strong> {{ $contact->contact_person }}</div>
+            @endif
+            @if($contact->street_address)
+              <div>{{ $contact->street_address }}</div>
+            @endif
+            @if($contact->city)
+              <div>{{ $contact->city }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
+            @endif
+            @if($contact->country_code)
+              <div>{{ $contact->country_code }}</div>
+            @endif
+            @if($contact->telephone)
+              <div><strong>Telephone:</strong> {{ $contact->telephone }}</div>
+            @endif
+            @if($contact->fax)
+              <div><strong>Fax:</strong> {{ $contact->fax }}</div>
+            @endif
+            @if($contact->email)
+              <div><strong>Email:</strong> <a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a></div>
+            @endif
+            @if($contact->website)
+              <div><strong>Website:</strong> <a href="{{ $contact->website }}" target="_blank" rel="noopener">{{ $contact->website }}</a></div>
+            @endif
+          </div>
+        </div>
+      @endforeach
+    </section>
+  @endif
+
+  {{-- Description area (ISDIAH 5.3) — from actor_i18n --}}
+  @if($repository->history || $repository->geocultural_context || $repository->mandates || $repository->internal_structures || $repository->collecting_policies || $repository->buildings)
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Description area</h2>
+
+      @foreach([
+        'history' => 'History',
+        'geocultural_context' => 'Geographical and cultural context',
+        'mandates' => 'Mandates/Sources of authority',
+        'internal_structures' => 'Administrative structure',
+        'collecting_policies' => 'Collecting policies',
+        'buildings' => 'Buildings',
+      ] as $field => $label)
+        @if($repository->$field)
+          <div class="row mb-2">
+            <div class="col-md-3 fw-bold">{{ $label }}</div>
+            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
+          </div>
+        @endif
+      @endforeach
+    </section>
+  @endif
+
+  {{-- Holdings and finding aids --}}
+  @if($repository->holdings || $repository->finding_aids)
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Holdings and finding aids</h2>
+
+      @if($repository->holdings)
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Archival and other holdings</div>
+          <div class="col-md-9">{!! nl2br(e($repository->holdings)) !!}</div>
+        </div>
+      @endif
+
+      @if($repository->finding_aids)
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Finding aids</div>
+          <div class="col-md-9">{!! nl2br(e($repository->finding_aids)) !!}</div>
+        </div>
+      @endif
+    </section>
+  @endif
+
+  {{-- Access area (ISDIAH 5.4) --}}
+  @if($repository->opening_times || $repository->access_conditions || $repository->disabled_access)
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Access area</h2>
+
+      @foreach([
+        'opening_times' => 'Opening times',
+        'access_conditions' => 'Conditions and requirements',
+        'disabled_access' => 'Accessibility',
+      ] as $field => $label)
+        @if($repository->$field)
+          <div class="row mb-2">
+            <div class="col-md-3 fw-bold">{{ $label }}</div>
+            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
+          </div>
+        @endif
+      @endforeach
+    </section>
+  @endif
+
+  {{-- Services area (ISDIAH 5.5) --}}
+  @if($repository->research_services || $repository->reproduction_services || $repository->public_facilities)
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Services area</h2>
+
+      @foreach([
+        'research_services' => 'Research services',
+        'reproduction_services' => 'Reproduction services',
+        'public_facilities' => 'Public areas',
+      ] as $field => $label)
+        @if($repository->$field)
+          <div class="row mb-2">
+            <div class="col-md-3 fw-bold">{{ $label }}</div>
+            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
+          </div>
+        @endif
+      @endforeach
+    </section>
+  @endif
+
+  {{-- Control area (ISDIAH 5.6) --}}
+  @if($repository->desc_institution_identifier || $repository->desc_rules || $repository->desc_sources || $repository->desc_revision_history)
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Control area</h2>
+
+      @foreach([
+        'desc_institution_identifier' => 'Description identifier',
+        'desc_rules' => 'Rules and/or conventions',
+        'desc_sources' => 'Sources',
+        'desc_revision_history' => 'Revision history',
+      ] as $field => $label)
+        @if($repository->$field)
+          <div class="row mb-2">
+            <div class="col-md-3 fw-bold">{{ $label }}</div>
+            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
+          </div>
+        @endif
+      @endforeach
+    </section>
+  @endif
+@endsection

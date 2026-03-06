@@ -1,0 +1,20 @@
+{
+    "name": "ahg/rights-holder-manage",
+    "description": "Rights holder browse and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRightsHolderManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRightsHolderManage\\Providers\\AhgRightsHolderManageServiceProvider"
+            ]
+        }
+    }
+}
