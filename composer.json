@@ -31,7 +31,8 @@
         "ahg/information-object-manage": "@dev",
         "ahg/user-manage": "@dev",
         "ahg/settings": "@dev",
-        "ahg/jobs-manage": "@dev"
+        "ahg/jobs-manage": "@dev",
+        "ahg/search": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

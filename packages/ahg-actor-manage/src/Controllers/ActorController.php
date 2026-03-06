@@ -4,6 +4,7 @@ namespace AhgActorManage\Controllers;
 
 use AhgActorManage\Services\ActorBrowseService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\DigitalObjectService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -121,10 +122,8 @@ class ActorController extends Controller
             ->select('contact_information.*', 'contact_information_i18n.*')
             ->get();
 
-        // Get digital object (thumbnail)
-        $digitalObject = DB::table('digital_object')
-            ->where('object_id', $actor->id)
-            ->first();
+        // Get digital objects (organized by usage type)
+        $digitalObjects = DigitalObjectService::getForObject($actor->id);
 
         return view('ahg-actor-manage::show', [
             'actor' => $actor,
@@ -133,7 +132,7 @@ class ActorController extends Controller
             'events' => $events,
             'relatedResources' => $relatedResources,
             'contacts' => $contacts,
-            'digitalObject' => $digitalObject,
+            'digitalObjects' => $digitalObjects,
         ]);
     }
 }

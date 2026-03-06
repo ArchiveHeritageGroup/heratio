@@ -1,6 +1,6 @@
 {
     "name": "AtoM Heratio",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "release_date": "2026-03-06",
     "description": "Pure Laravel replacement for AtoM archival software"
 }

@@ -4,14 +4,7 @@
 @section('body-class', 'view repository')
 
 @section('sidebar')
-  @if($digitalObject)
-    <div class="mb-3">
-      <img src="/uploads/r/{{ $digitalObject->path ?? '' }}/{{ $digitalObject->name ?? '' }}"
-           class="img-fluid rounded"
-           alt="{{ $repository->authorized_form_of_name }}"
-           onerror="this.style.display='none'">
-    </div>
-  @endif
+  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
   @if($holdingsCount > 0)
     <div class="card mb-3">

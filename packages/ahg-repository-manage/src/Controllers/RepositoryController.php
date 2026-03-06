@@ -2,8 +2,9 @@
 
 namespace AhgRepositoryManage\Controllers;
 
-use AhgRepositoryManage\Services\RepositoryBrowseService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\DigitalObjectService;
+use AhgRepositoryManage\Services\RepositoryBrowseService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -101,10 +102,8 @@ class RepositoryController extends Controller
             ->select('contact_information.*', 'contact_information_i18n.*')
             ->get();
 
-        // Get digital object (thumbnail)
-        $digitalObject = DB::table('digital_object')
-            ->where('object_id', $repository->id)
-            ->first();
+        // Get digital objects (organized by usage type)
+        $digitalObjects = DigitalObjectService::getForObject($repository->id);
 
         // Get holdings count (top-level descriptions in this repository)
         $holdingsCount = DB::table('information_object')
@@ -115,7 +114,7 @@ class RepositoryController extends Controller
         return view('ahg-repository-manage::show', [
             'repository' => $repository,
             'contacts' => $contacts,
-            'digitalObject' => $digitalObject,
+            'digitalObjects' => $digitalObjects,
             'holdingsCount' => $holdingsCount,
         ]);
     }

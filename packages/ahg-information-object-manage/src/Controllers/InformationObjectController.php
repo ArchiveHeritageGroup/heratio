@@ -2,8 +2,9 @@
 
 namespace AhgInformationObjectManage\Controllers;
 
-use AhgInformationObjectManage\Services\InformationObjectBrowseService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\DigitalObjectService;
+use AhgInformationObjectManage\Services\InformationObjectBrowseService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -164,10 +165,8 @@ class InformationObjectController extends Controller
             ->distinct()
             ->get();
 
-        // Digital objects
-        $digitalObjects = DB::table('digital_object')
-            ->where('object_id', $io->id)
-            ->get();
+        // Digital objects (organized by usage type: master, reference, thumbnail)
+        $digitalObjects = DigitalObjectService::getForObject($io->id);
 
         // Notes
         $notes = DB::table('note')

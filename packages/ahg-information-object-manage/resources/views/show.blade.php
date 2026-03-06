@@ -4,16 +4,8 @@
 @section('body-class', 'view informationobject')
 
 @section('sidebar')
-  {{-- Digital object thumbnail --}}
-  @if($digitalObjects->isNotEmpty())
-    @php $firstDo = $digitalObjects->first(); @endphp
-    <div class="mb-3">
-      <img src="/uploads/r/{{ $firstDo->path ?? '' }}/{{ $firstDo->name ?? '' }}"
-           class="img-fluid rounded"
-           alt="{{ $io->title }}"
-           onerror="this.style.display='none'">
-    </div>
-  @endif
+  {{-- Digital object display --}}
+  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
   {{-- Children tree --}}
   @if($children->isNotEmpty())
@@ -393,17 +385,27 @@
   @endif
 
   {{-- ===== Digital objects ===== --}}
-  @if($digitalObjects->count() > 1)
+  @if($digitalObjects['all']->count() > 1)
     <section class="mb-4">
       <h2 class="fs-5 border-bottom pb-2">Digital objects</h2>
       <div class="row g-3">
-        @foreach($digitalObjects as $dobj)
+        @foreach($digitalObjects['all']->where('usage_id', 140) as $dobj)
+          @php $doUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj); @endphp
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card h-100">
-              <img src="/uploads/r/{{ $dobj->path ?? '' }}/{{ $dobj->name ?? '' }}"
-                   class="card-img-top"
-                   alt="{{ $io->title }}"
-                   onerror="this.parentElement.innerHTML='<div class=\'card-body text-center text-muted\'><i class=\'fas fa-file fa-3x\'></i></div>'">
+              @if(\AhgCore\Services\DigitalObjectService::getMediaType($dobj) === 'image')
+                <a href="{{ $doUrl }}" target="_blank">
+                  <img src="{{ $doUrl }}"
+                       class="card-img-top"
+                       alt="{{ $dobj->name }}"
+                       onerror="this.parentElement.innerHTML='<div class=\'card-body text-center text-muted\'><i class=\'fas fa-file fa-3x\'></i></div>'">
+                </a>
+              @else
+                <div class="card-body text-center">
+                  <i class="fas fa-file fa-3x text-muted"></i>
+                  <p class="small mt-2 mb-0">{{ $dobj->name }}</p>
+                </div>
+              @endif
             </div>
           </div>
         @endforeach

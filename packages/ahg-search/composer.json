@@ -1,0 +1,20 @@
+{
+    "name": "ahg/search",
+    "description": "Global search with Elasticsearch for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgSearch\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgSearch\\Providers\\AhgSearchServiceProvider"
+            ]
+        }
+    }
+}

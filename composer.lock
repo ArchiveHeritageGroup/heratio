@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7dd166ec6b97c737003caac8acaa3ed5",
+    "content-hash": "3be4200516399cc63a66c9de63ffe7a9",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -276,6 +276,36 @@
                 }
             },
             "description": "Rights holder browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/search",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-search",
+                "reference": "95504f565b3d2d03b5647327f50af7335acef15f"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSearch\\Providers\\AhgSearchServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSearch\\": "src/"
+                }
+            },
+            "description": "Global search with Elasticsearch for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8829,7 +8859,8 @@
         "ahg/information-object-manage": 20,
         "ahg/user-manage": 20,
         "ahg/settings": 20,
-        "ahg/jobs-manage": 20
+        "ahg/jobs-manage": 20,
+        "ahg/search": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
