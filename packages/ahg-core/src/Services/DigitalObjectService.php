@@ -33,6 +33,7 @@ class DigitalObjectService
                 ->get();
             $thumbnail = $derivatives->firstWhere('usage_id', 142);
             $reference = $derivatives->firstWhere('usage_id', 141);
+            $all = $all->merge($derivatives);
         }
 
         return [
