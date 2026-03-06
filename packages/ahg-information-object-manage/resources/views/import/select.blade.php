@@ -1,0 +1,131 @@
+@extends('theme::layouts.1col')
+
+@section('title', $title)
+
+@section('content')
+
+  @if(isset($resource))
+    <div class="multiline-header d-flex flex-column mb-3">
+      <h1 class="mb-0" aria-describedby="heading-label">{{ $title }}</h1>
+      <span class="small" id="heading-label">{{ $resource->title ?? '' }}</span>
+    </div>
+  @else
+    <h1>{{ $title }}</h1>
+  @endif
+
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
+  <form action="{{ route('informationobject.import.process') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" name="importType" value="{{ $type }}">
+    @if(isset($resource))
+      <input type="hidden" name="slug" value="{{ $resource->slug }}">
+    @endif
+
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="import-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#import-collapse" aria-expanded="true">
+            Import options
+          </button>
+        </h2>
+        <div id="import-collapse" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+
+            @if($type === 'csv')
+              <div class="mb-3">
+                <label class="form-label" for="object-type-select">Type</label>
+                <select class="form-select" name="objectType" id="object-type-select">
+                  <option value="informationObject">Archival description</option>
+                  <option value="accession">Accession</option>
+                  <option value="authorityRecord">Authority record</option>
+                  <option value="authorityRecordRelationship">Authority record relationship</option>
+                  <option value="event">Event</option>
+                  <option value="repository">Repository</option>
+                </select>
+              </div>
+            @endif
+
+            @if($type === 'xml')
+              <div class="mb-3">
+                <label for="object-type-select" class="form-label">Type</label>
+                <select class="form-select" name="objectType" id="object-type-select">
+                  <option value="ead">EAD 2002</option>
+                  <option value="eac-cpf">EAC CPF</option>
+                  <option value="mods">MODS</option>
+                  <option value="dc">DC</option>
+                </select>
+              </div>
+            @endif
+
+            @if($type === 'csv')
+              <div class="mb-3">
+                <label class="form-label" for="update-type-select">Update behaviours</label>
+                <select class="form-select" name="updateType" id="update-type-select">
+                  <option value="import-as-new">Ignore matches and create new records on import</option>
+                  <option value="match-and-update">Update matches ignoring blank fields in CSV</option>
+                  <option value="delete-and-replace">Delete matches and replace with imported records</option>
+                </select>
+              </div>
+            @else
+              <div class="mb-3">
+                <label class="form-label" for="update-type-select">Update behaviours</label>
+                <select class="form-select" name="updateType" id="update-type-select">
+                  <option value="import-as-new">Ignore matches and import as new</option>
+                  <option value="delete-and-replace">Delete matches and replace with imports</option>
+                </select>
+              </div>
+            @endif
+
+            <div class="mb-3 form-check">
+              <input class="form-check-input" name="skipUnmatched" id="skip-unmatched-input" type="checkbox">
+              <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records</label>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox">
+              <label class="form-check-label" for="skip-matched-input">Skip matched records</label>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input class="form-check-input" name="noIndex" id="no-index-input" type="checkbox">
+              <label class="form-check-label" for="no-index-input">Do not index imported items</label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="file-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#file-collapse" aria-expanded="true">
+            Select file
+          </button>
+        </h2>
+        <div id="file-collapse" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="import-file" class="form-label">Select a file to import</label>
+              <input class="form-control" type="file" id="import-file" name="file"
+                     accept="{{ $type === 'csv' ? '.csv' : '.xml' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="actions mb-3">
+      <input class="btn atom-btn-outline-success" type="submit" value="Import">
+    </section>
+
+  </form>
+
+@endsection

@@ -97,6 +97,145 @@
     </div>
   </div>
 
+  {{-- ===== Authenticated-only management sections ===== --}}
+  @auth
+
+    {{-- Collections Management --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-archive me-1"></i> Collections Management
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-project-diagram me-1"></i> Provenance
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Condition assessment
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-chart-bar me-1"></i> Spectrum data
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-landmark me-1"></i> Heritage Assets
+        </a>
+      </div>
+    </div>
+
+    {{-- Digital Preservation (OAIS) --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-box-open me-1"></i> Preservation packages
+        </a>
+      </div>
+    </div>
+
+    {{-- Cite this Record --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-quote-left me-1"></i> Cite this Record
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copy me-1"></i> Generate citation
+        </a>
+      </div>
+    </div>
+
+    {{-- AI Tools --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-robot me-1"></i> AI Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small" id="nerExtractBtn" data-object-id="{{ $io->id }}">
+          <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small" id="aiSummarizeBtn" data-object-id="{{ $io->id }}">
+          <i class="fas fa-file-alt me-1"></i> Generate Summary
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-language me-1"></i> Translate
+        </a>
+      </div>
+    </div>
+
+    {{-- Review Dashboard --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-tasks me-1"></i> Review Dashboard
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list-check me-1"></i> NER Review
+        </a>
+      </div>
+    </div>
+
+    {{-- Privacy & PII --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-user-shield me-1"></i> Privacy & PII
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small" id="piiScanBtn" data-object-id="{{ $io->id }}">
+          <i class="fas fa-search me-1"></i> Scan for PII
+        </a>
+        @if(isset($digitalObjects) && $digitalObjects['master'])
+          <a href="#" class="list-group-item list-group-item-action small">
+            <i class="fas fa-eraser me-1"></i> Visual Redaction
+          </a>
+        @endif
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
+        </a>
+      </div>
+    </div>
+
+    {{-- Rights --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-copyright me-1"></i> Rights
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copyright me-1"></i> Add extended rights
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-lock me-1"></i> Add embargo
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+        </a>
+      </div>
+    </div>
+
+    {{-- Research Tools --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-graduation-cap me-1"></i> Research Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Source Assessment
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-highlighter me-1"></i> Annotation Studio
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-star-half-alt me-1"></i> Trust Score
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
+        </a>
+      </div>
+    </div>
+
+  @endauth
+
 @endsection
 
 {{-- ============================================================ --}}
@@ -157,7 +296,7 @@
     <div class="digital-object-reference text-center p-3 border-bottom">
       @if($isPdf)
         {{-- PDF: embedded iframe viewer with toolbar (matches AtoM) --}}
-        <div class="pdf-viewer-container">
+        <div class="pdf-viewer-container" style="overflow:hidden;">
           <div class="pdf-wrapper">
             <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
               <span class="badge bg-danger">
@@ -172,7 +311,9 @@
                 </a>
               </div>
             </div>
-            <iframe src="{{ $masterUrl }}" style="width:100%;height:600px;border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+            <div class="ratio" style="--bs-aspect-ratio: 85%;">
+              <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+            </div>
           </div>
         </div>
 
@@ -804,7 +945,7 @@
                 Master file
               </button>
             </h2>
-            <div id="doMasterCollapse" class="accordion-collapse collapse show" data-bs-parent="#doMetadataAccordion">
+            <div id="doMasterCollapse" class="accordion-collapse collapse show" data-bs-parent="">
               <div class="accordion-body p-0">
                 <div class="field text-break row g-0">
                   <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
@@ -854,11 +995,11 @@
           @if($doReference)
             <div class="accordion-item">
               <h2 class="accordion-header" id="doRefHeading">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doRefCollapse" aria-expanded="false">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doRefCollapse" aria-expanded="true">
                   Reference copy
                 </button>
               </h2>
-              <div id="doRefCollapse" class="accordion-collapse collapse" data-bs-parent="#doMetadataAccordion">
+              <div id="doRefCollapse" class="accordion-collapse collapse show" data-bs-parent="">
                 <div class="accordion-body p-0">
                   <div class="field text-break row g-0">
                     <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
@@ -897,11 +1038,11 @@
           @if($doThumbnail)
             <div class="accordion-item">
               <h2 class="accordion-header" id="doThumbHeading">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doThumbCollapse" aria-expanded="false">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doThumbCollapse" aria-expanded="true">
                   Thumbnail copy
                 </button>
               </h2>
-              <div id="doThumbCollapse" class="accordion-collapse collapse" data-bs-parent="#doMetadataAccordion">
+              <div id="doThumbCollapse" class="accordion-collapse collapse show" data-bs-parent="">
                 <div class="accordion-body p-0">
                   <div class="field text-break row g-0">
                     <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
@@ -983,6 +1124,9 @@
         <i class="fas fa-cogs me-1"></i> Explore
       </div>
       <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-chart-pie me-1"></i> Reports
+        </a>
         <a href="{{ route('informationobject.browse') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-list me-1"></i> Browse as list
         </a>
@@ -994,23 +1138,21 @@
       </div>
     </div>
 
-    {{-- Import (admin only) --}}
+    {{-- Import --}}
     @auth
-      @if(auth()->user()->is_admin ?? false)
-        <div class="card mb-3">
-          <div class="card-header fw-bold">
-            <i class="fas fa-upload me-1"></i> Import
-          </div>
-          <div class="list-group list-group-flush">
-            <a href="#" class="list-group-item list-group-item-action small">
-              <i class="fas fa-code me-1"></i> XML
-            </a>
-            <a href="#" class="list-group-item list-group-item-action small">
-              <i class="fas fa-file-csv me-1"></i> CSV
-            </a>
-          </div>
+      <div class="card mb-3">
+        <div class="card-header fw-bold">
+          <i class="fas fa-upload me-1"></i> Import
         </div>
-      @endif
+        <div class="list-group list-group-flush">
+          <a href="{{ route('informationobject.import.xml', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-code me-1"></i> XML
+          </a>
+          <a href="{{ route('informationobject.import.csv', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-csv me-1"></i> CSV
+          </a>
+        </div>
+      </div>
     @endauth
 
     {{-- Export --}}
@@ -1019,152 +1161,47 @@
         <i class="fas fa-file-export me-1"></i> Export
       </div>
       <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action small">
+        <a href="{{ route('informationobject.export.dc', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
         </a>
-        <a href="#" class="list-group-item list-group-item-action small">
+        <a href="{{ route('informationobject.export.ead', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> EAD 2002 XML
         </a>
       </div>
     </div>
 
-    {{-- ===== Authenticated-only sidebar sections ===== --}}
+    {{-- Finding aid --}}
     @auth
-
-      {{-- Collections Management --}}
       <div class="card mb-3">
         <div class="card-header fw-bold">
-          <i class="fas fa-archive me-1"></i> Collections Management
+          <i class="fas fa-book me-1"></i> Finding aid
         </div>
         <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-project-diagram me-1"></i> Provenance
+          <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-alt me-1"></i> Generate
           </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-clipboard-check me-1"></i> Condition assessment
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-chart-bar me-1"></i> Spectrum data
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-landmark me-1"></i> Heritage Assets
+          <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-upload me-1"></i> Upload
           </a>
         </div>
       </div>
+    @endauth
 
-      {{-- Digital Preservation (OAIS) --}}
+    {{-- Tasks --}}
+    @auth
       <div class="card mb-3">
         <div class="card-header fw-bold">
-          <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+          <i class="fas fa-tasks me-1"></i> Tasks
         </div>
         <div class="list-group list-group-flush">
           <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-box-open me-1"></i> Preservation packages
+            <i class="fas fa-calculator me-1"></i> Calculate dates
           </a>
+          <span class="list-group-item small text-muted">
+            <i class="fas fa-clock me-1"></i> Last run: Never
+          </span>
         </div>
       </div>
-
-      {{-- Cite this Record --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-quote-left me-1"></i> Cite this Record
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-copy me-1"></i> Generate citation
-          </a>
-        </div>
-      </div>
-
-      {{-- AI Tools --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-robot me-1"></i> AI Tools
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small" id="nerExtractBtn" data-object-id="{{ $io->id }}">
-            <i class="fas fa-brain me-1"></i> Extract Entities (NER)
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small" id="aiSummarizeBtn" data-object-id="{{ $io->id }}">
-            <i class="fas fa-file-alt me-1"></i> Generate Summary
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-language me-1"></i> Translate
-          </a>
-        </div>
-      </div>
-
-      {{-- Review Dashboard --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-tasks me-1"></i> Review Dashboard
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-list-check me-1"></i> NER Review
-          </a>
-        </div>
-      </div>
-
-      {{-- Privacy & PII --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-user-shield me-1"></i> Privacy & PII
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small" id="piiScanBtn" data-object-id="{{ $io->id }}">
-            <i class="fas fa-search me-1"></i> Scan for PII
-          </a>
-          @if(isset($digitalObjects) && $digitalObjects['master'])
-            <a href="#" class="list-group-item list-group-item-action small">
-              <i class="fas fa-eraser me-1"></i> Visual Redaction
-            </a>
-          @endif
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
-          </a>
-        </div>
-      </div>
-
-      {{-- Rights --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-copyright me-1"></i> Rights
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-copyright me-1"></i> Add extended rights
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-lock me-1"></i> Add embargo
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
-          </a>
-        </div>
-      </div>
-
-      {{-- Research Tools --}}
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-graduation-cap me-1"></i> Research Tools
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-clipboard-check me-1"></i> Source Assessment
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-highlighter me-1"></i> Annotation Studio
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-star-half-alt me-1"></i> Trust Score
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
-          </a>
-        </div>
-      </div>
-
     @endauth
 
     {{-- Related subjects --}}
@@ -1186,21 +1223,31 @@
     @endif
 
     {{-- Related people and organizations --}}
-    @if(isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty())
+    @if((isset($creators) && $creators->isNotEmpty()) || (isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty()))
       <div class="card mb-3">
         <div class="card-header fw-bold">
           <i class="fas fa-users me-1"></i> Related people and organizations
         </div>
         <ul class="list-group list-group-flush">
-          @foreach($nameAccessPoints as $nap)
-            <li class="list-group-item small">
-              @if(isset($nap->slug))
-                <a href="{{ route('actor.show', $nap->slug) }}" class="text-decoration-none">{{ $nap->name }}</a>
-              @else
-                {{ $nap->name }}
-              @endif
-            </li>
-          @endforeach
+          @if(isset($creators) && $creators->isNotEmpty())
+            @foreach($creators as $creator)
+              <li class="list-group-item small">
+                <a href="{{ route('actor.show', $creator->slug) }}" class="text-decoration-none">{{ $creator->name }}</a>
+                <span class="text-muted">(Creation)</span>
+              </li>
+            @endforeach
+          @endif
+          @if(isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty())
+            @foreach($nameAccessPoints as $nap)
+              <li class="list-group-item small">
+                @if(isset($nap->slug))
+                  <a href="{{ route('actor.show', $nap->slug) }}" class="text-decoration-none">{{ $nap->name }}</a>
+                @else
+                  {{ $nap->name }}
+                @endif
+              </li>
+            @endforeach
+          @endif
         </ul>
       </div>
     @endif
