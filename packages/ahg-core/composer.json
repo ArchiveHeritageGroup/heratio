@@ -1,0 +1,23 @@
+{
+    "name": "ahg/core",
+    "description": "AHG Core - Eloquent models and base services for AtoM Heratio",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgCore\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgCore\\Providers\\AhgCoreServiceProvider"
+            ]
+        }
+    }
+}
