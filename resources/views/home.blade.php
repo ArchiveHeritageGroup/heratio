@@ -201,6 +201,12 @@
         right: 0;
         border-radius: 0 0 0.375rem 0.375rem !important;
     }
+    .featured-collection .carousel-indicators [data-bs-target] {
+        background-color: #000;
+    }
+    .featured-collection .carousel-indicators .active {
+        background-color: #000;
+    }
     </style>
   @endif
 

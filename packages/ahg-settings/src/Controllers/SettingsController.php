@@ -141,6 +141,84 @@ class SettingsController extends Controller
     }
 
     /**
+     * Theme settings page — colors, logo, branding, custom CSS.
+     */
+    public function themes(Request $request)
+    {
+        $themeKeys = [
+            'ahg_theme_enabled', 'ahg_primary_color', 'ahg_secondary_color',
+            'ahg_card_header_bg', 'ahg_card_header_text',
+            'ahg_button_bg', 'ahg_button_text',
+            'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
+            'ahg_logo_path', 'ahg_footer_text', 'ahg_show_branding',
+            'ahg_custom_css',
+            'ahg_success_color', 'ahg_danger_color', 'ahg_warning_color',
+            'ahg_info_color', 'ahg_light_color', 'ahg_dark_color',
+            'ahg_muted_color', 'ahg_border_color',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($themeKeys as $key) {
+                $value = $request->input($key, '');
+                DB::table('ahg_settings')
+                    ->where('setting_key', $key)
+                    ->update(['setting_value' => $value]);
+            }
+
+            // Regenerate ahg-generated.css
+            $this->regenerateThemeCss();
+
+            return redirect()->route('settings.themes')->with('success', 'Theme settings saved.');
+        }
+
+        $settings = DB::table('ahg_settings')
+            ->whereIn('setting_key', $themeKeys)
+            ->pluck('setting_value', 'setting_key');
+
+        return view('ahg-settings::themes', ['settings' => $settings]);
+    }
+
+    /**
+     * Regenerate the static ahg-generated.css file from current theme settings.
+     */
+    private function regenerateThemeCss(): void
+    {
+        $rows = DB::table('ahg_settings')
+            ->where('setting_group', 'general')
+            ->pluck('setting_value', 'setting_key');
+
+        $css = "/* AHG Theme - Generated CSS */\n/* Do not edit - regenerated when settings saved */\n";
+        $css .= ":root {\n";
+        $css .= "    --ahg-primary: " . ($rows['ahg_primary_color'] ?? '#005837') . ";\n";
+        $css .= "    --ahg-secondary: " . ($rows['ahg_secondary_color'] ?? '#37A07F') . ";\n";
+        $css .= "    --ahg-card-header-bg: " . ($rows['ahg_card_header_bg'] ?? '#005837') . ";\n";
+        $css .= "    --ahg-card-header-text: " . ($rows['ahg_card_header_text'] ?? '#ffffff') . ";\n";
+        $css .= "    --ahg-btn-bg: " . ($rows['ahg_button_bg'] ?? '#005837') . ";\n";
+        $css .= "    --ahg-btn-text: " . ($rows['ahg_button_text'] ?? '#ffffff') . ";\n";
+        $css .= "    --ahg-link-color: " . ($rows['ahg_link_color'] ?? '#005837') . ";\n";
+        $css .= "    --ahg-sidebar-bg: " . ($rows['ahg_sidebar_bg'] ?? '#f8f9fa') . ";\n";
+        $css .= "    --ahg-sidebar-text: " . ($rows['ahg_sidebar_text'] ?? '#333333') . ";\n";
+        $css .= "    --ahg-success: " . ($rows['ahg_success_color'] ?? '#28a745') . ";\n";
+        $css .= "    --ahg-danger: " . ($rows['ahg_danger_color'] ?? '#dc3545') . ";\n";
+        $css .= "    --ahg-warning: " . ($rows['ahg_warning_color'] ?? '#ffc107') . ";\n";
+        $css .= "    --ahg-info: " . ($rows['ahg_info_color'] ?? '#17a2b8') . ";\n";
+        $css .= "    --ahg-light: " . ($rows['ahg_light_color'] ?? '#f8f9fa') . ";\n";
+        $css .= "    --ahg-dark: " . ($rows['ahg_dark_color'] ?? '#343a40') . ";\n";
+        $css .= "    --ahg-muted: " . ($rows['ahg_muted_color'] ?? '#6c757d') . ";\n";
+        $css .= "    --ahg-border: " . ($rows['ahg_border_color'] ?? '#dee2e6') . ";\n";
+        $css .= "}\n";
+        $css .= ".card-header {\n    background-color: var(--ahg-card-header-bg) !important;\n    color: var(--ahg-card-header-text) !important;\n}\n";
+        $css .= ".card-header * { color: var(--ahg-card-header-text) !important; }\n";
+        $css .= ".btn-primary {\n    background-color: var(--ahg-btn-bg) !important;\n    border-color: var(--ahg-btn-bg) !important;\n    color: var(--ahg-btn-text) !important;\n}\n";
+        $css .= ".btn-primary:hover, .btn-primary:focus {\n    filter: brightness(0.9);\n}\n";
+        $css .= "a:not(.btn):not(.nav-link):not(.dropdown-item) {\n    color: var(--ahg-link-color);\n}\n";
+        $css .= ".sidebar, #sidebar-content {\n    background-color: var(--ahg-sidebar-bg) !important;\n    color: var(--ahg-sidebar-text) !important;\n}\n";
+
+        $path = public_path('vendor/ahg-theme-b5/css/ahg-generated.css');
+        file_put_contents($path, $css);
+    }
+
+    /**
      * Show AHG settings for a specific group.
      */
     public function ahgSection(Request $request, string $group)
