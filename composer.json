@@ -28,7 +28,10 @@
         "ahg/storage-manage": "@dev",
         "ahg/term-taxonomy": "@dev",
         "ahg/function-manage": "@dev",
-        "ahg/information-object-manage": "@dev"
+        "ahg/information-object-manage": "@dev",
+        "ahg/user-manage": "@dev",
+        "ahg/settings": "@dev",
+        "ahg/jobs-manage": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

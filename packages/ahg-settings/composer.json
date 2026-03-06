@@ -1,0 +1,20 @@
+{
+    "name": "ahg/settings",
+    "description": "Settings management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgSettings\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgSettings\\Providers\\AhgSettingsServiceProvider"
+            ]
+        }
+    }
+}
