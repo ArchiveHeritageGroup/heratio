@@ -99,9 +99,35 @@ class SettingsController extends Controller
                 });
         }
 
+        $ahgIcons = [
+            'accession' => 'fa-archive',
+            'ai_condition' => 'fa-robot',
+            'compliance' => 'fa-clipboard-check',
+            'data_protection' => 'fa-shield-alt',
+            'email' => 'fa-envelope',
+            'encryption' => 'fa-key',
+            'faces' => 'fa-user-circle',
+            'features' => 'fa-star',
+            'fuseki' => 'fa-project-diagram',
+            'general' => 'fa-cogs',
+            'iiif' => 'fa-images',
+            'ingest' => 'fa-upload',
+            'integrity' => 'fa-check-double',
+            'jobs' => 'fa-tasks',
+            'media' => 'fa-photo-video',
+            'metadata' => 'fa-database',
+            'multi_tenant' => 'fa-building',
+            'photos' => 'fa-camera',
+            'portable_export' => 'fa-file-export',
+            'security' => 'fa-lock',
+            'spectrum' => 'fa-clipboard-list',
+            'voice_ai' => 'fa-microphone',
+        ];
+
         return view('ahg-settings::index', [
             'scopeCards' => $scopeCards,
             'ahgGroups' => $ahgGroups,
+            'ahgIcons' => $ahgIcons,
         ]);
     }
 

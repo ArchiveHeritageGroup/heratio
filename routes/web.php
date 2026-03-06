@@ -30,5 +30,9 @@ Route::middleware('auth.required')->group(function () {
     Route::put('/user/password', [LoginController::class, 'updatePassword'])->name('user.password.update');
 });
 
+// Legacy AtoM URL redirects
+Route::get('/admin/ahgSettings', fn () => redirect('/admin/settings'));
+Route::get('/admin/ahgSetting', fn () => redirect('/admin/settings'));
+
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

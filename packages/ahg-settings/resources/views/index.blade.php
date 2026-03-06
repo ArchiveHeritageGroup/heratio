@@ -12,8 +12,6 @@
     </div>
   </div>
 
-  {{-- Heratio Settings Sections --}}
-  <h2 class="h5 mb-3">Heratio Settings</h2>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
     {{-- Theme tile --}}
     <div class="col">
@@ -32,6 +30,7 @@
         </div>
       </div>
     </div>
+    {{-- Heratio setting scopes --}}
     @foreach($scopeCards as $card)
       <div class="col">
         <div class="card h-100">
@@ -52,32 +51,26 @@
         </div>
       </div>
     @endforeach
-  </div>
-
-  {{-- AHG Settings Sections --}}
-  @if($ahgGroups->isNotEmpty())
-    <h2 class="h5 mb-3">AHG Settings</h2>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
-      @foreach($ahgGroups as $group)
-        <div class="col">
-          <div class="card h-100">
-            <div class="card-body">
-              <div class="d-flex align-items-start">
-                <i class="fas fa-puzzle-piece fa-2x text-secondary me-3 mt-1" aria-hidden="true"></i>
-                <div>
-                  <h5 class="card-title mb-1">
-                    <a href="{{ route('settings.ahg', $group->key) }}" class="text-decoration-none">
-                      {{ $group->label }}
-                    </a>
-                  </h5>
-                  <p class="card-text text-muted small mb-1">AHG plugin settings for {{ strtolower($group->label) }}.</p>
-                  <span class="badge bg-secondary">{{ $group->count }} {{ Str::plural('setting', $group->count) }}</span>
-                </div>
+    {{-- AHG setting groups --}}
+    @foreach($ahgGroups as $group)
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-start">
+              <i class="fas {{ $ahgIcons[$group->key] ?? 'fa-puzzle-piece' }} fa-2x text-secondary me-3 mt-1" aria-hidden="true"></i>
+              <div>
+                <h5 class="card-title mb-1">
+                  <a href="{{ route('settings.ahg', $group->key) }}" class="text-decoration-none">
+                    {{ $group->label }}
+                  </a>
+                </h5>
+                <p class="card-text text-muted small mb-1">{{ ucfirst(str_replace('_', ' ', $group->key)) }} settings.</p>
+                <span class="badge bg-secondary">{{ $group->count }} {{ Str::plural('setting', $group->count) }}</span>
               </div>
             </div>
           </div>
         </div>
-      @endforeach
-    </div>
-  @endif
+      </div>
+    @endforeach
+  </div>
 @endsection
