@@ -145,28 +145,58 @@
 
   @if(isset($digitalObjects) && ($digitalObjects['master'] || $digitalObjects['reference'] || $digitalObjects['thumbnail']))
     @php
-      $refObj = $digitalObjects['reference'] ?? $digitalObjects['master'];
-      $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
       $masterObj = $digitalObjects['master'];
+      $refObj = $digitalObjects['reference'] ?? $masterObj;
       $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
-      $mediaType = $refObj ? \AhgCore\Services\DigitalObjectService::getMediaType($refObj) : null;
-      // For non-image masters (e.g. PDF), link to master; for images, link to reference
-      $linkUrl = ($masterObj && $masterObj->mime_type && str_starts_with($masterObj->mime_type, 'application/')) ? $masterUrl : $refUrl;
+      $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
+      $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
+      $refMediaType = $refObj ? \AhgCore\Services\DigitalObjectService::getMediaType($refObj) : null;
+      $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
     @endphp
-    @if($refUrl)
-      <div class="digital-object-reference text-center p-3 border-bottom">
-        @if($mediaType === 'image')
-          <a href="{{ $linkUrl }}" target="_blank">
-            <img src="{{ $refUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
-          </a>
-        @else
-          {{-- Non-image reference (e.g. PDF thumbnail) --}}
-          <a href="{{ $masterUrl ?: $refUrl }}" target="_blank">
-            <img src="{{ $refUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
-          </a>
-        @endif
-      </div>
-    @endif
+
+    <div class="digital-object-reference text-center p-3 border-bottom">
+      @if($isPdf)
+        {{-- PDF: embedded iframe viewer with toolbar (matches AtoM) --}}
+        <div class="pdf-viewer-container">
+          <div class="pdf-wrapper">
+            <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
+              <span class="badge bg-danger">
+                <i class="fas fa-file-pdf me-1"></i>PDF Document
+              </span>
+              <div class="btn-group btn-group-sm">
+                <a href="{{ $masterUrl }}" target="_blank" class="btn btn-outline-secondary" title="Open in new tab">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+                <a href="{{ $masterUrl }}" download class="btn btn-outline-secondary" title="Download PDF">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+            </div>
+            <iframe src="{{ $masterUrl }}" style="width:100%;height:600px;border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+          </div>
+        </div>
+
+      @elseif($masterMediaType === 'video')
+        {{-- Video: HTML5 player --}}
+        <video controls class="img-fluid" style="max-height:480px;">
+          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type }}">
+          Your browser does not support the video tag.
+        </video>
+
+      @elseif($masterMediaType === 'audio')
+        {{-- Audio: HTML5 player --}}
+        <audio controls class="w-100">
+          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type }}">
+          Your browser does not support the audio tag.
+        </audio>
+
+      @elseif($refUrl)
+        {{-- Image or other: show reference image --}}
+        <a href="{{ $masterUrl ?: $refUrl }}" target="_blank">
+          <img src="{{ $refUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
+        </a>
+      @endif
+    </div>
   @endif
 
 @endsection
@@ -749,6 +779,15 @@
 
   {{-- ===== 10. Digital object metadata ===== --}}
   @if(isset($digitalObjects) && $digitalObjects['master'])
+    @php
+      $doMaster = $digitalObjects['master'];
+      $doReference = $digitalObjects['reference'];
+      $doThumbnail = $digitalObjects['thumbnail'];
+      $doMasterUrl = \AhgCore\Services\DigitalObjectService::getUrl($doMaster);
+      $doRefUrl = $doReference ? \AhgCore\Services\DigitalObjectService::getUrl($doReference) : '';
+      $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
+      $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
+    @endphp
     <section class="border-bottom">
       <h2 class="h5 mb-0 atom-section-header">
         <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#digital-object-collapse">
@@ -756,40 +795,144 @@
         </a>
       </h2>
       <div id="digital-object-collapse">
-        @php $masterObj = $digitalObjects['master']; @endphp
-        @if($masterObj)
-          @if($masterObj->mime_type ?? null)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
-              <div class="col-9 p-2">{{ $masterObj->mime_type }}</div>
-            </div>
-          @endif
-          @if($masterObj->byte_size ?? null)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">File size</h3>
-              <div class="col-9 p-2">{{ number_format($masterObj->byte_size / 1024, 1) }} KB</div>
-            </div>
-          @endif
-          @if($masterObj->name ?? null)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
-              <div class="col-9 p-2">{{ $masterObj->name }}</div>
-            </div>
-          @endif
-        @endif
+        <div class="accordion" id="doMetadataAccordion">
 
-        {{-- Download link for master --}}
-        @php $masterDlUrl = \AhgCore\Services\DigitalObjectService::getUrl($masterObj); @endphp
-        @if($masterDlUrl)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Original file</h3>
-            <div class="col-9 p-2">
-              <a href="{{ $masterDlUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-download me-1"></i> Download ({{ $masterObj->name }})
-              </a>
+          {{-- Master file --}}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="doMasterHeading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doMasterCollapse" aria-expanded="true">
+                Master file
+              </button>
+            </h2>
+            <div id="doMasterCollapse" class="accordion-collapse collapse show" data-bs-parent="#doMetadataAccordion">
+              <div class="accordion-body p-0">
+                <div class="field text-break row g-0">
+                  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                  <div class="col-9 p-2">
+                    @auth
+                      <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
+                    @else
+                      {{ $doMaster->name }}
+                    @endauth
+                  </div>
+                </div>
+                @if($doMaster->media_type_id)
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
+                    <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
+                  </div>
+                @endif
+                @if($doMaster->mime_type)
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                    <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
+                  </div>
+                @endif
+                @if($doMaster->byte_size)
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                    <div class="col-9 p-2">
+                      @if($doMaster->byte_size > 1048576)
+                        {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
+                      @else
+                        {{ number_format($doMaster->byte_size / 1024, 1) }} KB
+                      @endif
+                    </div>
+                  </div>
+                @endif
+                @if($doMaster->checksum)
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Checksum</h3>
+                    <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
+                  </div>
+                @endif
+              </div>
             </div>
           </div>
-        @endif
+
+          {{-- Reference copy --}}
+          @if($doReference)
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="doRefHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doRefCollapse" aria-expanded="false">
+                  Reference copy
+                </button>
+              </h2>
+              <div id="doRefCollapse" class="accordion-collapse collapse" data-bs-parent="#doMetadataAccordion">
+                <div class="accordion-body p-0">
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                    <div class="col-9 p-2">
+                      @auth
+                        <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
+                      @else
+                        {{ $doReference->name }}
+                      @endauth
+                    </div>
+                  </div>
+                  @if($doReference->mime_type)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                      <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
+                    </div>
+                  @endif
+                  @if($doReference->byte_size)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                      <div class="col-9 p-2">
+                        @if($doReference->byte_size > 1048576)
+                          {{ number_format($doReference->byte_size / 1048576, 1) }} MB
+                        @else
+                          {{ number_format($doReference->byte_size / 1024, 1) }} KB
+                        @endif
+                      </div>
+                    </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endif
+
+          {{-- Thumbnail copy --}}
+          @if($doThumbnail)
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="doThumbHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#doThumbCollapse" aria-expanded="false">
+                  Thumbnail copy
+                </button>
+              </h2>
+              <div id="doThumbCollapse" class="accordion-collapse collapse" data-bs-parent="#doMetadataAccordion">
+                <div class="accordion-body p-0">
+                  <div class="field text-break row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                    <div class="col-9 p-2">
+                      <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
+                    </div>
+                  </div>
+                  @if($doThumbnail->mime_type)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                      <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
+                    </div>
+                  @endif
+                  @if($doThumbnail->byte_size)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                      <div class="col-9 p-2">
+                        @if($doThumbnail->byte_size > 1048576)
+                          {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
+                        @else
+                          {{ number_format($doThumbnail->byte_size / 1024, 1) }} KB
+                        @endif
+                      </div>
+                    </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endif
+
+        </div>
       </div>
     </section>
   @endif
@@ -826,8 +969,15 @@
 {{-- ============================================================ --}}
 @section('right')
 
-  {{-- Action icons --}}
   <nav>
+    {{-- Clipboard --}}
+    <div class="mb-3">
+      <button type="button" class="btn btn-outline-secondary w-100 clipboard-btn" data-object-id="{{ $io->id }}" title="Add to clipboard">
+        <i class="fas fa-clipboard me-1"></i> Add to clipboard
+      </button>
+    </div>
+
+    {{-- Explore --}}
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-cogs me-1"></i> Explore
@@ -836,29 +986,47 @@
         <a href="{{ route('informationobject.browse') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-list me-1"></i> Browse as list
         </a>
-        @auth
+        @if(isset($digitalObjects) && $digitalObjects['master'])
           <a href="{{ route('informationobject.browse', ['digital' => 1]) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-image me-1"></i> Browse digital objects
           </a>
-        @endauth
+        @endif
       </div>
     </div>
 
+    {{-- Import (admin only) --}}
     @auth
-      <div class="card mb-3">
-        <div class="card-header fw-bold">
-          <i class="fas fa-file-export me-1"></i> Export
+      @if(auth()->user()->is_admin ?? false)
+        <div class="card mb-3">
+          <div class="card-header fw-bold">
+            <i class="fas fa-upload me-1"></i> Import
+          </div>
+          <div class="list-group list-group-flush">
+            <a href="#" class="list-group-item list-group-item-action small">
+              <i class="fas fa-code me-1"></i> XML
+            </a>
+            <a href="#" class="list-group-item list-group-item-action small">
+              <i class="fas fa-file-csv me-1"></i> CSV
+            </a>
+          </div>
         </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-code me-1"></i> EAD 2002 XML
-          </a>
-          <a href="#" class="list-group-item list-group-item-action small">
-            <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
-          </a>
-        </div>
-      </div>
+      @endif
     @endauth
+
+    {{-- Export --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-file-export me-1"></i> Export
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
+        </a>
+        <a href="#" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> EAD 2002 XML
+        </a>
+      </div>
+    </div>
 
     {{-- Related subjects --}}
     @if(isset($subjects) && $subjects->isNotEmpty())
