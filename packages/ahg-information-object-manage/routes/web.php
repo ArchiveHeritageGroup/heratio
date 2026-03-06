@@ -4,6 +4,14 @@ use AhgInformationObjectManage\Controllers\InformationObjectController;
 use AhgInformationObjectManage\Controllers\ExportController;
 use AhgInformationObjectManage\Controllers\ImportController;
 use AhgInformationObjectManage\Controllers\FindingAidController;
+use AhgInformationObjectManage\Controllers\ProvenanceController;
+use AhgInformationObjectManage\Controllers\ConditionController;
+use AhgInformationObjectManage\Controllers\SpectrumController;
+use AhgInformationObjectManage\Controllers\PreservationController;
+use AhgInformationObjectManage\Controllers\AiController;
+use AhgInformationObjectManage\Controllers\PrivacyController;
+use AhgInformationObjectManage\Controllers\ExtendedRightsController;
+use AhgInformationObjectManage\Controllers\ResearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
@@ -17,8 +25,9 @@ Route::delete('/informationobject/{slug}', [InformationObjectController::class, 
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
 Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ead'])->name('informationobject.export.ead');
 
-// Import (auth required)
+// Auth-required features
 Route::middleware('auth')->group(function () {
+    // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
     Route::get('/informationobject/import/csv/{slug?}', [ImportController::class, 'csv'])->name('informationobject.import.csv');
     Route::post('/informationobject/import/process', [ImportController::class, 'process'])->name('informationobject.import.process');
@@ -28,6 +37,39 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'uploadForm'])->name('informationobject.findingaid.upload.form');
     Route::post('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'upload'])->name('informationobject.findingaid.upload');
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
+
+    // Collections Management
+    Route::get('/provenance/{slug}', [ProvenanceController::class, 'index'])->name('io.provenance');
+    Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
+    Route::get('/condition/{slug}', [ConditionController::class, 'index'])->name('io.condition');
+    Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
+    Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
+
+    // Digital Preservation (OAIS)
+    Route::get('/preservation/{slug}', [PreservationController::class, 'index'])->name('io.preservation');
+
+    // AI Tools
+    Route::get('/ai/ner/extract/{id}', [AiController::class, 'extract'])->name('io.ai.extract')->where('id', '[0-9]+');
+    Route::get('/ai/ner/review', [AiController::class, 'review'])->name('io.ai.review');
+    Route::get('/ai/summarize/{id}', [AiController::class, 'summarize'])->name('io.ai.summarize')->where('id', '[0-9]+');
+    Route::get('/ai/translate/{id}', [AiController::class, 'translate'])->name('io.ai.translate')->where('id', '[0-9]+');
+
+    // Privacy & PII
+    Route::get('/privacy/scan/{id}', [PrivacyController::class, 'scan'])->name('io.privacy.scan')->where('id', '[0-9]+');
+    Route::get('/privacy/redaction/{slug}', [PrivacyController::class, 'redaction'])->name('io.privacy.redaction');
+    Route::get('/privacy/dashboard', [PrivacyController::class, 'dashboard'])->name('io.privacy.dashboard');
+
+    // Extended Rights
+    Route::get('/rights/extended/{slug}', [ExtendedRightsController::class, 'add'])->name('io.rights.extended');
+    Route::get('/rights/embargo/{slug}', [ExtendedRightsController::class, 'embargo'])->name('io.rights.embargo');
+    Route::get('/rights/export/{slug}', [ExtendedRightsController::class, 'exportJsonLd'])->name('io.rights.export');
+
+    // Research Tools
+    Route::get('/research/citation/{slug}', [ResearchController::class, 'citation'])->name('io.research.citation');
+    Route::get('/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment');
+    Route::get('/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
+    Route::get('/research/trust/{slug}', [ResearchController::class, 'trustScore'])->name('io.research.trust');
+    Route::get('/research/dashboard', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
 });
 
-Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search|login|logout|admin|api|storage|up|about|privacy|terms|pages|contact)[a-z0-9-]+$');
+Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search|login|logout|admin|api|storage|up|about|privacy|terms|pages|contact|provenance|condition|spectrum|heritage|preservation|ai|rights|research)[a-z0-9-]+$');

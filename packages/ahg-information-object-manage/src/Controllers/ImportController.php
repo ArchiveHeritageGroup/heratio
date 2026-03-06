@@ -18,7 +18,7 @@ class ImportController extends Controller
             $resource = $this->getIO($slug);
         }
 
-        return view('io::import.select', [
+        return view('ahg-io-manage::import.select', [
             'type' => 'xml',
             'resource' => $resource,
             'title' => 'Import XML',
@@ -35,7 +35,7 @@ class ImportController extends Controller
             $resource = $this->getIO($slug);
         }
 
-        return view('io::import.select', [
+        return view('ahg-io-manage::import.select', [
             'type' => 'csv',
             'resource' => $resource,
             'title' => 'Import CSV',

@@ -44,7 +44,7 @@ class FindingAidController extends Controller
             abort(404);
         }
 
-        return view('io::findingaid.upload', [
+        return view('ahg-io-manage::findingaid.upload', [
             'io' => $io,
         ]);
     }
