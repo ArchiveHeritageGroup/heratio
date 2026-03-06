@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3be4200516399cc63a66c9de63ffe7a9",
+    "content-hash": "0e5852ba7eef51e5dac17057234ac125",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -61,6 +61,36 @@
                 }
             },
             "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/audit-trail",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-audit-trail",
+                "reference": "7fdc2822926dd8fd01149dd99f97395f44d82e5b"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAuditTrail\\Providers\\AhgAuditTrailServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAuditTrail\\": "src/"
+                }
+            },
+            "description": "Audit trail browse for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -222,6 +252,66 @@
             }
         },
         {
+            "name": "ahg/menu-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-menu-manage",
+                "reference": "15451cd7309d9d5fd23e65a72e6db536be35adcf"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMenuManage\\Providers\\AhgMenuManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMenuManage\\": "src/"
+                }
+            },
+            "description": "Menu browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/reports",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-reports",
+                "reference": "cca99ca9c24491212865b3a35aa5f9b5f6750bdd"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgReports\\Providers\\AhgReportsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgReports\\": "src/"
+                }
+            },
+            "description": "Reports dashboard for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/repository-manage",
             "version": "dev-main",
             "dist": {
@@ -336,6 +426,36 @@
                 }
             },
             "description": "Settings management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/static-page",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-static-page",
+                "reference": "1769b80a79be008828729f07717bb1b287abaf55"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgStaticPage\\Providers\\AhgStaticPageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgStaticPage\\": "src/"
+                }
+            },
+            "description": "Static page display for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -8860,7 +8980,11 @@
         "ahg/user-manage": 20,
         "ahg/settings": 20,
         "ahg/jobs-manage": 20,
-        "ahg/search": 20
+        "ahg/search": 20,
+        "ahg/static-page": 20,
+        "ahg/menu-manage": 20,
+        "ahg/audit-trail": 20,
+        "ahg/reports": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

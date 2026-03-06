@@ -8,6 +8,7 @@ use AhgInformationObjectManage\Services\InformationObjectBrowseService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class InformationObjectController extends Controller
 {
@@ -316,5 +317,394 @@ class InformationObjectController extends Controller
             'languages' => $languages,
             'publicationStatus' => $publicationStatus,
         ]);
+    }
+
+    /**
+     * Fetch dropdown options used by edit and create forms.
+     */
+    private function getFormDropdowns(string $culture): array
+    {
+        // Level of description options (taxonomy_id = 34)
+        $levels = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 34)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Repositories
+        $repositories = DB::table('repository')
+            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $culture)
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->get();
+
+        // Description status options (taxonomy_id = 44)
+        $descriptionStatuses = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 44)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Description detail options (taxonomy_id = 43)
+        $descriptionDetails = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 43)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Display standard options (taxonomy_id = 52 — descriptive standards)
+        $displayStandards = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 52)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards');
+    }
+
+    /**
+     * Show the edit form for an information object.
+     */
+    public function edit(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('object', 'information_object.id', '=', 'object.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select([
+                'information_object.id',
+                'information_object.identifier',
+                'information_object.oai_local_identifier',
+                'information_object.level_of_description_id',
+                'information_object.collection_type_id',
+                'information_object.repository_id',
+                'information_object.parent_id',
+                'information_object.description_status_id',
+                'information_object.description_detail_id',
+                'information_object.description_identifier',
+                'information_object.source_standard',
+                'information_object.display_standard_id',
+                'information_object.source_culture',
+                'information_object_i18n.title',
+                'information_object_i18n.alternate_title',
+                'information_object_i18n.edition',
+                'information_object_i18n.extent_and_medium',
+                'information_object_i18n.archival_history',
+                'information_object_i18n.acquisition',
+                'information_object_i18n.scope_and_content',
+                'information_object_i18n.appraisal',
+                'information_object_i18n.accruals',
+                'information_object_i18n.arrangement',
+                'information_object_i18n.access_conditions',
+                'information_object_i18n.reproduction_conditions',
+                'information_object_i18n.physical_characteristics',
+                'information_object_i18n.finding_aids',
+                'information_object_i18n.location_of_originals',
+                'information_object_i18n.location_of_copies',
+                'information_object_i18n.related_units_of_description',
+                'information_object_i18n.institution_responsible_identifier',
+                'information_object_i18n.rules',
+                'information_object_i18n.sources',
+                'information_object_i18n.revision_history',
+                'object.created_at',
+                'object.updated_at',
+                'slug.slug',
+            ])
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        $dropdowns = $this->getFormDropdowns($culture);
+
+        return view('ahg-io-manage::edit', array_merge(
+            ['io' => $io],
+            $dropdowns
+        ));
+    }
+
+    /**
+     * Show the create form for a new information object.
+     */
+    public function create(Request $request)
+    {
+        $culture = app()->getLocale();
+        $parentId = $request->get('parent_id');
+
+        // If parent_id provided, resolve parent title for display
+        $parentTitle = null;
+        if ($parentId) {
+            $parentTitle = DB::table('information_object_i18n')
+                ->where('id', $parentId)
+                ->where('culture', $culture)
+                ->value('title');
+        }
+
+        $dropdowns = $this->getFormDropdowns($culture);
+
+        return view('ahg-io-manage::create', array_merge(
+            [
+                'parentId' => $parentId,
+                'parentTitle' => $parentTitle,
+            ],
+            $dropdowns
+        ));
+    }
+
+    /**
+     * Update an existing information object.
+     */
+    public function update(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $request->validate([
+            'title' => 'required|string|max:65535',
+        ]);
+
+        // Resolve the IO id from slug
+        $io = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        $ioId = $io->id;
+
+        // Update information_object table
+        DB::table('information_object')
+            ->where('id', $ioId)
+            ->update([
+                'identifier' => $request->input('identifier'),
+                'level_of_description_id' => $request->input('level_of_description_id') ?: null,
+                'repository_id' => $request->input('repository_id') ?: null,
+                'description_status_id' => $request->input('description_status_id') ?: null,
+                'description_detail_id' => $request->input('description_detail_id') ?: null,
+                'description_identifier' => $request->input('description_identifier'),
+                'source_standard' => $request->input('source_standard'),
+                'display_standard_id' => $request->input('display_standard_id') ?: null,
+            ]);
+
+        // Update information_object_i18n table
+        DB::table('information_object_i18n')
+            ->where('id', $ioId)
+            ->where('culture', $culture)
+            ->update([
+                'title' => $request->input('title'),
+                'alternate_title' => $request->input('alternate_title'),
+                'edition' => $request->input('edition'),
+                'extent_and_medium' => $request->input('extent_and_medium'),
+                'archival_history' => $request->input('archival_history'),
+                'acquisition' => $request->input('acquisition'),
+                'scope_and_content' => $request->input('scope_and_content'),
+                'appraisal' => $request->input('appraisal'),
+                'accruals' => $request->input('accruals'),
+                'arrangement' => $request->input('arrangement'),
+                'access_conditions' => $request->input('access_conditions'),
+                'reproduction_conditions' => $request->input('reproduction_conditions'),
+                'physical_characteristics' => $request->input('physical_characteristics'),
+                'finding_aids' => $request->input('finding_aids'),
+                'location_of_originals' => $request->input('location_of_originals'),
+                'location_of_copies' => $request->input('location_of_copies'),
+                'related_units_of_description' => $request->input('related_units_of_description'),
+                'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
+                'rules' => $request->input('rules'),
+                'sources' => $request->input('sources'),
+                'revision_history' => $request->input('revision_history'),
+            ]);
+
+        // Update object.updated_at
+        DB::table('object')
+            ->where('id', $ioId)
+            ->update([
+                'updated_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('informationobject.show', $slug)
+            ->with('success', 'Archival description updated successfully.');
+    }
+
+    /**
+     * Store a new information object.
+     */
+    public function store(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $request->validate([
+            'title' => 'required|string|max:65535',
+        ]);
+
+        $parentId = $request->input('parent_id', 1); // Default to root (id=1)
+
+        // Determine lft/rgt position: place as last child of parent
+        $parent = DB::table('information_object')
+            ->where('id', $parentId)
+            ->select('lft', 'rgt')
+            ->first();
+
+        if (!$parent) {
+            abort(422, 'Invalid parent information object.');
+        }
+
+        $newLft = $parent->rgt;
+        $newRgt = $parent->rgt + 1;
+
+        // Shift existing nested set values to make room
+        DB::table('information_object')
+            ->where('rgt', '>=', $parent->rgt)
+            ->increment('rgt', 2);
+
+        DB::table('information_object')
+            ->where('lft', '>', $parent->rgt)
+            ->increment('lft', 2);
+
+        // Insert into object table
+        $objectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitInformationObject',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Insert into information_object table
+        DB::table('information_object')->insert([
+            'id' => $objectId,
+            'identifier' => $request->input('identifier'),
+            'level_of_description_id' => $request->input('level_of_description_id') ?: null,
+            'collection_type_id' => null,
+            'repository_id' => $request->input('repository_id') ?: null,
+            'parent_id' => $parentId,
+            'description_status_id' => $request->input('description_status_id') ?: null,
+            'description_detail_id' => $request->input('description_detail_id') ?: null,
+            'description_identifier' => $request->input('description_identifier'),
+            'source_standard' => $request->input('source_standard'),
+            'display_standard_id' => $request->input('display_standard_id') ?: null,
+            'lft' => $newLft,
+            'rgt' => $newRgt,
+            'source_culture' => $culture,
+        ]);
+
+        // Insert into information_object_i18n table
+        DB::table('information_object_i18n')->insert([
+            'id' => $objectId,
+            'culture' => $culture,
+            'title' => $request->input('title'),
+            'alternate_title' => $request->input('alternate_title'),
+            'edition' => $request->input('edition'),
+            'extent_and_medium' => $request->input('extent_and_medium'),
+            'archival_history' => $request->input('archival_history'),
+            'acquisition' => $request->input('acquisition'),
+            'scope_and_content' => $request->input('scope_and_content'),
+            'appraisal' => $request->input('appraisal'),
+            'accruals' => $request->input('accruals'),
+            'arrangement' => $request->input('arrangement'),
+            'access_conditions' => $request->input('access_conditions'),
+            'reproduction_conditions' => $request->input('reproduction_conditions'),
+            'physical_characteristics' => $request->input('physical_characteristics'),
+            'finding_aids' => $request->input('finding_aids'),
+            'location_of_originals' => $request->input('location_of_originals'),
+            'location_of_copies' => $request->input('location_of_copies'),
+            'related_units_of_description' => $request->input('related_units_of_description'),
+            'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
+            'rules' => $request->input('rules'),
+            'sources' => $request->input('sources'),
+            'revision_history' => $request->input('revision_history'),
+        ]);
+
+        // Generate slug
+        $baseSlug = Str::slug($request->input('title') ?: 'untitled');
+        $slug = $baseSlug;
+        $counter = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        DB::table('slug')->insert([
+            'object_id' => $objectId,
+            'slug' => $slug,
+        ]);
+
+        return redirect()
+            ->route('informationobject.show', $slug)
+            ->with('success', 'Archival description created successfully.');
+    }
+
+    /**
+     * Delete an information object.
+     */
+    public function destroy(Request $request, string $slug)
+    {
+        // Resolve the IO id from slug
+        $record = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt')
+            ->first();
+
+        if (!$record) {
+            abort(404);
+        }
+
+        $ioId = $record->id;
+        $width = $record->rgt - $record->lft + 1;
+
+        // Collect all descendant IDs (nested set: lft between this node's lft and rgt)
+        $descendantIds = DB::table('information_object')
+            ->whereBetween('lft', [$record->lft, $record->rgt])
+            ->pluck('id')
+            ->toArray();
+
+        // Delete i18n rows for all descendants
+        DB::table('information_object_i18n')
+            ->whereIn('id', $descendantIds)
+            ->delete();
+
+        // Delete information_object rows for all descendants
+        DB::table('information_object')
+            ->whereIn('id', $descendantIds)
+            ->delete();
+
+        // Delete slug rows for all descendants
+        DB::table('slug')
+            ->whereIn('object_id', $descendantIds)
+            ->delete();
+
+        // Delete object rows for all descendants
+        DB::table('object')
+            ->whereIn('id', $descendantIds)
+            ->delete();
+
+        // Close the gap in the nested set
+        DB::table('information_object')
+            ->where('lft', '>', $record->rgt)
+            ->decrement('lft', $width);
+
+        DB::table('information_object')
+            ->where('rgt', '>', $record->rgt)
+            ->decrement('rgt', $width);
+
+        return redirect()
+            ->route('informationobject.browse')
+            ->with('success', 'Archival description deleted successfully.');
     }
 }

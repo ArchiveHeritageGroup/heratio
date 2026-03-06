@@ -1,0 +1,20 @@
+{
+    "name": "ahg/static-page",
+    "description": "Static page display for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgStaticPage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgStaticPage\\Providers\\AhgStaticPageServiceProvider"
+            ]
+        }
+    }
+}

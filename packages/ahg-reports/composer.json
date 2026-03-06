@@ -1,0 +1,20 @@
+{
+    "name": "ahg/reports",
+    "description": "Reports dashboard for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgReports\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgReports\\Providers\\AhgReportsServiceProvider"
+            ]
+        }
+    }
+}

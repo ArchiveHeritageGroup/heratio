@@ -32,7 +32,11 @@
         "ahg/user-manage": "@dev",
         "ahg/settings": "@dev",
         "ahg/jobs-manage": "@dev",
-        "ahg/search": "@dev"
+        "ahg/search": "@dev",
+        "ahg/static-page": "@dev",
+        "ahg/menu-manage": "@dev",
+        "ahg/audit-trail": "@dev",
+        "ahg/reports": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

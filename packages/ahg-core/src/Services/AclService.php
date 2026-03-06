@@ -6,6 +6,7 @@ namespace AhgCore\Services;
 
 use AhgCore\Models\AclGroup;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -229,6 +230,94 @@ class AclService
         });
 
         return $query;
+    }
+
+    /**
+     * Get all group IDs for a user (with caching).
+     * If no user (anonymous), return [98].
+     * If authenticated, always include [99] + their actual groups.
+     */
+    public static function getUserGroupIds(?int $userId): array
+    {
+        if (! $userId) {
+            return [98]; // anonymous
+        }
+
+        return Cache::remember("acl_groups_{$userId}", 300, function () use ($userId) {
+            $groups = DB::table('acl_user_group')
+                ->where('user_id', $userId)
+                ->pluck('group_id')
+                ->toArray();
+
+            // Always include authenticated group
+            if (! in_array(99, $groups)) {
+                $groups[] = 99;
+            }
+
+            return $groups;
+        });
+    }
+
+    /**
+     * Check if user has permission for an action.
+     * Checks user-specific permissions first, then group permissions.
+     * Administrator group (100) has all permissions.
+     */
+    public static function hasPermission(?int $userId, string $action, ?int $objectId = null): bool
+    {
+        $groupIds = self::getUserGroupIds($userId);
+
+        // Administrators have all permissions
+        if (in_array(AclGroup::ADMINISTRATOR_ID, $groupIds)) {
+            return true;
+        }
+
+        // Check user-specific permissions
+        if ($userId) {
+            $userPerm = DB::table('acl_permission')
+                ->where('user_id', $userId)
+                ->where(function ($q) use ($action) {
+                    $q->where('action', $action)->orWhereNull('action');
+                })
+                ->where(function ($q) use ($objectId) {
+                    $q->where('object_id', $objectId)->orWhereNull('object_id');
+                })
+                ->orderByDesc('grant_deny')
+                ->first();
+
+            if ($userPerm) {
+                return (bool) $userPerm->grant_deny;
+            }
+        }
+
+        // Check group permissions
+        $groupPerm = DB::table('acl_permission')
+            ->whereIn('group_id', $groupIds)
+            ->whereNull('user_id')
+            ->where(function ($q) use ($action) {
+                $q->where('action', $action)->orWhereNull('action');
+            })
+            ->where(function ($q) use ($objectId) {
+                $q->where('object_id', $objectId)->orWhereNull('object_id');
+            })
+            ->orderByDesc('grant_deny')
+            ->first();
+
+        return $groupPerm ? (bool) $groupPerm->grant_deny : false;
+    }
+
+    /**
+     * Check if user can access admin area (administrator or editor).
+     */
+    public static function canAdmin(?int $userId): bool
+    {
+        if (! $userId) {
+            return false;
+        }
+
+        $groupIds = self::getUserGroupIds($userId);
+
+        return ! empty(array_intersect([AclGroup::ADMINISTRATOR_ID, AclGroup::EDITOR_ID], $groupIds));
     }
 
     public static function getRepositoryAccess(string $action): array

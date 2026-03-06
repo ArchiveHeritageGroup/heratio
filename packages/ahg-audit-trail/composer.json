@@ -1,0 +1,20 @@
+{
+    "name": "ahg/audit-trail",
+    "description": "Audit trail browse for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAuditTrail\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAuditTrail\\Providers\\AhgAuditTrailServiceProvider"
+            ]
+        }
+    }
+}

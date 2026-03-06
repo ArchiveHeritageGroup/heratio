@@ -13,7 +13,8 @@ class AhgAccessionManageServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        \Illuminate\Support\Facades\Route::middleware('web')
+            ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-accession-manage');
     }
 }

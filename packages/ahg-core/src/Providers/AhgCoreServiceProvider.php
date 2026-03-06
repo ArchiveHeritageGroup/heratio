@@ -14,7 +14,8 @@ class AhgCoreServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        \Illuminate\Support\Facades\Route::middleware('web')
+            ->group(__DIR__ . '/../../routes/web.php');
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-core');
