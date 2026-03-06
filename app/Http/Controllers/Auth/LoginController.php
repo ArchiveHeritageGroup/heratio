@@ -491,6 +491,221 @@ class LoginController extends Controller
     }
 
     // =============================================
+    // User Registration
+    // =============================================
+
+    /**
+     * Show the registration form.
+     */
+    public function showRegister()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+
+        return view('auth.register');
+    }
+
+    /**
+     * Process user registration.
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:user,username',
+            'email' => 'required|email|max:255|unique:user,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Create object row (class table inheritance root)
+        $objectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitUser',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create actor row
+        DB::table('actor')->insert([
+            'id' => $objectId,
+            'parent_id' => null,
+            'source_culture' => 'en',
+        ]);
+
+        // Create actor_i18n row with the username as display name
+        DB::table('actor_i18n')->insert([
+            'id' => $objectId,
+            'culture' => 'en',
+            'authorized_form_of_name' => $request->input('username'),
+        ]);
+
+        // Hash password
+        $hashed = self::hashPassword($request->input('password'));
+
+        // Create user row
+        DB::table('user')->insert([
+            'id' => $objectId,
+            'username' => $request->input('username'),
+            'email' => $request->input('email'),
+            'password_hash' => $hashed['password_hash'],
+            'salt' => $hashed['salt'],
+            'active' => 1,
+        ]);
+
+        // Add to authenticated group (99)
+        DB::table('acl_user_group')->insert([
+            'user_id' => $objectId,
+            'group_id' => 99,
+        ]);
+
+        // Generate slug
+        $baseSlug = \Illuminate\Support\Str::slug($request->input('username'));
+        $slug = $baseSlug;
+        $counter = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
+        DB::table('slug')->insert([
+            'object_id' => $objectId,
+            'slug' => $slug,
+        ]);
+
+        return redirect()->route('login')
+            ->with('success', 'Account created successfully. Please log in.');
+    }
+
+    /**
+     * Show the researcher registration form.
+     */
+    public function showResearcherRegister()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+
+        return view('auth.researcher-register');
+    }
+
+    /**
+     * Process researcher registration.
+     * Migrated from ahgResearchPlugin executePublicRegister().
+     * Creates: object → actor → actor_i18n → user → acl_user_group → slug → research_researcher.
+     */
+    public function researcherRegister(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|min:3|max:255|unique:user,username',
+            'email' => 'required|email|max:255|unique:user,email',
+            'password' => 'required|string|min:8|confirmed',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'title' => 'nullable|string|max:50',
+            'phone' => 'nullable|string|max:50',
+            'affiliation_type' => 'required|string|max:50',
+            'institution' => 'nullable|string|max:255',
+            'department' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'orcid_id' => 'nullable|string|max:50',
+            'id_type' => 'nullable|string|max:50',
+            'id_number' => 'nullable|string|max:100',
+            'research_interests' => 'nullable|string|max:5000',
+            'current_project' => 'nullable|string|max:5000',
+        ]);
+
+        // Create object row (class table inheritance root)
+        $objectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitUser',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create actor row
+        DB::table('actor')->insert([
+            'id' => $objectId,
+            'parent_id' => null,
+            'source_culture' => 'en',
+        ]);
+
+        // Create actor_i18n row with first + last name
+        $displayName = trim($request->input('first_name') . ' ' . $request->input('last_name'));
+        DB::table('actor_i18n')->insert([
+            'id' => $objectId,
+            'culture' => 'en',
+            'authorized_form_of_name' => $displayName,
+        ]);
+
+        // Hash password
+        $hashed = self::hashPassword($request->input('password'));
+
+        // Create user row
+        DB::table('user')->insert([
+            'id' => $objectId,
+            'username' => $request->input('username'),
+            'email' => $request->input('email'),
+            'password_hash' => $hashed['password_hash'],
+            'salt' => $hashed['salt'],
+            'active' => 1,
+        ]);
+
+        // Add to authenticated group (99) + researcher group (104) if exists
+        DB::table('acl_user_group')->insert([
+            'user_id' => $objectId,
+            'group_id' => 99,
+        ]);
+
+        $researcherGroupExists = DB::table('acl_group')->where('id', 104)->exists();
+        if ($researcherGroupExists) {
+            DB::table('acl_user_group')->insert([
+                'user_id' => $objectId,
+                'group_id' => 104,
+            ]);
+        }
+
+        // Generate slug
+        $baseSlug = \Illuminate\Support\Str::slug($request->input('username'));
+        $slug = $baseSlug;
+        $counter = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter++;
+        }
+        DB::table('slug')->insert([
+            'object_id' => $objectId,
+            'slug' => $slug,
+        ]);
+
+        // Insert into research_researcher table (matches AtoM's ahgResearchPlugin)
+        DB::table('research_researcher')->insert([
+            'user_id' => $objectId,
+            'title' => $request->input('title'),
+            'first_name' => $request->input('first_name'),
+            'last_name' => $request->input('last_name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'affiliation_type' => $request->input('affiliation_type', 'independent'),
+            'institution' => $request->input('institution'),
+            'department' => $request->input('department'),
+            'position' => $request->input('position'),
+            'orcid_id' => $request->input('orcid_id'),
+            'id_type' => $request->input('id_type') ?: null,
+            'id_number' => $request->input('id_number'),
+            'research_interests' => $request->input('research_interests'),
+            'current_project' => $request->input('current_project'),
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('researcher.register.complete');
+    }
+
+    /**
+     * Show the registration complete confirmation page.
+     */
+    public function registrationComplete()
+    {
+        return view('auth.registration-complete');
+    }
+
+    // =============================================
     // Helpers
     // =============================================
 

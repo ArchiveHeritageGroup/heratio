@@ -101,6 +101,23 @@ version.json (modified by bin/release only)
 
 This is **Heratio** — not AtoM. Do NOT reference "AtoM" in code, comments, descriptions, or user-facing text. The only acceptable references to AtoM are in technical documentation explaining the migration source (e.g., CLAUDE.md, migration notes).
 
+## Migration Rules (CRITICAL)
+
+### Always Check AtoM First
+**ALWAYS first check if code exists in `/usr/share/nginx/archive` before writing new code.** Search the AtoM codebase (plugins, framework, base) for existing templates, controllers, actions, and services. Reuse and convert — do not reinvent.
+
+### Migrate = Copy, Not Recreate
+**Migration means copying the COMPLETE file from `archive/` to `heratio/` and converting its syntax (PHP/Symfony → Blade/Laravel).** Do NOT recreate files from scratch. The AtoM source file is the blueprint — every field, every section, every conditional must be preserved. Convert syntax only; do not redesign, restructure, or omit anything.
+
+### Compare Fields Before and After
+**Before creating or updating any Heratio view/form, compare ALL fields between the AtoM source file and the Heratio target file.** List every field/section in both and confirm parity. If any field exists in AtoM but is missing in Heratio, it must be added. Zero omissions.
+
+### New File Creation Requires User Confirmation
+**ALL new file creation must be confirmed by the user first.** If the file is a migration/copy from an existing AtoM file, proceed without confirmation. If the file is genuinely NEW (no AtoM equivalent exists), ask the user before creating it. Describe what the new file does and why it is needed.
+
+### "Clone/Match/Migrate" = Do Everything in One Pass
+**When instructed to clone, match, or migrate a feature or set of pages, do ALL of it in one pass.** Find every AtoM source file (templates, actions, configs, partials), copy them completely into Heratio equivalents, and convert Symfony → Laravel/Blade syntax — all in a single operation. Do NOT split into smaller pieces, do NOT ask "should I also do X?", and do NOT second-guess scope. If AtoM has it, Heratio gets it. The answer to "should I also do X?" is always **yes** if it exists in AtoM. Treat "clone the functionality" identically to doing it page-by-page — just for all pages at once.
+
 ## Quality Standard
 
 Every page must be identical to what AtoM/Symfony delivers. Full screens, full theme, full menus, full metadata, full digital objects. If a user can tell they're on Heratio vs Symfony, it is not ready.

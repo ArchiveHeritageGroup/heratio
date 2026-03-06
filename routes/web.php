@@ -8,6 +8,13 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Registration
+Route::get('/user/register', [LoginController::class, 'showRegister'])->name('register');
+Route::post('/user/register', [LoginController::class, 'register']);
+Route::get('/research/register', [LoginController::class, 'showResearcherRegister'])->name('researcher.register');
+Route::post('/research/register', [LoginController::class, 'researcherRegister']);
+Route::get('/research/registration-complete', [LoginController::class, 'registrationComplete'])->name('researcher.register.complete');
+
 // Password reset (public)
 Route::get('/user/password-reset', [LoginController::class, 'showPasswordReset'])->name('password.reset');
 Route::post('/user/password-reset', [LoginController::class, 'submitPasswordReset']);
@@ -24,6 +31,4 @@ Route::middleware('auth.required')->group(function () {
 });
 
 // Homepage
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

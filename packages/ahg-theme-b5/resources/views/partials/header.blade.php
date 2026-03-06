@@ -12,7 +12,7 @@
           @if($themeData['customLogo'] ?? null)
             <img src="{{ $themeData['customLogo'] }}" alt="Logo" class="d-inline-block my-2 me-3" height="35">
           @else
-            <img src="{{ asset('vendor/ahg-theme-b5/images/atom-logo.png') }}" alt="Heratio logo" class="d-inline-block my-2 me-3" height="35">
+            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="Logo" class="d-inline-block my-2 me-3" height="35">
           @endif
         @endif
         @if(($themeData['toggleTitle'] ?? true) && !empty($themeData['siteTitle']))
