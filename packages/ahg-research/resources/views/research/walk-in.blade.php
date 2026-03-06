@@ -1,0 +1,150 @@
+@extends('theme::layouts.2col')
+@section('sidebar')@include('research::research._sidebar')@endsection
+@section('title-block')<h1><i class="fas fa-walking me-2"></i>Walk-in Researcher Registration</h1>@endsection
+@section('content')
+@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+
+<div class="card mb-3">
+    <div class="card-header"><h5 class="mb-0">Select Reading Room</h5></div>
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Reading Room</label>
+                <select name="room_id" class="form-select">
+                    <option value="">-- Select Room --</option>
+                    @foreach($rooms as $room)
+                    <option value="{{ $room->id }}" {{ $roomId == $room->id ? 'selected' : '' }}>{{ e($room->name) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-right me-1"></i>Go</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if($roomId && $currentRoom)
+<div class="row">
+    <div class="col-md-7">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Current Visitors - {{ e($currentRoom->name) }}</h5>
+                <span class="badge bg-primary">{{ count($currentWalkIns) }} visitor(s)</span>
+            </div>
+            <div class="card-body p-0">
+                @if(count($currentWalkIns) > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th>Purpose</th>
+                                <th>Checked In</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($currentWalkIns as $visitor)
+                            <tr>
+                                <td>{{ e($visitor->first_name) }} {{ e($visitor->last_name) }}</td>
+                                <td>{{ e($visitor->organization ?? '-') }}</td>
+                                <td>{{ e($visitor->purpose ?? '-') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($visitor->checked_in_at)->format('H:i') }}</td>
+                                <td>
+                                    <form method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="form_action" value="checkout">
+                                        <input type="hidden" name="visitor_id" value="{{ $visitor->id }}">
+                                        <input type="hidden" name="room_id" value="{{ $roomId }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Check Out"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="text-center text-muted py-3">No visitors currently checked in.</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Register Walk-in Visitor</h5></div>
+            <div class="card-body">
+                <form method="POST">
+                    @csrf
+                    <input type="hidden" name="form_action" value="register">
+                    <input type="hidden" name="room_id" value="{{ $roomId }}">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="first_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="last_name" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" name="phone">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">ID Type</label>
+                            <select name="id_type" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="sa_id">SA ID</option>
+                                <option value="passport">Passport</option>
+                                <option value="drivers_license">Driver's License</option>
+                                <option value="student_card">Student Card</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7 mb-3">
+                            <label class="form-label">ID Number</label>
+                            <input type="text" class="form-control" name="id_number">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Organization / Institution</label>
+                        <input type="text" class="form-control" name="organization">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Purpose of Visit</label>
+                        <select name="purpose" class="form-select">
+                            <option value="research">Research</option>
+                            <option value="genealogy">Genealogy</option>
+                            <option value="academic">Academic</option>
+                            <option value="personal">Personal Interest</option>
+                            <option value="professional">Professional</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Research Topic</label>
+                        <input type="text" class="form-control" name="research_topic">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" name="rules_acknowledged" id="rulesAck" value="1" required>
+                        <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules</label>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-user-check me-1"></i>Register Visitor</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endsection

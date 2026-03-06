@@ -1,0 +1,230 @@
+{{-- Researcher Profile - Migrated from AtoM --}}
+@extends('theme::layouts.2col')
+
+@section('sidebar')
+  @include('research::research._sidebar', ['sidebarActive' => 'profile'])
+
+  {{-- Recent Bookings --}}
+  <div class="card mb-4">
+    <div class="card-header small fw-bold">Recent Bookings</div>
+    <ul class="list-group list-group-flush">
+      @forelse($recentBookings ?? [] as $booking)
+        <li class="list-group-item small">
+          <a href="{{ route('research.viewBooking', $booking->id) }}">
+            {{ e($booking->date ?? '') }} - {{ e($booking->room_name ?? '') }}
+          </a>
+        </li>
+      @empty
+        <li class="list-group-item small text-muted">No recent bookings</li>
+      @endforelse
+    </ul>
+  </div>
+
+  {{-- Collections --}}
+  <div class="card mb-4">
+    <div class="card-header small fw-bold">My Collections</div>
+    <ul class="list-group list-group-flush">
+      @forelse($recentCollections ?? [] as $collection)
+        <li class="list-group-item small">
+          <a href="{{ route('research.viewCollection', $collection->id) }}">{{ e($collection->name) }}</a>
+        </li>
+      @empty
+        <li class="list-group-item small text-muted">No collections</li>
+      @endforelse
+    </ul>
+  </div>
+
+  {{-- Saved Searches --}}
+  <div class="card mb-4">
+    <div class="card-header small fw-bold">Saved Searches</div>
+    <ul class="list-group list-group-flush">
+      @forelse($recentSavedSearches ?? [] as $search)
+        <li class="list-group-item small">
+          <a href="{{ route('research.savedSearches.run', $search->id) }}">{{ e($search->name) }}</a>
+        </li>
+      @empty
+        <li class="list-group-item small text-muted">No saved searches</li>
+      @endforelse
+    </ul>
+  </div>
+@endsection
+
+@section('content')
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  @endif
+  @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show">
+      {{ session('error') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  @endif
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-cog me-2"></i>My Profile</h1>
+    <div>
+      {{-- Status Badge --}}
+      @php
+        $statusColors = ['approved' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'expired' => 'secondary', 'rejected' => 'danger'];
+        $statusColor = $statusColors[$researcher->status ?? ''] ?? 'secondary';
+      @endphp
+      <span class="badge bg-{{ $statusColor }} fs-6">{{ ucfirst(e($researcher->status ?? 'unknown')) }}</span>
+    </div>
+  </div>
+
+  {{-- Expiration Warning --}}
+  @if(($researcher->status ?? '') === 'approved' && ($researcher->expires_at ?? false))
+    @php
+      $expiresAt = \Carbon\Carbon::parse($researcher->expires_at);
+      $daysLeft = now()->diffInDays($expiresAt, false);
+    @endphp
+    @if($daysLeft <= 30 && $daysLeft > 0)
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Your researcher registration expires in <strong>{{ $daysLeft }} days</strong> ({{ $expiresAt->format('Y-m-d') }}).
+        <a href="{{ route('research.renewal') }}" class="btn btn-sm btn-warning ms-2">Request Renewal</a>
+      </div>
+    @elseif($daysLeft <= 0)
+      <div class="alert alert-danger">
+        <i class="fas fa-calendar-times me-2"></i>
+        Your researcher registration has <strong>expired</strong>.
+        <a href="{{ route('research.renewal') }}" class="btn btn-sm btn-danger ms-2">Request Renewal</a>
+      </div>
+    @endif
+  @endif
+
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ e($error) }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
+  <form action="{{ route('research.profile.update') }}" method="POST">
+    @csrf
+    @method('PUT')
+
+    {{-- Personal Information --}}
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-user me-2"></i>Personal Information</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-2 mb-3">
+            <label for="title" class="form-label">Title</label>
+            <select name="title" id="title" class="form-select">
+              <option value="">-- Select --</option>
+              @foreach(['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] as $t)
+                <option value="{{ $t }}" {{ old('title', $researcher->title ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-5 mb-3">
+            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+            <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name', $researcher->first_name ?? '') }}" required>
+          </div>
+          <div class="col-md-5 mb-3">
+            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+            <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name', $researcher->last_name ?? '') }}" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" value="{{ e($researcher->email ?? '') }}" disabled>
+            <small class="text-muted">Contact an administrator to change your email.</small>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone', $researcher->phone ?? '') }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Identification (read-only) --}}
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-id-card me-2"></i>Identification</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">ID Type</label>
+            <input type="text" class="form-control" value="{{ e(ucfirst(str_replace('_', ' ', $researcher->id_type ?? ''))) }}" disabled>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">ID Number</label>
+            <input type="text" class="form-control" value="{{ e($researcher->id_number ?? '') }}" disabled>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="student_id" class="form-label">Student ID</label>
+            <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id', $researcher->student_id ?? '') }}">
+          </div>
+        </div>
+        <small class="text-muted">ID type and number cannot be changed. Contact an administrator if corrections are needed.</small>
+      </div>
+    </div>
+
+    {{-- Affiliation --}}
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-university me-2"></i>Affiliation</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="affiliation_type" class="form-label">Affiliation Type</label>
+            <select name="affiliation_type" id="affiliation_type" class="form-select">
+              <option value="">-- Select --</option>
+              @foreach(['academic', 'government', 'independent', 'corporate', 'student', 'other'] as $type)
+                <option value="{{ $type }}" {{ old('affiliation_type', $researcher->affiliation_type ?? '') === $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="institution" class="form-label">Institution</label>
+            <input type="text" name="institution" id="institution" class="form-control" value="{{ old('institution', $researcher->institution ?? '') }}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="department" class="form-label">Department</label>
+            <input type="text" name="department" id="department" class="form-control" value="{{ old('department', $researcher->department ?? '') }}">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="position" class="form-label">Position</label>
+            <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $researcher->position ?? '') }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="orcid_id" class="form-label">ORCID iD</label>
+            <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id', $researcher->orcid_id ?? '') }}" placeholder="0000-0000-0000-0000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Research --}}
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-microscope me-2"></i>Research</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="research_interests" class="form-label">Research Interests</label>
+          <textarea name="research_interests" id="research_interests" class="form-control" rows="4">{{ old('research_interests', $researcher->research_interests ?? '') }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label for="current_project" class="form-label">Current Project</label>
+          <textarea name="current_project" id="current_project" class="form-control" rows="4">{{ old('current_project', $researcher->current_project ?? '') }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <a href="{{ route('research.dashboard') }}" class="btn btn-secondary me-2">Cancel</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i>Update Profile
+      </button>
+    </div>
+  </form>
+@endsection
