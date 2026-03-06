@@ -3,6 +3,9 @@
 use AhgSettings\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
+// Dynamic theme CSS — public, no auth needed
+Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss'])->name('settings.dynamic-css');
+
 Route::middleware('admin')->group(function () {
     // Theme settings page
     Route::match(['get', 'post'], '/admin/settings/themes', [SettingsController::class, 'themes'])->name('settings.themes');

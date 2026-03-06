@@ -20,7 +20,7 @@
 
     {{-- Theme CSS --}}
     <link href="{{ asset('vendor/ahg-theme-b5/css/ahg-theme.css') }}" rel="stylesheet">
-    <link href="{{ asset('vendor/ahg-theme-b5/css/ahg-generated.css') }}" rel="stylesheet">
+    <link href="{{ route('settings.dynamic-css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/style.css') }}" rel="stylesheet">
 
