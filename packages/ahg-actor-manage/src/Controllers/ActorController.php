@@ -3,20 +3,26 @@
 namespace AhgActorManage\Controllers;
 
 use AhgActorManage\Services\ActorBrowseService;
+use AhgActorManage\Services\ActorService;
 use AhgCore\Pagination\SimplePager;
-use AhgCore\Services\DigitalObjectService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ActorController extends Controller
 {
+    protected ActorService $service;
+
+    public function __construct()
+    {
+        $this->service = new ActorService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new ActorBrowseService($culture);
+        $browseService = new ActorBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
@@ -36,103 +42,229 @@ class ActorController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
-        $culture = app()->getLocale();
-
-        $actor = DB::table('actor')
-            ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
-            ->join('object', 'actor.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'actor.id',
-                'actor.entity_type_id',
-                'actor.description_identifier',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
+        $actor = $this->service->getBySlug($slug);
         if (!$actor) {
             abort(404);
         }
 
-        // Get entity type name
-        $entityTypeName = null;
-        if ($actor->entity_type_id) {
-            $entityTypeName = DB::table('term_i18n')
-                ->where('id', $actor->entity_type_id)
-                ->where('culture', $culture)
-                ->value('name');
+        $entityTypeName = $this->service->getEntityTypeName($actor->entity_type_id);
+        $otherNames = $this->service->getOtherNames($actor->id);
+        $contacts = $this->service->getContacts($actor->id);
+        $events = $this->service->getEvents($actor->id);
+        $relatedActors = $this->service->getRelatedActors($actor->id);
+        $relatedResources = $this->service->getRelatedResources($actor->id);
+        $digitalObjects = $this->service->getDigitalObjects($actor->id);
+        $maintenanceNotes = $this->service->getMaintenanceNotes($actor->id);
+        $subjects = $this->service->getSubjectAccessPoints($actor->id);
+        $places = $this->service->getPlaceAccessPoints($actor->id);
+        $occupations = $this->service->getOccupations($actor->id);
+
+        // Resolve description status/detail names
+        $descriptionStatusName = $this->service->getEntityTypeName($actor->description_status_id);
+        $descriptionDetailName = $this->service->getEntityTypeName($actor->description_detail_id);
+
+        // Resolve name type names
+        $nameTypeIds = $otherNames->pluck('type_id')->filter()->unique()->values()->toArray();
+        $nameTypeNames = $this->service->getNameTypeNames($nameTypeIds);
+
+        // Resolve relation type names
+        $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
+        $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
+
+        // Related functions (may not exist in all installs)
+        $relatedFunctions = collect();
+        try {
+            $relatedFunctions = $this->service->getRelatedFunctions($actor->id);
+        } catch (\Exception $e) {
+            // function_object table may not exist
         }
-
-        // Get other names
-        $otherNames = DB::table('other_name')
-            ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
-            ->where('other_name.object_id', $actor->id)
-            ->where('other_name_i18n.culture', $culture)
-            ->select('other_name_i18n.name', 'other_name.type_id')
-            ->get();
-
-        // Get events (dates)
-        $events = DB::table('event')
-            ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
-            ->where('event.actor_id', $actor->id)
-            ->where('event_i18n.culture', $culture)
-            ->select('event.*', 'event_i18n.date as date_display', 'event_i18n.name as event_name')
-            ->get();
-
-        // Get related resources (information objects linked via event)
-        $relatedResources = DB::table('event')
-            ->join('information_object', 'event.object_id', '=', 'information_object.id')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('event.actor_id', $actor->id)
-            ->where('information_object_i18n.culture', $culture)
-            ->where('information_object.id', '!=', 1)
-            ->select([
-                'information_object.id',
-                'information_object_i18n.title',
-                'slug.slug',
-            ])
-            ->distinct()
-            ->limit(50)
-            ->get();
-
-        // Get contact information
-        $contacts = DB::table('contact_information')
-            ->join('contact_information_i18n', 'contact_information.id', '=', 'contact_information_i18n.id')
-            ->where('contact_information.actor_id', $actor->id)
-            ->where('contact_information_i18n.culture', $culture)
-            ->select('contact_information.*', 'contact_information_i18n.*')
-            ->get();
-
-        // Get digital objects (organized by usage type)
-        $digitalObjects = DigitalObjectService::getForObject($actor->id);
 
         return view('ahg-actor-manage::show', [
             'actor' => $actor,
             'entityTypeName' => $entityTypeName,
             'otherNames' => $otherNames,
-            'events' => $events,
-            'relatedResources' => $relatedResources,
+            'nameTypeNames' => $nameTypeNames,
             'contacts' => $contacts,
+            'events' => $events,
+            'relatedActors' => $relatedActors,
+            'relationTypeNames' => $relationTypeNames,
+            'relatedResources' => $relatedResources,
+            'relatedFunctions' => $relatedFunctions,
             'digitalObjects' => $digitalObjects,
+            'maintenanceNotes' => $maintenanceNotes,
+            'descriptionStatusName' => $descriptionStatusName,
+            'descriptionDetailName' => $descriptionDetailName,
+            'subjects' => $subjects,
+            'places' => $places,
+            'occupations' => $occupations,
         ]);
+    }
+
+    public function create()
+    {
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-actor-manage::edit', [
+            'actor' => null,
+            'contacts' => collect(),
+            'otherNames' => collect(),
+            'maintenanceNotes' => null,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $contacts = $this->service->getContacts($actor->id);
+        $otherNames = $this->service->getOtherNames($actor->id);
+        $maintenanceNotes = $this->service->getMaintenanceNotes($actor->id);
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-actor-manage::edit', [
+            'actor' => $actor,
+            'contacts' => $contacts,
+            'otherNames' => $otherNames,
+            'maintenanceNotes' => $maintenanceNotes,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'authorized_form_of_name' => 'required|string|max:1024',
+            'entity_type_id' => 'required|integer|exists:term,id',
+            'dates_of_existence' => 'nullable|string|max:1024',
+            'description_identifier' => 'nullable|string|max:1024',
+            'corporate_body_identifiers' => 'nullable|string|max:1024',
+            'source_standard' => 'nullable|string|max:1024',
+            'description_status_id' => 'nullable|integer',
+            'description_detail_id' => 'nullable|integer',
+            'institution_responsible_identifier' => 'nullable|string|max:1024',
+            'history' => 'nullable|string',
+            'places' => 'nullable|string',
+            'legal_status' => 'nullable|string',
+            'functions' => 'nullable|string',
+            'mandates' => 'nullable|string',
+            'internal_structures' => 'nullable|string',
+            'general_context' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'sources' => 'nullable|string',
+            'revision_history' => 'nullable|string',
+            'maintenance_notes' => 'nullable|string',
+            'contacts' => 'nullable|array',
+            'contacts.*.contact_person' => 'nullable|string|max:1024',
+            'contacts.*.email' => 'nullable|email|max:255',
+            'contacts.*.telephone' => 'nullable|string|max:255',
+            'contacts.*.website' => 'nullable|url|max:1024',
+            'other_names' => 'nullable|array',
+            'other_names.*.name' => 'nullable|string|max:1024',
+            'other_names.*.type_id' => 'nullable|integer',
+        ]);
+
+        $data = $request->only([
+            'authorized_form_of_name', 'entity_type_id', 'dates_of_existence',
+            'description_identifier', 'corporate_body_identifiers', 'source_standard',
+            'description_status_id', 'description_detail_id',
+            'institution_responsible_identifier', 'history', 'places', 'legal_status',
+            'functions', 'mandates', 'internal_structures', 'general_context',
+            'rules', 'sources', 'revision_history', 'maintenance_notes',
+            'contacts', 'other_names',
+        ]);
+
+        $id = $this->service->create($data);
+        $slug = $this->service->getSlug($id);
+
+        return redirect()
+            ->route('actor.show', $slug)
+            ->with('success', 'Authority record created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $request->validate([
+            'authorized_form_of_name' => 'required|string|max:1024',
+            'entity_type_id' => 'required|integer|exists:term,id',
+            'dates_of_existence' => 'nullable|string|max:1024',
+            'description_identifier' => 'nullable|string|max:1024',
+            'corporate_body_identifiers' => 'nullable|string|max:1024',
+            'source_standard' => 'nullable|string|max:1024',
+            'description_status_id' => 'nullable|integer',
+            'description_detail_id' => 'nullable|integer',
+            'institution_responsible_identifier' => 'nullable|string|max:1024',
+            'history' => 'nullable|string',
+            'places' => 'nullable|string',
+            'legal_status' => 'nullable|string',
+            'functions' => 'nullable|string',
+            'mandates' => 'nullable|string',
+            'internal_structures' => 'nullable|string',
+            'general_context' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'sources' => 'nullable|string',
+            'revision_history' => 'nullable|string',
+            'maintenance_notes' => 'nullable|string',
+            'contacts' => 'nullable|array',
+            'contacts.*.contact_person' => 'nullable|string|max:1024',
+            'contacts.*.email' => 'nullable|email|max:255',
+            'contacts.*.telephone' => 'nullable|string|max:255',
+            'contacts.*.website' => 'nullable|url|max:1024',
+            'other_names' => 'nullable|array',
+            'other_names.*.name' => 'nullable|string|max:1024',
+            'other_names.*.type_id' => 'nullable|integer',
+        ]);
+
+        $data = $request->only([
+            'authorized_form_of_name', 'entity_type_id', 'dates_of_existence',
+            'description_identifier', 'corporate_body_identifiers', 'source_standard',
+            'description_status_id', 'description_detail_id',
+            'institution_responsible_identifier', 'history', 'places', 'legal_status',
+            'functions', 'mandates', 'internal_structures', 'general_context',
+            'rules', 'sources', 'revision_history', 'maintenance_notes',
+            'contacts', 'other_names',
+        ]);
+
+        $this->service->update($actor->id, $data);
+
+        return redirect()
+            ->route('actor.show', $slug)
+            ->with('success', 'Authority record updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        return view('ahg-actor-manage::delete', [
+            'actor' => $actor,
+        ]);
+    }
+
+    public function destroy(Request $request, string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $this->service->delete($actor->id);
+
+        return redirect()
+            ->route('actor.browse')
+            ->with('success', 'Authority record deleted successfully.');
     }
 }

@@ -122,3 +122,18 @@ This is **Heratio** — not AtoM. Do NOT reference "AtoM" in code, comments, des
 ## Quality Standard
 
 Every page must be identical to what AtoM/Symfony delivers. Full screens, full theme, full menus, full metadata, full digital objects. If a user can tell they're on Heratio vs Symfony, it is not ready.
+
+Use ahg-information-object-manage/ActorController.php as the structural pattern. Follow the same service injection, validation, flash messages, and redirect pattern. Do not simplify.
+
+- Never use placeholder comments like "// TODO: implement"
+- Never return empty collections or hardcoded dummy data
+- Every controller method must query the database via the injected Service class
+- Every form must have full validation rules matching AtoM field requirements
+- Views must render real Eloquent data, not static HTML
+
+The controller must only call service methods. Write the ActorService class with create(), update(), delete() methods. The service must handle both the actors table and the actor_i18n table in a single transaction.
+
+After writing the code, list every database column you wrote to and confirm it matches the AtoM schema. Flag anything you assumed or left incomplete.
+
+look at /usr/share/nginx/archive/atom-* packages where we developed Symfony/Laravel code. This code field/functionallity is exactly what we need in Heratio but only in Laravel.
+
