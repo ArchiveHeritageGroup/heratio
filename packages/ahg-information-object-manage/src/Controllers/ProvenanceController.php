@@ -3,13 +3,25 @@
 namespace AhgInformationObjectManage\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgInformationObjectManage\Services\ProvenanceService;
 
 /**
  * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgProvenancePlugin/
  */
 class ProvenanceController extends Controller
 {
+    private ProvenanceService $service;
+
+    public function __construct(ProvenanceService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * Show provenance chain + edit form for an IO.
+     */
     public function index(string $slug)
     {
         $io = $this->getIO($slug);
@@ -17,22 +29,29 @@ class ProvenanceController extends Controller
             abort(404);
         }
 
-        // Get provenance events for this object
+        $events    = $this->service->getChain($io->id);
+        $documents = collect(); // Documents are in provenance_document if present
+
         try {
-            $events = DB::table('ahg_provenance_event')
-                ->where('object_id', $io->id)
-                ->orderBy('event_date', 'desc')
+            $documents = DB::table('provenance_document')
+                ->where('provenance_record_id', $io->id)
+                ->orderBy('created_at', 'asc')
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
-            $events = collect();
+            // Table may not exist yet; graceful fallback
+            $documents = collect();
         }
 
         return view('ahg-io-manage::provenance.index', [
-            'io' => $io,
-            'events' => $events,
+            'io'        => $io,
+            'events'    => $events,
+            'documents' => $documents,
         ]);
     }
 
+    /**
+     * Timeline visualization of the provenance chain.
+     */
     public function timeline(string $slug)
     {
         $io = $this->getIO($slug);
@@ -40,21 +59,133 @@ class ProvenanceController extends Controller
             abort(404);
         }
 
-        try {
-            $events = DB::table('ahg_provenance_event')
-                ->where('object_id', $io->id)
-                ->orderBy('event_date', 'asc')
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $events = collect();
-        }
+        $events       = $this->service->getChain($io->id);
+        $timelineData = $this->service->getTimelineData($io->id);
 
         return view('ahg-io-manage::provenance.timeline', [
-            'io' => $io,
-            'events' => $events,
+            'io'           => $io,
+            'events'       => $events,
+            'timelineData' => $timelineData,
         ]);
     }
 
+    /**
+     * Validate and create a new provenance entry.
+     */
+    public function store(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'owner_name'           => 'required|string|max:500',
+            'owner_type'           => 'nullable|string|max:97',
+            'owner_actor_id'       => 'nullable|integer',
+            'owner_location'       => 'nullable|string|max:255',
+            'owner_location_tgn'   => 'nullable|string|max:100',
+            'start_date'           => 'nullable|string|max:50',
+            'start_date_qualifier' => 'nullable|string|max:31',
+            'end_date'             => 'nullable|string|max:50',
+            'end_date_qualifier'   => 'nullable|string|max:31',
+            'transfer_type'        => 'nullable|string|max:123',
+            'transfer_details'     => 'nullable|string',
+            'sale_price'           => 'nullable|numeric',
+            'sale_currency'        => 'nullable|string|max:10',
+            'auction_house'        => 'nullable|string|max:255',
+            'auction_lot'          => 'nullable|string|max:50',
+            'certainty'            => 'nullable|string|max:53',
+            'sources'              => 'nullable|string',
+            'notes'                => 'nullable|string',
+            'is_gap'               => 'nullable|boolean',
+            'gap_explanation'      => 'nullable|string',
+        ]);
+
+        $validated['information_object_id'] = $io->id;
+
+        $this->service->createEntry($validated);
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Provenance entry added.');
+    }
+
+    /**
+     * Update an existing provenance entry.
+     */
+    public function update(Request $request, int $id)
+    {
+        $entry = $this->service->getEntry($id);
+        if (!$entry) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'owner_name'           => 'required|string|max:500',
+            'owner_type'           => 'nullable|string|max:97',
+            'owner_actor_id'       => 'nullable|integer',
+            'owner_location'       => 'nullable|string|max:255',
+            'owner_location_tgn'   => 'nullable|string|max:100',
+            'start_date'           => 'nullable|string|max:50',
+            'start_date_qualifier' => 'nullable|string|max:31',
+            'end_date'             => 'nullable|string|max:50',
+            'end_date_qualifier'   => 'nullable|string|max:31',
+            'transfer_type'        => 'nullable|string|max:123',
+            'transfer_details'     => 'nullable|string',
+            'sale_price'           => 'nullable|numeric',
+            'sale_currency'        => 'nullable|string|max:10',
+            'auction_house'        => 'nullable|string|max:255',
+            'auction_lot'          => 'nullable|string|max:50',
+            'certainty'            => 'nullable|string|max:53',
+            'sources'              => 'nullable|string',
+            'notes'                => 'nullable|string',
+            'is_gap'               => 'nullable|boolean',
+            'gap_explanation'      => 'nullable|string',
+            'sequence'             => 'nullable|integer',
+        ]);
+
+        $this->service->updateEntry($id, $validated);
+
+        // Resolve slug for redirect
+        $io = DB::table('slug')
+            ->where('object_id', $entry->information_object_id)
+            ->first();
+
+        $slug = $io->slug ?? $entry->information_object_id;
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Provenance entry updated.');
+    }
+
+    /**
+     * Delete a provenance entry and resequence.
+     */
+    public function destroy(int $id)
+    {
+        $entry = $this->service->getEntry($id);
+        if (!$entry) {
+            abort(404);
+        }
+
+        $this->service->deleteEntry($id);
+
+        // Resolve slug for redirect
+        $io = DB::table('slug')
+            ->where('object_id', $entry->information_object_id)
+            ->first();
+
+        $slug = $io->slug ?? $entry->information_object_id;
+
+        return redirect()
+            ->route('io.provenance', $slug)
+            ->with('success', 'Provenance entry deleted.');
+    }
+
+    /**
+     * Look up an information object by slug.
+     */
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();

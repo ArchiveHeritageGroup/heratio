@@ -2,8 +2,8 @@
 
 namespace AhgInformationObjectManage\Controllers;
 
+use AhgInformationObjectManage\Services\AiNerService;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\DB;
  */
 class AiController extends Controller
 {
+    protected AiNerService $nerService;
+
+    public function __construct(AiNerService $nerService)
+    {
+        $this->nerService = $nerService;
+    }
+
     /**
      * Extract named entities (NER) from an IO's description text.
      * AtoM route: /ai/ner/extract/:id
@@ -22,21 +29,20 @@ class AiController extends Controller
             abort(404);
         }
 
-        // Check for existing extractions
-        try {
-            $entities = DB::table('ahg_ner_entity')
-                ->join('ahg_ner_entity_link', 'ahg_ner_entity.id', '=', 'ahg_ner_entity_link.entity_id')
-                ->where('ahg_ner_entity_link.object_id', $id)
-                ->select('ahg_ner_entity.*', 'ahg_ner_entity_link.confidence')
-                ->orderBy('ahg_ner_entity.entity_type')
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $entities = collect();
-        }
+        // Get existing entities for this object
+        $entities = $this->nerService->getEntitiesForObject($id);
+
+        // Get entity links (entities linked to actors)
+        $entityLinks = $this->nerService->getEntityLinks($id);
+
+        // Get extraction history
+        $extractionHistory = $this->nerService->getExtractionHistory($id);
 
         return view('ahg-io-manage::ai.extract', [
-            'io' => $io,
-            'entities' => $entities,
+            'io'                => $io,
+            'entities'          => $entities,
+            'entityLinks'       => $entityLinks,
+            'extractionHistory' => $extractionHistory,
         ]);
     }
 
@@ -46,15 +52,8 @@ class AiController extends Controller
      */
     public function review()
     {
-        try {
-            $pending = DB::table('ahg_ner_extraction')
-                ->where('status', 'pending_review')
-                ->orderBy('created_at', 'desc')
-                ->limit(50)
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $pending = collect();
-        }
+        // Get objects with pending entities, grouped by object
+        $pending = $this->nerService->getPendingExtractions();
 
         return view('ahg-io-manage::ai.review', [
             'pending' => $pending,
@@ -63,6 +62,7 @@ class AiController extends Controller
 
     /**
      * Generate summary for an IO.
+     * Displays existing scope_and_content for summary review (no external API call).
      */
     public function summarize(int $id)
     {
@@ -78,6 +78,7 @@ class AiController extends Controller
 
     /**
      * Translate an IO's description.
+     * Displays existing scope_and_content for translation review (no external API call).
      */
     public function translate(int $id)
     {
@@ -86,11 +87,25 @@ class AiController extends Controller
             abort(404);
         }
 
+        // Get available i18n cultures for this IO
+        try {
+            $availableCultures = DB::table('information_object_i18n')
+                ->where('id', $id)
+                ->pluck('culture')
+                ->toArray();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $availableCultures = [app()->getLocale()];
+        }
+
         return view('ahg-io-manage::ai.translate', [
-            'io' => $io,
+            'io'                => $io,
+            'availableCultures' => $availableCultures,
         ]);
     }
 
+    /**
+     * Fetch an IO by ID with i18n data and slug.
+     */
     private function getIOById(int $id): ?object
     {
         $culture = app()->getLocale();
@@ -101,7 +116,14 @@ class AiController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $id)
-            ->select('io.id', 'i18n.title', 'i18n.scope_and_content', 's.slug')
+            ->select(
+                'io.id',
+                'i18n.title',
+                'i18n.scope_and_content',
+                'i18n.archival_history',
+                'i18n.arrangement',
+                's.slug'
+            )
             ->first();
     }
 }

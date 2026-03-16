@@ -38,10 +38,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'upload'])->name('informationobject.findingaid.upload');
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
 
-    // Collections Management
+    // Collections Management — Provenance
     Route::get('/provenance/{slug}', [ProvenanceController::class, 'index'])->name('io.provenance');
     Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
+    Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store');
+    Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->where('id', '[0-9]+');
+    Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->where('id', '[0-9]+');
+
+    // Collections Management — Condition
     Route::get('/condition/{slug}', [ConditionController::class, 'index'])->name('io.condition');
+    Route::get('/condition/{slug}/create', [ConditionController::class, 'create'])->name('io.condition.create');
+    Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store');
+    Route::get('/condition/report/{id}', [ConditionController::class, 'show'])->name('io.condition.show')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 
@@ -62,6 +70,8 @@ Route::middleware('auth')->group(function () {
     // Extended Rights
     Route::get('/rights/extended/{slug}', [ExtendedRightsController::class, 'add'])->name('io.rights.extended');
     Route::get('/rights/embargo/{slug}', [ExtendedRightsController::class, 'embargo'])->name('io.rights.embargo');
+    Route::post('/rights/embargo/{slug}/store', [ExtendedRightsController::class, 'storeEmbargo'])->name('io.rights.embargo.store');
+    Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->where('id', '[0-9]+');
     Route::get('/rights/export/{slug}', [ExtendedRightsController::class, 'exportJsonLd'])->name('io.rights.export');
 
     // Research Tools

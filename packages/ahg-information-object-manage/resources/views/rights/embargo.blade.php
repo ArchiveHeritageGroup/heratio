@@ -7,7 +7,7 @@
 <h1>Add Embargo</h1>
 <p class="lead">{{ $io->title ?? $io->slug }}</p>
 
-<form method="post" action="#">
+<form method="post" action="{{ route('io.rights.embargo.store', $io->slug) }}">
   @csrf
 
   <div class="card mb-4">

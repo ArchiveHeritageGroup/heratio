@@ -2,6 +2,7 @@
 
 namespace AhgInformationObjectManage\Controllers;
 
+use AhgInformationObjectManage\Services\PreservationService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -10,6 +11,13 @@ use Illuminate\Support\Facades\DB;
  */
 class PreservationController extends Controller
 {
+    protected PreservationService $service;
+
+    public function __construct()
+    {
+        $this->service = new PreservationService();
+    }
+
     /**
      * Show preservation packages for an IO.
      */
@@ -21,31 +29,21 @@ class PreservationController extends Controller
         }
 
         // Get AIPs linked to this object
-        try {
-            $aips = DB::table('aip')
-                ->where('object_id', $io->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $aips = collect();
-        }
+        $aips = $this->service->getAipsForObject($io->id);
 
         // Get PREMIS objects
-        try {
-            $premisObjects = DB::table('premis_object')
-                ->where('information_object_id', $io->id)
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $premisObjects = collect();
-        }
+        $premisObjects = $this->service->getPremisObjects($io->id);
 
         return view('ahg-io-manage::preservation.index', [
-            'io' => $io,
-            'aips' => $aips,
+            'io'            => $io,
+            'aips'          => $aips,
             'premisObjects' => $premisObjects,
         ]);
     }
 
+    /**
+     * Resolve IO from slug.
+     */
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();
