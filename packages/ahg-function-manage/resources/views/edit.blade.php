@@ -1,0 +1,212 @@
+@extends('theme::layouts.1col')
+
+@section('title')
+  <div class="multiline-header d-flex flex-column mb-3">
+    <h1 class="mb-0">
+      @if($function)
+        Edit function - ISDF
+      @else
+        Create function - ISDF
+      @endif
+    </h1>
+    @if($function)
+      <span class="small">{{ $function->authorized_form_of_name }}</span>
+    @endif
+  </div>
+@endsection
+
+@section('content')
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
+  <form method="POST"
+        action="{{ $function ? route('function.update', $function->slug) : route('function.store') }}"
+        id="editForm">
+    @csrf
+
+    <div class="accordion mb-3">
+      {{-- Identity area (ISDF 5.1) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="identity-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="true" aria-controls="identity-collapse">
+            Identity area
+          </button>
+        </h2>
+        <div id="identity-collapse" class="accordion-collapse collapse show" aria-labelledby="identity-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="type_id" class="form-label">Type</label>
+              <select name="type_id" id="type_id" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach($formChoices['functionTypes'] as $type)
+                  <option value="{{ $type->id }}" @selected(old('type_id', $function->type_id ?? '') == $type->id)>
+                    {{ $type->name }}
+                  </option>
+                @endforeach
+              </select>
+              <div class="form-text">"Indicate whether the description is of a function, sub-function, business process, activity, task, or transaction." (ISDF 5.1.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="authorized_form_of_name" class="form-label">
+                Authorized form of name <span class="form-required text-danger" title="This is a mandatory element.">*</span>
+              </label>
+              <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
+                     value="{{ old('authorized_form_of_name', $function->authorized_form_of_name ?? '') }}">
+              <div class="form-text">"Record the authorised name of the function being described." (ISDF 5.1.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="classification" class="form-label">Classification</label>
+              <input type="text" name="classification" id="classification" class="form-control"
+                     value="{{ old('classification', $function->classification ?? '') }}">
+              <div class="form-text">"Record any classification code or system associated with the function being described." (ISDF 5.1.3)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Description area (ISDF 5.2) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="description-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
+            Description area
+          </button>
+        </h2>
+        <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="dates" class="form-label">Dates</label>
+              <input type="text" name="dates" id="dates" class="form-control"
+                     value="{{ old('dates', $function->dates ?? '') }}">
+              <div class="form-text">"Record as appropriate any dates associated with the function being described." (ISDF 5.2.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea name="description" id="description" class="form-control" rows="6">{{ old('description', $function->description ?? '') }}</textarea>
+              <div class="form-text">"Record a description of the nature, purpose and scope of the function." (ISDF 5.2.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="history" class="form-label">History</label>
+              <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $function->history ?? '') }}</textarea>
+              <div class="form-text">"Record in narrative form or as a chronology the main events relating to the function." (ISDF 5.2.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="legislation" class="form-label">Legislation</label>
+              <textarea name="legislation" id="legislation" class="form-control" rows="6">{{ old('legislation', $function->legislation ?? '') }}</textarea>
+              <div class="form-text">"Record any law, directive or charter related to the function." (ISDF 5.2.4)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Control area (ISDF 5.4) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="control-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
+            Control area
+          </button>
+        </h2>
+        <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="description_identifier" class="form-label">Description identifier</label>
+              <input type="text" name="description_identifier" id="description_identifier" class="form-control"
+                     value="{{ old('description_identifier', $function->description_identifier ?? '') }}">
+              <div class="form-text">"Record a unique description identifier in accordance with local and/or national conventions." (ISDF 5.4.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="institution_identifier" class="form-label">Institution identifier</label>
+              <textarea name="institution_identifier" id="institution_identifier" class="form-control" rows="4">{{ old('institution_identifier', $function->institution_identifier ?? '') }}</textarea>
+              <div class="form-text">"Record the full authorised form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the description." (ISDF 5.4.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="rules" class="form-label">Rules and/or conventions used</label>
+              <textarea name="rules" id="rules" class="form-control" rows="4">{{ old('rules', $function->rules ?? '') }}</textarea>
+              <div class="form-text">"Record the names and where useful the editions or publication dates of the conventions or rules applied." (ISDF 5.4.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description_status_id" class="form-label">Status</label>
+              <select name="description_status_id" id="description_status_id" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach($formChoices['descriptionStatuses'] as $status)
+                  <option value="{{ $status->id }}" @selected(old('description_status_id', $function->description_status_id ?? '') == $status->id)>
+                    {{ $status->name }}
+                  </option>
+                @endforeach
+              </select>
+              <div class="form-text">"Indicate the drafting status of the description." (ISDF 5.4.4)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description_detail_id" class="form-label">Level of detail</label>
+              <select name="description_detail_id" id="description_detail_id" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach($formChoices['descriptionDetails'] as $detail)
+                  <option value="{{ $detail->id }}" @selected(old('description_detail_id', $function->description_detail_id ?? '') == $detail->id)>
+                    {{ $detail->name }}
+                  </option>
+                @endforeach
+              </select>
+              <div class="form-text">"Select Full, Partial or Minimal." (ISDF 5.4.5)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
+              <textarea name="revision_history" id="revision_history" class="form-control" rows="4">{{ old('revision_history', $function->revision_history ?? '') }}</textarea>
+              <div class="form-text">"Record the date the description was created and the dates of any revisions to the description." (ISDF 5.4.6)</div>
+            </div>
+
+            @if($function && $function->updated_at)
+              <div class="mb-3">
+                <h3 class="fs-6 mb-2">Last updated</h3>
+                <span class="text-muted">{{ $function->updated_at }}</span>
+              </div>
+            @endif
+
+            <div class="mb-3">
+              <label for="sources" class="form-label">Sources</label>
+              <textarea name="sources" id="sources" class="form-control" rows="4">{{ old('sources', $function->sources ?? '') }}</textarea>
+              <div class="form-text">"Record the sources consulted in establishing the description." (ISDF 5.4.8)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="source_standard" class="form-label">Source standard</label>
+              <input type="text" name="source_standard" id="source_standard" class="form-control"
+                     value="{{ old('source_standard', $function->source_standard ?? '') }}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="actions mb-3 nav gap-2">
+      @if($function)
+        <li><a href="{{ route('function.show', $function->slug) }}" class="btn btn-outline-secondary">Cancel</a></li>
+        <li><input class="btn btn-outline-success" type="submit" value="Save"></li>
+      @else
+        <li><a href="{{ route('function.browse') }}" class="btn btn-outline-secondary">Cancel</a></li>
+        <li><input class="btn btn-outline-success" type="submit" value="Create"></li>
+      @endif
+    </ul>
+  </form>
+
+@endsection

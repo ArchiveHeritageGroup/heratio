@@ -3,6 +3,7 @@
 namespace AhgStorageManage\Controllers;
 
 use AhgStorageManage\Services\StorageBrowseService;
+use AhgStorageManage\Services\StorageService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,12 +11,19 @@ use Illuminate\Support\Facades\DB;
 
 class StorageController extends Controller
 {
+    protected StorageService $service;
+
+    public function __construct()
+    {
+        $this->service = new StorageService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new StorageBrowseService($culture);
+        $browseService = new StorageBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
@@ -51,61 +59,92 @@ class StorageController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
-        $culture = app()->getLocale();
-
-        $storage = DB::table('physical_object')
-            ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
-            ->join('object', 'physical_object.id', '=', 'object.id')
-            ->join('slug', 'physical_object.id', '=', 'slug.object_id')
-            ->where('slug.slug', $slug)
-            ->where('physical_object_i18n.culture', $culture)
-            ->select([
-                'physical_object.id',
-                'physical_object.type_id',
-                'physical_object_i18n.name',
-                'physical_object_i18n.location',
-                'physical_object_i18n.description',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
+        $storage = $this->service->getBySlug($slug);
         if (!$storage) {
             abort(404);
         }
 
-        // Get type name
-        $typeName = null;
-        if ($storage->type_id) {
-            $typeName = DB::table('term_i18n')
-                ->where('id', $storage->type_id)
-                ->where('culture', $culture)
-                ->value('name');
-        }
-
-        // Get linked information objects via relation table
-        // relation.subject_id = physical_object.id, relation.object_id = information_object.id
-        // type_id = 147 (HAS_PHYSICAL_OBJECT)
-        $descriptions = DB::table('relation')
-            ->join('information_object_i18n', 'relation.object_id', '=', 'information_object_i18n.id')
-            ->join('slug', 'relation.object_id', '=', 'slug.object_id')
-            ->where('relation.subject_id', $storage->id)
-            ->where('relation.type_id', 147)
-            ->where('information_object_i18n.culture', $culture)
-            ->select([
-                'relation.object_id as id',
-                'information_object_i18n.title',
-                'slug.slug',
-            ])
-            ->get();
+        $typeName = $this->service->getTermName($storage->type_id);
+        $descriptions = $this->service->getLinkedDescriptions($storage->id);
 
         return view('ahg-storage-manage::show', [
             'storage' => $storage,
             'typeName' => $typeName,
             'descriptions' => $descriptions,
         ]);
+    }
+
+    public function create()
+    {
+        return view('ahg-storage-manage::edit', [
+            'storage' => null,
+            'typeChoices' => $this->service->getFormChoices(),
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (!$storage) {
+            abort(404);
+        }
+
+        return view('ahg-storage-manage::edit', [
+            'storage' => $storage,
+            'typeChoices' => $this->service->getFormChoices(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:1024']);
+        $id = $this->service->create($request->only($this->fields()));
+        return redirect()
+            ->route('physicalobject.show', $this->service->getSlug($id))
+            ->with('success', 'Physical storage created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (!$storage) {
+            abort(404);
+        }
+
+        $request->validate(['name' => 'required|string|max:1024']);
+        $this->service->update($storage->id, $request->only($this->fields()));
+        return redirect()
+            ->route('physicalobject.show', $slug)
+            ->with('success', 'Physical storage updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (!$storage) {
+            abort(404);
+        }
+
+        return view('ahg-storage-manage::delete', ['storage' => $storage]);
+    }
+
+    public function destroy(string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (!$storage) {
+            abort(404);
+        }
+
+        $this->service->delete($storage->id);
+        return redirect()
+            ->route('physicalobject.browse')
+            ->with('success', 'Physical storage deleted successfully.');
+    }
+
+    private function fields(): array
+    {
+        return ['name', 'type_id', 'location', 'description'];
     }
 }

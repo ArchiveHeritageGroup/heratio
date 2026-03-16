@@ -6,6 +6,19 @@
 @section('content')
   <h1>{{ $term->name }}</h1>
 
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  {{-- Action buttons for authenticated users --}}
+  @auth
+    <div class="mb-3">
+      <a href="{{ route('term.edit', $term->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+      <a href="{{ route('term.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+    </div>
+  @endauth
+
   {{-- Identity --}}
   <section class="mb-4">
     <h2 class="fs-5 border-bottom pb-2">Identity</h2>

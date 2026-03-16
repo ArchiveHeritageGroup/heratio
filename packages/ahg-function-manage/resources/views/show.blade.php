@@ -4,7 +4,22 @@
 @section('body-class', 'view function')
 
 @section('content')
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
   <h1>{{ $function->authorized_form_of_name }}</h1>
+
+  @auth
+    <ul class="actions mb-3 nav gap-2">
+      <li><a href="{{ route('function.edit', $function->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a></li>
+      @can('admin')
+        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a></li>
+      @endcan
+      <li><a href="{{ route('function.create') }}" class="btn btn-sm btn-outline-success">Add new</a></li>
+    </ul>
+  @endauth
 
   @if($typeName)
     <span class="badge bg-secondary mb-3">{{ $typeName }}</span>

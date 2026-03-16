@@ -3,19 +3,26 @@
 namespace AhgAccessionManage\Controllers;
 
 use AhgAccessionManage\Services\AccessionBrowseService;
+use AhgAccessionManage\Services\AccessionService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AccessionController extends Controller
 {
+    protected AccessionService $service;
+
+    public function __construct()
+    {
+        $this->service = new AccessionService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new AccessionBrowseService($culture);
+        $browseService = new AccessionBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'lastUpdated'),
@@ -37,37 +44,7 @@ class AccessionController extends Controller
 
     public function show(Request $request, string $slug)
     {
-        $culture = app()->getLocale();
-
-        $accession = DB::table('accession')
-            ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
-            ->join('object', 'accession.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('accession_i18n.culture', $culture)
-            ->select([
-                'accession.id',
-                'accession.identifier',
-                'accession.date',
-                'accession.acquisition_type_id',
-                'accession.processing_priority_id',
-                'accession.processing_status_id',
-                'accession.resource_type_id',
-                'accession_i18n.title',
-                'accession_i18n.scope_and_content',
-                'accession_i18n.appraisal',
-                'accession_i18n.archival_history',
-                'accession_i18n.location_information',
-                'accession_i18n.physical_characteristics',
-                'accession_i18n.processing_notes',
-                'accession_i18n.received_extent_units',
-                'accession_i18n.source_of_acquisition',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
+        $accession = $this->service->getBySlug($slug);
         if (!$accession) {
             abort(404);
         }
@@ -79,56 +56,17 @@ class AccessionController extends Controller
             $accession->processing_status_id,
             $accession->resource_type_id,
         ]);
+        $termNames = $this->service->getTermNames($termIds);
 
-        $termNames = [];
-        if (!empty($termIds)) {
-            $termNames = DB::table('term_i18n')
-                ->whereIn('id', $termIds)
-                ->where('culture', $culture)
-                ->pluck('name', 'id')
-                ->toArray();
-        }
-
-        // Get donor via relation table (type_id = 167 "Accession" relation)
-        $donor = DB::table('relation')
-            ->join('actor_i18n', 'relation.subject_id', '=', 'actor_i18n.id')
-            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
-            ->where('relation.object_id', $accession->id)
-            ->where('relation.type_id', 167)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'relation.subject_id as id',
-                'actor_i18n.authorized_form_of_name as name',
-                'slug.slug',
-            ])
-            ->first();
+        // Get donor via relation table
+        $donor = $this->service->getDonor($accession->id);
 
         // Get deaccessions
-        $deaccessions = DB::table('deaccession')
-            ->join('deaccession_i18n', 'deaccession.id', '=', 'deaccession_i18n.id')
-            ->where('deaccession.accession_id', $accession->id)
-            ->where('deaccession_i18n.culture', $culture)
-            ->select([
-                'deaccession.id',
-                'deaccession.identifier',
-                'deaccession.date',
-                'deaccession.scope_id',
-                'deaccession_i18n.description',
-                'deaccession_i18n.extent',
-                'deaccession_i18n.reason',
-            ])
-            ->get();
+        $deaccessions = $this->service->getDeaccessions($accession->id);
 
         // Resolve deaccession scope term names
         $scopeIds = $deaccessions->pluck('scope_id')->filter()->unique()->values()->toArray();
-        $scopeNames = [];
-        if (!empty($scopeIds)) {
-            $scopeNames = DB::table('term_i18n')
-                ->whereIn('id', $scopeIds)
-                ->where('culture', $culture)
-                ->pluck('name', 'id')
-                ->toArray();
-        }
+        $scopeNames = $this->service->getTermNames($scopeIds);
 
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
@@ -137,5 +75,137 @@ class AccessionController extends Controller
             'deaccessions' => $deaccessions,
             'scopeNames' => $scopeNames,
         ]);
+    }
+
+    public function create()
+    {
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-accession-manage::edit', [
+            'accession' => null,
+            'donor' => null,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        $donor = $this->service->getDonor($accession->id);
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-accession-manage::edit', [
+            'accession' => $accession,
+            'donor' => $donor,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string|max:255|unique:accession,identifier',
+            'title' => 'nullable|string|max:1024',
+            'date' => 'nullable|date',
+            'acquisition_type_id' => 'nullable|integer|exists:term,id',
+            'processing_priority_id' => 'nullable|integer|exists:term,id',
+            'processing_status_id' => 'nullable|integer|exists:term,id',
+            'resource_type_id' => 'nullable|integer|exists:term,id',
+            'scope_and_content' => 'nullable|string',
+            'archival_history' => 'nullable|string',
+            'source_of_acquisition' => 'nullable|string',
+            'location_information' => 'nullable|string',
+            'received_extent_units' => 'nullable|string',
+            'physical_characteristics' => 'nullable|string',
+            'appraisal' => 'nullable|string',
+            'processing_notes' => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'identifier', 'title', 'date',
+            'acquisition_type_id', 'processing_priority_id',
+            'processing_status_id', 'resource_type_id',
+            'scope_and_content', 'archival_history', 'source_of_acquisition',
+            'location_information', 'received_extent_units', 'physical_characteristics',
+            'appraisal', 'processing_notes',
+        ]);
+
+        $id = $this->service->create($data);
+        $slug = $this->service->getSlug($id);
+
+        return redirect()
+            ->route('accession.show', $slug)
+            ->with('success', 'Accession record created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        $request->validate([
+            'identifier' => 'required|string|max:255|unique:accession,identifier,' . $accession->id,
+            'title' => 'nullable|string|max:1024',
+            'date' => 'nullable|date',
+            'acquisition_type_id' => 'nullable|integer|exists:term,id',
+            'processing_priority_id' => 'nullable|integer|exists:term,id',
+            'processing_status_id' => 'nullable|integer|exists:term,id',
+            'resource_type_id' => 'nullable|integer|exists:term,id',
+            'scope_and_content' => 'nullable|string',
+            'archival_history' => 'nullable|string',
+            'source_of_acquisition' => 'nullable|string',
+            'location_information' => 'nullable|string',
+            'received_extent_units' => 'nullable|string',
+            'physical_characteristics' => 'nullable|string',
+            'appraisal' => 'nullable|string',
+            'processing_notes' => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'identifier', 'title', 'date',
+            'acquisition_type_id', 'processing_priority_id',
+            'processing_status_id', 'resource_type_id',
+            'scope_and_content', 'archival_history', 'source_of_acquisition',
+            'location_information', 'received_extent_units', 'physical_characteristics',
+            'appraisal', 'processing_notes',
+        ]);
+
+        $this->service->update($accession->id, $data);
+
+        return redirect()
+            ->route('accession.show', $slug)
+            ->with('success', 'Accession record updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        return view('ahg-accession-manage::delete', [
+            'accession' => $accession,
+        ]);
+    }
+
+    public function destroy(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        $this->service->delete($accession->id);
+
+        return redirect()
+            ->route('accession.browse')
+            ->with('success', 'Accession record deleted successfully.');
     }
 }

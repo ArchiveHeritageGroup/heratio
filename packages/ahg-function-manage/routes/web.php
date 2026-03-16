@@ -4,4 +4,17 @@ use AhgFunctionManage\Controllers\FunctionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/function/browse', [FunctionController::class, 'browse'])->name('function.browse');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/function/add', [FunctionController::class, 'create'])->name('function.create');
+    Route::post('/function/add', [FunctionController::class, 'store'])->name('function.store');
+    Route::get('/function/{slug}/edit', [FunctionController::class, 'edit'])->name('function.edit');
+    Route::post('/function/{slug}/edit', [FunctionController::class, 'update'])->name('function.update');
+});
+
+Route::middleware('admin')->group(function () {
+    Route::get('/function/{slug}/delete', [FunctionController::class, 'confirmDelete'])->name('function.confirmDelete');
+    Route::delete('/function/{slug}/delete', [FunctionController::class, 'destroy'])->name('function.destroy');
+});
+
 Route::get('/function/{slug}', [FunctionController::class, 'show'])->name('function.show');

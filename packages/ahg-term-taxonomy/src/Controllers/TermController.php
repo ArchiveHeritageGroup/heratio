@@ -3,13 +3,20 @@
 namespace AhgTermTaxonomy\Controllers;
 
 use AhgTermTaxonomy\Services\TermBrowseService;
+use AhgTermTaxonomy\Services\TermService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class TermController extends Controller
 {
+    protected TermService $termService;
+
+    public function __construct(TermService $termService)
+    {
+        $this->termService = $termService;
+    }
+
     /**
      * List all taxonomies.
      */
@@ -17,15 +24,7 @@ class TermController extends Controller
     {
         $culture = app()->getLocale();
 
-        $taxonomies = DB::table('taxonomy')
-            ->join('taxonomy_i18n', 'taxonomy.id', '=', 'taxonomy_i18n.id')
-            ->where('taxonomy_i18n.culture', $culture)
-            ->select([
-                'taxonomy.id',
-                'taxonomy_i18n.name as name',
-            ])
-            ->orderBy('taxonomy_i18n.name', 'asc')
-            ->get();
+        $taxonomies = $this->termService->getTaxonomies($culture);
 
         return view('ahg-term-taxonomy::taxonomy-index', [
             'taxonomies' => $taxonomies,
@@ -54,10 +53,7 @@ class TermController extends Controller
         // Get taxonomy name for the heading
         $taxonomyName = null;
         if ($taxonomyId) {
-            $taxonomyName = DB::table('taxonomy_i18n')
-                ->where('id', $taxonomyId)
-                ->where('culture', $culture)
-                ->value('name');
+            $taxonomyName = $this->termService->getTaxonomyName((int) $taxonomyId, $culture);
         }
 
         return view('ahg-term-taxonomy::browse', [
@@ -78,44 +74,15 @@ class TermController extends Controller
     {
         $culture = app()->getLocale();
 
-        $term = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->join('object', 'term.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('term_i18n.culture', $culture)
-            ->select([
-                'term.id',
-                'term.taxonomy_id',
-                'term_i18n.name',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
+        $term = $this->termService->getBySlug($slug, $culture);
 
         if (!$term) {
             abort(404);
         }
 
-        // Get taxonomy name
-        $taxonomyName = DB::table('taxonomy_i18n')
-            ->where('id', $term->taxonomy_id)
-            ->where('culture', $culture)
-            ->value('name');
-
-        // Get scope note from note + note_i18n
-        $scopeNote = DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
-            ->where('note.object_id', $term->id)
-            ->where('note_i18n.culture', $culture)
-            ->select('note_i18n.content')
-            ->first();
-
-        // Count related descriptions (information objects linked via object_term_relation)
-        $relatedDescriptionsCount = DB::table('object_term_relation')
-            ->where('term_id', $term->id)
-            ->count();
+        $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
+        $scopeNote = $this->termService->getScopeNote($term->id, $culture);
+        $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
 
         return view('ahg-term-taxonomy::show', [
             'term' => $term,
@@ -123,5 +90,142 @@ class TermController extends Controller
             'scopeNote' => $scopeNote,
             'relatedDescriptionsCount' => $relatedDescriptionsCount,
         ]);
+    }
+
+    /**
+     * Show the create form for a new term.
+     */
+    public function create(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $taxonomies = $this->termService->getTaxonomies($culture);
+        $selectedTaxonomyId = $request->get('taxonomy_id');
+
+        return view('ahg-term-taxonomy::edit', [
+            'term' => null,
+            'taxonomies' => $taxonomies,
+            'taxonomyName' => null,
+            'selectedTaxonomyId' => $selectedTaxonomyId,
+        ]);
+    }
+
+    /**
+     * Store a new term.
+     */
+    public function store(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $request->validate([
+            'taxonomy_id' => 'required|integer',
+            'name' => 'required|string|max:1024',
+            'code' => 'nullable|string|max:1024',
+        ]);
+
+        $slug = $this->termService->create([
+            'taxonomy_id' => $request->input('taxonomy_id'),
+            'name' => $request->input('name'),
+            'code' => $request->input('code'),
+        ], $culture);
+
+        return redirect()
+            ->route('term.show', $slug)
+            ->with('success', 'Term created successfully.');
+    }
+
+    /**
+     * Show the edit form for a term.
+     */
+    public function edit(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $term = $this->termService->getBySlug($slug, $culture);
+
+        if (!$term) {
+            abort(404);
+        }
+
+        $taxonomies = $this->termService->getTaxonomies($culture);
+        $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
+
+        return view('ahg-term-taxonomy::edit', [
+            'term' => $term,
+            'taxonomies' => $taxonomies,
+            'taxonomyName' => $taxonomyName,
+            'selectedTaxonomyId' => $term->taxonomy_id,
+        ]);
+    }
+
+    /**
+     * Update a term.
+     */
+    public function update(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $request->validate([
+            'name' => 'required|string|max:1024',
+            'code' => 'nullable|string|max:1024',
+        ]);
+
+        $term = $this->termService->getBySlug($slug, $culture);
+
+        if (!$term) {
+            abort(404);
+        }
+
+        $this->termService->update($term->id, [
+            'name' => $request->input('name'),
+            'code' => $request->input('code'),
+        ], $culture);
+
+        return redirect()
+            ->route('term.show', $slug)
+            ->with('success', 'Term updated successfully.');
+    }
+
+    /**
+     * Show the delete confirmation page.
+     */
+    public function confirmDelete(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $term = $this->termService->getBySlug($slug, $culture);
+
+        if (!$term) {
+            abort(404);
+        }
+
+        $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
+
+        return view('ahg-term-taxonomy::delete', [
+            'term' => $term,
+            'taxonomyName' => $taxonomyName,
+        ]);
+    }
+
+    /**
+     * Delete a term.
+     */
+    public function destroy(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $term = $this->termService->getBySlug($slug, $culture);
+
+        if (!$term) {
+            abort(404);
+        }
+
+        $taxonomyId = $term->taxonomy_id;
+
+        $this->termService->delete($term->id);
+
+        return redirect()
+            ->route('term.browse', ['taxonomy' => $taxonomyId])
+            ->with('success', 'Term deleted successfully.');
     }
 }

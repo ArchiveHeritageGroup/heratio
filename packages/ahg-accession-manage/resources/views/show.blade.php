@@ -4,7 +4,24 @@
 @section('body-class', 'view accession')
 
 @section('content')
-  <h1>{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</h1>
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <h1 class="mb-0">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</h1>
+
+    @auth
+      <div class="d-flex gap-2">
+        <a href="{{ route('accession.create') }}" class="btn btn-sm btn-outline-primary">Add new</a>
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+        @if(auth()->user()->is_admin ?? false)
+          <a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+        @endif
+      </div>
+    @endauth
+  </div>
 
   {{-- Accession area --}}
   <section class="mb-4">

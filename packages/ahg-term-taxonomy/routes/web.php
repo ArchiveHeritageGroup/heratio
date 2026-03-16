@@ -5,4 +5,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/taxonomy/browse', [TermController::class, 'taxonomyIndex'])->name('taxonomy.browse');
 Route::get('/term/browse', [TermController::class, 'browse'])->name('term.browse');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/term/add', [TermController::class, 'create'])->name('term.create');
+    Route::post('/term/store', [TermController::class, 'store'])->name('term.store');
+    Route::get('/term/{slug}/edit', [TermController::class, 'edit'])->name('term.edit');
+    Route::put('/term/{slug}', [TermController::class, 'update'])->name('term.update');
+    Route::get('/term/{slug}/delete', [TermController::class, 'confirmDelete'])->name('term.confirmDelete');
+    Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy');
+});
+
 Route::get('/term/{slug}', [TermController::class, 'show'])->name('term.show');
