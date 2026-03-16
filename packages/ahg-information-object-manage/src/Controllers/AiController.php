@@ -23,12 +23,16 @@ class AiController extends Controller
         }
 
         // Check for existing extractions
-        $entities = DB::table('ahg_ner_entity')
-            ->join('ahg_ner_entity_link', 'ahg_ner_entity.id', '=', 'ahg_ner_entity_link.entity_id')
-            ->where('ahg_ner_entity_link.object_id', $id)
-            ->select('ahg_ner_entity.*', 'ahg_ner_entity_link.confidence')
-            ->orderBy('ahg_ner_entity.entity_type')
-            ->get();
+        try {
+            $entities = DB::table('ahg_ner_entity')
+                ->join('ahg_ner_entity_link', 'ahg_ner_entity.id', '=', 'ahg_ner_entity_link.entity_id')
+                ->where('ahg_ner_entity_link.object_id', $id)
+                ->select('ahg_ner_entity.*', 'ahg_ner_entity_link.confidence')
+                ->orderBy('ahg_ner_entity.entity_type')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $entities = collect();
+        }
 
         return view('ahg-io-manage::ai.extract', [
             'io' => $io,
@@ -42,11 +46,15 @@ class AiController extends Controller
      */
     public function review()
     {
-        $pending = DB::table('ahg_ner_extraction')
-            ->where('status', 'pending_review')
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
+        try {
+            $pending = DB::table('ahg_ner_extraction')
+                ->where('status', 'pending_review')
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $pending = collect();
+        }
 
         return view('ahg-io-manage::ai.review', [
             'pending' => $pending,

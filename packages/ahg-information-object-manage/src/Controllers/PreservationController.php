@@ -21,15 +21,23 @@ class PreservationController extends Controller
         }
 
         // Get AIPs linked to this object
-        $aips = DB::table('aip')
-            ->where('object_id', $io->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        try {
+            $aips = DB::table('aip')
+                ->where('object_id', $io->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $aips = collect();
+        }
 
-        // Get PREMIS events
-        $premisObjects = DB::table('premis_object')
-            ->where('information_object_id', $io->id)
-            ->get();
+        // Get PREMIS objects
+        try {
+            $premisObjects = DB::table('premis_object')
+                ->where('information_object_id', $io->id)
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $premisObjects = collect();
+        }
 
         return view('ahg-io-manage::preservation.index', [
             'io' => $io,

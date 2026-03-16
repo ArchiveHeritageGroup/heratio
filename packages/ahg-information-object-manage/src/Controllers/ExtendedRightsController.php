@@ -21,9 +21,13 @@ class ExtendedRightsController extends Controller
             abort(404);
         }
 
-        $existingRights = DB::table('rights')
-            ->where('object_id', $io->id)
-            ->get();
+        try {
+            $existingRights = DB::table('rights')
+                ->where('object_id', $io->id)
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $existingRights = collect();
+        }
 
         return view('ahg-io-manage::rights.extended', [
             'io' => $io,
@@ -56,13 +60,17 @@ class ExtendedRightsController extends Controller
             abort(404);
         }
 
-        $rights = DB::table('rights')
-            ->join('rights_i18n', function ($j) {
-                $j->on('rights_i18n.id', '=', 'rights.id')
-                    ->where('rights_i18n.culture', app()->getLocale());
-            })
-            ->where('rights.object_id', $io->id)
-            ->get();
+        try {
+            $rights = DB::table('rights')
+                ->join('rights_i18n', function ($j) {
+                    $j->on('rights_i18n.id', '=', 'rights.id')
+                        ->where('rights_i18n.culture', app()->getLocale());
+                })
+                ->where('rights.object_id', $io->id)
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $rights = collect();
+        }
 
         $jsonLd = [
             '@context' => 'http://schema.org',

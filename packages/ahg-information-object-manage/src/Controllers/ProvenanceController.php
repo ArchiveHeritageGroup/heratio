@@ -18,10 +18,14 @@ class ProvenanceController extends Controller
         }
 
         // Get provenance events for this object
-        $events = DB::table('ahg_provenance_event')
-            ->where('object_id', $io->id)
-            ->orderBy('event_date', 'desc')
-            ->get();
+        try {
+            $events = DB::table('ahg_provenance_event')
+                ->where('object_id', $io->id)
+                ->orderBy('event_date', 'desc')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $events = collect();
+        }
 
         return view('ahg-io-manage::provenance.index', [
             'io' => $io,
@@ -36,10 +40,14 @@ class ProvenanceController extends Controller
             abort(404);
         }
 
-        $events = DB::table('ahg_provenance_event')
-            ->where('object_id', $io->id)
-            ->orderBy('event_date', 'asc')
-            ->get();
+        try {
+            $events = DB::table('ahg_provenance_event')
+                ->where('object_id', $io->id)
+                ->orderBy('event_date', 'asc')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            $events = collect();
+        }
 
         return view('ahg-io-manage::provenance.timeline', [
             'io' => $io,
