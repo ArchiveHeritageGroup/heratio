@@ -8,76 +8,8 @@
 {{-- ============================================================ --}}
 @section('sidebar')
 
-  {{-- Ancestor hierarchy (treeview) --}}
-  <div class="card mb-3">
-    <div class="card-header fw-bold">
-      <i class="fas fa-sitemap me-1"></i> Holdings
-    </div>
-    <div class="card-body p-2">
-      @if(!empty($breadcrumbs))
-        <ul class="list-unstyled ps-0 mb-0 treeview-ancestors">
-          @foreach($breadcrumbs as $i => $crumb)
-            <li style="padding-left: {{ $i * 15 }}px;" class="mb-1">
-              <i class="fas fa-caret-right me-1 text-muted small"></i>
-              <a href="{{ route('informationobject.show', $crumb->slug) }}" class="text-decoration-none small">
-                {{ $crumb->title ?: '[Untitled]' }}
-              </a>
-            </li>
-          @endforeach
-          {{-- Current node highlighted --}}
-          <li style="padding-left: {{ count($breadcrumbs) * 15 }}px;" class="mb-1">
-            <i class="fas fa-caret-down me-1 small"></i>
-            <strong class="small">{{ $io->title ?: '[Untitled]' }}</strong>
-          </li>
-          {{-- Children listed below current --}}
-          @if(isset($children) && $children->isNotEmpty())
-            @foreach($children->take(20) as $child)
-              <li style="padding-left: {{ (count($breadcrumbs) + 1) * 15 }}px;" class="mb-1">
-                <i class="fas fa-caret-right me-1 text-muted small"></i>
-                <a href="{{ route('informationobject.show', $child->slug) }}" class="text-decoration-none small">
-                  {{ $child->title ?: '[Untitled]' }}
-                </a>
-                @if($child->level_of_description_id && isset($childLevelNames[$child->level_of_description_id]))
-                  <span class="badge bg-secondary ms-1" style="font-size:.65em">{{ $childLevelNames[$child->level_of_description_id] }}</span>
-                @endif
-              </li>
-            @endforeach
-            @if($children->count() > 20)
-              <li style="padding-left: {{ (count($breadcrumbs) + 1) * 15 }}px;" class="mb-1 text-muted small">
-                ... and {{ $children->count() - 20 }} more
-              </li>
-            @endif
-          @endif
-        </ul>
-      @else
-        {{-- No ancestors — just current node + children --}}
-        <ul class="list-unstyled ps-0 mb-0">
-          <li class="mb-1">
-            <i class="fas fa-caret-down me-1 small"></i>
-            <strong class="small">{{ $io->title ?: '[Untitled]' }}</strong>
-          </li>
-          @if(isset($children) && $children->isNotEmpty())
-            @foreach($children->take(20) as $child)
-              <li style="padding-left: 15px;" class="mb-1">
-                <i class="fas fa-caret-right me-1 text-muted small"></i>
-                <a href="{{ route('informationobject.show', $child->slug) }}" class="text-decoration-none small">
-                  {{ $child->title ?: '[Untitled]' }}
-                </a>
-                @if($child->level_of_description_id && isset($childLevelNames[$child->level_of_description_id]))
-                  <span class="badge bg-secondary ms-1" style="font-size:.65em">{{ $childLevelNames[$child->level_of_description_id] }}</span>
-                @endif
-              </li>
-            @endforeach
-            @if($children->count() > 20)
-              <li style="padding-left: 15px;" class="mb-1 text-muted small">
-                ... and {{ $children->count() - 20 }} more
-              </li>
-            @endif
-          @endif
-        </ul>
-      @endif
-    </div>
-  </div>
+  {{-- Dynamic treeview hierarchy --}}
+  @include('ahg-io-manage::partials._treeview', ['io' => $io])
 
   {{-- Quick search within this collection --}}
   <div class="card mb-3">

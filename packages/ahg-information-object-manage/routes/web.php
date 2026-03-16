@@ -11,7 +11,9 @@ use AhgInformationObjectManage\Controllers\PreservationController;
 use AhgInformationObjectManage\Controllers\AiController;
 use AhgInformationObjectManage\Controllers\PrivacyController;
 use AhgInformationObjectManage\Controllers\ExtendedRightsController;
+use AhgInformationObjectManage\Controllers\DigitalObjectController;
 use AhgInformationObjectManage\Controllers\ResearchController;
+use AhgInformationObjectManage\Controllers\TreeviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
@@ -20,6 +22,11 @@ Route::post('/informationobject/store', [InformationObjectController::class, 'st
 Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
 Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
 Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy');
+
+// Treeview API (public for viewing)
+Route::get('/informationobject/treeview', [TreeviewController::class, 'treeview'])->name('io.treeview');
+Route::get('/informationobject/treeview-data', [TreeviewController::class, 'treeviewData'])->name('io.treeviewData');
+Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'treeviewSort'])->middleware('auth')->name('io.treeviewSort');
 
 // Export
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
@@ -73,6 +80,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/rights/embargo/{slug}/store', [ExtendedRightsController::class, 'storeEmbargo'])->name('io.rights.embargo.store');
     Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->where('id', '[0-9]+');
     Route::get('/rights/export/{slug}', [ExtendedRightsController::class, 'exportJsonLd'])->name('io.rights.export');
+
+    // Digital Object upload/delete
+    Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload');
+    Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->where('id', '[0-9]+');
+    Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
     // Research Tools
     Route::get('/research/citation/{slug}', [ResearchController::class, 'citation'])->name('io.research.citation');

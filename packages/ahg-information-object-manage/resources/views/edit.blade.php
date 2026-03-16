@@ -6,6 +6,14 @@
 @section('content')
   <h1>Edit: {{ $io->title ?? '[Untitled]' }}</h1>
 
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+  @endif
+
   @if($errors->any())
     <div class="alert alert-danger">
       <ul class="mb-0">
@@ -252,6 +260,11 @@
       <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-secondary">Cancel</a>
     </div>
   </form>
+
+  {{-- ===== Digital object upload/manage ===== --}}
+  <div class="accordion mb-4" id="digitalObjectAccordion">
+    @include('io-manage::partials._upload-form')
+  </div>
 
   {{-- Delete form --}}
   <div class="border-top pt-3 mt-3">
