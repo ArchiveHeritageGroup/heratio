@@ -15,37 +15,98 @@ class SearchController extends Controller
     ) {}
 
     /**
-     * Full-text search results page.
+     * Full-text search results page with faceted filtering.
      */
     public function search(Request $request)
     {
-        $query = trim($request->input('q', ''));
-        $page = max(1, (int) $request->input('page', 1));
-        $limit = 30;
+        $query   = trim($request->input('q', ''));
+        $page    = max(1, (int) $request->input('page', 1));
+        $limit   = 30;
+        $repo    = $request->input('repository') ? (int) $request->input('repository') : null;
+        $level   = $request->input('level') ? (int) $request->input('level') : null;
+        $dateFrom = $request->input('dateFrom') ?: null;
+        $dateTo  = $request->input('dateTo') ?: null;
+        $hasDo   = $request->has('hasDigitalObject') ? (bool) $request->input('hasDigitalObject') : null;
+        $mediaType = $request->input('mediaType') ? (int) $request->input('mediaType') : null;
+        $sort    = $request->input('sort', 'relevance');
 
-        if ($query === '') {
+        $hasFilters = $repo || $level || $dateFrom || $dateTo || $hasDo !== null || $mediaType;
+
+        // If no query and no filters, show empty search page
+        if ($query === '' && !$hasFilters) {
             return view('ahg-search::search', [
-                'query' => '',
-                'pager' => new SimplePager(['hits' => [], 'total' => 0, 'page' => 1, 'limit' => $limit]),
+                'query'        => '',
+                'pager'        => new SimplePager(['hits' => [], 'total' => 0, 'page' => 1, 'limit' => $limit]),
+                'aggregations' => [],
+                'activeFilters' => [],
+                'sort'         => $sort,
             ]);
         }
 
-        $from = ($page - 1) * $limit;
-        $raw = $this->elasticsearch->globalSearch($query, 'en', $from, $limit);
-
-        $total = $raw['hits']['total']['value'] ?? 0;
-        $hits = $this->transformHits($raw['hits']['hits'] ?? []);
+        // Use advanced search with facets
+        $results = $this->elasticsearch->advancedSearch([
+            'query'           => $query,
+            'repository'      => $repo,
+            'level'           => $level,
+            'dateFrom'        => $dateFrom,
+            'dateTo'          => $dateTo,
+            'hasDigitalObject' => $hasDo,
+            'mediaType'       => $mediaType,
+            'sort'            => $sort,
+            'page'            => $page,
+            'limit'           => $limit,
+        ]);
 
         $pager = new SimplePager([
-            'hits' => $hits,
-            'total' => $total,
-            'page' => $page,
+            'hits'  => $results['hits'],
+            'total' => $results['total'],
+            'page'  => $page,
             'limit' => $limit,
         ]);
 
+        // Build active filter labels for display
+        $activeFilters = $this->buildActiveFilters($repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $results['aggregations'] ?? []);
+
         return view('ahg-search::search', [
-            'query' => $query,
-            'pager' => $pager,
+            'query'        => $query,
+            'pager'        => $pager,
+            'aggregations' => $results['aggregations'] ?? [],
+            'activeFilters' => $activeFilters,
+            'sort'         => $sort,
+        ]);
+    }
+
+    /**
+     * Dedicated advanced search page with full filter form.
+     */
+    public function advanced(Request $request)
+    {
+        $repositories = $this->elasticsearch->getRepositoryList();
+        $levels       = $this->elasticsearch->getLevelsOfDescription();
+        $mediaTypes   = $this->elasticsearch->getMediaTypes();
+
+        // If the form was submitted, redirect to the main search with params
+        if ($request->has('submitted')) {
+            $params = array_filter([
+                'q'               => $request->input('q'),
+                'repository'      => $request->input('repository'),
+                'level'           => $request->input('level'),
+                'dateFrom'        => $request->input('dateFrom'),
+                'dateTo'          => $request->input('dateTo'),
+                'hasDigitalObject' => $request->input('hasDigitalObject'),
+                'mediaType'       => $request->input('mediaType'),
+                'sort'            => $request->input('sort'),
+            ], fn($v) => $v !== null && $v !== '');
+
+            return redirect()->route('search', $params);
+        }
+
+        return view('ahg-search::advanced', [
+            'repositories' => $repositories,
+            'levels'       => $levels,
+            'mediaTypes'   => $mediaTypes,
+            'query'        => $request->input('q', ''),
+            'sort'         => $request->input('sort', 'relevance'),
         ]);
     }
 
@@ -69,9 +130,9 @@ class SearchController extends Controller
             $i18n = $source['i18n']['en'] ?? [];
 
             $results[] = [
-                'title' => $i18n['title'] ?? $i18n['authorizedFormOfName'] ?? '[Untitled]',
-                'slug' => $source['slug'] ?? '',
-                'type' => $type,
+                'title'      => $i18n['title'] ?? $i18n['authorizedFormOfName'] ?? '[Untitled]',
+                'slug'       => $source['slug'] ?? '',
+                'type'       => $type,
                 'identifier' => $source['identifier'] ?? null,
             ];
         }
@@ -80,52 +141,69 @@ class SearchController extends Controller
     }
 
     /**
-     * Transform raw ES hits into a standardized result format.
+     * Build active filter labels for the result page.
      */
-    protected function transformHits(array $hits): array
-    {
-        $results = [];
+    protected function buildActiveFilters(
+        ?int $repo, ?int $level, ?string $dateFrom, ?string $dateTo,
+        ?bool $hasDo, ?int $mediaType, array $aggregations
+    ): array {
+        $filters = [];
 
-        foreach ($hits as $hit) {
-            $type = $this->resolveType($hit['_index']);
-            $source = $hit['_source'] ?? [];
-            $highlight = $hit['highlight'] ?? [];
-            $i18n = $source['i18n']['en'] ?? [];
-
-            // Build the title from highlights or source
-            $title = $highlight['i18n.en.title'][0]
-                ?? $highlight['i18n.en.authorizedFormOfName'][0]
-                ?? $i18n['title']
-                ?? $i18n['authorizedFormOfName']
-                ?? '[Untitled]';
-
-            // Plain title for link text (no HTML)
-            $plainTitle = $i18n['title'] ?? $i18n['authorizedFormOfName'] ?? '[Untitled]';
-
-            // Snippet: prefer highlighted scopeAndContent, fall back to plain
-            $snippet = $highlight['i18n.en.scopeAndContent'][0]
-                ?? mb_substr($i18n['scopeAndContent'] ?? '', 0, 200)
-                ?: null;
-
-            // Repository name for IO results
-            $repository = null;
-            if ($type === 'informationobject' && !empty($source['repository']['i18n']['en']['authorizedFormOfName'])) {
-                $repository = $source['repository']['i18n']['en']['authorizedFormOfName'];
+        if ($repo) {
+            $label = '[Unknown repository]';
+            foreach ($aggregations['repositories'] ?? [] as $r) {
+                if ((int) $r['id'] === $repo) {
+                    $label = $r['label'];
+                    break;
+                }
             }
-
-            $results[] = [
-                'title' => $plainTitle,
-                'highlighted_title' => $title,
-                'type' => $type,
-                'slug' => $source['slug'] ?? '',
-                'identifier' => $source['identifier'] ?? $source['referenceCode'] ?? null,
-                'snippet' => $snippet,
-                'repository' => $repository,
-                'score' => $hit['_score'] ?? 0,
-            ];
+            // If not found in aggs, look up directly
+            if ($label === '[Unknown repository]') {
+                $repos = $this->elasticsearch->getRepositoryList();
+                $label = $repos[$repo] ?? $label;
+            }
+            $filters[] = ['param' => 'repository', 'label' => 'Repository: ' . $label];
         }
 
-        return $results;
+        if ($level) {
+            $label = '[Unknown level]';
+            foreach ($aggregations['levels'] ?? [] as $l) {
+                if ((int) $l['id'] === $level) {
+                    $label = $l['label'];
+                    break;
+                }
+            }
+            if ($label === '[Unknown level]') {
+                $levels = $this->elasticsearch->getLevelsOfDescription();
+                $label = $levels[$level] ?? $label;
+            }
+            $filters[] = ['param' => 'level', 'label' => 'Level: ' . $label];
+        }
+
+        if ($dateFrom) {
+            $filters[] = ['param' => 'dateFrom', 'label' => 'From: ' . $dateFrom];
+        }
+
+        if ($dateTo) {
+            $filters[] = ['param' => 'dateTo', 'label' => 'To: ' . $dateTo];
+        }
+
+        if ($hasDo !== null) {
+            $filters[] = ['param' => 'hasDigitalObject', 'label' => $hasDo ? 'Has digital object' : 'No digital object'];
+        }
+
+        if ($mediaType) {
+            $label = '[Unknown media type]';
+            foreach ($aggregations['mediaTypes'] ?? [] as $m) {
+                if ((int) $m['id'] === $mediaType) {
+                    $label = $m['label'];
+                    break;
+                }
+            }
+            $filters[] = ['param' => 'mediaType', 'label' => 'Media: ' . $label];
+        }
+
+        return $filters;
     }
 
     /**

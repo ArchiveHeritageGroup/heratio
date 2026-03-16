@@ -68,6 +68,7 @@
     {{-- Base JS --}}
     <script src="{{ asset('vendor/ahg-core/js/display-mode.js') }}"></script>
     <script src="{{ asset('vendor/ahg-core/js/base.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-core/js/clipboard.js') }}"></script>
 
     @stack('js')
   </body>

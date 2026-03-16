@@ -11,7 +11,7 @@ class ClipboardSaveItem extends Model
 
     protected $fillable = ['save_id', 'item_class_name', 'slug'];
 
-    public function save()
+    public function clipboardSave()
     {
         return $this->belongsTo(ClipboardSave::class, 'save_id');
     }

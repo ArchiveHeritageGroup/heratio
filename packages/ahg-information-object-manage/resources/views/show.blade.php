@@ -1045,9 +1045,7 @@
   <nav>
     {{-- Clipboard --}}
     <div class="mb-3">
-      <button type="button" class="btn btn-outline-secondary w-100 clipboard-btn" data-object-id="{{ $io->id }}" title="Add to clipboard">
-        <i class="fas fa-clipboard me-1"></i> Add to clipboard
-      </button>
+      @include('ahg-core::clipboard._button', ['slug' => $io->slug, 'type' => 'informationObject', 'wide' => true])
     </div>
 
     {{-- Explore --}}

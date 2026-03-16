@@ -1,0 +1,141 @@
+@extends('theme::layouts.1col')
+
+@section('title', 'Load clipboard')
+@section('body-class', 'clipboard load')
+
+@section('content')
+
+  <div class="alert alert-info">
+    Enter the ID of the saved clipboard you would like to load.
+    In the &ldquo;Action&rdquo; selector, indicate whether you want to <strong>merge</strong>
+    the saved clipboard with the entries on the current clipboard or <strong>replace</strong>
+    (overwrite) the current clipboard with the saved one.
+  </div>
+
+  <h1>Load clipboard</h1>
+
+  <form id="clipboard-load-form" action="{{ route('clipboard.load.post') }}" method="POST">
+    @csrf
+
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="load-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#load-collapse" aria-expanded="true" aria-controls="load-collapse">
+            Load options
+          </button>
+        </h2>
+        <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="clipboardPassword" class="form-label">Clipboard ID</label>
+              <input type="text" class="form-control" id="clipboardPassword" name="clipboardPassword"
+                     required placeholder="Enter 7-digit clipboard ID">
+            </div>
+            <div class="mb-3">
+              <label for="mode" class="form-label">Action</label>
+              <select class="form-select" id="mode" name="mode">
+                <option value="merge" selected>Merge saved clipboard with existing clipboard results</option>
+                <option value="replace">Replace existing clipboard results with saved clipboard</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="actions mb-3 nav gap-2">
+      <li>
+        <button type="submit" name="load" class="btn atom-btn-outline-light">Load</button>
+      </li>
+      <li>
+        <button type="submit" name="loadView" class="btn atom-btn-outline-light">Load and view</button>
+      </li>
+    </ul>
+  </form>
+
+@endsection
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('clipboard-load-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    var password = document.getElementById('clipboardPassword').value;
+    var mode = document.getElementById('mode').value;
+    var loadType = document.activeElement ? document.activeElement.getAttribute('name') : 'load';
+
+    fetch(form.getAttribute('action'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        clipboardPassword: password,
+        mode: mode
+      })
+    })
+    .then(function(resp) { return resp.json().then(function(data) { return { ok: resp.ok, data: data }; }); })
+    .then(function(result) {
+      if (!result.ok) {
+        showAlert(result.data.error, 'alert-danger');
+        return;
+      }
+
+      var data = result.data;
+      var clipboard = data.clipboard || {};
+
+      // Get current clipboard from localStorage
+      var currentItems = JSON.parse(localStorage.getItem('clipboard') || '{}');
+
+      if (mode === 'merge') {
+        // Merge: add loaded items to existing
+        var types = ['informationObject', 'actor', 'repository'];
+        types.forEach(function(type) {
+          if (!currentItems[type]) currentItems[type] = [];
+          if (clipboard[type]) {
+            clipboard[type].forEach(function(slug) {
+              if (currentItems[type].indexOf(slug) === -1) {
+                currentItems[type].push(slug);
+              }
+            });
+          }
+        });
+      } else {
+        // Replace
+        currentItems = clipboard;
+      }
+
+      localStorage.setItem('clipboard', JSON.stringify(currentItems));
+
+      showAlert(data.message, 'alert-info');
+
+      if (loadType === 'loadView') {
+        window.location.href = '{{ route("clipboard.view") }}';
+      }
+    })
+    .catch(function() {
+      showAlert('An error occurred while loading the clipboard.', 'alert-danger');
+    });
+  });
+
+  function showAlert(message, type) {
+    var wrapper = document.getElementById('wrapper') || document.querySelector('.container-xxl');
+    var alert = document.createElement('div');
+    alert.className = 'alert ' + type + ' alert-dismissible fade show';
+    alert.setAttribute('role', 'alert');
+    alert.innerHTML = message +
+      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    wrapper.insertBefore(alert, wrapper.firstChild);
+    window.scrollTo({ top: 0 });
+  }
+});
+</script>
+@endpush
