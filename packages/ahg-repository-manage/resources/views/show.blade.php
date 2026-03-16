@@ -30,13 +30,16 @@
 
   <h1>{{ $repository->authorized_form_of_name }}</h1>
 
-  @auth
-    <div class="mb-3">
+  <div class="mb-3">
+    @auth
       <a href="{{ route('repository.edit', $repository->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="{{ route('repository.confirmDelete', $repository->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
       <a href="{{ route('repository.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
-    </div>
-  @endauth
+    @endauth
+    <a href="{{ route('repository.print', $repository->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+      <i class="fas fa-print me-1"></i> Print
+    </a>
+  </div>
 
   {{-- Identity area (ISDIAH 5.1) --}}
   <section class="mb-4">

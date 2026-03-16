@@ -17,4 +17,5 @@ Route::middleware('admin')->group(function () {
     Route::delete('/repository/{slug}/delete', [RepositoryController::class, 'destroy'])->name('repository.destroy');
 });
 
+Route::get('/repository/{slug}/print', [RepositoryController::class, 'print'])->name('repository.print');
 Route::get('/repository/{slug}', [RepositoryController::class, 'show'])->name('repository.show');

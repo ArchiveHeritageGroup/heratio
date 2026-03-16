@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\OaiPmhController;
 use Illuminate\Support\Facades\Route;
+
+// OAI-PMH 2.0 endpoint (public, XML responses)
+Route::get('/oai', [OaiPmhController::class, 'handle'])->name('oai');
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

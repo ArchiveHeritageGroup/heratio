@@ -17,4 +17,5 @@ Route::middleware('admin')->group(function () {
     Route::delete('/actor/{slug}/delete', [ActorController::class, 'destroy'])->name('actor.destroy');
 });
 
+Route::get('/actor/{slug}/print', [ActorController::class, 'print'])->name('actor.print');
 Route::get('/actor/{slug}', [ActorController::class, 'show'])->name('actor.show');

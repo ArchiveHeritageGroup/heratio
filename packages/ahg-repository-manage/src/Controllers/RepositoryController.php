@@ -64,6 +64,30 @@ class RepositoryController extends Controller
         ]);
     }
 
+    /**
+     * Print-friendly view for a repository.
+     */
+    public function print(string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $contacts = $this->service->getContacts($repository->id);
+        $holdingsCount = $this->service->getHoldingsCount($repository->id);
+        $descStatusName = $this->service->getTermName($repository->desc_status_id);
+        $descDetailName = $this->service->getTermName($repository->desc_detail_id);
+
+        return view('ahg-repository-manage::print', [
+            'repository' => $repository,
+            'contacts' => $contacts,
+            'holdingsCount' => $holdingsCount,
+            'descStatusName' => $descStatusName,
+            'descDetailName' => $descDetailName,
+        ]);
+    }
+
     public function create()
     {
         $formChoices = $this->service->getFormChoices();

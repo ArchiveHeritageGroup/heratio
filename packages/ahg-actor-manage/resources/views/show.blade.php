@@ -77,14 +77,17 @@
     <span class="badge bg-secondary mb-3">{{ $entityTypeName }}</span>
   @endif
 
-  {{-- Action buttons for authenticated users --}}
-  @auth
-    <div class="mb-3">
+  {{-- Action buttons --}}
+  <div class="mb-3">
+    @auth
       <a href="{{ route('actor.edit', $actor->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="{{ route('actor.confirmDelete', $actor->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
       <a href="{{ route('actor.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
-    </div>
-  @endauth
+    @endauth
+    <a href="{{ route('actor.print', $actor->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+      <i class="fas fa-print me-1"></i> Print
+    </a>
+  </div>
 
   {{-- Identity area --}}
   <section class="mb-4">

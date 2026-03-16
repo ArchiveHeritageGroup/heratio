@@ -102,6 +102,61 @@ class ActorController extends Controller
         ]);
     }
 
+    /**
+     * Print-friendly view for an authority record.
+     */
+    public function print(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $entityTypeName = $this->service->getEntityTypeName($actor->entity_type_id);
+        $otherNames = $this->service->getOtherNames($actor->id);
+        $contacts = $this->service->getContacts($actor->id);
+        $events = $this->service->getEvents($actor->id);
+        $relatedActors = $this->service->getRelatedActors($actor->id);
+        $relatedResources = $this->service->getRelatedResources($actor->id);
+        $maintenanceNotes = $this->service->getMaintenanceNotes($actor->id);
+        $subjects = $this->service->getSubjectAccessPoints($actor->id);
+        $places = $this->service->getPlaceAccessPoints($actor->id);
+        $occupations = $this->service->getOccupations($actor->id);
+
+        $descriptionStatusName = $this->service->getEntityTypeName($actor->description_status_id);
+        $descriptionDetailName = $this->service->getEntityTypeName($actor->description_detail_id);
+
+        $nameTypeIds = $otherNames->pluck('type_id')->filter()->unique()->values()->toArray();
+        $nameTypeNames = $this->service->getNameTypeNames($nameTypeIds);
+
+        $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
+        $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
+
+        $relatedFunctions = collect();
+        try {
+            $relatedFunctions = $this->service->getRelatedFunctions($actor->id);
+        } catch (\Exception $e) {}
+
+        return view('ahg-actor-manage::print', [
+            'actor' => $actor,
+            'entityTypeName' => $entityTypeName,
+            'otherNames' => $otherNames,
+            'nameTypeNames' => $nameTypeNames,
+            'contacts' => $contacts,
+            'events' => $events,
+            'relatedActors' => $relatedActors,
+            'relationTypeNames' => $relationTypeNames,
+            'relatedResources' => $relatedResources,
+            'relatedFunctions' => $relatedFunctions,
+            'maintenanceNotes' => $maintenanceNotes,
+            'descriptionStatusName' => $descriptionStatusName,
+            'descriptionDetailName' => $descriptionDetailName,
+            'subjects' => $subjects,
+            'places' => $places,
+            'occupations' => $occupations,
+        ]);
+    }
+
     public function create()
     {
         $formChoices = $this->service->getFormChoices();

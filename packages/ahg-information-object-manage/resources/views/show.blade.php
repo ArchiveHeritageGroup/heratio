@@ -1237,8 +1237,8 @@
 {{-- AFTER CONTENT: Action buttons                                --}}
 {{-- ============================================================ --}}
 @section('after-content')
-  @auth
-    <ul class="actions mb-3 nav gap-2">
+  <ul class="actions mb-3 nav gap-2">
+    @auth
       <li>
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
       </li>
@@ -1253,6 +1253,11 @@
       <li>
         <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
       </li>
-    </ul>
-  @endauth
+    @endauth
+    <li>
+      <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
+        <i class="fas fa-print me-1"></i> Print
+      </a>
+    </li>
+  </ul>
 @endsection

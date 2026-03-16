@@ -17,6 +17,7 @@ use AhgInformationObjectManage\Controllers\TreeviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
+Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
 Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
 Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
 Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
@@ -94,4 +95,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/research/dashboard', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
 });
 
-Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search|login|logout|admin|api|storage|up|about|privacy|terms|pages|contact|provenance|condition|spectrum|heritage|preservation|ai|rights|research)[a-z0-9-]+$');
+Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search|login|logout|admin|api|storage|up|about|privacy|terms|pages|contact|provenance|condition|spectrum|heritage|preservation|ai|rights|research|oai)[a-z0-9-]+$');
