@@ -23,7 +23,20 @@
 @endsection
 
 @section('content')
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
   <h1>{{ $repository->authorized_form_of_name }}</h1>
+
+  @auth
+    <div class="mb-3">
+      <a href="{{ route('repository.edit', $repository->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="{{ route('repository.confirmDelete', $repository->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+      <a href="{{ route('repository.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+    </div>
+  @endauth
 
   {{-- Identity area (ISDIAH 5.1) --}}
   <section class="mb-4">
@@ -166,23 +179,42 @@
   @endif
 
   {{-- Control area (ISDIAH 5.6) --}}
-  @if($repository->desc_institution_identifier || $repository->desc_rules || $repository->desc_sources || $repository->desc_revision_history)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Control area</h2>
+  <section class="mb-4">
+    <h2 class="fs-5 border-bottom pb-2">Control area</h2>
 
-      @foreach([
-        'desc_institution_identifier' => 'Description identifier',
-        'desc_rules' => 'Rules and/or conventions',
-        'desc_sources' => 'Sources',
-        'desc_revision_history' => 'Revision history',
-      ] as $field => $label)
-        @if($repository->$field)
-          <div class="row mb-2">
-            <div class="col-md-3 fw-bold">{{ $label }}</div>
-            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-          </div>
-        @endif
-      @endforeach
-    </section>
-  @endif
+    @foreach([
+      'desc_institution_identifier' => 'Description identifier',
+      'desc_rules' => 'Rules and/or conventions',
+      'desc_sources' => 'Sources',
+      'desc_revision_history' => 'Revision history',
+    ] as $field => $label)
+      @if($repository->$field)
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">{{ $label }}</div>
+          <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
+        </div>
+      @endif
+    @endforeach
+
+    @if($descStatusName ?? null)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Status</div>
+        <div class="col-md-9">{{ $descStatusName }}</div>
+      </div>
+    @endif
+
+    @if($descDetailName ?? null)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Level of detail</div>
+        <div class="col-md-9">{{ $descDetailName }}</div>
+      </div>
+    @endif
+
+    @if($repository->updated_at)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Last updated</div>
+        <div class="col-md-9">{{ $repository->updated_at }}</div>
+      </div>
+    @endif
+  </section>
 @endsection

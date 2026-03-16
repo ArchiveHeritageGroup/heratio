@@ -10,6 +10,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store');
     Route::get('/actor/{slug}/edit', [ActorController::class, 'edit'])->name('actor.edit');
     Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
+});
+
+Route::middleware('admin')->group(function () {
     Route::get('/actor/{slug}/delete', [ActorController::class, 'confirmDelete'])->name('actor.confirmDelete');
     Route::delete('/actor/{slug}/delete', [ActorController::class, 'destroy'])->name('actor.destroy');
 });

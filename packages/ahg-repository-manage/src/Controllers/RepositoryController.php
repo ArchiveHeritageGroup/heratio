@@ -3,20 +3,26 @@
 namespace AhgRepositoryManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
-use AhgCore\Services\DigitalObjectService;
 use AhgRepositoryManage\Services\RepositoryBrowseService;
+use AhgRepositoryManage\Services\RepositoryService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class RepositoryController extends Controller
 {
+    protected RepositoryService $service;
+
+    public function __construct()
+    {
+        $this->service = new RepositoryService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new RepositoryBrowseService($culture);
+        $browseService = new RepositoryBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
@@ -35,87 +41,144 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
-        $culture = app()->getLocale();
-
-        $repository = DB::table('repository')
-            ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->join('repository_i18n', 'repository.id', '=', 'repository_i18n.id')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->leftJoin('actor', 'repository.id', '=', 'actor.id')
-            ->join('object', 'repository.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('repository_i18n.culture', $culture)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'repository.id',
-                // From actor_i18n (repository extends actor)
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
-                // From actor
-                'actor.description_identifier as identifier',
-                'actor.corporate_body_identifiers',
-                // From repository_i18n
-                'repository_i18n.geocultural_context',
-                'repository_i18n.collecting_policies',
-                'repository_i18n.buildings',
-                'repository_i18n.holdings',
-                'repository_i18n.finding_aids',
-                'repository_i18n.opening_times',
-                'repository_i18n.access_conditions',
-                'repository_i18n.disabled_access',
-                'repository_i18n.research_services',
-                'repository_i18n.reproduction_services',
-                'repository_i18n.public_facilities',
-                'repository_i18n.desc_institution_identifier',
-                'repository_i18n.desc_rules',
-                'repository_i18n.desc_sources',
-                'repository_i18n.desc_revision_history',
-                // From object
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
+        $repository = $this->service->getBySlug($slug);
         if (!$repository) {
             abort(404);
         }
 
-        // Get contact information
-        $contacts = DB::table('contact_information')
-            ->join('contact_information_i18n', 'contact_information.id', '=', 'contact_information_i18n.id')
-            ->where('contact_information.actor_id', $repository->id)
-            ->where('contact_information_i18n.culture', $culture)
-            ->select('contact_information.*', 'contact_information_i18n.*')
-            ->get();
-
-        // Get digital objects (organized by usage type)
-        $digitalObjects = DigitalObjectService::getForObject($repository->id);
-
-        // Get holdings count (top-level descriptions in this repository)
-        $holdingsCount = DB::table('information_object')
-            ->where('repository_id', $repository->id)
-            ->where('id', '!=', 1)
-            ->count();
+        $contacts = $this->service->getContacts($repository->id);
+        $digitalObjects = $this->service->getDigitalObjects($repository->id);
+        $holdingsCount = $this->service->getHoldingsCount($repository->id);
+        $descStatusName = $this->service->getTermName($repository->desc_status_id);
+        $descDetailName = $this->service->getTermName($repository->desc_detail_id);
 
         return view('ahg-repository-manage::show', [
             'repository' => $repository,
             'contacts' => $contacts,
             'digitalObjects' => $digitalObjects,
             'holdingsCount' => $holdingsCount,
+            'descStatusName' => $descStatusName,
+            'descDetailName' => $descDetailName,
         ]);
+    }
+
+    public function create()
+    {
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-repository-manage::edit', [
+            'repository' => null,
+            'contacts' => collect(),
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $contacts = $this->service->getContacts($repository->id);
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-repository-manage::edit', [
+            'repository' => $repository,
+            'contacts' => $contacts,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'authorized_form_of_name' => 'required|string|max:1024',
+            'identifier' => 'nullable|string|max:1024',
+        ]);
+
+        $data = $request->only($this->getAllFields());
+
+        $id = $this->service->create($data);
+        $slug = $this->service->getSlug($id);
+
+        return redirect()
+            ->route('repository.show', $slug)
+            ->with('success', 'Repository created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $request->validate([
+            'authorized_form_of_name' => 'required|string|max:1024',
+            'identifier' => 'nullable|string|max:1024',
+        ]);
+
+        $data = $request->only($this->getAllFields());
+
+        $this->service->update($repository->id, $data);
+
+        return redirect()
+            ->route('repository.show', $slug)
+            ->with('success', 'Repository updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $holdingsCount = $this->service->getHoldingsCount($repository->id);
+
+        return view('ahg-repository-manage::delete', [
+            'repository' => $repository,
+            'holdingsCount' => $holdingsCount,
+        ]);
+    }
+
+    public function destroy(Request $request, string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $this->service->delete($repository->id);
+
+        return redirect()
+            ->route('repository.browse')
+            ->with('success', 'Repository deleted successfully.');
+    }
+
+    /**
+     * All form field names accepted by store/update.
+     */
+    private function getAllFields(): array
+    {
+        return [
+            // Actor i18n (ISAAR)
+            'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+            'legal_status', 'functions', 'mandates', 'internal_structures',
+            'general_context', 'institution_responsible_identifier', 'rules',
+            'sources', 'revision_history',
+            // Repository
+            'identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit',
+            // Repository i18n (ISDIAH)
+            'geocultural_context', 'collecting_policies', 'buildings', 'holdings',
+            'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
+            'research_services', 'reproduction_services', 'public_facilities',
+            'desc_institution_identifier', 'desc_rules', 'desc_sources', 'desc_revision_history',
+            // Contacts
+            'contacts',
+        ];
     }
 }
