@@ -4,7 +4,19 @@
 @section('body-class', 'view rightsholder')
 
 @section('content')
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
   <h1>{{ $rightsHolder->authorized_form_of_name }}</h1>
+
+  @auth
+    <div class="mb-3">
+      <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+      <a href="{{ route('rightsholder.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+    </div>
+  @endauth
 
   {{-- Identity area --}}
   <section class="mb-4">
@@ -17,6 +29,28 @@
       </div>
     @endif
   </section>
+
+  {{-- Contact information --}}
+  @if(isset($contacts) && $contacts->isNotEmpty())
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Contact information</h2>
+      @foreach($contacts as $contact)
+        <div class="card mb-2">
+          <div class="card-body">
+            @if($contact->contact_person) <div><strong>Contact:</strong> {{ $contact->contact_person }}</div> @endif
+            @if($contact->street_address) <div>{{ $contact->street_address }}</div> @endif
+            @if($contact->city || $contact->region || $contact->postal_code)
+              <div>{{ $contact->city ?? '' }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
+            @endif
+            @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
+            @if($contact->telephone) <div><strong>Tel:</strong> {{ $contact->telephone }}</div> @endif
+            @if($contact->email) <div><strong>Email:</strong> {{ $contact->email }}</div> @endif
+            @if($contact->website) <div><strong>Web:</strong> <a href="{{ $contact->website }}" target="_blank">{{ $contact->website }}</a></div> @endif
+          </div>
+        </div>
+      @endforeach
+    </section>
+  @endif
 
   {{-- Related rights --}}
   @if($rights->isNotEmpty())

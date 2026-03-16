@@ -4,7 +4,19 @@
 @section('body-class', 'view donor')
 
 @section('content')
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
   <h1>{{ $donor->authorized_form_of_name ?? '[Untitled]' }}</h1>
+
+  @auth
+    <div class="mb-3">
+      <a href="{{ route('donor.edit', $donor->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="{{ route('donor.confirmDelete', $donor->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+      <a href="{{ route('donor.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+    </div>
+  @endauth
 
   {{-- Identity area --}}
   <section class="mb-4">

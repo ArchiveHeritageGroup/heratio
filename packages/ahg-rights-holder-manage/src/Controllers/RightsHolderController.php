@@ -4,96 +4,112 @@ namespace AhgRightsHolderManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
 use AhgRightsHolderManage\Services\RightsHolderBrowseService;
+use AhgRightsHolderManage\Services\RightsHolderService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class RightsHolderController extends Controller
 {
+    protected RightsHolderService $service;
+
+    public function __construct()
+    {
+        $this->service = new RightsHolderService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new RightsHolderBrowseService($culture);
+        $browseService = new RightsHolderBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
         ]);
 
-        $pager = new SimplePager($result);
-
         return view('ahg-rights-holder-manage::browse', [
-            'pager' => $pager,
-            'sortOptions' => [
-                'alphabetic' => 'Name',
-                'lastUpdated' => 'Date modified',
-            ],
+            'pager' => new SimplePager($result),
+            'sortOptions' => ['alphabetic' => 'Name', 'lastUpdated' => 'Date modified'],
         ]);
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
-        $culture = app()->getLocale();
+        $rh = $this->service->getBySlug($slug);
+        if (!$rh) abort(404);
 
-        $rightsHolder = DB::table('rights_holder')
-            ->join('actor_i18n', 'rights_holder.id', '=', 'actor_i18n.id')
-            ->join('slug', 'rights_holder.id', '=', 'slug.object_id')
-            ->join('object', 'rights_holder.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'rights_holder.id',
-                'actor_i18n.authorized_form_of_name',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
-        if (!$rightsHolder) {
-            abort(404);
-        }
-
-        // Get related rights
-        $rights = DB::table('rights')
-            ->leftJoin('rights_i18n', function ($join) use ($culture) {
-                $join->on('rights.id', '=', 'rights_i18n.id')
-                    ->where('rights_i18n.culture', $culture);
-            })
-            ->where('rights.rights_holder_id', $rightsHolder->id)
-            ->select([
-                'rights.id',
-                'rights.basis_id',
-                'rights.start_date',
-                'rights.end_date',
-                'rights.copyright_status_id',
-                'rights.copyright_jurisdiction',
-                'rights_i18n.rights_note',
-                'rights_i18n.copyright_note',
-                'rights_i18n.license_terms',
-                'rights_i18n.license_note',
-                'rights_i18n.statute_jurisdiction',
-                'rights_i18n.statute_note',
-            ])
-            ->get();
-
-        // Batch resolve basis term names
-        $basisNames = [];
-        $basisIds = array_filter(array_unique($rights->pluck('basis_id')->toArray()));
-        if (!empty($basisIds)) {
-            $basisNames = DB::table('term_i18n')
-                ->whereIn('id', $basisIds)
-                ->where('culture', $culture)
-                ->pluck('name', 'id')
-                ->toArray();
-        }
+        $rights = $this->service->getRelatedRights($rh->id);
+        $basisIds = $rights->pluck('basis_id')->filter()->unique()->values()->toArray();
+        $contacts = $this->service->getContacts($rh->id);
 
         return view('ahg-rights-holder-manage::show', [
-            'rightsHolder' => $rightsHolder,
+            'rightsHolder' => $rh,
             'rights' => $rights,
-            'basisNames' => $basisNames,
+            'basisNames' => $this->service->getTermNames($basisIds),
+            'contacts' => $contacts,
         ]);
+    }
+
+    public function create()
+    {
+        return view('ahg-rights-holder-manage::edit', [
+            'rightsHolder' => null,
+            'contacts' => collect(),
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $rh = $this->service->getBySlug($slug);
+        if (!$rh) abort(404);
+
+        return view('ahg-rights-holder-manage::edit', [
+            'rightsHolder' => $rh,
+            'contacts' => $this->service->getContacts($rh->id),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
+        $id = $this->service->create($request->only($this->fields()));
+        return redirect()->route('rightsholder.show', $this->service->getSlug($id))->with('success', 'Rights holder created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $rh = $this->service->getBySlug($slug);
+        if (!$rh) abort(404);
+        $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
+        $this->service->update($rh->id, $request->only($this->fields()));
+        return redirect()->route('rightsholder.show', $slug)->with('success', 'Rights holder updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $rh = $this->service->getBySlug($slug);
+        if (!$rh) abort(404);
+        return view('ahg-rights-holder-manage::delete', ['rightsHolder' => $rh]);
+    }
+
+    public function destroy(string $slug)
+    {
+        $rh = $this->service->getBySlug($slug);
+        if (!$rh) abort(404);
+        $this->service->delete($rh->id);
+        return redirect()->route('rightsholder.browse')->with('success', 'Rights holder deleted successfully.');
+    }
+
+    private function fields(): array
+    {
+        return [
+            'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+            'legal_status', 'functions', 'mandates', 'internal_structures',
+            'general_context', 'institution_responsible_identifier', 'rules',
+            'sources', 'revision_history', 'description_identifier',
+            'corporate_body_identifiers', 'contacts',
+        ];
     }
 }

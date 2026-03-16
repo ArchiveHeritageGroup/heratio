@@ -3,89 +3,108 @@
 namespace AhgDonorManage\Controllers;
 
 use AhgDonorManage\Services\DonorBrowseService;
+use AhgDonorManage\Services\DonorService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DonorController extends Controller
 {
+    protected DonorService $service;
+
+    public function __construct()
+    {
+        $this->service = new DonorService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new DonorBrowseService($culture);
+        $browseService = new DonorBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
         ]);
 
-        $pager = new SimplePager($result);
-
         return view('ahg-donor-manage::browse', [
-            'pager' => $pager,
-            'sortOptions' => [
-                'alphabetic' => 'Name',
-                'lastUpdated' => 'Date modified',
-            ],
+            'pager' => new SimplePager($result),
+            'sortOptions' => ['alphabetic' => 'Name', 'lastUpdated' => 'Date modified'],
         ]);
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
-        $culture = app()->getLocale();
-
-        $donor = DB::table('donor')
-            ->join('slug', 'donor.id', '=', 'slug.object_id')
-            ->join('actor_i18n', 'donor.id', '=', 'actor_i18n.id')
-            ->join('object', 'donor.id', '=', 'object.id')
-            ->leftJoin('actor', 'donor.id', '=', 'actor.id')
-            ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'donor.id',
-                'actor.description_identifier',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.history',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
-        if (!$donor) {
-            abort(404);
-        }
-
-        // Get contact information
-        $contacts = DB::table('contact_information')
-            ->join('contact_information_i18n', 'contact_information.id', '=', 'contact_information_i18n.id')
-            ->where('contact_information.actor_id', $donor->id)
-            ->where('contact_information_i18n.culture', $culture)
-            ->select('contact_information.*', 'contact_information_i18n.*')
-            ->get();
-
-        // Get related accessions via relation table (donor→accession link)
-        $accessions = DB::table('relation')
-            ->join('accession', 'relation.object_id', '=', 'accession.id')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
-            ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->where('relation.subject_id', $donor->id)
-            ->where('accession_i18n.culture', $culture)
-            ->select([
-                'accession.id',
-                'accession.identifier',
-                'accession_i18n.title',
-                'slug.slug',
-            ])
-            ->get();
+        $donor = $this->service->getBySlug($slug);
+        if (!$donor) abort(404);
 
         return view('ahg-donor-manage::show', [
             'donor' => $donor,
-            'contacts' => $contacts,
-            'accessions' => $accessions,
+            'contacts' => $this->service->getContacts($donor->id),
+            'accessions' => $this->service->getRelatedAccessions($donor->id),
         ]);
+    }
+
+    public function create()
+    {
+        return view('ahg-donor-manage::edit', [
+            'donor' => null,
+            'contacts' => collect(),
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $donor = $this->service->getBySlug($slug);
+        if (!$donor) abort(404);
+
+        return view('ahg-donor-manage::edit', [
+            'donor' => $donor,
+            'contacts' => $this->service->getContacts($donor->id),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
+        $id = $this->service->create($request->only($this->fields()));
+        return redirect()->route('donor.show', $this->service->getSlug($id))->with('success', 'Donor created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $donor = $this->service->getBySlug($slug);
+        if (!$donor) abort(404);
+        $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
+        $this->service->update($donor->id, $request->only($this->fields()));
+        return redirect()->route('donor.show', $slug)->with('success', 'Donor updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $donor = $this->service->getBySlug($slug);
+        if (!$donor) abort(404);
+        return view('ahg-donor-manage::delete', ['donor' => $donor]);
+    }
+
+    public function destroy(string $slug)
+    {
+        $donor = $this->service->getBySlug($slug);
+        if (!$donor) abort(404);
+        $this->service->delete($donor->id);
+        return redirect()->route('donor.browse')->with('success', 'Donor deleted successfully.');
+    }
+
+    private function fields(): array
+    {
+        return [
+            'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
+            'legal_status', 'functions', 'mandates', 'internal_structures',
+            'general_context', 'institution_responsible_identifier', 'rules',
+            'sources', 'revision_history', 'description_identifier',
+            'corporate_body_identifiers', 'contacts',
+        ];
     }
 }
