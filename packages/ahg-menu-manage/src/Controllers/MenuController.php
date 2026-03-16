@@ -2,82 +2,46 @@
 
 namespace AhgMenuManage\Controllers;
 
+use AhgMenuManage\Services\MenuService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
+    protected MenuService $service;
+
+    public function __construct()
+    {
+        $this->service = new MenuService(app()->getLocale());
+    }
+
+    /**
+     * Browse: show the full menu tree.
+     */
     public function browse()
     {
-        $culture = app()->getLocale();
-
-        $menus = DB::table('menu')
-            ->leftJoin('menu_i18n', function ($join) use ($culture) {
-                $join->on('menu.id', '=', 'menu_i18n.id')
-                    ->where('menu_i18n.culture', '=', $culture);
-            })
-            ->select([
-                'menu.id',
-                'menu.parent_id',
-                'menu.name',
-                'menu.path',
-                'menu.lft',
-                'menu.rgt',
-                'menu.created_at',
-                'menu.updated_at',
-                'menu.source_culture',
-                'menu.serial_number',
-                'menu_i18n.label',
-                'menu_i18n.description',
-            ])
-            ->orderBy('menu.lft', 'asc')
-            ->get()
-            ->map(function ($item) {
-                return (array) $item;
-            })
-            ->toArray();
-
-        // Build tree structure
-        $tree = $this->buildTree($menus);
+        $tree = $this->service->getTree();
 
         return view('ahg-menu-manage::browse', [
             'tree' => $tree,
-            'total' => count($menus),
+            'total' => count($tree),
         ]);
     }
 
+    /**
+     * Show a single menu item.
+     */
     public function show(int $id)
     {
-        $culture = app()->getLocale();
-
-        $menu = DB::table('menu')
-            ->leftJoin('menu_i18n', function ($join) use ($culture) {
-                $join->on('menu.id', '=', 'menu_i18n.id')
-                    ->where('menu_i18n.culture', '=', $culture);
-            })
-            ->where('menu.id', $id)
-            ->select([
-                'menu.id',
-                'menu.parent_id',
-                'menu.name',
-                'menu.path',
-                'menu.lft',
-                'menu.rgt',
-                'menu.created_at',
-                'menu.updated_at',
-                'menu.source_culture',
-                'menu.serial_number',
-                'menu_i18n.label',
-                'menu_i18n.description',
-            ])
-            ->first();
+        $menu = $this->service->getById($id);
 
         if (!$menu) {
             abort(404);
         }
 
-        // Get children
-        $children = DB::table('menu')
+        // Get children from the tree (direct children only)
+        $culture = app()->getLocale();
+        $children = \Illuminate\Support\Facades\DB::table('menu')
             ->leftJoin('menu_i18n', function ($join) use ($culture) {
                 $join->on('menu.id', '=', 'menu_i18n.id')
                     ->where('menu_i18n.culture', '=', $culture);
@@ -101,25 +65,142 @@ class MenuController extends Controller
             ->get();
 
         return view('ahg-menu-manage::show', [
-            'menu' => $menu,
+            'menu' => (object) $menu,
             'children' => $children,
         ]);
     }
 
     /**
-     * Build a nested tree from flat menu list using parent_id.
+     * Show the create form.
      */
-    private function buildTree(array $items, ?int $parentId = null): array
+    public function create()
     {
-        $tree = [];
+        $parentChoices = $this->service->getParentChoices();
 
-        foreach ($items as $item) {
-            if ($item['parent_id'] == $parentId) {
-                $item['children'] = $this->buildTree($items, $item['id']);
-                $tree[] = $item;
-            }
+        return view('ahg-menu-manage::edit', [
+            'menu' => null,
+            'parentChoices' => $parentChoices,
+        ]);
+    }
+
+    /**
+     * Show the edit form.
+     */
+    public function edit(int $id)
+    {
+        $menu = $this->service->getById($id);
+
+        if (!$menu) {
+            abort(404);
         }
 
-        return $tree;
+        $parentChoices = $this->service->getParentChoices();
+
+        return view('ahg-menu-manage::edit', [
+            'menu' => (object) $menu,
+            'parentChoices' => $parentChoices,
+        ]);
+    }
+
+    /**
+     * Store a new menu item.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'label' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'path' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        $data = [
+            'label' => $request->input('label'),
+            'name' => $request->input('name'),
+            'path' => $request->input('path'),
+            'parentId' => $request->input('parent_id', MenuService::ROOT_ID),
+            'description' => $request->input('description'),
+        ];
+
+        $newId = $this->service->create($data);
+
+        return redirect()
+            ->route('menu.show', $newId)
+            ->with('success', 'Menu item created successfully.');
+    }
+
+    /**
+     * Update an existing menu item.
+     */
+    public function update(Request $request, int $id)
+    {
+        $menu = $this->service->getById($id);
+
+        if (!$menu) {
+            abort(404);
+        }
+
+        $request->validate([
+            'label' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'path' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        $data = [
+            'label' => $request->input('label'),
+            'name' => $request->input('name'),
+            'path' => $request->input('path'),
+            'parentId' => $request->input('parent_id', MenuService::ROOT_ID),
+            'description' => $request->input('description'),
+        ];
+
+        $this->service->update($id, $data);
+
+        return redirect()
+            ->route('menu.show', $id)
+            ->with('success', 'Menu item updated successfully.');
+    }
+
+    /**
+     * Show delete confirmation page.
+     */
+    public function confirmDelete(int $id)
+    {
+        $menu = $this->service->getById($id);
+
+        if (!$menu) {
+            abort(404);
+        }
+
+        return view('ahg-menu-manage::delete', [
+            'menu' => (object) $menu,
+        ]);
+    }
+
+    /**
+     * Delete a menu item.
+     */
+    public function destroy(Request $request, int $id)
+    {
+        $menu = $this->service->getById($id);
+
+        if (!$menu) {
+            abort(404);
+        }
+
+        try {
+            $this->service->delete($id);
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->route('menu.show', $id)
+                ->with('error', $e->getMessage());
+        }
+
+        return redirect()
+            ->route('menu.browse')
+            ->with('success', 'Menu item deleted successfully.');
     }
 }

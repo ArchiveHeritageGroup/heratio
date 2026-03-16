@@ -3,19 +3,26 @@
 namespace AhgUserManage\Controllers;
 
 use AhgUserManage\Services\UserBrowseService;
+use AhgUserManage\Services\UserService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+    protected UserService $service;
+
+    public function __construct()
+    {
+        $this->service = new UserService(app()->getLocale());
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();
-        $service = new UserBrowseService($culture);
+        $browseService = new UserBrowseService($culture);
 
-        $result = $service->browse([
+        $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
@@ -36,52 +43,108 @@ class UserController extends Controller
 
     public function show(Request $request, string $slug)
     {
-        $culture = app()->getLocale();
-
-        $user = DB::table('user')
-            ->join('slug', 'user.id', '=', 'slug.object_id')
-            ->join('actor_i18n', 'user.id', '=', 'actor_i18n.id')
-            ->join('object', 'user.id', '=', 'object.id')
-            ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $culture)
-            ->select([
-                'user.id',
-                'user.username',
-                'user.email',
-                'user.active',
-                'actor_i18n.authorized_form_of_name',
-                'object.created_at',
-                'object.updated_at',
-                'slug.slug',
-            ])
-            ->first();
-
+        $user = $this->service->getBySlug($slug);
         if (!$user) {
             abort(404);
         }
 
-        // Get user groups
-        $groups = DB::table('acl_user_group')
-            ->join('acl_group_i18n', 'acl_user_group.group_id', '=', 'acl_group_i18n.id')
-            ->where('acl_user_group.user_id', $user->id)
-            ->where('acl_group_i18n.culture', $culture)
-            ->select('acl_group_i18n.name', 'acl_group_i18n.description')
-            ->get();
-
-        // Get security clearance if table exists
-        $securityClearance = null;
-        try {
-            $securityClearance = DB::table('security_clearance')
-                ->where('user_id', $user->id)
-                ->first();
-        } catch (\Exception $e) {
-            // Table may not exist — ignore
-        }
-
         return view('ahg-user-manage::show', [
             'user' => $user,
-            'groups' => $groups,
-            'securityClearance' => $securityClearance,
+            'groups' => collect($user->groups),
         ]);
+    }
+
+    public function create()
+    {
+        return view('ahg-user-manage::edit', [
+            'user' => null,
+            'assignableGroups' => $this->service->getAssignableGroups(),
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $user = $this->service->getBySlug($slug);
+        if (!$user) {
+            abort(404);
+        }
+
+        return view('ahg-user-manage::edit', [
+            'user' => $user,
+            'assignableGroups' => $this->service->getAssignableGroups(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:user,username',
+            'email' => 'required|email|max:255|unique:user,email',
+            'password' => 'required|string|min:6',
+            'authorized_form_of_name' => 'nullable|string|max:1024',
+        ]);
+
+        $data = $request->only([
+            'username', 'email', 'password', 'authorized_form_of_name',
+        ]);
+        $data['active'] = $request->has('active') ? 1 : 0;
+        $data['groups'] = $request->input('groups', []);
+
+        $id = $this->service->create($data);
+
+        return redirect()
+            ->route('user.show', $this->service->getSlug($id))
+            ->with('success', 'User created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $user = $this->service->getBySlug($slug);
+        if (!$user) {
+            abort(404);
+        }
+
+        $request->validate([
+            'username' => 'required|string|max:255|unique:user,username,' . $user->id,
+            'email' => 'required|email|max:255|unique:user,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+            'authorized_form_of_name' => 'nullable|string|max:1024',
+        ]);
+
+        $data = $request->only([
+            'username', 'email', 'password', 'authorized_form_of_name',
+        ]);
+        $data['active'] = $request->has('active') ? 1 : 0;
+        $data['groups'] = $request->input('groups', []);
+
+        $this->service->update($user->id, $data);
+
+        return redirect()
+            ->route('user.show', $slug)
+            ->with('success', 'User updated successfully.');
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $user = $this->service->getBySlug($slug);
+        if (!$user) {
+            abort(404);
+        }
+
+        return view('ahg-user-manage::delete', ['user' => $user]);
+    }
+
+    public function destroy(string $slug)
+    {
+        $user = $this->service->getBySlug($slug);
+        if (!$user) {
+            abort(404);
+        }
+
+        $this->service->delete($user->id);
+
+        return redirect()
+            ->route('user.browse')
+            ->with('success', 'User deleted successfully.');
     }
 }

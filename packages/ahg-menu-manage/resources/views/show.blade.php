@@ -6,11 +6,36 @@
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-bars me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
+    <div class="d-flex flex-column flex-grow-1">
       <h1 class="mb-0">{{ $menu->label ?: $menu->name ?: 'Menu #' . $menu->id }}</h1>
       <span class="small text-muted">Menu item details</span>
     </div>
+    <div class="d-flex gap-2">
+      <a href="{{ route('menu.edit', $menu->id) }}" class="btn btn-outline-primary">
+        <i class="fas fa-pencil-alt me-1"></i> Edit
+      </a>
+      @if(!$menu->isProtected)
+        <a href="{{ route('menu.confirmDelete', $menu->id) }}" class="btn btn-outline-danger">
+          <i class="fas fa-trash me-1"></i> Delete
+        </a>
+      @endif
+    </div>
   </div>
+
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
+
+  @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+  @endif
+
+  @if($menu->isProtected)
+    <div class="alert alert-warning">
+      <i class="fas fa-shield-alt me-1"></i>
+      This is a protected menu item. It cannot be deleted and its internal name cannot be changed.
+    </div>
+  @endif
 
   <div class="card mb-4">
     <div class="card-body">
@@ -35,8 +60,8 @@
           <tr>
             <th>Parent ID</th>
             <td>
-              @if($menu->parent_id)
-                <a href="{{ route('menu.show', $menu->parent_id) }}">{{ $menu->parent_id }}</a>
+              @if($menu->parentId)
+                <a href="{{ route('menu.show', $menu->parentId) }}">{{ $menu->parentId }}</a>
               @else
                 N/A (root)
               @endif
@@ -48,19 +73,19 @@
           </tr>
           <tr>
             <th>Serial number</th>
-            <td>{{ $menu->serial_number ?? 'N/A' }}</td>
+            <td>{{ $menu->serialNumber ?? 'N/A' }}</td>
           </tr>
           <tr>
             <th>Source culture</th>
-            <td>{{ $menu->source_culture }}</td>
+            <td>{{ $menu->sourceCulture }}</td>
           </tr>
           <tr>
             <th>Created</th>
-            <td>{{ $menu->created_at ? \Carbon\Carbon::parse($menu->created_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
+            <td>{{ $menu->createdAt ? \Carbon\Carbon::parse($menu->createdAt)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
           <tr>
             <th>Updated</th>
-            <td>{{ $menu->updated_at ? \Carbon\Carbon::parse($menu->updated_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
+            <td>{{ $menu->updatedAt ? \Carbon\Carbon::parse($menu->updatedAt)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
         </tbody>
       </table>

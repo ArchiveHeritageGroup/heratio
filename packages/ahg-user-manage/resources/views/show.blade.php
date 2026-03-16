@@ -4,6 +4,13 @@
 @section('body-class', 'view user')
 
 @section('content')
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  @endif
+
   <h1>{{ $user->authorized_form_of_name ?? $user->username }}</h1>
 
   @if($user->active)
@@ -63,24 +70,9 @@
         @foreach($groups as $group)
           <li class="list-group-item">
             <strong>{{ $group->name }}</strong>
-            @if($group->description)
-              <div class="text-muted small">{{ $group->description }}</div>
-            @endif
           </li>
         @endforeach
       </ul>
-    </section>
-  @endif
-
-  {{-- Security clearance --}}
-  @if($securityClearance)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Security clearance</h2>
-
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Clearance level</div>
-        <div class="col-md-9">{{ $securityClearance->clearance_level ?? 'N/A' }}</div>
-      </div>
     </section>
   @endif
 
@@ -102,4 +94,11 @@
       </div>
     @endif
   </section>
+
+  {{-- Admin action buttons --}}
+  <ul class="actions mb-3 nav gap-2">
+    <li><a href="{{ route('user.edit', $user->slug) }}" class="btn btn-outline-primary">Edit</a></li>
+    <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn btn-outline-danger">Delete</a></li>
+    <li><a href="{{ route('user.browse') }}" class="btn btn-outline-secondary">Back to list</a></li>
+  </ul>
 @endsection
