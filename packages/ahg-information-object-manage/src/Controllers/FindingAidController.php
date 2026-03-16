@@ -3,6 +3,7 @@
 namespace AhgInformationObjectManage\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\FindingAidJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -27,9 +28,9 @@ class FindingAidController extends Controller
                 ->with('info', 'A finding aid already exists for this description.');
         }
 
-        // TODO: Implement arFindingAidJob equivalent as Laravel Job
-        // The job would: generate EAD XML → convert to PDF via wkhtmltopdf or similar
-        // For now, flash a message
+        // Dispatch the finding aid generation job
+        FindingAidJob::dispatch($io->id);
+
         return redirect()->route('informationobject.show', $slug)
             ->with('success', 'Finding aid generation queued for: ' . ($io->title ?? $slug));
     }

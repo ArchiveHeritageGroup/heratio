@@ -3,6 +3,7 @@
 namespace AhgInformationObjectManage\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -64,9 +65,8 @@ class ImportController extends Controller
         $path = $file->storeAs('imports', $filename, 'local');
 
         // Queue the import job
-        // TODO: Implement arFileImportJob equivalent as Laravel Job
-        // For now, flash a message and redirect
         $slug = $request->input('slug');
+        ImportJob::dispatch($path, $type, $objectType, $updateType, $slug);
 
         return redirect()
             ->route($slug ? 'informationobject.show' : 'informationobject.browse', $slug ? ['slug' => $slug] : [])
