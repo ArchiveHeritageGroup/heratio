@@ -2,13 +2,14 @@
 
 namespace AhgSettings\Providers;
 
+use AhgSettings\Services\SettingsService;
 use Illuminate\Support\ServiceProvider;
 
 class AhgSettingsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(SettingsService::class);
     }
 
     public function boot(): void

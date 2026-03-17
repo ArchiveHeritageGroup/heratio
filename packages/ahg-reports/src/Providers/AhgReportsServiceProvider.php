@@ -2,13 +2,14 @@
 
 namespace AhgReports\Providers;
 
+use AhgReports\Services\ReportService;
 use Illuminate\Support\ServiceProvider;
 
 class AhgReportsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(ReportService::class);
     }
 
     public function boot(): void

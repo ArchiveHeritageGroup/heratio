@@ -1,0 +1,20 @@
+{
+    "name": "ahg/favorites",
+    "description": "Favorites & collections management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgFavorites\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgFavorites\\Providers\\AhgFavoritesServiceProvider"
+            ]
+        }
+    }
+}

@@ -2,100 +2,154 @@
 
 namespace AhgReports\Controllers;
 
+use AhgReports\Services\ReportService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    private ReportService $service;
+
+    public function __construct(ReportService $service)
+    {
+        $this->service = $service;
+    }
+
     public function dashboard()
     {
-        // Count queries for stats
-        $ioCount = DB::table('information_object')->count();
-        $actorCount = DB::table('actor')->count();
-        $repositoryCount = DB::table('repository')->count();
-        $accessionCount = DB::table('accession')->count();
-        $digitalObjectCount = DB::table('digital_object')->count();
-        $userCount = DB::table('user')->count();
+        $stats = $this->service->getReportStats();
+        return view('ahg-reports::dashboard', compact('stats'));
+    }
 
-        // Recent activity — prefer ahg_audit_log, fall back to audit_log
-        $recentActivity = [];
+    public function accessions(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
+        $data = $this->service->reportAccessions($params);
+        $cultures = $this->service->getAvailableCultures();
 
-        if (Schema::hasTable('ahg_audit_log')) {
-            $recentActivity = DB::table('ahg_audit_log')
-                ->select([
-                    'id',
-                    'uuid',
-                    'user_id',
-                    'username',
-                    'user_email',
-                    'ip_address',
-                    'user_agent',
-                    'session_id',
-                    'action',
-                    'entity_type',
-                    'entity_id',
-                    'entity_slug',
-                    'entity_title',
-                    'module',
-                    'action_name',
-                    'request_method',
-                    'request_uri',
-                    'old_values',
-                    'new_values',
-                    'changed_fields',
-                    'metadata',
-                    'security_classification',
-                    'status',
-                    'error_message',
-                    'created_at',
-                    'culture_id',
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(10)
-                ->get()
-                ->map(fn ($item) => (array) $item)
-                ->toArray();
-        } elseif (Schema::hasTable('audit_log')) {
-            $recentActivity = DB::table('audit_log')
-                ->select([
-                    'id',
-                    'table_name',
-                    'record_id',
-                    'action',
-                    'field_name',
-                    'old_value',
-                    'new_value',
-                    'old_record',
-                    'new_record',
-                    'user_id',
-                    'username',
-                    'ip_address',
-                    'user_agent',
-                    'module',
-                    'action_description',
-                    'created_at',
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(10)
-                ->get()
-                ->map(fn ($item) => (array) $item)
-                ->toArray();
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Identifier', 'Title', 'Scope', 'Created', 'Updated'],
+                'accession-report.csv'
+            );
         }
 
-        $auditTable = Schema::hasTable('ahg_audit_log') ? 'ahg_audit_log' : 'audit_log';
+        return view('ahg-reports::report-accessions', array_merge($data, [
+            'params' => $params, 'cultures' => $cultures,
+        ]));
+    }
 
-        return view('ahg-reports::dashboard', [
-            'stats' => [
-                'descriptions' => $ioCount,
-                'authorities' => $actorCount,
-                'repositories' => $repositoryCount,
-                'accessions' => $accessionCount,
-                'digital_objects' => $digitalObjectCount,
-                'users' => $userCount,
-            ],
-            'recentActivity' => $recentActivity,
-            'auditTable' => $auditTable,
-        ]);
+    public function descriptions(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'level', 'publicationStatus', 'limit', 'page']);
+        $data = $this->service->reportDescriptions($params);
+        $levels = $this->service->getLevelsOfDescription();
+
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Identifier', 'Title', 'Level', 'Status', 'Created', 'Updated'],
+                'description-report.csv'
+            );
+        }
+
+        return view('ahg-reports::report-descriptions', array_merge($data, [
+            'params' => $params, 'levels' => $levels,
+        ]));
+    }
+
+    public function authorities(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'entityType', 'limit', 'page']);
+        $data = $this->service->reportAuthorities($params);
+        $entityTypes = $this->service->getEntityTypes();
+
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Name', 'Entity Type', 'Dates', 'Created', 'Updated'],
+                'authority-report.csv'
+            );
+        }
+
+        return view('ahg-reports::report-authorities', array_merge($data, [
+            'params' => $params, 'entityTypes' => $entityTypes,
+        ]));
+    }
+
+    public function donors(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
+        $data = $this->service->reportDonors($params);
+
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Name', 'Email', 'Phone', 'City', 'Created', 'Updated'],
+                'donor-report.csv'
+            );
+        }
+
+        return view('ahg-reports::report-donors', array_merge($data, ['params' => $params]));
+    }
+
+    public function repositories(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
+        $data = $this->service->reportRepositories($params);
+
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Identifier', 'Name', 'Holdings', 'Created', 'Updated'],
+                'repository-report.csv'
+            );
+        }
+
+        return view('ahg-reports::report-repositories', array_merge($data, ['params' => $params]));
+    }
+
+    public function storage(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
+        $data = $this->service->reportPhysicalStorage($params);
+
+        if ($request->query('export') === 'csv') {
+            return $this->service->exportCsv(
+                $data['results']->toArray(),
+                ['ID', 'Name', 'Type', 'Location', 'Created', 'Updated'],
+                'physical-storage-report.csv'
+            );
+        }
+
+        return view('ahg-reports::report-storage', array_merge($data, ['params' => $params]));
+    }
+
+    public function activity(Request $request)
+    {
+        $params = $request->only(['dateStart', 'dateEnd', 'actionUser', 'userAction', 'limit', 'page']);
+        $data = $this->service->reportUserActivity($params);
+        $users = $this->service->getAuditUsers();
+
+        return view('ahg-reports::report-activity', array_merge($data, [
+            'params' => $params, 'users' => $users,
+        ]));
+    }
+
+    public function recent(Request $request)
+    {
+        $params = $request->only(['dateStart', 'dateEnd', 'className', 'limit', 'page']);
+        $data = $this->service->reportUpdates($params);
+
+        return view('ahg-reports::report-recent', array_merge($data, ['params' => $params]));
+    }
+
+    public function taxonomy(Request $request)
+    {
+        $params = $request->only(['dateStart', 'dateEnd', 'sort', 'limit', 'page']);
+        $data = $this->service->reportTaxonomies($params);
+
+        return view('ahg-reports::report-taxonomy', array_merge($data, ['params' => $params]));
     }
 }

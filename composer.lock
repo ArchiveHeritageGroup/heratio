@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "03b9e2e23d409f50cce38b384dd51adb",
+    "content-hash": "a240c3264e9a8835188334524c8238ad",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -97,6 +97,36 @@
             }
         },
         {
+            "name": "ahg/cart",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-cart",
+                "reference": "be9d654bbdca6f5f81ef9cdc1bd00a811c5e02f3"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgCart\\Providers\\AhgCartServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgCart\\": "src/"
+                }
+            },
+            "description": "Shopping cart & e-commerce for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/core",
             "version": "dev-main",
             "dist": {
@@ -183,6 +213,36 @@
                 }
             },
             "description": "Donor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/favorites",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-favorites",
+                "reference": "b1d06792bdda8388016c6b61c205527e2e8e53a0"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFavorites\\Providers\\AhgFavoritesServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFavorites\\": "src/"
+                }
+            },
+            "description": "Favorites & collections management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9074,7 +9134,9 @@
         "ahg/reports": 20,
         "ahg/iiif-collection": 20,
         "ahg/research": 20,
-        "ahg/display": 20
+        "ahg/display": 20,
+        "ahg/cart": 20,
+        "ahg/favorites": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -1,5 +1,4 @@
 @extends('theme::layouts.1col')
-
 @section('title', $sectionLabel)
 @section('body-class', 'admin settings')
 
@@ -19,34 +18,35 @@
     </div>
   </div>
 
+  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+
   @if($settings->isEmpty())
     <div class="alert alert-info">No editable settings found in this section.</div>
   @else
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
-        <thead>
-          <tr>
-            <th style="width: 40%">Setting</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($settings as $setting)
+    <form method="post" action="{{ route('settings.section', $section) }}">
+      @csrf
+      <div class="table-responsive mb-3">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
             <tr>
-              <td>
-                <code>{{ $setting->name }}</code>
-              </td>
-              <td>
-                @if($setting->value !== null && $setting->value !== '')
-                  {{ Str::limit($setting->value, 200) }}
-                @else
-                  <span class="text-muted fst-italic">Not set</span>
-                @endif
-              </td>
+              <th style="width: 35%">Setting</th>
+              <th>Value</th>
             </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @foreach($settings as $setting)
+              <tr>
+                <td><code>{{ $setting->name }}</code></td>
+                <td>
+                  <input type="text" name="settings[{{ $setting->id }}]" class="form-control form-control-sm" value="{{ e($setting->value ?? '') }}">
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Back</a>
+    </form>
   @endif
 @endsection

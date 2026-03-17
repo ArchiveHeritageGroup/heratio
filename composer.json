@@ -39,7 +39,9 @@
         "ahg/reports": "@dev",
         "ahg/iiif-collection": "@dev",
         "ahg/research": "@dev",
-        "ahg/display": "@dev"
+        "ahg/display": "@dev",
+        "ahg/cart": "@dev",
+        "ahg/favorites": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
