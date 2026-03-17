@@ -110,6 +110,24 @@ class InformationObjectController extends Controller
             ->first();
 
         if (!$io) {
+            // Slug may belong to a different entity — check object table and redirect
+            $slugRow = DB::table('slug')->where('slug', $slug)->first();
+            if ($slugRow) {
+                $className = DB::table('object')->where('id', $slugRow->object_id)->value('class_name');
+                $redirectMap = [
+                    'QubitTerm' => '/term/' . $slug,
+                    'QubitActor' => '/actor/' . $slug,
+                    'QubitRepository' => '/repository/' . $slug,
+                    'QubitDonor' => '/donor/' . $slug,
+                    'QubitAccession' => '/accession/' . $slug,
+                    'QubitRightsHolder' => '/rightsholder/' . $slug,
+                    'QubitFunctionObject' => '/function/' . $slug,
+                    'QubitPhysicalObject' => '/physicalobject/' . $slug,
+                ];
+                if (isset($redirectMap[$className])) {
+                    return redirect($redirectMap[$className]);
+                }
+            }
             abort(404);
         }
 

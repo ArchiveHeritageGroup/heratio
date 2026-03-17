@@ -118,6 +118,23 @@ class TermController extends Controller
         $scopeNote = $this->termService->getScopeNote($term->id, $culture);
         $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
 
+        // Related actor count (for navigate tabs)
+        $relatedActorCount = DB::table('object_term_relation')
+            ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+            ->where('object_term_relation.term_id', $term->id)
+            ->where('object.class_name', 'QubitActor')->count();
+
+        // Direct-only count (exclude narrower terms)
+        $directCount = $relatedDescriptionsCount; // same if no narrower terms
+        $narrowerIds = DB::table('term')->where('parent_id', $term->id)->pluck('id')->toArray();
+        if (!empty($narrowerIds)) {
+            $directCount = DB::table('object_term_relation')
+                ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+                ->where('object_term_relation.term_id', $term->id)
+                ->where('object.class_name', 'QubitInformationObject')->count();
+        }
+        $onlyDirect = $request->has('onlyDirect');
+
         // Use-for labels
         $useFor = \Illuminate\Support\Facades\DB::table('other_name')
             ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
@@ -141,16 +158,22 @@ class TermController extends Controller
         // Narrower terms count
         $narrowerCount = \Illuminate\Support\Facades\DB::table('term')->where('parent_id', $term->id)->count();
 
-        // Related descriptions (paginated)
+        // Related descriptions (paginated) — include narrower terms unless onlyDirect
         $page = max(1, (int) $request->get('page', 1));
         $limit = 10;
         $sort = $request->get('sort', 'lastUpdated');
-        $relatedQuery = \Illuminate\Support\Facades\DB::table('object_term_relation')
+
+        $termIds = [$term->id];
+        if (!$onlyDirect && !empty($narrowerIds)) {
+            $termIds = array_merge($termIds, $narrowerIds);
+        }
+
+        $relatedQuery = DB::table('object_term_relation')
             ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('object_term_relation.term_id', $term->id)
+            ->whereIn('object_term_relation.term_id', $termIds)
             ->where('object.class_name', 'QubitInformationObject')
             ->where('information_object_i18n.culture', $culture);
 
@@ -262,20 +285,7 @@ class TermController extends Controller
             'referenceCode' => ['information_object.identifier', 'asc'],
             'date' => ['information_object.id', 'asc'], // Start date would need event join
         ];
-        if (isset($orderMap[$sort])) {
-            $relatedDescriptions = DB::table('object_term_relation')
-                ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-                ->join('object', 'information_object.id', '=', 'object.id')
-                ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('object_term_relation.term_id', $term->id)
-                ->where('object.class_name', 'QubitInformationObject')
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.identifier',
-                    'information_object_i18n.title', 'slug.slug', 'object.updated_at')
-                ->orderBy($orderMap[$sort][0], $orderMap[$sort][1])
-                ->offset(($page - 1) * $limit)->limit($limit)->get();
-        }
+        // Re-sort uses the already-built $relatedQuery which respects $termIds and onlyDirect
 
         $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
         $icon = $iconMap[$term->taxonomy_id] ?? 'fa-tag';
@@ -299,6 +309,9 @@ class TermController extends Controller
             'mapApiKey' => $mapApiKey,
             'relatedDescriptions' => $relatedDescriptions,
             'totalRelated' => $totalRelated,
+            'relatedActorCount' => $relatedActorCount,
+            'directCount' => $directCount,
+            'onlyDirect' => $onlyDirect,
             'page' => $page,
             'lastPage' => max(1, (int) ceil($totalRelated / $limit)),
             'sort' => $sort,
