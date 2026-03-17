@@ -1,0 +1,20 @@
+{
+    "name": "ahg/loan",
+    "description": "Loan management for Heratio: agreements, objects, returns, condition reports, facility reports, courier tracking",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgLoan\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgLoan\\Providers\\AhgLoanServiceProvider"
+            ]
+        }
+    }
+}

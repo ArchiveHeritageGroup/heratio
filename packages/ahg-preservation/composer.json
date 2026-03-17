@@ -1,0 +1,20 @@
+{
+    "name": "ahg/preservation",
+    "description": "Digital preservation management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgPreservation\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgPreservation\\Providers\\AhgPreservationServiceProvider"
+            ]
+        }
+    }
+}

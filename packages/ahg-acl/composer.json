@@ -1,0 +1,24 @@
+{
+    "name": "ahg/acl",
+    "description": "AHG ACL - Role-based access control, security classifications, and audit logging for Heratio",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ahg/core": "@dev",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAcl\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAcl\\Providers\\AhgAclServiceProvider"
+            ]
+        }
+    }
+}

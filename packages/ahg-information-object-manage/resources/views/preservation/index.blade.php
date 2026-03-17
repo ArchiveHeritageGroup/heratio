@@ -80,9 +80,9 @@
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
       @auth
-        <a href="#" class="btn btn-success" onclick="alert('Create Package form — migration in progress'); return false;">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPackageModal">
           <i class="fas fa-plus me-1"></i> Create Package
-        </a>
+        </button>
       @endauth
     </div>
     <div class="d-flex gap-2">
@@ -179,15 +179,15 @@
                   <td>{{ $aip->created_at ?? '—' }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
-                      <a href="#" class="btn btn-outline-primary" title="View" onclick="alert('View package — migration in progress'); return false;">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn btn-outline-primary" title="View package">
                         <i class="fas fa-eye"></i>
                       </a>
                       @auth
-                        <a href="#" class="btn btn-outline-secondary" title="Edit" onclick="alert('Edit package — migration in progress'); return false;">
+                        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?edit={{ $aip->id }}" class="btn btn-outline-secondary" title="Edit package">
                           <i class="fas fa-pencil-alt"></i>
                         </a>
                       @endauth
-                      <a href="#" class="btn btn-outline-success" title="Download" onclick="alert('Download package — migration in progress'); return false;">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?download={{ $aip->id }}" class="btn btn-outline-success" title="Download package">
                         <i class="fas fa-download"></i>
                       </a>
                     </div>
@@ -226,7 +226,7 @@
                     <td>{{ isset($po->size) ? formatBytes($po->size) : '—' }}</td>
                     <td>{{ $po->date_ingested ?? '—' }}</td>
                     <td class="text-end">
-                      <a href="#" class="btn btn-sm btn-outline-primary" title="View" onclick="alert('View PREMIS object — migration in progress'); return false;">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm btn-outline-primary" title="View PREMIS events">
                         <i class="fas fa-eye"></i>
                       </a>
                     </td>
@@ -251,13 +251,50 @@
         No preservation packages have been created for this resource yet.
       </p>
       @auth
-        <a href="#" class="btn btn-success btn-lg" onclick="alert('Create Package form — migration in progress'); return false;">
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#createPackageModal">
           <i class="fas fa-plus me-1"></i> Create Package
-        </a>
+        </button>
       @endauth
     </div>
 
   @endif
 
 </div>
+
+{{-- Create Package Modal --}}
+@auth
+<div class="modal fade" id="createPackageModal" tabindex="-1" aria-labelledby="createPackageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}" method="GET">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createPackageModalLabel"><i class="fas fa-plus me-2"></i> Create Preservation Package</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="package_type" class="form-label">Package Type</label>
+            <select name="package_type" id="package_type" class="form-select">
+              <option value="SIP">SIP (Submission Information Package)</option>
+              <option value="AIP" selected>AIP (Archival Information Package)</option>
+              <option value="DIP">DIP (Dissemination Information Package)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="package_name" class="form-label">Package Name</label>
+            <input type="text" name="package_name" id="package_name" class="form-control" placeholder="Enter a descriptive name">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Create Package
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+@endauth
+
 @endsection

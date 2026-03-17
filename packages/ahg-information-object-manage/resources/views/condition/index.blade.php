@@ -19,7 +19,7 @@
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
     @auth
-      <a href="#" class="btn btn-success" onclick="alert('New Condition Check form — migration in progress'); return false;">
+      <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-success">
         <i class="fas fa-plus me-1"></i> New Condition Check
       </a>
     @endauth
@@ -66,7 +66,7 @@
           <div class="col-md-3">
             <strong>Photos</strong>
             <p>
-              <a href="#" class="btn btn-sm btn-outline-primary" onclick="alert('View photos — migration in progress'); return false;">
+              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-camera me-1"></i> View Photos
               </a>
             </p>
@@ -124,7 +124,7 @@
                   <td>{{ $check->assessor ?? '—' }}</td>
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
-                    <a href="#" class="btn btn-sm btn-outline-primary" onclick="alert('View photos — migration in progress'); return false;">
+                    <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary" title="View photos">
                       <i class="fas fa-camera"></i>
                     </a>
                   </td>
@@ -148,7 +148,7 @@
         No condition assessments have been recorded for this resource yet.
       </p>
       @auth
-        <a href="#" class="btn btn-success btn-lg" onclick="alert('New Condition Check form — migration in progress'); return false;">
+        <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-success btn-lg">
           <i class="fas fa-plus me-1"></i> Create First Condition Check
         </a>
       @endauth

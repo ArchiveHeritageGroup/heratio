@@ -41,7 +41,12 @@
         "ahg/research": "@dev",
         "ahg/display": "@dev",
         "ahg/cart": "@dev",
-        "ahg/favorites": "@dev"
+        "ahg/favorites": "@dev",
+        "ahg/data-migration": "@dev",
+        "ahg/acl": "@dev",
+        "ahg/preservation": "@dev",
+        "ahg/workflow": "@dev",
+        "ahg/loan": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

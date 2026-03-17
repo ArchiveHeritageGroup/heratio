@@ -1,0 +1,20 @@
+{
+    "name": "ahg/data-migration",
+    "description": "CSV/XML data import with field mapping, validation, preview, batch export, and job tracking for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgDataMigration\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDataMigration\\Providers\\AhgDataMigrationServiceProvider"
+            ]
+        }
+    }
+}

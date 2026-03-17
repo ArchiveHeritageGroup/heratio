@@ -1,0 +1,20 @@
+{
+    "name": "ahg/workflow",
+    "description": "Workflow management, task approval, SLA tracking, and publish gates for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgWorkflow\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgWorkflow\\Providers\\AhgWorkflowServiceProvider"
+            ]
+        }
+    }
+}

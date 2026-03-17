@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a240c3264e9a8835188334524c8238ad",
+    "content-hash": "b8b55f6a0ffe5db78fb7bca5e70e4146",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -31,6 +31,42 @@
                 }
             },
             "description": "Accession browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/acl",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-acl",
+                "reference": "bbc04a2ce7d79e6b6c1c06096babbd9193f9391c"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "illuminate/database": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAcl\\Providers\\AhgAclServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAcl\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "AHG ACL - Role-based access control, security classifications, and audit logging for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -156,6 +192,36 @@
                 "proprietary"
             ],
             "description": "AHG Core - Eloquent models and base services for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/data-migration",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-data-migration",
+                "reference": "90f7d285862c7b6f0e85848fedaa196c4719d316"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDataMigration\\Providers\\AhgDataMigrationServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDataMigration\\": "src/"
+                }
+            },
+            "description": "CSV/XML data import with field mapping, validation, preview, batch export, and job tracking for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -369,6 +435,36 @@
             }
         },
         {
+            "name": "ahg/loan",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-loan",
+                "reference": "1c433de3b8b1592b348b7d0a74763c508f94252b"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgLoan\\Providers\\AhgLoanServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgLoan\\": "src/"
+                }
+            },
+            "description": "Loan management for Heratio: agreements, objects, returns, condition reports, facility reports, courier tracking",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/menu-manage",
             "version": "dev-main",
             "dist": {
@@ -393,6 +489,36 @@
                 }
             },
             "description": "Menu browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/preservation",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-preservation",
+                "reference": "1fee13bac5a8963248a0da98ff977b30097421d5"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgPreservation\\Providers\\AhgPreservationServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgPreservation\\": "src/"
+                }
+            },
+            "description": "Digital preservation management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -727,6 +853,36 @@
                 }
             },
             "description": "User browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/workflow",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-workflow",
+                "reference": "f7e0fa5f6e113d5892e86a85963ad0fda9b3f979"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgWorkflow\\Providers\\AhgWorkflowServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgWorkflow\\": "src/"
+                }
+            },
+            "description": "Workflow management, task approval, SLA tracking, and publish gates for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9136,7 +9292,12 @@
         "ahg/research": 20,
         "ahg/display": 20,
         "ahg/cart": 20,
-        "ahg/favorites": 20
+        "ahg/favorites": 20,
+        "ahg/data-migration": 20,
+        "ahg/acl": 20,
+        "ahg/preservation": 20,
+        "ahg/workflow": 20,
+        "ahg/loan": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

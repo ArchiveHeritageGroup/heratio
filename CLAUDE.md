@@ -123,6 +123,8 @@ This is **Heratio** — not AtoM. Do NOT reference "AtoM" in code, comments, des
 
 Every page must be identical to what AtoM/Symfony delivers. Full screens, full theme, full menus, full metadata, full digital objects. If a user can tell they're on Heratio vs Symfony, it is not ready.
 
+**Screens between AtoM and Heratio must look exactly the same — 100% clone, like for like.** If AtoM has a dropdown, Heratio has a dropdown. If AtoM has a checkbox, Heratio has a checkbox. If AtoM has an accordion, Heratio has an accordion. Every form control, every field label, every section heading, every button placement must match the AtoM original. Compare the AtoM template side-by-side and replicate every UI element exactly. No substitutions, no "improvements", no deviations.
+
 Use ahg-information-object-manage/ActorController.php as the structural pattern. Follow the same service injection, validation, flash messages, and redirect pattern. Do not simplify.
 
 - Never use placeholder comments like "// TODO: implement"
