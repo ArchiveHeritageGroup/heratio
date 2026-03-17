@@ -205,15 +205,8 @@ class TermController extends Controller
                         ->first();
 
                     if ($thumb) {
-                        $thumbPath = ($thumb->path ?? '') . ($thumb->name ?? '');
-                        // Check multiple locations for the file
-                        if (file_exists(public_path($thumbPath))) {
-                            $desc->thumbnail = $thumbPath;
-                        } elseif (file_exists('/usr/share/nginx/archive' . $thumbPath)) {
-                            $desc->thumbnail = '/atom' . $thumbPath;
-                        } else {
-                            $desc->thumbnail = $thumbPath;
-                        }
+                        // Path starts with /uploads/ which nginx aliases to AtoM's uploads dir
+                        $desc->thumbnail = ($thumb->path ?? '') . ($thumb->name ?? '');
                     } else {
                         // No thumbnail — use generic icon image from AtoM
                         $desc->thumbnail = '/generic-icons/' . match ((int) ($master->media_type_id ?? 0)) {
