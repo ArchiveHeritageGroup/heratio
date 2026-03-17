@@ -42,6 +42,8 @@ Route::get('/index.php/settings', fn () => redirect('/admin/settings'));
 Route::get('/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
 Route::get('/display/browse', fn (\Illuminate\Http\Request $r) => redirect('/glam/browse?' . $r->getQueryString()));
 Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
+Route::get('/home', fn () => redirect('/'));
+Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
 
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
