@@ -228,14 +228,26 @@
               </a>
             </div>
             <div class="col-12 col-lg-10 d-flex flex-column gap-1">
-              <a href="{{ url('/' . $desc->slug) }}" class="h6 mb-0 text-truncate">{{ $desc->title ?: '[Untitled]' }}</a>
-              <div class="d-flex flex-wrap text-muted small">
+              <a href="{{ url('/' . $desc->slug) }}" class="h5 mb-0 text-truncate">{{ $desc->title ?: '[Untitled]' }}</a>
+              <div class="d-flex flex-wrap">
                 @if($desc->identifier)
                   <span class="text-primary">{{ $desc->identifier }}</span>
-                  <span class="mx-2">&middot;</span>
                 @endif
-                <span>{{ $desc->updated_at ? \Carbon\Carbon::parse($desc->updated_at)->format('Y-m-d') : '' }}</span>
+                @if($desc->levelName ?? null)
+                  @if($desc->identifier) <span class="text-muted mx-2">&middot;</span> @endif
+                  <span class="text-muted">{{ $desc->levelName }}</span>
+                @endif
+                @if($desc->dateDisplay ?? null)
+                  <span class="text-muted mx-2">&middot;</span>
+                  <span class="text-muted">{{ $desc->dateDisplay }}</span>
+                @endif
               </div>
+              @if($desc->scope_and_content ?? null)
+                <span class="text-muted small">{{ Str::limit(strip_tags($desc->scope_and_content), 150) }}</span>
+              @endif
+              @if($desc->creatorName ?? null)
+                <span class="text-muted small"><i class="fas fa-user me-1"></i>{{ $desc->creatorName }}</span>
+              @endif
             </div>
           </article>
         @endforeach

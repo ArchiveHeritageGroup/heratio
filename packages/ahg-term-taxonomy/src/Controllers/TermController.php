@@ -183,10 +183,38 @@ class TermController extends Controller
 
         $relatedDescriptions = $relatedQuery
             ->select('information_object.id', 'information_object.identifier',
-                'information_object_i18n.title', 'slug.slug', 'object.updated_at')
+                'information_object.level_of_description_id',
+                'information_object_i18n.title',
+                'information_object_i18n.scope_and_content',
+                'slug.slug', 'object.updated_at')
             ->orderBy($orderCol, $orderDir)
             ->offset(($page - 1) * $limit)->limit($limit)->get()
-            ->map(function ($desc) {
+            ->map(function ($desc) use ($culture) {
+                // Level of description name
+                $desc->levelName = $desc->level_of_description_id
+                    ? DB::table('term_i18n')->where('id', $desc->level_of_description_id)->where('culture', $culture)->value('name')
+                    : null;
+
+                // Creator (from event type 111 = creation)
+                $creator = DB::table('event')
+                    ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+                    ->where('event.object_id', $desc->id)
+                    ->where('event.type_id', 111)
+                    ->where('actor_i18n.culture', $culture)
+                    ->whereNotNull('event.actor_id')
+                    ->select('actor_i18n.authorized_form_of_name')
+                    ->first();
+                $desc->creatorName = $creator->authorized_form_of_name ?? null;
+
+                // Dates from events
+                $dates = DB::table('event')
+                    ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+                    ->where('event.object_id', $desc->id)
+                    ->where('event_i18n.culture', $culture)
+                    ->select('event_i18n.date', 'event.start_date', 'event.end_date')
+                    ->first();
+                $desc->dateDisplay = $dates->date ?? $dates->start_date ?? null;
+
                 // Get master digital object
                 $master = DB::table('digital_object')
                     ->where('object_id', $desc->id)
