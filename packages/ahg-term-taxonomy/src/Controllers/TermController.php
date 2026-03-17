@@ -113,7 +113,7 @@ class TermController extends Controller
             })
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')
-            ->limit(50)->get();
+            ->get();
 
         return view('ahg-term-taxonomy::browse', [
             'pager' => $pager,
