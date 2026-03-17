@@ -4,7 +4,8 @@
 
 @php
   // Plugin detection using enabledPlugins passed from controller
-  $has = fn($name) => isset($enabledPlugins[$name] ?? []);
+  $plugins = $enabledPlugins ?? [];
+  $has = fn($name) => isset($plugins[$name]);
 
   $hasLibrary = $has('ahgLibraryPlugin');
   $hasMuseum = $has('ahgMuseumPlugin');
