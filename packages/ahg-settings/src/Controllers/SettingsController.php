@@ -643,11 +643,140 @@ class SettingsController extends Controller
 
     public function ahgSection(Request $request, string $group)
     {
+        $checkboxFields = [
+            // general
+            'ahg_theme_enabled', 'ahg_show_branding', 'enable_glam_browse',
+            // spectrum
+            'spectrum_enabled', 'spectrum_auto_create_movement', 'spectrum_require_photos',
+            'spectrum_email_notifications', 'spectrum_enable_barcodes', 'spectrum_auto_numbering',
+            'spectrum_require_insurance', 'spectrum_require_valuation',
+            // media
+            'media_autoplay', 'media_show_controls', 'media_loop', 'media_show_waveform',
+            'media_transcription_enabled', 'media_show_download',
+            // photos
+            'photo_create_thumbnails', 'photo_extract_exif', 'photo_auto_rotate',
+            'photo_auto_orient', 'photo_exif_strip', 'photo_watermark_enabled',
+            // data_protection
+            'dp_enabled', 'dp_notify_overdue', 'dp_anonymize_on_delete', 'dp_audit_logging',
+            'dp_consent_required', 'dp_auto_deadline', 'dp_require_dpo_approval',
+            // iiif
+            'iiif_enabled', 'iiif_show_navigator', 'iiif_show_rotation', 'iiif_show_fullscreen',
+            'iiif_enable_annotations',
+            // jobs
+            'jobs_enabled', 'jobs_notify_failure', 'jobs_notify_on_failure',
+            // faces
+            'face_detect_enabled', 'face_auto_match', 'face_auto_link', 'face_blur_unmatched',
+            'face_store_embeddings', 'face_save_crops',
+            // fuseki
+            'fuseki_sync_enabled', 'fuseki_queue_enabled', 'fuseki_sync_on_save',
+            'fuseki_sync_on_delete', 'fuseki_cascade_delete',
+            // ingest
+            'ingest_ner', 'ingest_ocr', 'ingest_virus_scan', 'ingest_summarize',
+            'ingest_spellcheck', 'ingest_translate', 'ingest_format_id', 'ingest_face_detect',
+            'ingest_create_records', 'ingest_generate_sip', 'ingest_generate_aip', 'ingest_generate_dip',
+            'ingest_thumbnails', 'ingest_reference',
+            // encryption
+            'encryption_enabled', 'encryption_encrypt_derivatives',
+            'encryption_field_contact_details', 'encryption_field_financial_data',
+            'encryption_field_donor_information', 'encryption_field_personal_notes',
+            'encryption_field_access_restrictions',
+            // voice_ai
+            'voice_enabled', 'voice_continuous_listening', 'voice_show_floating_btn',
+            'voice_hover_read_enabled', 'voice_audit_ai_calls',
+            // integrity
+            'integrity_enabled', 'integrity_auto_baseline', 'integrity_notify_on_failure',
+            'integrity_notify_on_mismatch',
+            // multi_tenant
+            'tenant_enabled', 'tenant_enforce_filter', 'tenant_show_switcher', 'tenant_allow_branding',
+            // metadata
+            'meta_extract_on_upload', 'meta_auto_populate', 'meta_images', 'meta_pdf', 'meta_office',
+            'meta_video', 'meta_audio', 'meta_extract_gps', 'meta_extract_technical',
+            'meta_extract_xmp', 'meta_extract_iptc', 'meta_overwrite_existing',
+            'meta_create_access_points', 'meta_field_mappings',
+            'meta_dam_batch_mode', 'meta_dam_preserve_filename', 'meta_dam_extract_color',
+            'meta_dam_extract_faces', 'meta_dam_auto_tag', 'meta_dam_generate_thumbnail',
+            'meta_dam_thumb_small', 'meta_dam_thumb_medium', 'meta_dam_thumb_large', 'meta_dam_thumb_preview',
+            'map_title_dam', 'map_creator_dam', 'map_keywords_dam', 'map_description_dam',
+            'map_date_dam', 'map_copyright_dam', 'map_technical_dam', 'map_gps_dam',
+            'meta_replace_placeholders', 'meta_extract_images', 'meta_extract_pdf',
+            'meta_extract_office', 'meta_extract_video', 'meta_extract_audio',
+            // accession
+            'accession_auto_assign_enabled', 'accession_allow_container_barcodes',
+            'accession_require_appraisal', 'accession_require_donor_agreement',
+            'accession_rights_inheritance_enabled',
+            // portable_export
+            'portable_export_enabled', 'portable_export_include_objects',
+            'portable_export_include_thumbnails', 'portable_export_include_references',
+            'portable_export_include_masters', 'portable_export_description_button',
+            'portable_export_clipboard_button',
+            // security
+            'security_lockout_enabled', 'security_force_password_change',
+            'security_password_expiry_notify',
+            // ai_condition
+            'ai_condition_auto_scan', 'ai_condition_overlay_enabled',
+            // features
+            'enable_3d_viewer', 'enable_iiif', 'research_booking_enabled',
+            // email
+            'access_request_email_notifications', 'research_email_notifications',
+            'workflow_email_notifications',
+            // ftp
+            'ftp_passive_mode',
+        ];
+
+        $selectFields = [
+            'spectrum_default_currency' => ['ZAR' => 'ZAR', 'USD' => 'USD', 'EUR' => 'EUR', 'GBP' => 'GBP'],
+            'media_player_type' => ['basic' => 'Basic HTML5 Player', 'enhanced' => 'Enhanced Player'],
+            'photo_max_upload_size' => ['5242880' => '5 MB', '10485760' => '10 MB', '20971520' => '20 MB', '52428800' => '50 MB'],
+            'dp_default_regulation' => ['popia' => 'POPIA (South Africa)', 'gdpr' => 'GDPR (EU)', 'paia' => 'PAIA (South Africa)', 'ccpa' => 'CCPA (California)'],
+            'iiif_viewer' => ['openseadragon' => 'OpenSeadragon', 'mirador' => 'Mirador', 'leaflet' => 'Leaflet-IIIF'],
+            'face_detect_backend' => ['local' => 'Local (Python)', 'aws' => 'AWS Rekognition', 'azure' => 'Azure Face API'],
+            'ftp_protocol' => ['sftp' => 'SFTP', 'ftp' => 'FTP', 'ftps' => 'FTPS'],
+            'voice_llm_provider' => ['local' => 'Local (Ollama)', 'cloud' => 'Cloud (Anthropic)', 'hybrid' => 'Hybrid'],
+            'voice_cloud_model' => ['claude-sonnet-4-20250514' => 'Claude Sonnet 4', 'claude-haiku-4-5-20251001' => 'Claude Haiku 4.5'],
+            'ingest_default_sector' => ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'],
+            'ingest_default_standard' => ['isadg' => 'ISAD(G)', 'dacs' => 'DACS', 'rad' => 'RAD', 'dc' => 'Dublin Core'],
+            'accession_default_priority' => ['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'],
+            'ai_condition_notify_grade' => ['poor' => 'Poor', 'fair' => 'Fair', 'good' => 'Good'],
+            'default_sector' => ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'],
+            'integrity_default_algorithm' => ['sha256' => 'SHA-256', 'sha512' => 'SHA-512', 'md5' => 'MD5'],
+            'portable_export_default_mode' => ['read_only' => 'Read Only', 'editable' => 'Editable'],
+            'portable_export_default_culture' => ['en' => 'English', 'af' => 'Afrikaans', 'zu' => 'Zulu'],
+            'voice_language' => ['en-US' => 'English (US)', 'en-GB' => 'English (UK)', 'de-DE' => 'German', 'af-ZA' => 'Afrikaans'],
+            'ingest_spellcheck_lang' => ['en_ZA' => 'English (ZA)', 'en_US' => 'English (US)', 'af' => 'Afrikaans'],
+        ];
+
+        $colorFields = [
+            'ahg_primary_color', 'ahg_secondary_color', 'ahg_card_header_bg', 'ahg_card_header_text',
+            'ahg_button_bg', 'ahg_button_text', 'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
+            'ahg_success_color', 'ahg_danger_color', 'ahg_warning_color', 'ahg_info_color',
+            'ahg_light_color', 'ahg_dark_color', 'ahg_muted_color', 'ahg_border_color',
+            'ahg_body_bg', 'ahg_body_text',
+        ];
+
+        $passwordFields = ['ftp_password', 'voice_anthropic_api_key', 'ai_condition_api_key',
+            'fuseki_password', 'azure_face_key'];
+
+        $textareaFields = ['ahg_custom_css'];
+
         if ($request->isMethod('post')) {
-            foreach ($request->input('settings', []) as $key => $value) {
+            $postedSettings = $request->input('settings', []);
+            // For checkboxes: unchecked checkboxes are not submitted, so set them to '0'
+            $allKeys = DB::table('ahg_settings')
+                ->where('setting_group', $group)
+                ->pluck('setting_key')
+                ->toArray();
+            foreach ($allKeys as $key) {
+                if (in_array($key, $checkboxFields)) {
+                    $value = isset($postedSettings[$key]) ? '1' : '0';
+                } else {
+                    $value = $postedSettings[$key] ?? '';
+                }
                 DB::table('ahg_settings')
                     ->where('setting_key', $key)
                     ->update(['setting_value' => $value]);
+            }
+            if ($group === 'general') {
+                $this->regenerateThemeCss();
             }
             return redirect()->route('settings.ahg', $group)->with('success', ucfirst(str_replace('_', ' ', $group)) . ' settings saved.');
         }
@@ -660,7 +789,49 @@ class SettingsController extends Controller
 
         $groupLabel = ucfirst(str_replace('_', ' ', $group));
 
-        return view('ahg-settings::ahg-section', compact('settings', 'group', 'groupLabel'));
+        $ahgGroupIcons = [
+            'accession' => 'fa-inbox', 'ai_condition' => 'fa-robot', 'compliance' => 'fa-clipboard-check',
+            'data_protection' => 'fa-user-shield', 'email' => 'fa-envelope', 'encryption' => 'fa-lock',
+            'faces' => 'fa-user-circle', 'features' => 'fa-star', 'fuseki' => 'fa-project-diagram',
+            'general' => 'fa-palette', 'iiif' => 'fa-images', 'ingest' => 'fa-file-import',
+            'integrity' => 'fa-check-double', 'jobs' => 'fa-tasks', 'media' => 'fa-play-circle',
+            'metadata' => 'fa-tags', 'multi_tenant' => 'fa-building', 'photos' => 'fa-camera',
+            'portable_export' => 'fa-compact-disc', 'security' => 'fa-shield-alt',
+            'spectrum' => 'fa-archive', 'voice_ai' => 'fa-microphone', 'ftp' => 'fa-server',
+        ];
+        $groupIcon = $ahgGroupIcons[$group] ?? 'fa-puzzle-piece';
+
+        $ahgGroupLabels = [
+            'general' => 'Theme Configuration',
+            'email' => 'Email',
+            'metadata' => 'Metadata Extraction',
+            'media' => 'Media Player',
+            'jobs' => 'Background Jobs',
+            'spectrum' => 'Spectrum / Collections',
+            'photos' => 'Condition Photos',
+            'data_protection' => 'Data Protection',
+            'iiif' => 'IIIF Viewer',
+            'faces' => 'Face Detection',
+            'fuseki' => 'Fuseki / RIC',
+            'ingest' => 'Data Ingest',
+            'accession' => 'Accession Management',
+            'encryption' => 'Encryption',
+            'voice_ai' => 'Voice & AI',
+            'integrity' => 'Integrity',
+            'multi_tenant' => 'Multi-Tenancy',
+            'portable_export' => 'Portable Export',
+            'security' => 'Security',
+            'features' => 'Features',
+            'compliance' => 'Compliance',
+            'ftp' => 'FTP / SFTP',
+            'ai_condition' => 'AI Condition',
+        ];
+        $groupLabel = $ahgGroupLabels[$group] ?? ucfirst(str_replace('_', ' ', $group));
+
+        return view('ahg-settings::ahg-section', compact(
+            'settings', 'group', 'groupLabel', 'groupIcon',
+            'checkboxFields', 'selectFields', 'colorFields', 'passwordFields', 'textareaFields'
+        ));
     }
 
     private function buildMenu(string $active): array

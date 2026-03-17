@@ -56,9 +56,49 @@
     </div>
     @endforeach
 
-    {{-- AHG setting groups --}}
-    @foreach($ahgGroups as $group)
+    {{-- AHG setting groups — ordered to match AtoM --}}
     @php
+      $ahgOrder = [
+        'general', 'email', 'metadata', 'media', 'jobs', 'spectrum', 'photos',
+        'data_protection', 'iiif', 'faces', 'fuseki', 'ingest', 'accession',
+        'encryption', 'voice_ai', 'integrity', 'multi_tenant', 'portable_export',
+        'security', 'features', 'compliance', 'ftp', 'ai_condition',
+      ];
+      $ahgLabels = [
+        'general' => 'Theme Configuration', 'email' => 'Email', 'metadata' => 'Metadata Extraction',
+        'media' => 'Media Player', 'jobs' => 'Background Jobs', 'spectrum' => 'Spectrum / Collections',
+        'photos' => 'Condition Photos', 'data_protection' => 'Data Protection', 'iiif' => 'IIIF Viewer',
+        'faces' => 'Face Detection', 'fuseki' => 'Fuseki / RIC', 'ingest' => 'Data Ingest',
+        'accession' => 'Accession Management', 'encryption' => 'Encryption', 'voice_ai' => 'Voice & AI',
+        'integrity' => 'Integrity', 'multi_tenant' => 'Multi-Tenancy', 'portable_export' => 'Portable Export',
+        'security' => 'Security', 'features' => 'Features', 'compliance' => 'Compliance',
+        'ftp' => 'FTP / SFTP', 'ai_condition' => 'AI Condition',
+      ];
+      $ahgDescriptions = [
+        'general' => 'Customize appearance, colours, logo, branding, and custom CSS',
+        'email' => 'Email notifications and SMTP configuration',
+        'metadata' => 'Automatic metadata extraction from uploaded files',
+        'media' => 'Media player behaviour and display options',
+        'jobs' => 'Background job processing and notifications',
+        'spectrum' => 'Spectrum collections management procedures',
+        'photos' => 'Condition photo thumbnails and EXIF settings',
+        'data_protection' => 'POPIA / GDPR compliance and data handling',
+        'iiif' => 'IIIF image viewer and annotation settings',
+        'faces' => 'Face detection and recognition settings',
+        'fuseki' => 'Apache Fuseki RDF triplestore synchronisation',
+        'ingest' => 'Data ingest pipeline and processing options',
+        'accession' => 'Accession workflow and numbering options',
+        'encryption' => 'Field-level encryption and key management',
+        'voice_ai' => 'Voice interface and AI assistant settings',
+        'integrity' => 'Fixity checking and integrity monitoring',
+        'multi_tenant' => 'Multi-tenancy isolation and branding',
+        'portable_export' => 'Portable offline export configuration',
+        'security' => 'Security lockout and password policies',
+        'features' => 'Feature toggles for 3D viewer, IIIF, and bookings',
+        'compliance' => 'Regulatory compliance settings',
+        'ftp' => 'FTP / SFTP connection settings',
+        'ai_condition' => 'AI-powered condition assessment',
+      ];
       $icons = [
         'accession' => 'fa-inbox', 'ai_condition' => 'fa-robot', 'compliance' => 'fa-clipboard-check',
         'data_protection' => 'fa-user-shield', 'email' => 'fa-envelope', 'encryption' => 'fa-lock',
@@ -67,23 +107,36 @@
         'integrity' => 'fa-check-double', 'jobs' => 'fa-tasks', 'media' => 'fa-play-circle',
         'metadata' => 'fa-tags', 'multi_tenant' => 'fa-building', 'photos' => 'fa-camera',
         'portable_export' => 'fa-compact-disc', 'security' => 'fa-shield-alt',
-        'spectrum' => 'fa-archive', 'voice_ai' => 'fa-microphone',
+        'spectrum' => 'fa-archive', 'voice_ai' => 'fa-microphone', 'ftp' => 'fa-server',
       ];
       $colors = [
         'security' => 'danger', 'encryption' => 'danger', 'data_protection' => 'warning',
         'ai_condition' => 'info', 'iiif' => 'info', 'media' => 'info',
         'compliance' => 'warning', 'integrity' => 'success',
       ];
-      $icon = $icons[$group->key] ?? 'fa-puzzle-piece';
-      $color = $colors[$group->key] ?? 'primary';
+      // Index ahgGroups by key for count lookup
+      $ahgGroupsByKey = $ahgGroups->keyBy('key');
+      // Sort: show groups in defined order, then any extra groups from DB
+      $orderedKeys = collect($ahgOrder)->filter(fn ($k) => $ahgGroupsByKey->has($k));
+      $extraKeys = $ahgGroups->pluck('key')->diff($ahgOrder);
+      $sortedKeys = $orderedKeys->merge($extraKeys);
+    @endphp
+
+    @foreach($sortedKeys as $gKey)
+    @php
+      $gData = $ahgGroupsByKey[$gKey];
+      $icon = $icons[$gKey] ?? 'fa-puzzle-piece';
+      $color = $colors[$gKey] ?? 'primary';
+      $label = $ahgLabels[$gKey] ?? $gData->label;
+      $desc = $ahgDescriptions[$gKey] ?? ucfirst(str_replace('_', ' ', $gKey)) . ' settings';
     @endphp
     <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.ahg', $group->key) }}" class="text-decoration-none">
+      <a href="{{ route('settings.ahg', $gKey) }}" class="text-decoration-none">
         <div class="card h-100 shadow-sm settings-tile {{ $color !== 'primary' ? 'border-' . $color : '' }}">
           <div class="card-body text-center py-4">
             <div class="mb-3"><i class="fas {{ $icon }} fa-3x text-{{ $color }}"></i></div>
-            <h5 class="card-title text-dark">{{ $group->label }}</h5>
-            <p class="card-text text-muted small">{{ ucfirst(str_replace('_', ' ', $group->key)) }} settings</p>
+            <h5 class="card-title text-dark">{{ $label }}</h5>
+            <p class="card-text text-muted small">{{ $desc }}</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
             <span class="btn btn-{{ $color }}"><i class="fas fa-cog"></i> Configure</span>
