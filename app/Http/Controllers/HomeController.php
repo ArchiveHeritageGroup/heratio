@@ -36,14 +36,20 @@ class HomeController extends Controller
                 ->get();
         }
 
-        // Static pages menu (children of the Quick Links > Static Pages menu)
-        $staticPages = DB::table('static_page')
-            ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
-            ->join('slug', 'static_page.id', '=', 'slug.object_id')
-            ->where('static_page_i18n.culture', 'en')
-            ->select('static_page_i18n.title', 'slug.slug')
-            ->orderBy('static_page_i18n.title')
-            ->get();
+        // Static pages menu — children of the "staticPagesMenu" menu item (ID 61)
+        // In AtoM this shows Favorites, Feedback, Cart — NOT actual static page content
+        $staticPagesMenuId = DB::table('menu')->where('name', 'staticPagesMenu')->value('id');
+        $staticPages = collect();
+        if ($staticPagesMenuId) {
+            $staticPages = DB::table('menu')
+                ->leftJoin('menu_i18n', function ($j) {
+                    $j->on('menu.id', '=', 'menu_i18n.id')->where('menu_i18n.culture', '=', 'en');
+                })
+                ->where('menu.parent_id', $staticPagesMenuId)
+                ->orderBy('menu.lft')
+                ->select('menu_i18n.label as title', 'menu.path as slug')
+                ->get();
+        }
 
         // Popular this week (from access_log)
         $popularThisWeek = collect();
