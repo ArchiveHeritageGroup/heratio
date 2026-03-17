@@ -1,0 +1,20 @@
+{
+    "name": "ahg/api",
+    "description": "REST API v1 for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgApi\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgApi\\Providers\\AhgApiServiceProvider"
+            ]
+        }
+    }
+}

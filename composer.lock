@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ab034a0f8b8d1fcb0224d02158f972f",
+    "content-hash": "2577e5e67604bddeb7489256f9ee4f97",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -97,6 +97,36 @@
                 }
             },
             "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/api",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-api",
+                "reference": "e1599ce53c43c04773c1920693148f3633248af1"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgApi\\Providers\\AhgApiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgApi\\": "src/"
+                }
+            },
+            "description": "REST API v1 for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -519,6 +549,36 @@
                 }
             },
             "description": "Menu browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/oai",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-oai",
+                "reference": "964541a13a08ff7766807e26996d6e570143fa7c"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgOai\\Providers\\AhgOaiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgOai\\": "src/"
+                }
+            },
+            "description": "OAI-PMH 2.0 endpoint for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9328,7 +9388,9 @@
         "ahg/preservation": 20,
         "ahg/workflow": 20,
         "ahg/loan": 20,
-        "ahg/feedback": 20
+        "ahg/feedback": 20,
+        "ahg/api": 20,
+        "ahg/oai": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

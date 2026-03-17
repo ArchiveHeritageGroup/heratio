@@ -1,0 +1,20 @@
+{
+    "name": "ahg/oai",
+    "description": "OAI-PMH 2.0 endpoint for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgOai\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgOai\\Providers\\AhgOaiServiceProvider"
+            ]
+        }
+    }
+}
