@@ -58,6 +58,17 @@
     'donors', 'rightsholders', 'accessions', 'browsePhysicalObjects', 'staticPages',
   ];
 
+  // Plugin detection for sector items
+  $sectorPlugins = [];
+  if (\Illuminate\Support\Facades\Schema::hasTable('atom_plugin')) {
+      $sectorPlugins = \Illuminate\Support\Facades\DB::table('atom_plugin')
+          ->where('is_enabled', 1)->pluck('name')->flip()->toArray();
+  }
+  $hasLibrary = isset($sectorPlugins['ahgLibraryPlugin']);
+  $hasMuseum = isset($sectorPlugins['ahgMuseumPlugin']);
+  $hasGallery = isset($sectorPlugins['ahgGalleryPlugin']);
+  $hasDam = isset($sectorPlugins['arDAMPlugin']) || isset($sectorPlugins['ahgDAMPlugin']);
+
   // Top-level menu icons matching AtoM exactly
   $menuIcons = [
     'add' => 'plus-circle',
@@ -88,6 +99,15 @@
         </a>
       </li>
     @endforeach
+    {{-- Sector Items (matching AtoM) --}}
+    @if($hasLibrary || $hasMuseum || $hasGallery || $hasDam)
+      <li><hr class="dropdown-divider"></li>
+      <li><h6 class="dropdown-header">Sector Items</h6></li>
+      @if($hasMuseum)<li><a class="dropdown-item" href="{{ url('/museum/add') }}"><i class="fas fa-university fa-fw me-2"></i>Museum object</a></li>@endif
+      @if($hasGallery)<li><a class="dropdown-item" href="{{ url('/gallery/add') }}"><i class="fas fa-images fa-fw me-2"></i>Gallery item</a></li>@endif
+      @if($hasLibrary)<li><a class="dropdown-item" href="{{ url('/library/add') }}"><i class="fas fa-book fa-fw me-2"></i>Library item</a></li>@endif
+      @if($hasDam)<li><a class="dropdown-item" href="{{ url('/dam/create') }}"><i class="fas fa-photo-video fa-fw me-2"></i>Photo/DAM asset</a></li>@endif
+    @endif
   </ul>
 </li>
 @endif

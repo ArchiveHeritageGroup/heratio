@@ -94,6 +94,12 @@
       <legend class="fs-5 border-bottom pb-2">Context area <small class="text-muted">(ISAD 3.2)</small></legend>
 
       <div class="mb-3">
+        <label for="creators" class="form-label">Creator(s)</label>
+        <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators', $io->creators ?? '') }}" placeholder="Type to search authority records...">
+        <div class="form-text">Link to existing authority records as creators</div>
+      </div>
+
+      <div class="mb-3">
         <label for="archival_history" class="form-label">Archival history</label>
         <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history', $io->archival_history) }}</textarea>
       </div>
@@ -174,6 +180,53 @@
       </div>
     </fieldset>
 
+    {{-- ===== ISAD(G) 3.6 Notes area ===== --}}
+    <fieldset class="mb-4">
+      <legend class="fs-5 border-bottom pb-2">Notes area <small class="text-muted">(ISAD 3.6)</small></legend>
+
+      <div class="mb-3">
+        <label for="general_note" class="form-label">General note</label>
+        <textarea class="form-control" id="general_note" name="general_note" rows="3">{{ old('general_note', $io->general_note ?? '') }}</textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="archivist_note" class="form-label">Archivist's note</label>
+        <textarea class="form-control" id="archivist_note" name="archivist_note" rows="3">{{ old('archivist_note', $io->archivist_note ?? '') }}</textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="publication_note" class="form-label">Publication note</label>
+        <textarea class="form-control" id="publication_note" name="publication_note" rows="3">{{ old('publication_note', $io->publication_note ?? '') }}</textarea>
+      </div>
+    </fieldset>
+
+    {{-- ===== Access points ===== --}}
+    <fieldset class="mb-4">
+      <legend class="fs-5 border-bottom pb-2">Access points</legend>
+
+      <div class="mb-3">
+        <label for="subject_access_points" class="form-label">Subject access points</label>
+        <input type="text" class="form-control" id="subject_access_points" name="subject_access_points" value="{{ old('subject_access_points', $io->subject_access_points ?? '') }}" placeholder="Type to search subjects...">
+        <div class="form-text">Separate multiple subjects with semicolons</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="place_access_points" class="form-label">Place access points</label>
+        <input type="text" class="form-control" id="place_access_points" name="place_access_points" value="{{ old('place_access_points', $io->place_access_points ?? '') }}" placeholder="Type to search places...">
+        <div class="form-text">Separate multiple places with semicolons</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="genre_access_points" class="form-label">Genre access points</label>
+        <input type="text" class="form-control" id="genre_access_points" name="genre_access_points" value="{{ old('genre_access_points', $io->genre_access_points ?? '') }}" placeholder="Type to search genres...">
+      </div>
+
+      <div class="mb-3">
+        <label for="name_access_points" class="form-label">Name access points</label>
+        <input type="text" class="form-control" id="name_access_points" name="name_access_points" value="{{ old('name_access_points', $io->name_access_points ?? '') }}" placeholder="Type to search names...">
+      </div>
+    </fieldset>
+
     {{-- ===== ISAD(G) 3.7 Description control area ===== --}}
     <fieldset class="mb-4">
       <legend class="fs-5 border-bottom pb-2">Description control area <small class="text-muted">(ISAD 3.7)</small></legend>
@@ -202,6 +255,21 @@
       <div class="mb-3">
         <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
         <textarea class="form-control" id="revision_history" name="revision_history" rows="3">{{ old('revision_history', $io->revision_history) }}</textarea>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="language_of_description" class="form-label">Language(s) of description</label>
+            <input type="text" class="form-control" id="language_of_description" name="language_of_description" value="{{ old('language_of_description', $io->language_of_description ?? '') }}" placeholder="e.g. English, French">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="script_of_description" class="form-label">Script(s) of description</label>
+            <input type="text" class="form-control" id="script_of_description" name="script_of_description" value="{{ old('script_of_description', $io->script_of_description ?? '') }}" placeholder="e.g. Latin, Cyrillic">
+          </div>
+        </div>
       </div>
     </fieldset>
 

@@ -68,6 +68,15 @@
               <div class="form-text">"Record the authorised name of the function being described." (ISDF 5.1.2)</div>
             </div>
 
+          <div class="mb-3">
+            <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+            <textarea class="form-control" id="parallel_name" name="parallel_name" rows="2">{{ old('parallel_name', $function->parallel_name ?? '') }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="other_name" class="form-label">Other form(s) of name</label>
+            <textarea class="form-control" id="other_name" name="other_name" rows="2">{{ old('other_name', $function->other_name ?? '') }}</textarea>
+          </div>
+
             <div class="mb-3">
               <label for="classification" class="form-label">Classification</label>
               <input type="text" name="classification" id="classification" class="form-control"
@@ -114,6 +123,27 @@
           </div>
         </div>
       </div>
+
+    {{-- Relationships area (ISDF 5.3) --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-relationships"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-relationships">Relationships</button></h2>
+      <div id="collapse-relationships" class="accordion-collapse collapse" aria-labelledby="heading-relationships">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <label for="related_function" class="form-label">Related function</label>
+            <input type="text" class="form-control" id="related_function" name="related_function" value="{{ old('related_function') }}" placeholder="Type to search functions...">
+          </div>
+          <div class="mb-3">
+            <label for="related_authority_record" class="form-label">Related authority record</label>
+            <input type="text" class="form-control" id="related_authority_record" name="related_authority_record" value="{{ old('related_authority_record') }}" placeholder="Type to search authority records...">
+          </div>
+          <div class="mb-3">
+            <label for="related_resource" class="form-label">Related resource</label>
+            <input type="text" class="form-control" id="related_resource" name="related_resource" value="{{ old('related_resource') }}" placeholder="Type to search archival descriptions...">
+          </div>
+        </div>
+      </div>
+    </div>
 
       {{-- Control area (ISDF 5.4) --}}
       <div class="accordion-item">
@@ -193,6 +223,25 @@
               <input type="text" name="source_standard" id="source_standard" class="form-control"
                      value="{{ old('source_standard', $function->source_standard ?? '') }}">
             </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="language" class="form-label">Language(s)</label>
+                <input type="text" class="form-control" id="language" name="language" value="{{ old('language', $function->language ?? '') }}" placeholder="e.g. English">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="script" class="form-label">Script(s)</label>
+                <input type="text" class="form-control" id="script" name="script" value="{{ old('script', $function->script ?? '') }}" placeholder="e.g. Latin">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="maintenance_notes" class="form-label">Maintenance notes</label>
+            <textarea class="form-control" id="maintenance_notes" name="maintenance_notes" rows="3">{{ old('maintenance_notes', $function->maintenance_notes ?? '') }}</textarea>
+          </div>
           </div>
         </div>
       </div>

@@ -57,6 +57,20 @@
                      value="{{ old('authorized_form_of_name', $repository->authorized_form_of_name ?? '') }}">
               <div class="form-text">"Record the standardized form of name of the institution." (ISDIAH 5.1.2)</div>
             </div>
+
+          <div class="mb-3">
+            <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+            <textarea class="form-control" id="parallel_name" name="parallel_name" rows="2">{{ old('parallel_name', $repo->parallel_name ?? '') }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="other_name" class="form-label">Other form(s) of name</label>
+            <textarea class="form-control" id="other_name" name="other_name" rows="2">{{ old('other_name', $repo->other_name ?? '') }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="repository_type" class="form-label">Type</label>
+            <input type="text" class="form-control" id="repository_type" name="repository_type" value="{{ old('repository_type', $repo->repository_type ?? '') }}" placeholder="Type to search repository types...">
+            <div class="form-text">Select from the repository type taxonomy</div>
+          </div>
           </div>
         </div>
       </div>
@@ -195,6 +209,23 @@
         </div>
       </div>
 
+    {{-- Access points --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-access-points"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-access-points">Access points</button></h2>
+      <div id="collapse-access-points" class="accordion-collapse collapse" aria-labelledby="heading-access-points">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <label for="thematic_area" class="form-label">Thematic area</label>
+            <input type="text" class="form-control" id="thematic_area" name="thematic_area" value="{{ old('thematic_area', $repo->thematic_area ?? '') }}" placeholder="Type to search thematic areas...">
+          </div>
+          <div class="mb-3">
+            <label for="geographic_subregion" class="form-label">Geographic subregion</label>
+            <input type="text" class="form-control" id="geographic_subregion" name="geographic_subregion" value="{{ old('geographic_subregion', $repo->geographic_subregion ?? '') }}" placeholder="Type to search geographic subregions...">
+          </div>
+        </div>
+      </div>
+    </div>
+
       {{-- Control area (ISDIAH 5.6) --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="control-heading">
@@ -261,6 +292,21 @@
               <textarea name="desc_sources" id="desc_sources" class="form-control" rows="4">{{ old('desc_sources', $repository->desc_sources ?? '') }}</textarea>
               <div class="form-text">"Record the sources consulted in establishing the description." (ISDIAH 5.6.8)</div>
             </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="desc_language" class="form-label">Language(s) of description</label>
+                <input type="text" class="form-control" id="desc_language" name="desc_language" value="{{ old('desc_language', $repo->desc_language ?? '') }}" placeholder="e.g. English, French">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="desc_script" class="form-label">Script(s) of description</label>
+                <input type="text" class="form-control" id="desc_script" name="desc_script" value="{{ old('desc_script', $repo->desc_script ?? '') }}" placeholder="e.g. Latin, Cyrillic">
+              </div>
+            </div>
+          </div>
 
             @if($repository && $repository->updated_at)
               <div class="mb-3">

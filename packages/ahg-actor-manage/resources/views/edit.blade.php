@@ -149,6 +149,50 @@
         </div>
       </div>
 
+      {{-- Relationships area --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-relationships"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-relationships">Relationships</button></h2>
+        <div id="collapse-relationships" class="accordion-collapse collapse" aria-labelledby="heading-relationships">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="related_authority_records" class="form-label">Related authority records</label>
+              <input type="text" class="form-control" id="related_authority_records" name="related_authority_records" value="{{ old('related_authority_records') }}" placeholder="Type to search authority records...">
+              <div class="form-text">Link to related authority records (actors)</div>
+            </div>
+            <div class="mb-3">
+              <label for="related_resources" class="form-label">Related resources</label>
+              <input type="text" class="form-control" id="related_resources" name="related_resources" value="{{ old('related_resources') }}" placeholder="Type to search archival descriptions...">
+              <div class="form-text">Link to related archival descriptions</div>
+            </div>
+            <div class="mb-3">
+              <label for="related_functions" class="form-label">Related functions</label>
+              <input type="text" class="form-control" id="related_functions" name="related_functions" value="{{ old('related_functions') }}" placeholder="Type to search functions...">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Access points --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-access-points"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-access-points">Access points</button></h2>
+        <div id="collapse-access-points" class="accordion-collapse collapse" aria-labelledby="heading-access-points">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="occupation_access_points" class="form-label">Occupation access points</label>
+              <input type="text" class="form-control" id="occupation_access_points" name="occupation_access_points" value="{{ old('occupation_access_points') }}" placeholder="Type to search occupations...">
+            </div>
+            <div class="mb-3">
+              <label for="subject_access_points" class="form-label">Subject access points</label>
+              <input type="text" class="form-control" id="subject_access_points" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects...">
+            </div>
+            <div class="mb-3">
+              <label for="place_access_points" class="form-label">Place access points</label>
+              <input type="text" class="form-control" id="place_access_points" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places...">
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{-- Contact information --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="contact-heading">
@@ -249,6 +293,21 @@
               <label for="source_standard" class="form-label">Source standard</label>
               <input type="text" name="source_standard" id="source_standard" class="form-control"
                      value="{{ old('source_standard', $actor->source_standard ?? '') }}">
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="language" class="form-label">Language(s)</label>
+                  <input type="text" class="form-control" id="language" name="language" value="{{ old('language') }}" placeholder="e.g. English, French">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="script" class="form-label">Script(s)</label>
+                  <input type="text" class="form-control" id="script" name="script" value="{{ old('script') }}" placeholder="e.g. Latin, Cyrillic">
+                </div>
+              </div>
             </div>
           </div>
         </div>

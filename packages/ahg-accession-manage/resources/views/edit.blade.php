@@ -57,6 +57,12 @@
               @enderror
             </div>
 
+          <div class="mb-3">
+            <label for="alternative_identifiers" class="form-label">Alternative identifier(s)</label>
+            <textarea class="form-control" id="alternative_identifiers" name="alternative_identifiers" rows="2" placeholder="One per line: Label | Identifier">{{ old('alternative_identifiers', $accession->alternative_identifiers ?? '') }}</textarea>
+            <div class="form-text">Enter one per line in format: Label | Identifier</div>
+          </div>
+
             <div class="mb-3">
               <label for="title" class="form-label">Title</label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
@@ -220,6 +226,26 @@
                   </option>
                 @endforeach
               </select>
+            </div>
+
+          <div class="mb-3">
+            <label for="creators" class="form-label">Creator(s)</label>
+            <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records...">
+            <div class="form-text">Link creators (authority records) to this accession</div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Linked information objects --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-io-links"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-io-links">Information objects</button></h2>
+        <div id="collapse-io-links" class="accordion-collapse collapse" aria-labelledby="heading-io-links">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="information_objects" class="form-label">Linked archival descriptions</label>
+              <input type="text" class="form-control" id="information_objects" name="information_objects" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions...">
+              <div class="form-text">Link this accession to archival descriptions</div>
             </div>
           </div>
         </div>
