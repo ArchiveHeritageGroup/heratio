@@ -1326,27 +1326,80 @@
 {{-- AFTER CONTENT: Action buttons                                --}}
 {{-- ============================================================ --}}
 @section('after-content')
+  @auth
   <ul class="actions mb-3 nav gap-2">
-    @auth
-      <li>
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
-      </li>
-      <li>
-        <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
-              onsubmit="return confirm('Are you sure you want to delete this archival description?');">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
-        </form>
-      </li>
-      <li>
-        <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
-      </li>
-    @endauth
+    <li>
+      <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
+    </li>
+    <li>
+      <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this archival description?');">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+      </form>
+    </li>
+    <li>
+      <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
+    </li>
+    <li>
+      <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
+    </li>
+    <li>
+      <div class="dropup">
+        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          More
+        </button>
+        <ul class="dropdown-menu mb-2">
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.edit', $io->slug) }}">
+              <i class="fas fa-i-cursor me-2"></i>Rename
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">
+              <i class="fas fa-box me-2"></i>Link physical storage
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          @if(isset($digitalObjects) && $digitalObjects['master'])
+            <li>
+              <a class="dropdown-item" href="{{ route('io.digital-object.show', $digitalObjects['master']->id) }}">
+                <i class="fas fa-photo-video me-2"></i>Edit digital object
+              </a>
+            </li>
+          @else
+            <li>
+              <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'upload' => 1]) }}">
+                <i class="fas fa-link me-2"></i>Link digital object
+              </a>
+            </li>
+          @endif
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.import.xml', $io->slug) }}">
+              <i class="fas fa-file-import me-2"></i>Import digital objects
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.ead', $io->slug) }}">
+              <i class="fas fa-file-code me-2"></i>Export EAD
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.dc', $io->slug) }}">
+              <i class="fas fa-file-alt me-2"></i>Export Dublin Core
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
     <li>
       <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
-        <i class="fas fa-print me-1"></i> Print
+        <i class="fas fa-print me-1"></i>Print
       </a>
     </li>
   </ul>
+  @endauth
 @endsection
