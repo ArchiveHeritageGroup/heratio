@@ -43,34 +43,32 @@
     </div>
   </div>
 
-  @if($pager->getNbResults())
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered mb-0">
-        <thead>
+  <div class="table-responsive mb-3">
+    <table class="table table-bordered mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($pager->getResults() as $doc)
           <tr>
-            <th>Name</th>
-            <th>Updated</th>
+            <td>
+              <a href="{{ route('rightsholder.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
+                {{ $doc['name'] ?: '[Untitled]' }}
+              </a>
+            </td>
+            <td>
+              @if(!empty($doc['updated_at']))
+                {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
+              @endif
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          @foreach($pager->getResults() as $doc)
-            <tr>
-              <td>
-                <a href="{{ route('rightsholder.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
-                  {{ $doc['name'] ?: '[Untitled]' }}
-                </a>
-              </td>
-              <td>
-                @if(!empty($doc['updated_at']))
-                  {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
-                @endif
-              </td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
-  @endif
+        @endforeach
+      </tbody>
+    </table>
+  </div>
 
   @include('ahg-core::components.pager', ['pager' => $pager])
 
