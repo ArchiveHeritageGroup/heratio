@@ -3,6 +3,12 @@
 use AhgReports\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
+// Public alias routes (auth only, no admin required)
+Route::middleware('auth')->group(function () {
+    Route::get('/reports', [ReportController::class, 'dashboard']);
+    Route::get('/reports/index', [ReportController::class, 'dashboard']);
+});
+
 Route::middleware('admin')->prefix('admin/reports')->group(function () {
     Route::get('/', [ReportController::class, 'dashboard'])->name('reports.dashboard');
     Route::get('/accessions', [ReportController::class, 'accessions'])->name('reports.accessions');
@@ -14,4 +20,5 @@ Route::middleware('admin')->prefix('admin/reports')->group(function () {
     Route::get('/activity', [ReportController::class, 'activity'])->name('reports.activity');
     Route::get('/recent', [ReportController::class, 'recent'])->name('reports.recent');
     Route::get('/taxonomy', [ReportController::class, 'taxonomy'])->name('reports.taxonomy');
+    Route::match(['get', 'post'], '/spatial-analysis', [ReportController::class, 'spatialAnalysis'])->name('reports.spatial');
 });

@@ -31,11 +31,23 @@ class TermController extends Controller
         }
 
         $culture = app()->getLocale();
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = (int) $request->get('limit', SettingHelper::hitsPerPage());
 
-        $taxonomies = $this->termService->getTaxonomies($culture);
+        $allTaxonomies = $this->termService->getTaxonomies($culture);
+        $total = $allTaxonomies->count();
+        $taxonomies = $allTaxonomies->slice(($page - 1) * $limit, $limit)->values();
+
+        $pager = new \AhgCore\Pagination\SimplePager([
+            'hits' => $taxonomies->map(fn ($t) => (array) $t)->toArray(),
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+        ]);
 
         return view('ahg-term-taxonomy::taxonomy-index', [
             'taxonomies' => $taxonomies,
+            'pager' => $pager,
         ]);
     }
 

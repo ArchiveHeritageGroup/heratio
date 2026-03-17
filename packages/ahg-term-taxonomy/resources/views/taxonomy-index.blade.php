@@ -28,4 +28,8 @@
       </tbody>
     </table>
   </div>
+
+  @if(isset($pager))
+    @include('ahg-core::components.pager', ['pager' => $pager])
+  @endif
 @endsection

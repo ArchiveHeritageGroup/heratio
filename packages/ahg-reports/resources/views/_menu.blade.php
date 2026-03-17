@@ -10,6 +10,7 @@
     <a href="{{ route('reports.storage') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.storage') ? ' active' : '' }}"><i class="fas fa-box me-2" style="width:18px"></i>Physical storage</a>
     <a href="{{ route('reports.taxonomy') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.taxonomy') ? ' active' : '' }}"><i class="fas fa-tags me-2" style="width:18px"></i>Taxonomies</a>
     <a href="{{ route('reports.recent') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.recent') ? ' active' : '' }}"><i class="fas fa-clock me-2" style="width:18px"></i>Recent updates</a>
+    <a href="{{ route('reports.spatial') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.spatial') ? ' active' : '' }}"><i class="fas fa-map-marker-alt me-2" style="width:18px"></i>Spatial analysis</a>
     <a href="{{ route('reports.activity') }}" class="list-group-item list-group-item-action{{ request()->routeIs('reports.activity') ? ' active' : '' }}"><i class="fas fa-history me-2" style="width:18px"></i>User activity</a>
   </div>
 </div>
