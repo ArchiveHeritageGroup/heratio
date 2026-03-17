@@ -60,6 +60,18 @@ class StorageBrowseService extends BrowseService
             case 'lastUpdated':
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
+            case 'location':
+            case 'locationUp':
+                $query->orderBy('physical_object_i18n.location', 'asc');
+                break;
+            case 'locationDown':
+                $query->orderBy('physical_object_i18n.location', 'desc');
+                break;
+            case 'nameDown':
+                $query->orderBy('physical_object_i18n.name', 'desc');
+                break;
+            case 'alphabetic':
+            case 'nameUp':
             default:
                 $query->orderBy('physical_object_i18n.name', $sortDir);
                 break;

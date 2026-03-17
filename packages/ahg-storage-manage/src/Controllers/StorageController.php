@@ -27,6 +27,7 @@ class StorageController extends Controller
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
         ]);
 

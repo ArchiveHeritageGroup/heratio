@@ -4,60 +4,67 @@
 @section('body-class', 'browse physicalobject')
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-archive me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">
-        @if($pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Physical storage</span>
-    </div>
-  </div>
+  <h1>Browse Physical storage</h1>
 
-  <div class="d-flex flex-wrap gap-2 mb-3">
+  <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search physical storage',
         'landmarkLabel' => 'Physical storage',
     ])
-
-    <div class="d-flex flex-wrap gap-2 ms-auto">
-      @include('ahg-core::components.sort-pickers', [
-          'options' => $sortOptions,
-          'default' => 'alphabetic',
-      ])
-    </div>
   </div>
 
   @if($pager->getNbResults())
+    @php
+      $currentSort = request('sort', 'alphabetic');
+      $baseParams = request()->except(['sort', 'sortDir', 'page']);
+
+      // Toggle sort direction helper
+      function storageSortUrl($field, $currentSort, $baseParams) {
+          $fieldMap = ['name' => 'alphabetic', 'location' => 'location'];
+          $sortKey = $fieldMap[$field] ?? $field;
+          $isActive = false;
+
+          // Check current sort matches this field
+          $activeField = match($currentSort) {
+              'alphabetic', 'nameUp' => 'name',
+              'nameDown' => 'name',
+              'location', 'locationUp' => 'location',
+              'locationDown' => 'location',
+              default => '',
+          };
+          $isActive = ($activeField === $field);
+
+          // Toggle direction
+          $currentDir = str_contains($currentSort, 'Down') ? 'desc' : 'asc';
+          $newDir = ($isActive && $currentDir === 'asc') ? 'desc' : 'asc';
+
+          $params = array_merge($baseParams, ['sort' => $sortKey, 'sortDir' => $newDir]);
+          return url('/physicalobject/browse') . '?' . http_build_query($params);
+      }
+    @endphp
     <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
+      <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="sortable">
+              <a title="Sort" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">Name</a>
+            </th>
+            <th class="sortable">
+              <a title="Sort" class="sortable" href="{{ storageSortUrl('location', $currentSort, $baseParams) }}">Location</a>
+            </th>
             <th>Type</th>
-            <th>Location</th>
-            @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
-            @endif
           </tr>
         </thead>
         <tbody>
           @foreach($pager->getResults() as $doc)
             <tr>
               <td>
-                <a href="{{ route('physicalobject.show', $doc['slug']) }}">
+                <a href="{{ route('physicalobject.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
+              <td>{{ $doc['location'] ?? '' }}</td>
               <td>{{ $typeNames[$doc['type_id']] ?? '' }}</td>
-              <td>{{ $doc['location'] }}</td>
-              @if(request('sort') === 'lastUpdated')
-                <td>{{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') : '' }}</td>
-              @endif
             </tr>
           @endforeach
         </tbody>

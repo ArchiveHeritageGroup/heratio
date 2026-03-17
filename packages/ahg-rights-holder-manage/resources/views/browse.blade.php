@@ -4,19 +4,7 @@
 @section('body-class', 'browse rightsholder')
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-balance-scale me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">
-        @if($pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Rights holders</span>
-    </div>
-  </div>
+  <h1>Browse rights holders</h1>
 
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
@@ -25,35 +13,58 @@
     ])
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      @include('ahg-core::components.sort-pickers', [
-          'options' => $sortOptions,
-          'default' => 'alphabetic',
-      ])
+      {{-- Sort by --}}
+      @php $activeSort = request('sort', 'alphabetic'); @endphp
+      <div class="dropdown d-inline-block">
+        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+          Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
+          @foreach($sortOptions as $key => $label)
+            <li><a href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => null]) }}" class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}">{{ $label }}</a></li>
+          @endforeach
+        </ul>
+      </div>
+
+      {{-- Sort direction --}}
+      @php
+        $currentDir = request('sortDir', ($activeSort === 'lastUpdated' ? 'desc' : 'asc'));
+        $dirQuery = request()->except(['sortDir', 'page']);
+      @endphp
+      <div class="dropdown d-inline-block">
+        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
+          Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
+          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
+          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
   @if($pager->getNbResults())
     <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
+      <table class="table table-bordered mb-0">
         <thead>
           <tr>
             <th>Name</th>
-            @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
-            @endif
+            <th>Updated</th>
           </tr>
         </thead>
         <tbody>
           @foreach($pager->getResults() as $doc)
             <tr>
               <td>
-                <a href="{{ route('rightsholder.show', $doc['slug']) }}">
+                <a href="{{ route('rightsholder.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
-              @if(request('sort') === 'lastUpdated')
-                <td>{{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') : '' }}</td>
-              @endif
+              <td>
+                @if(!empty($doc['updated_at']))
+                  {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
+                @endif
+              </td>
             </tr>
           @endforeach
         </tbody>
@@ -62,4 +73,10 @@
   @endif
 
   @include('ahg-core::components.pager', ['pager' => $pager])
+
+  @auth
+    <section class="actions mb-3">
+      <a class="btn atom-btn-outline-light" href="{{ route('rightsholder.create') }}" title="Add new">Add new</a>
+    </section>
+  @endauth
 @endsection
