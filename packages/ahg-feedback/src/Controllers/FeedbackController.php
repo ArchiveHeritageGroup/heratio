@@ -2,6 +2,7 @@
 
 namespace AhgFeedback\Controllers;
 
+use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -86,5 +87,220 @@ class FeedbackController extends Controller
             'feedbackTypes' => $feedbackTypes,
             'slug' => $slug,
         ]);
+    }
+
+    /**
+     * Browse all feedback (admin).
+     */
+    public function browse(Request $request)
+    {
+        $culture = app()->getLocale();
+        $status = $request->input('status', 'all');
+        $sort = $request->input('sort', 'dateDown');
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = 30;
+
+        // Build base query
+        $query = DB::table('feedback')
+            ->join('feedback_i18n', function ($j) use ($culture) {
+                $j->on('feedback.id', '=', 'feedback_i18n.id')
+                    ->where('feedback_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('object', 'feedback.id', '=', 'object.id');
+
+        // Filter by status
+        if ($status === 'pending') {
+            $query->where('feedback_i18n.status', '=', 'pending');
+        } elseif ($status === 'completed') {
+            $query->where('feedback_i18n.status', '=', 'completed');
+        }
+
+        // Stats (counts for sidebar)
+        $totalCount = DB::table('feedback')
+            ->join('feedback_i18n', function ($j) use ($culture) {
+                $j->on('feedback.id', '=', 'feedback_i18n.id')
+                    ->where('feedback_i18n.culture', '=', $culture);
+            })
+            ->count();
+
+        $pendingCount = DB::table('feedback')
+            ->join('feedback_i18n', function ($j) use ($culture) {
+                $j->on('feedback.id', '=', 'feedback_i18n.id')
+                    ->where('feedback_i18n.culture', '=', $culture);
+            })
+            ->where('feedback_i18n.status', '=', 'pending')
+            ->count();
+
+        $completedCount = DB::table('feedback')
+            ->join('feedback_i18n', function ($j) use ($culture) {
+                $j->on('feedback.id', '=', 'feedback_i18n.id')
+                    ->where('feedback_i18n.culture', '=', $culture);
+            })
+            ->where('feedback_i18n.status', '=', 'completed')
+            ->count();
+
+        // Sort
+        switch ($sort) {
+            case 'nameUp':
+                $query->orderBy('feedback_i18n.name', 'asc');
+                break;
+            case 'nameDown':
+                $query->orderBy('feedback_i18n.name', 'desc');
+                break;
+            case 'dateUp':
+                $query->orderBy('feedback_i18n.created_at', 'asc');
+                break;
+            case 'dateDown':
+            default:
+                $query->orderBy('feedback_i18n.created_at', 'desc');
+                break;
+        }
+
+        // Total for current filter
+        $total = (clone $query)->count();
+
+        // Paginate
+        $offset = ($page - 1) * $limit;
+        $rows = $query
+            ->select(
+                'feedback.id',
+                'feedback.feed_name',
+                'feedback.feed_surname',
+                'feedback.feed_phone',
+                'feedback.feed_email',
+                'feedback.feed_relationship',
+                'feedback.feed_type_id',
+                'feedback.parent_id',
+                'feedback_i18n.name',
+                'feedback_i18n.remarks',
+                'feedback_i18n.status',
+                'feedback_i18n.status_id',
+                'feedback_i18n.created_at',
+                'feedback_i18n.completed_at',
+                'feedback_i18n.object_id',
+                'feedback_i18n.unique_identifier'
+            )
+            ->offset($offset)
+            ->limit($limit)
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->toArray();
+
+        $pager = new SimplePager([
+            'hits' => $rows,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+        ]);
+
+        return view('ahg-feedback::browse', [
+            'pager' => $pager,
+            'status' => $status,
+            'sort' => $sort,
+            'totalCount' => $totalCount,
+            'pendingCount' => $pendingCount,
+            'completedCount' => $completedCount,
+        ]);
+    }
+
+    /**
+     * Edit a single feedback item (admin).
+     */
+    public function edit(int $id)
+    {
+        $culture = app()->getLocale();
+
+        $feedback = DB::table('feedback')
+            ->join('feedback_i18n', function ($j) use ($culture) {
+                $j->on('feedback.id', '=', 'feedback_i18n.id')
+                    ->where('feedback_i18n.culture', '=', $culture);
+            })
+            ->where('feedback.id', '=', $id)
+            ->select(
+                'feedback.id',
+                'feedback.feed_name',
+                'feedback.feed_surname',
+                'feedback.feed_phone',
+                'feedback.feed_email',
+                'feedback.feed_relationship',
+                'feedback.feed_type_id',
+                'feedback.parent_id',
+                'feedback_i18n.name',
+                'feedback_i18n.remarks',
+                'feedback_i18n.status',
+                'feedback_i18n.status_id',
+                'feedback_i18n.created_at',
+                'feedback_i18n.completed_at',
+                'feedback_i18n.object_id',
+                'feedback_i18n.unique_identifier'
+            )
+            ->first();
+
+        if (!$feedback) {
+            abort(404, 'Feedback not found.');
+        }
+
+        return view('ahg-feedback::edit', [
+            'feedback' => $feedback,
+        ]);
+    }
+
+    /**
+     * Update feedback status and admin notes (admin).
+     */
+    public function update(Request $request, int $id)
+    {
+        $culture = app()->getLocale();
+
+        $request->validate([
+            'status' => 'required|in:pending,completed',
+            'admin_notes' => 'nullable|string',
+        ]);
+
+        $data = [
+            'status' => $request->input('status'),
+        ];
+
+        // If status is completed and completed_at is not set, set it now
+        if ($request->input('status') === 'completed') {
+            $data['completed_at'] = $request->input('completed_at') ?: now();
+            $data['status_id'] = 1031;
+        } else {
+            $data['completed_at'] = null;
+            $data['status_id'] = 1030;
+        }
+
+        // Store admin notes in unique_identifier field (re-purpose available column)
+        if ($request->has('admin_notes')) {
+            $data['unique_identifier'] = $request->input('admin_notes');
+        }
+
+        DB::table('feedback_i18n')
+            ->where('id', '=', $id)
+            ->where('culture', '=', $culture)
+            ->update($data);
+
+        return redirect()->route('feedback.browse')
+            ->with('success', 'Feedback updated successfully.');
+    }
+
+    /**
+     * Delete a feedback item (admin).
+     */
+    public function destroy(int $id)
+    {
+        $culture = app()->getLocale();
+
+        // Delete i18n records (all cultures)
+        DB::table('feedback_i18n')->where('id', '=', $id)->delete();
+
+        // Delete feedback record
+        DB::table('feedback')->where('id', '=', $id)->delete();
+
+        // Delete object record
+        DB::table('object')->where('id', '=', $id)->delete();
+
+        return redirect()->route('feedback.browse')
+            ->with('success', 'Feedback deleted successfully.');
     }
 }

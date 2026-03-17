@@ -6,6 +6,7 @@ use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class JobController extends Controller
 {
@@ -37,7 +38,8 @@ class JobController extends Controller
             ->leftJoin('term_i18n as status_term', function ($join) use ($culture) {
                 $join->on('job.status_id', '=', 'status_term.id')
                     ->where('status_term.culture', '=', $culture);
-            });
+            })
+            ->leftJoin('slug as job_slug', 'job.object_id', '=', 'job_slug.object_id');
 
         // Apply status filter
         if ($status === 'completed') {
@@ -57,12 +59,14 @@ class JobController extends Controller
             'job.id',
             'job.name',
             'job.status_id',
+            'job.object_id',
             'job.completed_at',
             'job.download_path',
             'object.created_at',
             'actor_i18n.authorized_form_of_name as user_name',
             'user.username',
             'status_term.name as status_name',
+            'job_slug.slug as object_slug',
         ]);
 
         if ($sort === 'name') {
@@ -141,5 +145,85 @@ class JobController extends Controller
         return view('ahg-jobs-manage::show', [
             'job' => $job,
         ]);
+    }
+
+    public function destroy(int $id)
+    {
+        $job = DB::table('job')->where('id', $id)->first();
+
+        if (!$job || !in_array($job->status_id, [184, 185])) {
+            return redirect()->route('job.browse')->with('error', 'Only completed or failed jobs can be deleted.');
+        }
+
+        DB::table('job')->where('id', $id)->delete();
+        DB::table('object')->where('id', $id)->delete();
+
+        return redirect()->route('job.browse')->with('success', 'Job deleted successfully.');
+    }
+
+    public function clearInactive()
+    {
+        $ids = DB::table('job')
+            ->whereIn('status_id', [184, 185])
+            ->pluck('id')
+            ->toArray();
+
+        if (count($ids) > 0) {
+            DB::table('job')->whereIn('id', $ids)->delete();
+            DB::table('object')->whereIn('id', $ids)->delete();
+        }
+
+        $count = count($ids);
+
+        return redirect()->route('job.browse')->with('success', "{$count} inactive job(s) cleared.");
+    }
+
+    public function exportCsv(): StreamedResponse
+    {
+        $culture = app()->getLocale();
+
+        $jobs = DB::table('job')
+            ->join('object', 'job.id', '=', 'object.id')
+            ->leftJoin('user', 'job.user_id', '=', 'user.id')
+            ->leftJoin('actor_i18n', function ($join) use ($culture) {
+                $join->on('user.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as status_term', function ($join) use ($culture) {
+                $join->on('job.status_id', '=', 'status_term.id')
+                    ->where('status_term.culture', '=', $culture);
+            })
+            ->select([
+                'job.name',
+                'status_term.name as status_name',
+                'actor_i18n.authorized_form_of_name as user_name',
+                'user.username',
+                'object.created_at',
+                'job.completed_at',
+            ])
+            ->orderBy('object.created_at', 'desc')
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="jobs-export.csv"',
+        ];
+
+        return new StreamedResponse(function () use ($jobs) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Name', 'Status', 'User', 'Created', 'Completed']);
+
+            foreach ($jobs as $job) {
+                fputcsv($handle, [
+                    $job->name,
+                    $job->status_name ?? '',
+                    $job->user_name ?: $job->username ?: '',
+                    $job->created_at ?? '',
+                    $job->completed_at ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
     }
 }

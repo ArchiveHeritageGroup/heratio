@@ -1,0 +1,20 @@
+{
+    "name": "ahg/request-publish",
+    "description": "Request to Publish management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRequestPublish\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRequestPublish\\Providers\\AhgRequestPublishServiceProvider"
+            ]
+        }
+    }
+}

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "863427657fdd1eff6d2255ba7798a451",
+    "content-hash": "5a6a1ff831ab4de0d1ac3c6c3f668e6f",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -819,6 +819,36 @@
                 }
             },
             "description": "Repository browse and management for Heratio (ISDIAH)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/request-publish",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-request-publish",
+                "reference": "f0dc3fac9cef7a2c3227cff5f88216270d38983e"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRequestPublish\\Providers\\AhgRequestPublishServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRequestPublish\\": "src/"
+                }
+            },
+            "description": "Request to Publish management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9595,6 +9625,7 @@
         "ahg/oai": 20,
         "ahg/preservation": 20,
         "ahg/reports": 20,
+        "ahg/request-publish": 20,
         "ahg/repository-manage": 20,
         "ahg/research": 20,
         "ahg/ric": 20,

@@ -1,0 +1,15 @@
+<?php
+
+use AhgRequestPublish\Controllers\RequestPublishController;
+use Illuminate\Support\Facades\Route;
+
+// Public alias for DB menu path
+Route::middleware('web')->group(function () {
+    Route::get('/requesttopublish/browse', [RequestPublishController::class, 'browse']);
+});
+
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/request-publish', [RequestPublishController::class, 'browse'])->name('request-publish.browse');
+    Route::get('/admin/request-publish/{id}/edit', [RequestPublishController::class, 'edit'])->name('request-publish.edit')->whereNumber('id');
+    Route::post('/admin/request-publish/{id}/update', [RequestPublishController::class, 'update'])->name('request-publish.update')->whereNumber('id');
+});

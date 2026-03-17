@@ -47,6 +47,7 @@
         "ahg/oai": "@dev",
         "ahg/preservation": "@dev",
         "ahg/reports": "@dev",
+        "ahg/request-publish": "@dev",
         "ahg/repository-manage": "@dev",
         "ahg/research": "@dev",
         "ahg/ric": "@dev",
