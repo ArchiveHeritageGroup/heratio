@@ -74,6 +74,9 @@
   .browse-table th .resize-handle:hover { background: rgba(0,0,0,0.1); }
 </style>
 
+{{-- Advanced Search Panel (matching AtoM) --}}
+@include('ahg-display::display._advanced-search')
+
 @if(($viewMode ?? 'card') !== 'full')
   {{-- 2-column layout: sidebar + main --}}
   <div class="row">
