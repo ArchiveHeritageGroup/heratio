@@ -62,10 +62,37 @@ class TermController extends Controller
             $taxonomyName = $this->termService->getTaxonomyName((int) $taxonomyId, $culture);
         }
 
+        // Enrich results with scope notes, use-for labels, descendant counts, IO counts
+        $enriched = collect($pager->getResults())->map(function ($doc) use ($culture) {
+            $termId = $doc['id'];
+            $doc['scopeNotes'] = \Illuminate\Support\Facades\DB::table('note')
+                ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+                ->where('note.object_id', $termId)
+                ->where('note_i18n.culture', $culture)
+                ->pluck('note_i18n.content')->toArray();
+            $doc['useFor'] = \Illuminate\Support\Facades\DB::table('other_name')
+                ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+                ->where('other_name.object_id', $termId)
+                ->where('other_name_i18n.culture', $culture)
+                ->pluck('other_name_i18n.name')->toArray();
+            $doc['descendantCount'] = \Illuminate\Support\Facades\DB::table('term')
+                ->where('parent_id', $termId)->count();
+            $doc['ioCount'] = \Illuminate\Support\Facades\DB::table('object_term_relation')
+                ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+                ->where('object_term_relation.term_id', $termId)
+                ->where('object.class_name', 'QubitInformationObject')->count();
+            return $doc;
+        })->toArray();
+
+        $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
+        $icon = $iconMap[(int) $taxonomyId] ?? 'fa-tag';
+
         return view('ahg-term-taxonomy::browse', [
             'pager' => $pager,
+            'enrichedResults' => $enriched,
             'taxonomyId' => $taxonomyId,
             'taxonomyName' => $taxonomyName,
+            'icon' => $icon,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',
@@ -90,11 +117,69 @@ class TermController extends Controller
         $scopeNote = $this->termService->getScopeNote($term->id, $culture);
         $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
 
+        // Use-for labels
+        $useFor = \Illuminate\Support\Facades\DB::table('other_name')
+            ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+            ->where('other_name.object_id', $term->id)
+            ->where('other_name_i18n.culture', $culture)
+            ->pluck('other_name_i18n.name')->toArray();
+
+        // Broader term (parent)
+        $broaderTerm = null;
+        $parentId = \Illuminate\Support\Facades\DB::table('term')->where('id', $term->id)->value('parent_id');
+        if ($parentId) {
+            $broaderTerm = \Illuminate\Support\Facades\DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.id', $parentId)
+                ->where('term_i18n.culture', $culture)
+                ->select('term.id', 'term_i18n.name', 'slug.slug')
+                ->first();
+        }
+
+        // Narrower terms count
+        $narrowerCount = \Illuminate\Support\Facades\DB::table('term')->where('parent_id', $term->id)->count();
+
+        // Related descriptions (paginated)
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = 10;
+        $sort = $request->get('sort', 'lastUpdated');
+        $relatedQuery = \Illuminate\Support\Facades\DB::table('object_term_relation')
+            ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('object', 'information_object.id', '=', 'object.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('object_term_relation.term_id', $term->id)
+            ->where('object.class_name', 'QubitInformationObject')
+            ->where('information_object_i18n.culture', $culture);
+
+        $totalRelated = $relatedQuery->count();
+        $orderCol = $sort === 'alphabetic' ? 'information_object_i18n.title' : 'object.updated_at';
+        $orderDir = $sort === 'alphabetic' ? 'asc' : 'desc';
+
+        $relatedDescriptions = $relatedQuery
+            ->select('information_object.id', 'information_object.identifier',
+                'information_object_i18n.title', 'slug.slug', 'object.updated_at')
+            ->orderBy($orderCol, $orderDir)
+            ->offset(($page - 1) * $limit)->limit($limit)->get();
+
+        $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
+        $icon = $iconMap[$term->taxonomy_id] ?? 'fa-tag';
+
         return view('ahg-term-taxonomy::show', [
             'term' => $term,
             'taxonomyName' => $taxonomyName,
             'scopeNote' => $scopeNote,
             'relatedDescriptionsCount' => $relatedDescriptionsCount,
+            'useFor' => $useFor,
+            'broaderTerm' => $broaderTerm,
+            'narrowerCount' => $narrowerCount,
+            'relatedDescriptions' => $relatedDescriptions,
+            'totalRelated' => $totalRelated,
+            'page' => $page,
+            'lastPage' => max(1, (int) ceil($totalRelated / $limit)),
+            'sort' => $sort,
+            'icon' => $icon,
         ]);
     }
 
