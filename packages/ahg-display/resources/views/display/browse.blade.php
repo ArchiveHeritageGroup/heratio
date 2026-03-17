@@ -79,18 +79,18 @@
   <div class="row">
 
     {{-- ========== SIDEBAR (LEFT COLUMN) ========== --}}
-    <div class="col-md-3 col-lg-3 mb-3" id="glam-sidebar">
+    <div class="col-md-3 col-lg-3 mb-3" id="glam-sidebar" role="complementary" aria-label="Filters and navigation">
 
       {{-- Sidebar header --}}
-      <div class="card mb-2">
-        <div class="card-header glam-filter-header py-2 px-3">
-          <strong><i class="fas fa-filter me-1"></i> Filters</strong>
+      <div class="card mb-3 glam-filter-header">
+        <div class="card-body py-2 text-white text-center">
+          <strong><i class="fas fa-filter"></i> Filters</strong>
         </div>
       </div>
 
       {{-- GLAM Type facet (open by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-type" aria-expanded="true">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-type" aria-expanded="true">
           <i class="fas fa-caret-down me-1"></i> Type
         </div>
         <div id="facet-type" class="collapse show">
@@ -112,7 +112,7 @@
                     <span class="facet-link" title="{{ $tc['label'] }}">
                       <i class="fas {{ $tc['icon'] }} me-1 text-{{ $tc['color'] }}"></i> {{ $tc['label'] }}
                     </span>
-                    <span class="badge bg-{{ $tc['color'] }} rounded-pill">{{ number_format($type->count) }}</span>
+                    <span class="badge bg-secondary rounded-pill">{{ number_format($type->count) }}</span>
                   </a>
                 </li>
               @endforeach
@@ -123,7 +123,7 @@
 
       {{-- Creator facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-creator" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-creator" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Creator
         </div>
         <div id="facet-creator" class="collapse">
@@ -150,7 +150,7 @@
 
       {{-- Place facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-place" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-place" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Place
         </div>
         <div id="facet-place" class="collapse">
@@ -177,7 +177,7 @@
 
       {{-- Subject facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-subject" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-subject" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Subject
         </div>
         <div id="facet-subject" class="collapse">
@@ -204,7 +204,7 @@
 
       {{-- Genre facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-genre" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-genre" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Genre
         </div>
         <div id="facet-genre" class="collapse">
@@ -231,7 +231,7 @@
 
       {{-- Level of description facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-level" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-level" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Level of description
         </div>
         <div id="facet-level" class="collapse">
@@ -260,7 +260,7 @@
 
       {{-- Media type facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-media" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-media" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Media type
         </div>
         <div id="facet-media" class="collapse">
@@ -289,7 +289,7 @@
 
       {{-- Repository facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header py-2 px-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-repo" aria-expanded="false">
+        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-repo" aria-expanded="false">
           <i class="fas fa-caret-right me-1"></i> Repository
         </div>
         <div id="facet-repo" class="collapse">

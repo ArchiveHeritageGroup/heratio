@@ -22,17 +22,35 @@ class RepositoryController extends Controller
         $culture = app()->getLocale();
         $browseService = new RepositoryBrowseService($culture);
 
-        $result = $browseService->browse([
+        $params = [
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
-        ]);
+            'thematicArea' => $request->get('thematicAreas', ''),
+            'region' => $request->get('region', ''),
+            'locality' => $request->get('locality', ''),
+            'hasDigitalObject' => $request->get('hasDigitalObject', ''),
+        ];
+
+        $hasAdvanced = $params['thematicArea'] || $params['region']
+            || $params['locality'] || $params['hasDigitalObject'];
+
+        $result = $hasAdvanced
+            ? $browseService->browseAdvanced($params)
+            : $browseService->browse($params);
 
         $pager = new SimplePager($result);
 
+        $thematicAreaFacets = $browseService->getThematicAreaFacets();
+        $regions = $browseService->getRegionFacets();
+
         return view('ahg-repository-manage::browse', [
             'pager' => $pager,
+            'thematicAreaFacets' => $thematicAreaFacets,
+            'regions' => $regions,
+            'params' => $params,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',

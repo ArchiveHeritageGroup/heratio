@@ -13,13 +13,17 @@
       </button>
     </h2>
     <div class="collapse show" id="collapse-treeview">
-      <ul class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
-        @foreach($treeTerms as $tt)
-          <a href="{{ route('term.show', $tt->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;">
-            {{ $tt->name }}
-          </a>
-        @endforeach
-      </ul>
+      <div class="tab-content mb-3" id="treeview-content">
+        <div class="tab-pane fade show active" id="treeview">
+          <div class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
+            @foreach($treeTerms as $tt)
+              <a href="{{ route('term.show', $tt->slug) }}" class="list-group-item">
+                <span class="text text-truncate">{{ $tt->name }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

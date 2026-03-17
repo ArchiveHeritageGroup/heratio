@@ -2,7 +2,7 @@
 
 @section('layout-content')
   <div class="row">
-    <div id="sidebar" class="col-md-3">
+    <div id="sidebar" class="col-md-3" role="complementary" aria-label="Filters and navigation">
       @yield('sidebar')
     </div>
     <div id="main-column" class="col-md-9" role="main">

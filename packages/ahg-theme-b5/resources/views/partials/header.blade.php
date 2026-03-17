@@ -43,10 +43,17 @@
             @include('theme::partials.menus.main-menu')
           @endif
 
+          {{-- Help Center --}}
+          <li class="nav-item d-flex flex-column">
+            <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">
+              <i class="fas fa-2x fa-fw fa-question-circle px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Help Center" aria-hidden="true"></i>
+              <span class="d-lg-none mx-1" aria-hidden="true">Help Center</span>
+              <span class="visually-hidden">Help Center</span>
+            </a>
+          </li>
+
           {{-- Clipboard --}}
-          @if($themeData['isAuthenticated'] ?? false)
-            @include('theme::partials.menus.clipboard-menu')
-          @endif
+          @include('theme::partials.menus.clipboard-menu')
 
           {{-- Language switcher --}}
           @include('theme::partials.menus.language-menu')
