@@ -82,11 +82,28 @@ class TermController extends Controller
                 ->join('object', 'object_term_relation.object_id', '=', 'object.id')
                 ->where('object_term_relation.term_id', $termId)
                 ->where('object.class_name', 'QubitInformationObject')->count();
+            $doc['actorCount'] = \Illuminate\Support\Facades\DB::table('object_term_relation')
+                ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+                ->where('object_term_relation.term_id', $termId)
+                ->where('object.class_name', 'QubitActor')->count();
+            $doc['isProtected'] = \Illuminate\Support\Facades\DB::table('term')
+                ->where('id', $termId)->value('parent_id') === null;
             return $doc;
         })->toArray();
 
         $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
         $icon = $iconMap[(int) $taxonomyId] ?? 'fa-tag';
+
+        // Sidebar: top-level terms for treeview
+        $treeTerms = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $taxonomyId)
+            ->whereNull('term.parent_id')
+            ->where('term_i18n.culture', $culture)
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->orderBy('term_i18n.name')
+            ->limit(50)->get();
 
         return view('ahg-term-taxonomy::browse', [
             'pager' => $pager,
@@ -94,6 +111,7 @@ class TermController extends Controller
             'taxonomyId' => $taxonomyId,
             'taxonomyName' => $taxonomyName,
             'icon' => $icon,
+            'treeTerms' => $treeTerms,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',

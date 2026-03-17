@@ -57,7 +57,7 @@
           <div class="tab-pane fade" id="list-pane" role="tabpanel">
             <div class="list-group list-group-flush rounded-0 border" style="max-height:400px;overflow-y:auto;">
               @foreach($listTerms as $lt)
-                <a href="{{ route('term.show', $lt->slug) }}" class="list-group-item list-group-item-action text-truncate {{ $lt->id == $term->id ? 'active' : '' }}">
+                <a href="{{ route('term.show', $lt->slug) }}" class="list-group-item list-group-item-action py-2 {{ $lt->id == $term->id ? 'active' : '' }}" style="white-space:normal;word-wrap:break-word;">
                   {{ $lt->name }}
                 </a>
               @endforeach
