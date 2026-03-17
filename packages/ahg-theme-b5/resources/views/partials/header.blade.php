@@ -10,9 +10,9 @@
       <a class="navbar-brand d-flex flex-wrap flex-lg-nowrap align-items-center py-0 me-0" href="{{ url('/') }}" title="Home" rel="home">
         @if($themeData['toggleLogo'] ?? true)
           @if($themeData['customLogo'] ?? null)
-            <img src="{{ $themeData['customLogo'] }}" alt="Logo" class="d-inline-block my-2 me-3" height="35">
+            <img src="{{ $themeData['customLogo'] }}" alt="Logo" class="d-inline-block my-2 me-3" height="50">
           @else
-            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="Logo" class="d-inline-block my-2 me-3" height="35">
+            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="Logo" class="d-inline-block my-2 me-3" height="50">
           @endif
         @endif
         @if(($themeData['toggleTitle'] ?? true) && !empty($themeData['siteTitle']))
