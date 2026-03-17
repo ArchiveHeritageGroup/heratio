@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2577e5e67604bddeb7489256f9ee4f97",
+    "content-hash": "863427657fdd1eff6d2255ba7798a451",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -163,6 +163,36 @@
             }
         },
         {
+            "name": "ahg/backup",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-backup",
+                "reference": "8b9059532baec99b22adfa9b378d5fe2161185af"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgBackup\\Providers\\AhgBackupServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgBackup\\": "src/"
+                }
+            },
+            "description": "Backup & Restore management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/cart",
             "version": "dev-main",
             "dist": {
@@ -258,6 +288,36 @@
             }
         },
         {
+            "name": "ahg/dedupe",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-dedupe",
+                "reference": "df3f6aa89c4346edc338e234fa27de18c61dd980"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDedupe\\Providers\\AhgDedupeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDedupe\\": "src/"
+                }
+            },
+            "description": "Duplicate detection and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/display",
             "version": "dev-main",
             "dist": {
@@ -279,6 +339,36 @@
                 }
             },
             "description": "GLAM Display plugin for Heratio - browse, search, profiles, fields, levels",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/doi-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-doi-manage",
+                "reference": "ad3bcafa2062527bac3c95e48ac26b4b063cc469"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDoiManage\\Providers\\AhgDoiManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDoiManage\\": "src/"
+                }
+            },
+            "description": "DOI Management with DataCite integration for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -309,6 +399,36 @@
                 }
             },
             "description": "Donor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/dropdown-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-dropdown-manage",
+                "reference": "2b7083485fa0e7aaa849a6f27745ca7f3eefc0ed"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDropdownManage\\Providers\\AhgDropdownManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDropdownManage\\": "src/"
+                }
+            },
+            "description": "Dropdown Manager for managing taxonomy dropdowns in Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -399,6 +519,36 @@
                 }
             },
             "description": "Function (ISDF) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/heritage-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-heritage-manage",
+                "reference": "f25183c4a04cb8e51613ac26ff22038c8987094a"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgHeritageManage\\Providers\\AhgHeritageManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgHeritageManage\\": "src/"
+                }
+            },
+            "description": "Heritage Admin, Analytics, and Custodian dashboards for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -699,6 +849,66 @@
                 "proprietary"
             ],
             "description": "Research Portal: researcher registration, reading room bookings, projects, evidence sets, journal, bibliographies, reports, annotations, knowledge platform, admin management",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/researcher-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-researcher-manage",
+                "reference": "d3823972fcea287e9b8ea82e104615c95272806f"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgResearcherManage\\Providers\\AhgResearcherManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgResearcherManage\\": "src/"
+                }
+            },
+            "description": "Researcher Submissions management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ric",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ric",
+                "reference": "e958ad79b3847cc552a82ed6b667a824e8553c65"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRic\\Providers\\AhgRicServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRic\\": "src/"
+                }
+            },
+            "description": "RiC (Records in Contexts) Dashboard for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9359,38 +9569,45 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "ahg/core": 20,
-        "ahg/theme-b5": 20,
-        "ahg/actor-manage": 20,
-        "ahg/repository-manage": 20,
-        "ahg/donor-manage": 20,
-        "ahg/rights-holder-manage": 20,
         "ahg/accession-manage": 20,
+        "ahg/acl": 20,
+        "ahg/actor-manage": 20,
+        "ahg/api": 20,
+        "ahg/audit-trail": 20,
+        "ahg/backup": 20,
+        "ahg/cart": 20,
+        "ahg/core": 20,
+        "ahg/data-migration": 20,
+        "ahg/dedupe": 20,
+        "ahg/display": 20,
+        "ahg/doi-manage": 20,
+        "ahg/donor-manage": 20,
+        "ahg/dropdown-manage": 20,
+        "ahg/favorites": 20,
+        "ahg/feedback": 20,
+        "ahg/function-manage": 20,
+        "ahg/heritage-manage": 20,
+        "ahg/iiif-collection": 20,
+        "ahg/information-object-manage": 20,
+        "ahg/jobs-manage": 20,
+        "ahg/loan": 20,
+        "ahg/menu-manage": 20,
+        "ahg/oai": 20,
+        "ahg/preservation": 20,
+        "ahg/reports": 20,
+        "ahg/repository-manage": 20,
+        "ahg/research": 20,
+        "ahg/ric": 20,
+        "ahg/rights-holder-manage": 20,
+        "ahg/search": 20,
+        "ahg/settings": 20,
+        "ahg/static-page": 20,
         "ahg/storage-manage": 20,
         "ahg/term-taxonomy": 20,
-        "ahg/function-manage": 20,
-        "ahg/information-object-manage": 20,
+        "ahg/theme-b5": 20,
         "ahg/user-manage": 20,
-        "ahg/settings": 20,
-        "ahg/jobs-manage": 20,
-        "ahg/search": 20,
-        "ahg/static-page": 20,
-        "ahg/menu-manage": 20,
-        "ahg/audit-trail": 20,
-        "ahg/reports": 20,
-        "ahg/iiif-collection": 20,
-        "ahg/research": 20,
-        "ahg/display": 20,
-        "ahg/cart": 20,
-        "ahg/favorites": 20,
-        "ahg/data-migration": 20,
-        "ahg/acl": 20,
-        "ahg/preservation": 20,
         "ahg/workflow": 20,
-        "ahg/loan": 20,
-        "ahg/feedback": 20,
-        "ahg/api": 20,
-        "ahg/oai": 20
+        "ahg/researcher-manage": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

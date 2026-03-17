@@ -1,0 +1,20 @@
+{
+    "name": "ahg/backup",
+    "description": "Backup & Restore management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgBackup\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgBackup\\Providers\\AhgBackupServiceProvider"
+            ]
+        }
+    }
+}

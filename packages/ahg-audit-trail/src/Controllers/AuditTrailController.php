@@ -3,7 +3,9 @@
 namespace AhgAuditTrail\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -262,6 +264,134 @@ class AuditTrailController extends Controller
         return view('ahg-audit-trail::show', [
             'entry' => $entry,
             'table' => $table,
+        ]);
+    }
+
+    /**
+     * Statistics dashboard for audit trail.
+     */
+    public function statistics(Request $request)
+    {
+        $table = $this->resolveTable();
+        $days = (int) $request->get('days', 30);
+        if (!in_array($days, [7, 30, 90])) {
+            $days = 30;
+        }
+        $fromDate = Carbon::now()->subDays($days)->startOfDay();
+
+        $baseQuery = DB::table($table)->where('created_at', '>=', $fromDate);
+
+        // Total actions
+        $totalActions = (clone $baseQuery)->count();
+
+        // Counts by action type
+        $createdCount = (clone $baseQuery)->where('action', 'create')->count();
+        $updatedCount = (clone $baseQuery)->where('action', 'update')->count();
+        $deletedCount = (clone $baseQuery)->where('action', 'delete')->count();
+
+        // Most active users
+        $usernameCol = Schema::hasColumn($table, 'username') ? 'username' : 'username';
+        $mostActiveUsers = (clone $baseQuery)
+            ->select($usernameCol, DB::raw('COUNT(*) as action_count'))
+            ->whereNotNull($usernameCol)
+            ->groupBy($usernameCol)
+            ->orderByDesc('action_count')
+            ->limit(10)
+            ->get();
+
+        // Recent failed actions
+        $failedQuery = DB::table($table)->where('created_at', '>=', $fromDate);
+        if (Schema::hasColumn($table, 'status')) {
+            $failedQuery->where(function ($q) {
+                $q->where('status', 'error')
+                  ->orWhere('action', 'failed');
+            });
+        } else {
+            $failedQuery->where('action', 'failed');
+        }
+        $recentFailed = $failedQuery
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        return view('ahg-audit-trail::statistics', [
+            'days' => $days,
+            'totalActions' => $totalActions,
+            'createdCount' => $createdCount,
+            'updatedCount' => $updatedCount,
+            'deletedCount' => $deletedCount,
+            'mostActiveUsers' => $mostActiveUsers,
+            'recentFailed' => $recentFailed,
+            'table' => $table,
+        ]);
+    }
+
+    /**
+     * Audit trail settings (read/save from ahg_settings).
+     */
+    public function settings(Request $request)
+    {
+        $settingKeys = [
+            'audit_enabled',
+            'audit_views',
+            'audit_searches',
+            'audit_downloads',
+            'audit_api_requests',
+            'audit_authentication',
+            'audit_sensitive_access',
+            'audit_mask_sensitive',
+            'audit_ip_anonymize',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingKeys as $key) {
+                $value = $request->has("settings.{$key}") ? '1' : '0';
+
+                $exists = DB::table('ahg_settings')
+                    ->where('setting_key', $key)
+                    ->where('setting_group', 'audit')
+                    ->exists();
+
+                if ($exists) {
+                    DB::table('ahg_settings')
+                        ->where('setting_key', $key)
+                        ->where('setting_group', 'audit')
+                        ->update([
+                            'setting_value' => $value,
+                            'updated_by' => Auth::id(),
+                            'updated_at' => now(),
+                        ]);
+                } else {
+                    DB::table('ahg_settings')->insert([
+                        'setting_key' => $key,
+                        'setting_value' => $value,
+                        'setting_type' => 'boolean',
+                        'setting_group' => 'audit',
+                        'description' => str_replace('_', ' ', ucfirst($key)),
+                        'is_sensitive' => 0,
+                        'updated_by' => Auth::id(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            return redirect()->route('audit.settings')->with('success', 'Audit settings saved.');
+        }
+
+        // GET: load current settings
+        $rows = DB::table('ahg_settings')
+            ->where('setting_group', 'audit')
+            ->whereIn('setting_key', $settingKeys)
+            ->pluck('setting_value', 'setting_key');
+
+        $settings = [];
+        foreach ($settingKeys as $key) {
+            $settings[$key] = $rows[$key] ?? '0';
+        }
+
+        return view('ahg-audit-trail::settings', [
+            'settings' => $settings,
         ]);
     }
 }

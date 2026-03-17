@@ -1309,6 +1309,123 @@ class SettingsController extends Controller
         return view('ahg-settings::storage-service', compact('settings', 'menu'));
     }
 
+    /**
+     * Error Log management page.
+     */
+    public function errorLog(Request $request)
+    {
+        // Handle POST actions
+        if ($request->isMethod('post')) {
+            $authUser = \Illuminate\Support\Facades\Auth::id();
+
+            if ($request->filled('resolve_id')) {
+                DB::table('ahg_error_log')
+                    ->where('id', $request->input('resolve_id'))
+                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser]);
+                return redirect()->route('settings.error-log')->with('success', 'Error resolved.');
+            }
+
+            if ($request->filled('reopen_id')) {
+                DB::table('ahg_error_log')
+                    ->where('id', $request->input('reopen_id'))
+                    ->update(['resolved_at' => null, 'resolved_by' => null]);
+                return redirect()->route('settings.error-log')->with('success', 'Error reopened.');
+            }
+
+            if ($request->has('mark_read')) {
+                DB::table('ahg_error_log')
+                    ->where('is_read', 0)
+                    ->update(['is_read' => 1]);
+                return redirect()->route('settings.error-log')->with('success', 'All errors marked as read.');
+            }
+
+            if ($request->has('resolve_all')) {
+                DB::table('ahg_error_log')
+                    ->whereNull('resolved_at')
+                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser]);
+                return redirect()->route('settings.error-log')->with('success', 'All open errors resolved.');
+            }
+
+            if ($request->has('clear_old')) {
+                $days = max(1, (int) $request->input('clear_days', 30));
+                DB::table('ahg_error_log')
+                    ->where('created_at', '<', DB::raw("DATE_SUB(NOW(), INTERVAL {$days} DAY)"))
+                    ->delete();
+                return redirect()->route('settings.error-log')->with('success', "Errors older than {$days} days cleared.");
+            }
+
+            if ($request->filled('delete_id')) {
+                DB::table('ahg_error_log')
+                    ->where('id', $request->input('delete_id'))
+                    ->delete();
+                return redirect()->route('settings.error-log')->with('success', 'Error deleted.');
+            }
+
+            return redirect()->route('settings.error-log');
+        }
+
+        // GET: Query with filters
+        $statusFilter = $request->get('status', '');
+        $levelFilter = $request->get('level', '');
+        $searchFilter = $request->get('search', '');
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = 25;
+
+        $query = DB::table('ahg_error_log');
+
+        if ($statusFilter === 'open') {
+            $query->whereNull('resolved_at');
+        } elseif ($statusFilter === 'resolved') {
+            $query->whereNotNull('resolved_at');
+        }
+
+        if ($levelFilter) {
+            $query->where('level', $levelFilter);
+        }
+
+        if ($searchFilter) {
+            $query->where(function ($q) use ($searchFilter) {
+                $q->where('message', 'like', "%{$searchFilter}%")
+                  ->orWhere('url', 'like', "%{$searchFilter}%")
+                  ->orWhere('file', 'like', "%{$searchFilter}%");
+            });
+        }
+
+        $total = (clone $query)->count();
+        $totalPages = $limit > 0 ? (int) ceil($total / $limit) : 1;
+
+        $entries = $query
+            ->orderByDesc('created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        // Stats
+        $openCount = DB::table('ahg_error_log')->whereNull('resolved_at')->count();
+        $resolvedCount = DB::table('ahg_error_log')->whereNotNull('resolved_at')->count();
+        $unreadCount = DB::table('ahg_error_log')->where('is_read', 0)->count();
+        $todayCount = DB::table('ahg_error_log')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->count();
+
+        return view('ahg-settings::errorLog', [
+            'entries' => $entries,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'totalPages' => $totalPages,
+            'openCount' => $openCount,
+            'resolvedCount' => $resolvedCount,
+            'unreadCount' => $unreadCount,
+            'todayCount' => $todayCount,
+            'filters' => [
+                'status' => $statusFilter,
+                'level' => $levelFilter,
+                'search' => $searchFilter,
+            ],
+        ]);
+    }
+
     private function buildMenu(string $active): array
     {
         return collect($this->menuNodes)->map(function ($node) use ($active) {

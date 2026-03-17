@@ -1,0 +1,20 @@
+{
+    "name": "ahg/heritage-manage",
+    "description": "Heritage Admin, Analytics, and Custodian dashboards for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgHeritageManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgHeritageManage\\Providers\\AhgHeritageManageServiceProvider"
+            ]
+        }
+    }
+}

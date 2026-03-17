@@ -1,0 +1,20 @@
+{
+    "name": "ahg/researcher-manage",
+    "description": "Researcher Submissions management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgResearcherManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgResearcherManage\\Providers\\AhgResearcherManageServiceProvider"
+            ]
+        }
+    }
+}

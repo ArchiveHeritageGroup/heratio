@@ -1,0 +1,20 @@
+{
+    "name": "ahg/dropdown-manage",
+    "description": "Dropdown Manager for managing taxonomy dropdowns in Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgDropdownManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDropdownManage\\Providers\\AhgDropdownManageServiceProvider"
+            ]
+        }
+    }
+}

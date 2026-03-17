@@ -5,6 +5,8 @@ namespace AhgAcl\Controllers;
 use AhgAcl\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AclController extends Controller
 {
@@ -204,5 +206,105 @@ class AclController extends Controller
         $entries = $this->service->getSecurityAuditLog($limit);
 
         return view('ahg-acl::audit-log', compact('entries', 'limit'));
+    }
+
+    /**
+     * List active access request approvers.
+     */
+    public function approvers()
+    {
+        $approvers = collect();
+        $classifications = $this->service->getClassificationLevels();
+
+        if (Schema::hasTable('access_request_approver')) {
+            $approvers = DB::table('access_request_approver as ara')
+                ->join('user as u', 'u.id', '=', 'ara.user_id')
+                ->leftJoin('actor_i18n as ai', function ($join) {
+                    $join->on('ai.id', '=', 'u.id')
+                         ->where('ai.culture', '=', 'en');
+                })
+                ->leftJoin('user_security_clearance as uc', 'uc.user_id', '=', 'u.id')
+                ->leftJoin('security_classification as sc', 'sc.id', '=', 'uc.classification_id')
+                ->select(
+                    'ara.id',
+                    'ara.user_id',
+                    'ara.min_classification_level',
+                    'ara.max_classification_level',
+                    'ara.email_notifications',
+                    'ara.active',
+                    'ara.created_at',
+                    'u.username',
+                    'u.email',
+                    'ai.authorized_form_of_name as display_name',
+                    'sc.name as clearance_name',
+                    'sc.code as clearance_code',
+                    'sc.color as clearance_color',
+                    'sc.level as clearance_level'
+                )
+                ->where('ara.active', 1)
+                ->orderBy('ai.authorized_form_of_name')
+                ->get();
+        }
+
+        // Get active approver user IDs to exclude from the add dropdown
+        $approverUserIds = $approvers->pluck('user_id')->toArray();
+
+        $availableUsers = $this->service->getAllUsers()
+            ->filter(function ($user) use ($approverUserIds) {
+                return !in_array($user->id, $approverUserIds);
+            });
+
+        return view('ahg-acl::approvers', compact('approvers', 'availableUsers', 'classifications'));
+    }
+
+    /**
+     * POST: Add a new access request approver.
+     */
+    public function addApprover(Request $request)
+    {
+        $request->validate([
+            'user_id'                  => 'required|integer',
+            'min_classification_level' => 'required|integer',
+            'max_classification_level' => 'required|integer',
+            'email_notifications'      => 'nullable|boolean',
+        ]);
+
+        $now = now()->toDateTimeString();
+
+        // Check if user is already an active approver
+        $existing = DB::table('access_request_approver')
+            ->where('user_id', (int) $request->input('user_id'))
+            ->where('active', 1)
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('acl.approvers')
+                ->with('error', 'This user is already an active approver.');
+        }
+
+        DB::table('access_request_approver')->insert([
+            'user_id'                  => (int) $request->input('user_id'),
+            'min_classification_level' => (int) $request->input('min_classification_level'),
+            'max_classification_level' => (int) $request->input('max_classification_level'),
+            'email_notifications'      => $request->boolean('email_notifications') ? 1 : 0,
+            'active'                   => 1,
+            'created_at'               => $now,
+        ]);
+
+        return redirect()->route('acl.approvers')
+            ->with('success', 'Approver added successfully.');
+    }
+
+    /**
+     * POST: Deactivate an access request approver.
+     */
+    public function removeApprover(int $id)
+    {
+        DB::table('access_request_approver')
+            ->where('id', $id)
+            ->update(['active' => 0]);
+
+        return redirect()->route('acl.approvers')
+            ->with('success', 'Approver removed successfully.');
     }
 }

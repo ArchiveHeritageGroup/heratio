@@ -1,0 +1,20 @@
+{
+    "name": "ahg/dedupe",
+    "description": "Duplicate detection and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgDedupe\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDedupe\\Providers\\AhgDedupeServiceProvider"
+            ]
+        }
+    }
+}

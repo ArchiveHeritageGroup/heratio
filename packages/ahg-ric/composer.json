@@ -1,0 +1,20 @@
+{
+    "name": "ahg/ric",
+    "description": "RiC (Records in Contexts) Dashboard for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRic\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRic\\Providers\\AhgRicServiceProvider"
+            ]
+        }
+    }
+}
