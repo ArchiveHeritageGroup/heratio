@@ -346,71 +346,10 @@
         </div>
 
         <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-          var vid = '{{ $viewerId }}';
-          var imgSrc = '{{ $imgSrc }}';
-          var osdEl = document.getElementById('osd-' + vid);
-          var mirEl = document.getElementById('mirador-' + vid);
-          var imgEl = document.getElementById('img-' + vid);
-          var osdViewer = null, miradorInst = null;
-
-          function showOSD() {
-            osdEl.style.display = 'block'; mirEl.style.display = 'none'; imgEl.style.display = 'none';
-            document.getElementById('btn-osd-' + vid).classList.add('active');
-            document.getElementById('btn-mirador-' + vid).classList.remove('active');
-            document.getElementById('btn-img-' + vid).classList.remove('active');
-            if (!osdViewer && typeof OpenSeadragon !== 'undefined') {
-              osdViewer = OpenSeadragon({
-                id: 'osd-' + vid,
-                tileSources: { type: 'image', url: imgSrc },
-                showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT',
-                prefixUrl: '/vendor/ahg-theme-b5/js/vendor/openseadragon/images/',
-                gestureSettingsMouse: { clickToZoom: true },
-                animationTime: 0.5, zoomPerClick: 1.5, maxZoomPixelRatio: 4,
-                visibilityRatio: 0.5, constrainDuringPan: true
-              });
-            }
-          }
-
-          function showMirador() {
-            osdEl.style.display = 'none'; mirEl.style.display = 'block'; imgEl.style.display = 'none';
-            document.getElementById('btn-mirador-' + vid).classList.add('active');
-            document.getElementById('btn-osd-' + vid).classList.remove('active');
-            document.getElementById('btn-img-' + vid).classList.remove('active');
-            if (!miradorInst) {
-              var s = document.createElement('script');
-              s.src = '{{ asset("vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js") }}';
-              s.onload = function() {
-                if (typeof Mirador !== 'undefined') {
-                  miradorInst = Mirador.viewer({
-                    id: 'mirador-' + vid,
-                    windows: [{ manifestId: '{{ url("/manifest-collection/" . $io->slug . "/manifest.json") }}' }],
-                    window: { allowClose: false, allowMaximize: false }
-                  });
-                } else { mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador not available.</div>'; }
-              };
-              document.head.appendChild(s);
-            }
-          }
-
-          function showImg() {
-            osdEl.style.display = 'none'; mirEl.style.display = 'none'; imgEl.style.display = 'block';
-            document.getElementById('btn-img-' + vid).classList.add('active');
-            document.getElementById('btn-osd-' + vid).classList.remove('active');
-            document.getElementById('btn-mirador-' + vid).classList.remove('active');
-          }
-
-          document.getElementById('btn-osd-' + vid).addEventListener('click', showOSD);
-          document.getElementById('btn-mirador-' + vid).addEventListener('click', showMirador);
-          document.getElementById('btn-img-' + vid).addEventListener('click', showImg);
-          document.getElementById('btn-fs-' + vid).addEventListener('click', function() {
-            var el = osdEl.style.display !== 'none' ? osdEl : (mirEl.style.display !== 'none' ? mirEl : imgEl);
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-          });
-
-          showOSD();
+          initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
         });
         </script>
       @else
@@ -646,10 +585,12 @@
 
       {{-- Favorites toggle --}}
       @if($isFavorited)
-        <a href="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}"
-           class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
-          <i class="fas fa-heart-broken"></i>
-        </a>
+        <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+            <i class="fas fa-heart-broken"></i>
+          </button>
+        </form>
       @else
         <a href="{{ route('favorites.add', $io->slug) }}"
            class="btn btn-sm btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
