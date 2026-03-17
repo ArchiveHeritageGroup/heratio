@@ -53,6 +53,22 @@ class StaticPageController extends Controller
             }
         }
 
+        // Parse Markdown if enabled
+        $markdownEnabled = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($j) {
+                $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en');
+            })
+            ->where('setting.name', 'markdown_enabled')->whereNull('setting.scope')
+            ->value('setting_i18n.value');
+
+        if ($markdownEnabled !== '0' && !empty($page->content)) {
+            $converter = new \League\CommonMark\CommonMarkConverter([
+                'html_input' => 'allow',
+                'allow_unsafe_links' => false,
+            ]);
+            $page->content = $converter->convert($page->content)->getContent();
+        }
+
         return view('ahg-static-page::show', [
             'page' => $page,
         ]);
