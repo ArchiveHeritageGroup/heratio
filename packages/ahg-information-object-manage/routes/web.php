@@ -14,7 +14,15 @@ use AhgInformationObjectManage\Controllers\ExtendedRightsController;
 use AhgInformationObjectManage\Controllers\DigitalObjectController;
 use AhgInformationObjectManage\Controllers\ResearchController;
 use AhgInformationObjectManage\Controllers\TreeviewController;
+use AhgInformationObjectManage\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
+
+// Media routes (transcription, metadata extraction, snippets)
+Route::get('/media/transcription/{id}/vtt', [MediaController::class, 'transcriptionVtt'])->name('media.transcription.vtt')->where('id', '[0-9]+');
+Route::get('/media/transcription/{id}/srt', [MediaController::class, 'transcriptionSrt'])->name('media.transcription.srt')->where('id', '[0-9]+');
+Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
+Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
+Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');

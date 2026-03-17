@@ -348,12 +348,13 @@
         {{-- Media Information panel --}}
         @if($mediaMetadata)
           <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#media-info-collapse" aria-expanded="false">
               <span><i class="fas fa-info-circle me-2"></i>Media Information</span>
               <span class="badge bg-{{ $doMediaType === 'audio' ? 'info' : 'primary' }}">
                 {{ ucfirst($doMediaType) }}{{ $mediaMetadata->format ? ' - ' . strtoupper($mediaMetadata->format) : '' }}
               </span>
             </div>
+            <div class="collapse" id="media-info-collapse">
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
@@ -380,6 +381,7 @@
                 </div>
               </div>
             </div>
+            </div>{{-- /collapse --}}
           </div>
         @else
           {{-- Extract Metadata button --}}
@@ -400,9 +402,9 @@
             $segments = json_decode($transcription->segments ?? '[]', true) ?: [];
           @endphp
           <div class="card mb-3" id="transcription-panel-{{ $doId }}">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false">
               <span><i class="fas fa-file-alt me-2"></i>Transcription</span>
-              <div class="btn-group btn-group-sm">
+              <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
                 <a href="/media/transcription/{{ $doId }}/vtt" class="btn btn-outline-secondary" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
                 <a href="/media/transcription/{{ $doId }}/srt" class="btn btn-outline-secondary" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
                 @auth
@@ -410,6 +412,7 @@
                 @endauth
               </div>
             </div>
+            <div class="collapse" id="transcription-collapse">
             <div class="card-body py-2 bg-light border-bottom">
               <small class="text-muted">
                 <i class="fas fa-language me-1"></i>{{ \Locale::getDisplayLanguage($transcription->language ?? 'en', 'en') }}
@@ -445,6 +448,7 @@
                 <button class="btn btn-outline-secondary" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> Timed Segments</button>
               </div>
             </div>
+            </div>{{-- /collapse --}}
           </div>
         @else
           {{-- Transcribe buttons --}}
@@ -587,8 +591,8 @@
 
   {{-- ===== 1. Identity area ===== --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#identity-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#identity-collapse">
         Identity area
       </a>
       @if(auth()->check())
@@ -653,8 +657,8 @@
 
   {{-- ===== 2. Context area ===== --}}
   <section id="contextArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#context-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#context-collapse">
         Context area
       </a>
       @if(auth()->check())
@@ -746,8 +750,8 @@
 
   {{-- ===== 3. Content and structure area ===== --}}
   <section id="contentAndStructureArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#content-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#content-collapse">
         Content and structure area
       </a>
       @if(auth()->check())
@@ -791,8 +795,8 @@
 
   {{-- ===== 4. Conditions of access and use area ===== --}}
   <section id="conditionsOfAccessAndUseArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#conditions-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#conditions-collapse">
         Conditions of access and use area
       </a>
       @if(auth()->check())
@@ -887,8 +891,8 @@
 
   {{-- ===== 5. Allied materials area ===== --}}
   <section id="alliedMaterialsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#allied-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#allied-collapse">
         Allied materials area
       </a>
       @if(auth()->check())
@@ -955,8 +959,8 @@
 
   {{-- ===== 6. Notes area ===== --}}
   <section id="notesArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#notes-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#notes-collapse">
         Notes area
       </a>
       @if(auth()->check())
@@ -994,8 +998,8 @@
 
   {{-- ===== 7. Access points ===== --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#access-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#access-collapse">
         Access points
       </a>
       @if(auth()->check())
@@ -1063,8 +1067,8 @@
 
   {{-- ===== 8. Description control area ===== --}}
   <section id="descriptionControlArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#description-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#description-collapse">
         Description control area
       </a>
       @if(auth()->check())
@@ -1162,8 +1166,8 @@
   {{-- ===== 9. Rights area (authenticated only) ===== --}}
   @auth
     <section id="rightsArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header">
-        <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#rights-collapse">
+      <h2 class="h6 mb-0 atom-section-header">
+        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#rights-collapse">
           Rights area
         </a>
       </h2>
@@ -1200,8 +1204,8 @@
       $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
     @endphp
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header">
-        <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#digital-object-collapse">
+      <h2 class="h6 mb-0 atom-section-header">
+        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#digital-object-collapse">
           Digital object metadata
         </a>
       </h2>
@@ -1350,8 +1354,8 @@
 
   {{-- ===== 11. Accession area ===== --}}
   <section id="accessionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header">
-      <a class="d-flex p-3 border-bottom text-primary text-decoration-none" href="#accession-collapse">
+    <h2 class="h6 mb-0 atom-section-header">
+      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#accession-collapse">
         Accession area
       </a>
     </h2>
