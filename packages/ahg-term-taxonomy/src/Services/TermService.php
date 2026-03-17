@@ -112,6 +112,7 @@ class TermService
             ->select([
                 'taxonomy.id',
                 'taxonomy_i18n.name as name',
+                'taxonomy_i18n.note as note',
             ])
             ->orderBy('taxonomy_i18n.name', 'asc')
             ->get();
