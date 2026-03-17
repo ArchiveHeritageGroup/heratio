@@ -66,8 +66,8 @@
     @include('theme::partials.footer')
 
     {{-- Base JS --}}
-    <script src="{{ asset('vendor/ahg-core/js/display-mode.js') }}"></script>
-    <script src="{{ asset('vendor/ahg-core/js/base.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/display-mode.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
     <script src="{{ asset('vendor/ahg-core/js/clipboard.js') }}"></script>
 
     @stack('js')

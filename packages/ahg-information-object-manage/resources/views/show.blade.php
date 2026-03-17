@@ -365,7 +365,7 @@
                 id: 'osd-' + vid,
                 tileSources: { type: 'image', url: imgSrc },
                 showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT',
-                prefixUrl: '{{ asset("vendor/ahg-theme-b5/js/vendor/openseadragon/images/") }}',
+                prefixUrl: '/vendor/ahg-theme-b5/js/vendor/openseadragon/images/',
                 gestureSettingsMouse: { clickToZoom: true },
                 animationTime: 0.5, zoomPerClick: 1.5, maxZoomPixelRatio: 4,
                 visibilityRatio: 0.5, constrainDuringPan: true
@@ -385,7 +385,7 @@
                 if (typeof Mirador !== 'undefined') {
                   miradorInst = Mirador.viewer({
                     id: 'mirador-' + vid,
-                    windows: [{ manifestId: '{{ url("/iiif/manifest/" . $io->slug) }}' }],
+                    windows: [{ manifestId: '{{ url("/manifest-collection/" . $io->slug . "/manifest.json") }}' }],
                     window: { allowClose: false, allowMaximize: false }
                   });
                 } else { mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador not available.</div>'; }
