@@ -39,44 +39,73 @@
       </div>
     </div>
 
-    {{-- Search bar with field selector + sort --}}
+    {{-- Search bar with field selector + sort (matching AtoM exactly) --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
-      <form method="get" action="{{ route('term.browse') }}" class="d-flex">
+      <form id="inline-search" method="get" action="{{ route('term.browse') }}" class="d-flex" role="search" aria-label="{{ $taxonomyName }}">
         <input type="hidden" name="taxonomy" value="{{ $taxonomyId }}">
-        <div class="input-group input-group-sm">
-          <button class="btn atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-            <i class="fas fa-cog"></i>
+        <div class="input-group flex-nowrap">
+          {{-- Search field selector --}}
+          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <i class="fas fa-cog" aria-hidden="true"></i>
+            <span class="visually-hidden">Search options</span>
           </button>
           <div class="dropdown-menu mt-2">
             <div class="px-3 py-2">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="queryField" id="qf-all" value="allLabels" {{ (request('queryField', 'allLabels') === 'allLabels') ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-all">All labels (boosted)</label>
+                <input class="form-check-input" type="radio" name="subqueryField" id="qf-all" value="allLabels" {{ (request('subqueryField', 'allLabels') === 'allLabels') ? 'checked' : '' }}>
+                <label class="form-check-label" for="qf-all">All labels</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="queryField" id="qf-preferred" value="preferredLabel" {{ request('queryField') === 'preferredLabel' ? 'checked' : '' }}>
+                <input class="form-check-input" type="radio" name="subqueryField" id="qf-preferred" value="preferredLabel" {{ request('subqueryField') === 'preferredLabel' ? 'checked' : '' }}>
                 <label class="form-check-label" for="qf-preferred">Preferred label</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="queryField" id="qf-usefor" value="useForLabels" {{ request('queryField') === 'useForLabels' ? 'checked' : '' }}>
+                <input class="form-check-input" type="radio" name="subqueryField" id="qf-usefor" value="useForLabels" {{ request('subqueryField') === 'useForLabels' ? 'checked' : '' }}>
                 <label class="form-check-label" for="qf-usefor">"Use for" labels</label>
               </div>
             </div>
           </div>
-          <input type="text" class="form-control" name="subquery" placeholder="Search {{ strtolower($taxonomyName ?? 'terms') }}..." value="{{ request('subquery') }}">
-          <button class="btn atom-btn-white" type="submit"><i class="fas fa-search"></i></button>
+          {{-- Search input --}}
+          <input class="form-control form-control-sm" type="search" name="subquery" value="{{ request('subquery') }}" placeholder="Search {{ strtolower($taxonomyName ?? 'terms') }}" aria-label="Search {{ strtolower($taxonomyName ?? 'terms') }}">
+          {{-- Reset button (only when search active) --}}
+          @if(request('subquery'))
+            <a href="{{ route('term.browse', ['taxonomy' => $taxonomyId]) }}" class="btn btn-sm atom-btn-white d-flex align-items-center" role="button">
+              <i class="fas fa-undo" aria-hidden="true"></i>
+              <span class="visually-hidden">Reset search</span>
+            </a>
+          @endif
+          {{-- Search submit --}}
+          <button class="btn btn-sm atom-btn-white" type="submit">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <span class="visually-hidden">Search</span>
+          </button>
         </div>
       </form>
 
       <div class="d-flex flex-wrap gap-2 ms-auto align-items-center">
-        @include('ahg-core::components.sort-pickers', [
-            'options' => $sortOptions,
-            'default' => 'alphabetic',
-        ])
-        @php $currentDir = request('dir', 'asc'); @endphp
-        <a href="{{ request()->fullUrlWithQuery(['dir' => $currentDir === 'asc' ? 'desc' : 'asc', 'page' => 1]) }}" class="btn btn-sm atom-btn-white" title="{{ $currentDir === 'asc' ? 'Ascending' : 'Descending' }}">
-          <i class="fas fa-sort-alpha-{{ $currentDir === 'asc' ? 'down' : 'up' }}"></i>
-        </a>
+        {{-- Sort by dropdown (matching AtoM genericPicker) --}}
+        @php $activeSort = request('sort', 'alphabetic'); @endphp
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
+            Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mt-2">
+            @foreach($sortOptions as $key => $label)
+              <li><a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => 1]) }}">{{ $label }}</a></li>
+            @endforeach
+          </ul>
+        </div>
+        {{-- Direction dropdown (matching AtoM genericPicker) --}}
+        @php $activeDir = request('sortDir', 'asc'); @endphp
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
+            Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mt-2">
+            <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}">Ascending</a></li>
+            <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}">Descending</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 
