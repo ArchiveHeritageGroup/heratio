@@ -46,8 +46,8 @@ Route::get('/home', fn () => redirect('/'));
 Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
 Route::get('/favorites/browse', fn () => redirect('/favorites'));
 Route::get('/cart/browse', fn () => redirect('/cart'));
-Route::get('/feedback/general', fn () => redirect('/contact'));
-Route::get('/feedback/{any?}', fn () => redirect('/contact'));
+Route::match(['get', 'post'], '/feedback/general', [App\Http\Controllers\FeedbackController::class, 'general'])->name('feedback.general');
+Route::get('/feedback/submit/{slug?}', [App\Http\Controllers\FeedbackController::class, 'general'])->name('feedback.submit');
 
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
