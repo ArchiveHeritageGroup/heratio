@@ -8,12 +8,15 @@ Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss
 
 Route::middleware('admin')->group(function () {
     // Dedicated settings pages
+    Route::match(['get', 'post'], '/admin/settings/default-template', [SettingsController::class, 'defaultTemplate'])->name('settings.default-template');
     Route::match(['get', 'post'], '/admin/settings/global', [SettingsController::class, 'global'])->name('settings.global');
     Route::match(['get', 'post'], '/admin/settings/site-information', [SettingsController::class, 'siteInformation'])->name('settings.site-information');
     Route::match(['get', 'post'], '/admin/settings/security', [SettingsController::class, 'security'])->name('settings.security');
     Route::match(['get', 'post'], '/admin/settings/identifier', [SettingsController::class, 'identifier'])->name('settings.identifier');
     Route::match(['get', 'post'], '/admin/settings/email', [SettingsController::class, 'email'])->name('settings.email');
     Route::match(['get', 'post'], '/admin/settings/treeview', [SettingsController::class, 'treeview'])->name('settings.treeview');
+    Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
+    Route::match(['get', 'post'], '/admin/settings/languages', [SettingsController::class, 'languages'])->name('settings.languages');
     Route::match(['get', 'post'], '/admin/settings/digital-objects', [SettingsController::class, 'digitalObjects'])->name('settings.digital-objects');
     Route::match(['get', 'post'], '/admin/settings/interface-labels', [SettingsController::class, 'interfaceLabels'])->name('settings.interface-labels');
     Route::match(['get', 'post'], '/admin/settings/oai', [SettingsController::class, 'oai'])->name('settings.oai');

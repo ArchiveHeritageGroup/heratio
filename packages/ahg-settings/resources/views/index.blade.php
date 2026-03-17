@@ -31,7 +31,17 @@
     {{-- Heratio setting scopes --}}
     @foreach($scopeCards as $card)
     <div class="col-lg-4 col-md-6 mb-4">
-      <a href="{{ route('settings.section', $card->key) }}" class="text-decoration-none">
+      @php
+        $dedicatedRoutes = [
+          'default_template' => 'settings.default-template',
+          'element_visibility' => 'settings.visible-elements',
+          'i18n_languages' => 'settings.languages',
+          'ui_label' => 'settings.interface-labels',
+          'oai' => 'settings.oai',
+        ];
+        $cardRoute = isset($dedicatedRoutes[$card->key]) ? route($dedicatedRoutes[$card->key]) : route('settings.section', $card->key);
+      @endphp
+      <a href="{{ $cardRoute }}" class="text-decoration-none">
         <div class="card h-100 shadow-sm settings-tile">
           <div class="card-body text-center py-4">
             <div class="mb-3"><i class="fas {{ $card->icon }} fa-3x text-primary"></i></div>

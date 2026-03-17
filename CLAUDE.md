@@ -139,3 +139,4 @@ After writing the code, list every database column you wrote to and confirm it m
 
 look at /usr/share/nginx/archive/atom-* packages where we developed Symfony/Laravel code. This code field/functionallity is exactly what we need in Heratio but only in Laravel.
 
+No hardcoded values. Either in Dropdown Manager/Taxonomy/DB

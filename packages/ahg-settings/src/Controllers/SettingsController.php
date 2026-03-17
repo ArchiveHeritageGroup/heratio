@@ -48,11 +48,14 @@ class SettingsController extends Controller
     private array $menuNodes = [
         ['action' => 'index', 'label' => 'Settings home', 'icon' => 'fa-home'],
         ['action' => 'global', 'label' => 'Global', 'icon' => 'fa-globe'],
+        ['action' => 'default-template', 'label' => 'Default template', 'icon' => 'fa-file-alt'],
         ['action' => 'site-information', 'label' => 'Site information', 'icon' => 'fa-info-circle'],
         ['action' => 'security', 'label' => 'Security', 'icon' => 'fa-shield-alt'],
         ['action' => 'identifier', 'label' => 'Identifiers', 'icon' => 'fa-fingerprint'],
         ['action' => 'email', 'label' => 'Email', 'icon' => 'fa-envelope'],
         ['action' => 'treeview', 'label' => 'Treeview', 'icon' => 'fa-sitemap'],
+        ['action' => 'visible-elements', 'label' => 'Visible elements', 'icon' => 'fa-eye'],
+        ['action' => 'languages', 'label' => 'Languages', 'icon' => 'fa-language'],
         ['action' => 'digital-objects', 'label' => 'Digital objects', 'icon' => 'fa-photo-video'],
         ['action' => 'interface-labels', 'label' => 'Interface labels', 'icon' => 'fa-tags'],
         ['action' => 'oai', 'label' => 'OAI repository', 'icon' => 'fa-cloud'],
@@ -150,6 +153,52 @@ class SettingsController extends Controller
         }
 
         return view('ahg-settings::section', compact('settings', 'section', 'sectionLabel'));
+    }
+
+    public function defaultTemplate(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('default-template');
+
+        // Load current template settings
+        $templateSettings = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($join) use ($culture) {
+                $join->on('setting.id', '=', 'setting_i18n.id')
+                    ->where('setting_i18n.culture', '=', $culture);
+            })
+            ->where('setting.scope', 'default_template')
+            ->where('setting.editable', 1)
+            ->select('setting.id', 'setting.name', 'setting_i18n.value')
+            ->orderBy('setting.name')
+            ->get()
+            ->keyBy('name');
+
+        if ($request->isMethod('post')) {
+            foreach ($request->input('settings', []) as $id => $value) {
+                DB::table('setting_i18n')->updateOrInsert(
+                    ['id' => $id, 'culture' => $culture],
+                    ['value' => $value]
+                );
+            }
+            return redirect()->route('settings.default-template')->with('success', 'Default templates saved.');
+        }
+
+        // Template choices matching AtoM exactly
+        $ioChoices = [
+            'isad' => 'ISAD(G), 2nd ed. International Council on Archives',
+            'dc' => 'Dublin Core, Version 1.1. Dublin Core Metadata Initiative',
+            'mods' => 'MODS, Version 3.3. U.S. Library of Congress',
+            'rad' => 'RAD, July 2008 version. Canadian Council of Archives',
+            'dacs' => 'DACS, 2nd ed. Society of American Archivists',
+        ];
+        $actorChoices = [
+            'isaar' => 'ISAAR(CPF), 2nd ed. International Council on Archives',
+        ];
+        $repoChoices = [
+            'isdiah' => 'ISDIAH, 1st ed. International Council on Archives',
+        ];
+
+        return view('ahg-settings::default-template', compact('templateSettings', 'ioChoices', 'actorChoices', 'repoChoices', 'menu'));
     }
 
     public function global(Request $request)
@@ -295,6 +344,103 @@ class SettingsController extends Controller
             ->get();
 
         return view('ahg-settings::interface-labels', compact('settings', 'menu'));
+    }
+
+    public function visibleElements(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('visible-elements');
+
+        $settings = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($join) use ($culture) {
+                $join->on('setting.id', '=', 'setting_i18n.id')
+                    ->where('setting_i18n.culture', '=', $culture);
+            })
+            ->where('setting.scope', 'element_visibility')
+            ->where('setting.editable', 1)
+            ->select('setting.id', 'setting.name', 'setting_i18n.value')
+            ->orderBy('setting.name')
+            ->get()
+            ->keyBy('name');
+
+        if ($request->isMethod('post')) {
+            foreach ($settings as $name => $setting) {
+                $value = $request->has("settings.{$setting->id}") ? '1' : '0';
+                DB::table('setting_i18n')->updateOrInsert(
+                    ['id' => $setting->id, 'culture' => $culture],
+                    ['value' => $value]
+                );
+            }
+            return redirect()->route('settings.visible-elements')->with('success', 'Visible elements saved.');
+        }
+
+        // Group settings by prefix for accordion sections
+        $groups = [];
+        foreach ($settings as $name => $setting) {
+            $parts = explode('_', $name, 2);
+            $prefix = $parts[0] ?? 'other';
+            $groups[$prefix][] = $setting;
+        }
+
+        return view('ahg-settings::visible-elements', compact('settings', 'groups', 'menu'));
+    }
+
+    public function languages(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('languages');
+
+        $languages = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($join) use ($culture) {
+                $join->on('setting.id', '=', 'setting_i18n.id')
+                    ->where('setting_i18n.culture', '=', $culture);
+            })
+            ->where('setting.scope', 'i18n_languages')
+            ->where('setting.editable', 1)
+            ->select('setting.id', 'setting.name', 'setting_i18n.value')
+            ->orderBy('setting.name')
+            ->get();
+
+        if ($request->isMethod('post') && $request->input('action') === 'add') {
+            $code = strtolower(trim($request->input('languageCode', '')));
+            if (preg_match('/^[a-z]{2,3}$/', $code)) {
+                $exists = DB::table('setting')
+                    ->where('scope', 'i18n_languages')
+                    ->where('name', $code)
+                    ->exists();
+                if (!$exists) {
+                    $id = DB::table('setting')->insertGetId([
+                        'name' => $code,
+                        'scope' => 'i18n_languages',
+                        'editable' => 1,
+                        'deleteable' => 1,
+                        'source_culture' => $culture,
+                        'serial_number' => 0,
+                    ]);
+                    DB::table('setting_i18n')->insert([
+                        'id' => $id,
+                        'culture' => $culture,
+                        'value' => $code,
+                    ]);
+                    return redirect()->route('settings.languages')->with('success', "Language '{$code}' added.");
+                }
+                return redirect()->route('settings.languages')->with('error', "Language '{$code}' already exists.");
+            }
+            return redirect()->route('settings.languages')->with('error', 'Invalid language code. Use 2-3 lowercase letters (e.g. en, fr, af).');
+        }
+
+        if ($request->isMethod('post') && $request->input('action') === 'delete') {
+            $deleteId = (int) $request->input('delete_id');
+            $setting = DB::table('setting')->where('id', $deleteId)->where('scope', 'i18n_languages')->first();
+            if ($setting && $setting->deleteable) {
+                DB::table('setting_i18n')->where('id', $deleteId)->delete();
+                DB::table('setting')->where('id', $deleteId)->delete();
+                return redirect()->route('settings.languages')->with('success', 'Language removed.');
+            }
+            return redirect()->route('settings.languages')->with('error', 'This language cannot be deleted.');
+        }
+
+        return view('ahg-settings::languages', compact('languages', 'menu'));
     }
 
     public function oai(Request $request)
