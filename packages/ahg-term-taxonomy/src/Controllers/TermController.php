@@ -187,30 +187,43 @@ class TermController extends Controller
             ->orderBy($orderCol, $orderDir)
             ->offset(($page - 1) * $limit)->limit($limit)->get()
             ->map(function ($desc) {
-                // Get thumbnail for each description
-                $thumb = DB::table('digital_object')
+                // Get master digital object
+                $master = DB::table('digital_object')
                     ->where('object_id', $desc->id)
-                    ->where('usage_id', 142) // thumbnail
-                    ->select('path', 'name')
+                    ->whereNull('parent_id')
                     ->first();
-                if (!$thumb) {
-                    // Try to get master and determine media type icon
-                    $master = DB::table('digital_object')
-                        ->where('object_id', $desc->id)
-                        ->where('usage_id', 140) // master
-                        ->select('media_type_id', 'mime_type')
+
+                $desc->thumbnail = null;
+                $desc->mediaIcon = null;
+
+                if ($master) {
+                    // Get thumbnail derivative (usage_id=142, child of master)
+                    $thumb = DB::table('digital_object')
+                        ->where('parent_id', $master->id)
+                        ->where('usage_id', 142)
+                        ->select('path', 'name')
                         ->first();
-                    $desc->thumbnail = null;
-                    $desc->mediaIcon = $master ? match ((int) ($master->media_type_id ?? 0)) {
-                        135 => 'fa-file-audio',
-                        136 => 'fa-file-image',
-                        137 => 'fa-file-video',
-                        138 => 'fa-file-pdf',
-                        default => 'fa-file',
-                    } : null;
-                } else {
-                    $desc->thumbnail = ($thumb->path ?? '') . ($thumb->name ?? '');
-                    $desc->mediaIcon = null;
+
+                    if ($thumb) {
+                        $thumbPath = ($thumb->path ?? '') . ($thumb->name ?? '');
+                        // Check multiple locations for the file
+                        if (file_exists(public_path($thumbPath))) {
+                            $desc->thumbnail = $thumbPath;
+                        } elseif (file_exists('/usr/share/nginx/archive' . $thumbPath)) {
+                            $desc->thumbnail = '/atom' . $thumbPath;
+                        } else {
+                            $desc->thumbnail = $thumbPath;
+                        }
+                    } else {
+                        // No thumbnail — use generic icon image from AtoM
+                        $desc->thumbnail = '/generic-icons/' . match ((int) ($master->media_type_id ?? 0)) {
+                            135 => 'audio.png',
+                            136 => 'image.png',
+                            137 => 'video.png',
+                            138 => 'text.png',
+                            default => 'unknown.png',
+                        };
+                    }
                 }
                 return $desc;
             });

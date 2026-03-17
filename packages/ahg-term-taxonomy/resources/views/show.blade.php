@@ -218,20 +218,16 @@
       @if($relatedDescriptions->isNotEmpty())
         @foreach($relatedDescriptions as $desc)
           <article class="search-result row g-0 p-3 border-bottom">
-            @if($desc->thumbnail || $desc->mediaIcon)
-              <div class="col-12 col-lg-2 pb-2 pb-lg-0 pe-lg-3">
-                <a href="{{ url('/' . $desc->slug) }}">
-                  @if($desc->thumbnail)
-                    <img src="{{ $desc->thumbnail }}" alt="{{ $desc->title ?: '' }}" class="img-thumbnail" style="max-height:80px;">
-                  @else
-                    <span class="d-flex align-items-center justify-content-center bg-light rounded" style="width:80px;height:80px;">
-                      <i class="fas {{ $desc->mediaIcon }} fa-2x text-muted"></i>
-                    </span>
-                  @endif
-                </a>
-              </div>
-            @endif
-            <div class="col-12 {{ ($desc->thumbnail || $desc->mediaIcon) ? 'col-lg-10' : '' }} d-flex flex-column gap-1">
+            <div class="col-12 col-lg-2 pb-2 pb-lg-0 pe-lg-3">
+              <a href="{{ url('/' . $desc->slug) }}">
+                @if($desc->thumbnail)
+                  <img src="{{ $desc->thumbnail }}" alt="{{ $desc->title ?: '' }}" class="img-thumbnail" style="max-height:80px;">
+                @else
+                  <img src="/generic-icons/blank.png" alt="" class="img-thumbnail" style="max-height:80px;">
+                @endif
+              </a>
+            </div>
+            <div class="col-12 col-lg-10 d-flex flex-column gap-1">
               <a href="{{ url('/' . $desc->slug) }}" class="h6 mb-0 text-truncate">{{ $desc->title ?: '[Untitled]' }}</a>
               <div class="d-flex flex-wrap text-muted small">
                 @if($desc->identifier)
