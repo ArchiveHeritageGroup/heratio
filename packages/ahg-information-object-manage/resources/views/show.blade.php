@@ -65,18 +65,6 @@
       </div>
     </div>
 
-    {{-- Cite this Record --}}
-    <div class="card mb-3">
-      <div class="card-header fw-bold">
-        <i class="fas fa-quote-left me-1"></i> Cite this Record
-      </div>
-      <div class="list-group list-group-flush">
-        <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copy me-1"></i> Generate citation
-        </a>
-      </div>
-    </div>
-
     {{-- AI Tools --}}
     <div class="card mb-3">
       <div class="card-header fw-bold">
@@ -163,6 +151,9 @@
         <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
         </a>
+        <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-quote-left me-1"></i> Generate citation
+        </a>
       </div>
     </div>
 
@@ -217,17 +208,35 @@
   @if(isset($digitalObjects) && ($digitalObjects['master'] || $digitalObjects['reference'] || $digitalObjects['thumbnail']))
     @php
       $masterObj = $digitalObjects['master'];
-      $refObj = $digitalObjects['reference'] ?? $masterObj;
+      $refObj = $digitalObjects['reference'] ?? null;
+      $thumbObj = $digitalObjects['thumbnail'] ?? null;
       $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
       $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
+      $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
       $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
-      $refMediaType = $refObj ? \AhgCore\Services\DigitalObjectService::getMediaType($refObj) : null;
       $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
+
+      // Non-native formats that need streaming/transcoding (matching AtoM's needs_streaming list)
+      $nonNativeVideo = ['video/x-ms-wmv', 'video/x-ms-asf', 'video/x-msvideo', 'video/quicktime',
+          'video/x-flv', 'video/x-matroska', 'video/mp2t', 'video/x-ms-wtv', 'video/hevc',
+          'application/mxf', 'video/3gpp', 'video/avi'];
+      $nonNativeAudio = ['audio/aiff', 'audio/x-aiff', 'audio/basic', 'audio/x-au',
+          'audio/ac3', 'audio/x-ms-wma', 'audio/x-pn-realaudio'];
+      $masterMime = $masterObj->mime_type ?? '';
+      $needsStreaming = in_array($masterMime, $nonNativeVideo) || in_array($masterMime, $nonNativeAudio);
+
+      // For non-native formats: prefer reference derivative (should be MP4/MP3), fallback to master
+      $videoSrc = $masterUrl;
+      $videoMime = $masterMime;
+      if ($needsStreaming && $refObj) {
+          $videoSrc = $refUrl;
+          $videoMime = $refObj->mime_type ?? 'video/mp4';
+      }
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
       @if($isPdf)
-        {{-- PDF: embedded iframe viewer with toolbar (matches AtoM) --}}
+        {{-- PDF: embedded iframe viewer with toolbar --}}
         <div class="pdf-viewer-container" style="overflow:hidden;">
           <div class="pdf-wrapper">
             <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
@@ -250,24 +259,72 @@
         </div>
 
       @elseif($masterMediaType === 'video')
-        {{-- Video: HTML5 player --}}
-        <video controls class="img-fluid" style="max-height:480px;">
-          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type }}">
-          Your browser does not support the video tag.
+        {{-- Video: HTML5 player with streaming fallback for non-native formats --}}
+        <video id="ahg-video-player" controls class="w-100" style="max-height:500px; background:#000;" preload="metadata"
+               @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
+          <source src="{{ $videoSrc }}" type="{{ $videoMime }}">
+          @if($needsStreaming && $videoSrc !== $masterUrl)
+            {{-- Also try master as fallback --}}
+            <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
+          @endif
+          Your browser does not support this video format.
         </video>
+        <div class="mt-2 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+            <span class="badge bg-light text-dark">{{ $masterMime }}</span>
+            @if($masterObj->byte_size ?? 0)
+              <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
+            @endif
+          </div>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-download me-1"></i>Download video
+            </a>
+          @endauth
+        </div>
 
       @elseif($masterMediaType === 'audio')
-        {{-- Audio: HTML5 player --}}
-        <audio controls class="w-100">
-          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type }}">
-          Your browser does not support the audio tag.
+        {{-- Audio: HTML5 player with streaming fallback --}}
+        @php
+          $audioSrc = $needsStreaming && $refObj ? $refUrl : $masterUrl;
+          $audioMime = $needsStreaming && $refObj ? ($refObj->mime_type ?? 'audio/mpeg') : $masterMime;
+        @endphp
+        <audio id="ahg-audio-player" controls class="w-100" preload="metadata">
+          <source src="{{ $audioSrc }}" type="{{ $audioMime }}">
+          @if($needsStreaming && $audioSrc !== $masterUrl)
+            <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
+          @endif
+          Your browser does not support this audio format.
         </audio>
+        <div class="mt-2 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+            <span class="badge bg-light text-dark">{{ $masterMime }}</span>
+          </div>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-download me-1"></i>Download audio
+            </a>
+          @endauth
+        </div>
 
-      @elseif($refUrl)
-        {{-- Image or other: show reference image --}}
+      @elseif($refUrl || $thumbUrl)
+        {{-- Image or other: show reference/thumbnail with link to master --}}
         <a href="{{ $masterUrl ?: $refUrl }}" target="_blank">
-          <img src="{{ $refUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
+          <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
         </a>
+      @else
+        {{-- No displayable object: show download link --}}
+        <div class="py-4">
+          <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
+          <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn btn-outline-primary">
+              <i class="fas fa-download me-1"></i>Download file
+            </a>
+          @endauth
+        </div>
       @endif
     </div>
   @endif

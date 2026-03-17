@@ -37,6 +37,8 @@ Route::middleware('auth.required')->group(function () {
 // Legacy AtoM URL redirects
 Route::get('/admin/ahgSettings', fn () => redirect('/admin/settings'));
 Route::get('/admin/ahgSetting', fn () => redirect('/admin/settings'));
+Route::get('/settings', fn () => redirect('/admin/settings'));
+Route::get('/index.php/settings', fn () => redirect('/admin/settings'));
 
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
