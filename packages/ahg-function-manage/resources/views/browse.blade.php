@@ -87,8 +87,8 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   @auth
-    <section class="actions mb-3" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+    <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
       <a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a>
-    </section>
+    </div>
   @endauth
 @endsection
