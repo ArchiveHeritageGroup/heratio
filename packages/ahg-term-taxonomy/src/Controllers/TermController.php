@@ -268,6 +268,20 @@ class TermController extends Controller
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')->get();
 
+        // List tab: paginated alphabetical list of all terms in same taxonomy
+        $listPage = max(1, (int) $request->get('listPage', 1));
+        $listLimit = 25;
+        $listQuery = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $term->taxonomy_id)
+            ->where('term_i18n.culture', $culture);
+        $listTotal = $listQuery->count();
+        $listTerms = $listQuery
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->orderBy('term_i18n.name')
+            ->offset(($listPage - 1) * $listLimit)->limit($listLimit)->get();
+
         // Converse term (relation type 177)
         $converseTerm = null;
         $converseRel = DB::table('relation')
@@ -363,6 +377,10 @@ class TermController extends Controller
             'broaderTerm' => $broaderTerm,
             'narrowerCount' => $narrowerCount,
             'narrowerTerms' => $narrowerTerms,
+            'listTerms' => $listTerms,
+            'listTotal' => $listTotal,
+            'listPage' => $listPage,
+            'listLastPage' => max(1, (int) ceil($listTotal / $listLimit)),
             'converseTerm' => $converseTerm,
             'associatedTerms' => $associatedTerms,
             'breadcrumb' => $breadcrumb,

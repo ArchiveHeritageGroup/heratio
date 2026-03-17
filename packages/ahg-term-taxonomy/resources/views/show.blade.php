@@ -7,31 +7,106 @@
   <div class="row">
     {{-- LEFT SIDEBAR --}}
     <div class="col-md-3">
-      {{-- Term hierarchy treeview --}}
-      <div class="card mb-3">
-        <div class="card-header py-2"><i class="fas fa-sitemap me-1"></i> Hierarchy</div>
-        <div class="card-body p-2" style="max-height:400px;overflow-y:auto;">
-          @if($broaderTerm)
-            <div class="ms-0 mb-1">
-              <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>
-              <a href="{{ route('term.show', $broaderTerm->slug) }}" class="small">{{ $broaderTerm->name }}</a>
-            </div>
-          @endif
-          <div class="ms-3 mb-1">
-            <i class="fas fa-caret-down text-primary me-1"></i>
-            <strong class="small">{{ $term->name }}</strong>
-          </div>
-          @if($narrowerTerms->isNotEmpty())
-            @foreach($narrowerTerms->take(20) as $nt)
-              <div class="ms-5 mb-1">
-                <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>
-                <a href="{{ route('term.show', $nt->slug) }}" class="small">{{ $nt->name }}</a>
+
+      {{-- Browse taxonomy: collapsible heading with 3 tabs --}}
+      <h2 class="d-grid">
+        <button class="btn btn-lg atom-btn-white text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-treeview" aria-expanded="true">
+          Browse {{ $taxonomyName }}:
+        </button>
+      </h2>
+
+      <div class="collapse show" id="collapse-treeview">
+        {{-- Tab navigation --}}
+        <ul class="nav nav-tabs border-0" id="treeview-menu" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="treeview-tab" data-bs-toggle="tab" data-bs-target="#treeview-pane" type="button" role="tab">Treeview</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#list-pane" type="button" role="tab">List</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-pane" type="button" role="tab">Search</button>
+          </li>
+        </ul>
+
+        <div class="tab-content mb-3" id="treeview-content">
+
+          {{-- TAB 1: Treeview --}}
+          <div class="tab-pane fade show active" id="treeview-pane" role="tabpanel">
+            <ul class="list-group rounded-0" style="max-height:400px;overflow-y:auto;">
+              @if($broaderTerm)
+                <a href="{{ route('term.show', $broaderTerm->slug) }}" class="list-group-item list-group-item-action text-truncate ps-2">
+                  <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $broaderTerm->name }}
+                </a>
+              @endif
+              <div class="list-group-item active ps-4">
+                <i class="fas fa-caret-down me-1"></i><strong>{{ $term->name }}</strong>
               </div>
-            @endforeach
-            @if($narrowerTerms->count() > 20)
-              <div class="ms-5 text-muted small">... and {{ $narrowerTerms->count() - 20 }} more</div>
+              @foreach($narrowerTerms->take(30) as $nt)
+                <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action text-truncate ps-5">
+                  <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $nt->name }}
+                </a>
+              @endforeach
+              @if($narrowerTerms->count() > 30)
+                <div class="list-group-item text-muted small ps-5">... and {{ $narrowerTerms->count() - 30 }} more</div>
+              @endif
+            </ul>
+          </div>
+
+          {{-- TAB 2: List (alphabetical, paginated) --}}
+          <div class="tab-pane fade" id="list-pane" role="tabpanel">
+            <div class="list-group list-group-flush rounded-0 border" style="max-height:400px;overflow-y:auto;">
+              @foreach($listTerms as $lt)
+                <a href="{{ route('term.show', $lt->slug) }}" class="list-group-item list-group-item-action text-truncate {{ $lt->id == $term->id ? 'active' : '' }}">
+                  {{ $lt->name }}
+                </a>
+              @endforeach
+            </div>
+            @if($listLastPage > 1)
+              <nav class="p-2 bg-white border border-top-0">
+                <p class="text-center mb-1 small text-muted">Page {{ $listPage }} of {{ $listLastPage }} ({{ number_format($listTotal) }} terms)</p>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                  <li class="page-item {{ $listPage <= 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage - 1]) }}">Previous</a>
+                  </li>
+                  <li class="page-item {{ $listPage >= $listLastPage ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage + 1]) }}">Next</a>
+                  </li>
+                </ul>
+              </nav>
             @endif
-          @endif
+          </div>
+
+          {{-- TAB 3: Search --}}
+          <div class="tab-pane fade" id="search-pane" role="tabpanel">
+            <form method="get" role="search" class="p-2 bg-white border" action="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}">
+              <div class="input-group">
+                <button class="btn atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div class="dropdown-menu mt-2">
+                  <div class="px-3 py-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="queryField" id="qf-all" value="allLabels" checked>
+                      <label class="form-check-label" for="qf-all">All labels</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="queryField" id="qf-preferred" value="preferredLabel">
+                      <label class="form-check-label" for="qf-preferred">Preferred label</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="queryField" id="qf-usefor" value="useForLabels">
+                      <label class="form-check-label" for="qf-usefor">'Use for' labels</label>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" name="subquery" class="form-control" placeholder="Search {{ strtolower($taxonomyName) }}..." required>
+                <input type="hidden" name="taxonomy" value="{{ $term->taxonomy_id }}">
+                <button class="btn atom-btn-white" type="submit"><i class="fas fa-search"></i></button>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
 
@@ -43,7 +118,6 @@
           </button>
         </h2>
         <div class="collapse" id="collapse-aggregations">
-          {{-- These would ideally come from Elasticsearch aggregations. For now, show links to filtered browse. --}}
           @if($term->taxonomy_id != 42)
             <div class="card mb-2"><div class="card-header py-1 small">Places</div>
               <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 42]) }}">Browse places</a></div>
