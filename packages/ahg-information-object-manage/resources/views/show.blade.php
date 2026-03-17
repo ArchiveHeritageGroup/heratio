@@ -336,6 +336,52 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  {{-- User action buttons (matching AtoM: TTS, Favorites, Cart, Loan) --}}
+  <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
+    @auth
+      @php
+        $userId = auth()->id();
+        $isFavorited = \Illuminate\Support\Facades\DB::table('favorites')
+          ->where('user_id', $userId)->where('archival_description_id', $io->id)->exists();
+        $inCart = \Illuminate\Support\Facades\DB::table('cart')
+          ->where('user_id', $userId)->where('archival_description_id', $io->id)
+          ->whereNull('completed_at')->exists();
+        $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
+      @endphp
+
+      {{-- Favorites toggle --}}
+      @if($isFavorited)
+        <a href="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}"
+           class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+          <i class="fas fa-heart-broken"></i>
+        </a>
+      @else
+        <a href="{{ route('favorites.add', $io->slug) }}"
+           class="btn btn-sm btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+          <i class="fas fa-heart"></i>
+        </a>
+      @endif
+
+      {{-- Cart --}}
+      @if($hasDigitalObject)
+        @if($inCart)
+          <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-shopping-cart"></i>
+          </a>
+        @else
+          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-cart-plus"></i>
+          </a>
+        @endif
+      @endif
+
+      {{-- Loan --}}
+      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm btn-outline-warning" title="New Loan" data-bs-toggle="tooltip">
+        <i class="fas fa-hand-holding"></i>
+      </a>
+    @endauth
+  </div>
+
   {{-- ===== 1. Identity area ===== --}}
   <section id="identityArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header">
