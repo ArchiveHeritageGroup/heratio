@@ -38,6 +38,8 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/web-analytics', [SettingsController::class, 'webAnalytics'])->name('settings.web-analytics');
     Route::get('/admin/settings/ai-condition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
     Route::match(['get', 'post'], '/admin/errorLog', [SettingsController::class, 'errorLog'])->name('settings.error-log');
+    Route::get('/admin/settings/cron-jobs', [SettingsController::class, 'cronJobs'])->name('settings.cron-jobs');
+    Route::get('/ahgSettings/cronJobs', [SettingsController::class, 'cronJobs']); // AtoM alias
     // Aliases: AtoM DB menu paths → Heratio settings pages
     Route::get('/sfPluginAdminPlugin/themes', [SettingsController::class, 'themes']);
     Route::get('/settings/siteInformation', [SettingsController::class, 'siteInformation']);
