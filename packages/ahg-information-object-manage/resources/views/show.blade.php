@@ -226,12 +226,8 @@
       $needsStreaming = in_array($masterMime, $nonNativeVideo) || in_array($masterMime, $nonNativeAudio);
 
       // For non-native formats: prefer reference derivative (should be MP4/MP3), fallback to master
-      $videoSrc = $masterUrl;
-      $videoMime = $masterMime;
-      if ($needsStreaming && $refObj) {
-          $videoSrc = $refUrl;
-          $videoMime = $refObj->mime_type ?? 'video/mp4';
-      }
+      $videoSrc = ($needsStreaming && $refObj) ? $refUrl : $masterUrl;
+      $videoMime = ($needsStreaming && $refObj) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
@@ -392,12 +388,7 @@
             <div class="card-body text-center py-4">
               <i class="fas fa-music fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">Media metadata has not been extracted yet.</p>
-              <button class="btn btn-primary" id="extract-btn-{{ $doId }}" onclick="
-                var btn=this; btn.disabled=true; btn.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Extracting...';
-                fetch('/media/extract/{{ $doId }}', {method:'POST', headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                .then(r=>r.json()).then(d=>{if(d.success)location.reload();else{alert('Error: '+(d.error||'Failed'));btn.disabled=false;btn.innerHTML='<i class=\'fas fa-magic me-1\'></i>Extract Metadata';}})
-                .catch(()=>{btn.disabled=false;btn.innerHTML='<i class=\'fas fa-magic me-1\'></i>Extract Metadata';});
-              "><i class="fas fa-magic me-1"></i>Extract Metadata</button>
+              <button class="btn btn-primary" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>Extract Metadata</button>
             </div>
           </div>
           @endauth
@@ -415,12 +406,7 @@
                 <a href="/media/transcription/{{ $doId }}/vtt" class="btn btn-outline-secondary" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
                 <a href="/media/transcription/{{ $doId }}/srt" class="btn btn-outline-secondary" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
                 @auth
-                <button class="btn btn-outline-warning" title="Re-transcribe" onclick="
-                  if(!confirm('Re-transcribe this media?'))return;
-                  this.disabled=true; this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i>';
-                  fetch('/media/transcribe/{{ $doId }}?lang={{ $transcription->language ?? 'en' }}',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                  .then(r=>r.json()).then(d=>{if(d.success)location.reload();else alert('Error');}).catch(()=>alert('Error'));
-                "><i class="fas fa-redo"></i></button>
+                <button class="btn btn-outline-warning" title="Re-transcribe" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
                 @endauth
               </div>
             </div>
@@ -428,7 +414,7 @@
               <small class="text-muted">
                 <i class="fas fa-language me-1"></i>{{ \Locale::getDisplayLanguage($transcription->language ?? 'en', 'en') }}
                 @if($transcription->duration ?? null) &bull; <i class="fas fa-clock me-1"></i>{{ gmdate('H:i:s', (int) $transcription->duration) }}@endif
-                @if(count($segments)) &bull; <i class="fas fa-paragraph me-1"></i>{{ count($segments) }} segments@endif
+                @if(count($segments)) &bull; <i class="fas fa-paragraph me-1"></i>{{ count($segments) }} segments @endif
                 @if($transcription->confidence ?? null)
                   &bull; <span class="badge bg-{{ $transcription->confidence > 70 ? 'success' : ($transcription->confidence > 50 ? 'warning' : 'danger') }}">{{ round($transcription->confidence) }}% confidence</span>
                 @endif
@@ -460,21 +446,6 @@
               </div>
             </div>
           </div>
-          <script>
-          (function(){
-            var id={{ $doId }},panel=document.getElementById('transcription-panel-'+id);if(!panel)return;
-            var ft=panel.querySelector('.transcript-full-text'),sg=panel.querySelector('.transcript-segments');
-            document.getElementById('btn-text-'+id).onclick=function(){ft.style.display='block';sg.style.display='none';this.classList.add('active');document.getElementById('btn-segments-'+id).classList.remove('active');};
-            document.getElementById('btn-segments-'+id).onclick=function(){ft.style.display='none';sg.style.display='block';this.classList.add('active');document.getElementById('btn-text-'+id).classList.remove('active');};
-            panel.querySelectorAll('.transcript-segment').forEach(function(s){
-              s.onmouseover=function(){this.style.background='#f0f0f0';};s.onmouseout=function(){this.style.background='transparent';};
-              s.onclick=function(){var p=document.querySelector('audio,video');if(p){p.currentTime=parseFloat(s.dataset.start);p.play();}panel.querySelectorAll('.transcript-segment').forEach(function(x){x.style.background='transparent';});s.style.background='#fff3cd';};
-            });
-            var si=document.getElementById('transcript-search-'+id);
-            function doSearch(){var q=si.value.toLowerCase().trim();if(!q)return;panel.querySelectorAll('.transcript-segment').forEach(function(s){s.style.display=s.textContent.toLowerCase().indexOf(q)>=0?'block':'none';if(s.style.display==='block')s.style.background='#d4edda';});document.getElementById('btn-segments-'+id).click();}
-            document.getElementById('transcript-search-btn-'+id).onclick=doSearch;si.onkeypress=function(e){if(e.key==='Enter')doSearch();};
-          })();
-          </script>
         @else
           {{-- Transcribe buttons --}}
           @auth
@@ -483,16 +454,8 @@
               <i class="fas fa-microphone fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
               <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button class="btn btn-primary" id="transcribe-en-{{ $doId }}" onclick="
-                  this.disabled=true;this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Transcribing...';
-                  fetch('/media/transcribe/{{ $doId }}?lang=en',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                  .then(r=>r.json()).then(d=>{if(d.success)location.reload();else{alert('Error');this.disabled=false;}}).catch(()=>{this.disabled=false;});
-                "><i class="fas fa-language me-1"></i>Transcribe (English)</button>
-                <button class="btn btn-outline-primary" id="transcribe-af-{{ $doId }}" onclick="
-                  this.disabled=true;this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Transcribing...';
-                  fetch('/media/transcribe/{{ $doId }}?lang=af',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                  .then(r=>r.json()).then(d=>{if(d.success)location.reload();else{alert('Error');this.disabled=false;}}).catch(()=>{this.disabled=false;});
-                ">Afrikaans</button>
+                <button class="btn btn-primary" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
+                <button class="btn btn-outline-primary" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">Afrikaans</button>
               </div>
             </div>
           </div>
@@ -514,7 +477,7 @@
                     <small class="text-muted ms-2">[{{ gmdate('i:s', (int) $snippet->start_time) }} - {{ gmdate('i:s', (int) $snippet->end_time) }}]</small>
                     @if($snippet->notes)<br><small class="text-muted">{{ e($snippet->notes) }}</small>@endif
                   </div>
-                  <button class="btn btn-sm btn-outline-primary" onclick="var p=document.querySelector('audio,video');if(p){p.currentTime={{ $snippet->start_time }};p.play();}" title="Play snippet">
+                  <button class="btn btn-sm btn-outline-primary" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="Play snippet">
                     <i class="fas fa-play"></i>
                   </button>
                 </div>
@@ -538,17 +501,13 @@
                 <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-notes" placeholder="Notes (optional)"></div>
               </div>
               <div class="mt-2 d-flex gap-2">
-                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');if(p)document.getElementById('snippet-start').value=p.currentTime.toFixed(1);">
+                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">
                   <i class="fas fa-sign-in-alt"></i> Mark IN
                 </button>
-                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');if(p)document.getElementById('snippet-end').value=p.currentTime.toFixed(1);">
+                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-end').value=p.currentTime.toFixed(1))">
                   <i class="fas fa-sign-out-alt"></i> Mark OUT
                 </button>
-                <button class="btn btn-sm btn-primary" onclick="
-                  var d={digital_object_id:{{ $doId }},title:document.getElementById('snippet-title').value,start_time:document.getElementById('snippet-start').value,end_time:document.getElementById('snippet-end').value,notes:document.getElementById('snippet-notes').value};
-                  fetch('/media/snippets',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(d)})
-                  .then(r=>r.json()).then(d=>{if(d.success)location.reload();else alert('Error');}).catch(()=>alert('Error'));
-                "><i class="fas fa-save me-1"></i>Save Snippet</button>
+                <button class="btn btn-sm btn-primary" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>Save Snippet</button>
               </div>
             </div>
           </div>
@@ -1692,4 +1651,5 @@
     </li>
   </ul>
   @endauth
+  <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-transcription.js') }}"></script>
 @endsection
