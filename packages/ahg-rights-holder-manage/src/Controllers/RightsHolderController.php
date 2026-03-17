@@ -3,6 +3,7 @@
 namespace AhgRightsHolderManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use AhgRightsHolderManage\Services\RightsHolderBrowseService;
 use AhgRightsHolderManage\Services\RightsHolderService;
 use App\Http\Controllers\Controller;
@@ -24,7 +25,7 @@ class RightsHolderController extends Controller
 
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),

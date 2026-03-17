@@ -5,6 +5,7 @@ namespace AhgActorManage\Controllers;
 use AhgActorManage\Services\ActorBrowseService;
 use AhgActorManage\Services\ActorService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,7 @@ class ActorController extends Controller
 
         $params = [
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),

@@ -4,6 +4,7 @@ namespace AhgResearcherManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\AclService;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,7 +75,7 @@ class ResearcherSubmissionController extends Controller
         $isAdmin = AclService::isAdministrator($user);
         $status = $request->get('status', '');
         $page = max(1, (int) $request->get('page', 1));
-        $limit = max(1, (int) $request->get('limit', 30));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
 
         $query = DB::table('researcher_submission')
             ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')

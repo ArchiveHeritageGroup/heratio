@@ -5,6 +5,7 @@ namespace AhgTermTaxonomy\Controllers;
 use AhgTermTaxonomy\Services\TermBrowseService;
 use AhgTermTaxonomy\Services\TermService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,10 +50,7 @@ class TermController extends Controller
 
         $result = $service->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', DB::table('setting')
-                ->leftJoin('setting_i18n', function ($j) { $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en'); })
-                ->where('setting.name', 'hits_per_page')->whereNull('setting.scope')
-                ->value('setting_i18n.value') ?? 10),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
             'taxonomy_id' => $taxonomyId,

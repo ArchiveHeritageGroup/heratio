@@ -3,6 +3,7 @@
 namespace AhgJobsManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ class JobController extends Controller
     {
         $culture = app()->getLocale();
         $page = max(1, (int) $request->get('page', 1));
-        $limit = max(1, (int) $request->get('limit', 30));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
         $status = $request->get('status', '');
         $sort = $request->get('sort', 'date');
 

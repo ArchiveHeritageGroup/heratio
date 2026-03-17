@@ -5,6 +5,7 @@ namespace AhgDonorManage\Controllers;
 use AhgDonorManage\Services\DonorBrowseService;
 use AhgDonorManage\Services\DonorService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,7 @@ class DonorController extends Controller
 
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),

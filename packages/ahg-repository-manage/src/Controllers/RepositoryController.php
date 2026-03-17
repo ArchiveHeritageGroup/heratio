@@ -3,6 +3,7 @@
 namespace AhgRepositoryManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use AhgRepositoryManage\Services\RepositoryBrowseService;
 use AhgRepositoryManage\Services\RepositoryService;
 use App\Http\Controllers\Controller;
@@ -24,7 +25,7 @@ class RepositoryController extends Controller
 
         $params = [
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),

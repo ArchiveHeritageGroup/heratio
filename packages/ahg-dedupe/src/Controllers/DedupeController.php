@@ -3,6 +3,7 @@
 namespace AhgDedupe\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -100,7 +101,7 @@ class DedupeController extends Controller
 
         $culture  = app()->getLocale();
         $page     = max(1, (int) $request->get('page', 1));
-        $limit    = max(1, (int) $request->get('limit', 30));
+        $limit    = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
         $status   = $request->get('status', '');
         $method   = $request->get('method', '');
         $minScore = $request->get('min_score', '');

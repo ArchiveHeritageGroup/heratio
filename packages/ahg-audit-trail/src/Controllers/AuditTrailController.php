@@ -2,6 +2,7 @@
 
 namespace AhgAuditTrail\Controllers;
 
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class AuditTrailController extends Controller
     {
         $table = $this->resolveTable();
         $page = max(1, (int) $request->get('page', 1));
-        $limit = max(1, (int) $request->get('limit', 30));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
 
         // Filter parameters
         $typeFilter = $request->get('type', '');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Services\SettingHelper;
 use AhgDisplay\Services\DisplayService;
 use AhgDisplay\Services\DisplayTypeDetector;
 use AhgDisplay\Repositories\UserBrowseSettingsRepository;
@@ -108,7 +109,7 @@ class DisplayController extends Controller
         $page = max(1, (int) $request->input('page', 1));
 
         // Read limit: display browse has its own 10-100 range control
-        $limit = (int) $request->input('limit', config('app.hits_per_page', 30));
+        $limit = (int) $request->input('limit', SettingHelper::hitsPerPage());
         if ($limit < 10) $limit = 10;
         if ($limit > 100) $limit = 100;
 

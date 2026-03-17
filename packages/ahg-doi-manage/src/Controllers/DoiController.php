@@ -3,6 +3,7 @@
 namespace AhgDoiManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,7 +78,7 @@ class DoiController extends Controller
 
         $culture = app()->getLocale();
         $page    = max(1, (int) $request->get('page', 1));
-        $limit   = max(1, (int) $request->get('limit', 30));
+        $limit   = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
         $status  = $request->get('status', '');
 
         $query = DB::table('ahg_doi')
@@ -132,7 +133,7 @@ class DoiController extends Controller
 
         $culture = app()->getLocale();
         $page    = max(1, (int) $request->get('page', 1));
-        $limit   = max(1, (int) $request->get('limit', 30));
+        $limit   = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
         $status  = $request->get('status', '');
 
         // Counts per status

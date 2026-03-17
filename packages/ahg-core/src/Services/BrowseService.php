@@ -89,7 +89,7 @@ abstract class BrowseService
     public function browse(array $params): array
     {
         $page = max(1, (int) ($params['page'] ?? 1));
-        $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
+        $limit = max(1, min(100, (int) ($params['limit'] ?? SettingHelper::hitsPerPage())));
         $skip = ($page - 1) * $limit;
         $sort = $params['sort'] ?? 'lastUpdated';
         $sortDir = !empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');

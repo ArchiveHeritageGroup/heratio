@@ -5,6 +5,7 @@ namespace AhgStorageManage\Controllers;
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageService;
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class StorageController extends Controller
 
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),

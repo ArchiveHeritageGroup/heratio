@@ -4,6 +4,7 @@ namespace AhgInformationObjectManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
+use AhgCore\Services\SettingHelper;
 use AhgInformationObjectManage\Services\InformationObjectBrowseService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class InformationObjectController extends Controller
 
         $params = [
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
         ];
