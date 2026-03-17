@@ -95,12 +95,19 @@ class TermController extends Controller
         $icon = $iconMap[(int) $taxonomyId] ?? 'fa-tag';
 
         // Sidebar: top-level terms for treeview
+        // AtoM terms use a root term (parent_id points to taxonomy root, not NULL)
+        // Top-level = terms whose parent is NOT in the same taxonomy
         $treeTerms = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.taxonomy_id', $taxonomyId)
-            ->whereNull('term.parent_id')
             ->where('term_i18n.culture', $culture)
+            ->whereNotExists(function ($q) use ($taxonomyId) {
+                $q->select(DB::raw(1))
+                    ->from('term as parent')
+                    ->whereColumn('parent.id', 'term.parent_id')
+                    ->where('parent.taxonomy_id', $taxonomyId);
+            })
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')
             ->limit(50)->get();
@@ -346,23 +353,27 @@ class TermController extends Controller
         }
 
         // Prev/next terms in same taxonomy (for navigation)
-        $prevTerm = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term.taxonomy_id', $term->taxonomy_id)
-            ->where('term_i18n.culture', $culture)
-            ->where('term_i18n.name', '<', $term->name)
-            ->orderByDesc('term_i18n.name')
-            ->select('term_i18n.name', 'slug.slug')->first();
+        $prevTerm = null;
+        $nextTerm = null;
+        if ($term->name) {
+            $prevTerm = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.taxonomy_id', $term->taxonomy_id)
+                ->where('term_i18n.culture', $culture)
+                ->where('term_i18n.name', '<', $term->name)
+                ->orderByDesc('term_i18n.name')
+                ->select('term_i18n.name', 'slug.slug')->first();
 
-        $nextTerm = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term.taxonomy_id', $term->taxonomy_id)
-            ->where('term_i18n.culture', $culture)
-            ->where('term_i18n.name', '>', $term->name)
-            ->orderBy('term_i18n.name')
-            ->select('term_i18n.name', 'slug.slug')->first();
+            $nextTerm = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.taxonomy_id', $term->taxonomy_id)
+                ->where('term_i18n.culture', $culture)
+                ->where('term_i18n.name', '>', $term->name)
+                ->orderBy('term_i18n.name')
+                ->select('term_i18n.name', 'slug.slug')->first();
+        }
 
         // Google Maps API key for Place terms
         $mapApiKey = ($term->taxonomy_id == 42 && !empty($term->code))

@@ -15,7 +15,7 @@
     <div class="collapse show" id="collapse-treeview">
       <ul class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
         @foreach($treeTerms as $tt)
-          <a href="{{ route('term.show', $tt->slug) }}" class="list-group-item list-group-item-action text-truncate py-2">
+          <a href="{{ route('term.show', $tt->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;">
             {{ $tt->name }}
           </a>
         @endforeach
@@ -68,11 +68,15 @@
         </div>
       </form>
 
-      <div class="d-flex flex-wrap gap-2 ms-auto">
+      <div class="d-flex flex-wrap gap-2 ms-auto align-items-center">
         @include('ahg-core::components.sort-pickers', [
             'options' => $sortOptions,
             'default' => 'alphabetic',
         ])
+        @php $currentDir = request('dir', 'asc'); @endphp
+        <a href="{{ request()->fullUrlWithQuery(['dir' => $currentDir === 'asc' ? 'desc' : 'asc', 'page' => 1]) }}" class="btn btn-sm atom-btn-white" title="{{ $currentDir === 'asc' ? 'Ascending' : 'Descending' }}">
+          <i class="fas fa-sort-alpha-{{ $currentDir === 'asc' ? 'down' : 'up' }}"></i>
+        </a>
       </div>
     </div>
 
