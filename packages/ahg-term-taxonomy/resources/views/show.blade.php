@@ -216,20 +216,33 @@
 
       {{-- Results table --}}
       @if($relatedDescriptions->isNotEmpty())
-        <div class="table-responsive mb-3">
-          <table class="table table-bordered mb-0">
-            <thead><tr><th>Title</th><th>Identifier</th><th>Date modified</th></tr></thead>
-            <tbody>
-              @foreach($relatedDescriptions as $desc)
-                <tr>
-                  <td><a href="{{ url('/' . $desc->slug) }}">{{ $desc->title ?: '[Untitled]' }}</a></td>
-                  <td><code>{{ $desc->identifier ?? '' }}</code></td>
-                  <td>{{ $desc->updated_at ? \Carbon\Carbon::parse($desc->updated_at)->format('Y-m-d') : '' }}</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
+        @foreach($relatedDescriptions as $desc)
+          <article class="search-result row g-0 p-3 border-bottom">
+            @if($desc->thumbnail || $desc->mediaIcon)
+              <div class="col-12 col-lg-2 pb-2 pb-lg-0 pe-lg-3">
+                <a href="{{ url('/' . $desc->slug) }}">
+                  @if($desc->thumbnail)
+                    <img src="{{ $desc->thumbnail }}" alt="{{ $desc->title ?: '' }}" class="img-thumbnail" style="max-height:80px;">
+                  @else
+                    <span class="d-flex align-items-center justify-content-center bg-light rounded" style="width:80px;height:80px;">
+                      <i class="fas {{ $desc->mediaIcon }} fa-2x text-muted"></i>
+                    </span>
+                  @endif
+                </a>
+              </div>
+            @endif
+            <div class="col-12 {{ ($desc->thumbnail || $desc->mediaIcon) ? 'col-lg-10' : '' }} d-flex flex-column gap-1">
+              <a href="{{ url('/' . $desc->slug) }}" class="h6 mb-0 text-truncate">{{ $desc->title ?: '[Untitled]' }}</a>
+              <div class="d-flex flex-wrap text-muted small">
+                @if($desc->identifier)
+                  <span class="text-primary">{{ $desc->identifier }}</span>
+                  <span class="mx-2">&middot;</span>
+                @endif
+                <span>{{ $desc->updated_at ? \Carbon\Carbon::parse($desc->updated_at)->format('Y-m-d') : '' }}</span>
+              </div>
+            </div>
+          </article>
+        @endforeach
         @if($lastPage > 1)
           <nav><ul class="pagination pagination-sm justify-content-center">
             <li class="page-item {{ $page <= 1 ? 'disabled' : '' }}"><a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $page - 1]) }}">Previous</a></li>

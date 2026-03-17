@@ -185,7 +185,35 @@ class TermController extends Controller
             ->select('information_object.id', 'information_object.identifier',
                 'information_object_i18n.title', 'slug.slug', 'object.updated_at')
             ->orderBy($orderCol, $orderDir)
-            ->offset(($page - 1) * $limit)->limit($limit)->get();
+            ->offset(($page - 1) * $limit)->limit($limit)->get()
+            ->map(function ($desc) {
+                // Get thumbnail for each description
+                $thumb = DB::table('digital_object')
+                    ->where('object_id', $desc->id)
+                    ->where('usage_id', 142) // thumbnail
+                    ->select('path', 'name')
+                    ->first();
+                if (!$thumb) {
+                    // Try to get master and determine media type icon
+                    $master = DB::table('digital_object')
+                        ->where('object_id', $desc->id)
+                        ->where('usage_id', 140) // master
+                        ->select('media_type_id', 'mime_type')
+                        ->first();
+                    $desc->thumbnail = null;
+                    $desc->mediaIcon = $master ? match ((int) ($master->media_type_id ?? 0)) {
+                        135 => 'fa-file-audio',
+                        136 => 'fa-file-image',
+                        137 => 'fa-file-video',
+                        138 => 'fa-file-pdf',
+                        default => 'fa-file',
+                    } : null;
+                } else {
+                    $desc->thumbnail = ($thumb->path ?? '') . ($thumb->name ?? '');
+                    $desc->mediaIcon = null;
+                }
+                return $desc;
+            });
 
         // Source notes (type 121)
         $sourceNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
