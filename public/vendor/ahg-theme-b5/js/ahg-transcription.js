@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             fetch('/media/transcribe/' + doId + '?lang=' + lang, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf } })
                 .then(function (r) { return r.json(); })
-                .then(function (d) { if (d.success) location.reload(); else alert('Error'); })
+                .then(function (d) { if (d.success) location.reload(); else alert('Error: ' + (d.error || 'Unknown error')); })
                 .catch(function () { alert('Error'); });
         };
     });
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(data)
             })
                 .then(function (r) { return r.json(); })
-                .then(function (d) { if (d.success) location.reload(); else alert('Error'); })
+                .then(function (d) { if (d.success) location.reload(); else alert('Error: ' + (d.error || 'Unknown error')); })
                 .catch(function () { alert('Error'); });
         };
     });

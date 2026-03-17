@@ -61,19 +61,16 @@ class MediaController extends Controller
             return response()->json(['success' => false, 'error' => 'Digital object not found'], 404);
         }
 
-        $filePath = public_path(($do->path ?? '') . ($do->name ?? ''));
-        if (!file_exists($filePath)) {
-            $filePath = '/mnt/nas/heratio/archive/' . ($do->path ?? '') . ($do->name ?? '');
-        }
+        $filePath = $this->resolveFilePath($do);
 
         $metadata = [];
         $metadata['digital_object_id'] = $id;
-        $metadata['file_size'] = file_exists($filePath) ? filesize($filePath) : ($do->byte_size ?? 0);
+        $metadata['file_size'] = ($filePath && file_exists($filePath)) ? filesize($filePath) : ($do->byte_size ?? 0);
         $metadata['media_type'] = str_contains($do->mime_type ?? '', 'audio') ? 'audio' : 'video';
         $metadata['format'] = pathinfo($do->name ?? '', PATHINFO_EXTENSION);
 
         // Try ffprobe for duration/codec info
-        if (file_exists($filePath)) {
+        if ($filePath && file_exists($filePath)) {
             $ffprobe = shell_exec("ffprobe -v quiet -print_format json -show_format -show_streams " . escapeshellarg($filePath) . " 2>/dev/null");
             if ($ffprobe) {
                 $info = json_decode($ffprobe, true);
@@ -122,12 +119,9 @@ class MediaController extends Controller
             return response()->json(['success' => false, 'error' => 'Digital object not found'], 404);
         }
 
-        $filePath = public_path(($do->path ?? '') . ($do->name ?? ''));
-        if (!file_exists($filePath)) {
-            $filePath = '/mnt/nas/heratio/archive/' . ($do->path ?? '') . ($do->name ?? '');
-        }
+        $filePath = $this->resolveFilePath($do);
 
-        if (!file_exists($filePath)) {
+        if (!$filePath) {
             return response()->json(['success' => false, 'error' => 'Media file not found on disk']);
         }
 
@@ -185,6 +179,23 @@ class MediaController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    private function resolveFilePath(object $do): ?string
+    {
+        $relative = ($do->path ?? '') . ($do->name ?? '');
+        $candidates = [
+            public_path($relative),
+            '/mnt/nas/heratio/archive/' . $relative,
+            '/usr/share/nginx/archive/' . $relative,
+            '/usr/share/nginx/archive' . $relative,
+        ];
+        foreach ($candidates as $path) {
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+        return null;
     }
 
     private function formatTimestamp(float $seconds): string
