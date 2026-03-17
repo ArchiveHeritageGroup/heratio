@@ -13,67 +13,77 @@
     <li><h6 class="dropdown-header">AHG Plugins</h6></li>
 
     {{-- Settings --}}
-    <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+    <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog me-2"></i>AHG Settings</a></li>
     <li><a class="dropdown-item" href="{{ url('/admin/dropdowns') }}"><i class="fas fa-list me-2"></i>Dropdown Manager</a></li>
-    <li><a class="dropdown-item" href="{{ route('favorites.browse') }}"><i class="fas fa-heart me-2"></i>Favorites</a></li>
-
-    {{-- GLAM / DAM --}}
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">GLAM / DAM</h6></li>
-    <li><a class="dropdown-item" href="{{ route('glam.browse') }}"><i class="fas fa-th me-2"></i>Browse by Sector</a></li>
-    <li><a class="dropdown-item" href="{{ route('reports.dashboard') }}"><i class="fas fa-chart-bar me-2"></i>Reports</a></li>
-
-    {{-- Research --}}
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Research</h6></li>
-    <li><a class="dropdown-item" href="{{ url('/research/admin') }}"><i class="fas fa-flask me-2"></i>Research Management</a></li>
-    <li><a class="dropdown-item" href="{{ url('/research/rooms') }}"><i class="fas fa-book-reader me-2"></i>Reading Rooms</a></li>
 
     {{-- Security --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Security</h6></li>
-    <li><a class="dropdown-item" href="{{ route('acl.classifications') }}"><i class="fas fa-shield-alt me-2"></i>Classifications</a></li>
     <li><a class="dropdown-item" href="{{ route('acl.clearances') }}"><i class="fas fa-user-lock me-2"></i>Clearances</a></li>
-    <li><a class="dropdown-item" href="{{ route('acl.groups') }}"><i class="fas fa-users-cog me-2"></i>ACL Groups</a></li>
-    <li><a class="dropdown-item" href="{{ route('acl.access-requests') }}"><i class="fas fa-key me-2"></i>Access Requests</a></li>
+
+    {{-- Research --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Research</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/research/admin') }}"><i class="fas fa-flask me-2"></i>Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ url('/research/researchers') }}"><i class="fas fa-user-graduate me-2"></i>Researchers</a></li>
+    <li><a class="dropdown-item" href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-check me-2"></i>Bookings</a></li>
+    <li><a class="dropdown-item" href="{{ url('/research/rooms') }}"><i class="fas fa-book-reader me-2"></i>Rooms</a></li>
+
+    {{-- Researcher Submissions --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Researcher Submissions</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/researcher/dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ url('/researcher/pending') }}"><i class="fas fa-clock me-2"></i>Pending Review</a></li>
+    <li><a class="dropdown-item" href="{{ url('/researcher/import') }}"><i class="fas fa-file-import me-2"></i>Import Exchange</a></li>
+
+    {{-- Access --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Access</h6></li>
+    <li><a class="dropdown-item" href="{{ route('acl.access-requests') }}"><i class="fas fa-key me-2"></i>Requests</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/accessApprovers') }}"><i class="fas fa-user-check me-2"></i>Approvers</a></li>
 
     {{-- Audit --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Audit</h6></li>
-    <li><a class="dropdown-item" href="{{ route('audit.browse') }}"><i class="fas fa-history me-2"></i>Audit Log</a></li>
-    <li><a class="dropdown-item" href="{{ route('acl.audit-log') }}"><i class="fas fa-shield-alt me-2"></i>Security Audit Log</a></li>
+    <li><a class="dropdown-item" href="{{ route('audit.browse') }}"><i class="fas fa-chart-bar me-2"></i>Statistics</a></li>
+    <li><a class="dropdown-item" href="{{ route('acl.audit-log') }}"><i class="fas fa-history me-2"></i>Logs</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/auditSettings') }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/errorLog') }}"><i class="fas fa-exclamation-triangle me-2"></i>Error Log</a></li>
+
+    {{-- RiC --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">RiC</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/ricDashboard/index') }}"><i class="fas fa-sitemap me-2"></i>RiC Dashboard</a></li>
 
     {{-- Data Quality --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Data Quality</h6></li>
     <li><a class="dropdown-item" href="{{ route('data-migration.index') }}"><i class="fas fa-exchange-alt me-2"></i>Data Migration</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/dedupe') }}"><i class="fas fa-clone me-2"></i>Duplicate Detection</a></li>
 
-    {{-- Workflows --}}
+    {{-- Data Entry --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Workflows</h6></li>
-    <li><a class="dropdown-item" href="{{ route('workflow.dashboard') }}"><i class="fas fa-project-diagram me-2"></i>Workflow Dashboard</a></li>
-    <li><a class="dropdown-item" href="{{ route('workflow.admin') }}"><i class="fas fa-cogs me-2"></i>Workflow Admin</a></li>
-    <li><a class="dropdown-item" href="{{ route('workflow.gates.admin') }}"><i class="fas fa-clipboard-check me-2"></i>Publish Gates</a></li>
+    <li><h6 class="dropdown-header">Data Entry</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/formTemplates') }}"><i class="fas fa-wpforms me-2"></i>Form Templates</a></li>
 
-    {{-- Preservation --}}
+    {{-- DOI Management --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Preservation</h6></li>
-    <li><a class="dropdown-item" href="{{ route('preservation.index') }}"><i class="fas fa-archive me-2"></i>Preservation Dashboard</a></li>
+    <li><h6 class="dropdown-header">DOI Management</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/doi') }}"><i class="fas fa-fingerprint me-2"></i>DOI Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/doi/queue') }}"><i class="fas fa-stream me-2"></i>Minting Queue</a></li>
 
-    {{-- Loans --}}
+    {{-- Heritage --}}
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">Loans</h6></li>
-    <li><a class="dropdown-item" href="{{ route('loan.index') }}"><i class="fas fa-handshake me-2"></i>Loan Management</a></li>
-
-    {{-- E-Commerce --}}
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">E-Commerce</h6></li>
-    <li><a class="dropdown-item" href="{{ route('cart.admin.orders') }}"><i class="fas fa-receipt me-2"></i>Orders</a></li>
-    <li><a class="dropdown-item" href="{{ route('cart.admin.settings') }}"><i class="fas fa-shopping-bag me-2"></i>E-Commerce Settings</a></li>
+    <li><h6 class="dropdown-header">Heritage</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/heritage/admin') }}"><i class="fas fa-landmark me-2"></i>Admin</a></li>
+    <li><a class="dropdown-item" href="{{ url('/heritage/analytics') }}"><i class="fas fa-chart-line me-2"></i>Analytics</a></li>
+    <li><a class="dropdown-item" href="{{ url('/heritage/custodian') }}"><i class="fas fa-hands me-2"></i>Custodian</a></li>
 
     {{-- Maintenance --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Maintenance</h6></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/backup') }}"><i class="fas fa-download me-2"></i>Backup</a></li>
+    <li><a class="dropdown-item" href="{{ url('/admin/restore') }}"><i class="fas fa-upload me-2"></i>Restore</a></li>
     <li><a class="dropdown-item" href="{{ url('/jobs/browse') }}"><i class="fas fa-tasks me-2"></i>Jobs</a></li>
   </ul>
 </li>
