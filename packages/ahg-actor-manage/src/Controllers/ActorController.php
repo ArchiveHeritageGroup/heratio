@@ -22,18 +22,49 @@ class ActorController extends Controller
         $culture = app()->getLocale();
         $browseService = new ActorBrowseService($culture);
 
-        $result = $browseService->browse([
+        $params = [
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
-        ]);
+            'entityType' => $request->get('entityType', ''),
+            'repository' => $request->get('repository', ''),
+            'hasDigitalObject' => $request->get('hasDigitalObject', ''),
+            'emptyField' => $request->get('emptyField', ''),
+            'relatedType' => $request->get('relatedType', ''),
+            'relatedAuthority' => $request->get('relatedAuthority', ''),
+        ];
+
+        // Collect advanced search criteria
+        for ($i = 0; $i < 10; $i++) {
+            $params["sq{$i}"] = $request->get("sq{$i}", '');
+            $params["sf{$i}"] = $request->get("sf{$i}", '');
+            $params["so{$i}"] = $request->get("so{$i}", 'and');
+        }
+
+        $hasAdvancedFilters = $params['entityType'] || $params['repository']
+            || $params['hasDigitalObject'] || $params['emptyField']
+            || $params['sq0'];
+
+        $result = $hasAdvancedFilters
+            ? $browseService->browseAdvanced($params)
+            : $browseService->browse($params);
 
         $pager = new SimplePager($result);
+
+        // Sidebar facets
+        $entityTypeFacets = $browseService->getEntityTypeFacets();
+        $totalCount = $browseService->getTotalCount();
+        $repositories = $browseService->getRepositories();
 
         return view('ahg-actor-manage::browse', [
             'pager' => $pager,
             'entityTypeNames' => $result['entityTypeNames'] ?? [],
+            'entityTypeFacets' => $entityTypeFacets,
+            'totalCount' => $totalCount,
+            'repositories' => $repositories,
+            'params' => $params,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',

@@ -92,7 +92,7 @@ abstract class BrowseService
         $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $skip = ($page - 1) * $limit;
         $sort = $params['sort'] ?? 'lastUpdated';
-        $sortDir = ($sort === 'lastUpdated') ? 'desc' : ($params['sortDir'] ?? 'asc');
+        $sortDir = !empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
         try {
