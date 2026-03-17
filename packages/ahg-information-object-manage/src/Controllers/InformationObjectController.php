@@ -301,11 +301,13 @@ class InformationObjectController extends Controller
 
         // Publication status (from status table — type_id=158 is publication status)
         $publicationStatus = null;
+        $publicationStatusId = null;
         $statusRow = DB::table('status')
             ->where('object_id', $io->id)
             ->where('type_id', 158)
             ->first();
         if ($statusRow && $statusRow->status_id) {
+            $publicationStatusId = (int) $statusRow->status_id;
             $publicationStatus = DB::table('term_i18n')
                 ->where('id', $statusRow->status_id)
                 ->where('culture', $culture)
@@ -467,6 +469,67 @@ class InformationObjectController extends Controller
             }
         }
 
+        // Finding aid link — check if a finding aid file exists for the collection root
+        $findingAid = null;
+        $collectionRootId = $io->id;
+        $collectionRootSlug = $io->slug;
+        if ($io->parent_id && $io->parent_id != 1) {
+            // Walk up to the top-level description (collection root)
+            $rootId = $io->parent_id;
+            while ($rootId && $rootId != 1) {
+                $rootParent = DB::table('information_object')
+                    ->where('id', $rootId)
+                    ->select('id', 'parent_id')
+                    ->first();
+                if (!$rootParent || $rootParent->parent_id == 1) {
+                    $collectionRootId = $rootId;
+                    break;
+                }
+                $rootId = $rootParent->parent_id;
+            }
+            $collectionRootSlug = DB::table('slug')
+                ->where('object_id', $collectionRootId)
+                ->value('slug') ?? $io->slug;
+        }
+        // Check findingAidStatus property for the collection root
+        $findingAidStatusValue = DB::table('property')
+            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->where('property.object_id', $collectionRootId)
+            ->where('property.name', 'findingAidStatus')
+            ->value('property_i18n.value');
+        if ($findingAidStatusValue) {
+            $faStatus = (int) $findingAidStatusValue;
+            $findingAid = (object) [
+                'status' => $faStatus,
+                'label' => $faStatus === 2 ? 'Uploaded finding aid' : ($faStatus === 1 ? 'Generated finding aid' : 'Finding aid'),
+                'slug' => $collectionRootSlug,
+            ];
+        }
+
+        // Related material descriptions (relation type_id = 176)
+        $relatedMaterialDescriptions = collect();
+        // Relations where this IO is the subject
+        $relatedBySubject = DB::table('relation')
+            ->join('information_object', 'relation.object_id', '=', 'information_object.id')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $io->id)
+            ->where('relation.type_id', 176)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->get();
+        // Relations where this IO is the object
+        $relatedByObject = DB::table('relation')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $io->id)
+            ->where('relation.type_id', 176)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->get();
+        $relatedMaterialDescriptions = $relatedBySubject->merge($relatedByObject)->unique('id');
+
         // Previous sibling
         $prevSibling = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -508,6 +571,7 @@ class InformationObjectController extends Controller
             'genres' => $genres,
             'languages' => $languages,
             'publicationStatus' => $publicationStatus,
+            'publicationStatusId' => $publicationStatusId,
             'functionRelations' => $functionRelations,
             'alternativeIdentifiers' => $alternativeIdentifiers,
             'physicalObjects' => $physicalObjects,
@@ -522,6 +586,8 @@ class InformationObjectController extends Controller
             'materialScripts' => $materialScripts,
             'prevSibling' => $prevSibling,
             'nextSibling' => $nextSibling,
+            'findingAid' => $findingAid,
+            'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
         ]);
     }
 

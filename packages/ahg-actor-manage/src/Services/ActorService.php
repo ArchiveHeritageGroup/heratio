@@ -190,9 +190,13 @@ class ActorService
             ->select(
                 'relation.id as relation_id',
                 'relation.type_id',
+                'relation.start_date',
+                'relation.end_date',
                 'actor.id',
+                'actor.description_identifier as identifier',
                 'actor_i18n.authorized_form_of_name as name',
                 'relation_i18n.description as relation_description',
+                'relation_i18n.date as relation_date',
                 'slug.slug'
             )
             ->get()
@@ -215,9 +219,13 @@ class ActorService
             ->select(
                 'relation.id as relation_id',
                 'relation.type_id',
+                'relation.start_date',
+                'relation.end_date',
                 'actor.id',
+                'actor.description_identifier as identifier',
                 'actor_i18n.authorized_form_of_name as name',
                 'relation_i18n.description as relation_description',
+                'relation_i18n.date as relation_date',
                 'slug.slug'
             )
             ->get()
@@ -337,6 +345,110 @@ class ActorService
             ->where('term.taxonomy_id', 78) // Occupation taxonomy (same as genre for IOs)
             ->select('term.id', 'term_i18n.name')
             ->get();
+    }
+
+    /**
+     * Get language(s) from property table.
+     */
+    public function getLanguages(int $actorId): array
+    {
+        $row = DB::table('property')
+            ->leftJoin('property_i18n', function ($j) {
+                $j->on('property.id', '=', 'property_i18n.id')
+                    ->where('property_i18n.culture', '=', $this->culture);
+            })
+            ->where('property.object_id', $actorId)
+            ->where('property.name', 'language')
+            ->value('property_i18n.value');
+
+        if (!$row) {
+            return [];
+        }
+
+        // AtoM stores as serialized PHP array
+        $decoded = @unserialize($row);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        return [$row];
+    }
+
+    /**
+     * Get script(s) from property table.
+     */
+    public function getScripts(int $actorId): array
+    {
+        $row = DB::table('property')
+            ->leftJoin('property_i18n', function ($j) {
+                $j->on('property.id', '=', 'property_i18n.id')
+                    ->where('property_i18n.culture', '=', $this->culture);
+            })
+            ->where('property.object_id', $actorId)
+            ->where('property.name', 'script')
+            ->value('property_i18n.value');
+
+        if (!$row) {
+            return [];
+        }
+
+        $decoded = @unserialize($row);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        return [$row];
+    }
+
+    /**
+     * Get the maintaining repository for this actor.
+     * In AtoM, this is stored as a relation where the actor is the subject
+     * and the repository is the object, with type_id from the Relation Type taxonomy.
+     */
+    public function getMaintainingRepository(int $actorId): ?object
+    {
+        return DB::table('relation')
+            ->join('repository', 'relation.object_id', '=', 'repository.id')
+            ->join('object', 'repository.id', '=', 'object.id')
+            ->leftJoin('actor_i18n', function ($j) {
+                $j->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'repository.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $actorId)
+            ->where('object.class_name', 'QubitRepository')
+            ->select(
+                'repository.id',
+                'actor_i18n.authorized_form_of_name as name',
+                'slug.slug'
+            )
+            ->first();
+    }
+
+    /**
+     * Get the relation category name (parent term) for a given relation type_id.
+     */
+    public function getRelationCategoryNames(array $typeIds): array
+    {
+        if (empty($typeIds)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($typeIds as $typeId) {
+            $parentId = DB::table('term')->where('id', $typeId)->value('parent_id');
+            if ($parentId) {
+                $categoryName = DB::table('term_i18n')
+                    ->where('id', $parentId)
+                    ->where('culture', $this->culture)
+                    ->value('name');
+                if ($categoryName) {
+                    $result[$typeId] = $categoryName;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -16,7 +16,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/user/register', [LoginController::class, 'showRegister'])->name('register');
 Route::post('/user/register', [LoginController::class, 'register']);
 Route::get('/research/register', [LoginController::class, 'showResearcherRegister'])->name('researcher.register');
-Route::post('/research/register', [LoginController::class, 'researcherRegister']);
+Route::post('/research/register', [LoginController::class, 'researcherRegister'])->name('research.register.store');
 Route::get('/research/registration-complete', [LoginController::class, 'registrationComplete'])->name('researcher.register.complete');
 
 // Password reset (public)

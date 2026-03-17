@@ -8,7 +8,7 @@
   {{-- Breadcrumb --}}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('io.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">Preservation Packages</li>
     </ol>
   </nav>
@@ -76,7 +76,7 @@
   {{-- Actions bar --}}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <a href="{{ route('io.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-outline-secondary me-2">
+      <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-outline-secondary me-2">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
       @auth

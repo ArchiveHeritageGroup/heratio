@@ -18,12 +18,15 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::match(['get', 'post'], '/dashboard', [ResearchController::class, 'dashboard'])->name('dashboard');
 
     // Registration (public and authenticated)
-    Route::match(['get', 'post'], '/register', [ResearchController::class, 'register'])->name('register');
-    Route::match(['get', 'post'], '/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
+    Route::get('/register', [ResearchController::class, 'register'])->name('register');
+    Route::post('/register', [ResearchController::class, 'register'])->name('register.store');
+    Route::get('/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
+    Route::post('/public-register', [ResearchController::class, 'publicRegister'])->name('publicRegister.store');
     Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
 
     // Profile
-    Route::match(['get', 'post'], '/profile', [ResearchController::class, 'profile'])->name('profile');
+    Route::get('/profile', [ResearchController::class, 'profile'])->name('profile');
+    Route::post('/profile', [ResearchController::class, 'profile'])->name('profile.update');
     Route::match(['get', 'post'], '/apiKeys', [ResearchController::class, 'apiKeys'])->name('apiKeys');
     Route::match(['get', 'post'], '/renewal', [ResearchController::class, 'renewal'])->name('renewal');
 
@@ -31,24 +34,40 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
 
     // Saved Searches
-    Route::match(['get', 'post'], '/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');
+    Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');
+    Route::post('/saved-searches', [ResearchController::class, 'storeSavedSearch'])->name('savedSearches.store');
+    Route::get('/saved-searches/{id}/run', [ResearchController::class, 'runSavedSearch'])->name('savedSearches.run')->where('id', '[0-9]+');
+    Route::delete('/saved-searches/{id}', [ResearchController::class, 'destroySavedSearch'])->name('savedSearches.destroy')->where('id', '[0-9]+');
 
     // Collections (Evidence Sets)
-    Route::match(['get', 'post'], '/collections', [ResearchController::class, 'collections'])->name('collections');
+    Route::get('/collections', [ResearchController::class, 'collections'])->name('collections');
+    Route::get('/collections/create', [ResearchController::class, 'createCollection'])->name('collections.create');
+    Route::post('/collections', [ResearchController::class, 'storeCollection'])->name('collections.store');
+    Route::put('/collections/{id}', [ResearchController::class, 'updateCollection'])->name('collections.update')->where('id', '[0-9]+');
+    Route::delete('/collections/{id}', [ResearchController::class, 'destroyCollection'])->name('collections.destroy')->where('id', '[0-9]+');
+    Route::post('/collections/{id}/add-item', [ResearchController::class, 'addItemToCollection'])->name('collections.addItem')->where('id', '[0-9]+');
+    Route::delete('/collections/{collectionId}/remove-item/{itemId}', [ResearchController::class, 'removeItemFromCollection'])->name('collections.removeItem')->where(['collectionId' => '[0-9]+', 'itemId' => '[0-9]+']);
     Route::match(['get', 'post'], '/viewCollection', [ResearchController::class, 'viewCollection'])->name('viewCollection')->where('id', '[0-9]+');
 
     // Annotations
-    Route::match(['get', 'post'], '/annotations', [ResearchController::class, 'annotations'])->name('annotations');
+    Route::get('/annotations', [ResearchController::class, 'annotations'])->name('annotations');
+    Route::post('/annotations', [ResearchController::class, 'storeAnnotation'])->name('annotations.store');
+    Route::put('/annotations/{id}', [ResearchController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
+    Route::delete('/annotations/{id}', [ResearchController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');
 
     // Citations
     Route::get('/cite/{slug}', [ResearchController::class, 'cite'])->name('cite');
 
     // Projects
-    Route::match(['get', 'post'], '/projects', [ResearchController::class, 'projects'])->name('projects');
+    Route::get('/projects', [ResearchController::class, 'projects'])->name('projects');
+    Route::get('/projects/create', [ResearchController::class, 'createProject'])->name('projects.create');
+    Route::post('/projects', [ResearchController::class, 'storeProject'])->name('projects.store');
     Route::match(['get', 'post'], '/viewProject/{id}', [ResearchController::class, 'viewProject'])->name('viewProject')->where('id', '[0-9]+');
 
     // Journal
     Route::match(['get', 'post'], '/journal', [ResearchController::class, 'journal'])->name('journal');
+    Route::get('/journal/create', [ResearchController::class, 'createJournalEntry'])->name('journal.create');
+    Route::get('/journal/{id}', [ResearchController::class, 'showJournalEntry'])->name('journal.show')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/journal/entry/{id}', [ResearchController::class, 'journalEntry'])->name('journalEntry')->where('id', '[0-9]+');
 
     // Bibliographies
@@ -63,8 +82,14 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::match(['get', 'post'], '/reproductions', [ResearchController::class, 'reproductions'])->name('reproductions');
 
     // Bookings
-    Route::match(['get', 'post'], '/book', [ResearchController::class, 'book'])->name('book');
+    Route::get('/book', [ResearchController::class, 'book'])->name('book');
+    Route::post('/book', [ResearchController::class, 'book'])->name('book.store');
     Route::match(['get', 'post'], '/viewBooking/{id}', [ResearchController::class, 'viewBooking'])->name('viewBooking')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/confirm', [ResearchController::class, 'confirmBooking'])->name('bookings.confirm')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/check-in', [ResearchController::class, 'checkInBooking'])->name('bookings.checkIn')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/check-out', [ResearchController::class, 'checkOutBooking'])->name('bookings.checkOut')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/no-show', [ResearchController::class, 'noShowBooking'])->name('bookings.noShow')->where('id', '[0-9]+');
+    Route::post('/bookings/{id}/cancel', [ResearchController::class, 'cancelBooking'])->name('bookings.cancel')->where('id', '[0-9]+');
     Route::post('/checkIn/{id}', [ResearchController::class, 'checkIn'])->name('checkIn')->where('id', '[0-9]+');
     Route::post('/checkOut/{id}', [ResearchController::class, 'checkOut'])->name('checkOut')->where('id', '[0-9]+');
 
@@ -76,6 +101,9 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::match(['get', 'post'], '/viewResearcher/{id}', [ResearchController::class, 'viewResearcher'])->name('viewResearcher')->where('id', '[0-9]+');
     Route::post('/approveResearcher/{id}', [ResearchController::class, 'approveResearcher'])->name('approveResearcher')->where('id', '[0-9]+');
     Route::post('/rejectResearcher/{id}', [ResearchController::class, 'rejectResearcher'])->name('rejectResearcher')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/approve', [ResearchController::class, 'approveResearcher'])->name('researchers.approve')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/reject', [ResearchController::class, 'rejectResearcher'])->name('researchers.reject')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/suspend', [ResearchController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
 
     // Admin: Bookings
     Route::match(['get', 'post'], '/bookings', [ResearchController::class, 'bookings'])->name('bookings');

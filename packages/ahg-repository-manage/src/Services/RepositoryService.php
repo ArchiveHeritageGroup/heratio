@@ -168,6 +168,141 @@ class RepositoryService
     }
 
     /**
+     * Get other names (parallel, other forms) for a repository.
+     */
+    public function getOtherNames(int $repoId): \Illuminate\Support\Collection
+    {
+        return DB::table('other_name')
+            ->leftJoin('other_name_i18n', function ($j) {
+                $j->on('other_name.id', '=', 'other_name_i18n.id')
+                    ->where('other_name_i18n.culture', '=', $this->culture);
+            })
+            ->where('other_name.object_id', $repoId)
+            ->select(
+                'other_name.id',
+                'other_name.type_id',
+                'other_name_i18n.name'
+            )
+            ->get();
+    }
+
+    /**
+     * Get repository type(s) from object_term_relation (taxonomy 38).
+     */
+    public function getRepositoryTypes(int $repoId): \Illuminate\Support\Collection
+    {
+        return DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('object_term_relation.object_id', $repoId)
+            ->where('term.taxonomy_id', 38) // Repository Types
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+    }
+
+    /**
+     * Get language(s) from property table.
+     */
+    public function getLanguages(int $repoId): array
+    {
+        $row = DB::table('property')
+            ->leftJoin('property_i18n', function ($j) {
+                $j->on('property.id', '=', 'property_i18n.id')
+                    ->where('property_i18n.culture', '=', $this->culture);
+            })
+            ->where('property.object_id', $repoId)
+            ->where('property.name', 'language')
+            ->value('property_i18n.value');
+
+        if (!$row) {
+            return [];
+        }
+
+        $decoded = @unserialize($row);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        return [$row];
+    }
+
+    /**
+     * Get script(s) from property table.
+     */
+    public function getScripts(int $repoId): array
+    {
+        $row = DB::table('property')
+            ->leftJoin('property_i18n', function ($j) {
+                $j->on('property.id', '=', 'property_i18n.id')
+                    ->where('property_i18n.culture', '=', $this->culture);
+            })
+            ->where('property.object_id', $repoId)
+            ->where('property.name', 'script')
+            ->value('property_i18n.value');
+
+        if (!$row) {
+            return [];
+        }
+
+        $decoded = @unserialize($row);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        return [$row];
+    }
+
+    /**
+     * Get maintenance notes (stored in note table, type_id=174).
+     */
+    public function getMaintenanceNotes(int $repoId): ?string
+    {
+        return DB::table('note')
+            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $repoId)
+            ->where('note.type_id', 174)
+            ->where('note_i18n.culture', $this->culture)
+            ->value('note_i18n.content');
+    }
+
+    /**
+     * Get thematic area access points (taxonomy 72).
+     */
+    public function getThematicAreas(int $repoId): \Illuminate\Support\Collection
+    {
+        return DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('object_term_relation.object_id', $repoId)
+            ->where('term.taxonomy_id', 72) // Thematic Area
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+    }
+
+    /**
+     * Get geographic subregion access points (taxonomy 73).
+     */
+    public function getGeographicSubregions(int $repoId): \Illuminate\Support\Collection
+    {
+        return DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('object_term_relation.object_id', $repoId)
+            ->where('term.taxonomy_id', 73) // Geographic Subregion
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+    }
+
+    /**
      * Get form dropdown choices for repository edit/create forms.
      */
     public function getFormChoices(): array

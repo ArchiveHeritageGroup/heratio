@@ -37,7 +37,7 @@
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle me-2"></i>
         You have not yet registered as a researcher.
-        <a href="{{ route('research.register') }}" class="btn btn-sm btn-warning ms-2">
+        <a href="{{ route('researcher.register') }}" class="btn btn-sm btn-warning ms-2">
           <i class="fas fa-user-plus me-1"></i>Register Now
         </a>
       </div>
@@ -61,7 +61,7 @@
         @if($researcher->rejection_reason ?? false)
           <br>Reason: {{ e($researcher->rejection_reason) }}
         @endif
-        <a href="{{ route('research.register') }}" class="btn btn-sm btn-outline-danger ms-2">
+        <a href="{{ route('researcher.register') }}" class="btn btn-sm btn-outline-danger ms-2">
           <i class="fas fa-redo me-1"></i>Re-apply
         </a>
       </div>

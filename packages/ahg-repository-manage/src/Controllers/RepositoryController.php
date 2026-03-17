@@ -53,6 +53,13 @@ class RepositoryController extends Controller
         $holdingsCount = $this->service->getHoldingsCount($repository->id);
         $descStatusName = $this->service->getTermName($repository->desc_status_id);
         $descDetailName = $this->service->getTermName($repository->desc_detail_id);
+        $otherNames = $this->service->getOtherNames($repository->id);
+        $repositoryTypes = $this->service->getRepositoryTypes($repository->id);
+        $languages = $this->service->getLanguages($repository->id);
+        $scripts = $this->service->getScripts($repository->id);
+        $maintenanceNotes = $this->service->getMaintenanceNotes($repository->id);
+        $thematicAreas = $this->service->getThematicAreas($repository->id);
+        $geographicSubregions = $this->service->getGeographicSubregions($repository->id);
 
         return view('ahg-repository-manage::show', [
             'repository' => $repository,
@@ -61,6 +68,13 @@ class RepositoryController extends Controller
             'holdingsCount' => $holdingsCount,
             'descStatusName' => $descStatusName,
             'descDetailName' => $descDetailName,
+            'otherNames' => $otherNames,
+            'repositoryTypes' => $repositoryTypes,
+            'languages' => $languages,
+            'scripts' => $scripts,
+            'maintenanceNotes' => $maintenanceNotes,
+            'thematicAreas' => $thematicAreas,
+            'geographicSubregions' => $geographicSubregions,
         ]);
     }
 
@@ -78,6 +92,13 @@ class RepositoryController extends Controller
         $holdingsCount = $this->service->getHoldingsCount($repository->id);
         $descStatusName = $this->service->getTermName($repository->desc_status_id);
         $descDetailName = $this->service->getTermName($repository->desc_detail_id);
+        $otherNames = $this->service->getOtherNames($repository->id);
+        $repositoryTypes = $this->service->getRepositoryTypes($repository->id);
+        $languages = $this->service->getLanguages($repository->id);
+        $scripts = $this->service->getScripts($repository->id);
+        $maintenanceNotes = $this->service->getMaintenanceNotes($repository->id);
+        $thematicAreas = $this->service->getThematicAreas($repository->id);
+        $geographicSubregions = $this->service->getGeographicSubregions($repository->id);
 
         return view('ahg-repository-manage::print', [
             'repository' => $repository,
@@ -85,6 +106,13 @@ class RepositoryController extends Controller
             'holdingsCount' => $holdingsCount,
             'descStatusName' => $descStatusName,
             'descDetailName' => $descDetailName,
+            'otherNames' => $otherNames,
+            'repositoryTypes' => $repositoryTypes,
+            'languages' => $languages,
+            'scripts' => $scripts,
+            'maintenanceNotes' => $maintenanceNotes,
+            'thematicAreas' => $thematicAreas,
+            'geographicSubregions' => $geographicSubregions,
         ]);
     }
 

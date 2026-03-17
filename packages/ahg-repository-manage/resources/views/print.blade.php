@@ -26,6 +26,43 @@
     </div>
   @endif
 
+  @if(($otherNames ?? collect())->isNotEmpty())
+    @php $parallelNames = $otherNames->where('type_id', 148); @endphp
+    @if($parallelNames->isNotEmpty())
+      <div class="field-row">
+        <div class="field-label">Parallel form(s) of name</div>
+        <div class="field-value">
+          @foreach($parallelNames as $name)
+            <div>{{ $name->name }}</div>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    @php $otherFormNames = $otherNames->where('type_id', 149); @endphp
+    @if($otherFormNames->isNotEmpty())
+      <div class="field-row">
+        <div class="field-label">Other form(s) of name</div>
+        <div class="field-value">
+          @foreach($otherFormNames as $name)
+            <div>{{ $name->name }}</div>
+          @endforeach
+        </div>
+      </div>
+    @endif
+  @endif
+
+  @if(($repositoryTypes ?? collect())->isNotEmpty())
+    <div class="field-row">
+      <div class="field-label">Repository type</div>
+      <div class="field-value">
+        @foreach($repositoryTypes as $type)
+          {{ $type->name }}@if(!$loop->last), @endif
+        @endforeach
+      </div>
+    </div>
+  @endif
+
   {{-- ===== 2. Contact area (ISDIAH 5.2) ===== --}}
   @if($contacts->isNotEmpty())
     <h2 class="section-heading">Contact area</h2>
@@ -149,6 +186,27 @@
     </div>
   @endif
 
+  @if(!empty($languages ?? []))
+    <div class="field-row">
+      <div class="field-label">Language(s)</div>
+      <div class="field-value">{{ implode(', ', $languages) }}</div>
+    </div>
+  @endif
+
+  @if(!empty($scripts ?? []))
+    <div class="field-row">
+      <div class="field-label">Script(s)</div>
+      <div class="field-value">{{ implode(', ', $scripts) }}</div>
+    </div>
+  @endif
+
+  @if($maintenanceNotes ?? null)
+    <div class="field-row">
+      <div class="field-label">Maintenance notes</div>
+      <div class="field-value">{!! nl2br(e($maintenanceNotes)) !!}</div>
+    </div>
+  @endif
+
   @if($holdingsCount > 0)
     <div class="field-row">
       <div class="field-label">Holdings count</div>
@@ -161,6 +219,33 @@
       <div class="field-label">Last updated</div>
       <div class="field-value">{{ $repository->updated_at }}</div>
     </div>
+  @endif
+
+  {{-- ===== 8. Access points ===== --}}
+  @if(($thematicAreas ?? collect())->isNotEmpty() || ($geographicSubregions ?? collect())->isNotEmpty())
+    <h2 class="section-heading">Access points</h2>
+
+    @if(($thematicAreas ?? collect())->isNotEmpty())
+      <div class="field-row">
+        <div class="field-label">Thematic area(s)</div>
+        <div class="field-value">
+          @foreach($thematicAreas as $area)
+            {{ $area->name }}@if(!$loop->last), @endif
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    @if(($geographicSubregions ?? collect())->isNotEmpty())
+      <div class="field-row">
+        <div class="field-label">Geographic subregion(s)</div>
+        <div class="field-value">
+          @foreach($geographicSubregions as $region)
+            {{ $region->name }}@if(!$loop->last), @endif
+          @endforeach
+        </div>
+      </div>
+    @endif
   @endif
 
 @endsection

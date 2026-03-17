@@ -15,11 +15,22 @@
         @foreach($relatedActors as $related)
           <li class="list-group-item">
             <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>
+            @if(!empty($related->identifier))
+              <br><small class="text-muted">Identifier: {{ $related->identifier }}</small>
+            @endif
+            @if(!empty($related->type_id) && isset($relationCategoryNames[$related->type_id]))
+              <br><small class="text-muted">Category: {{ $relationCategoryNames[$related->type_id] }}</small>
+            @endif
             @if(!empty($related->type_id) && isset($relationTypeNames[$related->type_id]))
-              <br><small class="text-muted">{{ $relationTypeNames[$related->type_id] }}</small>
+              <br><small class="text-muted">Type: {{ $relationTypeNames[$related->type_id] }}</small>
             @endif
             @if(!empty($related->relation_description))
               <br><small class="text-muted">{{ $related->relation_description }}</small>
+            @endif
+            @if(!empty($related->relation_date))
+              <br><small class="text-muted">Dates: {{ $related->relation_date }}</small>
+            @elseif(!empty($related->start_date) || !empty($related->end_date))
+              <br><small class="text-muted">Dates: {{ $related->start_date ?? '?' }} - {{ $related->end_date ?? '?' }}</small>
             @endif
           </li>
         @endforeach
@@ -328,10 +339,41 @@
       </div>
     @endif
 
+    @if(!empty($languages))
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Language(s)</div>
+        <div class="col-md-9">
+          @foreach($languages as $lang)
+            <span class="badge bg-light text-dark me-1">{{ $lang }}</span>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    @if(!empty($scripts))
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Script(s)</div>
+        <div class="col-md-9">
+          @foreach($scripts as $scr)
+            <span class="badge bg-light text-dark me-1">{{ $scr }}</span>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
     @if($maintenanceNotes)
       <div class="row mb-2">
         <div class="col-md-3 fw-bold">Maintenance notes</div>
         <div class="col-md-9">{!! nl2br(e($maintenanceNotes)) !!}</div>
+      </div>
+    @endif
+
+    @if($maintainingRepository)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Maintained by</div>
+        <div class="col-md-9">
+          <a href="{{ route('repository.show', $maintainingRepository->slug) }}">{{ $maintainingRepository->name ?: '[Untitled]' }}</a>
+        </div>
       </div>
     @endif
 

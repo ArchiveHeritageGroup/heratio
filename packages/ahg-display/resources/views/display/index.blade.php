@@ -4,7 +4,7 @@
 @section('body-class', 'admin display')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
   <li class="breadcrumb-item active" aria-current="page">Display Configuration</li>
 @endsection
 

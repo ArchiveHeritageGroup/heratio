@@ -4,7 +4,7 @@
 @section('body-class', 'admin display levels')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
   <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">Display Configuration</a></li>
   <li class="breadcrumb-item active" aria-current="page">Levels</li>
 @endsection

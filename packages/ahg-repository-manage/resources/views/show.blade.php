@@ -58,6 +58,43 @@
         <div class="col-md-9">{{ $repository->identifier }}</div>
       </div>
     @endif
+
+    @if($otherNames->isNotEmpty())
+      @php $parallelNames = $otherNames->where('type_id', 148); @endphp
+      @if($parallelNames->isNotEmpty())
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Parallel form(s) of name</div>
+          <div class="col-md-9">
+            @foreach($parallelNames as $name)
+              <div>{{ $name->name }}</div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      @php $otherFormNames = $otherNames->where('type_id', 149); @endphp
+      @if($otherFormNames->isNotEmpty())
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Other form(s) of name</div>
+          <div class="col-md-9">
+            @foreach($otherFormNames as $name)
+              <div>{{ $name->name }}</div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+    @endif
+
+    @if($repositoryTypes->isNotEmpty())
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Repository type</div>
+        <div class="col-md-9">
+          @foreach($repositoryTypes as $type)
+            <span class="badge bg-light text-dark me-1">{{ $type->name }}</span>
+          @endforeach
+        </div>
+      </div>
+    @endif
   </section>
 
   {{-- Contact area (ISDIAH 5.2) --}}
@@ -213,6 +250,35 @@
       </div>
     @endif
 
+    @if(!empty($languages))
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Language(s)</div>
+        <div class="col-md-9">
+          @foreach($languages as $lang)
+            <span class="badge bg-light text-dark me-1">{{ $lang }}</span>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    @if(!empty($scripts))
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Script(s)</div>
+        <div class="col-md-9">
+          @foreach($scripts as $scr)
+            <span class="badge bg-light text-dark me-1">{{ $scr }}</span>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    @if($maintenanceNotes ?? null)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Maintenance notes</div>
+        <div class="col-md-9">{!! nl2br(e($maintenanceNotes)) !!}</div>
+      </div>
+    @endif
+
     @if($repository->updated_at)
       <div class="row mb-2">
         <div class="col-md-3 fw-bold">Last updated</div>
@@ -220,4 +286,33 @@
       </div>
     @endif
   </section>
+
+  {{-- Access points --}}
+  @if(($thematicAreas ?? collect())->isNotEmpty() || ($geographicSubregions ?? collect())->isNotEmpty())
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Access points</h2>
+
+      @if($thematicAreas->isNotEmpty())
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Thematic area(s)</div>
+          <div class="col-md-9">
+            @foreach($thematicAreas as $area)
+              <span class="badge bg-light text-dark me-1">{{ $area->name }}</span>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      @if($geographicSubregions->isNotEmpty())
+        <div class="row mb-2">
+          <div class="col-md-3 fw-bold">Geographic subregion(s)</div>
+          <div class="col-md-9">
+            @foreach($geographicSubregions as $region)
+              <span class="badge bg-light text-dark me-1">{{ $region->name }}</span>
+            @endforeach
+          </div>
+        </div>
+      @endif
+    </section>
+  @endif
 @endsection

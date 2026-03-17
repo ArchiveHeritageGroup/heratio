@@ -69,9 +69,17 @@ class ActorController extends Controller
         $nameTypeIds = $otherNames->pluck('type_id')->filter()->unique()->values()->toArray();
         $nameTypeNames = $this->service->getNameTypeNames($nameTypeIds);
 
-        // Resolve relation type names
+        // Resolve relation type names and category names
         $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
         $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
+        $relationCategoryNames = $this->service->getRelationCategoryNames($relationTypeIds);
+
+        // Language(s) and Script(s) from property table
+        $languages = $this->service->getLanguages($actor->id);
+        $scripts = $this->service->getScripts($actor->id);
+
+        // Maintaining repository
+        $maintainingRepository = $this->service->getMaintainingRepository($actor->id);
 
         // Related functions (may not exist in all installs)
         $relatedFunctions = collect();
@@ -90,6 +98,7 @@ class ActorController extends Controller
             'events' => $events,
             'relatedActors' => $relatedActors,
             'relationTypeNames' => $relationTypeNames,
+            'relationCategoryNames' => $relationCategoryNames,
             'relatedResources' => $relatedResources,
             'relatedFunctions' => $relatedFunctions,
             'digitalObjects' => $digitalObjects,
@@ -99,6 +108,9 @@ class ActorController extends Controller
             'subjects' => $subjects,
             'places' => $places,
             'occupations' => $occupations,
+            'languages' => $languages,
+            'scripts' => $scripts,
+            'maintainingRepository' => $maintainingRepository,
         ]);
     }
 
@@ -131,6 +143,11 @@ class ActorController extends Controller
 
         $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
         $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
+        $relationCategoryNames = $this->service->getRelationCategoryNames($relationTypeIds);
+
+        $languages = $this->service->getLanguages($actor->id);
+        $scripts = $this->service->getScripts($actor->id);
+        $maintainingRepository = $this->service->getMaintainingRepository($actor->id);
 
         $relatedFunctions = collect();
         try {
@@ -146,6 +163,7 @@ class ActorController extends Controller
             'events' => $events,
             'relatedActors' => $relatedActors,
             'relationTypeNames' => $relationTypeNames,
+            'relationCategoryNames' => $relationCategoryNames,
             'relatedResources' => $relatedResources,
             'relatedFunctions' => $relatedFunctions,
             'maintenanceNotes' => $maintenanceNotes,
@@ -154,6 +172,9 @@ class ActorController extends Controller
             'subjects' => $subjects,
             'places' => $places,
             'occupations' => $occupations,
+            'languages' => $languages,
+            'scripts' => $scripts,
+            'maintainingRepository' => $maintainingRepository,
         ]);
     }
 

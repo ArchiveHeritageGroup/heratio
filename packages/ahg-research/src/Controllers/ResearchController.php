@@ -30,7 +30,7 @@ class ResearchController extends Controller
         }
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) {
-            return redirect()->route('research.register');
+            return redirect()->route('researcher.register');
         }
         return $researcher;
     }
@@ -175,7 +175,7 @@ class ResearchController extends Controller
     public function publicRegister(Request $request)
     {
         if (Auth::check()) {
-            return redirect()->route('research.register');
+            return redirect()->route('researcher.register');
         }
 
         if ($request->isMethod('post')) {
@@ -332,7 +332,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post')) {
             $this->service->updateResearcher($researcher->id, [
@@ -586,7 +586,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $collections = $this->service->getCollections($researcher->id);
         $savedSearches = $this->service->getSavedSearches($researcher->id);
@@ -650,7 +650,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post')) {
             $action = $request->input('booking_action');
@@ -681,7 +681,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post') && $request->input('do') === 'create') {
             $id = $this->service->createCollection($researcher->id, [
@@ -703,7 +703,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $collection = $this->service->getCollection($id);
         if (!$collection) abort(404, 'Not found');
@@ -797,7 +797,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post')) {
             $action = $request->input('do');
@@ -928,7 +928,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $status = $request->input('status');
         $projects = DB::table('research_project as p')
@@ -982,7 +982,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $project = DB::table('research_project')->where('id', $id)->first();
         if (!$project) abort(404, 'Project not found');
@@ -1023,7 +1023,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $filters = [
             'project_id' => $request->input('project_id'),
@@ -1085,7 +1085,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $entry = DB::table('research_journal_entry')->where('id', $id)->first();
         if (!$entry || $entry->researcher_id != $researcher->id) abort(404);
@@ -1132,7 +1132,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $bibliographies = DB::table('research_bibliography')
             ->where('researcher_id', $researcher->id)
@@ -1160,7 +1160,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $bibliography = DB::table('research_bibliography')
             ->where('id', $id)
@@ -1223,7 +1223,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $query = DB::table('research_report')
             ->where('researcher_id', $researcher->id);
@@ -1241,7 +1241,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $report = DB::table('research_report')->where('id', $id)->first();
         if (!$report || $report->researcher_id != $researcher->id) abort(404);
@@ -1313,7 +1313,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         $query = DB::table('research_reproduction_request')
             ->where('researcher_id', $researcher->id);
@@ -1334,7 +1334,7 @@ class ResearchController extends Controller
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post')) {
             $action = $request->input('do');
@@ -1753,11 +1753,477 @@ class ResearchController extends Controller
     // RENEWAL
     // =========================================================================
 
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Collections CRUD)
+    // =========================================================================
+
+    public function createCollection()
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collections = $this->service->getCollections($researcher->id);
+
+        return view('research::research.collections', array_merge(
+            $this->getSidebarData('collections'),
+            compact('researcher', 'collections'),
+            ['showCreateForm' => true]
+        ));
+    }
+
+    public function storeCollection(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $id = $this->service->createCollection($researcher->id, [
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+        ]);
+
+        return redirect()->route('research.viewCollection', $id)
+            ->with('success', 'Collection created');
+    }
+
+    public function updateCollection(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collection = $this->service->getCollection($id);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Access denied');
+        }
+
+        $name = trim($request->input('name'));
+        if ($name) {
+            DB::table('research_collection')->where('id', $id)->update([
+                'name' => $name,
+                'description' => trim($request->input('description')),
+                'is_public' => $request->input('is_public') ? 1 : 0,
+            ]);
+            return redirect()->route('research.viewCollection', $id)->with('success', 'Collection updated');
+        }
+
+        return redirect()->route('research.viewCollection', $id)->with('error', 'Name is required');
+    }
+
+    public function destroyCollection(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collection = $this->service->getCollection($id);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Access denied');
+        }
+
+        DB::table('research_collection_item')->where('collection_id', $id)->delete();
+        DB::table('research_collection')->where('id', $id)->delete();
+
+        return redirect()->route('research.collections')->with('success', 'Collection deleted');
+    }
+
+    public function addItemToCollection(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collection = $this->service->getCollection($id);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Access denied');
+        }
+
+        $objectId = (int) $request->input('object_id');
+        $notes = trim($request->input('notes', ''));
+        $includeDescendants = $request->input('include_descendants') ? true : false;
+
+        if ($objectId > 0) {
+            $addedCount = 0;
+            $objectsToAdd = [$objectId];
+            if ($includeDescendants) {
+                $item = DB::table('information_object')->where('id', $objectId)->first();
+                if ($item) {
+                    $descendants = DB::table('information_object')
+                        ->where('lft', '>', $item->lft)
+                        ->where('rgt', '<', $item->rgt)
+                        ->pluck('id')->toArray();
+                    $objectsToAdd = array_merge($objectsToAdd, $descendants);
+                }
+            }
+            foreach ($objectsToAdd as $oid) {
+                $exists = DB::table('research_collection_item')
+                    ->where('collection_id', $id)
+                    ->where('object_id', $oid)->exists();
+                if (!$exists) {
+                    DB::table('research_collection_item')->insert([
+                        'collection_id' => $id,
+                        'object_id' => $oid,
+                        'notes' => ($oid == $objectId) ? $notes : '',
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    $addedCount++;
+                }
+            }
+            $msg = $addedCount > 0 ? "$addedCount item(s) added to collection" : 'Item(s) already in collection';
+            $type = $addedCount > 0 ? 'success' : 'error';
+            return redirect()->route('research.viewCollection', $id)->with($type, $msg);
+        }
+
+        return redirect()->route('research.viewCollection', $id)->with('error', 'No item selected');
+    }
+
+    public function removeItemFromCollection(int $collectionId, int $itemId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collection = $this->service->getCollection($collectionId);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Access denied');
+        }
+
+        $this->service->removeFromCollection($collectionId, $itemId);
+
+        return redirect()->route('research.viewCollection', $collectionId)->with('success', 'Item removed from collection');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Bookings)
+    // =========================================================================
+
+    public function confirmBooking(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $booking = $this->service->getBooking($id);
+        if (!$booking) abort(404, 'Booking not found');
+
+        $this->service->confirmBooking($id, Auth::id());
+
+        return redirect()->route('research.viewBooking', $id)->with('success', 'Booking confirmed');
+    }
+
+    public function checkInBooking(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $booking = $this->service->getBooking($id);
+        if (!$booking) abort(404, 'Booking not found');
+
+        DB::table('research_booking')->where('id', $id)->update([
+            'checked_in_at' => date('Y-m-d H:i:s'),
+            'status' => 'confirmed',
+        ]);
+
+        return redirect()->route('research.viewBooking', $id)->with('success', 'Researcher checked in');
+    }
+
+    public function checkOutBooking(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $booking = $this->service->getBooking($id);
+        if (!$booking) abort(404, 'Booking not found');
+
+        DB::table('research_booking')->where('id', $id)->update([
+            'checked_out_at' => date('Y-m-d H:i:s'),
+            'status' => 'completed',
+        ]);
+        DB::table('research_material_request')
+            ->where('booking_id', $id)
+            ->where('status', '!=', 'returned')
+            ->update(['status' => 'returned', 'returned_at' => date('Y-m-d H:i:s')]);
+
+        return redirect()->route('research.bookings')->with('success', 'Researcher checked out');
+    }
+
+    public function noShowBooking(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $booking = $this->service->getBooking($id);
+        if (!$booking) abort(404, 'Booking not found');
+
+        DB::table('research_booking')->where('id', $id)->update(['status' => 'no_show']);
+
+        return redirect()->route('research.viewBooking', $id)->with('success', 'Marked as no-show');
+    }
+
+    public function cancelBooking(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $booking = $this->service->getBooking($id);
+        if (!$booking) abort(404, 'Booking not found');
+
+        $this->service->cancelBooking($id, 'Cancelled by staff');
+
+        return redirect()->route('research.viewBooking', $id)->with('success', 'Booking cancelled');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Journal)
+    // =========================================================================
+
+    public function createJournalEntry()
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $projects = DB::table('research_project as p')
+            ->join('research_project_collaborator as pc', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcher->id)
+            ->where('pc.status', 'accepted')
+            ->select('p.id', 'p.title')
+            ->orderBy('p.title')->get()->toArray();
+
+        $filters = ['project_id' => null, 'entry_type' => null, 'date_from' => null, 'date_to' => null, 'search' => null];
+        $entries = [];
+
+        return view('research::research.journal', array_merge(
+            $this->getSidebarData('journal'),
+            compact('researcher', 'entries', 'projects', 'filters'),
+            ['showCreateForm' => true]
+        ));
+    }
+
+    public function showJournalEntry(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        return redirect()->route('research.journalEntry', $id);
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Projects)
+    // =========================================================================
+
+    public function createProject()
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $status = null;
+        $projects = DB::table('research_project as p')
+            ->where(function ($q) use ($researcher) {
+                $q->where('p.researcher_id', $researcher->id)
+                  ->orWhereExists(function ($sub) use ($researcher) {
+                      $sub->select(DB::raw(1))
+                          ->from('research_project_collaborator')
+                          ->whereColumn('research_project_collaborator.project_id', 'p.id')
+                          ->where('research_project_collaborator.researcher_id', $researcher->id)
+                          ->where('research_project_collaborator.status', 'accepted');
+                  });
+            })
+            ->orderBy('p.created_at', 'desc')->get()->toArray();
+
+        return view('research::research.projects', array_merge(
+            $this->getSidebarData('projects'),
+            compact('researcher', 'projects', 'status'),
+            ['showCreateForm' => true]
+        ));
+    }
+
+    public function storeProject(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $projectId = DB::table('research_project')->insertGetId([
+            'researcher_id' => $researcher->id,
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'project_type' => $request->input('project_type', 'personal'),
+            'institution' => $request->input('institution'),
+            'start_date' => $request->input('start_date'),
+            'expected_end_date' => $request->input('expected_end_date'),
+            'status' => 'active',
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        DB::table('research_project_collaborator')->insert([
+            'project_id' => $projectId,
+            'researcher_id' => $researcher->id,
+            'role' => 'owner',
+            'status' => 'accepted',
+            'invited_at' => date('Y-m-d H:i:s'),
+            'accepted_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->route('research.viewProject', $projectId)->with('success', 'Project created');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Annotations)
+    // =========================================================================
+
+    public function storeAnnotation(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $content = trim($request->input('content'));
+        $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
+        $entityType = $request->input('entity_type', 'information_object');
+        $visibility = $request->input('visibility', 'private');
+        $contentFormat = $request->input('content_format', 'text');
+
+        if ($content) {
+            DB::table('research_annotation')->insert([
+                'researcher_id' => $researcher->id,
+                'object_id' => ((int) $request->input('object_id')) ?: null,
+                'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
+                'collection_id' => ((int) $request->input('collection_id')) ?: null,
+                'title' => trim($request->input('title')),
+                'content' => $content,
+                'tags' => trim($request->input('tags', '')) ?: null,
+                'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
+                'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            return redirect()->route('research.annotations')->with('success', 'Note created');
+        }
+
+        return redirect()->route('research.annotations')->with('error', 'Content is required');
+    }
+
+    public function updateAnnotation(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $content = trim($request->input('content'));
+        $validEntityTypes = ['information_object', 'actor', 'repository', 'accession', 'term'];
+        $entityType = $request->input('entity_type', 'information_object');
+        $visibility = $request->input('visibility', 'private');
+        $contentFormat = $request->input('content_format', 'text');
+
+        if ($content) {
+            DB::table('research_annotation')
+                ->where('id', $id)
+                ->where('researcher_id', $researcher->id)
+                ->update([
+                    'title' => trim($request->input('title')),
+                    'content' => $content,
+                    'object_id' => ((int) $request->input('object_id')) ?: null,
+                    'entity_type' => in_array($entityType, $validEntityTypes) ? $entityType : 'information_object',
+                    'collection_id' => ((int) $request->input('collection_id')) ?: null,
+                    'tags' => trim($request->input('tags', '')) ?: null,
+                    'content_format' => in_array($contentFormat, ['text', 'html']) ? $contentFormat : 'text',
+                    'visibility' => in_array($visibility, ['private', 'shared', 'public']) ? $visibility : 'private',
+                ]);
+            return redirect()->route('research.annotations')->with('success', 'Note updated');
+        }
+
+        return redirect()->route('research.annotations')->with('error', 'Content is required');
+    }
+
+    public function destroyAnnotation(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $this->service->deleteAnnotation($id, $researcher->id);
+
+        return redirect()->route('research.annotations')->with('success', 'Note deleted');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Researchers Admin)
+    // =========================================================================
+
+    public function suspendResearcher(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcher($id);
+        if (!$researcher) abort(404);
+
+        DB::table('research_researcher')->where('id', $id)->update([
+            'status' => 'suspended',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+        DB::table('user')->where('id', $researcher->user_id)->update(['active' => 0]);
+
+        return redirect()->route('research.viewResearcher', $id)
+            ->with('success', 'Researcher suspended');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Saved Searches)
+    // =========================================================================
+
+    public function storeSavedSearch(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $this->service->saveSearch($researcher->id, [
+            'name' => $request->input('name'),
+            'search_query' => $request->input('search_query'),
+        ]);
+
+        return redirect()->route('research.savedSearches')->with('success', 'Search saved');
+    }
+
+    public function runSavedSearch(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $search = DB::table('research_saved_search')
+            ->where('id', $id)
+            ->where('researcher_id', $researcher->id)
+            ->first();
+
+        if (!$search) abort(404, 'Saved search not found');
+
+        // Update last_run_at
+        DB::table('research_saved_search')->where('id', $id)->update([
+            'last_run_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        // Redirect to search results with the saved query
+        return redirect('/informationobject/browse?query=' . urlencode($search->search_query));
+    }
+
+    public function destroySavedSearch(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $this->service->deleteSavedSearch($id, $researcher->id);
+
+        return redirect()->route('research.savedSearches')->with('success', 'Saved search deleted');
+    }
+
+    // =========================================================================
+    // DEDICATED ROUTE METHODS (Public Registration)
+    // =========================================================================
+
+    public function storePublicRegistration(Request $request)
+    {
+        return $this->publicRegister($request);
+    }
+
+    // =========================================================================
+    // RENEWAL
+    // =========================================================================
+
     public function renewal(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('research.register');
+        if (!$researcher) return redirect()->route('researcher.register');
 
         if (!in_array($researcher->status, ['expired', 'approved'])) {
             return redirect()->route('research.profile')->with('error', 'Renewal not available for your current status');

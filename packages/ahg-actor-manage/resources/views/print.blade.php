@@ -184,7 +184,10 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Identifier</th>
+          <th>Category</th>
           <th>Relationship type</th>
+          <th>Dates</th>
           <th>Description</th>
         </tr>
       </thead>
@@ -192,7 +195,10 @@
         @foreach($relatedActors as $related)
           <tr>
             <td>{{ $related->name ?: '[Untitled]' }}</td>
+            <td>{{ $related->identifier ?? '' }}</td>
+            <td>{{ (!empty($related->type_id) && isset($relationCategoryNames[$related->type_id])) ? $relationCategoryNames[$related->type_id] : '' }}</td>
             <td>{{ (!empty($related->type_id) && isset($relationTypeNames[$related->type_id])) ? $relationTypeNames[$related->type_id] : '' }}</td>
+            <td>{{ $related->relation_date ?? (($related->start_date || $related->end_date) ? ($related->start_date ?? '?') . ' - ' . ($related->end_date ?? '?') : '') }}</td>
             <td>{{ $related->relation_description ?? '' }}</td>
           </tr>
         @endforeach
@@ -270,10 +276,31 @@
     </div>
   @endif
 
+  @if(!empty($languages ?? []))
+    <div class="field-row">
+      <div class="field-label">Language(s)</div>
+      <div class="field-value">{{ implode(', ', $languages) }}</div>
+    </div>
+  @endif
+
+  @if(!empty($scripts ?? []))
+    <div class="field-row">
+      <div class="field-label">Script(s)</div>
+      <div class="field-value">{{ implode(', ', $scripts) }}</div>
+    </div>
+  @endif
+
   @if($maintenanceNotes)
     <div class="field-row">
       <div class="field-label">Maintenance notes</div>
       <div class="field-value">{!! nl2br(e($maintenanceNotes)) !!}</div>
+    </div>
+  @endif
+
+  @if($maintainingRepository ?? null)
+    <div class="field-row">
+      <div class="field-label">Maintained by</div>
+      <div class="field-value">{{ $maintainingRepository->name ?: '[Untitled]' }}</div>
     </div>
   @endif
 

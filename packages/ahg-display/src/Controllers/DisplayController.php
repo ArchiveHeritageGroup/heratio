@@ -577,7 +577,7 @@ class DisplayController extends Controller
         $validTypes = ['archive', 'museum', 'gallery', 'library', 'dam', 'universal'];
         if (!in_array($newType, $validTypes)) {
             session()->flash('error', 'Invalid type');
-            return redirect($request->headers->get('referer', route('display.browse')));
+            return redirect($request->headers->get('referer', route('glam.browse')));
         }
 
         DB::table('display_object_config')->updateOrInsert(
@@ -591,7 +591,7 @@ class DisplayController extends Controller
         }
 
         session()->flash('success', "Type changed to '$newType' for $count object(s)");
-        return redirect($request->headers->get('referer', route('display.browse')));
+        return redirect($request->headers->get('referer', route('glam.browse')));
     }
 
     // =========================================================================
@@ -617,7 +617,7 @@ class DisplayController extends Controller
             session()->flash('success', 'Object type set');
         }
 
-        return redirect($request->headers->get('referer', route('display.index')));
+        return redirect($request->headers->get('referer', route('glam.index')));
     }
 
     // =========================================================================
@@ -638,7 +638,7 @@ class DisplayController extends Controller
         $this->service->assignProfile($objectId, $profileId, $context, $primary);
 
         session()->flash('success', 'Profile assigned');
-        return redirect($request->headers->get('referer', route('display.index')));
+        return redirect($request->headers->get('referer', route('glam.index')));
     }
 
     // =========================================================================
@@ -725,7 +725,7 @@ class DisplayController extends Controller
             $this->service->setObjectType($parentId, $type);
             $count = $this->service->setObjectTypeRecursive($parentId, $type);
             session()->flash('success', 'Updated ' . ($count + 1) . ' objects to type: ' . $type);
-            return redirect(route('display.index'));
+            return redirect(route('glam.index'));
         }
 
         $collections = DB::table('information_object as io')
@@ -772,7 +772,7 @@ class DisplayController extends Controller
                 session()->flash('error', 'Failed to save settings');
             }
 
-            return redirect(route('display.browseSettings'));
+            return redirect(route('glam.get.settings'));
         }
 
         return view('ahg-display::display.browse-settings', compact('settings'));

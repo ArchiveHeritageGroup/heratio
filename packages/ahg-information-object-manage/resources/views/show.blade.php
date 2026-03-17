@@ -203,7 +203,7 @@
   {{-- Publication status badge (authenticated only) --}}
   @auth
     @if($publicationStatus)
-      <span class="badge bg-info mb-2">{{ $publicationStatus }}</span>
+      <span class="badge {{ (isset($publicationStatusId) && $publicationStatusId == 159) ? 'bg-warning text-dark' : 'bg-info' }} mb-2">{{ $publicationStatus }}</span>
     @endif
   @endauth
 
@@ -564,6 +564,18 @@
         </div>
       @endif
 
+      {{-- Finding aid link (generated or uploaded PDF) --}}
+      @if(isset($findingAid) && $findingAid)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $findingAid->label }}</h3>
+          <div class="findingAidLink col-9 p-2">
+            <a href="{{ route('informationobject.findingaid.download', $findingAid->slug) }}" target="_blank">
+              <i class="fas fa-file-pdf me-1"></i>{{ $findingAid->slug }}.pdf
+            </a>
+          </div>
+        </div>
+      @endif
+
     </div>
   </section>
 
@@ -599,6 +611,26 @@
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related units of description</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->related_units_of_description)) !!}</div>
+        </div>
+      @endif
+
+      {{-- Related material descriptions (relation type_id = 176) --}}
+      @if(isset($relatedMaterialDescriptions) && $relatedMaterialDescriptions->isNotEmpty())
+        <div class="relatedMaterialDescriptions">
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related descriptions</h3>
+            <div class="col-9 p-2">
+              <ul class="m-0 ms-1 ps-3">
+                @foreach($relatedMaterialDescriptions as $relatedDesc)
+                  <li>
+                    <a href="{{ route('informationobject.show', $relatedDesc->slug) }}">
+                      {{ $relatedDesc->title ?: '[Untitled]' }}
+                    </a>
+                  </li>
+                @endforeach
+              </ul>
+            </div>
+          </div>
         </div>
       @endif
 

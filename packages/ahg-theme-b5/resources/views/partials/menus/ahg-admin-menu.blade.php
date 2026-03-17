@@ -17,6 +17,7 @@
       <li><a class="dropdown-item" href="{{ url('/admin/ahgSettings') }}"><i class="fas fa-cog me-2"></i>AHG Settings</a></li>
     @endif
     <li><a class="dropdown-item" href="{{ url('/admin/dropdowns') }}"><i class="fas fa-list me-2"></i>Dropdown Manager</a></li>
+    <li><a class="dropdown-item" href="{{ route('favorites.browse') }}"><i class="fas fa-heart me-2"></i>Favorites</a></li>
     @if(isset($plugins['ahgCustomFieldsPlugin']))
       <li><a class="dropdown-item" href="{{ url('/admin/customFields') }}"><i class="fas fa-th-list me-2"></i>Custom Fields</a></li>
     @endif
@@ -62,6 +63,7 @@
       @if(isset($plugins['ahgDataMigrationPlugin']))
         <li><a class="dropdown-item" href="{{ url('/admin/dataMigration') }}"><i class="fas fa-exchange-alt me-2"></i>Data Migration</a></li>
       @endif
+      <li><a class="dropdown-item" href="{{ route('data-migration.index') }}"><i class="fas fa-database me-2"></i>Data Migration</a></li>
     @endif
 
     {{-- DOI --}}
@@ -81,6 +83,37 @@
       <li><hr class="dropdown-divider"></li>
       <li><a class="dropdown-item" href="{{ url('/admin/queue') }}"><i class="fas fa-stream me-2"></i>Queue Dashboard</a></li>
     @endif
+
+    {{-- Workflows --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Workflows</h6></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.dashboard') }}"><i class="fas fa-project-diagram me-2"></i>Workflow Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.admin') }}"><i class="fas fa-cogs me-2"></i>Workflow Admin</a></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.gates.admin') }}"><i class="fas fa-clipboard-check me-2"></i>Publish Gates</a></li>
+
+    {{-- Preservation --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Preservation</h6></li>
+    <li><a class="dropdown-item" href="{{ route('preservation.index') }}"><i class="fas fa-shield-alt me-2"></i>Preservation Dashboard</a></li>
+
+    {{-- Loans --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Loans</h6></li>
+    <li><a class="dropdown-item" href="{{ route('loan.index') }}"><i class="fas fa-handshake me-2"></i>Loan Management</a></li>
+
+    {{-- E-Commerce --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">E-Commerce</h6></li>
+    <li><a class="dropdown-item" href="{{ route('cart.admin.orders') }}"><i class="fas fa-receipt me-2"></i>Orders</a></li>
+    <li><a class="dropdown-item" href="{{ route('cart.admin.settings') }}"><i class="fas fa-shopping-bag me-2"></i>E-Commerce Settings</a></li>
+
+    {{-- Access Control --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Access Control</h6></li>
+    <li><a class="dropdown-item" href="{{ route('acl.groups') }}"><i class="fas fa-users-cog me-2"></i>ACL Groups</a></li>
+    <li><a class="dropdown-item" href="{{ route('acl.classifications') }}"><i class="fas fa-lock me-2"></i>Classifications</a></li>
+    <li><a class="dropdown-item" href="{{ route('acl.clearances') }}"><i class="fas fa-user-shield me-2"></i>Clearances</a></li>
+    <li><a class="dropdown-item" href="{{ route('acl.access-requests') }}"><i class="fas fa-key me-2"></i>Access Requests</a></li>
 
     {{-- Maintenance --}}
     <li><hr class="dropdown-divider"></li>
