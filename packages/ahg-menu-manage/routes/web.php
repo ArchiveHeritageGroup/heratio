@@ -11,5 +11,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/menu/{id}/edit', [MenuController::class, 'update'])->name('menu.update')->whereNumber('id');
     Route::get('/admin/menu/{id}/delete', [MenuController::class, 'confirmDelete'])->name('menu.confirmDelete')->whereNumber('id');
     Route::delete('/admin/menu/{id}/delete', [MenuController::class, 'destroy'])->name('menu.destroy')->whereNumber('id');
+    Route::post('/admin/menu/{id}/move-up', [MenuController::class, 'moveUp'])->name('menu.moveUp')->whereNumber('id');
+    Route::post('/admin/menu/{id}/move-down', [MenuController::class, 'moveDown'])->name('menu.moveDown')->whereNumber('id');
     Route::get('/admin/menu/{id}', [MenuController::class, 'show'])->name('menu.show')->whereNumber('id');
 });

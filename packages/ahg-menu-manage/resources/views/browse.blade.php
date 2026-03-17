@@ -48,10 +48,22 @@
                     </span>
                   @endif
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-1">
                   @if($item['hasChildren'])
-                    <span class="badge bg-secondary">{{ intval(($item['rgt'] - $item['lft'] - 1) / 2) }}</span>
+                    <span class="badge bg-secondary me-1">{{ intval(($item['rgt'] - $item['lft'] - 1) / 2) }}</span>
                   @endif
+                  <form method="POST" action="{{ route('menu.moveUp', $item['id']) }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move up" {{ $loop->first ? 'disabled' : '' }}>
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ route('menu.moveDown', $item['id']) }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move down" {{ $loop->last ? 'disabled' : '' }}>
+                      <i class="fas fa-arrow-down"></i>
+                    </button>
+                  </form>
                   <a href="{{ route('menu.edit', $item['id']) }}" class="btn btn-sm btn-outline-primary" title="Edit">
                     <i class="fas fa-pencil-alt"></i>
                   </a>

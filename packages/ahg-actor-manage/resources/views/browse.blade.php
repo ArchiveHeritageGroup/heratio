@@ -545,6 +545,14 @@
 @section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
 
+  @auth
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}" title="Add new">Add new</a></li>
+      </ul>
+    </section>
+  @endauth
+
   <script>
     (function() {
       // Advanced search: add/remove criteria

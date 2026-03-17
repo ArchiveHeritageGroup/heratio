@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
     Route::get('/admin/users', [UserController::class, 'browse'])->name('user.browse');
+    Route::get('/user/list', [UserController::class, 'browse']); // AtoM menu alias
 
     Route::get('/user/add', [UserController::class, 'create'])->name('user.create');
     Route::post('/user/add', [UserController::class, 'store'])->name('user.store');

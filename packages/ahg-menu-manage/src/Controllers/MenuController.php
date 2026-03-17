@@ -203,4 +203,65 @@ class MenuController extends Controller
             ->route('menu.browse')
             ->with('success', 'Menu item deleted successfully.');
     }
+
+    /**
+     * Move a menu item up (swap with previous sibling).
+     */
+    public function moveUp(int $id)
+    {
+        $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
+        if (!$menu) {
+            abort(404);
+        }
+
+        // Find previous sibling (same parent, lower lft)
+        $prev = \Illuminate\Support\Facades\DB::table('menu')
+            ->where('parent_id', $menu->parent_id)
+            ->where('lft', '<', $menu->lft)
+            ->orderBy('lft', 'desc')
+            ->first();
+
+        if ($prev) {
+            // Swap lft/rgt values
+            $menuLft = $menu->lft;
+            $menuRgt = $menu->rgt;
+            $prevLft = $prev->lft;
+            $prevRgt = $prev->rgt;
+
+            \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->update(['lft' => $prevLft, 'rgt' => $prevRgt]);
+            \Illuminate\Support\Facades\DB::table('menu')->where('id', $prev->id)->update(['lft' => $menuLft, 'rgt' => $menuRgt]);
+        }
+
+        return redirect()->route('menu.browse');
+    }
+
+    /**
+     * Move a menu item down (swap with next sibling).
+     */
+    public function moveDown(int $id)
+    {
+        $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
+        if (!$menu) {
+            abort(404);
+        }
+
+        // Find next sibling (same parent, higher lft)
+        $next = \Illuminate\Support\Facades\DB::table('menu')
+            ->where('parent_id', $menu->parent_id)
+            ->where('lft', '>', $menu->lft)
+            ->orderBy('lft', 'asc')
+            ->first();
+
+        if ($next) {
+            $menuLft = $menu->lft;
+            $menuRgt = $menu->rgt;
+            $nextLft = $next->lft;
+            $nextRgt = $next->rgt;
+
+            \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->update(['lft' => $nextLft, 'rgt' => $nextRgt]);
+            \Illuminate\Support\Facades\DB::table('menu')->where('id', $next->id)->update(['lft' => $menuLft, 'rgt' => $menuRgt]);
+        }
+
+        return redirect()->route('menu.browse');
+    }
 }

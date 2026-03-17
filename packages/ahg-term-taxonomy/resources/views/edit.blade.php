@@ -170,21 +170,24 @@
       </div>
     </div>
 
-    <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-      @if($term)
-        <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
-      @else
-        <li>
-          @if($selectedTaxonomyId)
-            <a href="{{ route('term.browse', ['taxonomy' => $selectedTaxonomyId]) }}" class="btn atom-btn-outline-light">Cancel</a>
-          @else
-            <a href="{{ route('taxonomy.browse') }}" class="btn atom-btn-outline-light">Cancel</a>
-          @endif
-        </li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
-      @endif
-    </ul>
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        @if($term)
+          <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+        @else
+          <li>
+            @if($selectedTaxonomyId)
+              <a href="{{ route('term.browse', ['taxonomy' => $selectedTaxonomyId]) }}" class="btn atom-btn-outline-light">Cancel</a>
+            @else
+              <a href="{{ route('taxonomy.browse') }}" class="btn atom-btn-outline-light">Cancel</a>
+            @endif
+          </li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        @endif
+      </ul>
+    </section>
 
   </form>
 
