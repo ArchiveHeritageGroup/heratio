@@ -1,0 +1,20 @@
+{
+    "name": "ahg/media-streaming",
+    "description": "Media streaming and transcoding for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgMediaStreaming\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMediaStreaming\\Providers\\AhgMediaStreamingServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "name": "ahg/metadata-extraction",
+    "description": "Metadata extraction from digital objects for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgMetadataExtraction\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMetadataExtraction\\Providers\\AhgMetadataExtractionServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "name": "ahg/media-processing",
+    "description": "AHG Media Processing - Image derivatives, watermarking, and format conversion for Heratio",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgMediaProcessing\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMediaProcessing\\Providers\\AhgMediaProcessingServiceProvider"
+            ]
+        }
+    }
+}

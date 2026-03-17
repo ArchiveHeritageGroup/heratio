@@ -1,0 +1,25 @@
+{
+    "name": "ahg/ai-services",
+    "description": "AHG AI Services - LLM integration, NER, summarization, translation, spellcheck for Heratio",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ahg/core": "@dev",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAiServices\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAiServices\\Providers\\AhgAiServicesServiceProvider"
+            ]
+        }
+    }
+}

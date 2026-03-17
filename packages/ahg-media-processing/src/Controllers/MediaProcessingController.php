@@ -1,0 +1,205 @@
+<?php
+
+namespace AhgMediaProcessing\Controllers;
+
+use AhgMediaProcessing\Services\DerivativeService;
+use AhgMediaProcessing\Services\WatermarkService;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class MediaProcessingController extends Controller
+{
+    private DerivativeService $derivativeService;
+    private WatermarkService $watermarkService;
+
+    public function __construct(DerivativeService $derivativeService, WatermarkService $watermarkService)
+    {
+        $this->derivativeService = $derivativeService;
+        $this->watermarkService = $watermarkService;
+    }
+
+    /**
+     * Admin dashboard showing derivative statistics and recent activity.
+     */
+    public function index()
+    {
+        $stats = $this->derivativeService->getStats();
+        $recentDerivatives = $this->derivativeService->getRecentDerivatives(25);
+        $missingDerivatives = $this->derivativeService->getMastersWithMissingDerivatives(50);
+
+        // Usage labels for display
+        $usageLabels = [
+            DerivativeService::USAGE_THUMBNAIL => 'Thumbnail',
+            DerivativeService::USAGE_REFERENCE => 'Reference',
+        ];
+
+        return view('ahg-media-processing::index', compact(
+            'stats',
+            'recentDerivatives',
+            'missingDerivatives',
+            'usageLabels'
+        ));
+    }
+
+    /**
+     * Regenerate derivatives for a single digital object.
+     */
+    public function regenerate(int $id)
+    {
+        $result = $this->derivativeService->regenerateDerivatives($id);
+
+        $messages = [];
+        if ($result['thumbnail']) {
+            $messages[] = 'Thumbnail generated successfully.';
+        }
+        if ($result['reference']) {
+            $messages[] = 'Reference image generated successfully.';
+        }
+        if (!empty($result['errors'])) {
+            return redirect()->route('media-processing.index')
+                ->with('error', 'Derivative generation errors: ' . implode(' ', $result['errors']));
+        }
+
+        return redirect()->route('media-processing.index')
+            ->with('success', implode(' ', $messages));
+    }
+
+    /**
+     * Queue batch regeneration for all masters missing derivatives.
+     */
+    public function batchRegenerate(Request $request)
+    {
+        $type = $request->input('type', 'all'); // 'all', 'thumbnail', 'reference'
+        $limit = (int)$request->input('limit', 100);
+
+        $masters = $this->derivativeService->getMastersWithMissingDerivatives($limit);
+
+        $successCount = 0;
+        $errorCount = 0;
+        $errors = [];
+
+        foreach ($masters as $master) {
+            $needsThumb = !$master->has_thumbnail && in_array($type, ['all', 'thumbnail']);
+            $needsRef = !$master->has_reference && in_array($type, ['all', 'reference']);
+
+            if (!$needsThumb && !$needsRef) {
+                continue;
+            }
+
+            $result = $this->derivativeService->regenerateDerivatives($master->id);
+
+            if ($result['thumbnail'] || $result['reference']) {
+                $successCount++;
+            }
+            if (!empty($result['errors'])) {
+                $errorCount++;
+                $errors = array_merge($errors, array_map(
+                    fn($e) => "DO #{$master->id}: {$e}",
+                    $result['errors']
+                ));
+            }
+        }
+
+        $message = "Batch regeneration complete: {$successCount} objects processed successfully.";
+        if ($errorCount > 0) {
+            $message .= " {$errorCount} objects had errors.";
+            return redirect()->route('media-processing.index')
+                ->with('warning', $message)
+                ->with('batch_errors', array_slice($errors, 0, 20));
+        }
+
+        return redirect()->route('media-processing.index')
+            ->with('success', $message);
+    }
+
+    /**
+     * Watermark configuration page (GET and POST).
+     */
+    public function watermarkSettings(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            return $this->saveWatermarkSettings($request);
+        }
+
+        $settings = $this->watermarkService->getSettings();
+        $watermarkTypes = $this->watermarkService->getWatermarkTypes();
+        $customWatermarks = $this->watermarkService->getCustomWatermarks();
+
+        $positions = WatermarkService::POSITION_LABELS;
+
+        return view('ahg-media-processing::watermark-settings', compact(
+            'settings',
+            'watermarkTypes',
+            'customWatermarks',
+            'positions'
+        ));
+    }
+
+    /**
+     * Handle watermark settings form submission.
+     */
+    protected function saveWatermarkSettings(Request $request)
+    {
+        // Handle custom watermark upload
+        if ($request->hasFile('custom_watermark_file') && $request->file('custom_watermark_file')->isValid()) {
+            $request->validate([
+                'custom_watermark_file' => 'required|image|mimes:png,jpg,jpeg,gif|max:5120',
+                'custom_watermark_name' => 'required|string|max:100',
+                'custom_watermark_position' => 'nullable|string|max:50',
+                'custom_watermark_opacity' => 'nullable|numeric|min:0|max:1',
+            ]);
+
+            $result = $this->watermarkService->uploadCustomWatermark(
+                $request->file('custom_watermark_file'),
+                $request->input('custom_watermark_name', 'Custom Watermark'),
+                $request->input('custom_watermark_position', 'center'),
+                (float)$request->input('custom_watermark_opacity', 0.40),
+                Auth::id()
+            );
+
+            if ($result === false) {
+                return redirect()->route('media-processing.watermark-settings')
+                    ->with('error', 'Failed to upload custom watermark. Only PNG, JPEG, and GIF files are allowed.');
+            }
+
+            return redirect()->route('media-processing.watermark-settings')
+                ->with('success', 'Custom watermark uploaded successfully.');
+        }
+
+        // Handle delete custom watermark
+        if ($request->filled('delete_custom_watermark')) {
+            $this->watermarkService->deleteCustomWatermark((int)$request->input('delete_custom_watermark'));
+            return redirect()->route('media-processing.watermark-settings')
+                ->with('success', 'Custom watermark deleted.');
+        }
+
+        // Save global settings
+        $request->validate([
+            'default_watermark_enabled' => 'nullable|in:0,1',
+            'default_watermark_type' => 'nullable|string|max:50',
+            'default_custom_watermark_id' => 'nullable|integer',
+            'apply_watermark_on_view' => 'nullable|in:0,1',
+            'apply_watermark_on_download' => 'nullable|in:0,1',
+            'security_watermark_override' => 'nullable|in:0,1',
+            'watermark_min_size' => 'nullable|integer|min:50|max:2000',
+        ]);
+
+        $this->watermarkService->saveSettings([
+            'default_watermark_enabled' => $request->input('default_watermark_enabled', '0'),
+            'default_watermark_type' => $request->input('default_watermark_type', 'COPYRIGHT'),
+            'default_custom_watermark_id' => $request->input('default_custom_watermark_id', ''),
+            'apply_watermark_on_view' => $request->input('apply_watermark_on_view', '0'),
+            'apply_watermark_on_download' => $request->input('apply_watermark_on_download', '0'),
+            'security_watermark_override' => $request->input('security_watermark_override', '0'),
+            'watermark_min_size' => $request->input('watermark_min_size', '200'),
+        ]);
+
+        // Update Cantaloupe cache
+        $this->watermarkService->updateCantaloupeCache();
+
+        return redirect()->route('media-processing.watermark-settings')
+            ->with('success', 'Watermark settings saved successfully.');
+    }
+}

@@ -4,8 +4,38 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9394a1edf1ace41f62b48d22f03ec14",
+    "content-hash": "b72082ed1f7d6e31a77d92a46b1ec6f6",
     "packages": [
+        {
+            "name": "ahg/3d-model",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-3d-model",
+                "reference": "f266ed837512bfd32fbacdb150c03c1e3318d730"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ahg3dModel\\Providers\\Ahg3dModelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ahg3dModel\\": "src/"
+                }
+            },
+            "description": "3D model thumbnail generation and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
         {
             "name": "ahg/accession-manage",
             "version": "dev-main",
@@ -97,6 +127,43 @@
                 }
             },
             "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ai-services",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ai-services",
+                "reference": "fe827f93444ce9b3bcc4131f0d04e6689d0991bc"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "illuminate/database": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAiServices\\Providers\\AhgAiServicesServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAiServices\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "AHG AI Services - LLM integration, NER, summarization, translation, spellcheck for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -729,6 +796,72 @@
                 }
             },
             "description": "Loan management for Heratio: agreements, objects, returns, condition reports, facility reports, courier tracking",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/media-processing",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-media-processing",
+                "reference": "9f86bd4eb532d821f4bbdcfe145de46694ea82d2"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "illuminate/database": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMediaProcessing\\Providers\\AhgMediaProcessingServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMediaProcessing\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "AHG Media Processing - Image derivatives, watermarking, and format conversion for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/media-streaming",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-media-streaming",
+                "reference": "bd1eccd35f88782914f0fa24569d8cf3eb1efad0"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMediaStreaming\\Providers\\AhgMediaStreamingServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMediaStreaming\\": "src/"
+                }
+            },
+            "description": "Media streaming and transcoding for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9692,10 +9825,12 @@
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
+        "ahg/ai-services": 20,
         "ahg/api": 20,
         "ahg/audit-trail": 20,
         "ahg/backup": 20,
         "ahg/cart": 20,
+        "ahg/3d-model": 20,
         "ahg/core": 20,
         "ahg/data-migration": 20,
         "ahg/dedupe": 20,
@@ -9713,6 +9848,8 @@
         "ahg/integrity": 20,
         "ahg/jobs-manage": 20,
         "ahg/loan": 20,
+        "ahg/media-processing": 20,
+        "ahg/media-streaming": 20,
         "ahg/menu-manage": 20,
         "ahg/oai": 20,
         "ahg/portable-export": 20,

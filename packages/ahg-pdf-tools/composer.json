@@ -1,0 +1,20 @@
+{
+    "name": "ahg/pdf-tools",
+    "description": "PDF text extraction and TIFF/PDF merging tools for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgPdfTools\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgPdfTools\\Providers\\AhgPdfToolsServiceProvider"
+            ]
+        }
+    }
+}

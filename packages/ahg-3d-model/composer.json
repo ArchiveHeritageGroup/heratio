@@ -1,0 +1,20 @@
+{
+    "name": "ahg/3d-model",
+    "description": "3D model thumbnail generation and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ahg3dModel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ahg3dModel\\Providers\\Ahg3dModelServiceProvider"
+            ]
+        }
+    }
+}
