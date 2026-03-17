@@ -2,13 +2,48 @@
   $user = $themeData['user'] ?? null;
   $isAuthenticated = $themeData['isAuthenticated'] ?? false;
   $isAdmin = $themeData['isAdmin'] ?? false;
+  $plugins = $themeData['enabledPluginMap'] ?? [];
+
+  // Badge counts for authenticated users
+  $pendingAccessCount = 0;
+  $pendingResearcherCount = 0;
+  $pendingBookingCount = 0;
+  $workflowTaskCount = 0;
+
+  if ($isAuthenticated) {
+    try {
+      // Workflow tasks assigned to current user
+      $workflowTaskCount = \Illuminate\Support\Facades\DB::table('ahg_workflow_task')
+        ->where('assigned_to', $user->id ?? 0)
+        ->whereNotIn('status', ['completed', 'cancelled'])
+        ->count();
+    } catch (\Exception $e) {}
+
+    if ($isAdmin) {
+      try {
+        $pendingAccessCount = \Illuminate\Support\Facades\DB::table('security_access_request')
+          ->where('status', 'pending')
+          ->count();
+      } catch (\Exception $e) {}
+      try {
+        $pendingResearcherCount = \Illuminate\Support\Facades\DB::table('research_researcher')
+          ->where('status', 'pending')
+          ->count();
+      } catch (\Exception $e) {}
+      try {
+        $pendingBookingCount = \Illuminate\Support\Facades\DB::table('research_booking')
+          ->where('status', 'pending')
+          ->count();
+      } catch (\Exception $e) {}
+    }
+  }
 @endphp
 
 @if($isAuthenticated && $user)
 {{-- Authenticated: user profile dropdown --}}
 <div class="dropdown my-2">
   <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-user-circle me-1"></i>{{ $user->username }}
+    <i class="fas fa-user me-1"></i>{{ $user->username }}
   </button>
   <ul class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
 
@@ -24,6 +59,89 @@
         <i class="fas fa-key me-2"></i>Change Password
       </a>
     </li>
+
+    {{-- Tasks Section (workflow tasks) --}}
+    @if($workflowTaskCount > 0 || $isAdmin)
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>Tasks</h6></li>
+    <li>
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('workflow.my-tasks') }}">
+        <span><i class="fas fa-clipboard-list me-2"></i>My Tasks</span>
+        @if($workflowTaskCount > 0)
+          <span class="badge bg-danger">{{ $workflowTaskCount }}</span>
+        @endif
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="{{ route('workflow.dashboard') }}">
+        <i class="fas fa-tachometer-alt me-2"></i>Workflow Dashboard
+      </a>
+    </li>
+    @endif
+
+    {{-- Research Section --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-book-reader me-1"></i>Research</h6></li>
+    <li>
+      <a class="dropdown-item" href="{{ url('/research/dashboard') }}">
+        <i class="fas fa-folder-open me-2"></i>My Workspace
+      </a>
+    </li>
+
+    {{-- Favorites --}}
+    <li>
+      <a class="dropdown-item" href="{{ route('favorites.browse') }}">
+        <i class="fas fa-heart me-2"></i>My Favorites
+      </a>
+    </li>
+
+    {{-- Cart / Orders --}}
+    <li>
+      <a class="dropdown-item" href="{{ route('cart.orders') }}">
+        <i class="fas fa-shopping-cart me-2"></i>My Orders
+      </a>
+    </li>
+
+    {{-- Security Section --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-shield-alt me-1"></i>Security</h6></li>
+    <li>
+      <a class="dropdown-item" href="{{ route('acl.access-requests') }}">
+        <i class="fas fa-key me-2"></i>My Access Requests
+      </a>
+    </li>
+    @if($isAdmin)
+    <li>
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('acl.access-requests') }}">
+        <span><i class="fas fa-clock me-2"></i>Pending Requests</span>
+        @if($pendingAccessCount > 0)
+          <span class="badge bg-warning text-dark">{{ $pendingAccessCount }}</span>
+        @endif
+      </a>
+    </li>
+    @endif
+
+    {{-- Admin Notifications --}}
+    @if($isAdmin && ($pendingResearcherCount > 0 || $pendingBookingCount > 0))
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header"><i class="fas fa-bell me-1"></i>Notifications</h6></li>
+    @if($pendingResearcherCount > 0)
+    <li>
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/researchers') }}">
+        <span><i class="fas fa-user-clock me-2"></i>Pending Researchers</span>
+        <span class="badge bg-warning text-dark">{{ $pendingResearcherCount }}</span>
+      </a>
+    </li>
+    @endif
+    @if($pendingBookingCount > 0)
+    <li>
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/bookings') }}">
+        <span><i class="fas fa-calendar-check me-2"></i>Pending Bookings</span>
+        <span class="badge bg-danger">{{ $pendingBookingCount }}</span>
+      </a>
+    </li>
+    @endif
+    @endif
 
     {{-- Logout --}}
     <li><hr class="dropdown-divider"></li>

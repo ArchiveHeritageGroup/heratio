@@ -48,17 +48,15 @@
             @include('theme::partials.menus.clipboard-menu')
           @endif
 
+          {{-- Language switcher --}}
+          @include('theme::partials.menus.language-menu')
+
           {{-- Quick links --}}
           @include('theme::partials.menus.quick-links-menu')
 
           {{-- AHG Admin menu --}}
           @if($themeData['isAdmin'] ?? false)
             @include('theme::partials.menus.ahg-admin-menu')
-          @endif
-
-          {{-- GLAM/DAM menu --}}
-          @if($themeData['isAuthenticated'] ?? false)
-            @include('theme::partials.menus.glam-dam-menu')
           @endif
         </ul>
 

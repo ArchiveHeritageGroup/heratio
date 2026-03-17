@@ -11,7 +11,7 @@
   $importItems = MenuService::getChildren('import', $culture);
   $adminItems = MenuService::getChildren('admin', $culture);
 
-  // Icon map: menu name → Font Awesome icon class
+  // Icon map: menu name → Font Awesome icon class (matching AtoM exactly)
   $iconMap = [
     // Add menu
     'addInformationObject' => 'fas fa-file-alt',
@@ -57,6 +57,14 @@
     'addAccessionRecord', 'addDonor', 'addRightsHolder',
     'donors', 'rightsholders', 'accessions', 'browsePhysicalObjects', 'staticPages',
   ];
+
+  // Top-level menu icons matching AtoM exactly
+  $menuIcons = [
+    'add' => 'plus-circle',
+    'manage' => 'pen-square',
+    'import' => 'download',
+    'admin' => 'cog',
+  ];
 @endphp
 
 {{-- ADD menu --}}
@@ -64,7 +72,7 @@
 @if(count($addItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="add-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-plus px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Add" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['add'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Add" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Add</span>
     <span class="visually-hidden">Add</span>
   </a>
@@ -90,7 +98,7 @@
 @if(count($manageItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="manage-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-th-list px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Manage" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['manage'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Manage" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Manage</span>
     <span class="visually-hidden">Manage</span>
   </a>
@@ -106,6 +114,13 @@
         </a>
       </li>
     @endforeach
+    {{-- Central Dashboards link (matching AtoM) --}}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item" href="{{ route('reports.dashboard') }}">
+        <i class="fas fa-tachometer-alt fa-fw me-2"></i>Central Dashboards
+      </a>
+    </li>
   </ul>
 </li>
 @endif
@@ -116,7 +131,7 @@
 @if(count($importItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="import-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-download px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Import" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['import'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Import" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Import</span>
     <span class="visually-hidden">Import</span>
   </a>
@@ -139,7 +154,7 @@
 @if(count($adminItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="admin-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-2x fa-fw fa-cog px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Admin" aria-hidden="true"></i>
+    <i class="fas fa-2x fa-fw fa-{{ $menuIcons['admin'] }} px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Admin" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Admin</span>
     <span class="visually-hidden">Admin</span>
   </a>
