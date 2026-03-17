@@ -3,50 +3,69 @@
 @section('body-class', 'admin settings')
 
 @section('content')
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Settings</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ $sectionLabel }}</li>
-    </ol>
-  </nav>
+<div class="row">
+  <div class="col-md-3">@include('ahg-settings::_menu')</div>
+  <div class="col-md-9">
+    <h1>{{ $sectionLabel }}</h1>
+    <p class="text-muted">{{ $settings->count() }} {{ Str::plural('setting', $settings->count()) }}</p>
 
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-sliders-h me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">{{ $sectionLabel }}</h1>
-      <span class="small text-muted">{{ $settings->count() }} {{ Str::plural('setting', $settings->count()) }}</span>
-    </div>
-  </div>
+    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if($settings->isEmpty())
+      <div class="alert alert-info">No editable settings found in this section.</div>
+    @else
+      <form method="post" action="{{ route('settings.section', $section) }}">
+        @csrf
 
-  @if($settings->isEmpty())
-    <div class="alert alert-info">No editable settings found in this section.</div>
-  @else
-    <form method="post" action="{{ route('settings.section', $section) }}">
-      @csrf
-      <div class="table-responsive mb-3">
-        <table class="table table-bordered table-striped mb-0">
-          <thead>
-            <tr>
-              <th style="width: 35%">Setting</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div class="card mb-3">
+          <div class="card-body">
             @foreach($settings as $setting)
-              <tr>
-                <td><code>{{ $setting->name }}</code></td>
-                <td>
-                  <input type="text" name="settings[{{ $setting->id }}]" class="form-control form-control-sm" value="{{ e($setting->value ?? '') }}">
-                </td>
-              </tr>
+              @php
+                $val = $setting->value ?? '';
+                $name = $setting->name;
+                $label = ucfirst(str_replace('_', ' ', $name));
+                // Detect boolean: value is 0/1/true/false or name contains _enabled/_disabled
+                $isBoolean = in_array(strtolower($val), ['0', '1', 'true', 'false', 'yes', 'no'])
+                             || str_contains($name, '_enabled')
+                             || str_contains($name, '_disabled');
+                $isNumeric = !$isBoolean && is_numeric($val) && $val !== '';
+              @endphp
+
+              @if($isBoolean)
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input type="hidden" name="settings[{{ $setting->id }}]" value="0">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           name="settings[{{ $setting->id }}]" id="setting-{{ $setting->id }}" value="1"
+                           {{ in_array(strtolower($val), ['1', 'true', 'yes']) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="setting-{{ $setting->id }}">
+                      {{ $label }}
+                    </label>
+                  </div>
+                </div>
+              @elseif($isNumeric)
+                <div class="mb-3">
+                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }}</label>
+                  <input type="number" class="form-control" name="settings[{{ $setting->id }}]"
+                         id="setting-{{ $setting->id }}" value="{{ e($val) }}" style="max-width: 300px;">
+                </div>
+              @else
+                <div class="mb-3">
+                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }}</label>
+                  <input type="text" class="form-control" name="settings[{{ $setting->id }}]"
+                         id="setting-{{ $setting->id }}" value="{{ e($val) }}">
+                </div>
+              @endif
             @endforeach
-          </tbody>
-        </table>
-      </div>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Back</a>
-    </form>
-  @endif
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+          <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Back</a>
+        </div>
+      </form>
+    @endif
+  </div>
+</div>
 @endsection
