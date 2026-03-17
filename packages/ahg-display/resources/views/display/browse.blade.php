@@ -74,9 +74,6 @@
   .browse-table th .resize-handle:hover { background: rgba(0,0,0,0.1); }
 </style>
 
-{{-- Advanced Search Panel (matching AtoM) --}}
-@include('ahg-display::display._advanced-search')
-
 @if(($viewMode ?? 'card') !== 'full')
   {{-- 2-column layout: sidebar + main --}}
   <div class="row">
@@ -323,6 +320,7 @@
 
     {{-- ========== MAIN CONTENT (RIGHT COLUMN) ========== --}}
     <div class="col-md-9 col-lg-9" id="glam-main">
+      @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>
 
@@ -332,6 +330,7 @@
   {{-- Full width (1-column) layout --}}
   <div class="row">
     <div class="col-12" id="glam-main">
+      @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>
   </div>

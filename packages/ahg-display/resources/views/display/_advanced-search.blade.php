@@ -173,18 +173,99 @@
   </div>
 </div>
 
-{{-- Saved searches --}}
+{{-- Saved searches + Save button --}}
 @auth
+<div class="d-flex align-items-center flex-wrap gap-2 mb-3">
   @if($savedSearches->isNotEmpty())
-    <div class="dropdown mb-3">
-      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-        <i class="fas fa-bookmark me-1"></i>Saved searches ({{ $savedSearches->count() }})
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-bookmark me-1"></i>Saved Searches ({{ $savedSearches->count() }})
       </button>
       <ul class="dropdown-menu">
         @foreach($savedSearches as $ss)
-          <li><a class="dropdown-item" href="{{ url('/glam/browse?' . ($ss->query_string ?? '')) }}">{{ $ss->name ?? 'Saved search' }}</a></li>
+          <li><a class="dropdown-item" href="{{ url('/glam/browse?' . ($ss->query_string ?? '')) }}"><i class="fas fa-search me-2 text-muted"></i>{{ $ss->name ?? 'Saved search' }}</a></li>
         @endforeach
       </ul>
     </div>
   @endif
+  @if(request()->has('query') || request()->has('title') || request()->has('type'))
+    <button type="button" class="btn btn-sm btn-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveGlamSearchModal">
+      <i class="fas fa-bookmark me-1"></i>Save Search
+    </button>
+  @endif
+</div>
+@endauth
+
+{{-- "Only top-level descriptions" active filter badge --}}
+@if(request('topLevel') === '1')
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    @php $removeTop = request()->except(['topLevel']); @endphp
+    <a href="{{ url('/glam/browse?' . http_build_query($removeTop)) }}" class="btn btn-sm atom-btn-white filter-tag d-flex align-items-center">
+      <span class="visually-hidden">Remove filter:</span>
+      <span class="text-truncate">Only top-level descriptions</span>
+      <i class="fas fa-times ms-2"></i>
+    </a>
+  </div>
+@endif
+
+{{-- Save Search Modal --}}
+@auth
+<div class="modal fade" id="saveGlamSearchModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Save This Search</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Name *</label>
+          <input type="text" id="glam-save-search-name" class="form-control" required>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="glam-save-search-public">
+          <label class="form-check-label" for="glam-save-search-public"><i class="fas fa-link me-1"></i>Make public (shareable link)</label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="glam-save-search-global">
+          <label class="form-check-label" for="glam-save-search-global"><i class="fas fa-globe me-1"></i>Global (visible to all users)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="glam-save-search-notify">
+          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="glam-save-search-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('glam-save-search-btn').addEventListener('click', function() {
+  var name = document.getElementById('glam-save-search-name').value;
+  if (!name) { alert('Please enter a name'); return; }
+  var data = {
+    name: name,
+    search_params: window.location.search.substring(1),
+    is_public: document.getElementById('glam-save-search-public').checked ? 1 : 0,
+    is_global: document.getElementById('glam-save-search-global').checked ? 1 : 0,
+    notify: document.getElementById('glam-save-search-notify').checked ? 1 : 0,
+    entity_type: 'informationobject',
+    _token: '{{ csrf_token() }}'
+  };
+  fetch('/research/saved-searches', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': data._token},
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); })
+    .then(function(d) {
+      var modal = bootstrap.Modal.getInstance(document.getElementById('saveGlamSearchModal'));
+      if (modal) modal.hide();
+      alert('Search saved!');
+      location.reload();
+    }).catch(function() { alert('Error saving search'); });
+});
+</script>
 @endauth
