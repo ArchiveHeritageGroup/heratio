@@ -22,6 +22,12 @@ class TermController extends Controller
      */
     public function taxonomyIndex(Request $request)
     {
+        // If ?id= is provided, show terms for that taxonomy (matching AtoM URL pattern)
+        $taxonomyId = $request->get('id');
+        if ($taxonomyId) {
+            return redirect()->route('term.browse', ['taxonomy' => $taxonomyId]);
+        }
+
         $culture = app()->getLocale();
 
         $taxonomies = $this->termService->getTaxonomies($culture);

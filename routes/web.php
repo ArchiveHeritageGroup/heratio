@@ -40,6 +40,7 @@ Route::get('/admin/ahgSetting', fn () => redirect('/admin/settings'));
 Route::get('/settings', fn () => redirect('/admin/settings'));
 Route::get('/index.php/settings', fn () => redirect('/admin/settings'));
 Route::get('/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
+Route::get('/display/browse', fn (\Illuminate\Http\Request $r) => redirect('/glam/browse?' . $r->getQueryString()));
 Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
 
 // Homepage
