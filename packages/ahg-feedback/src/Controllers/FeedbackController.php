@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace AhgFeedback\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -81,7 +82,7 @@ class FeedbackController extends Controller
                 ->with('success', 'Thank you for your feedback. We will review it shortly.');
         }
 
-        return view('feedback.general', [
+        return view('ahg-feedback::general', [
             'feedbackTypes' => $feedbackTypes,
             'slug' => $slug,
         ]);

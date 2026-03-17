@@ -46,7 +46,8 @@
         "ahg/acl": "@dev",
         "ahg/preservation": "@dev",
         "ahg/workflow": "@dev",
-        "ahg/loan": "@dev"
+        "ahg/loan": "@dev",
+        "ahg/feedback": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

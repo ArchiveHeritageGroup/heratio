@@ -1,0 +1,20 @@
+{
+    "name": "ahg/feedback",
+    "description": "Feedback submission for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgFeedback\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgFeedback\\Providers\\AhgFeedbackServiceProvider"
+            ]
+        }
+    }
+}

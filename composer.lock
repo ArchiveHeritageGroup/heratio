@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8b55f6a0ffe5db78fb7bca5e70e4146",
+    "content-hash": "0ab034a0f8b8d1fcb0224d02158f972f",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -309,6 +309,36 @@
                 }
             },
             "description": "Favorites & collections management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/feedback",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-feedback",
+                "reference": "64d3159d6e849ab32e8bb5227a5e7c5be52f77c3"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFeedback\\Providers\\AhgFeedbackServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFeedback\\": "src/"
+                }
+            },
+            "description": "Feedback submission for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9297,7 +9327,8 @@
         "ahg/acl": 20,
         "ahg/preservation": 20,
         "ahg/workflow": 20,
-        "ahg/loan": 20
+        "ahg/loan": 20,
+        "ahg/feedback": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
