@@ -33,6 +33,7 @@
     <div class="col-lg-4 col-md-6 mb-4">
       @php
         $dedicatedRoutes = [
+          '_global' => 'settings.global',
           'default_template' => 'settings.default-template',
           'element_visibility' => 'settings.visible-elements',
           'i18n_languages' => 'settings.languages',

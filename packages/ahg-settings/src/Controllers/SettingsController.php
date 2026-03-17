@@ -120,6 +120,19 @@ class SettingsController extends Controller
 
     public function section(Request $request, string $section)
     {
+        // Redirect scopes that have dedicated pages
+        $redirectMap = [
+            '_global' => 'settings.global',
+            'default_template' => 'settings.default-template',
+            'element_visibility' => 'settings.visible-elements',
+            'i18n_languages' => 'settings.languages',
+            'ui_label' => 'settings.interface-labels',
+            'oai' => 'settings.oai',
+        ];
+        if (isset($redirectMap[$section])) {
+            return redirect()->route($redirectMap[$section]);
+        }
+
         $culture = app()->getLocale();
         $isGlobal = ($section === '_global');
 
