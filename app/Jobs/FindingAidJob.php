@@ -621,14 +621,17 @@ HTML;
             'updated_at' => now(),
         ]);
 
-        $this->jobRecordId = DB::table('job')->insertGetId([
+        DB::table('job')->insert([
+            'id' => $objectId,
             'name' => 'App\\Jobs\\FindingAidJob',
             'status_id' => self::STATUS_IN_PROGRESS,
-            'object_id' => $objectId,
-            'user_id' => null,
+            'object_id' => $this->informationObjectId,
+            'user_id' => auth()->id(),
             'output' => '',
             'completed_at' => null,
         ]);
+
+        $this->jobRecordId = $objectId;
     }
 
     protected function log(string $message): void

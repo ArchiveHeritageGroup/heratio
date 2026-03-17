@@ -591,8 +591,8 @@
 
   {{-- ===== 1. Identity area ===== --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#identity-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#identity-collapse">
         Identity area
       </a>
       @if(auth()->check())
@@ -657,8 +657,8 @@
 
   {{-- ===== 2. Context area ===== --}}
   <section id="contextArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#context-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#context-collapse">
         Context area
       </a>
       @if(auth()->check())
@@ -750,8 +750,8 @@
 
   {{-- ===== 3. Content and structure area ===== --}}
   <section id="contentAndStructureArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#content-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#content-collapse">
         Content and structure area
       </a>
       @if(auth()->check())
@@ -795,8 +795,8 @@
 
   {{-- ===== 4. Conditions of access and use area ===== --}}
   <section id="conditionsOfAccessAndUseArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#conditions-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#conditions-collapse">
         Conditions of access and use area
       </a>
       @if(auth()->check())
@@ -891,8 +891,8 @@
 
   {{-- ===== 5. Allied materials area ===== --}}
   <section id="alliedMaterialsArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#allied-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#allied-collapse">
         Allied materials area
       </a>
       @if(auth()->check())
@@ -959,8 +959,8 @@
 
   {{-- ===== 6. Notes area ===== --}}
   <section id="notesArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#notes-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#notes-collapse">
         Notes area
       </a>
       @if(auth()->check())
@@ -998,8 +998,8 @@
 
   {{-- ===== 7. Access points ===== --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#access-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#access-collapse">
         Access points
       </a>
       @if(auth()->check())
@@ -1067,8 +1067,8 @@
 
   {{-- ===== 8. Description control area ===== --}}
   <section id="descriptionControlArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#description-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#description-collapse">
         Description control area
       </a>
       @if(auth()->check())
@@ -1354,8 +1354,8 @@
 
   {{-- ===== 11. Accession area ===== --}}
   <section id="accessionArea" class="border-bottom">
-    <h2 class="h6 mb-0 atom-section-header">
-      <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#accession-collapse">
+    <h2 class="h6 mb-0 atom-section-header card-header d-flex align-items-center justify-content-between py-2 px-3">
+      <a class="text-decoration-none" href="#accession-collapse">
         Accession area
       </a>
     </h2>
