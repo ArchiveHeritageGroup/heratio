@@ -35,7 +35,7 @@
           <div class="tab-pane fade show active" id="treeview-pane" role="tabpanel">
             <ul class="list-group rounded-0" style="max-height:400px;overflow-y:auto;">
               @if($broaderTerm)
-                <a href="{{ route('term.show', $broaderTerm->slug) }}" class="list-group-item list-group-item-action text-truncate ps-2">
+                <a href="{{ route('term.show', $broaderTerm->slug) }}" class="list-group-item list-group-item-action py-2 ps-2" style="white-space:normal;">
                   <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $broaderTerm->name }}
                 </a>
               @endif
@@ -43,7 +43,7 @@
                 <i class="fas fa-caret-down me-1"></i><strong>{{ $term->name }}</strong>
               </div>
               @foreach($narrowerTerms->take(30) as $nt)
-                <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action text-truncate ps-5">
+                <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action py-2 ps-5" style="white-space:normal;">
                   <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $nt->name }}
                 </a>
               @endforeach
