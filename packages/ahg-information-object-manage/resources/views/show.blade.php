@@ -306,10 +306,113 @@
         </div>
 
       @elseif($refUrl || $thumbUrl)
-        {{-- Image or other: show reference/thumbnail with link to master --}}
-        <a href="{{ $masterUrl ?: $refUrl }}" target="_blank">
-          <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:480px;">
-        </a>
+        {{-- Image: OpenSeadragon + Mirador viewer (matching AtoM) --}}
+        @php $viewerId = 'iiif-viewer-' . $io->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
+
+        {{-- Viewer toggle --}}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="btn-osd-{{ $viewerId }}" class="btn btn-outline-secondary active" title="OpenSeadragon Deep Zoom">
+              <i class="fas fa-search-plus me-1"></i>Deep Zoom
+            </button>
+            <button id="btn-mirador-{{ $viewerId }}" class="btn btn-outline-secondary" title="Mirador IIIF Viewer">
+              <i class="fas fa-columns me-1"></i>Mirador
+            </button>
+            <button id="btn-img-{{ $viewerId }}" class="btn btn-outline-secondary" title="Simple image">
+              <i class="fas fa-image me-1"></i>Image
+            </button>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <a href="{{ $imgSrc }}" target="_blank" class="btn btn-outline-secondary" title="Open full size">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            <button id="btn-fs-{{ $viewerId }}" class="btn btn-outline-primary" title="Fullscreen">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+
+        {{-- OSD container --}}
+        <div id="osd-{{ $viewerId }}" style="width:100%;height:500px;background:#1a1a1a;border-radius:8px;"></div>
+
+        {{-- Mirador container (hidden) --}}
+        <div id="mirador-{{ $viewerId }}" style="width:100%;height:500px;border-radius:8px;display:none;"></div>
+
+        {{-- Simple image (hidden) --}}
+        <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
+          <a href="{{ $imgSrc }}" target="_blank">
+            <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
+          </a>
+        </div>
+
+        <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var vid = '{{ $viewerId }}';
+          var imgSrc = '{{ $imgSrc }}';
+          var osdEl = document.getElementById('osd-' + vid);
+          var mirEl = document.getElementById('mirador-' + vid);
+          var imgEl = document.getElementById('img-' + vid);
+          var osdViewer = null, miradorInst = null;
+
+          function showOSD() {
+            osdEl.style.display = 'block'; mirEl.style.display = 'none'; imgEl.style.display = 'none';
+            document.getElementById('btn-osd-' + vid).classList.add('active');
+            document.getElementById('btn-mirador-' + vid).classList.remove('active');
+            document.getElementById('btn-img-' + vid).classList.remove('active');
+            if (!osdViewer && typeof OpenSeadragon !== 'undefined') {
+              osdViewer = OpenSeadragon({
+                id: 'osd-' + vid,
+                tileSources: { type: 'image', url: imgSrc },
+                showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT',
+                prefixUrl: '{{ asset("vendor/ahg-theme-b5/js/vendor/openseadragon/images/") }}',
+                gestureSettingsMouse: { clickToZoom: true },
+                animationTime: 0.5, zoomPerClick: 1.5, maxZoomPixelRatio: 4,
+                visibilityRatio: 0.5, constrainDuringPan: true
+              });
+            }
+          }
+
+          function showMirador() {
+            osdEl.style.display = 'none'; mirEl.style.display = 'block'; imgEl.style.display = 'none';
+            document.getElementById('btn-mirador-' + vid).classList.add('active');
+            document.getElementById('btn-osd-' + vid).classList.remove('active');
+            document.getElementById('btn-img-' + vid).classList.remove('active');
+            if (!miradorInst) {
+              var s = document.createElement('script');
+              s.src = '{{ asset("vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js") }}';
+              s.onload = function() {
+                if (typeof Mirador !== 'undefined') {
+                  miradorInst = Mirador.viewer({
+                    id: 'mirador-' + vid,
+                    windows: [{ manifestId: '{{ url("/iiif/manifest/" . $io->slug) }}' }],
+                    window: { allowClose: false, allowMaximize: false }
+                  });
+                } else { mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador not available.</div>'; }
+              };
+              document.head.appendChild(s);
+            }
+          }
+
+          function showImg() {
+            osdEl.style.display = 'none'; mirEl.style.display = 'none'; imgEl.style.display = 'block';
+            document.getElementById('btn-img-' + vid).classList.add('active');
+            document.getElementById('btn-osd-' + vid).classList.remove('active');
+            document.getElementById('btn-mirador-' + vid).classList.remove('active');
+          }
+
+          document.getElementById('btn-osd-' + vid).addEventListener('click', showOSD);
+          document.getElementById('btn-mirador-' + vid).addEventListener('click', showMirador);
+          document.getElementById('btn-img-' + vid).addEventListener('click', showImg);
+          document.getElementById('btn-fs-' + vid).addEventListener('click', function() {
+            var el = osdEl.style.display !== 'none' ? osdEl : (mirEl.style.display !== 'none' ? mirEl : imgEl);
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          });
+
+          showOSD();
+        });
+        </script>
       @else
         {{-- No displayable object: show download link --}}
         <div class="py-4">

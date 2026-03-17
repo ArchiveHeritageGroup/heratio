@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirador - Compare Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #1e1e1e;
+        }
+        #mirador-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-family: Arial, sans-serif;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading comparison view...</div>
+    </div>
+
+    <div id="mirador-container"></div>
+
+    <script src="../mirador.min.js"></script>
+    <script>
+        // Get manifest URLs from query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const manifests = urlParams.getAll('manifest');
+
+        if (manifests.length === 0) {
+            document.getElementById('loading').innerHTML = 
+                '<div style="color:white;text-align:center;"><h2>Compare Images</h2><p>Add manifests using ?manifest=URL1&manifest=URL2</p></div>';
+        } else {
+            // Build windows config for each manifest
+            const windows = manifests.map((url, index) => ({
+                manifestId: url,
+                canvasIndex: 0
+            }));
+
+            // Initialize Mirador with multiple windows
+            const miradorInstance = Mirador.viewer({
+                id: 'mirador-container',
+                windows: windows,
+                window: {
+                    allowClose: true,
+                    allowMaximize: true,
+                    allowFullscreen: true,
+                    sideBarOpenByDefault: false
+                },
+                workspace: {
+                    showZoomControls: true,
+                    type: 'mosaic',
+                    allowNewWindows: true
+                },
+                workspaceControlPanel: {
+                    enabled: true
+                },
+                catalog: manifests.map(url => ({ manifestId: url }))
+            });
+
+            // Hide loading
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
