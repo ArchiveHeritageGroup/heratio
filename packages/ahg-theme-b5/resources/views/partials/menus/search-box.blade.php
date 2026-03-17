@@ -2,7 +2,7 @@
   <h2 class="visually-hidden">Search</h2>
   <div class="input-group input-group-sm flex-nowrap">
     {{-- Search options dropdown --}}
-    <button id="search-box-options" class="btn atom-btn-secondary dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="height:20px;font-size:.7rem;">
+    <button id="search-box-options" class="btn atom-btn-secondary dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="height:40px;font-size:.7rem;">
       <i class="fas fa-cog" aria-hidden="true"></i>
       <span class="visually-hidden">Search options</span>
     </button>
@@ -30,8 +30,8 @@
       </div>
     </div>
     {{-- Search input --}}
-    <input id="search-box-input" type="search" class="form-control py-0" name="query" autocomplete="off" placeholder="Search..." aria-label="Search" value="{{ request('query') }}" style="height:20px;font-size:.75rem;padding:0 6px;">
-    <button class="btn atom-btn-secondary py-0 px-2" type="submit" style="height:20px;font-size:.7rem;">
+    <input id="search-box-input" type="search" class="form-control py-0" name="query" autocomplete="off" placeholder="Search..." aria-label="Search" value="{{ request('query') }}" style="height:40px;font-size:.75rem;padding:0 6px;">
+    <button class="btn atom-btn-secondary py-0 px-2" type="submit" style="height:40px;font-size:.7rem;">
       <i class="fas fa-search" aria-hidden="true"></i>
       <span class="visually-hidden">Search</span>
     </button>
