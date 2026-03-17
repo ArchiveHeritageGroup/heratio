@@ -1,5 +1,42 @@
 
 /* ========================================
+   Actions Bar (grey bar with buttons — matches AtoM)
+   ======================================== */
+
+.actions {
+  background-color: #495057;
+  border-radius: .375rem;
+  padding: 1rem;
+}
+
+.actions.nav {
+  padding: 1rem;
+}
+
+.actions a,
+.actions button {
+  white-space: normal !important;
+}
+
+.actions > ul,
+.actions > ul {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: .5rem;
+}
+
+.actions > ul > li,
+.actions > ul > li {
+  display: inline-block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ========================================
    DAM Edit Form Styling
    ======================================== */
 
