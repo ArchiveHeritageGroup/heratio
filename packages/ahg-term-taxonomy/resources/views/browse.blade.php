@@ -164,7 +164,7 @@
     @include('ahg-core::components.pager', ['pager' => $pager])
 
     @auth
-      <section class="actions mb-3">
+      <section class="actions mb-3" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
         <a href="{{ route('term.create', ['taxonomy' => $taxonomyId]) }}" class="btn atom-btn-outline-light">Add new</a>
       </section>
     @endauth
