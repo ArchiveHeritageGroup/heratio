@@ -448,13 +448,28 @@ class TermController extends Controller
         $culture = app()->getLocale();
 
         $taxonomies = $this->termService->getTaxonomies($culture);
-        $selectedTaxonomyId = $request->get('taxonomy_id');
+        $selectedTaxonomyId = $request->get('taxonomy') ?? $request->get('taxonomy_id');
+        $taxonomyName = $selectedTaxonomyId
+            ? $this->termService->getTaxonomyName((int) $selectedTaxonomyId, $culture)
+            : null;
+
+        // Get all terms in same taxonomy for autocomplete (broad term, related, converse)
+        $termsForAutocomplete = $selectedTaxonomyId
+            ? DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', $selectedTaxonomyId)
+                ->where('term_i18n.culture', $culture)
+                ->whereNotNull('term_i18n.name')
+                ->select('term.id', 'term_i18n.name')
+                ->orderBy('term_i18n.name')->get()
+            : collect();
 
         return view('ahg-term-taxonomy::edit', [
             'term' => null,
             'taxonomies' => $taxonomies,
-            'taxonomyName' => null,
+            'taxonomyName' => $taxonomyName,
             'selectedTaxonomyId' => $selectedTaxonomyId,
+            'termsForAutocomplete' => $termsForAutocomplete,
         ]);
     }
 
@@ -475,6 +490,14 @@ class TermController extends Controller
             'taxonomy_id' => $request->input('taxonomy_id'),
             'name' => $request->input('name'),
             'code' => $request->input('code'),
+            'parent_id' => $request->input('parent_id'),
+            'use_for' => $request->input('use_for'),
+            'scope_note' => $request->input('scope_note'),
+            'source_note' => $request->input('source_note'),
+            'display_note' => $request->input('display_note'),
+            'related_terms' => $request->input('related_terms'),
+            'converse_term' => $request->input('converse_term'),
+            'narrow_terms' => $request->input('narrow_terms'),
         ], $culture);
 
         return redirect()
@@ -498,11 +521,45 @@ class TermController extends Controller
         $taxonomies = $this->termService->getTaxonomies($culture);
         $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
 
+        // Existing data for the form
+        $useFor = DB::table('other_name')
+            ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+            ->where('other_name.object_id', $term->id)->where('other_name_i18n.culture', $culture)
+            ->pluck('other_name_i18n.name')->implode(', ');
+
+        $scopeNote = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $term->id)->where('note.type_id', 122)->where('note_i18n.culture', $culture)
+            ->value('note_i18n.content');
+        $sourceNote = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $term->id)->where('note.type_id', 121)->where('note_i18n.culture', $culture)
+            ->value('note_i18n.content');
+        $displayNote = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $term->id)->where('note.type_id', 123)->where('note_i18n.culture', $culture)
+            ->value('note_i18n.content');
+
+        $parentTerm = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.id', DB::table('term')->where('id', $term->id)->value('parent_id'))
+            ->where('term_i18n.culture', $culture)
+            ->select('term.id', 'term_i18n.name')->first();
+
+        $termsForAutocomplete = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', $term->taxonomy_id)
+            ->where('term_i18n.culture', $culture)->whereNotNull('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')->orderBy('term_i18n.name')->get();
+
         return view('ahg-term-taxonomy::edit', [
             'term' => $term,
             'taxonomies' => $taxonomies,
             'taxonomyName' => $taxonomyName,
             'selectedTaxonomyId' => $term->taxonomy_id,
+            'termsForAutocomplete' => $termsForAutocomplete,
+            'useFor' => $useFor,
+            'scopeNote' => $scopeNote,
+            'sourceNote' => $sourceNote,
+            'displayNote' => $displayNote,
+            'parentTerm' => $parentTerm,
         ]);
     }
 
