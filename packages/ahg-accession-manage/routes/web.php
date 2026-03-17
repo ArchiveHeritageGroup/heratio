@@ -15,6 +15,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('admin')->group(function () {
     Route::get('/accession/{slug}/delete', [AccessionController::class, 'confirmDelete'])->name('accession.confirmDelete');
     Route::delete('/accession/{slug}/delete', [AccessionController::class, 'destroy'])->name('accession.destroy');
+    Route::get('/accession/export-csv', [AccessionController::class, 'exportCsv'])->name('accession.export-csv');
 });
 
 Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('accession.show');

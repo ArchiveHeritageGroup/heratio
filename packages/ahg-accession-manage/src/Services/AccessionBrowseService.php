@@ -29,6 +29,8 @@ class AccessionBrowseService extends BrowseService
             'accession_i18n.title as name',
             'accession.identifier',
             'accession.date as accession_date',
+            'accession.processing_status_id',
+            'accession.processing_priority_id',
             'object.updated_at',
             'slug.slug',
         ];
@@ -84,8 +86,30 @@ class AccessionBrowseService extends BrowseService
             'name' => $row->name ?? '',
             'identifier' => $row->identifier ?? '',
             'accession_date' => $row->accession_date ?? '',
+            'processing_status_id' => $row->processing_status_id ?? null,
+            'processing_priority_id' => $row->processing_priority_id ?? null,
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
         ];
+    }
+
+    /**
+     * Resolve term names for status and priority IDs.
+     */
+    public function resolveTermNames(array $hits): array
+    {
+        $ids = [];
+        foreach ($hits as $h) {
+            if (!empty($h['processing_status_id'])) $ids[] = $h['processing_status_id'];
+            if (!empty($h['processing_priority_id'])) $ids[] = $h['processing_priority_id'];
+        }
+        $ids = array_unique(array_filter($ids));
+        if (empty($ids)) return [];
+
+        return DB::table('term_i18n')
+            ->whereIn('id', $ids)
+            ->where('culture', $this->culture)
+            ->pluck('name', 'id')
+            ->toArray();
     }
 }

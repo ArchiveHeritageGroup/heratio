@@ -7,6 +7,8 @@ use AhgAccessionManage\Services\AccessionService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccessionController extends Controller
 {
@@ -26,19 +28,71 @@ class AccessionController extends Controller
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'lastUpdated'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
         ]);
 
         $pager = new SimplePager($result);
+        $termNames = $browseService->resolveTermNames($result['hits'] ?? []);
 
         return view('ahg-accession-manage::browse', [
             'pager' => $pager,
+            'termNames' => $termNames,
             'sortOptions' => [
                 'alphabetic' => 'Title',
-                'identifier' => 'Identifier',
-                'date' => 'Accession date',
+                'identifier' => 'Accession number',
+                'date' => 'Acquisition date',
                 'lastUpdated' => 'Date modified',
             ],
+        ]);
+    }
+
+    public function exportCsv()
+    {
+        $culture = app()->getLocale();
+
+        $rows = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->join('object', 'accession.id', '=', 'object.id')
+            ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
+                $j->on('accession.processing_status_id', '=', 'status_term.id')
+                  ->where('status_term.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
+                $j->on('accession.processing_priority_id', '=', 'priority_term.id')
+                  ->where('priority_term.culture', '=', $culture);
+            })
+            ->where('accession_i18n.culture', $culture)
+            ->select([
+                'accession.identifier',
+                'accession_i18n.title',
+                'accession.date',
+                'status_term.name as status',
+                'priority_term.name as priority',
+                'object.created_at',
+                'object.updated_at',
+            ])
+            ->orderBy('accession.identifier')
+            ->get();
+
+        return new StreamedResponse(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Identifier', 'Title', 'Accession Date', 'Status', 'Priority', 'Created', 'Updated']);
+            foreach ($rows as $row) {
+                fputcsv($out, [
+                    $row->identifier,
+                    $row->title,
+                    $row->date,
+                    $row->status ?? '',
+                    $row->priority ?? '',
+                    $row->created_at,
+                    $row->updated_at,
+                ]);
+            }
+            fclose($out);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="accessions-' . date('Ymd') . '.csv"',
         ]);
     }
 
