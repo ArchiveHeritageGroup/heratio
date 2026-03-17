@@ -1426,6 +1426,21 @@ class SettingsController extends Controller
         ]);
     }
 
+    public function plugins(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $enabled = $request->input('enabled', []);
+            DB::table('atom_plugin')->update(['is_enabled' => 0]);
+            if (!empty($enabled)) {
+                DB::table('atom_plugin')->whereIn('name', $enabled)->update(['is_enabled' => 1]);
+            }
+            return redirect()->back()->with('success', 'Plugin settings saved.');
+        }
+
+        $plugins = DB::table('atom_plugin')->orderBy('name')->get();
+        return view('ahg-settings::plugins', compact('plugins'));
+    }
+
     private function buildMenu(string $active): array
     {
         return collect($this->menuNodes)->map(function ($node) use ($active) {

@@ -1,0 +1,20 @@
+{
+    "name": "ahg/integrity",
+    "description": "Integrity check dashboard for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgIntegrity\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgIntegrity\\Providers\\AhgIntegrityServiceProvider"
+            ]
+        }
+    }
+}

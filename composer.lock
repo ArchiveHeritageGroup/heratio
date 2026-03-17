@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a6a1ff831ab4de0d1ac3c6c3f668e6f",
+    "content-hash": "e4efb4d1afea49c70e2647ddb3325c98",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -615,6 +615,36 @@
             }
         },
         {
+            "name": "ahg/integrity",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-integrity",
+                "reference": "9b3e2fb3f9a8f381ebaee5c9c8709e5264512bcc"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgIntegrity\\Providers\\AhgIntegrityServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgIntegrity\\": "src/"
+                }
+            },
+            "description": "Integrity check dashboard for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/jobs-manage",
             "version": "dev-main",
             "dist": {
@@ -729,6 +759,36 @@
                 }
             },
             "description": "OAI-PMH 2.0 endpoint for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/portable-export",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-portable-export",
+                "reference": "002b74537d4785d4b1a7c2c930f7e5b4285ca3f8"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgPortableExport\\Providers\\AhgPortableExportServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgPortableExport\\": "src/"
+                }
+            },
+            "description": "Portable export management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9619,10 +9679,12 @@
         "ahg/heritage-manage": 20,
         "ahg/iiif-collection": 20,
         "ahg/information-object-manage": 20,
+        "ahg/integrity": 20,
         "ahg/jobs-manage": 20,
         "ahg/loan": 20,
         "ahg/menu-manage": 20,
         "ahg/oai": 20,
+        "ahg/portable-export": 20,
         "ahg/preservation": 20,
         "ahg/reports": 20,
         "ahg/request-publish": 20,

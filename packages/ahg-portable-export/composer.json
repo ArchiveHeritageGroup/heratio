@@ -1,0 +1,20 @@
+{
+    "name": "ahg/portable-export",
+    "description": "Portable export management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgPortableExport\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgPortableExport\\Providers\\AhgPortableExportServiceProvider"
+            ]
+        }
+    }
+}

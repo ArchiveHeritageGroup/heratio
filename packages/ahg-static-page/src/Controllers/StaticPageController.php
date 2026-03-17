@@ -7,6 +7,20 @@ use Illuminate\Support\Facades\DB;
 
 class StaticPageController extends Controller
 {
+    public function browse()
+    {
+        $culture = app()->getLocale();
+        $pages = DB::table('static_page')
+            ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
+            ->join('slug', 'static_page.id', '=', 'slug.object_id')
+            ->where('static_page_i18n.culture', $culture)
+            ->select('static_page.id', 'static_page_i18n.title', 'slug.slug')
+            ->orderBy('static_page_i18n.title')
+            ->get();
+
+        return view('ahg-static-page::browse', compact('pages'));
+    }
+
     public function show(string $slug)
     {
         $culture = app()->getLocale();
