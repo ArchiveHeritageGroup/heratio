@@ -52,6 +52,38 @@
       </div>
     </section>
   @endif
+
+  {{-- Favorites --}}
+  @auth
+    <section class="card mb-3">
+      <h2 class="h5 p-3 mb-0">Favorites</h2>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{{ route('favorites.browse') }}">
+          <i class="fas fa-heart me-2 text-danger"></i>My favorites
+        </a>
+      </div>
+    </section>
+  @endauth
+
+  {{-- Feedback --}}
+  <section class="card mb-3">
+    <h2 class="h5 p-3 mb-0">Feedback</h2>
+    <div class="list-group list-group-flush">
+      <a class="list-group-item list-group-item-action" href="{{ url('/contact') }}">
+        <i class="fas fa-comment me-2"></i>Send feedback
+      </a>
+    </div>
+  </section>
+
+  {{-- Cart --}}
+  <section class="card mb-3">
+    <h2 class="h5 p-3 mb-0">Cart</h2>
+    <div class="list-group list-group-flush">
+      <a class="list-group-item list-group-item-action" href="{{ route('cart.browse') }}">
+        <i class="fas fa-shopping-cart me-2"></i>View cart
+      </a>
+    </div>
+  </section>
 @endsection
 
 @section('content')
