@@ -49,7 +49,10 @@ class TermController extends Controller
 
         $result = $service->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', DB::table('setting')
+                ->leftJoin('setting_i18n', function ($j) { $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en'); })
+                ->where('setting.name', 'hits_per_page')->whereNull('setting.scope')
+                ->value('setting_i18n.value') ?? 10),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
             'taxonomy_id' => $taxonomyId,
