@@ -62,11 +62,13 @@ class StaticPageController extends Controller
             ->value('setting_i18n.value');
 
         if ($markdownEnabled !== '0' && !empty($page->content)) {
+            // Convert literal \n to actual newlines (DB may store escaped newlines)
+            $content = str_replace(['\\n', '\n'], "\n", $page->content);
             $converter = new \League\CommonMark\CommonMarkConverter([
                 'html_input' => 'allow',
                 'allow_unsafe_links' => false,
             ]);
-            $page->content = $converter->convert($page->content)->getContent();
+            $page->content = $converter->convert($content)->getContent();
         }
 
         return view('ahg-static-page::show', [

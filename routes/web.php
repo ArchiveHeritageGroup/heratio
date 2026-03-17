@@ -44,6 +44,10 @@ Route::get('/display/browse', fn (\Illuminate\Http\Request $r) => redirect('/gla
 Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
 Route::get('/home', fn () => redirect('/'));
 Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
+Route::get('/favorites/browse', fn () => redirect('/favorites'));
+Route::get('/cart/browse', fn () => redirect('/cart'));
+Route::get('/feedback/general', fn () => redirect('/contact'));
+Route::get('/feedback/{any?}', fn () => redirect('/contact'));
 
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
