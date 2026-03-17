@@ -293,14 +293,23 @@ class TermController extends Controller
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')->get();
 
-        // List tab: paginated alphabetical list of all terms in same taxonomy
+        // List tab: paginated alphabetical list of terms
+        // For normal terms: list all in same taxonomy
+        // For root/meta terms: list children (which span taxonomies)
         $listPage = max(1, (int) $request->get('listPage', 1));
         $listLimit = 25;
         $listQuery = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term.taxonomy_id', $term->taxonomy_id)
             ->where('term_i18n.culture', $culture);
+
+        if ($narrowerTerms->count() > 0 && $term->taxonomy_id == 30) {
+            // Root term — show children
+            $listQuery->where('term.parent_id', $term->id);
+        } else {
+            $listQuery->where('term.taxonomy_id', $term->taxonomy_id);
+        }
+
         $listTotal = $listQuery->count();
         $listTerms = $listQuery
             ->select('term.id', 'term_i18n.name', 'slug.slug')

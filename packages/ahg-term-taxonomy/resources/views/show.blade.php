@@ -48,7 +48,7 @@
                 </a>
               @endforeach
               @if($narrowerTerms->count() > 30)
-                <div class="list-group-item text-muted small ps-5">... and {{ $narrowerTerms->count() - 30 }} more</div>
+                <a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}" class="list-group-item list-group-item-action text-muted small ps-5">... and {{ $narrowerTerms->count() - 30 }} more</a>
               @endif
             </ul>
           </div>
