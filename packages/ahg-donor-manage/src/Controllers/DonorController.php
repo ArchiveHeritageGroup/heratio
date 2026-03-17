@@ -26,12 +26,17 @@ class DonorController extends Controller
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', 30),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
         ]);
 
         return view('ahg-donor-manage::browse', [
             'pager' => new SimplePager($result),
-            'sortOptions' => ['alphabetic' => 'Name', 'lastUpdated' => 'Date modified'],
+            'sortOptions' => [
+                'alphabetic' => 'Name',
+                'lastUpdated' => 'Date modified',
+                'identifier' => 'Identifier',
+            ],
         ]);
     }
 
