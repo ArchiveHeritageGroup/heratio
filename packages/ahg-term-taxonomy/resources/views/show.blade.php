@@ -8,24 +8,54 @@
     {{-- Main content --}}
     <div class="col-md-9">
 
-      <div class="multiline-header d-flex align-items-center mb-3">
-        <i class="fas fa-3x {{ $icon ?? 'fa-tag' }} me-3" aria-hidden="true"></i>
-        <div class="d-flex flex-column">
-          <h1 class="mb-0">{{ $term->name }}</h1>
-          <span class="small text-muted">{{ $taxonomyName ?? 'Term' }}</span>
-        </div>
+      {{-- Title --}}
+      <h1>{{ $term->name }}</h1>
+
+      {{-- Prev/Next navigation --}}
+      <div class="d-flex justify-content-between mb-2">
+        @if($prevTerm)
+          <a href="{{ route('term.show', $prevTerm->slug) }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-chevron-left me-1"></i>{{ Str::limit($prevTerm->name, 30) }}
+          </a>
+        @else
+          <span></span>
+        @endif
+        @if($nextTerm)
+          <a href="{{ route('term.show', $nextTerm->slug) }}" class="btn btn-sm btn-outline-secondary">
+            {{ Str::limit($nextTerm->name, 30) }}<i class="fas fa-chevron-right ms-1"></i>
+          </a>
+        @else
+          <span></span>
+        @endif
       </div>
+
+      {{-- Breadcrumb --}}
+      @if($breadcrumb->isNotEmpty())
+        <nav aria-label="breadcrumb" class="mb-3">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}">{{ $taxonomyName }}</a></li>
+            @foreach($breadcrumb as $ancestor)
+              <li class="breadcrumb-item"><a href="{{ route('term.show', $ancestor->slug) }}">{{ $ancestor->name }}</a></li>
+            @endforeach
+            <li class="breadcrumb-item active">{{ $term->name }}</li>
+          </ol>
+        </nav>
+      @endif
 
       @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
       @endif
 
-      {{-- Elements area --}}
+      {{-- ===== Elements area ===== --}}
       <section class="border-bottom mb-3">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <a class="text-decoration-none text-white" href="#">Elements area</a>
+          @auth
+            <a href="{{ route('term.edit', $term->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+          @endauth
         </h2>
-        <div class="py-2">
+        <div>
+          {{-- Taxonomy --}}
           <div class="field row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Taxonomy</h3>
             <div class="col-9 p-2">
@@ -33,13 +63,20 @@
             </div>
           </div>
 
-          @if(!empty($useFor))
+          {{-- Code (with Google Map for Places) --}}
+          @if($term->code ?? null)
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Use for</h3>
-              <div class="col-9 p-2">{{ implode(', ', $useFor) }}</div>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Code</h3>
+              <div class="col-9 p-2">
+                <code>{{ $term->code }}</code>
+                @if($mapApiKey && $term->taxonomy_id == 42)
+                  <img src="https://maps.googleapis.com/maps/api/staticmap?zoom=13&size=300x300&sensor=false&key={{ $mapApiKey }}&center={{ urlencode($term->code) }}" class="img-thumbnail d-block mt-2" alt="Map of {{ $term->name }}">
+                @endif
+              </div>
             </div>
           @endif
 
+          {{-- Scope note(s) --}}
           @if($scopeNote && $scopeNote->content)
             <div class="field row g-0">
               <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope note(s)</h3>
@@ -47,27 +84,98 @@
             </div>
           @endif
 
-          @if($term->code ?? null)
+          {{-- Source note(s) --}}
+          @if(!empty($sourceNotes))
             <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Code</h3>
-              <div class="col-9 p-2"><code>{{ $term->code }}</code></div>
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source note(s)</h3>
+              <div class="col-9 p-2">
+                @foreach($sourceNotes as $note)
+                  <p class="mb-1">{{ $note }}</p>
+                @endforeach
+              </div>
+            </div>
+          @endif
+
+          {{-- Display note(s) --}}
+          @if(!empty($displayNotes))
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Display note(s)</h3>
+              <div class="col-9 p-2">
+                @foreach($displayNotes as $note)
+                  <p class="mb-1">{{ $note }}</p>
+                @endforeach
+              </div>
+            </div>
+          @endif
+
+          {{-- Hierarchical terms (BT / NT) --}}
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Hierarchical terms</h3>
+            <div class="col-9 p-2">
+              @if($broaderTerm)
+                <div class="mb-1">
+                  {{ $term->name }}: <strong>BT</strong> <a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a>
+                </div>
+              @endif
+              @if($narrowerTerms->isNotEmpty())
+                @foreach($narrowerTerms as $nt)
+                  <div class="mb-1">
+                    {{ $term->name }}: <strong>NT</strong> <a href="{{ route('term.show', $nt->slug) }}">{{ $nt->name }}</a>
+                  </div>
+                @endforeach
+              @endif
+              @if(!$broaderTerm && $narrowerTerms->isEmpty())
+                <span class="text-muted">None</span>
+              @endif
+            </div>
+          </div>
+
+          {{-- Equivalent terms (UF) --}}
+          @if(!empty($useFor))
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Equivalent terms</h3>
+              <div class="col-9 p-2">
+                @foreach($useFor as $uf)
+                  <div class="mb-1">{{ $term->name }}: <strong>UF</strong> {{ $uf }}</div>
+                @endforeach
+              </div>
+            </div>
+          @endif
+
+          {{-- Converse term --}}
+          @if($converseTerm)
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Converse term</h3>
+              <div class="col-9 p-2">
+                <a href="{{ route('term.show', $converseTerm->slug) }}">{{ $converseTerm->name }}</a>
+              </div>
+            </div>
+          @endif
+
+          {{-- Associated terms (RT) --}}
+          @if($associatedTerms->isNotEmpty())
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Associated terms</h3>
+              <div class="col-9 p-2">
+                @foreach($associatedTerms as $rt)
+                  <div class="mb-1">{{ $term->name }}: <strong>RT</strong> <a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></div>
+                @endforeach
+              </div>
             </div>
           @endif
         </div>
       </section>
 
-      {{-- Related descriptions --}}
+      {{-- ===== Related archival descriptions ===== --}}
       <section class="mb-3">
-        <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <a class="text-decoration-none text-white" href="#">{{ $term->name }} - Related archival descriptions</a>
-        </h2>
+        <h1>
+          {{ number_format($totalRelated) }} Archival description results for {{ $term->name }}
+        </h1>
 
-        <div class="d-flex justify-content-between align-items-center py-2">
-          <span>Showing {{ number_format($totalRelated) }} results</span>
-          <div class="d-flex gap-2">
-            <a href="{{ request()->fullUrlWithQuery(['sort' => 'lastUpdated']) }}" class="btn btn-sm {{ $sort === 'lastUpdated' ? 'btn-primary' : 'btn-outline-secondary' }}">Date modified</a>
-            <a href="{{ request()->fullUrlWithQuery(['sort' => 'alphabetic']) }}" class="btn btn-sm {{ $sort === 'alphabetic' ? 'btn-primary' : 'btn-outline-secondary' }}">Title</a>
-          </div>
+        <div class="d-flex flex-wrap gap-2 ms-auto mb-3">
+          @foreach(['lastUpdated' => 'Date modified', 'alphabetic' => 'Title', 'referenceCode' => 'Reference code', 'date' => 'Start date'] as $sortKey => $sortLabel)
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $sortKey, 'page' => 1]) }}" class="btn btn-sm {{ $sort === $sortKey ? 'btn-primary' : 'btn-outline-secondary' }}">{{ $sortLabel }}</a>
+          @endforeach
         </div>
 
         @if($relatedDescriptions->isNotEmpty())
@@ -110,7 +218,7 @@
             </nav>
           @endif
         @else
-          <p class="text-muted py-2">No related archival descriptions.</p>
+          <p class="text-muted">No related archival descriptions.</p>
         @endif
       </section>
 
@@ -124,20 +232,31 @@
       @endauth
     </div>
 
-    {{-- Right sidebar --}}
+    {{-- ===== Right sidebar ===== --}}
     <div class="col-md-3">
       <div class="card mb-3">
         <div class="card-body">
-          <p><strong>Results:</strong> {{ number_format($relatedDescriptionsCount) }}</p>
+          <h4 class="h5 mb-2">Results</h4>
+          <ul class="list-unstyled"><li>{{ number_format($relatedDescriptionsCount) }}</li></ul>
 
           @if($broaderTerm)
-            <p>
-              <strong>Broader term:</strong><br>
-              <a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a>
-            </p>
+            <h4 class="h5 mb-2">Broader term</h4>
+            <ul class="list-unstyled">
+              <li><a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></li>
+            </ul>
           @endif
 
-          <p><strong>Narrower terms:</strong> {{ $narrowerCount }}</p>
+          <h4 class="h5 mb-2">No. narrower terms</h4>
+          <ul class="list-unstyled"><li>{{ $narrowerCount }}</li></ul>
+
+          @if($associatedTerms->isNotEmpty())
+            <h4 class="h5 mb-2">Related terms</h4>
+            <ul class="list-unstyled">
+              @foreach($associatedTerms as $rt)
+                <li><a href="{{ route('term.show', $rt->slug) }}">{{ $rt->name }}</a></li>
+              @endforeach
+            </ul>
+          @endif
         </div>
       </div>
     </div>

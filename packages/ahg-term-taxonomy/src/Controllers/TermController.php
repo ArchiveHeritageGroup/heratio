@@ -7,6 +7,7 @@ use AhgTermTaxonomy\Services\TermService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TermController extends Controller
 {
@@ -163,6 +164,119 @@ class TermController extends Controller
             ->orderBy($orderCol, $orderDir)
             ->offset(($page - 1) * $limit)->limit($limit)->get();
 
+        // Source notes (type 121)
+        $sourceNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $term->id)->where('note.type_id', 121)
+            ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
+
+        // Display notes (type 123)
+        $displayNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->where('note.object_id', $term->id)->where('note.type_id', 123)
+            ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
+
+        // Narrower terms (children) with names and slugs
+        $narrowerTerms = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.parent_id', $term->id)
+            ->where('term_i18n.culture', $culture)
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->orderBy('term_i18n.name')->get();
+
+        // Converse term (relation type 177)
+        $converseTerm = null;
+        $converseRel = DB::table('relation')
+            ->where(function ($q) use ($term) {
+                $q->where('subject_id', $term->id)->orWhere('object_id', $term->id);
+            })
+            ->where('type_id', 177)->first();
+        if ($converseRel) {
+            $converseId = $converseRel->subject_id == $term->id ? $converseRel->object_id : $converseRel->subject_id;
+            $converseTerm = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.id', $converseId)->where('term_i18n.culture', $culture)
+                ->select('term.id', 'term_i18n.name', 'slug.slug')->first();
+        }
+
+        // Associated terms (relation type 157)
+        $associatedTerms = DB::table('relation')
+            ->where(function ($q) use ($term) {
+                $q->where('subject_id', $term->id)->orWhere('object_id', $term->id);
+            })
+            ->where('type_id', 157)->get()
+            ->map(function ($rel) use ($term, $culture) {
+                $otherId = $rel->subject_id == $term->id ? $rel->object_id : $rel->subject_id;
+                return DB::table('term')
+                    ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                    ->join('slug', 'term.id', '=', 'slug.object_id')
+                    ->where('term.id', $otherId)->where('term_i18n.culture', $culture)
+                    ->select('term.id', 'term_i18n.name', 'slug.slug')->first();
+            })->filter()->values();
+
+        // Breadcrumb (ancestors)
+        $breadcrumb = collect();
+        $currentParentId = $parentId;
+        while ($currentParentId && $currentParentId != \Illuminate\Support\Facades\DB::table('term')->where('taxonomy_id', $term->taxonomy_id)->whereNull('parent_id')->value('id')) {
+            $ancestor = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.id', $currentParentId)->where('term_i18n.culture', $culture)
+                ->select('term.id', 'term_i18n.name', 'slug.slug', 'term.parent_id')->first();
+            if (!$ancestor) break;
+            $breadcrumb->prepend($ancestor);
+            $currentParentId = $ancestor->parent_id;
+        }
+
+        // Prev/next terms in same taxonomy (for navigation)
+        $prevTerm = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $term->taxonomy_id)
+            ->where('term_i18n.culture', $culture)
+            ->where('term_i18n.name', '<', $term->name)
+            ->orderByDesc('term_i18n.name')
+            ->select('term_i18n.name', 'slug.slug')->first();
+
+        $nextTerm = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $term->taxonomy_id)
+            ->where('term_i18n.culture', $culture)
+            ->where('term_i18n.name', '>', $term->name)
+            ->orderBy('term_i18n.name')
+            ->select('term_i18n.name', 'slug.slug')->first();
+
+        // Google Maps API key for Place terms
+        $mapApiKey = ($term->taxonomy_id == 42 && !empty($term->code))
+            ? DB::table('setting')
+                ->leftJoin('setting_i18n', function ($j) { $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en'); })
+                ->where('setting.name', 'google_maps_api_key')->whereNull('setting.scope')
+                ->value('setting_i18n.value')
+            : null;
+
+        // Sort with additional options matching AtoM
+        $orderMap = [
+            'lastUpdated' => ['object.updated_at', 'desc'],
+            'alphabetic' => ['information_object_i18n.title', 'asc'],
+            'referenceCode' => ['information_object.identifier', 'asc'],
+            'date' => ['information_object.id', 'asc'], // Start date would need event join
+        ];
+        if (isset($orderMap[$sort])) {
+            $relatedDescriptions = DB::table('object_term_relation')
+                ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('object', 'information_object.id', '=', 'object.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('object_term_relation.term_id', $term->id)
+                ->where('object.class_name', 'QubitInformationObject')
+                ->where('information_object_i18n.culture', $culture)
+                ->select('information_object.id', 'information_object.identifier',
+                    'information_object_i18n.title', 'slug.slug', 'object.updated_at')
+                ->orderBy($orderMap[$sort][0], $orderMap[$sort][1])
+                ->offset(($page - 1) * $limit)->limit($limit)->get();
+        }
+
         $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
         $icon = $iconMap[$term->taxonomy_id] ?? 'fa-tag';
 
@@ -170,10 +284,19 @@ class TermController extends Controller
             'term' => $term,
             'taxonomyName' => $taxonomyName,
             'scopeNote' => $scopeNote,
+            'sourceNotes' => $sourceNotes,
+            'displayNotes' => $displayNotes,
             'relatedDescriptionsCount' => $relatedDescriptionsCount,
             'useFor' => $useFor,
             'broaderTerm' => $broaderTerm,
             'narrowerCount' => $narrowerCount,
+            'narrowerTerms' => $narrowerTerms,
+            'converseTerm' => $converseTerm,
+            'associatedTerms' => $associatedTerms,
+            'breadcrumb' => $breadcrumb,
+            'prevTerm' => $prevTerm,
+            'nextTerm' => $nextTerm,
+            'mapApiKey' => $mapApiKey,
             'relatedDescriptions' => $relatedDescriptions,
             'totalRelated' => $totalRelated,
             'page' => $page,
