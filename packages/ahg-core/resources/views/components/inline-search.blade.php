@@ -3,7 +3,7 @@
     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
   @endforeach
   <div class="input-group">
-    <input type="text" class="form-control" name="subquery"
+    <input type="text" class="form-control form-control-lg" name="subquery"
            value="{{ request('subquery') }}"
            placeholder="{{ $label ?? 'Search...' }}"
            aria-label="{{ $landmarkLabel ?? 'Search' }}">

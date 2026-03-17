@@ -7,6 +7,7 @@ use AhgFunctionManage\Services\FunctionService;
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FunctionController extends Controller
 {
@@ -22,17 +23,32 @@ class FunctionController extends Controller
         $culture = app()->getLocale();
         $browseService = new FunctionBrowseService($culture);
 
+        $hitsPerPage = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($j) { $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en'); })
+            ->where('setting.name', 'hits_per_page')->whereNull('setting.scope')
+            ->value('setting_i18n.value') ?? 10;
+
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
-            'limit' => $request->get('limit', 30),
+            'limit' => $request->get('limit', $hitsPerPage),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', 'asc'),
             'subquery' => $request->get('subquery', ''),
         ]);
 
         $pager = new SimplePager($result);
 
+        // Enrich results with function type name
+        $enrichedResults = collect($pager->getResults())->map(function ($doc) use ($culture) {
+            $doc['type_name'] = isset($doc['type_id']) && $doc['type_id']
+                ? DB::table('term_i18n')->where('id', $doc['type_id'])->where('culture', $culture)->value('name')
+                : null;
+            return $doc;
+        })->toArray();
+
         return view('ahg-function-manage::browse', [
             'pager' => $pager,
+            'enrichedResults' => $enrichedResults,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',

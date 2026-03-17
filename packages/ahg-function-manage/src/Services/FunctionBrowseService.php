@@ -27,6 +27,7 @@ class FunctionBrowseService extends BrowseService
             'function_object.id',
             'function_object_i18n.authorized_form_of_name as name',
             'function_object.description_identifier as identifier',
+            'function_object.type_id',
             'object.updated_at',
             'slug.slug',
         ];
@@ -66,6 +67,7 @@ class FunctionBrowseService extends BrowseService
             'id' => $row->id,
             'name' => $row->name ?? '',
             'identifier' => $row->identifier ?? '',
+            'type_id' => $row->type_id ?? null,
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
         ];
