@@ -7,22 +7,36 @@ use Illuminate\Support\Facades\Route;
 Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss'])->name('settings.dynamic-css');
 
 Route::middleware('admin')->group(function () {
-    // Dedicated settings pages
+    // Dedicated settings pages (alphabetical, BEFORE catch-all)
+    Route::match(['get', 'post'], '/admin/settings/clipboard', [SettingsController::class, 'clipboard'])->name('settings.clipboard');
+    Route::match(['get', 'post'], '/admin/settings/csv-validator', [SettingsController::class, 'csvValidator'])->name('settings.csv-validator');
     Route::match(['get', 'post'], '/admin/settings/default-template', [SettingsController::class, 'defaultTemplate'])->name('settings.default-template');
-    Route::match(['get', 'post'], '/admin/settings/global', [SettingsController::class, 'global'])->name('settings.global');
-    Route::match(['get', 'post'], '/admin/settings/site-information', [SettingsController::class, 'siteInformation'])->name('settings.site-information');
-    Route::match(['get', 'post'], '/admin/settings/security', [SettingsController::class, 'security'])->name('settings.security');
-    Route::match(['get', 'post'], '/admin/settings/identifier', [SettingsController::class, 'identifier'])->name('settings.identifier');
-    Route::match(['get', 'post'], '/admin/settings/email', [SettingsController::class, 'email'])->name('settings.email');
-    Route::match(['get', 'post'], '/admin/settings/treeview', [SettingsController::class, 'treeview'])->name('settings.treeview');
-    Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
-    Route::match(['get', 'post'], '/admin/settings/languages', [SettingsController::class, 'languages'])->name('settings.languages');
+    Route::match(['get', 'post'], '/admin/settings/diacritics', [SettingsController::class, 'diacritics'])->name('settings.diacritics');
     Route::match(['get', 'post'], '/admin/settings/digital-objects', [SettingsController::class, 'digitalObjects'])->name('settings.digital-objects');
+    Route::match(['get', 'post'], '/admin/settings/dip-upload', [SettingsController::class, 'dipUpload'])->name('settings.dip-upload');
+    Route::match(['get', 'post'], '/admin/settings/email', [SettingsController::class, 'email'])->name('settings.email');
+    Route::match(['get', 'post'], '/admin/settings/finding-aid', [SettingsController::class, 'findingAid'])->name('settings.finding-aid');
+    Route::match(['get', 'post'], '/admin/settings/global', [SettingsController::class, 'global'])->name('settings.global');
+    Route::match(['get', 'post'], '/admin/settings/header-customizations', [SettingsController::class, 'headerCustomizations'])->name('settings.header-customizations');
+    Route::match(['get', 'post'], '/admin/settings/identifier', [SettingsController::class, 'identifier'])->name('settings.identifier');
     Route::match(['get', 'post'], '/admin/settings/interface-labels', [SettingsController::class, 'interfaceLabels'])->name('settings.interface-labels');
+    Route::match(['get', 'post'], '/admin/settings/inventory', [SettingsController::class, 'inventory'])->name('settings.inventory');
+    Route::match(['get', 'post'], '/admin/settings/languages', [SettingsController::class, 'languages'])->name('settings.languages');
+    Route::match(['get', 'post'], '/admin/settings/markdown', [SettingsController::class, 'markdown'])->name('settings.markdown');
     Route::match(['get', 'post'], '/admin/settings/oai', [SettingsController::class, 'oai'])->name('settings.oai');
+    Route::match(['get', 'post'], '/admin/settings/permissions', [SettingsController::class, 'permissions'])->name('settings.permissions');
+    Route::match(['get', 'post'], '/admin/settings/privacy-notification', [SettingsController::class, 'privacyNotification'])->name('settings.privacy-notification');
+    Route::match(['get', 'post'], '/admin/settings/security', [SettingsController::class, 'security'])->name('settings.security');
+    Route::match(['get', 'post'], '/admin/settings/site-information', [SettingsController::class, 'siteInformation'])->name('settings.site-information');
+    Route::match(['get', 'post'], '/admin/settings/storage-service', [SettingsController::class, 'storageService'])->name('settings.storage-service');
     Route::get('/admin/settings/system-info', [SettingsController::class, 'systemInfo'])->name('settings.system-info');
     Route::get('/admin/settings/services', [SettingsController::class, 'services'])->name('settings.services');
     Route::match(['get', 'post'], '/admin/settings/themes', [SettingsController::class, 'themes'])->name('settings.themes');
+    Route::match(['get', 'post'], '/admin/settings/treeview', [SettingsController::class, 'treeview'])->name('settings.treeview');
+    Route::match(['get', 'post'], '/admin/settings/uploads', [SettingsController::class, 'uploads'])->name('settings.uploads');
+    Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
+    Route::match(['get', 'post'], '/admin/settings/web-analytics', [SettingsController::class, 'webAnalytics'])->name('settings.web-analytics');
+    Route::get('/admin/settings/ai-condition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
     // AHG group route must come before the catch-all {section} route
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');
     Route::match(['get', 'post'], '/admin/settings/{section}', [SettingsController::class, 'section'])->name('settings.section');

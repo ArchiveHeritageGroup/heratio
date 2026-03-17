@@ -46,19 +46,35 @@ class SettingsController extends Controller
     ];
 
     private array $menuNodes = [
-        ['action' => 'index', 'label' => 'Settings home', 'icon' => 'fa-home'],
-        ['action' => 'global', 'label' => 'Global', 'icon' => 'fa-globe'],
+        // Matching AtoM sidebar alphabetically + Heratio extras
+        ['action' => 'index', 'label' => 'AHG Settings', 'icon' => 'fa-home'],
+        ['action' => 'clipboard', 'label' => 'Clipboard', 'icon' => 'fa-paperclip'],
+        ['action' => 'csv-validator', 'label' => 'CSV Validator', 'icon' => 'fa-check-circle'],
+        ['action' => 'visible-elements', 'label' => 'Default page elements', 'icon' => 'fa-eye'],
         ['action' => 'default-template', 'label' => 'Default template', 'icon' => 'fa-file-alt'],
-        ['action' => 'site-information', 'label' => 'Site information', 'icon' => 'fa-info-circle'],
-        ['action' => 'security', 'label' => 'Security', 'icon' => 'fa-shield-alt'],
-        ['action' => 'identifier', 'label' => 'Identifiers', 'icon' => 'fa-fingerprint'],
+        ['action' => 'diacritics', 'label' => 'Diacritics', 'icon' => 'fa-font'],
+        ['action' => 'digital-objects', 'label' => 'Digital object derivatives', 'icon' => 'fa-photo-video'],
+        ['action' => 'dip-upload', 'label' => 'DIP upload', 'icon' => 'fa-upload'],
         ['action' => 'email', 'label' => 'Email', 'icon' => 'fa-envelope'],
-        ['action' => 'treeview', 'label' => 'Treeview', 'icon' => 'fa-sitemap'],
-        ['action' => 'visible-elements', 'label' => 'Visible elements', 'icon' => 'fa-eye'],
-        ['action' => 'languages', 'label' => 'Languages', 'icon' => 'fa-language'],
-        ['action' => 'digital-objects', 'label' => 'Digital objects', 'icon' => 'fa-photo-video'],
-        ['action' => 'interface-labels', 'label' => 'Interface labels', 'icon' => 'fa-tags'],
+        ['action' => 'finding-aid', 'label' => 'Finding Aid', 'icon' => 'fa-book'],
+        ['action' => 'global', 'label' => 'Global', 'icon' => 'fa-globe'],
+        ['action' => 'languages', 'label' => 'I18n languages', 'icon' => 'fa-language'],
+        ['action' => 'identifier', 'label' => 'Identifiers', 'icon' => 'fa-fingerprint'],
+        ['action' => 'inventory', 'label' => 'Inventory', 'icon' => 'fa-clipboard-list'],
+        ['action' => 'markdown', 'label' => 'Markdown', 'icon' => 'fa-pen-fancy'],
         ['action' => 'oai', 'label' => 'OAI repository', 'icon' => 'fa-cloud'],
+        ['action' => 'permissions', 'label' => 'Permissions', 'icon' => 'fa-user-lock'],
+        ['action' => 'privacy-notification', 'label' => 'Privacy Notification', 'icon' => 'fa-user-shield'],
+        ['action' => 'security', 'label' => 'Security', 'icon' => 'fa-shield-alt'],
+        ['action' => 'site-information', 'label' => 'Site information', 'icon' => 'fa-info-circle'],
+        ['action' => 'treeview', 'label' => 'Treeview', 'icon' => 'fa-sitemap'],
+        ['action' => 'uploads', 'label' => 'Uploads', 'icon' => 'fa-cloud-upload-alt'],
+        ['action' => 'interface-labels', 'label' => 'User interface labels', 'icon' => 'fa-tags'],
+        ['action' => 'ai-condition', 'label' => 'AI Condition', 'icon' => 'fa-robot'],
+        ['action' => 'header-customizations', 'label' => 'Header customizations', 'icon' => 'fa-heading'],
+        ['action' => 'storage-service', 'label' => 'Storage service', 'icon' => 'fa-hdd'],
+        ['action' => 'web-analytics', 'label' => 'Web analytics', 'icon' => 'fa-chart-bar'],
+        // Heratio extras
         ['action' => 'system-info', 'label' => 'System information', 'icon' => 'fa-server'],
         ['action' => 'services', 'label' => 'Services monitor', 'icon' => 'fa-heartbeat'],
         ['action' => 'themes', 'label' => 'Theme configuration', 'icon' => 'fa-palette'],
@@ -845,6 +861,452 @@ class SettingsController extends Controller
             'settings', 'group', 'groupLabel', 'groupIcon',
             'checkboxFields', 'selectFields', 'colorFields', 'passwordFields', 'textareaFields'
         ));
+    }
+
+    // ─── 1. Clipboard ──────────────────────────────────────────────────
+    public function clipboard(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('clipboard');
+
+        $settingNames = [
+            'clipboard_save_max_age',
+            'clipboard_send_enabled',
+            'clipboard_send_url',
+            'clipboard_send_button_text',
+            'clipboard_send_message_html',
+            'clipboard_send_http_method',
+            'clipboard_export_digitalobjects_enabled',
+        ];
+        $defaults = [
+            'clipboard_save_max_age' => '0',
+            'clipboard_send_enabled' => '0',
+            'clipboard_send_button_text' => 'Send',
+            'clipboard_send_message_html' => 'Sending...',
+            'clipboard_send_http_method' => 'POST',
+            'clipboard_export_digitalobjects_enabled' => '0',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $value = $request->input("settings.{$name}", '');
+                $this->service->saveSetting($name, null, $value, $culture);
+            }
+            return redirect()->route('settings.clipboard')->with('success', 'Clipboard settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? ($defaults[$name] ?? '');
+        }
+
+        return view('ahg-settings::clipboard', compact('settings', 'menu'));
+    }
+
+    // ─── 2. CSV Validator ────────────────────────────────────────────────
+    public function csvValidator(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('csv-validator');
+
+        if ($request->isMethod('post')) {
+            $value = $request->input('settings.csv_validator_default_import_behaviour', '0');
+            $this->service->saveSetting('csv_validator_default_import_behaviour', null, $value, $culture);
+            return redirect()->route('settings.csv-validator')->with('success', 'CSV Validator settings saved.');
+        }
+
+        $settings = [
+            'csv_validator_default_import_behaviour' => $this->service->getSetting('csv_validator_default_import_behaviour', null, $culture) ?? '0',
+        ];
+
+        return view('ahg-settings::csv-validator', compact('settings', 'menu'));
+    }
+
+    // ─── 3. Diacritics ──────────────────────────────────────────────────
+    public function diacritics(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('diacritics');
+
+        if ($request->isMethod('post')) {
+            $diacriticsVal = $request->input('settings.diacritics', '0');
+            $this->service->saveSetting('diacritics', null, $diacriticsVal, $culture);
+
+            // Handle YAML file upload
+            if ($request->hasFile('mappings') && $request->file('mappings')->isValid()) {
+                $file = $request->file('mappings');
+                $destPath = storage_path('app/diacritics_mapping.yml');
+                try {
+                    $file->move(dirname($destPath), basename($destPath));
+                } catch (\Exception $e) {
+                    return redirect()->route('settings.diacritics')->with('error', 'Unable to upload diacritics mapping yaml file.');
+                }
+            }
+
+            return redirect()->route('settings.diacritics')->with('success', 'Diacritics settings saved.');
+        }
+
+        $settings = [
+            'diacritics' => $this->service->getSetting('diacritics', null, $culture) ?? '0',
+        ];
+
+        return view('ahg-settings::diacritics', compact('settings', 'menu'));
+    }
+
+    // ─── 4. DIP Upload ──────────────────────────────────────────────────
+    public function dipUpload(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('dip-upload');
+
+        if ($request->isMethod('post')) {
+            $value = $request->input('settings.stripExtensions', '0');
+            $this->service->saveSetting('stripExtensions', null, $value, $culture);
+            return redirect()->route('settings.dip-upload')->with('success', 'DIP upload settings saved.');
+        }
+
+        $settings = [
+            'stripExtensions' => $this->service->getSetting('stripExtensions', null, $culture) ?? '0',
+        ];
+
+        return view('ahg-settings::dip-upload', compact('settings', 'menu'));
+    }
+
+    // ─── 5. Finding Aid ─────────────────────────────────────────────────
+    public function findingAid(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('finding-aid');
+
+        $settingMap = [
+            'finding_aids_enabled' => 'findingAidsEnabled',
+            'finding_aid_format' => 'findingAidFormat',
+            'finding_aid_model' => 'findingAidModel',
+            'public_finding_aid' => 'publicFindingAid',
+        ];
+        $defaults = [
+            'finding_aids_enabled' => '1',
+            'finding_aid_format' => 'pdf',
+            'finding_aid_model' => 'inventory-summary',
+            'public_finding_aid' => '1',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingMap as $formKey => $dbName) {
+                $value = $request->input("settings.{$formKey}", '');
+                $this->service->saveSetting($dbName, null, $value, $culture);
+            }
+            return redirect()->route('settings.finding-aid')->with('success', 'Finding aid settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingMap as $formKey => $dbName) {
+            $settings[$formKey] = $this->service->getSetting($dbName, null, $culture) ?? ($defaults[$formKey] ?? '');
+        }
+
+        return view('ahg-settings::finding-aid', compact('settings', 'menu'));
+    }
+
+    // ─── 6. Inventory ───────────────────────────────────────────────────
+    public function inventory(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('inventory');
+
+        // Get levels of description from taxonomy
+        $levels = DB::table('term')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
+            })
+            ->where('term.taxonomy_id', 34)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Get currently selected levels
+        $currentValue = $this->service->getSetting('inventory_levels', null, $culture) ?? '';
+        $selectedLevels = [];
+        if (!empty($currentValue)) {
+            $unserialized = @unserialize($currentValue);
+            if (is_array($unserialized)) {
+                $selectedLevels = $unserialized;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $selected = $request->input('settings.levels', []);
+            $serialized = serialize($selected);
+            $this->service->saveSetting('inventory_levels', null, $serialized, $culture);
+            return redirect()->route('settings.inventory')->with('success', 'Inventory settings saved.');
+        }
+
+        return view('ahg-settings::inventory', compact('menu', 'levels', 'selectedLevels'));
+    }
+
+    // ─── 7. Markdown ────────────────────────────────────────────────────
+    public function markdown(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('markdown');
+
+        if ($request->isMethod('post')) {
+            $value = $request->input('settings.enabled', '1');
+            $this->service->saveSetting('markdown_enabled', null, $value, $culture);
+            return redirect()->route('settings.markdown')->with('success', 'Markdown settings saved.');
+        }
+
+        $settings = [
+            'enabled' => $this->service->getSetting('markdown_enabled', null, $culture) ?? '1',
+        ];
+
+        return view('ahg-settings::markdown', compact('settings', 'menu'));
+    }
+
+    // ─── 8. Permissions ─────────────────────────────────────────────────
+    public function permissions(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('permissions');
+
+        // Get right basis terms from taxonomy 68
+        $basis = DB::table('term')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
+            })
+            ->where('term.taxonomy_id', 68)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get()
+            ->mapWithKeys(fn ($t) => [strtolower(str_replace(' ', '-', $t->name)) => $t->name])
+            ->toArray();
+
+        // Get right act terms from taxonomy 67
+        $acts = DB::table('term')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
+            })
+            ->where('term.taxonomy_id', 67)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Get PREMIS access statements from setting table (scope = 'access_statement')
+        $accessStatements = [];
+        $stmtRows = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($j) use ($culture) {
+                $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', $culture);
+            })
+            ->where('setting.scope', 'access_statement')
+            ->select('setting.id', 'setting.name', 'setting_i18n.value')
+            ->get();
+        foreach ($stmtRows as $row) {
+            $accessStatements[$row->name] = $row->value ?? '';
+        }
+
+        // Get PREMIS permissions from granted_right table
+        $grantedRights = [];
+        if (Schema::hasTable('granted_right')) {
+            $grantedRights = DB::table('granted_right')->get()->toArray();
+        }
+
+        // Copyright statement settings
+        $copyrightStatementEnabled = $this->service->getSetting('digitalobject_copyright_statement_enabled', null, $culture) ?? '0';
+        $copyrightStatement = $this->service->getSetting('digitalobject_copyright_statement', null, $culture) ?? '';
+        $copyrightStatementApplyGlobally = $this->service->getSetting('digitalobject_copyright_statement_apply_globally', null, $culture) ?? '0';
+
+        // Preservation system access statement
+        $preservationEnabled = $this->service->getSetting('digitalobject_preservation_system_access_statement_enabled', null, $culture) ?? '0';
+        $preservationStatement = $this->service->getSetting('digitalobject_preservation_system_access_statement', null, $culture) ?? '';
+
+        if ($request->isMethod('post')) {
+            // Save PREMIS access statements
+            foreach ($request->input('access_statements', []) as $name => $value) {
+                $existing = DB::table('setting')->where('name', $name)->where('scope', 'access_statement')->first();
+                if ($existing) {
+                    DB::table('setting_i18n')->updateOrInsert(
+                        ['id' => $existing->id, 'culture' => $culture],
+                        ['value' => $value]
+                    );
+                }
+            }
+
+            // Save copyright statement settings
+            $this->service->saveSetting('digitalobject_copyright_statement_enabled', null, $request->input('copyrightStatementEnabled', '0'), $culture);
+            $this->service->saveSetting('digitalobject_copyright_statement', null, $request->input('copyrightStatement', ''), $culture);
+            $this->service->saveSetting('digitalobject_copyright_statement_apply_globally', null, $request->input('copyrightStatementApplyGlobally', '0'), $culture);
+
+            // Save preservation statement settings
+            $this->service->saveSetting('digitalobject_preservation_system_access_statement_enabled', null, $request->input('preservationStatementEnabled', '0'), $culture);
+            $this->service->saveSetting('digitalobject_preservation_system_access_statement', null, $request->input('preservationStatement', ''), $culture);
+
+            return redirect()->route('settings.permissions')->with('success', 'Permissions saved.');
+        }
+
+        return view('ahg-settings::permissions', compact(
+            'menu', 'basis', 'acts', 'accessStatements',
+            'grantedRights', 'copyrightStatementEnabled', 'copyrightStatement',
+            'copyrightStatementApplyGlobally', 'preservationEnabled', 'preservationStatement'
+        ));
+    }
+
+    // ─── 9. Privacy Notification ────────────────────────────────────────
+    public function privacyNotification(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('privacy-notification');
+
+        if ($request->isMethod('post')) {
+            $this->service->saveSetting('privacy_notification_enabled', null, $request->input('settings.privacy_notification_enabled', '0'), $culture);
+            $this->service->saveSetting('privacy_notification', null, $request->input('settings.privacy_notification', ''), $culture);
+            return redirect()->route('settings.privacy-notification')->with('success', 'Privacy notification settings saved.');
+        }
+
+        $settings = [
+            'privacy_notification_enabled' => $this->service->getSetting('privacy_notification_enabled', null, $culture) ?? '0',
+            'privacy_notification' => $this->service->getSetting('privacy_notification', null, $culture) ?? '',
+        ];
+
+        return view('ahg-settings::privacy-notification', compact('settings', 'menu'));
+    }
+
+    // ─── 10. Uploads ────────────────────────────────────────────────────
+    public function uploads(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('uploads');
+
+        $settingNames = [
+            'upload_quota',
+            'enable_repository_quotas',
+            'repository_quota',
+            'explode_multipage_files',
+        ];
+        $defaults = [
+            'upload_quota' => '-1',
+            'enable_repository_quotas' => '1',
+            'repository_quota' => '0',
+            'explode_multipage_files' => '0',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $value = $request->input("settings.{$name}", '');
+                $this->service->saveSetting($name, null, $value, $culture);
+            }
+            return redirect()->route('settings.uploads')->with('success', 'Uploads settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? ($defaults[$name] ?? '');
+        }
+
+        return view('ahg-settings::uploads', compact('settings', 'menu'));
+    }
+
+    // ─── 11. Header Customizations ──────────────────────────────────────
+    public function headerCustomizations(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('header-customizations');
+
+        $settingNames = [
+            'header_background_color',
+            'header_text_color',
+            'header_custom_css',
+            'header_custom_html',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $value = $request->input("settings.{$name}", '');
+                $this->service->saveSetting($name, null, $value, $culture);
+            }
+            return redirect()->route('settings.header-customizations')->with('success', 'Header customization settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+
+        return view('ahg-settings::header-customizations', compact('settings', 'menu'));
+    }
+
+    // ─── 12. Web Analytics ──────────────────────────────────────────────
+    public function webAnalytics(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('web-analytics');
+
+        $settingNames = [
+            'google_analytics_api_key',
+            'google_tag_manager_id',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $value = $request->input("settings.{$name}", '');
+                $this->service->saveSetting($name, null, $value, $culture);
+            }
+            return redirect()->route('settings.web-analytics')->with('success', 'Web analytics settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+
+        return view('ahg-settings::web-analytics', compact('settings', 'menu'));
+    }
+
+    // ─── 13. AI Condition ───────────────────────────────────────────────
+    public function aiCondition(Request $request)
+    {
+        $menu = $this->buildMenu('ai-condition');
+
+        // Check if ahg_settings table has ai_condition group
+        $hasAhgTable = Schema::hasTable('ahg_settings');
+        $hasGroup = false;
+        if ($hasAhgTable) {
+            $hasGroup = DB::table('ahg_settings')->where('setting_group', 'ai_condition')->exists();
+        }
+
+        if ($hasGroup) {
+            return redirect()->route('settings.ahg', 'ai_condition');
+        }
+
+        return view('ahg-settings::ai-condition', compact('menu'));
+    }
+
+    // ─── 14. Storage Service ────────────────────────────────────────────
+    public function storageService(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('storage-service');
+
+        $settingNames = [
+            'storage_service_url',
+            'storage_service_api_key',
+            'storage_service_username',
+            'storage_service_type',
+            'storage_service_enabled',
+        ];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $value = $request->input("settings.{$name}", '');
+                $this->service->saveSetting($name, null, $value, $culture);
+            }
+            return redirect()->route('settings.storage-service')->with('success', 'Storage service settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+
+        return view('ahg-settings::storage-service', compact('settings', 'menu'));
     }
 
     private function buildMenu(string $active): array
