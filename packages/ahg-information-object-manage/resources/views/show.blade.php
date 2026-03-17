@@ -1365,7 +1365,7 @@
           <li><hr class="dropdown-divider"></li>
           @if(isset($digitalObjects) && $digitalObjects['master'])
             <li>
-              <a class="dropdown-item" href="{{ route('io.digital-object.show', $digitalObjects['master']->id) }}">
+              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
                 <i class="fas fa-photo-video me-2"></i>Edit digital object
               </a>
             </li>
