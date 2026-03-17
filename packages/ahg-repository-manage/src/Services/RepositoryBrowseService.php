@@ -135,6 +135,62 @@ class RepositoryBrowseService extends BrowseService
     }
 
     /**
+     * Get archive type facets.
+     */
+    public function getArchiveTypeFacets(): array
+    {
+        $rows = DB::table('repository')
+            ->join('object_term_relation', 'repository.id', '=', 'object_term_relation.object_id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('term.taxonomy_id', 38) // Repository type taxonomy
+            ->where('repository.id', '!=', 6)
+            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get();
+
+        $facets = [];
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+        return $facets;
+    }
+
+    /**
+     * Get geographic subregion facets.
+     */
+    public function getSubregionFacets(): array
+    {
+        $rows = DB::table('repository')
+            ->join('object_term_relation', 'repository.id', '=', 'object_term_relation.object_id')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('term.taxonomy_id', 73) // Geographic subregion taxonomy
+            ->where('repository.id', '!=', 6)
+            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get();
+
+        $facets = [];
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+        return $facets;
+    }
+
+    /**
      * Apply advanced filters.
      */
     public function browseAdvanced(array $params): array
@@ -188,6 +244,26 @@ class RepositoryBrowseService extends BrowseService
                         })
                         ->whereColumn('contact_information.actor_id', 'repository.id')
                         ->where('contact_information_i18n.city', 'LIKE', '%' . $params['locality'] . '%');
+                });
+            }
+
+            // Archive type filter
+            if (!empty($params['archiveType'])) {
+                $query->whereExists(function ($sub) use ($params) {
+                    $sub->select(DB::raw(1))
+                        ->from('object_term_relation')
+                        ->whereColumn('object_term_relation.object_id', 'repository.id')
+                        ->where('object_term_relation.term_id', (int) $params['archiveType']);
+                });
+            }
+
+            // Geographic subregion filter
+            if (!empty($params['subregion'])) {
+                $query->whereExists(function ($sub) use ($params) {
+                    $sub->select(DB::raw(1))
+                        ->from('object_term_relation')
+                        ->whereColumn('object_term_relation.object_id', 'repository.id')
+                        ->where('object_term_relation.term_id', (int) $params['subregion']);
                 });
             }
 

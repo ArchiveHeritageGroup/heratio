@@ -145,6 +145,30 @@ class StorageController extends Controller
             ->with('success', 'Physical storage deleted successfully.');
     }
 
+    public function holdingsReportExport()
+    {
+        $culture = app()->getLocale();
+        $rows = DB::table('physical_object')
+            ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
+            ->leftJoin('term_i18n', function ($j) use ($culture) {
+                $j->on('physical_object.type_id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $culture);
+            })
+            ->where('physical_object_i18n.culture', $culture)
+            ->select('physical_object_i18n.name', 'term_i18n.name as type', 'physical_object_i18n.location')
+            ->orderBy('physical_object_i18n.name')
+            ->get();
+
+        return new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Name', 'Type', 'Location']);
+            foreach ($rows as $r) {
+                fputcsv($out, [$r->name, $r->type ?? '', $r->location ?? '']);
+            }
+            fclose($out);
+        }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="storage-report-' . date('Ymd') . '.csv"']);
+    }
+
     private function fields(): array
     {
         return ['name', 'type_id', 'location', 'description'];

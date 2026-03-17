@@ -68,6 +68,62 @@
         </div>
       </div>
     @endif
+
+    {{-- Archive type facet --}}
+    @if(!empty($archiveTypeFacets))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-archiveType">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-archiveType"
+                    aria-expanded="false" aria-controls="collapse-archiveType">
+              Archive type
+            </button>
+          </h2>
+          <div id="collapse-archiveType" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-archiveType">
+            @php $currentArchiveType = request('archiveType', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentArchiveType === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['archiveType', 'page'])) }}">All</a>
+            @foreach($archiveTypeFacets as $atId => $facet)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentArchiveType == $atId ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['archiveType', 'page']), ['archiveType' => $atId])) }}">
+                {{ $facet['name'] }}
+                <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
+
+    {{-- Geographic subregion facet --}}
+    @if(!empty($subregionFacets))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-subregion">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-subregion"
+                    aria-expanded="false" aria-controls="collapse-subregion">
+              Geographic subregion
+            </button>
+          </h2>
+          <div id="collapse-subregion" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-subregion">
+            @php $currentSubregion = request('subregion', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubregion === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['subregion', 'page'])) }}">All</a>
+            @foreach($subregionFacets as $srId => $facet)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubregion == $srId ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['subregion', 'page']), ['subregion' => $srId])) }}">
+                {{ $facet['name'] }}
+                <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
   </div>
 @endsection
 

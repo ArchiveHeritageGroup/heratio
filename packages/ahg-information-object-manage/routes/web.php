@@ -47,6 +47,14 @@ Route::middleware('auth')->group(function () {
     // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
     Route::get('/informationobject/import/csv/{slug?}', [ImportController::class, 'csv'])->name('informationobject.import.csv');
+
+    // AtoM menu path alias: object/importSelect?type=xml|csv
+    Route::get('/object/importSelect', function (\Illuminate\Http\Request $request) {
+        $type = $request->get('type', 'xml');
+        return redirect($type === 'csv'
+            ? route('informationobject.import.csv')
+            : route('informationobject.import.xml'));
+    });
     Route::post('/informationobject/import/process', [ImportController::class, 'process'])->name('informationobject.import.process');
 
     // Validate CSV (menu path: object/validateCsv)

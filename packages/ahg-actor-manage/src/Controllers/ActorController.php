@@ -58,6 +58,11 @@ class ActorController extends Controller
         $entityTypeFacets = $browseService->getEntityTypeFacets();
         $totalCount = $browseService->getTotalCount();
         $repositories = $browseService->getRepositories();
+        $maintainedByFacets = $browseService->getMaintainedByFacets();
+        $occupationFacets = $browseService->getOccupationFacets();
+        $placeFacets = $browseService->getPlaceFacets();
+        $subjectFacets = $browseService->getSubjectFacets();
+        $mediaTypeFacets = $browseService->getMediaTypeFacets();
 
         return view('ahg-actor-manage::browse', [
             'pager' => $pager,
@@ -65,6 +70,11 @@ class ActorController extends Controller
             'entityTypeFacets' => $entityTypeFacets,
             'totalCount' => $totalCount,
             'repositories' => $repositories,
+            'maintainedByFacets' => $maintainedByFacets,
+            'occupationFacets' => $occupationFacets,
+            'placeFacets' => $placeFacets,
+            'subjectFacets' => $subjectFacets,
+            'mediaTypeFacets' => $mediaTypeFacets,
             'params' => $params,
             'sortOptions' => [
                 'alphabetic' => 'Name',

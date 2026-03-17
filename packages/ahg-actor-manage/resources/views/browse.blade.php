@@ -43,6 +43,171 @@
         </div>
       </div>
     </div>
+
+    {{-- Maintained by facet --}}
+    @if(!empty($maintainedByFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-maintainedBy">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-maintainedBy"
+                  aria-expanded="false" aria-controls="collapse-maintainedBy">
+            Maintained by
+          </button>
+        </h2>
+        <div id="collapse-maintainedBy" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-maintainedBy">
+          @php
+            $currentMaintainedBy = request('maintainedBy', '');
+            $mbParams = request()->except(['maintainedBy', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMaintainedBy === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mbParams) }}" title="All">All</a>
+          @foreach($maintainedByFacets as $mbId => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMaintainedBy == $mbId ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mbParams, ['maintainedBy' => $mbId])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
+    {{-- Occupation facet --}}
+    @if(!empty($occupationFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-occupation">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-occupation"
+                  aria-expanded="false" aria-controls="collapse-occupation">
+            Occupation
+          </button>
+        </h2>
+        <div id="collapse-occupation" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-occupation">
+          @php
+            $currentOccupation = request('occupation', '');
+            $occParams = request()->except(['occupation', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentOccupation === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($occParams) }}" title="All">All</a>
+          @foreach($occupationFacets as $occId => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentOccupation == $occId ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($occParams, ['occupation' => $occId])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
+    {{-- Place facet --}}
+    @if(!empty($placeFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-place">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-place"
+                  aria-expanded="false" aria-controls="collapse-place">
+            Place
+          </button>
+        </h2>
+        <div id="collapse-place" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-place">
+          @php
+            $currentPlace = request('place', '');
+            $placeParams = request()->except(['place', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentPlace === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($placeParams) }}" title="All">All</a>
+          @foreach($placeFacets as $placeId => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentPlace == $placeId ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($placeParams, ['place' => $placeId])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
+    {{-- Subject facet --}}
+    @if(!empty($subjectFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-subject">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-subject"
+                  aria-expanded="false" aria-controls="collapse-subject">
+            Subject
+          </button>
+        </h2>
+        <div id="collapse-subject" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-subject">
+          @php
+            $currentSubject = request('subject', '');
+            $subParams = request()->except(['subject', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubject === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($subParams) }}" title="All">All</a>
+          @foreach($subjectFacets as $subId => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubject == $subId ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($subParams, ['subject' => $subId])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
+    {{-- Media type facet --}}
+    @if(!empty($mediaTypeFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-mediaType">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-mediaType"
+                  aria-expanded="false" aria-controls="collapse-mediaType">
+            Media type
+          </button>
+        </h2>
+        <div id="collapse-mediaType" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-mediaType">
+          @php
+            $currentMediaType = request('mediaType', '');
+            $mtParams = request()->except(['mediaType', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentMediaType === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($mtParams) }}" title="All">All</a>
+          @foreach($mediaTypeFacets as $mtId => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMediaType == $mtId ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mtParams, ['mediaType' => $mtId])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
   </div>
 @endsection
 
@@ -230,6 +395,26 @@
                     <option value="generalContext" {{ ($params['emptyField'] ?? '') === 'generalContext' ? 'selected' : '' }}>General context</option>
                     <option value="descriptionIdentifier" {{ ($params['emptyField'] ?? '') === 'descriptionIdentifier' ? 'selected' : '' }}>Description identifier</option>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            <h5>Find results where:</h5>
+            <div class="criteria row mb-2">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label" for="relatedType">Relationship</label>
+                  <select name="relatedType" class="form-select" id="relatedType">
+                    <option value=""></option>
+                    <option value="159" {{ ($params['relatedType'] ?? '') === '159' ? 'selected' : '' }}>Draft</option>
+                    <option value="160" {{ ($params['relatedType'] ?? '') === '160' ? 'selected' : '' }}>Published</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="mb-3">
+                  <label class="form-label" for="relatedAuthority">Related Authority record</label>
+                  <input type="text" class="form-control" name="relatedAuthority" id="relatedAuthority" value="{{ $params['relatedAuthority'] ?? '' }}" placeholder="Type to search authority records...">
                 </div>
               </div>
             </div>

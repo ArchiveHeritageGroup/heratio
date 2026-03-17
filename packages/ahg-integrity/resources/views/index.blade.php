@@ -24,7 +24,7 @@
 
   {{-- Stats cards --}}
   <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-lg">
       <div class="card text-center">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold">{{ number_format($stats['master_objects']) }}</div>
@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-lg">
       <div class="card text-center border-primary">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-primary">{{ number_format($stats['total_verifications']) }}</div>
@@ -40,7 +40,7 @@
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-lg">
       <div class="card text-center border-success">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-success">{{ $stats['pass_rate'] }}%</div>
@@ -48,11 +48,35 @@
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-lg">
       <div class="card text-center {{ $stats['open_dead_letters'] > 0 ? 'border-danger' : 'border-secondary' }}">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold {{ $stats['open_dead_letters'] > 0 ? 'text-danger' : '' }}">{{ number_format($stats['open_dead_letters']) }}</div>
           <div class="small text-muted">Open Dead Letters</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg">
+      <div class="card text-center border-warning">
+        <div class="card-body py-2">
+          <div class="fs-3 fw-bold text-warning">{{ number_format($stats['never_verified']) }}</div>
+          <div class="small text-muted">Never Verified</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg">
+      <div class="card text-center border-info">
+        <div class="card-body py-2">
+          <div class="fs-3 fw-bold text-info">{{ number_format($stats['throughput_7d']) }}</div>
+          <div class="small text-muted">Throughput (7 days)</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg">
+      <div class="card text-center border-secondary">
+        <div class="card-body py-2">
+          <div class="fs-3 fw-bold text-secondary">{{ number_format($stats['total_verifications']) }}</div>
+          <div class="small text-muted">Storage Scanned</div>
         </div>
       </div>
     </div>
@@ -73,21 +97,19 @@
 
   {{-- Quick Actions --}}
   <div class="d-flex flex-wrap gap-2 mb-4">
-    <a href="/integrity/run" class="btn btn-sm btn-primary">
-      <i class="fas fa-play me-1"></i> Run Verification
-    </a>
-    <a href="/integrity/schedules" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-calendar-alt me-1"></i> View Schedules
-    </a>
-    <a href="/integrity/ledger" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-book me-1"></i> View Ledger
-    </a>
-    <a href="/integrity/dead-letters" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-envelope-open-text me-1"></i> View Dead Letters
+    <a href="{{ url('/integrity/schedules') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clock me-1"></i>Schedules</a>
+    <a href="{{ url('/integrity/ledger') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clipboard-list me-1"></i>Ledger</a>
+    <a href="{{ url('/integrity/dead-letters') }}" class="btn btn-sm atom-btn-white">
+      <i class="fas fa-exclamation-circle me-1"></i>Dead Letters
       @if($stats['open_dead_letters'] > 0)
         <span class="badge bg-danger ms-1">{{ number_format($stats['open_dead_letters']) }}</span>
       @endif
     </a>
+    <a href="{{ url('/integrity/policies') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-cogs me-1"></i>Policies</a>
+    <a href="{{ url('/integrity/holds') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-lock me-1"></i>Holds</a>
+    <a href="{{ url('/integrity/alerts') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-bell me-1"></i>Alerts</a>
+    <a href="{{ url('/integrity/export') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>Export</a>
+    <a href="{{ url('/integrity/report') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-chart-bar me-1"></i>Report</a>
   </div>
 
   {{-- Recent Verification Runs --}}
@@ -160,4 +182,63 @@
       @endif
     </div>
   </div>
+
+  {{-- Daily Verification Trend --}}
+  @if(!empty($dailyTrend))
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Daily Verification Trend (30 days)</h5></div>
+    <div class="card-body">
+      <canvas id="trendChart" height="200"></canvas>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script>
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: {!! json_encode(array_column($dailyTrend, 'day')) !!},
+      datasets: [{
+        label: 'Verifications',
+        data: {!! json_encode(array_column($dailyTrend, 'cnt')) !!},
+        borderColor: '#0d6efd', backgroundColor: 'rgba(13,110,253,0.1)', fill: true, tension: 0.3
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+  </script>
+  @endif
+
+  {{-- Repository Breakdown --}}
+  @if(!empty($repoBreakdown))
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Repository Breakdown</h5></div>
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0">
+        <thead><tr><th>Repository</th><th>Total</th><th>Passed</th><th>Failed</th></tr></thead>
+        <tbody>
+          @foreach($repoBreakdown as $rb)
+            <tr><td>{{ $rb->name }}</td><td>{{ $rb->total }}</td><td class="text-success">{{ $rb->passed }}</td><td class="text-danger">{{ $rb->failed }}</td></tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+  @endif
+
+  {{-- Failure Type Breakdown --}}
+  @if(!empty($failureTypes))
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Failure Types</h5></div>
+    <div class="card-body p-0">
+      <table class="table table-bordered mb-0">
+        <thead><tr><th>Reason</th><th>Count</th></tr></thead>
+        <tbody>
+          @foreach($failureTypes as $ft)
+            <tr><td>{{ $ft->reason ?? 'Unknown' }}</td><td>{{ $ft->cnt }}</td></tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+  @endif
 @endsection

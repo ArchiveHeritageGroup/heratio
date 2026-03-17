@@ -33,10 +33,13 @@ class RepositoryController extends Controller
             'region' => $request->get('region', ''),
             'locality' => $request->get('locality', ''),
             'hasDigitalObject' => $request->get('hasDigitalObject', ''),
+            'archiveType' => $request->get('archiveType', ''),
+            'subregion' => $request->get('subregion', ''),
         ];
 
         $hasAdvanced = $params['thematicArea'] || $params['region']
-            || $params['locality'] || $params['hasDigitalObject'];
+            || $params['locality'] || $params['hasDigitalObject']
+            || $params['archiveType'] || $params['subregion'];
 
         $result = $hasAdvanced
             ? $browseService->browseAdvanced($params)
@@ -46,11 +49,15 @@ class RepositoryController extends Controller
 
         $thematicAreaFacets = $browseService->getThematicAreaFacets();
         $regions = $browseService->getRegionFacets();
+        $archiveTypeFacets = $browseService->getArchiveTypeFacets();
+        $subregionFacets = $browseService->getSubregionFacets();
 
         return view('ahg-repository-manage::browse', [
             'pager' => $pager,
             'thematicAreaFacets' => $thematicAreaFacets,
             'regions' => $regions,
+            'archiveTypeFacets' => $archiveTypeFacets,
+            'subregionFacets' => $subregionFacets,
             'params' => $params,
             'sortOptions' => [
                 'alphabetic' => 'Name',

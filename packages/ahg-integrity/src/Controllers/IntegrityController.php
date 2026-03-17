@@ -81,6 +81,62 @@ class IntegrityController extends Controller
                 });
         }
 
+        // Additional stats
+        $neverVerified = 0;
+        $throughput7d = 0;
+        if (Schema::hasTable('integrity_run')) {
+            $neverVerified = DB::table('digital_object')
+                ->whereNotExists(function ($sub) {
+                    $sub->select(DB::raw(1))->from('integrity_ledger')
+                        ->whereColumn('integrity_ledger.object_id', 'digital_object.object_id');
+                })->count();
+
+            $throughput7d = DB::table('integrity_ledger')
+                ->where('verified_at', '>=', now()->subDays(7))
+                ->count();
+        }
+
+        // Repository breakdown
+        $repoBreakdown = [];
+        if (Schema::hasTable('integrity_ledger')) {
+            $repoBreakdown = DB::table('integrity_ledger')
+                ->join('information_object', 'integrity_ledger.object_id', '=', 'information_object.id')
+                ->join('actor_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.repository_id', '=', 'actor_i18n.id')
+                      ->where('actor_i18n.culture', '=', $culture);
+                })
+                ->select('actor_i18n.authorized_form_of_name as name',
+                    DB::raw('COUNT(*) as total'),
+                    DB::raw("SUM(CASE WHEN integrity_ledger.outcome = 'pass' THEN 1 ELSE 0 END) as passed"),
+                    DB::raw("SUM(CASE WHEN integrity_ledger.outcome = 'fail' THEN 1 ELSE 0 END) as failed"))
+                ->groupBy('actor_i18n.authorized_form_of_name')
+                ->orderBy('total', 'desc')
+                ->limit(10)
+                ->get()->toArray();
+        }
+
+        // Failure type breakdown
+        $failureTypes = [];
+        if (Schema::hasTable('integrity_dead_letter')) {
+            $failureTypes = DB::table('integrity_dead_letter')
+                ->select('reason', DB::raw('COUNT(*) as cnt'))
+                ->groupBy('reason')
+                ->orderBy('cnt', 'desc')
+                ->limit(10)
+                ->get()->toArray();
+        }
+
+        // Daily verification trend (last 30 days)
+        $dailyTrend = [];
+        if (Schema::hasTable('integrity_ledger')) {
+            $dailyTrend = DB::table('integrity_ledger')
+                ->where('verified_at', '>=', now()->subDays(30))
+                ->select(DB::raw('DATE(verified_at) as day'), DB::raw('COUNT(*) as cnt'))
+                ->groupBy(DB::raw('DATE(verified_at)'))
+                ->orderBy('day')
+                ->get()->toArray();
+        }
+
         return view('ahg-integrity::index', [
             'configured' => $configured,
             'stats' => [
@@ -88,9 +144,14 @@ class IntegrityController extends Controller
                 'total_verifications' => $totalVerifications,
                 'pass_rate' => $passRate,
                 'open_dead_letters' => $openDeadLetters,
+                'never_verified' => $neverVerified,
+                'throughput_7d' => $throughput7d,
             ],
             'repositories' => $repositories,
             'recentRuns' => $recentRuns,
+            'repoBreakdown' => $repoBreakdown,
+            'failureTypes' => $failureTypes,
+            'dailyTrend' => $dailyTrend,
         ]);
     }
 }

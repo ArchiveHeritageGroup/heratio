@@ -101,6 +101,116 @@ class ActorBrowseService extends BrowseService
     }
 
     /**
+     * Get "Maintained by" (repository) facets.
+     */
+    public function getMaintainedByFacets(): array
+    {
+        $rows = DB::table('relation')
+            ->join('actor_i18n as repo_name', function ($j) {
+                $j->on('relation.object_id', '=', 'repo_name.id')
+                  ->where('repo_name.culture', '=', $this->culture);
+            })
+            ->where('relation.type_id', 161) // isMaintenanceAgencyOf
+            ->select('relation.object_id as id', 'repo_name.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
+            ->groupBy('relation.object_id', 'repo_name.authorized_form_of_name')
+            ->orderBy('repo_name.authorized_form_of_name')
+            ->get();
+        $facets = [];
+        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        return $facets;
+    }
+
+    /**
+     * Get occupation facets from object_term_relation.
+     */
+    public function getOccupationFacets(): array
+    {
+        // Occupation taxonomy ID = 313 in AtoM
+        $rows = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
+            ->where('term.taxonomy_id', 313)
+            ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
+            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get();
+        $facets = [];
+        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        return $facets;
+    }
+
+    /**
+     * Get place facets.
+     */
+    public function getPlaceFacets(): array
+    {
+        $rows = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
+            ->where('term.taxonomy_id', 42)
+            ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
+            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->limit(20)
+            ->get();
+        $facets = [];
+        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        return $facets;
+    }
+
+    /**
+     * Get subject facets.
+     */
+    public function getSubjectFacets(): array
+    {
+        $rows = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
+            ->where('term.taxonomy_id', 35)
+            ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
+            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->limit(20)
+            ->get();
+        $facets = [];
+        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        return $facets;
+    }
+
+    /**
+     * Get media type facets (actors with digital objects).
+     */
+    public function getMediaTypeFacets(): array
+    {
+        $rows = DB::table('digital_object')
+            ->join('actor', 'digital_object.object_id', '=', 'actor.id')
+            ->join('term_i18n', function ($j) {
+                $j->on('digital_object.media_type_id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
+            ->select('digital_object.media_type_id as id', 'term_i18n.name', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('digital_object.media_type_id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get();
+        $facets = [];
+        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        return $facets;
+    }
+
+    /**
      * Get total actor count (excluding root/default).
      */
     public function getTotalCount(): int

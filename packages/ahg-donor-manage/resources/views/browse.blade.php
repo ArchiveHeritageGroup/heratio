@@ -53,7 +53,9 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Updated</th>
+          @if(request('sort', 'alphabetic') !== 'alphabetic')
+            <th>Updated</th>
+          @endif
         </tr>
       </thead>
       <tbody>
@@ -64,11 +66,13 @@
                 {{ $doc['name'] ?: '[Untitled]' }}
               </a>
             </td>
-            <td>
-              @if(!empty($doc['updated_at']))
-                {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
-              @endif
-            </td>
+            @if(request('sort', 'alphabetic') !== 'alphabetic')
+              <td>
+                @if(!empty($doc['updated_at']))
+                  {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
+                @endif
+              </td>
+            @endif
           </tr>
         @endforeach
       </tbody>

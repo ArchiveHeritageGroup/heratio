@@ -77,6 +77,7 @@
   @auth
     <section class="actions mb-3">
       <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="Add new">Add new</a>
+      <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="Export storage report">Export storage report</a>
     </section>
   @endauth
 @endsection

@@ -17,4 +17,5 @@ Route::middleware('admin')->group(function () {
     Route::delete('/physicalobject/{slug}/delete', [StorageController::class, 'destroy'])->name('physicalobject.destroy');
 });
 
+Route::get('/physicalobject/holdingsReportExport', [StorageController::class, 'holdingsReportExport'])->name('physicalobject.holdings-export');
 Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])->name('physicalobject.show');
