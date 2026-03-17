@@ -37,6 +37,7 @@
         "ahg/dropdown-manage": "@dev",
         "ahg/favorites": "@dev",
         "ahg/feedback": "@dev",
+        "ahg/ftp-upload": "@dev",
         "ahg/function-manage": "@dev",
         "ahg/heritage-manage": "@dev",
         "ahg/iiif-collection": "@dev",

@@ -94,10 +94,14 @@
       <a href="{{ route('actor.edit', $actor->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="{{ route('actor.confirmDelete', $actor->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
       <a href="{{ route('actor.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+      <a href="{{ route('actor.edit', $actor->slug) }}?rename=1" class="btn atom-btn-outline-light" title="Rename"><i class="fas fa-i-cursor me-1"></i>Rename</a>
     @endauth
     <a href="{{ route('actor.print', $actor->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
       <i class="fas fa-print me-1"></i> Print
     </a>
+    <button class="btn atom-btn-white clipboard ms-2" data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor" title="Add to clipboard">
+      <i class="fas fa-paperclip"></i>
+    </button>
   </div>
 
   {{-- Identity area --}}

@@ -43,6 +43,12 @@
     </div>
   </div>
 
+  <ul class="nav nav-pills mb-3">
+    <li class="nav-item"><a class="nav-link {{ request('status', 'active') === 'active' ? 'active' : '' }}" href="?status=active">Show active only</a></li>
+    <li class="nav-item"><a class="nav-link {{ request('status') === 'inactive' ? 'active' : '' }}" href="?status=inactive">Show inactive only</a></li>
+    <li class="nav-item"><a class="nav-link {{ request('status') === 'all' ? 'active' : '' }}" href="?status=all">Show all</a></li>
+  </ul>
+
   @if($pager->getNbResults())
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
@@ -65,6 +71,9 @@
                 <a href="{{ route('user.show', $doc['slug']) }}">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
+                @if(isset($currentUserId) && $doc['id'] == $currentUserId)
+                  <span class="badge bg-info ms-1">(you)</span>
+                @endif
               </td>
               <td>{{ $doc['username'] ?? '' }}</td>
               <td>{{ $doc['email'] ?? '' }}</td>

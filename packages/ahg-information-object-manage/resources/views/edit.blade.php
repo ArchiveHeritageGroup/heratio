@@ -321,28 +321,17 @@
     </fieldset>
 
     {{-- ===== Form actions ===== --}}
-    <div class="d-flex gap-2 mb-4">
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i> Save
-      </button>
-      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-secondary">Cancel</a>
-    </div>
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><a href="{{ route('informationobject.confirmDelete', $io->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      </ul>
+    </section>
   </form>
 
   {{-- ===== Digital object upload/manage ===== --}}
   <div class="accordion mb-4" id="digitalObjectAccordion">
     @include('io-manage::partials._upload-form')
-  </div>
-
-  {{-- Delete form --}}
-  <div class="border-top pt-3 mt-3">
-    <form method="POST" action="{{ route('informationobject.destroy', $io->slug) }}"
-          onsubmit="return confirm('Are you sure you want to delete this archival description? This action cannot be undone.')">
-      @csrf
-      @method('DELETE')
-      <button type="submit" class="btn btn-outline-danger btn-sm">
-        <i class="fas fa-trash me-1"></i> Delete this description
-      </button>
-    </form>
   </div>
 @endsection

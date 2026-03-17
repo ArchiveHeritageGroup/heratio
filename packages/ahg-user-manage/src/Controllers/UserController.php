@@ -23,17 +23,21 @@ class UserController extends Controller
         $culture = app()->getLocale();
         $browseService = new UserBrowseService($culture);
 
+        $status = $request->get('status', 'active');
+
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'subquery' => $request->get('subquery', ''),
+            'status' => $status,
         ]);
 
         $pager = new SimplePager($result);
 
         return view('ahg-user-manage::browse', [
             'pager' => $pager,
+            'currentUserId' => auth()->id(),
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',

@@ -4,6 +4,7 @@ namespace AhgStaticPage\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class StaticPageController extends Controller
 {
@@ -19,6 +20,34 @@ class StaticPageController extends Controller
             ->get();
 
         return view('ahg-static-page::browse', compact('pages'));
+    }
+
+    public function destroy(int $id)
+    {
+        // Prevent deletion of protected pages
+        $protectedSlugs = ['home', 'about', 'contact'];
+        $slug = DB::table('slug')->where('object_id', $id)->value('slug');
+
+        if ($slug && in_array($slug, $protectedSlugs)) {
+            return redirect()->route('staticpage.browse')
+                ->with('error', 'Protected pages cannot be deleted.');
+        }
+
+        // Verify the static page exists
+        $exists = DB::table('static_page')->where('id', $id)->exists();
+        if (!$exists) {
+            abort(404);
+        }
+
+        DB::transaction(function () use ($id) {
+            DB::table('static_page_i18n')->where('id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            DB::table('static_page')->where('id', $id)->delete();
+            DB::table('object')->where('id', $id)->delete();
+        });
+
+        return redirect()->route('staticpage.browse')
+            ->with('success', 'Static page deleted successfully.');
     }
 
     public function show(string $slug)

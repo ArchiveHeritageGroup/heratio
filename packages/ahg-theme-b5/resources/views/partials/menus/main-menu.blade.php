@@ -35,6 +35,7 @@
     'importCsv' => 'fas fa-file-csv',
     'importSkos' => 'fas fa-project-diagram',
     'validateCsv' => 'fas fa-check-circle',
+    'ftpUpload' => 'fas fa-upload',
     // Admin menu
     'users' => 'fas fa-users',
     'groups' => 'fas fa-user-shield',

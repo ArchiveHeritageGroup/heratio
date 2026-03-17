@@ -1689,6 +1689,22 @@
               <i class="fas fa-file-alt me-2"></i>Export Dublin Core
             </a>
           </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="POST" action="{{ route('io.updateStatus', $io->slug ?? '') }}" class="dropdown-item p-0">
+              @csrf
+              <select name="publication_status" onchange="this.form.submit()" class="form-select form-select-sm border-0">
+                <option value="" disabled selected>Update pub. status</option>
+                <option value="160">Published</option>
+                <option value="159">Draft</option>
+              </select>
+            </form>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id ?? '']) }}">
+              <i class="fas fa-history me-2"></i>Modification history
+            </a>
+          </li>
         </ul>
       </div>
     </li>

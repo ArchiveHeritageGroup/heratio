@@ -50,10 +50,19 @@ class UserBrowseService extends BrowseService
         $sort = $params['sort'] ?? 'alphabetic';
         $sortDir = ($sort === 'lastUpdated') ? 'desc' : ($params['sortDir'] ?? 'asc');
         $subquery = trim($params['subquery'] ?? '');
+        $status = $params['status'] ?? 'active';
 
         try {
             $query = DB::table('user');
             $query = $this->getBaseJoins($query);
+
+            // Apply status filter
+            if ($status === 'active') {
+                $query->where('user.active', 1);
+            } elseif ($status === 'inactive') {
+                $query->where('user.active', 0);
+            }
+            // 'all' = no filter
 
             $query->select(DB::raw(implode(', ', [
                 'user.id',
@@ -84,6 +93,14 @@ class UserBrowseService extends BrowseService
                 ->join('object', 'user.id', '=', 'object.id')
                 ->join('slug', 'user.id', '=', 'slug.object_id')
                 ->where('actor_i18n.culture', $this->culture);
+
+            // Apply same status filter to count
+            if ($status === 'active') {
+                $countQuery->where('user.active', 1);
+            } elseif ($status === 'inactive') {
+                $countQuery->where('user.active', 0);
+            }
+
             $countQuery = $this->applySearch($countQuery, $subquery);
             $total = $countQuery->count();
 

@@ -30,6 +30,7 @@ Route::get('/informationobject/add', [InformationObjectController::class, 'creat
 Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
 Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
 Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
+Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
 Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy');
 
 // Treeview API (public for viewing)
@@ -47,6 +48,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
     Route::get('/informationobject/import/csv/{slug?}', [ImportController::class, 'csv'])->name('informationobject.import.csv');
     Route::post('/informationobject/import/process', [ImportController::class, 'process'])->name('informationobject.import.process');
+
+    // Validate CSV (menu path: object/validateCsv)
+    Route::get('/object/validateCsv', [ImportController::class, 'validateCsv'])->name('object.validateCsv');
+    Route::post('/object/validateCsv', [ImportController::class, 'validateCsvProcess'])->name('object.validateCsv.process');
+
+    // SKOS Import (menu path: sfSkosPlugin/import)
+    Route::get('/sfSkosPlugin/import', [ImportController::class, 'skosImport'])->name('sfSkosPlugin.import');
+    Route::post('/sfSkosPlugin/import', [ImportController::class, 'skosImportProcess'])->name('sfSkosPlugin.import.process');
 
     // Finding aid
     Route::get('/informationobject/{slug}/findingaid/generate', [FindingAidController::class, 'generate'])->name('informationobject.findingaid.generate');

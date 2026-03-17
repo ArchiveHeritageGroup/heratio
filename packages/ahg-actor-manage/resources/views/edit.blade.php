@@ -314,15 +314,18 @@
       </div>
     </div>
 
-    <ul class="actions mb-3 nav gap-2">
-      @if($actor)
-        <li><a href="{{ route('actor.show', $actor->slug) }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Save"></li>
-      @else
-        <li><a href="{{ route('actor.browse') }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Create"></li>
-      @endif
-    </ul>
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        @if($actor)
+          <li><a href="{{ route('actor.show', $actor->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+          <li><a href="{{ route('actor.confirmDelete', $actor->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+        @else
+          <li><a href="{{ route('actor.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        @endif
+      </ul>
+    </section>
   </form>
 
 @endsection

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4efb4d1afea49c70e2647ddb3325c98",
+    "content-hash": "f9394a1edf1ace41f62b48d22f03ec14",
     "packages": [
         {
             "name": "ahg/accession-manage",
@@ -489,6 +489,36 @@
                 }
             },
             "description": "Feedback submission for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ftp-upload",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ftp-upload",
+                "reference": "9e564a6f65785b4e91625d64aa577dca5ff915de"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFtpUpload\\Providers\\AhgFtpUploadServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFtpUpload\\": "src/"
+                }
+            },
+            "description": "FTP/SFTP browser-based upload for CSV import digital objects in Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9675,6 +9705,7 @@
         "ahg/dropdown-manage": 20,
         "ahg/favorites": 20,
         "ahg/feedback": 20,
+        "ahg/ftp-upload": 20,
         "ahg/function-manage": 20,
         "ahg/heritage-manage": 20,
         "ahg/iiif-collection": 20,

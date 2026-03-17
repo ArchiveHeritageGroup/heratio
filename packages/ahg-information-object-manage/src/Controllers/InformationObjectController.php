@@ -1196,6 +1196,32 @@ class InformationObjectController extends Controller
     }
 
     /**
+     * Confirm deletion of an information object.
+     */
+    public function confirmDelete(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->join('slug', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        return view('io-manage::delete', [
+            'io' => $io,
+        ]);
+    }
+
+    /**
      * Delete an information object.
      */
     public function destroy(Request $request, string $slug)

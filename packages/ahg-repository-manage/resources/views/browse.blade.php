@@ -40,6 +40,34 @@
         </div>
       </div>
     @endif
+
+    {{-- Region / Province facet --}}
+    @if(!empty($regions))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-region">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-region"
+                    aria-expanded="false" aria-controls="collapse-region">
+              Region / Province
+            </button>
+          </h2>
+          <div id="collapse-region" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-region">
+            @php $currentRegion = request('region', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentRegion === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['region', 'page'])) }}">All</a>
+            @foreach($regions as $r)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentRegion === $r->region ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['region', 'page']), ['region' => $r->region])) }}">
+                {{ $r->region }}
+                <span class="ms-3 text-nowrap">{{ $r->cnt }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
   </div>
 @endsection
 

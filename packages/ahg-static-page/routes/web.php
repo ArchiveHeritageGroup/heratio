@@ -10,4 +10,5 @@ Route::get('/terms', [StaticPageController::class, 'show'])->defaults('slug', 't
 
 Route::middleware('admin')->group(function () {
     Route::get('/staticpage/browse', [StaticPageController::class, 'browse'])->name('staticpage.browse');
+    Route::post('/staticpage/{id}/delete', [StaticPageController::class, 'destroy'])->name('staticpage.destroy');
 });

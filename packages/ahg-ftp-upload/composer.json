@@ -1,0 +1,20 @@
+{
+    "name": "ahg/ftp-upload",
+    "description": "FTP/SFTP browser-based upload for CSV import digital objects in Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgFtpUpload\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgFtpUpload\\Providers\\AhgFtpUploadServiceProvider"
+            ]
+        }
+    }
+}
