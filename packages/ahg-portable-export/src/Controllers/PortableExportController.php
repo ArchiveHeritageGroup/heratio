@@ -33,11 +33,16 @@ class PortableExportController extends Controller
             ->select('setting_i18n.value', 'setting_i18n.culture')
             ->get();
 
-        // If no site languages setting, fall back to supported_languages or default list
-        $languages = DB::table('culture')
-            ->orderBy('name')
-            ->select('name', 'culture as code')
-            ->get();
+        // Get available languages from cultures actually used in the database
+        $languages = DB::table('information_object_i18n')
+            ->select('culture as code')
+            ->distinct()
+            ->orderBy('culture')
+            ->get()
+            ->map(function ($row) {
+                $row->name = locale_get_display_language($row->code, app()->getLocale()) ?: $row->code;
+                return $row;
+            });
 
         // Get past exports if table exists
         $exports = collect();
