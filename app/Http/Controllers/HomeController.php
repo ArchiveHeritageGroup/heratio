@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -11,9 +12,14 @@ class HomeController extends Controller
      * Homepage — migrated from ahgThemeB5Plugin homeSuccess.php.
      * 2-column layout: sidebar (static pages menu, browse-by, popular this week)
      * + main content (featured collection carousel, static page HTML content).
+     * Authenticated users are redirected to the research dashboard (matches PSIS/AtoM).
      */
     public function index()
     {
+        if (Auth::check()) {
+            return redirect('/research/dashboard');
+        }
+
         // Get homepage static page content
         $page = DB::table('static_page')
             ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
