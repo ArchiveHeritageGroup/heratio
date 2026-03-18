@@ -107,7 +107,7 @@
           <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('research.book') }}" class="btn btn-outline-primary"><i class="fas fa-calendar-plus me-1"></i>Book Visit</a>
             <a href="{{ route('research.journal.create') }}" class="btn btn-outline-success"><i class="fas fa-pen-fancy me-1"></i>New Journal Entry</a>
-            <a href="{{ route('research.newReport') }}" class="btn btn-outline-info"><i class="fas fa-file-alt me-1"></i>New Report</a>
+            <a href="{{ route('research.reports') }}" class="btn btn-outline-info"><i class="fas fa-file-alt me-1"></i>New Report</a>
             <a href="{{ route('research.annotations') }}" class="btn btn-outline-warning"><i class="fas fa-sticky-note me-1"></i>My Notes</a>
           </div>
         </div>
@@ -131,22 +131,22 @@
               </a>
             </div>
             <div class="col-md-3 col-6">
-              <a href="{{ route('research.validationQueue') }}" class="btn btn-outline-success w-100 py-2 text-start">
+              <a href="{{ url('/research/validationQueue') }}" class="btn btn-outline-success w-100 py-2 text-start">
                 <i class="fas fa-check-double me-1"></i> Validation Queue
               </a>
             </div>
             <div class="col-md-3 col-6">
-              <a href="{{ route('research.entityResolution') }}" class="btn btn-outline-warning w-100 py-2 text-start">
+              <a href="{{ url('/research/entityResolution') }}" class="btn btn-outline-warning w-100 py-2 text-start">
                 <i class="fas fa-object-group me-1"></i> Entity Resolution
               </a>
             </div>
             <div class="col-md-3 col-6">
-              <a href="{{ route('research.odrlPolicies') }}" class="btn btn-outline-secondary w-100 py-2 text-start">
+              <a href="{{ url('/research/odrlPolicies') }}" class="btn btn-outline-secondary w-100 py-2 text-start">
                 <i class="fas fa-balance-scale me-1"></i> ODRL Policies
               </a>
             </div>
             <div class="col-md-3 col-6">
-              <a href="{{ route('research.documentTemplates') }}" class="btn btn-outline-dark w-100 py-2 text-start">
+              <a href="{{ url('/research/documentTemplates') }}" class="btn btn-outline-dark w-100 py-2 text-start">
                 <i class="fas fa-file-alt me-1"></i> Doc Templates
               </a>
             </div>

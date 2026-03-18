@@ -117,7 +117,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment');
     Route::get('/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
     Route::get('/research/trust/{slug}', [ResearchController::class, 'trustScore'])->name('io.research.trust');
-    Route::get('/research/dashboard', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
+    Route::get('/research/tools', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
 });
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search|login|logout|admin|api|storage|up|about|privacy|terms|pages|contact|provenance|condition|spectrum|heritage|preservation|ai|rights|research|oai)[a-z0-9-]+$');
