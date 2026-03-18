@@ -1,5 +1,5 @@
 {{-- Research Plugin Sidebar Navigation - Migrated from AtoM: _researchSidebar.php --}}
-@php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && Auth::user()->is_admin ?? false; @endphp
+@php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id()); @endphp
 
 <div class="list-group mb-4">
     <span class="list-group-item bg-light fw-bold text-uppercase small">Research</span>
@@ -10,6 +10,10 @@
     <a href="{{ route('research.projects') }}"
        class="list-group-item list-group-item-action {{ $active === 'projects' ? 'active' : '' }}">
         <i class="fas fa-project-diagram me-2"></i>My Projects
+    </a>
+    <a href="{{ url('/research/workspaces') }}"
+       class="list-group-item list-group-item-action {{ $active === 'workspaces' ? 'active' : '' }}">
+        <i class="fas fa-users me-2"></i>Team Workspaces
     </a>
     <a href="{{ route('research.collections') }}"
        class="list-group-item list-group-item-action {{ $active === 'collections' ? 'active' : '' }}">
@@ -27,6 +31,10 @@
        class="list-group-item list-group-item-action {{ $active === 'reports' ? 'active' : '' }}">
         <i class="fas fa-file-alt me-2"></i>My Reports
     </a>
+    <a href="{{ url('/favorites/browse') }}"
+       class="list-group-item list-group-item-action {{ $active === 'favorites' ? 'active' : '' }}">
+        <i class="fas fa-heart me-2"></i>My Favorites
+    </a>
 </div>
 
 <div class="list-group mb-4">
@@ -38,6 +46,22 @@
     <a href="{{ route('research.annotations') }}"
        class="list-group-item list-group-item-action {{ $active === 'annotations' ? 'active' : '' }}">
         <i class="fas fa-highlighter me-2"></i>Annotation Studio
+    </a>
+    <a href="{{ url('/research/validationQueue') }}"
+       class="list-group-item list-group-item-action {{ $active === 'validationQueue' ? 'active' : '' }}">
+        <i class="fas fa-check-double me-2"></i>Validation Queue
+    </a>
+    <a href="{{ url('/research/entityResolution') }}"
+       class="list-group-item list-group-item-action {{ $active === 'entityResolution' ? 'active' : '' }}">
+        <i class="fas fa-object-group me-2"></i>Entity Resolution
+    </a>
+    <a href="{{ url('/research/odrlPolicies') }}"
+       class="list-group-item list-group-item-action {{ $active === 'odrlPolicies' ? 'active' : '' }}">
+        <i class="fas fa-balance-scale me-2"></i>ODRL Policies
+    </a>
+    <a href="{{ url('/research/documentTemplates') }}"
+       class="list-group-item list-group-item-action {{ $active === 'documentTemplates' ? 'active' : '' }}">
+        <i class="fas fa-file-alt me-2"></i>Document Templates
     </a>
 </div>
 
