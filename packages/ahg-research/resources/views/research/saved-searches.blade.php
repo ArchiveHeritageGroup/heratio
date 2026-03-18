@@ -40,7 +40,7 @@
                 <tr>
                   <td>{{ e($search->name) }}</td>
                   <td><code>{{ e(\Illuminate\Support\Str::limit($search->query ?? '', 60)) }}</code></td>
-                  <td>{{ $search->created_at ? $search->created_at->format('Y-m-d') : '-' }}</td>
+                  <td>{{ $search->created_at ? \Carbon\Carbon::parse($search->created_at)->format('Y-m-d') : '-' }}</td>
                   <td>
                     <a href="{{ route('research.savedSearches.run', $search->id) }}" class="btn btn-sm btn-outline-primary" title="Run Search">
                       <i class="fas fa-play"></i>
@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  @if(method_exists($savedSearches ?? collect(), 'links'))
+  @if(is_object($savedSearches) && method_exists($savedSearches, 'links'))
     <div class="d-flex justify-content-center mb-4">{{ $savedSearches->links() }}</div>
   @endif
 

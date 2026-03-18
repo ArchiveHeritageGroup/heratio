@@ -77,7 +77,7 @@
               @endif
             </div>
           </div>
-          <small class="text-muted">{{ $annotation->created_at ? $annotation->created_at->format('Y-m-d H:i') : '' }}</small>
+          <small class="text-muted">{{ $annotation->created_at ? \Carbon\Carbon::parse($annotation->created_at)->format('Y-m-d H:i') : '' }}</small>
         </div>
         <p class="card-text">{{ e(\Illuminate\Support\Str::limit($annotation->content ?? '', 200)) }}</p>
         @if($annotation->tags ?? false)
@@ -154,7 +154,7 @@
     </div>
   @endforelse
 
-  @if(method_exists($annotations ?? collect(), 'links'))
+  @if(is_object($annotations) && method_exists($annotations, 'links'))
     <div class="d-flex justify-content-center">{{ $annotations->links() }}</div>
   @endif
 

@@ -940,7 +940,7 @@ class ResearchController extends Controller
         $status = $request->input('status');
         $projects = DB::table('research_project as p')
             ->where(function ($q) use ($researcher) {
-                $q->where('p.researcher_id', $researcher->id)
+                $q->where('p.owner_id', $researcher->id)
                   ->orWhereExists(function ($sub) use ($researcher) {
                       $sub->select(DB::raw(1))
                           ->from('research_project_collaborator')
@@ -955,7 +955,7 @@ class ResearchController extends Controller
 
         if ($request->isMethod('post') && $request->input('form_action') === 'create') {
             $projectId = DB::table('research_project')->insertGetId([
-                'researcher_id' => $researcher->id,
+                'owner_id' => $researcher->id,
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
                 'project_type' => $request->input('project_type', 'personal'),
@@ -2016,7 +2016,7 @@ class ResearchController extends Controller
         $status = null;
         $projects = DB::table('research_project as p')
             ->where(function ($q) use ($researcher) {
-                $q->where('p.researcher_id', $researcher->id)
+                $q->where('p.owner_id', $researcher->id)
                   ->orWhereExists(function ($sub) use ($researcher) {
                       $sub->select(DB::raw(1))
                           ->from('research_project_collaborator')

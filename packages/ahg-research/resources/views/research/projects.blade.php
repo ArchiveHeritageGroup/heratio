@@ -78,7 +78,7 @@
     @endforelse
   </div>
 
-  @if(method_exists($projects ?? collect(), 'links'))
+  @if(is_object($projects) && method_exists($projects, 'links'))
     <div class="d-flex justify-content-center">{{ $projects->links() }}</div>
   @endif
 

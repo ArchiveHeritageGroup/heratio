@@ -39,7 +39,7 @@
             @endif
             <div class="d-flex justify-content-between align-items-center mt-2">
               <span class="badge bg-primary rounded-pill">{{ $collection->items_count ?? 0 }} items</span>
-              <small class="text-muted">{{ $collection->created_at ? $collection->created_at->format('Y-m-d') : '' }}</small>
+              <small class="text-muted">{{ $collection->created_at ? \Carbon\Carbon::parse($collection->created_at)->format('Y-m-d') : '' }}</small>
             </div>
           </div>
           <div class="card-footer bg-transparent d-flex justify-content-end gap-1">
@@ -64,7 +64,7 @@
     @endforelse
   </div>
 
-  @if(method_exists($collections ?? collect(), 'links'))
+  @if(is_object($collections) && method_exists($collections, 'links'))
     <div class="d-flex justify-content-center">{{ $collections->links() }}</div>
   @endif
 
