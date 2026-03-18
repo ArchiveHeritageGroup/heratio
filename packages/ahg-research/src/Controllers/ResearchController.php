@@ -92,9 +92,16 @@ class ResearchController extends Controller
             ->select('b.*', 'r.first_name', 'r.last_name', 'rm.name as room_name')
             ->orderBy('b.start_time')->get()->toArray();
 
+        $pendingApprovals = $pendingResearchers;
+        $todaySchedule = $todayBookings;
+        $recentJournalEntries = $enhancedData['recent_journal_entries'] ?? [];
+        $isAdmin = Auth::check() && (Auth::user()->is_admin ?? false);
+
         return view('research::research.dashboard', array_merge(
             $this->getSidebarData('workspace'),
-            compact('stats', 'researcher', 'enhancedData', 'unreadNotifications', 'recentActivity', 'pendingResearchers', 'todayBookings')
+            compact('stats', 'researcher', 'enhancedData', 'unreadNotifications', 'recentActivity',
+                'pendingResearchers', 'pendingApprovals', 'todayBookings', 'todaySchedule',
+                'recentJournalEntries', 'isAdmin')
         ));
     }
 
