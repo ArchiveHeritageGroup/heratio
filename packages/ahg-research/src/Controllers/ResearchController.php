@@ -95,7 +95,7 @@ class ResearchController extends Controller
         $pendingApprovals = $pendingResearchers;
         $todaySchedule = $todayBookings;
         $recentJournalEntries = $enhancedData['recent_journal_entries'] ?? [];
-        $isAdmin = Auth::check() && (Auth::user()->is_admin ?? false);
+        $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
 
         return view('research::research.dashboard', array_merge(
             $this->getSidebarData('workspace'),
