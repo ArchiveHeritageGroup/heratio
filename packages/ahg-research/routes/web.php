@@ -16,6 +16,7 @@ Route::prefix('research')->name('research.')->group(function () {
     // Dashboard & Index
     Route::match(['get', 'post'], '/', [ResearchController::class, 'index'])->name('index');
     Route::match(['get', 'post'], '/dashboard', [ResearchController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin', [ResearchController::class, 'dashboard'])->name('admin'); // AtoM menu alias
 
     // Registration (public and authenticated)
     Route::get('/register', [ResearchController::class, 'register'])->name('register');
