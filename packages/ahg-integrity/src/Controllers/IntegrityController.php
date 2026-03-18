@@ -43,7 +43,7 @@ class IntegrityController extends Controller
 
         if ($hasDeadLetterTable) {
             $openDeadLetters = DB::table('integrity_dead_letter')
-                ->where('resolved', false)
+                ->where('status', 'open')
                 ->count();
         }
 
@@ -84,11 +84,11 @@ class IntegrityController extends Controller
         // Additional stats
         $neverVerified = 0;
         $throughput7d = 0;
-        if (Schema::hasTable('integrity_run')) {
+        if (Schema::hasTable('integrity_ledger')) {
             $neverVerified = DB::table('digital_object')
                 ->whereNotExists(function ($sub) {
                     $sub->select(DB::raw(1))->from('integrity_ledger')
-                        ->whereColumn('integrity_ledger.object_id', 'digital_object.object_id');
+                        ->whereColumn('integrity_ledger.digital_object_id', 'digital_object.id');
                 })->count();
 
             $throughput7d = DB::table('integrity_ledger')
@@ -100,9 +100,9 @@ class IntegrityController extends Controller
         $repoBreakdown = [];
         if (Schema::hasTable('integrity_ledger')) {
             $repoBreakdown = DB::table('integrity_ledger')
-                ->join('information_object', 'integrity_ledger.object_id', '=', 'information_object.id')
+                ->whereNotNull('integrity_ledger.repository_id')
                 ->join('actor_i18n', function ($j) use ($culture) {
-                    $j->on('information_object.repository_id', '=', 'actor_i18n.id')
+                    $j->on('integrity_ledger.repository_id', '=', 'actor_i18n.id')
                       ->where('actor_i18n.culture', '=', $culture);
                 })
                 ->select('actor_i18n.authorized_form_of_name as name',
@@ -119,8 +119,8 @@ class IntegrityController extends Controller
         $failureTypes = [];
         if (Schema::hasTable('integrity_dead_letter')) {
             $failureTypes = DB::table('integrity_dead_letter')
-                ->select('reason', DB::raw('COUNT(*) as cnt'))
-                ->groupBy('reason')
+                ->select('failure_type as reason', DB::raw('COUNT(*) as cnt'))
+                ->groupBy('failure_type')
                 ->orderBy('cnt', 'desc')
                 ->limit(10)
                 ->get()->toArray();

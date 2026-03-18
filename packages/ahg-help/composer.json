@@ -1,0 +1,20 @@
+{
+    "name": "ahg/help",
+    "description": "Help Center for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgHelp\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgHelp\\Providers\\AhgHelpServiceProvider"
+            ]
+        }
+    }
+}

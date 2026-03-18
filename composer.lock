@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b72082ed1f7d6e31a77d92a46b1ec6f6",
+    "content-hash": "acaf892a4ef070df47fe9c790d795d72",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -622,6 +622,36 @@
             }
         },
         {
+            "name": "ahg/help",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-help",
+                "reference": "b1fc12cd709c4cba238825b4c32c82d5358a505f"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgHelp\\Providers\\AhgHelpServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgHelp\\": "src/"
+                }
+            },
+            "description": "Help Center for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/heritage-manage",
             "version": "dev-main",
             "dist": {
@@ -898,6 +928,36 @@
             }
         },
         {
+            "name": "ahg/metadata-extraction",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-metadata-extraction",
+                "reference": "6bd3ca1f586a2ebaca393c2e1f6b6ffca8f174a2"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMetadataExtraction\\Providers\\AhgMetadataExtractionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMetadataExtraction\\": "src/"
+                }
+            },
+            "description": "Metadata extraction from digital objects for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/oai",
             "version": "dev-main",
             "dist": {
@@ -922,6 +982,36 @@
                 }
             },
             "description": "OAI-PMH 2.0 endpoint for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/pdf-tools",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-pdf-tools",
+                "reference": "9f73826cd577f8d938ba7b980ae1ab0a3811665b"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgPdfTools\\Providers\\AhgPdfToolsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgPdfTools\\": "src/"
+                }
+            },
+            "description": "PDF text extraction and TIFF/PDF merging tools for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9822,6 +9912,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "ahg/3d-model": 20,
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
@@ -9830,7 +9921,6 @@
         "ahg/audit-trail": 20,
         "ahg/backup": 20,
         "ahg/cart": 20,
-        "ahg/3d-model": 20,
         "ahg/core": 20,
         "ahg/data-migration": 20,
         "ahg/dedupe": 20,
@@ -9842,6 +9932,7 @@
         "ahg/feedback": 20,
         "ahg/ftp-upload": 20,
         "ahg/function-manage": 20,
+        "ahg/help": 20,
         "ahg/heritage-manage": 20,
         "ahg/iiif-collection": 20,
         "ahg/information-object-manage": 20,
@@ -9851,13 +9942,16 @@
         "ahg/media-processing": 20,
         "ahg/media-streaming": 20,
         "ahg/menu-manage": 20,
+        "ahg/metadata-extraction": 20,
         "ahg/oai": 20,
+        "ahg/pdf-tools": 20,
         "ahg/portable-export": 20,
         "ahg/preservation": 20,
         "ahg/reports": 20,
-        "ahg/request-publish": 20,
         "ahg/repository-manage": 20,
+        "ahg/request-publish": 20,
         "ahg/research": 20,
+        "ahg/researcher-manage": 20,
         "ahg/ric": 20,
         "ahg/rights-holder-manage": 20,
         "ahg/search": 20,
@@ -9867,8 +9961,7 @@
         "ahg/term-taxonomy": 20,
         "ahg/theme-b5": 20,
         "ahg/user-manage": 20,
-        "ahg/workflow": 20,
-        "ahg/researcher-manage": 20
+        "ahg/workflow": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
