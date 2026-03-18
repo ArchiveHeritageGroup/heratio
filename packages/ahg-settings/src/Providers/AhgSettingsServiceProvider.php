@@ -17,5 +17,11 @@ class AhgSettingsServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-settings');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgSettings\Commands\ServicesCheckCommand::class,
+            ]);
+        }
     }
 }

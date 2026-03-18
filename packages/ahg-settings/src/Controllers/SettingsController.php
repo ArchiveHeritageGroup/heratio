@@ -1451,250 +1451,86 @@ class SettingsController extends Controller
     }
 
     /**
-     * Cron Jobs reference page — informational catalog of all available scheduled tasks.
+     * Cron Jobs management page — interactive DB-driven scheduler.
      */
-    public function cronJobs()
+    public function cronJobs(\AhgCore\Services\CronSchedulerService $service)
     {
         $menu = $this->buildMenu('cron-jobs');
-        $atomRoot = '/usr/share/nginx/heratio';
+        $categories = $service->getAllGrouped();
+        $stats = $service->getStats();
 
-        $categories = [
-            'Queue & Jobs' => [
-                [
-                    'name' => 'Queue Worker',
-                    'command' => 'php artisan queue:work --tries=3 --timeout=300',
-                    'description' => 'Process background jobs (imports, exports, thumbnails, notifications).',
-                    'schedule' => 'Continuous (run via supervisor or systemd)',
-                    'duration' => 'long',
-                ],
-                [
-                    'name' => 'Clear Failed Jobs',
-                    'command' => 'php artisan queue:flush',
-                    'description' => 'Remove all failed jobs from the failed_jobs table.',
-                    'schedule' => 'Weekly (Sunday 4am)',
-                    'duration' => 'short',
-                ],
-            ],
-            'Search & Indexing' => [
-                [
-                    'name' => 'Refresh Facet Cache',
-                    'command' => 'php artisan ahg:refresh-facet-cache',
-                    'description' => 'Rebuild facet counts for browse sidebars (entity type, repository, place, subject). Improves browse page load times.',
-                    'schedule' => 'Hourly',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Search Cleanup',
-                    'command' => 'php artisan ahg:search-cleanup',
-                    'description' => 'Remove stale search index entries and orphaned records.',
-                    'schedule' => 'Daily at 3am',
-                    'duration' => 'medium',
-                ],
-            ],
-            'Saved Search Notifications' => [
-                [
-                    'name' => 'Daily Notifications',
-                    'command' => 'php artisan ahg:notify-saved-searches --frequency=daily',
-                    'description' => 'Email users who have daily saved search notifications enabled.',
-                    'schedule' => 'Daily at 6am',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Weekly Notifications',
-                    'command' => 'php artisan ahg:notify-saved-searches --frequency=weekly',
-                    'description' => 'Email users who have weekly saved search notifications.',
-                    'schedule' => 'Monday at 7am',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Monthly Notifications',
-                    'command' => 'php artisan ahg:notify-saved-searches --frequency=monthly',
-                    'description' => 'Email users who have monthly saved search notifications.',
-                    'schedule' => 'First of month at 8am',
-                    'duration' => 'medium',
-                ],
-            ],
-            'Digital Objects' => [
-                [
-                    'name' => 'Regenerate Derivatives',
-                    'command' => 'php artisan ahg:regen-derivatives --type=all',
-                    'description' => 'Regenerate thumbnail and reference image derivatives from master files. Options: --type=thumbnail|reference|all --limit=100',
-                    'schedule' => 'Weekly (Sunday 2am)',
-                    'duration' => 'long',
-                ],
-                [
-                    'name' => '3D Thumbnails',
-                    'command' => 'php artisan ahg:3d-thumbnails',
-                    'description' => 'Generate thumbnails for 3D model files (GLB, GLTF, OBJ, STL) using Blender. Requires Blender installed.',
-                    'schedule' => 'Hourly',
-                    'duration' => 'long',
-                ],
-                [
-                    'name' => 'Extract PDF Text',
-                    'command' => 'php artisan ahg:extract-pdf-text --batch=50',
-                    'description' => 'Extract searchable text from PDF digital objects using pdftotext.',
-                    'schedule' => 'Daily at 4am',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Extract Metadata',
-                    'command' => 'php artisan ahg:extract-metadata --batch=50',
-                    'description' => 'Extract EXIF/IPTC/XMP metadata from images and media using ExifTool.',
-                    'schedule' => 'Daily at 5am',
-                    'duration' => 'medium',
-                ],
-            ],
-            'Backup & Maintenance' => [
-                [
-                    'name' => 'Daily Backup',
-                    'command' => 'php artisan ahg:backup --components=database --retention=30',
-                    'description' => 'Run database backup with 30-day retention. Options: --components=database,uploads,plugins,framework',
-                    'schedule' => 'Daily at 2am',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Weekly Full Backup',
-                    'command' => 'php artisan ahg:backup --components=database,uploads --retention=90',
-                    'description' => 'Full backup including uploads with 90-day retention.',
-                    'schedule' => 'Sunday at 3am',
-                    'duration' => 'long',
-                ],
-                [
-                    'name' => 'Cleanup Old Backups',
-                    'command' => 'php artisan ahg:backup-cleanup',
-                    'description' => 'Remove backups that exceed retention policy.',
-                    'schedule' => 'Daily at 4am',
-                    'duration' => 'short',
-                ],
-            ],
-            'Integrity & Preservation' => [
-                [
-                    'name' => 'Integrity Scheduler',
-                    'command' => 'php artisan ahg:integrity-schedule --run-due',
-                    'description' => 'Execute due integrity verification schedules (fixity checks).',
-                    'schedule' => 'Every 15 minutes',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Retention Scan',
-                    'command' => 'php artisan ahg:integrity-retention --scan-eligible',
-                    'description' => 'Identify records eligible for disposal under retention policies.',
-                    'schedule' => 'Daily at 1am',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'Integrity Report',
-                    'command' => 'php artisan ahg:integrity-report --summary',
-                    'description' => 'Generate weekly integrity verification summary report.',
-                    'schedule' => 'Monday at 8am',
-                    'duration' => 'short',
-                ],
-                [
-                    'name' => 'Virus Scan',
-                    'command' => 'php artisan ahg:virus-scan --new-only',
-                    'description' => 'Scan newly uploaded files for viruses using ClamAV.',
-                    'schedule' => 'Every 30 minutes',
-                    'duration' => 'medium',
-                ],
-            ],
-            'Workflow & Notifications' => [
-                [
-                    'name' => 'Process Workflows',
-                    'command' => 'php artisan ahg:workflow-process --notifications',
-                    'description' => 'Process pending workflow tasks and send email notifications for overdue/assigned tasks.',
-                    'schedule' => 'Every 15 minutes',
-                    'duration' => 'short',
-                ],
-                [
-                    'name' => 'Donor Agreement Reminders',
-                    'command' => 'php artisan ahg:donor-reminders',
-                    'description' => 'Process and send donor agreement renewal reminders.',
-                    'schedule' => 'Daily at 8am',
-                    'duration' => 'short',
-                ],
-                [
-                    'name' => 'Embargo Processing',
-                    'command' => 'php artisan ahg:embargo-process',
-                    'description' => 'Automatically lift expired embargoes and update publication status.',
-                    'schedule' => 'Daily at 6am',
-                    'duration' => 'short',
-                ],
-            ],
-            'AI Services' => [
-                [
-                    'name' => 'AI NER Processing',
-                    'command' => 'php artisan ahg:ai-ner --batch=20',
-                    'description' => 'Run Named Entity Recognition on descriptions to extract persons, organizations, places, dates.',
-                    'schedule' => 'Daily at 5am',
-                    'duration' => 'long',
-                ],
-                [
-                    'name' => 'AI Process Pending',
-                    'command' => 'php artisan ahg:ai-process-pending',
-                    'description' => 'Process pending AI tasks (summarization, translation, description suggestions).',
-                    'schedule' => 'Every 30 minutes',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'AI Condition Scan',
-                    'command' => 'php artisan ahg:ai-condition-scan --batch=10',
-                    'description' => 'Run AI-powered condition assessments on queued digital objects.',
-                    'schedule' => 'Hourly',
-                    'duration' => 'long',
-                ],
-            ],
-            'DOI Management' => [
-                [
-                    'name' => 'DOI Process Queue',
-                    'command' => 'php artisan ahg:doi-process-queue',
-                    'description' => 'Process pending DOI minting requests via DataCite API.',
-                    'schedule' => 'Every 15 minutes',
-                    'duration' => 'short',
-                ],
-                [
-                    'name' => 'DOI Sync',
-                    'command' => 'php artisan ahg:doi-sync',
-                    'description' => 'Sync DOI metadata with DataCite for all registered DOIs.',
-                    'schedule' => 'Weekly (Sunday 6am)',
-                    'duration' => 'medium',
-                ],
-            ],
-            'Duplicate Detection' => [
-                [
-                    'name' => 'Dedupe Scan',
-                    'command' => 'php artisan ahg:dedupe-scan',
-                    'description' => 'Run duplicate detection scan across information objects using configured rules.',
-                    'schedule' => 'Weekly (Sunday 1am)',
-                    'duration' => 'long',
-                ],
-            ],
-            'RiC (Records in Contexts)' => [
-                [
-                    'name' => 'RiC Queue Process',
-                    'command' => 'php artisan ahg:ric-queue --limit=50',
-                    'description' => 'Process RiC sync queue — push records to Fuseki triplestore.',
-                    'schedule' => 'Every 5 minutes (if enabled)',
-                    'duration' => 'medium',
-                ],
-                [
-                    'name' => 'RiC Integrity Check',
-                    'command' => 'php artisan ahg:ric-integrity --fix',
-                    'description' => 'Verify RiC triples integrity and auto-fix orphans.',
-                    'schedule' => 'Weekly (Sunday 2am)',
-                    'duration' => 'long',
-                ],
-            ],
-            'Statistics & Reporting' => [
-                [
-                    'name' => 'Aggregate Statistics',
-                    'command' => 'php artisan ahg:statistics-aggregate',
-                    'description' => 'Aggregate daily statistics for reports dashboard (record counts, user activity, storage usage).',
-                    'schedule' => 'Daily at 1am',
-                    'duration' => 'short',
-                ],
-            ],
-        ];
-
-        return view('ahg-settings::cron-jobs', compact('categories', 'atomRoot', 'menu'));
+        return view('ahg-settings::cron-jobs', compact('categories', 'stats', 'menu'));
     }
+
+    /**
+     * Toggle a cron schedule enabled/disabled.
+     */
+    public function cronJobToggle(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
+    {
+        $schedule = $service->find($id);
+        if (!$schedule) {
+            return back()->with('error', 'Schedule not found.');
+        }
+
+        $service->toggleEnabled($id, !$schedule->is_enabled);
+        $state = $schedule->is_enabled ? 'disabled' : 'enabled';
+
+        return back()->with('success', "Job \"{$schedule->name}\" {$state}.");
+    }
+
+    /**
+     * Update a cron schedule's settings.
+     */
+    public function cronJobUpdate(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
+    {
+        $schedule = $service->find($id);
+        if (!$schedule) {
+            return back()->with('error', 'Schedule not found.');
+        }
+
+        $validated = $request->validate([
+            'cron_expression' => ['required', 'string', 'max:60'],
+            'timeout_minutes' => ['required', 'integer', 'min:1', 'max:1440'],
+            'notify_on_failure' => ['nullable'],
+            'notify_email' => ['nullable', 'email', 'max:200'],
+        ]);
+
+        $validated['notify_on_failure'] = $request->has('notify_on_failure');
+
+        $service->updateSchedule($id, $validated);
+
+        return back()->with('success', "Job \"{$schedule->name}\" updated.");
+    }
+
+    /**
+     * Run a single cron job immediately.
+     */
+    public function cronJobRunNow(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
+    {
+        $schedule = $service->find($id);
+        if (!$schedule) {
+            return back()->with('error', 'Schedule not found.');
+        }
+
+        $result = $service->runSingle($schedule);
+
+        if ($result['status'] === 'success') {
+            return back()->with('success', "Job \"{$schedule->name}\" completed in {$result['duration_ms']}ms.");
+        }
+
+        return back()->with('error', "Job \"{$schedule->name}\" failed after {$result['duration_ms']}ms.");
+    }
+
+    /**
+     * Re-seed all default cron schedules.
+     */
+    public function cronJobSeed(\Illuminate\Http\Request $request, \AhgCore\Services\CronSchedulerService $service)
+    {
+        $reset = $request->has('reset');
+        $count = $service->seedDefaults($reset);
+
+        $msg = $reset ? "Reset {$count} schedules to defaults." : "Seeded {$count} schedule entries (new only).";
+        return back()->with('success', $msg);
+    }
+
 }

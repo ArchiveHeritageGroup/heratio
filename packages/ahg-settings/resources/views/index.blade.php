@@ -146,6 +146,52 @@
       </a>
     </div>
     @endforeach
+
+    {{-- Standalone settings pages --}}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.cron-jobs') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-clock fa-3x text-secondary"></i></div>
+            <h5 class="card-title text-dark">Cron Jobs</h5>
+            <p class="card-text text-muted small">Manage scheduled tasks — enable/disable, edit schedules, run now</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn btn-secondary"><i class="fas fa-clock"></i> Manage Jobs</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.error-log') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-exclamation-triangle fa-3x text-danger"></i></div>
+            <h5 class="card-title text-dark">Error Log</h5>
+            <p class="card-text text-muted small">View and manage application error logs</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn btn-danger"><i class="fas fa-bug"></i> View Logs</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.plugins') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-puzzle-piece fa-3x text-info"></i></div>
+            <h5 class="card-title text-dark">Plugins</h5>
+            <p class="card-text text-muted small">Manage installed packages and plugins</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn btn-info"><i class="fas fa-plug"></i> View Plugins</span>
+          </div>
+        </div>
+      </a>
+    </div>
   </div>
 
   <style>
