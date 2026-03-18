@@ -108,7 +108,7 @@
     </table>
   </div>
 
-  @if(method_exists($researchers ?? collect(), 'links'))
+  @if(is_object($researchers) && method_exists($researchers, 'links'))
     <div class="d-flex justify-content-center">
       {{ $researchers->appends(request()->query())->links() }}
     </div>
