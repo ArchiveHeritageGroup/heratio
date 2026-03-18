@@ -178,16 +178,16 @@
                 <tr>
                   <td>{{ $export->title ?: '(untitled)' }}</td>
                   <td>
-                    <span class="badge bg-secondary">{{ ucfirst($export->scope) }}</span>
+                    <span class="badge bg-secondary">{{ ucfirst($export->scope_type) }}</span>
                   </td>
                   <td>{{ $export->mode === 'read_only' ? 'Read Only' : 'Archive' }}</td>
                   <td>
                     @if($export->status === 'completed')
                       <span class="badge bg-success">Completed</span>
-                    @elseif($export->status === 'queued')
-                      <span class="badge bg-warning text-dark">Queued</span>
+                    @elseif($export->status === 'pending')
+                      <span class="badge bg-warning text-dark">Pending</span>
                     @elseif($export->status === 'processing')
-                      <span class="badge bg-primary">Processing</span>
+                      <span class="badge bg-primary">Processing {{ $export->progress }}%</span>
                     @elseif($export->status === 'failed')
                       <span class="badge bg-danger">Failed</span>
                     @else
@@ -196,8 +196,8 @@
                   </td>
                   <td>{{ $export->created_at ? \Carbon\Carbon::parse($export->created_at)->format('Y-m-d H:i') : '' }}</td>
                   <td>
-                    @if($export->status === 'completed' && !empty($export->download_path))
-                      <a href="{{ $export->download_path }}" class="btn btn-sm btn-outline-success">
+                    @if($export->status === 'completed' && !empty($export->output_path))
+                      <a href="{{ $export->output_path }}" class="btn btn-sm btn-outline-success">
                         <i class="fas fa-download me-1"></i> Download
                       </a>
                     @else

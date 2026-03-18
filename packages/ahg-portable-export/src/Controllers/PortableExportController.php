@@ -81,19 +81,21 @@ class PortableExportController extends Controller
         // Create job record if table exists
         if (Schema::hasTable('portable_export')) {
             DB::table('portable_export')->insert([
-                'scope' => $validated['scope'],
-                'repository_id' => $validated['repository_id'] ?? null,
+                'user_id' => auth()->id() ?? 0,
+                'title' => $validated['title'] ?? 'Untitled Export',
+                'scope_type' => $validated['scope'],
+                'scope_repository_id' => $validated['repository_id'] ?? null,
                 'mode' => $validated['mode'],
                 'culture' => $validated['culture'] ?? app()->getLocale(),
-                'include_digital_objects' => !empty($validated['include_digital_objects']),
+                'include_masters' => !empty($validated['include_digital_objects']),
                 'include_thumbnails' => !empty($validated['include_thumbnails']),
                 'include_references' => !empty($validated['include_references']),
-                'title' => $validated['title'] ?? null,
-                'subtitle' => $validated['subtitle'] ?? null,
-                'footer_text' => $validated['footer_text'] ?? null,
-                'status' => 'queued',
+                'branding' => json_encode([
+                    'subtitle' => $validated['subtitle'] ?? null,
+                    'footer_text' => $validated['footer_text'] ?? null,
+                ]),
+                'status' => 'pending',
                 'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
 
