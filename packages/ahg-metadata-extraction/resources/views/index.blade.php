@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout.1col')
+@extends('theme::layouts.1col')
 
 @section('title', 'Metadata Extraction')
 

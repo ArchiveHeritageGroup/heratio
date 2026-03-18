@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layouts.app')
+@extends('theme::layouts.1col')
 
 @section('title', 'Preservation Packages — ' . ($io->title ?? 'Untitled'))
 
