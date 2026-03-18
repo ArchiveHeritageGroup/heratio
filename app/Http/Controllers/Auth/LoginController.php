@@ -266,16 +266,16 @@ class LoginController extends Controller
         // Get repository affiliation (actor's relation to repository)
         $repository = DB::table('relation')
             ->join('repository', 'relation.object_id', '=', 'repository.id')
-            ->leftJoin('repository_i18n', function ($join) {
-                $join->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', 'en');
+            ->leftJoin('actor_i18n', function ($join) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('repository.id', '=', 'slug.object_id');
             })
             ->where('relation.subject_id', $user->id)
             ->where('relation.type_id', 161) // isOccupationOf
-            ->select('repository_i18n.authorized_form_of_name', 'slug.slug')
+            ->select('actor_i18n.authorized_form_of_name', 'slug.slug')
             ->first();
 
         // Get security clearance if tables exist
