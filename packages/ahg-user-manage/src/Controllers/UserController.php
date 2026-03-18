@@ -64,6 +64,7 @@ class UserController extends Controller
         return view('ahg-user-manage::edit', [
             'user' => null,
             'assignableGroups' => $this->service->getAssignableGroups(),
+            'availableLanguages' => $this->service->getAvailableLanguages(),
         ]);
     }
 
@@ -77,6 +78,7 @@ class UserController extends Controller
         return view('ahg-user-manage::edit', [
             'user' => $user,
             'assignableGroups' => $this->service->getAssignableGroups(),
+            'availableLanguages' => $this->service->getAvailableLanguages(),
         ]);
     }
 
@@ -86,14 +88,29 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:user,username',
             'email' => 'required|email|max:255|unique:user,email',
             'password' => 'required|string|min:6',
+            'confirm_password' => 'nullable|same:password',
             'authorized_form_of_name' => 'nullable|string|max:1024',
+            'contact_telephone' => 'nullable|string|max:255',
+            'contact_fax' => 'nullable|string|max:255',
+            'contact_street_address' => 'nullable|string|max:1024',
+            'contact_city' => 'nullable|string|max:1024',
+            'contact_region' => 'nullable|string|max:1024',
+            'contact_postal_code' => 'nullable|string|max:255',
+            'contact_country_code' => 'nullable|string|max:255',
+            'contact_website' => 'nullable|url|max:1024',
+            'contact_note' => 'nullable|string',
+            'translate' => 'nullable|array',
         ]);
 
         $data = $request->only([
             'username', 'email', 'password', 'authorized_form_of_name',
+            'contact_telephone', 'contact_fax', 'contact_street_address',
+            'contact_city', 'contact_region', 'contact_postal_code',
+            'contact_country_code', 'contact_website', 'contact_note',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
+        $data['translate'] = $request->input('translate', []);
 
         $id = $this->service->create($data);
 
@@ -113,14 +130,29 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:user,username,' . $user->id,
             'email' => 'required|email|max:255|unique:user,email,' . $user->id,
             'password' => 'nullable|string|min:6',
+            'confirm_password' => 'nullable|same:password',
             'authorized_form_of_name' => 'nullable|string|max:1024',
+            'contact_telephone' => 'nullable|string|max:255',
+            'contact_fax' => 'nullable|string|max:255',
+            'contact_street_address' => 'nullable|string|max:1024',
+            'contact_city' => 'nullable|string|max:1024',
+            'contact_region' => 'nullable|string|max:1024',
+            'contact_postal_code' => 'nullable|string|max:255',
+            'contact_country_code' => 'nullable|string|max:255',
+            'contact_website' => 'nullable|url|max:1024',
+            'contact_note' => 'nullable|string',
+            'translate' => 'nullable|array',
         ]);
 
         $data = $request->only([
             'username', 'email', 'password', 'authorized_form_of_name',
+            'contact_telephone', 'contact_fax', 'contact_street_address',
+            'contact_city', 'contact_region', 'contact_postal_code',
+            'contact_country_code', 'contact_website', 'contact_note',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
+        $data['translate'] = $request->input('translate', []);
 
         $this->service->update($user->id, $data);
 
