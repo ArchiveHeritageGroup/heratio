@@ -147,6 +147,22 @@
     </div>
     @endforeach
 
+    {{-- Research / Reading Room (matches AtoM ahgSettingsPlugin) --}}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ url('/research/dashboard') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-book-reader fa-3x text-success"></i></div>
+            <h5 class="card-title text-dark">Reading Room</h5>
+            <p class="card-text text-muted small">Researcher registration and reading room settings</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn btn-success"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
     {{-- Standalone settings pages --}}
     <div class="col-lg-4 col-md-6 mb-4">
       <a href="{{ route('settings.cron-jobs') }}" class="text-decoration-none">

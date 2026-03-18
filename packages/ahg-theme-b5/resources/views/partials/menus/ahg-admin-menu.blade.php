@@ -24,7 +24,7 @@
     {{-- Research --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Research</h6></li>
-    <li><a class="dropdown-item" href="{{ url('/research/admin') }}"><i class="fas fa-flask me-2"></i>Dashboard</a></li>
+    <li><a class="dropdown-item" href="{{ url('/research/dashboard') }}"><i class="fas fa-book-reader me-2"></i>Dashboard</a></li>
     <li><a class="dropdown-item" href="{{ url('/research/researchers') }}"><i class="fas fa-user-graduate me-2"></i>Researchers</a></li>
     <li><a class="dropdown-item" href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-check me-2"></i>Bookings</a></li>
     <li><a class="dropdown-item" href="{{ url('/research/rooms') }}"><i class="fas fa-book-reader me-2"></i>Rooms</a></li>

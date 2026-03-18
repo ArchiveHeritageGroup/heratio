@@ -31,7 +31,7 @@ class LoginController extends Controller
     public function showLoginForm(Request $request)
     {
         if (Auth::check()) {
-            return redirect('/research/dashboard');
+            return redirect('/');
         }
 
         $next = $request->query('next', $request->headers->get('referer', ''));
@@ -87,9 +87,9 @@ class LoginController extends Controller
             $request->session()->forget(['_old_input']);
 
             // Set atom_authenticated cookie (30-day expiry)
-            $next = $request->input('next', '/research/dashboard');
+            $next = $request->input('next', '/');
             if (empty($next) || str_contains($next, '/login') || str_contains($next, '/logout')) {
-                $next = '/research/dashboard';
+                $next = '/';
             }
 
             return redirect($next)
