@@ -119,6 +119,11 @@
         @endif
       </a>
     </li>
+    <li>
+      <a class="dropdown-item" href="{{ route('acl.approvers') }}">
+        <i class="fas fa-user-shield me-2"></i>Manage Approvers
+      </a>
+    </li>
     @endif
 
     {{-- Admin Notifications --}}
