@@ -112,7 +112,7 @@
     </li>
     @if($isAdmin)
     <li>
-      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('acl.access-requests') }}">
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('acl.access-requests', ['status' => 'pending']) }}">
         <span><i class="fas fa-clock me-2"></i>Pending Requests</span>
         @if($pendingAccessCount > 0)
           <span class="badge bg-warning text-dark">{{ $pendingAccessCount }}</span>
