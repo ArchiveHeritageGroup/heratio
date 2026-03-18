@@ -79,7 +79,13 @@
           </div>
           <small class="text-muted">{{ $annotation->created_at ? \Carbon\Carbon::parse($annotation->created_at)->format('Y-m-d H:i') : '' }}</small>
         </div>
-        <p class="card-text">{{ e(\Illuminate\Support\Str::limit($annotation->content ?? '', 200)) }}</p>
+        <div class="card-text">
+          @if(($annotation->content_format ?? 'text') === 'html')
+            {!! $annotation->content !!}
+          @else
+            {!! nl2br(e($annotation->content ?? '')) !!}
+          @endif
+        </div>
         @if($annotation->tags ?? false)
           <div>
             @foreach(explode(',', $annotation->tags) as $t)
