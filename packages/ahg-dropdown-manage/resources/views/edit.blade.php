@@ -14,19 +14,24 @@
 <div class="row">
   {{-- Sidebar --}}
   <div class="col-lg-3 col-md-4 mb-4">
-    <div class="card shadow-sm mb-3">
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
+      </div>
       <div class="card-body">
-        <a href="{{ route('dropdown.index') }}" class="btn btn-outline-secondary w-100 mb-3">
-          <i class="fas fa-arrow-left me-1"></i> Back to Dropdowns
+        <a href="{{ route('dropdown.index') }}" class="btn btn-outline-secondary w-100 mb-2">
+          <i class="fas fa-arrow-left me-2"></i>Back to List
         </a>
-        <button type="button" class="btn btn-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#addTermModal">
-          <i class="fas fa-plus me-1"></i> Add Term
+        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addTermModal">
+          <i class="fas fa-plus me-2"></i>Add Term
         </button>
       </div>
     </div>
 
-    <div class="card shadow-sm">
-      <div class="card-header"><strong>Info</strong></div>
+    <div class="card">
+      <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Info</h6>
+      </div>
       <div class="card-body small">
         <div class="mb-2">
           <span class="text-muted">Code:</span><br>
@@ -44,25 +49,20 @@
       </div>
     </div>
 
-    <div class="card shadow-sm mt-3">
-      <div class="card-body">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="showInactive" checked>
-          <label class="form-check-label small" for="showInactive">Show inactive terms</label>
-        </div>
-      </div>
-    </div>
   </div>
 
   {{-- Main content --}}
   <div class="col-lg-9 col-md-8">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h3 mb-0">
-        <i class="fas fa-list me-2"></i>{{ $taxonomyLabel }}
-      </h1>
-    </div>
+    <h1 class="h3 mb-3"><i class="fas fa-list me-2"></i>{{ $taxonomyLabel }}</h1>
 
-    <div class="card shadow-sm">
+    <div class="card">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-grip-lines me-2"></i>Drag to reorder</span>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" id="showInactive" checked>
+          <label class="form-check-label" for="showInactive">Show inactive</label>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0" id="termsTable">
           <thead class="table-light">
@@ -73,7 +73,7 @@
               <th style="width:80px" class="text-center">Color</th>
               <th style="width:80px" class="text-center">Default</th>
               <th style="width:80px" class="text-center">Active</th>
-              <th style="width:60px" class="text-center">Delete</th>
+              <th style="width:80px" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody id="termsTbody">
@@ -91,7 +91,7 @@
                 </td>
                 <td class="text-center">
                   <input type="color" class="form-control form-control-color form-control-sm term-color-input"
-                         value="{{ $term->color ?: '#ffffff' }}" data-id="{{ $term->id }}"
+                         value="{{ $term->color ?: '#6c757d' }}" data-id="{{ $term->id }}"
                          title="Choose color" style="width:32px;height:28px;padding:2px;">
                 </td>
                 <td class="text-center">
@@ -128,33 +128,33 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addTermModalLabel">Add Term</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add Term</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="addTermLabel" class="form-label">Label</label>
-          <input type="text" id="addTermLabel" class="form-control" placeholder="e.g. Good">
+          <label class="form-label">Label <span class="text-danger">*</span></label>
+          <input type="text" id="addTermLabel" class="form-control" placeholder="e.g., Approved">
         </div>
         <div class="mb-3">
-          <label for="addTermCode" class="form-label">Code</label>
-          <input type="text" id="addTermCode" class="form-control" placeholder="Auto-generated from label">
-          <div class="form-text">Unique machine-readable identifier within this taxonomy.</div>
+          <label class="form-label">Code <span class="text-danger">*</span></label>
+          <input type="text" id="addTermCode" class="form-control" placeholder="e.g., approved">
+          <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
-        <div class="mb-3">
-          <label for="addTermColor" class="form-label">Color</label>
-          <input type="color" id="addTermColor" class="form-control form-control-color" value="#ffffff">
-        </div>
-        <div class="mb-3">
-          <label for="addTermIcon" class="form-label">Icon (FontAwesome class)</label>
-          <input type="text" id="addTermIcon" class="form-control" placeholder="e.g. fa-check">
+        <div class="row">
+          <div class="col-6">
+            <label class="form-label">Color</label>
+            <input type="color" id="addTermColor" class="form-control form-control-color w-100" value="#6c757d">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Icon</label>
+            <input type="text" id="addTermIcon" class="form-control" placeholder="fa-check">
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="addTermBtn">
-          <i class="fas fa-plus me-1"></i> Add Term
-        </button>
+        <button type="button" class="btn btn-success" id="addTermBtn">Add</button>
       </div>
     </div>
   </div>
@@ -228,7 +228,7 @@
       taxonomy: taxonomy,
       label: addTermLabel.value,
       code: addTermCode.value,
-      color: color !== '#ffffff' ? color : null,
+      color: color !== '#6c757d' ? color : null,
       icon: document.getElementById('addTermIcon').value || null,
     }).then(data => {
       btn.disabled = false;
@@ -279,7 +279,7 @@
       const id    = this.dataset.id;
       const color = this.value;
       ajaxPost('{{ route("dropdown.update-term") }}', {
-        id: parseInt(id), field: 'color', value: color !== '#ffffff' ? color : null,
+        id: parseInt(id), field: 'color', value: color !== '#6c757d' ? color : null,
       }).then(data => {
         if (!data.success) alert(data.message || 'Failed to update color.');
       }).catch(() => alert('Network error.'));

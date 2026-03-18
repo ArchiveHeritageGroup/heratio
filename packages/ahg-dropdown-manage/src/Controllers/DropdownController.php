@@ -11,30 +11,59 @@ use Illuminate\Support\Str;
 class DropdownController extends Controller
 {
     /**
-     * Section labels for taxonomy grouping.
+     * Section labels for taxonomy grouping — matches AtoM ahgDropdownPlugin.
      */
     protected array $sectionLabels = [
         'access_research'          => 'Access & Research',
-        'ai_automation'            => 'AI & Automation',
-        'condition_conservation'   => 'Condition & Conservation',
-        'core_system'              => 'Core & System',
-        'digital_assets'           => 'Digital Assets & Media',
-        'discovery_classification' => 'Discovery & Classification',
-        'ecommerce'                => 'E-Commerce',
-        'heritage'                 => 'Heritage & Cultural',
-        'ingest_migration'         => 'Ingest & Migration',
-        'integrity_audit'          => 'Integrity & Audit',
-        'legal_compliance'         => 'Legal & Compliance',
-        'loans_outreach'           => 'Loans & Outreach',
-        'metadata_standards'       => 'Metadata & Standards',
+        'ai'                       => 'AI & Automation',
+        'condition'                => 'Condition & Conservation',
+        'core'                     => 'Core & System',
+        'digital_media'            => 'Digital Assets & Media',
+        'display_ui'               => 'Display & UI',
+        'donor_agreement'          => 'Donor Agreements',
+        'exhibition_loan'          => 'Exhibitions & Loans',
+        'export_import'            => 'Export & Import',
+        'federation'               => 'Federation',
+        'finance'                  => 'Finance',
+        'forms_metadata'           => 'Forms & Metadata',
+        'heritage_monuments'       => 'Heritage & Monuments',
+        'integration'              => 'Integration',
+        'people'                   => 'People & Organisations',
         'preservation'             => 'Preservation',
-        'publishing_dissemination' => 'Publishing & Dissemination',
-        'rights_licensing'         => 'Rights & Licensing',
-        'security'                 => 'Security',
-        'spatial_gis'              => 'Spatial & GIS',
-        'user_interface'           => 'User Interface',
-        'workflow'                 => 'Workflow',
+        'privacy_compliance'       => 'Privacy & Compliance',
+        'provenance_rights'        => 'Provenance & Rights',
+        'reporting_workflow'       => 'Reporting & Workflow',
+        'reproduction'             => 'Reproduction',
+        'vendor'                   => 'Vendor',
         'other'                    => 'Other',
+    ];
+
+    /**
+     * Section icons — matches AtoM ahgDropdownPlugin.
+     */
+    protected array $sectionIcons = [
+        'access_research'    => 'fa-book-reader',
+        'ai'                 => 'fa-robot',
+        'condition'          => 'fa-clipboard-check',
+        'core'               => 'fa-cogs',
+        'digital_media'      => 'fa-photo-video',
+        'display_ui'         => 'fa-desktop',
+        'donor_agreement'    => 'fa-handshake',
+        'exhibition_loan'    => 'fa-university',
+        'export_import'      => 'fa-file-export',
+        'federation'         => 'fa-project-diagram',
+        'finance'            => 'fa-coins',
+        'forms_metadata'     => 'fa-file-alt',
+        'heritage_monuments' => 'fa-landmark',
+        'integration'        => 'fa-plug',
+        'people'             => 'fa-users',
+        'preservation'       => 'fa-shield-alt',
+        'privacy_compliance' => 'fa-user-shield',
+        'provenance_rights'  => 'fa-balance-scale',
+        'reporting_workflow' => 'fa-tasks',
+        'reproduction'       => 'fa-copy',
+        'vendor'             => 'fa-store',
+        'other'              => 'fa-folder',
     ];
 
     /**
@@ -45,6 +74,7 @@ class DropdownController extends Controller
         $rows = DB::table('ahg_dropdown')
             ->select('taxonomy', 'taxonomy_label', 'taxonomy_section')
             ->selectRaw('COUNT(*) as term_count')
+            ->where('is_active', 1)
             ->groupBy('taxonomy', 'taxonomy_label', 'taxonomy_section')
             ->orderBy('taxonomy_label')
             ->get();
@@ -72,6 +102,7 @@ class DropdownController extends Controller
 
         return view('ahg-dropdown-manage::index', [
             'sectionLabels'   => $this->sectionLabels,
+            'sectionIcons'    => $this->sectionIcons,
             'taxonomyGroups'  => $orderedSections,
         ]);
     }
@@ -100,6 +131,7 @@ class DropdownController extends Controller
             'taxonomySection' => $taxonomySection,
             'terms'           => $terms,
             'sectionLabels'   => $this->sectionLabels,
+            'sectionIcons'    => $this->sectionIcons,
         ]);
     }
 
