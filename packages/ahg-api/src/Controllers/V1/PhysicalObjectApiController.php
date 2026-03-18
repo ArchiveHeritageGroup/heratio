@@ -85,4 +85,52 @@ class PhysicalObjectApiController extends Controller
 
         return response()->json($po);
     }
+
+    /**
+     * POST /api/v1/physicalobjects — Create a new physical object.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $input = $request->validate([
+            'name' => 'required|string|max:255',
+            'type_id' => 'nullable|integer',
+            'location' => 'nullable|string|max:1024',
+            'description' => 'nullable|string',
+        ]);
+
+        $objectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitPhysicalObject',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('physical_object')->insert([
+            'id' => $objectId,
+            'type_id' => $input['type_id'] ?? null,
+        ]);
+
+        DB::table('physical_object_i18n')->insert([
+            'id' => $objectId,
+            'culture' => $this->culture,
+            'name' => $input['name'],
+            'location' => $input['location'] ?? null,
+            'description' => $input['description'] ?? null,
+        ]);
+
+        // Generate slug
+        $base = \Illuminate\Support\Str::slug($input['name']) ?: 'physical-object';
+        $slug = $base;
+        $counter = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = "{$base}-{$counter}";
+            $counter++;
+        }
+        DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+
+        return response()->json([
+            'id' => $objectId,
+            'slug' => $slug,
+            'name' => $input['name'],
+        ], 201);
+    }
 }

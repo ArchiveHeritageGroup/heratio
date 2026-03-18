@@ -41,4 +41,74 @@ class DigitalObjectApiController extends Controller
 
         return response()->json(['total' => $total, 'page' => $page, 'limit' => $limit, 'results' => $results]);
     }
+
+    /**
+     * POST /api/v1/digitalobjects — Upload a digital object for an information object.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|max:512000',
+            'object_slug' => 'required|string',
+        ]);
+
+        $parentId = DB::table('slug')->where('slug', $request->get('object_slug'))->value('object_id');
+        if (!$parentId) {
+            return response()->json(['error' => 'Parent information object not found.'], 404);
+        }
+
+        $file = $request->file('file');
+        $mime = $file->getMimeType();
+
+        $type = match (true) {
+            str_starts_with($mime, 'image/') => 'images',
+            str_starts_with($mime, 'audio/') => 'audio',
+            str_starts_with($mime, 'video/') => 'video',
+            str_starts_with($mime, 'model/') => 'models',
+            default => 'other',
+        };
+
+        $path = sprintf('uploads/%s/%s/%s', $type, now()->format('Y'), now()->format('m'));
+        $filename = $file->hashName();
+        $file->storeAs($path, $filename, 'public');
+
+        // Create object row
+        $doObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitDigitalObject',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Resolve media_type_id
+        $mediaTypeId = match (true) {
+            str_starts_with($mime, 'image/') => 137,
+            str_starts_with($mime, 'audio/') => 138,
+            str_starts_with($mime, 'video/') => 139,
+            $mime === 'application/pdf' => 140,
+            default => null,
+        };
+
+        DB::table('digital_object')->insert([
+            'id' => $doObjectId,
+            'object_id' => $parentId,
+            'usage_id' => 166,
+            'mime_type' => $mime,
+            'media_type_id' => $mediaTypeId,
+            'name' => $file->getClientOriginalName(),
+            'path' => "{$path}/{$filename}",
+            'byte_size' => $file->getSize(),
+            'sequence' => 0,
+        ]);
+
+        DB::table('object')->where('id', $parentId)->update(['updated_at' => now()]);
+
+        return response()->json([
+            'id' => $doObjectId,
+            'object_id' => $parentId,
+            'filename' => $file->getClientOriginalName(),
+            'mime_type' => $mime,
+            'size' => $file->getSize(),
+            'path' => "{$path}/{$filename}",
+        ], 201);
+    }
 }

@@ -511,6 +511,327 @@ class InformationObjectApiController extends Controller
     }
 
     /**
+     * POST /api/v1/informationobjects — Create a new description.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $input = $request->validate([
+            'title' => 'required|string|max:1024',
+            'parent_slug' => 'nullable|string',
+            'parent_id' => 'nullable|integer',
+            'identifier' => 'nullable|string|max:255',
+            'level_of_description_id' => 'nullable|integer',
+            'repository_id' => 'nullable|integer',
+            'scope_and_content' => 'nullable|string',
+            'extent_and_medium' => 'nullable|string',
+            'archival_history' => 'nullable|string',
+            'acquisition' => 'nullable|string',
+            'appraisal' => 'nullable|string',
+            'accruals' => 'nullable|string',
+            'arrangement' => 'nullable|string',
+            'access_conditions' => 'nullable|string',
+            'reproduction_conditions' => 'nullable|string',
+            'physical_characteristics' => 'nullable|string',
+            'finding_aids' => 'nullable|string',
+            'location_of_originals' => 'nullable|string',
+            'location_of_copies' => 'nullable|string',
+            'related_units_of_description' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'sources' => 'nullable|string',
+            'revision_history' => 'nullable|string',
+            'publication_status' => 'nullable|in:draft,published',
+        ]);
+
+        // Resolve parent
+        $parentId = $input['parent_id'] ?? 1;
+        if (!empty($input['parent_slug'])) {
+            $parentId = DB::table('slug')->where('slug', $input['parent_slug'])->value('object_id');
+            if (!$parentId) {
+                return response()->json(['error' => 'Parent not found.'], 400);
+            }
+        }
+
+        $parent = DB::table('information_object')->where('id', $parentId)->first();
+        if (!$parent) {
+            return response()->json(['error' => 'Parent not found.'], 400);
+        }
+
+        return DB::transaction(function () use ($input, $parent, $parentId) {
+            // Shift nested set
+            $rgt = $parent->rgt;
+            DB::table('information_object')->where('lft', '>', $rgt)->update(['lft' => DB::raw('lft + 2')]);
+            DB::table('information_object')->where('rgt', '>=', $rgt)->update(['rgt' => DB::raw('rgt + 2')]);
+
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitInformationObject',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('information_object')->insert([
+                'id' => $objectId,
+                'identifier' => $input['identifier'] ?? null,
+                'level_of_description_id' => $input['level_of_description_id'] ?? null,
+                'repository_id' => $input['repository_id'] ?? null,
+                'parent_id' => $parentId,
+                'lft' => $rgt,
+                'rgt' => $rgt + 1,
+                'source_culture' => $this->culture,
+            ]);
+
+            $i18nFields = ['title', 'scope_and_content', 'extent_and_medium', 'archival_history',
+                'acquisition', 'appraisal', 'accruals', 'arrangement', 'access_conditions',
+                'reproduction_conditions', 'physical_characteristics', 'finding_aids',
+                'location_of_originals', 'location_of_copies', 'related_units_of_description',
+                'rules', 'sources', 'revision_history'];
+            $i18nData = ['id' => $objectId, 'culture' => $this->culture];
+            foreach ($i18nFields as $field) {
+                if (isset($input[$field])) {
+                    $i18nData[$field] = $input[$field];
+                }
+            }
+            DB::table('information_object_i18n')->insert($i18nData);
+
+            // Generate slug
+            $base = \Illuminate\Support\Str::slug($input['title']) ?: 'untitled';
+            $slug = $base;
+            $counter = 1;
+            while (DB::table('slug')->where('slug', $slug)->exists()) {
+                $slug = "{$base}-{$counter}";
+                $counter++;
+            }
+            DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+
+            // Publication status
+            $statusId = ($input['publication_status'] ?? 'draft') === 'published' ? 160 : 159;
+            DB::table('status')->insert(['object_id' => $objectId, 'type_id' => 158, 'status_id' => $statusId]);
+
+            return response()->json([
+                'id' => $objectId,
+                'slug' => $slug,
+                'parent_id' => $parentId,
+            ], 201);
+        });
+    }
+
+    /**
+     * PUT /api/v1/informationobjects/{slug} — Update a description.
+     */
+    public function update(string $slug, Request $request): JsonResponse
+    {
+        $row = DB::table('slug')->where('slug', $slug)->first();
+        if (!$row) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+        $id = $row->object_id;
+
+        $input = $request->validate([
+            'title' => 'nullable|string|max:1024',
+            'identifier' => 'nullable|string|max:255',
+            'level_of_description_id' => 'nullable|integer',
+            'repository_id' => 'nullable|integer',
+            'scope_and_content' => 'nullable|string',
+            'extent_and_medium' => 'nullable|string',
+            'archival_history' => 'nullable|string',
+            'acquisition' => 'nullable|string',
+            'appraisal' => 'nullable|string',
+            'accruals' => 'nullable|string',
+            'arrangement' => 'nullable|string',
+            'access_conditions' => 'nullable|string',
+            'reproduction_conditions' => 'nullable|string',
+            'physical_characteristics' => 'nullable|string',
+            'finding_aids' => 'nullable|string',
+            'location_of_originals' => 'nullable|string',
+            'location_of_copies' => 'nullable|string',
+            'related_units_of_description' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'sources' => 'nullable|string',
+            'revision_history' => 'nullable|string',
+            'publication_status' => 'nullable|in:draft,published',
+        ]);
+
+        DB::transaction(function () use ($id, $input) {
+            $baseFields = ['identifier', 'level_of_description_id', 'repository_id'];
+            $baseUpdate = array_intersect_key($input, array_flip($baseFields));
+            if (!empty($baseUpdate)) {
+                DB::table('information_object')->where('id', $id)->update($baseUpdate);
+            }
+
+            $i18nFields = ['title', 'scope_and_content', 'extent_and_medium', 'archival_history',
+                'acquisition', 'appraisal', 'accruals', 'arrangement', 'access_conditions',
+                'reproduction_conditions', 'physical_characteristics', 'finding_aids',
+                'location_of_originals', 'location_of_copies', 'related_units_of_description',
+                'rules', 'sources', 'revision_history'];
+            $i18nUpdate = array_intersect_key($input, array_flip($i18nFields));
+            if (!empty($i18nUpdate)) {
+                DB::table('information_object_i18n')->where('id', $id)->where('culture', $this->culture)->update($i18nUpdate);
+            }
+
+            if (isset($input['publication_status'])) {
+                $statusId = $input['publication_status'] === 'published' ? 160 : 159;
+                DB::table('status')->where('object_id', $id)->where('type_id', 158)->update(['status_id' => $statusId]);
+            }
+
+            DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+        });
+
+        return response()->json(['id' => $id, 'parent_id' => DB::table('information_object')->where('id', $id)->value('parent_id')]);
+    }
+
+    /**
+     * DELETE /api/v1/informationobjects/{slug} — Delete a description.
+     */
+    public function destroy(string $slug): JsonResponse
+    {
+        $row = DB::table('slug')->where('slug', $slug)->first();
+        if (!$row) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+        $id = $row->object_id;
+
+        $io = DB::table('information_object')->where('id', $id)->first();
+        if (!$io) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+
+        $hasChildren = DB::table('information_object')->where('parent_id', $id)->exists();
+        if ($hasChildren) {
+            return response()->json(['error' => 'Cannot delete: has children.'], 409);
+        }
+
+        DB::transaction(function () use ($id, $io) {
+            DB::table('status')->where('object_id', $id)->delete();
+            DB::table('slug')->where('object_id', $id)->delete();
+            DB::table('information_object_i18n')->where('id', $id)->delete();
+            DB::table('note')->where('object_id', $id)->delete();
+            DB::table('event')->where('object_id', $id)->delete();
+            DB::table('relation')->where('subject_id', $id)->orWhere('object_id', $id)->delete();
+            DB::table('property')->where('object_id', $id)->delete();
+            DB::table('object_term_relation')->where('object_id', $id)->delete();
+            DB::table('information_object')->where('id', $id)->delete();
+            DB::table('object')->where('id', $id)->delete();
+
+            $width = $io->rgt - $io->lft + 1;
+            DB::table('information_object')->where('lft', '>', $io->rgt)->update(['lft' => DB::raw("lft - {$width}")]);
+            DB::table('information_object')->where('rgt', '>', $io->rgt)->update(['rgt' => DB::raw("rgt - {$width}")]);
+        });
+
+        return response()->json(null, 204);
+    }
+
+    /**
+     * GET /api/v1/informationobjects/{slug}/digitalobject — Download the master digital object.
+     */
+    public function digitalObject(string $slug): \Symfony\Component\HttpFoundation\Response
+    {
+        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$objectId) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+
+        $do = DB::table('digital_object')
+            ->where('object_id', $objectId)
+            ->where('usage_id', 166) // Master
+            ->first();
+
+        if (!$do || !$do->path) {
+            return response()->json(['error' => 'No digital object found.'], 404);
+        }
+
+        // Try public storage first, then absolute path
+        $storagePath = storage_path('app/public/' . $do->path);
+        if (!file_exists($storagePath)) {
+            $storagePath = $do->path; // Absolute path
+        }
+        if (!file_exists($storagePath)) {
+            // Try uploads directory
+            $storagePath = '/mnt/nas/heratio/archive/' . $do->path;
+        }
+        if (!file_exists($storagePath)) {
+            return response()->json(['error' => 'Digital object file not found on disk.'], 404);
+        }
+
+        return response()->download($storagePath, $do->name ?? basename($storagePath), [
+            'Content-Type' => $do->mime_type ?? 'application/octet-stream',
+        ]);
+    }
+
+    /**
+     * GET /api/v1/informationobjects/tree/{slug} — Get the hierarchy tree.
+     */
+    public function tree(string $slug): JsonResponse
+    {
+        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$objectId) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+
+        $io = DB::table('information_object')->where('id', $objectId)->first();
+        if (!$io) {
+            return response()->json(['error' => 'Not found.'], 404);
+        }
+
+        // Get all ancestors (path to root)
+        $ancestors = [];
+        $currentId = $io->parent_id;
+        while ($currentId && $currentId != 1) {
+            $ancestor = DB::table('information_object as io')
+                ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+                ->join('slug', 'io.id', '=', 'slug.object_id')
+                ->where('io.id', $currentId)
+                ->where('ioi.culture', $this->culture)
+                ->select('io.id', 'io.parent_id', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
+                ->first();
+
+            if (!$ancestor) break;
+            array_unshift($ancestors, [
+                'id' => $ancestor->id,
+                'slug' => $ancestor->slug,
+                'title' => $ancestor->title,
+                'level' => $this->termName($ancestor->level_of_description_id),
+            ]);
+            $currentId = $ancestor->parent_id;
+        }
+
+        // Get immediate children
+        $children = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->join('slug', 'io.id', '=', 'slug.object_id')
+            ->where('io.parent_id', $objectId)
+            ->where('ioi.culture', $this->culture)
+            ->select('io.id', 'io.level_of_description_id', 'io.lft', 'io.rgt', 'ioi.title', 'slug.slug')
+            ->orderBy('io.lft')
+            ->get()
+            ->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'slug' => $child->slug,
+                    'title' => $child->title,
+                    'level' => $this->termName($child->level_of_description_id),
+                    'has_children' => ($child->rgt - $child->lft) > 1,
+                ];
+            });
+
+        // Get title for current node
+        $title = DB::table('information_object_i18n')
+            ->where('id', $objectId)
+            ->where('culture', $this->culture)
+            ->value('title');
+
+        return response()->json([
+            'data' => [
+                'id' => $io->id,
+                'slug' => $slug,
+                'title' => $title,
+                'level' => $this->termName($io->level_of_description_id),
+                'ancestors' => $ancestors,
+                'children' => $children->values(),
+                'total_descendants' => (int) (($io->rgt - $io->lft - 1) / 2),
+            ],
+        ]);
+    }
+
+    /**
      * Resolve a term name by ID.
      */
     protected function termName(?int $termId): ?string
