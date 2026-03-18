@@ -198,6 +198,76 @@ class AclController extends Controller
     }
 
     /**
+     * My Access Requests — user's own requests, clearance status, access grants.
+     * Migrated from AtoM: ahgAccessRequestPlugin/modules/accessRequest/actions/myRequests
+     */
+    public function myRequests(Request $request)
+    {
+        $userId = auth()->id();
+
+        // Current clearance
+        $currentClearance = DB::table('user_security_clearance as usc')
+            ->leftJoin('security_classification as sc', 'sc.id', '=', 'usc.classification_id')
+            ->where('usc.user_id', $userId)
+            ->select('usc.*', 'sc.name as classification_name', 'sc.level', 'sc.color')
+            ->first();
+
+        // Access grants
+        $accessGrants = DB::table('security_object_access as soa')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('soa.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('soa.granted_by', '=', 'ai.id')->where('ai.culture', '=', 'en');
+            })
+            ->where('soa.user_id', $userId)
+            ->select('soa.*', 'ioi.title as object_title', 'ai.authorized_form_of_name as granted_by_name')
+            ->orderByDesc('soa.granted_at')
+            ->get();
+
+        // User's own requests
+        $requests = DB::table('security_access_request as sar')
+            ->leftJoin('security_classification as sc', 'sc.id', '=', 'sar.classification_id')
+            ->where('sar.user_id', $userId)
+            ->select('sar.*', 'sc.name as requested_classification', 'sc.code as classification_code')
+            ->orderByDesc('sar.created_at')
+            ->get();
+
+        return view('ahg-acl::my-requests', compact('currentClearance', 'accessGrants', 'requests'));
+    }
+
+    /**
+     * Pending Access Requests — admin/approver review page with stats.
+     * Migrated from AtoM: ahgAccessRequestPlugin/modules/accessRequest/actions/pending
+     */
+    public function pendingRequests(Request $request)
+    {
+        if (!\AhgCore\Services\AclService::canAdmin(auth()->id())) {
+            abort(403, 'Insufficient permissions');
+        }
+
+        $requests = $this->service->getAccessRequests('pending');
+
+        $stats = [
+            'pending' => DB::table('security_access_request')->where('status', 'pending')->count(),
+            'approved_today' => DB::table('security_access_request')
+                ->where('status', 'approved')
+                ->whereDate('reviewed_at', today())
+                ->count(),
+            'denied_today' => DB::table('security_access_request')
+                ->where('status', 'denied')
+                ->whereDate('reviewed_at', today())
+                ->count(),
+            'total_this_month' => DB::table('security_access_request')
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', now()->month)
+                ->count(),
+        ];
+
+        return view('ahg-acl::pending-requests', compact('requests', 'stats'));
+    }
+
+    /**
      * Security audit log.
      */
     public function auditLog(Request $request)

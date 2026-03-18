@@ -21,3 +21,9 @@ Route::middleware('admin')->group(function () {
     // Alias: AtoM DB menu path → Heratio groups page
     Route::get('/aclGroup/browse', [AclController::class, 'groups']);
 });
+
+// AtoM-style security routes (authenticated users, not admin-only)
+Route::middleware('auth')->group(function () {
+    Route::get('/security/my-requests', [AclController::class, 'myRequests'])->name('security.my-requests');
+    Route::get('/security/access-requests', [AclController::class, 'pendingRequests'])->name('security.pending-requests');
+});

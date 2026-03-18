@@ -106,13 +106,13 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header"><i class="fas fa-shield-alt me-1"></i>Security</h6></li>
     <li>
-      <a class="dropdown-item" href="{{ route('acl.access-requests') }}">
+      <a class="dropdown-item" href="{{ route('security.my-requests') }}">
         <i class="fas fa-key me-2"></i>My Access Requests
       </a>
     </li>
     @if($isAdmin)
     <li>
-      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('acl.access-requests', ['status' => 'pending']) }}">
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('security.pending-requests') }}">
         <span><i class="fas fa-clock me-2"></i>Pending Requests</span>
         @if($pendingAccessCount > 0)
           <span class="badge bg-warning text-dark">{{ $pendingAccessCount }}</span>
