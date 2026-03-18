@@ -84,7 +84,7 @@
               @endphp
               <span class="badge bg-{{ $sc[$r->status] ?? 'secondary' }}">{{ ucfirst(e($r->status ?? 'unknown')) }}</span>
             </td>
-            <td>{{ $r->created_at ? $r->created_at->format('Y-m-d') : '-' }}</td>
+            <td>{{ $r->created_at ? \Illuminate\Support\Carbon::parse($r->created_at)->format('Y-m-d') : '-' }}</td>
             <td>
               <a href="{{ route('research.viewResearcher', $r->id) }}" class="btn btn-sm btn-outline-primary" title="View">
                 <i class="fas fa-eye"></i>
