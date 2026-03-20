@@ -4,19 +4,7 @@
 @section('body-class', 'browse function')
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-tools me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">
-        @if($pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Function</span>
-    </div>
-  </div>
+  <h1>Browse functions</h1>
 
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
@@ -57,26 +45,20 @@
         <thead>
           <tr>
             <th>Name</th>
-            @if($activeSort === 'alphabetic' || $activeSort === 'identifier')
-              <th>Type</th>
-            @else
-              <th>Updated</th>
-            @endif
+            <th>Type</th>
+            <th>Updated</th>
           </tr>
         </thead>
         <tbody>
           @foreach($enrichedResults as $doc)
             <tr>
               <td>
-                <a href="{{ route('function.show', $doc['slug']) }}">
+                <a href="{{ route('function.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
-              @if($activeSort === 'alphabetic' || $activeSort === 'identifier')
-                <td>{{ $doc['type_name'] ?? '' }}</td>
-              @else
-                <td>{{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') : '' }}</td>
-              @endif
+              <td>{{ $doc['type_name'] ?? '' }}</td>
+              <td>{{ !empty($doc['updated_at']) ? \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') : '' }}</td>
             </tr>
           @endforeach
         </tbody>
