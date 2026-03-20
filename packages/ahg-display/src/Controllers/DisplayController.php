@@ -251,6 +251,15 @@ class DisplayController extends Controller
             case 'date':
                 $query->orderBy('io.id', $safeSortDir);
                 break;
+            case 'relevance':
+                if ($this->queryFilter) {
+                    $query->orderByRaw("CASE WHEN i18n.title LIKE ? THEN 0 WHEN i18n.title LIKE ? THEN 1 ELSE 2 END ASC", [
+                        $this->queryFilter,
+                        '%' . $this->queryFilter . '%',
+                    ]);
+                }
+                $query->orderBy('io.id', 'desc');
+                break;
             case 'startdate':
                 $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
                 $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");

@@ -1,4 +1,6 @@
-<form id="search-box" class="d-flex my-1 my-lg-0 ms-lg-3 flex-grow-1" action="{{ url('/search') }}" method="get" role="search" style="max-width:600px;">
+<form id="search-box" class="d-flex my-1 my-lg-0 ms-lg-3 flex-grow-1" action="{{ route('glam.browse') }}" method="get" role="search" style="max-width:600px;">
+  <input type="hidden" name="topLod" value="0">
+  <input type="hidden" name="sort" value="relevance">
   <h2 class="visually-hidden">Search</h2>
   <div class="input-group input-group-sm flex-nowrap">
     {{-- Search options dropdown --}}
