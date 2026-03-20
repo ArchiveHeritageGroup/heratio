@@ -356,8 +356,8 @@ body {
   min-height: 100vh !important;
   height: auto !important;
   padding: 0 !important;
-  overflow: visible !important;
   overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 
 /* Wrapper: must grow to push footer to bottom */
