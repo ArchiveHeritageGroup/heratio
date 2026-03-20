@@ -50,6 +50,145 @@ class StaticPageController extends Controller
             ->with('success', 'Static page deleted successfully.');
     }
 
+    public function create()
+    {
+        return view('ahg-static-page::edit', [
+            'page' => null,
+            'slug' => '',
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:1024',
+            'slug' => 'required|string|max:255|regex:/^[^;]*$/',
+            'content' => 'nullable|string',
+        ]);
+
+        $culture = app()->getLocale();
+
+        $id = DB::transaction(function () use ($request, $culture) {
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitStaticPage',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('static_page')->insert([
+                'id' => $objectId,
+                'source_culture' => $culture,
+            ]);
+
+            DB::table('static_page_i18n')->insert([
+                'id' => $objectId,
+                'culture' => $culture,
+                'title' => $request->input('title'),
+                'content' => $request->input('content', ''),
+            ]);
+
+            DB::table('slug')->insert([
+                'object_id' => $objectId,
+                'slug' => $request->input('slug'),
+            ]);
+
+            return $objectId;
+        });
+
+        return redirect()->route('staticpage.show', $request->input('slug'))
+            ->with('success', 'Page created.');
+    }
+
+    public function edit(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $slugRow = DB::table('slug')->where('slug', $slug)->first();
+        if (!$slugRow) {
+            abort(404);
+        }
+
+        $page = DB::table('static_page')
+            ->leftJoin('static_page_i18n', function ($join) use ($culture) {
+                $join->on('static_page.id', '=', 'static_page_i18n.id')
+                    ->where('static_page_i18n.culture', '=', $culture);
+            })
+            ->where('static_page.id', $slugRow->object_id)
+            ->select('static_page.id', 'static_page_i18n.title', 'static_page_i18n.content')
+            ->first();
+
+        if (!$page) {
+            abort(404);
+        }
+
+        // Check if slug is protected (home, about, etc.)
+        $protectedSlugs = ['home', 'about', 'contact', 'privacy', 'terms'];
+
+        return view('ahg-static-page::edit', [
+            'page' => $page,
+            'slug' => $slug,
+            'isProtected' => in_array($slug, $protectedSlugs),
+        ]);
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $request->validate([
+            'title' => 'required|string|max:1024',
+            'slug' => 'required|string|max:255|regex:/^[^;]*$/',
+            'content' => 'nullable|string',
+        ]);
+
+        $culture = app()->getLocale();
+
+        $slugRow = DB::table('slug')->where('slug', $slug)->first();
+        if (!$slugRow) {
+            abort(404);
+        }
+
+        $id = $slugRow->object_id;
+
+        DB::transaction(function () use ($id, $request, $culture, $slug) {
+            // Update or insert i18n
+            $exists = DB::table('static_page_i18n')
+                ->where('id', $id)->where('culture', $culture)->exists();
+
+            if ($exists) {
+                DB::table('static_page_i18n')
+                    ->where('id', $id)->where('culture', $culture)
+                    ->update([
+                        'title' => $request->input('title'),
+                        'content' => $request->input('content', ''),
+                    ]);
+            } else {
+                DB::table('static_page_i18n')->insert([
+                    'id' => $id,
+                    'culture' => $culture,
+                    'title' => $request->input('title'),
+                    'content' => $request->input('content', ''),
+                ]);
+            }
+
+            // Update slug if changed and not protected
+            $newSlug = $request->input('slug');
+            $protectedSlugs = ['home', 'about', 'contact', 'privacy', 'terms'];
+            if ($newSlug !== $slug && !in_array($slug, $protectedSlugs)) {
+                DB::table('slug')->where('object_id', $id)->update(['slug' => $newSlug]);
+            }
+
+            DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+        });
+
+        $finalSlug = $request->input('slug');
+        $protectedSlugs = ['home', 'about', 'contact', 'privacy', 'terms'];
+        if (in_array($slug, $protectedSlugs)) {
+            $finalSlug = $slug;
+        }
+
+        return redirect()->route('staticpage.show', $finalSlug)
+            ->with('success', 'Page updated.');
+    }
+
     public function show(string $slug)
     {
         $culture = app()->getLocale();
