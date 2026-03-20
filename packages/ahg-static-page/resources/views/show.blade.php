@@ -12,13 +12,19 @@
     </div>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      @if($page->content)
-        {!! $page->content !!}
-      @else
-        <p class="text-muted mb-0">No content available.</p>
-      @endif
-    </div>
+  <div class="static-page-content mb-4">
+    @if($page->content)
+      {!! $page->content !!}
+    @else
+      <p class="text-muted mb-0">No content available.</p>
+    @endif
   </div>
+
+  @auth
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        <li><a class="btn atom-btn-outline-light" href="{{ route('staticpage.edit', $page->slug) }}">Edit</a></li>
+      </ul>
+    </section>
+  @endauth
 @endsection
