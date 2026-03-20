@@ -60,9 +60,11 @@ class RepositoryController extends Controller
             'subregionFacets' => $subregionFacets,
             'params' => $params,
             'sortOptions' => [
-                'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',
+                'alphabetic' => 'Name',
                 'identifier' => 'Identifier',
+                'region' => 'Region',
+                'locality' => 'Locality',
             ],
         ]);
     }

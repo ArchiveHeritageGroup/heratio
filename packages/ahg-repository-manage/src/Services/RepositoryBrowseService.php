@@ -30,6 +30,8 @@ class RepositoryBrowseService extends BrowseService
             'actor.description_identifier as identifier',
             'object.updated_at',
             'slug.slug',
+            'ci18n.region',
+            'ci18n.city as locality',
         ];
     }
 
@@ -40,6 +42,11 @@ class RepositoryBrowseService extends BrowseService
             ->leftJoin('actor', 'repository.id', '=', 'actor.id')
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
+            ->leftJoin('contact_information as ci', 'repository.id', '=', 'ci.actor_id')
+            ->leftJoin('contact_information_i18n as ci18n', function ($j) {
+                $j->on('ci.id', '=', 'ci18n.id')
+                  ->where('ci18n.culture', '=', $this->culture);
+            })
             ->where('actor_i18n.culture', $this->culture)
             ->where('repository.id', '!=', 6); // Exclude root repository
     }
@@ -53,6 +60,14 @@ class RepositoryBrowseService extends BrowseService
             case 'identifier':
                 $query->orderBy('actor.description_identifier', $sortDir);
                 $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir);
+                break;
+            case 'region':
+                $query->orderBy('ci18n.region', $sortDir);
+                $query->orderBy('actor_i18n.authorized_form_of_name', 'asc');
+                break;
+            case 'locality':
+                $query->orderBy('ci18n.city', $sortDir);
+                $query->orderBy('actor_i18n.authorized_form_of_name', 'asc');
                 break;
             case 'lastUpdated':
             default:
@@ -77,12 +92,30 @@ class RepositoryBrowseService extends BrowseService
 
     protected function transformRow($row): array
     {
+        // Resolve thematic area name
+        $thematicArea = '';
+        if ($row->id) {
+            $ta = DB::table('object_term_relation')
+                ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+                ->join('term_i18n', function ($j) {
+                    $j->on('term.id', '=', 'term_i18n.id')
+                      ->where('term_i18n.culture', '=', $this->culture);
+                })
+                ->where('object_term_relation.object_id', $row->id)
+                ->where('term.taxonomy_id', 72)
+                ->value('term_i18n.name');
+            $thematicArea = $ta ?: '';
+        }
+
         return [
             'id' => $row->id,
             'name' => $row->name ?? '',
             'identifier' => $row->identifier ?? '',
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
+            'region' => $row->region ?? '',
+            'locality' => $row->locality ?? '',
+            'thematic_area' => $thematicArea,
         ];
     }
 

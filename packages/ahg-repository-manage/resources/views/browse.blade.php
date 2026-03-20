@@ -276,8 +276,11 @@
                 <h5 class="card-title text-truncate">
                   <a href="{{ route('repository.show', $doc['slug']) }}">{{ $doc['name'] ?: '[Untitled]' }}</a>
                 </h5>
-                @if(!empty($doc['identifier']))
-                  <p class="card-text small text-muted mb-0">{{ $doc['identifier'] }}</p>
+                @if(!empty($doc['region']))
+                  <p class="card-text small text-muted mb-1">{{ $doc['region'] }}</p>
+                @endif
+                @if(!empty($doc['locality']))
+                  <p class="card-text small text-muted mb-0">{{ $doc['locality'] }}</p>
                 @endif
               </div>
             </article>
@@ -285,31 +288,46 @@
         @endforeach
       </div>
     @else
-      @foreach($pager->getResults() as $doc)
-        <article class="search-result row g-0 p-3 border-bottom">
-          <div class="col-12 d-flex flex-column gap-1">
-            <div class="d-flex align-items-center gap-2 mw-100">
-              <a class="h5 mb-0 text-truncate" href="{{ route('repository.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
-                {{ $doc['name'] ?: '[Untitled]' }}
-              </a>
-              <button class="btn atom-btn-white ms-auto clipboard"
-                      data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
-                      title="Add to clipboard">
-                <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                <span class="visually-hidden">Add to clipboard</span>
-              </button>
-            </div>
-            <div class="d-flex flex-wrap">
-              @if(!empty($doc['identifier']))
-                <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
-              @endif
-              @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
-                <span class="text-muted">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
-              @endif
-            </div>
-          </div>
-        </article>
-      @endforeach
+      <div class="table-responsive mb-3">
+        <table class="table table-bordered mb-0">
+          <thead>
+            <tr>
+              <th class="w-40">
+                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'alphabetic'])) }}">Name</a>
+              </th>
+              <th class="w-20">
+                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'region'])) }}">Region</a>
+              </th>
+              <th class="w-20">
+                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'locality'])) }}">Locality</a>
+              </th>
+              <th class="w-20">Thematic area</th>
+              <th><span class="visually-hidden">Clipboard</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($pager->getResults() as $doc)
+              <tr>
+                <td>
+                  <a href="{{ route('repository.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">{{ $doc['name'] ?: '[Untitled]' }}</a>
+                </td>
+                <td>{{ $doc['region'] ?? '' }}</td>
+                <td>{{ $doc['locality'] ?? '' }}</td>
+                <td>{{ $doc['thematic_area'] ?? '' }}</td>
+                <td>
+                  <button class="btn btn-sm atom-btn-white clipboard"
+                          data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
+                          data-title="Add" data-alt-title="Remove"
+                          title="Add to clipboard">
+                    <i class="fas fa-paperclip" aria-hidden="true"></i>
+                    <span class="visually-hidden">Add to clipboard</span>
+                  </button>
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
     @endif
   @endif
 @endsection
