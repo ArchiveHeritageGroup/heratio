@@ -1,15 +1,14 @@
 @extends('theme::layouts.1col')
 
-@section('title')
+@section('title', ($rightsHolder ? 'Edit' : 'Create') . ' rights holder')
+
+@section('content')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ $rightsHolder ? 'Edit' : 'Create' }} rights holder</h1>
     @if($rightsHolder)
       <span class="small">{{ $rightsHolder->authorized_form_of_name }}</span>
     @endif
   </div>
-@endsection
-
-@section('content')
   @if($errors->any())
     <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
   @endif
@@ -41,14 +40,16 @@
       </div>
     </div>
 
-    <ul class="actions mb-3 nav gap-2">
-      @if($rightsHolder)
-        <li><a href="{{ route('rightsholder.show', $rightsHolder->slug) }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Save"></li>
-      @else
-        <li><a href="{{ route('rightsholder.browse') }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Create"></li>
-      @endif
-    </ul>
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        @if($rightsHolder)
+          <li><a href="{{ route('rightsholder.show', $rightsHolder->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        @else
+          <li><a href="{{ route('rightsholder.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        @endif
+      </ul>
+    </section>
   </form>
 @endsection

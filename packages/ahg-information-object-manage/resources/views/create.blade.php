@@ -255,11 +255,11 @@
     </fieldset>
 
     {{-- ===== Form actions ===== --}}
-    <div class="d-flex gap-2 mb-4">
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i> Create
-      </button>
-      <a href="{{ route('informationobject.browse') }}" class="btn btn-secondary">Cancel</a>
-    </div>
+    <section class="actions mb-3">
+      <ul class="actions mb-1 nav gap-2">
+        <li><a href="{{ route('informationobject.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+      </ul>
+    </section>
   </form>
 @endsection

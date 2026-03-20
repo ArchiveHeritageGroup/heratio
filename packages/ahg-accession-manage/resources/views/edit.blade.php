@@ -1,6 +1,8 @@
 @extends('theme::layouts.1col')
 
-@section('title')
+@section('title', ($accession ? 'Edit' : 'Create') . ' accession record')
+
+@section('content')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">
       @if($accession)
@@ -13,9 +15,6 @@
       <span class="small">{{ $accession->title ?: $accession->identifier }}</span>
     @endif
   </div>
-@endsection
-
-@section('content')
 
   @if($errors->any())
     <div class="alert alert-danger">

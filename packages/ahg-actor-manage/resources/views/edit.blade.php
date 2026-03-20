@@ -1,6 +1,8 @@
 @extends('theme::layouts.1col')
 
-@section('title')
+@section('title', ($actor ? 'Edit' : 'Create') . ' authority record - ISAAR')
+
+@section('content')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">
       @if($actor)
@@ -13,9 +15,6 @@
       <span class="small">{{ $actor->authorized_form_of_name }}</span>
     @endif
   </div>
-@endsection
-
-@section('content')
 
   @if($errors->any())
     <div class="alert alert-danger">
