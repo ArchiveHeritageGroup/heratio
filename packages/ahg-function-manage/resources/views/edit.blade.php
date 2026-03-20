@@ -82,11 +82,11 @@
         </div>
       </div>
 
-      {{-- Description area (ISDF 5.2) --}}
+      {{-- Context area (ISDF 5.2) --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
-            Description area
+            Context area
           </button>
         </h2>
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
