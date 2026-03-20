@@ -46,11 +46,5 @@ Route::get('/favorites/browse', fn () => redirect('/favorites'));
 Route::get('/cart/browse', fn () => redirect('/cart'));
 // Feedback routes are in ahg-feedback package
 
-// GLAM sector stubs — these AtoM plugins are not yet migrated to Heratio
-Route::get('/museum/{action?}', fn () => redirect('/glam/browse')->with('info', 'Museum module is being migrated to Heratio. Use the GLAM browse for now.'))->where('action', '.*');
-Route::get('/gallery/{action?}', fn () => redirect('/glam/browse')->with('info', 'Gallery module is being migrated to Heratio. Use the GLAM browse for now.'))->where('action', '.*');
-Route::get('/library/{action?}', fn () => redirect('/glam/browse')->with('info', 'Library module is being migrated to Heratio. Use the GLAM browse for now.'))->where('action', '.*');
-Route::get('/dam/{action?}', fn () => redirect('/glam/browse')->with('info', 'DAM module is being migrated to Heratio. Use the GLAM browse for now.'))->where('action', '.*');
-
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

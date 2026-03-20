@@ -194,11 +194,15 @@ class ReportService
                     ->where('actor_i18n.culture', '=', $culture);
             })
             ->leftJoin('contact_information', 'donor.id', '=', 'contact_information.actor_id')
+            ->leftJoin('contact_information_i18n', function ($join) use ($culture) {
+                $join->on('contact_information.id', '=', 'contact_information_i18n.id')
+                    ->where('contact_information_i18n.culture', '=', $culture);
+            })
             ->select(
                 'donor.id',
                 'actor_i18n.authorized_form_of_name',
                 'contact_information.email', 'contact_information.telephone',
-                'contact_information.city', 'contact_information.region',
+                'contact_information_i18n.city', 'contact_information_i18n.region',
                 'object.created_at', 'object.updated_at'
             );
 

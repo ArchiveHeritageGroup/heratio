@@ -197,7 +197,7 @@ class ReportController extends Controller
                 $join->on('io.level_of_description_id', '=', 'lod.id')
                     ->where('lod.culture', '=', $culture);
             })
-            ->leftJoin('repository_i18n as ri', function ($join) use ($culture) {
+            ->leftJoin('actor_i18n as ri', function ($join) use ($culture) {
                 $join->on('io.repository_id', '=', 'ri.id')
                     ->where('ri.culture', '=', $culture);
             })

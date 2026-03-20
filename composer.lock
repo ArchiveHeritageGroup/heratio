@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "acaf892a4ef070df47fe9c790d795d72",
+    "content-hash": "2fc2f287a638cd93e6ca4c925f576244",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -325,6 +325,36 @@
             }
         },
         {
+            "name": "ahg/dam",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-dam",
+                "reference": "735f6246b2b175351094829114063b617570a067"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDam\\AhgDamServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDam\\": "src/"
+                }
+            },
+            "description": "Digital Asset Management (DAM) with IPTC/XMP metadata for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/data-migration",
             "version": "dev-main",
             "dist": {
@@ -622,6 +652,36 @@
             }
         },
         {
+            "name": "ahg/gallery",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-gallery",
+                "reference": "bc68c349cf6da694738c599b6826fcd37bd2adea"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgGallery\\AhgGalleryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgGallery\\": "src/"
+                }
+            },
+            "description": "Gallery and art management for Heratio (artworks, artists, loans, valuations)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/help",
             "version": "dev-main",
             "dist": {
@@ -802,6 +862,36 @@
             }
         },
         {
+            "name": "ahg/library",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-library",
+                "reference": "1fc26728a686059a509114cb889bbe8baa907650"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgLibrary\\Providers\\AhgLibraryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgLibrary\\": "src/"
+                }
+            },
+            "description": "Library cataloguing and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/loan",
             "version": "dev-main",
             "dist": {
@@ -952,6 +1042,36 @@
                 }
             },
             "description": "Metadata extraction from digital objects for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/museum",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-museum",
+                "reference": "9f86bdbd1536b7e41abbc220105d30a9a36b3aad"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMuseum\\AhgMuseumServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMuseum\\": "src/"
+                }
+            },
+            "description": "Museum cataloguing (CCO standard) browse and management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9916,6 +10036,10 @@
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
+        "ahg/dam": 20,
+        "ahg/gallery": 20,
+        "ahg/library": 20,
+        "ahg/museum": 20,
         "ahg/ai-services": 20,
         "ahg/api": 20,
         "ahg/audit-trail": 20,

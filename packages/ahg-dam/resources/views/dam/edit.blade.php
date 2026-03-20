@@ -1,0 +1,639 @@
+@extends('theme::layouts.1col')
+
+@section('title', ($asset ? 'Edit' : 'Create') . ' DAM asset')
+
+@section('content')
+  <div class="multiline-header d-flex flex-column mb-3">
+    <h1 class="mb-0" aria-describedby="heading-label">
+      {{ $asset ? 'Edit DAM asset' : 'Create DAM asset' }}
+    </h1>
+    @if($asset)
+      <span class="small" id="heading-label">{{ $asset->title ?: $asset->identifier }}</span>
+    @endif
+  </div>
+
+  <form method="POST"
+        action="{{ $asset ? route('dam.update', $asset->slug) : route('dam.store') }}"
+        id="editForm">
+    @csrf
+    @if($asset)
+      @method('PUT')
+    @endif
+
+    <div class="accordion mb-3">
+
+      {{-- ===== Identification (ISAD) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="identification-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identification-collapse" aria-expanded="false" aria-controls="identification-collapse">
+            Identification (ISAD)
+          </button>
+        </h2>
+        <div id="identification-collapse" class="accordion-collapse collapse" aria-labelledby="identification-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="identifier" class="form-label">
+                Identifier / Reference code
+                <span class="form-required" title="This is a mandatory element.">*</span>
+              </label>
+              <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
+                     value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="e.g., DAM-2024-001">
+              @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
+              <div class="form-text text-muted small">A unique identifier for this DAM asset within the repository.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="title" class="form-label">
+                Title
+                <span class="form-required" title="This is a mandatory element.">*</span>
+              </label>
+              <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
+                     value="{{ old('title', $asset->title ?? '') }}">
+              @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+              <div class="form-text text-muted small">The title of the digital asset.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="repository_id" class="form-label">Parent collection (Repository)</label>
+              <select name="repository_id" id="repository_id" class="form-select">
+                <option value="">-- Select repository --</option>
+                @foreach($formChoices['repositories'] as $repo)
+                  <option value="{{ $repo->id }}" @selected(old('repository_id', $asset->repository_id ?? '') == $repo->id)>{{ $repo->name }}</option>
+                @endforeach
+              </select>
+              <div class="form-text text-muted small">The repository that holds this asset.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="level_of_description_id" class="form-label">Level of description</label>
+              <select name="level_of_description_id" id="level_of_description_id" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach($formChoices['levels'] as $level)
+                  <option value="{{ $level->id }}" @selected(old('level_of_description_id', $asset->level_of_description_id ?? '') == $level->id)>{{ $level->name }}</option>
+                @endforeach
+              </select>
+              <div class="form-text text-muted small">The level of arrangement of the unit of description.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="scope_and_content" class="form-label">Scope and content</label>
+              <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="3">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
+              <div class="form-text text-muted small">A description of the intellectual content and document types represented in this asset.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Asset Classification ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="classification-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#classification-collapse" aria-expanded="false" aria-controls="classification-collapse">
+            Asset Classification
+          </button>
+        </h2>
+        <div id="classification-collapse" class="accordion-collapse collapse" aria-labelledby="classification-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="asset_type" class="form-label">Asset type</label>
+              <select name="asset_type" id="asset_type" class="form-select">
+                <option value="">-- Select asset type --</option>
+                <optgroup label="Image">
+                  <option value="photo" @selected(old('asset_type', $asset->asset_type ?? '') === 'photo')>Photo / Image</option>
+                  <option value="artwork" @selected(old('asset_type', $asset->asset_type ?? '') === 'artwork')>Artwork / Painting</option>
+                  <option value="scan" @selected(old('asset_type', $asset->asset_type ?? '') === 'scan')>Scan / Digitized</option>
+                </optgroup>
+                <optgroup label="Video / Film">
+                  <option value="documentary" @selected(old('asset_type', $asset->asset_type ?? '') === 'documentary')>Documentary</option>
+                  <option value="feature" @selected(old('asset_type', $asset->asset_type ?? '') === 'feature')>Feature Film</option>
+                  <option value="short" @selected(old('asset_type', $asset->asset_type ?? '') === 'short')>Short Film</option>
+                  <option value="news" @selected(old('asset_type', $asset->asset_type ?? '') === 'news')>News / Footage</option>
+                  <option value="interview" @selected(old('asset_type', $asset->asset_type ?? '') === 'interview')>Interview</option>
+                  <option value="home_movie" @selected(old('asset_type', $asset->asset_type ?? '') === 'home_movie')>Home Movie</option>
+                </optgroup>
+                <optgroup label="Audio">
+                  <option value="oral_history" @selected(old('asset_type', $asset->asset_type ?? '') === 'oral_history')>Oral History</option>
+                  <option value="music" @selected(old('asset_type', $asset->asset_type ?? '') === 'music')>Music Recording</option>
+                  <option value="podcast" @selected(old('asset_type', $asset->asset_type ?? '') === 'podcast')>Podcast / Radio</option>
+                  <option value="speech" @selected(old('asset_type', $asset->asset_type ?? '') === 'speech')>Speech / Lecture</option>
+                </optgroup>
+                <optgroup label="Document">
+                  <option value="document" @selected(old('asset_type', $asset->asset_type ?? '') === 'document')>Document / PDF</option>
+                  <option value="manuscript" @selected(old('asset_type', $asset->asset_type ?? '') === 'manuscript')>Manuscript</option>
+                </optgroup>
+              </select>
+              <div class="form-text text-muted small">The type classification of this digital asset.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="genre" class="form-label">Genre</label>
+              <input type="text" name="genre" id="genre" class="form-control"
+                     value="{{ old('genre', $asset->genre ?? '') }}" placeholder="e.g., Documentary, Portrait">
+              <div class="form-text text-muted small">The genre or category of the content.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="color_type" class="form-label">Color type</label>
+              <select name="color_type" id="color_type" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Color" @selected(old('color_type', $asset->color_type ?? '') === 'Color')>Color</option>
+                <option value="Black & White" @selected(old('color_type', $asset->color_type ?? '') === 'Black & White')>Black & White</option>
+                <option value="Sepia" @selected(old('color_type', $asset->color_type ?? '') === 'Sepia')>Sepia</option>
+                <option value="Mixed" @selected(old('color_type', $asset->color_type ?? '') === 'Mixed')>Mixed</option>
+              </select>
+              <div class="form-text text-muted small">The color mode of the asset.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Production ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="production-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#production-collapse" aria-expanded="false" aria-controls="production-collapse">
+            Production
+          </button>
+        </h2>
+        <div id="production-collapse" class="accordion-collapse collapse" aria-labelledby="production-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="production_company" class="form-label">Production company</label>
+                <input type="text" name="production_company" id="production_company" class="form-control"
+                       value="{{ old('production_company', $asset->production_company ?? '') }}">
+                <div class="form-text text-muted small">The company or organisation that produced the content.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="distributor" class="form-label">Distributor / Broadcaster</label>
+                <input type="text" name="distributor" id="distributor" class="form-control"
+                       value="{{ old('distributor', $asset->distributor ?? '') }}">
+                <div class="form-text text-muted small">The entity responsible for distributing or broadcasting the content.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="broadcast_date" class="form-label">Broadcast date</label>
+                <input type="date" name="broadcast_date" id="broadcast_date" class="form-control"
+                       value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}">
+                <div class="form-text text-muted small">The original broadcast or release date.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="series_title" class="form-label">Series title</label>
+                <input type="text" name="series_title" id="series_title" class="form-control"
+                       value="{{ old('series_title', $asset->series_title ?? '') }}">
+                <div class="form-text text-muted small">The title of the series this asset belongs to.</div>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="season_number" class="form-label">Season number</label>
+                <input type="number" name="season_number" id="season_number" class="form-control"
+                       value="{{ old('season_number', $asset->season_number ?? '') }}" min="0">
+                <div class="form-text text-muted small">Season number within the series.</div>
+              </div>
+              <div class="col-md-2 mb-3">
+                <label for="episode_number" class="form-label">Episode number</label>
+                <input type="number" name="episode_number" id="episode_number" class="form-control"
+                       value="{{ old('episode_number', $asset->episode_number ?? '') }}" min="0">
+                <div class="form-text text-muted small">Episode number within the season.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="awards" class="form-label">Awards</label>
+              <textarea name="awards" id="awards" class="form-control" rows="2">{{ old('awards', $asset->awards ?? '') }}</textarea>
+              <div class="form-text text-muted small">Awards or recognitions received by this production.</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="audio_language" class="form-label">Audio language(s)</label>
+                <input type="text" name="audio_language" id="audio_language" class="form-control"
+                       value="{{ old('audio_language', $asset->audio_language ?? '') }}">
+                <div class="form-text text-muted small">The language(s) of the audio track, comma-separated.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="subtitle_language" class="form-label">Subtitle language(s)</label>
+                <input type="text" name="subtitle_language" id="subtitle_language" class="form-control"
+                       value="{{ old('subtitle_language', $asset->subtitle_language ?? '') }}">
+                <div class="form-text text-muted small">The language(s) of available subtitles, comma-separated.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Creator/Contact ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="creator-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#creator-collapse" aria-expanded="false" aria-controls="creator-collapse">
+            Creator / Contact
+          </button>
+        </h2>
+        <div id="creator-collapse" class="accordion-collapse collapse" aria-labelledby="creator-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="creator" class="form-label">Creator / Photographer</label>
+                <input type="text" name="creator" id="creator" class="form-control"
+                       value="{{ old('creator', $asset->creator ?? '') }}">
+                <div class="form-text text-muted small">The person or organisation that created the asset.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="creator_job_title" class="form-label">Job title</label>
+                <input type="text" name="creator_job_title" id="creator_job_title" class="form-control"
+                       value="{{ old('creator_job_title', $asset->creator_job_title ?? '') }}">
+                <div class="form-text text-muted small">The job title of the creator.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="creator_email" class="form-label">Email</label>
+                <input type="email" name="creator_email" id="creator_email" class="form-control"
+                       value="{{ old('creator_email', $asset->creator_email ?? '') }}">
+                <div class="form-text text-muted small">Contact email address for the creator.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="creator_phone" class="form-label">Phone</label>
+                <input type="text" name="creator_phone" id="creator_phone" class="form-control"
+                       value="{{ old('creator_phone', $asset->creator_phone ?? '') }}">
+                <div class="form-text text-muted small">Contact phone number for the creator.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="creator_website" class="form-label">Website</label>
+                <input type="text" name="creator_website" id="creator_website" class="form-control"
+                       value="{{ old('creator_website', $asset->creator_website ?? '') }}">
+                <div class="form-text text-muted small">Website URL for the creator.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="creator_city" class="form-label">City</label>
+                <input type="text" name="creator_city" id="creator_city" class="form-control"
+                       value="{{ old('creator_city', $asset->creator_city ?? '') }}">
+                <div class="form-text text-muted small">The city where the creator is located.</div>
+              </div>
+              <div class="col-md-8 mb-3">
+                <label for="creator_address" class="form-label">Address</label>
+                <input type="text" name="creator_address" id="creator_address" class="form-control"
+                       value="{{ old('creator_address', $asset->creator_address ?? '') }}">
+                <div class="form-text text-muted small">Street address of the creator.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Content ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="content-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-collapse" aria-expanded="false" aria-controls="content-collapse">
+            Content
+          </button>
+        </h2>
+        <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="headline" class="form-label">Headline</label>
+              <input type="text" name="headline" id="headline" class="form-control"
+                     value="{{ old('headline', $asset->headline ?? '') }}">
+              <div class="form-text text-muted small">A brief synopsis or summary of the content.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="duration_minutes" class="form-label">Running time</label>
+              <div class="input-group" style="max-width: 200px;">
+                <input type="number" name="duration_minutes" id="duration_minutes" class="form-control"
+                       value="{{ old('duration_minutes', $asset->duration_minutes ?? '') }}" min="0">
+                <span class="input-group-text">min</span>
+              </div>
+              <div class="form-text text-muted small">Running time in minutes (round to nearest minute).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="caption" class="form-label">Caption / Description</label>
+              <textarea name="caption" id="caption" class="form-control" rows="3">{{ old('caption', $asset->caption ?? '') }}</textarea>
+              <div class="form-text text-muted small">A textual description of the content.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="keywords" class="form-label">Keywords</label>
+              <input type="text" name="keywords" id="keywords" class="form-control"
+                     value="{{ old('keywords', $asset->keywords ?? '') }}" placeholder="Comma-separated">
+              <div class="form-text text-muted small">Keywords or tags describing the content, comma-separated.</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="iptc_subject_code" class="form-label">IPTC Subject Code</label>
+                <input type="text" name="iptc_subject_code" id="iptc_subject_code" class="form-control"
+                       value="{{ old('iptc_subject_code', $asset->iptc_subject_code ?? '') }}">
+                <div class="form-text text-muted small">IPTC subject reference code for categorisation.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="intellectual_genre" class="form-label">Intellectual genre</label>
+                <input type="text" name="intellectual_genre" id="intellectual_genre" class="form-control"
+                       value="{{ old('intellectual_genre', $asset->intellectual_genre ?? '') }}">
+                <div class="form-text text-muted small">The intellectual genre of the content (e.g., Feature, Actuality).</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="persons_shown" class="form-label">Persons shown</label>
+              <input type="text" name="persons_shown" id="persons_shown" class="form-control"
+                     value="{{ old('persons_shown', $asset->persons_shown ?? '') }}">
+              <div class="form-text text-muted small">Names of persons depicted in the content.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="date_created" class="form-label">Date created</label>
+              <input type="date" name="date_created" id="date_created" class="form-control"
+                     value="{{ old('date_created', $asset->iptc_date_created ?? '') }}">
+              <div class="form-text text-muted small">The date the intellectual content was created.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Location ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="location-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
+            Location
+          </button>
+        </h2>
+        <div id="location-collapse" class="accordion-collapse collapse" aria-labelledby="location-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text" name="city" id="city" class="form-control"
+                       value="{{ old('city', $asset->city ?? '') }}">
+                <div class="form-text text-muted small">The city where the content was created or depicts.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="state_province" class="form-label">State / Province</label>
+                <input type="text" name="state_province" id="state_province" class="form-control"
+                       value="{{ old('state_province', $asset->state_province ?? '') }}">
+                <div class="form-text text-muted small">The state or province of the location.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="sublocation" class="form-label">Sublocation</label>
+                <input type="text" name="sublocation" id="sublocation" class="form-control"
+                       value="{{ old('sublocation', $asset->sublocation ?? '') }}">
+                <div class="form-text text-muted small">A more specific location within the city.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="country" class="form-label">Country</label>
+                <input type="text" name="country" id="country" class="form-control"
+                       value="{{ old('country', $asset->country ?? '') }}">
+                <div class="form-text text-muted small">The country name of the location depicted.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="country_code" class="form-label">Country code</label>
+                <input type="text" name="country_code" id="country_code" class="form-control" maxlength="10"
+                       value="{{ old('country_code', $asset->country_code ?? '') }}" placeholder="ISO 3166-1 alpha-3">
+                <div class="form-text text-muted small">ISO 3166-1 country code (e.g., ZAF, GBR, USA).</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="production_country" class="form-label">Production country</label>
+                <input type="text" name="production_country" id="production_country" class="form-control"
+                       value="{{ old('production_country', $asset->production_country ?? '') }}">
+                <div class="form-text text-muted small">Country where the content was produced (may differ from filming location).</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="production_country_code" class="form-label">Production country code</label>
+                <input type="text" name="production_country_code" id="production_country_code" class="form-control" maxlength="10"
+                       value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="e.g., NLD, ZAF">
+                <div class="form-text text-muted small">ISO 3166-1 country code for the production country.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Rights ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="rights-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rights-collapse" aria-expanded="false" aria-controls="rights-collapse">
+            Rights
+          </button>
+        </h2>
+        <div id="rights-collapse" class="accordion-collapse collapse" aria-labelledby="rights-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="credit_line" class="form-label">Credit line</label>
+                <input type="text" name="credit_line" id="credit_line" class="form-control"
+                       value="{{ old('credit_line', $asset->credit_line ?? '') }}">
+                <div class="form-text text-muted small">The credit line required when reproducing this asset.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="source" class="form-label">Source</label>
+                <input type="text" name="source" id="source" class="form-control"
+                       value="{{ old('source', $asset->source ?? '') }}">
+                <div class="form-text text-muted small">The original owner or provider of the asset.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="copyright_notice" class="form-label">Copyright notice</label>
+              <input type="text" name="copyright_notice" id="copyright_notice" class="form-control"
+                     value="{{ old('copyright_notice', $asset->copyright_notice ?? '') }}" placeholder="&copy; 2024 Photographer Name">
+              <div class="form-text text-muted small">The copyright notice text (e.g., &copy; Year Name).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="rights_usage_terms" class="form-label">Rights usage terms</label>
+              <textarea name="rights_usage_terms" id="rights_usage_terms" class="form-control" rows="2">{{ old('rights_usage_terms', $asset->rights_usage_terms ?? '') }}</textarea>
+              <div class="form-text text-muted small">Free-text instructions on how the asset can be used legally.</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="license_type" class="form-label">License type</label>
+                <select name="license_type" id="license_type" class="form-select">
+                  <option value="">-- Select --</option>
+                  @foreach([
+                    'All Rights Reserved' => 'All Rights Reserved',
+                    'Creative Commons BY' => 'Creative Commons BY',
+                    'CC BY-SA' => 'CC BY-SA',
+                    'CC BY-NC' => 'CC BY-NC',
+                    'CC BY-NC-SA' => 'CC BY-NC-SA',
+                    'CC BY-ND' => 'CC BY-ND',
+                    'CC BY-NC-ND' => 'CC BY-NC-ND',
+                    'Public Domain' => 'Public Domain',
+                    'Editorial Use Only' => 'Editorial Use Only',
+                    'Rights Managed' => 'Rights Managed',
+                    'Royalty Free' => 'Royalty Free',
+                  ] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('license_type', $asset->license_type ?? '') === $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+                <div class="form-text text-muted small">The type of license governing use of this asset.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="license_url" class="form-label">License URL</label>
+                <input type="text" name="license_url" id="license_url" class="form-control"
+                       value="{{ old('license_url', $asset->license_url ?? '') }}">
+                <div class="form-text text-muted small">URL to the full license text.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="license_expiry" class="form-label">License expiry</label>
+                <input type="date" name="license_expiry" id="license_expiry" class="form-control"
+                       value="{{ old('license_expiry', $asset->license_expiry ?? '') }}">
+                <div class="form-text text-muted small">The date when the current license expires.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="model_release_status" class="form-label">Model release status</label>
+                  <select name="model_release_status" id="model_release_status" class="form-select">
+                    <option value="">-- Select --</option>
+                    @foreach([
+                      'None' => 'None',
+                      'Not Applicable' => 'Not Applicable',
+                      'Unlimited Model Release' => 'Unlimited Model Release',
+                      'Limited Model Release' => 'Limited Model Release',
+                    ] as $val => $label)
+                      <option value="{{ $val }}" @selected(old('model_release_status', $asset->model_release_status ?? '') === $val)>{{ $label }}</option>
+                    @endforeach
+                  </select>
+                  <div class="form-text text-muted small">The status of model releases for persons depicted.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="model_release_id" class="form-label">Model release ID</label>
+                  <input type="text" name="model_release_id" id="model_release_id" class="form-control"
+                         value="{{ old('model_release_id', $asset->model_release_id ?? '') }}">
+                  <div class="form-text text-muted small">Identifier of the model release document.</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="property_release_status" class="form-label">Property release status</label>
+                  <select name="property_release_status" id="property_release_status" class="form-select">
+                    <option value="">-- Select --</option>
+                    @foreach([
+                      'None' => 'None',
+                      'Not Applicable' => 'Not Applicable',
+                      'Unlimited Property Release' => 'Unlimited Property Release',
+                      'Limited Property Release' => 'Limited Property Release',
+                    ] as $val => $label)
+                      <option value="{{ $val }}" @selected(old('property_release_status', $asset->property_release_status ?? '') === $val)>{{ $label }}</option>
+                    @endforeach
+                  </select>
+                  <div class="form-text text-muted small">The status of property releases for depicted properties.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="property_release_id" class="form-label">Property release ID</label>
+                  <input type="text" name="property_release_id" id="property_release_id" class="form-control"
+                         value="{{ old('property_release_id', $asset->property_release_id ?? '') }}">
+                  <div class="form-text text-muted small">Identifier of the property release document.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Artwork/Object ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="artwork-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#artwork-collapse" aria-expanded="false" aria-controls="artwork-collapse">
+            Artwork / Object
+          </button>
+        </h2>
+        <div id="artwork-collapse" class="accordion-collapse collapse" aria-labelledby="artwork-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="artwork_title" class="form-label">Artwork title</label>
+                <input type="text" name="artwork_title" id="artwork_title" class="form-control"
+                       value="{{ old('artwork_title', $asset->artwork_title ?? '') }}">
+                <div class="form-text text-muted small">The title of the depicted artwork or object.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="artwork_creator" class="form-label">Artwork creator</label>
+                <input type="text" name="artwork_creator" id="artwork_creator" class="form-control"
+                       value="{{ old('artwork_creator', $asset->artwork_creator ?? '') }}">
+                <div class="form-text text-muted small">The creator of the depicted artwork or object.</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="artwork_date" class="form-label">Artwork date</label>
+                <input type="text" name="artwork_date" id="artwork_date" class="form-control"
+                       value="{{ old('artwork_date', $asset->artwork_date ?? '') }}" placeholder="e.g., 1889">
+                <div class="form-text text-muted small">The date the artwork or object was created.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="artwork_source" class="form-label">Artwork source</label>
+                <input type="text" name="artwork_source" id="artwork_source" class="form-control"
+                       value="{{ old('artwork_source', $asset->artwork_source ?? '') }}">
+                <div class="form-text text-muted small">The institution or collection holding the artwork.</div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="artwork_copyright" class="form-label">Artwork copyright</label>
+                <input type="text" name="artwork_copyright" id="artwork_copyright" class="form-control"
+                       value="{{ old('artwork_copyright', $asset->artwork_copyright ?? '') }}">
+                <div class="form-text text-muted small">Copyright notice for the depicted artwork or object.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Technical/Administrative ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="technical-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#technical-collapse" aria-expanded="false" aria-controls="technical-collapse">
+            Technical / Administrative
+          </button>
+        </h2>
+        <div id="technical-collapse" class="accordion-collapse collapse" aria-labelledby="technical-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="iptc_title" class="form-label">Title (IPTC Object Name)</label>
+                <input type="text" name="iptc_title" id="iptc_title" class="form-control"
+                       value="{{ old('iptc_title', $asset->iptc_title ?? '') }}">
+                <div class="form-text text-muted small">The IPTC Object Name, a shorthand reference for the asset.</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="job_id" class="form-label">Job / Assignment ID</label>
+                <input type="text" name="job_id" id="job_id" class="form-control"
+                       value="{{ old('job_id', $asset->job_id ?? '') }}">
+                <div class="form-text text-muted small">The job or assignment identifier for tracking purposes.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="instructions" class="form-label">Special instructions</label>
+              <textarea name="instructions" id="instructions" class="form-control" rows="2">{{ old('instructions', $asset->instructions ?? '') }}</textarea>
+              <div class="form-text text-muted small">Any special instructions regarding the use of this asset.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <ul class="actions mb-3 nav gap-2">
+      @if($asset)
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('dam.show', $asset->slug) }}">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+      @else
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('dam.browse') }}">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+      @endif
+    </ul>
+  </form>
+@endsection

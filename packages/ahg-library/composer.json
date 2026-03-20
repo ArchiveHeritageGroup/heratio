@@ -1,0 +1,20 @@
+{
+    "name": "ahg/library",
+    "description": "Library cataloguing and management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgLibrary\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgLibrary\\Providers\\AhgLibraryServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,296 @@
+<?php
+
+namespace AhgDam\Controllers;
+
+use AhgDam\Services\DamService;
+use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class DamController extends Controller
+{
+    protected DamService $service;
+
+    public function __construct()
+    {
+        $this->service = new DamService(app()->getLocale());
+    }
+
+    public function dashboard()
+    {
+        $stats = $this->service->getDashboardStats();
+        $recentAssets = $this->service->getRecentAssets(10);
+
+        return view('ahg-dam::dam.dashboard', [
+            'stats' => $stats,
+            'recentAssets' => $recentAssets,
+        ]);
+    }
+
+    public function browse(Request $request)
+    {
+        $result = $this->service->browse([
+            'page' => $request->get('page', 1),
+            'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
+            'sort' => $request->get('sort', 'lastUpdated'),
+            'sortDir' => $request->get('sortDir', ''),
+            'subquery' => $request->get('subquery', ''),
+            'asset_type' => $request->get('asset_type', ''),
+        ]);
+
+        $pager = new SimplePager($result);
+
+        return view('ahg-dam::dam.browse', [
+            'pager' => $pager,
+            'sortOptions' => [
+                'alphabetic' => 'Title',
+                'identifier' => 'Identifier',
+                'date' => 'Date created',
+                'lastUpdated' => 'Date modified',
+            ],
+        ]);
+    }
+
+    public function show(string $slug)
+    {
+        $asset = $this->service->getBySlug($slug);
+        if (!$asset) {
+            abort(404);
+        }
+
+        $digitalObjects = $this->service->getDigitalObjects($asset->id);
+        $relatedItems = $this->service->getRelatedItems($asset->id);
+
+        return view('ahg-dam::dam.show', [
+            'asset' => $asset,
+            'digitalObjects' => $digitalObjects,
+            'relatedItems' => $relatedItems,
+        ]);
+    }
+
+    public function create()
+    {
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-dam::dam.edit', [
+            'asset' => null,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function edit(string $slug)
+    {
+        $asset = $this->service->getBySlug($slug);
+        if (!$asset) {
+            abort(404);
+        }
+
+        $formChoices = $this->service->getFormChoices();
+
+        return view('ahg-dam::dam.edit', [
+            'asset' => $asset,
+            'formChoices' => $formChoices,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required|string|max:255',
+            'title' => 'required|string|max:1024',
+            'repository_id' => 'nullable|integer',
+            'level_of_description_id' => 'nullable|integer',
+            'scope_and_content' => 'nullable|string',
+            'asset_type' => 'nullable|string|max:50',
+            'genre' => 'nullable|string|max:255',
+            'color_type' => 'nullable|string|max:50',
+            'production_company' => 'nullable|string|max:255',
+            'distributor' => 'nullable|string|max:255',
+            'broadcast_date' => 'nullable|date',
+            'series_title' => 'nullable|string|max:255',
+            'season_number' => 'nullable|integer',
+            'episode_number' => 'nullable|integer',
+            'awards' => 'nullable|string',
+            'audio_language' => 'nullable|string|max:255',
+            'subtitle_language' => 'nullable|string|max:255',
+            'creator' => 'nullable|string|max:255',
+            'creator_job_title' => 'nullable|string|max:255',
+            'creator_email' => 'nullable|email|max:255',
+            'creator_phone' => 'nullable|string|max:100',
+            'creator_website' => 'nullable|string|max:255',
+            'creator_city' => 'nullable|string|max:255',
+            'creator_address' => 'nullable|string|max:500',
+            'headline' => 'nullable|string|max:255',
+            'duration_minutes' => 'nullable|integer|min:0',
+            'caption' => 'nullable|string',
+            'keywords' => 'nullable|string',
+            'iptc_subject_code' => 'nullable|string|max:255',
+            'intellectual_genre' => 'nullable|string|max:255',
+            'persons_shown' => 'nullable|string',
+            'date_created' => 'nullable|date',
+            'city' => 'nullable|string|max:255',
+            'state_province' => 'nullable|string|max:255',
+            'sublocation' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'country_code' => 'nullable|string|max:10',
+            'production_country' => 'nullable|string|max:255',
+            'production_country_code' => 'nullable|string|max:10',
+            'credit_line' => 'nullable|string|max:255',
+            'source' => 'nullable|string|max:255',
+            'copyright_notice' => 'nullable|string|max:500',
+            'rights_usage_terms' => 'nullable|string',
+            'license_type' => 'nullable|string|max:50',
+            'license_url' => 'nullable|string|max:500',
+            'license_expiry' => 'nullable|date',
+            'model_release_status' => 'nullable|string|max:50',
+            'model_release_id' => 'nullable|string|max:255',
+            'property_release_status' => 'nullable|string|max:50',
+            'property_release_id' => 'nullable|string|max:255',
+            'artwork_title' => 'nullable|string|max:255',
+            'artwork_creator' => 'nullable|string|max:255',
+            'artwork_date' => 'nullable|string|max:255',
+            'artwork_source' => 'nullable|string|max:255',
+            'artwork_copyright' => 'nullable|string|max:500',
+            'iptc_title' => 'nullable|string|max:255',
+            'job_id' => 'nullable|string|max:255',
+            'instructions' => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'identifier', 'title', 'repository_id', 'level_of_description_id',
+            'scope_and_content', 'asset_type', 'genre', 'color_type',
+            'production_company', 'distributor', 'broadcast_date', 'series_title',
+            'season_number', 'episode_number', 'awards', 'audio_language', 'subtitle_language',
+            'creator', 'creator_job_title', 'creator_email', 'creator_phone',
+            'creator_website', 'creator_city', 'creator_address',
+            'headline', 'duration_minutes', 'caption', 'keywords',
+            'iptc_subject_code', 'intellectual_genre', 'persons_shown', 'date_created',
+            'city', 'state_province', 'sublocation', 'country', 'country_code',
+            'production_country', 'production_country_code',
+            'credit_line', 'source', 'copyright_notice', 'rights_usage_terms',
+            'license_type', 'license_url', 'license_expiry',
+            'model_release_status', 'model_release_id',
+            'property_release_status', 'property_release_id',
+            'artwork_title', 'artwork_creator', 'artwork_date',
+            'artwork_source', 'artwork_copyright',
+            'iptc_title', 'job_id', 'instructions',
+        ]);
+
+        $id = $this->service->create($data);
+        $slug = $this->service->getSlug($id);
+
+        return redirect()
+            ->route('dam.show', $slug)
+            ->with('success', 'DAM asset created successfully.');
+    }
+
+    public function update(Request $request, string $slug)
+    {
+        $asset = $this->service->getBySlug($slug);
+        if (!$asset) {
+            abort(404);
+        }
+
+        $request->validate([
+            'identifier' => 'required|string|max:255',
+            'title' => 'required|string|max:1024',
+            'repository_id' => 'nullable|integer',
+            'level_of_description_id' => 'nullable|integer',
+            'scope_and_content' => 'nullable|string',
+            'asset_type' => 'nullable|string|max:50',
+            'genre' => 'nullable|string|max:255',
+            'color_type' => 'nullable|string|max:50',
+            'production_company' => 'nullable|string|max:255',
+            'distributor' => 'nullable|string|max:255',
+            'broadcast_date' => 'nullable|date',
+            'series_title' => 'nullable|string|max:255',
+            'season_number' => 'nullable|integer',
+            'episode_number' => 'nullable|integer',
+            'awards' => 'nullable|string',
+            'audio_language' => 'nullable|string|max:255',
+            'subtitle_language' => 'nullable|string|max:255',
+            'creator' => 'nullable|string|max:255',
+            'creator_job_title' => 'nullable|string|max:255',
+            'creator_email' => 'nullable|email|max:255',
+            'creator_phone' => 'nullable|string|max:100',
+            'creator_website' => 'nullable|string|max:255',
+            'creator_city' => 'nullable|string|max:255',
+            'creator_address' => 'nullable|string|max:500',
+            'headline' => 'nullable|string|max:255',
+            'duration_minutes' => 'nullable|integer|min:0',
+            'caption' => 'nullable|string',
+            'keywords' => 'nullable|string',
+            'iptc_subject_code' => 'nullable|string|max:255',
+            'intellectual_genre' => 'nullable|string|max:255',
+            'persons_shown' => 'nullable|string',
+            'date_created' => 'nullable|date',
+            'city' => 'nullable|string|max:255',
+            'state_province' => 'nullable|string|max:255',
+            'sublocation' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'country_code' => 'nullable|string|max:10',
+            'production_country' => 'nullable|string|max:255',
+            'production_country_code' => 'nullable|string|max:10',
+            'credit_line' => 'nullable|string|max:255',
+            'source' => 'nullable|string|max:255',
+            'copyright_notice' => 'nullable|string|max:500',
+            'rights_usage_terms' => 'nullable|string',
+            'license_type' => 'nullable|string|max:50',
+            'license_url' => 'nullable|string|max:500',
+            'license_expiry' => 'nullable|date',
+            'model_release_status' => 'nullable|string|max:50',
+            'model_release_id' => 'nullable|string|max:255',
+            'property_release_status' => 'nullable|string|max:50',
+            'property_release_id' => 'nullable|string|max:255',
+            'artwork_title' => 'nullable|string|max:255',
+            'artwork_creator' => 'nullable|string|max:255',
+            'artwork_date' => 'nullable|string|max:255',
+            'artwork_source' => 'nullable|string|max:255',
+            'artwork_copyright' => 'nullable|string|max:500',
+            'iptc_title' => 'nullable|string|max:255',
+            'job_id' => 'nullable|string|max:255',
+            'instructions' => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'identifier', 'title', 'repository_id', 'level_of_description_id',
+            'scope_and_content', 'asset_type', 'genre', 'color_type',
+            'production_company', 'distributor', 'broadcast_date', 'series_title',
+            'season_number', 'episode_number', 'awards', 'audio_language', 'subtitle_language',
+            'creator', 'creator_job_title', 'creator_email', 'creator_phone',
+            'creator_website', 'creator_city', 'creator_address',
+            'headline', 'duration_minutes', 'caption', 'keywords',
+            'iptc_subject_code', 'intellectual_genre', 'persons_shown', 'date_created',
+            'city', 'state_province', 'sublocation', 'country', 'country_code',
+            'production_country', 'production_country_code',
+            'credit_line', 'source', 'copyright_notice', 'rights_usage_terms',
+            'license_type', 'license_url', 'license_expiry',
+            'model_release_status', 'model_release_id',
+            'property_release_status', 'property_release_id',
+            'artwork_title', 'artwork_creator', 'artwork_date',
+            'artwork_source', 'artwork_copyright',
+            'iptc_title', 'job_id', 'instructions',
+        ]);
+
+        $this->service->update($slug, $data);
+
+        return redirect()
+            ->route('dam.show', $slug)
+            ->with('success', 'DAM asset updated successfully.');
+    }
+
+    public function destroy(string $slug)
+    {
+        $asset = $this->service->getBySlug($slug);
+        if (!$asset) {
+            abort(404);
+        }
+
+        $this->service->delete($slug);
+
+        return redirect()
+            ->route('dam.browse')
+            ->with('success', 'DAM asset deleted successfully.');
+    }
+}
