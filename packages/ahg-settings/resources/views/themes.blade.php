@@ -46,6 +46,29 @@
       </div>
     </div>
 
+    {{-- Header / Navbar --}}
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-heading me-2"></i>Header / Navbar</h5></div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Background</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_header_bg" value="{{ $settings['ahg_header_bg'] ?? '#212529' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_header_bg'] ?? '#212529' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Text Colour</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_header_text" value="{{ $settings['ahg_header_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_header_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Site Description Bar --}}
     <div class="card mb-4">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Site Description Bar</h5></div>
@@ -64,6 +87,14 @@
               <input type="color" class="form-control form-control-color" name="ahg_descbar_text" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Text Alignment</label>
+            <select name="ahg_descbar_align" class="form-select">
+              <option value="left" {{ ($settings['ahg_descbar_align'] ?? 'left') === 'left' ? 'selected' : '' }}>Left</option>
+              <option value="center" {{ ($settings['ahg_descbar_align'] ?? '') === 'center' ? 'selected' : '' }}>Centre</option>
+              <option value="right" {{ ($settings['ahg_descbar_align'] ?? '') === 'right' ? 'selected' : '' }}>Right</option>
+            </select>
           </div>
         </div>
       </div>

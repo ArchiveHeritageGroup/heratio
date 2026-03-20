@@ -114,7 +114,7 @@ class DisplayController extends Controller
         if ($limit > 100) $limit = 100;
 
         $sort = $request->input('sort', 'date');
-        $sortDir = $request->input('dir', 'desc');
+        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
         $viewMode = $request->input('view', 'card');
         $this->hasDigital = $request->input('hasDigital');
 
@@ -404,7 +404,7 @@ class DisplayController extends Controller
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '1');
         $sort = $request->input('sort', 'date');
-        $sortDir = $request->input('dir', 'desc');
+        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
@@ -482,7 +482,7 @@ class DisplayController extends Controller
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '1');
         $sort = $request->input('sort', 'date');
-        $sortDir = $request->input('dir', 'desc');
+        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {

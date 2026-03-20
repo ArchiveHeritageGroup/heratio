@@ -558,7 +558,8 @@ class SettingsController extends Controller
             'ahg_theme_enabled', 'ahg_primary_color', 'ahg_secondary_color',
             'ahg_body_bg', 'ahg_body_text',
             'ahg_footer_bg', 'ahg_footer_text_color',
-            'ahg_descbar_bg', 'ahg_descbar_text',
+            'ahg_header_bg', 'ahg_header_text',
+            'ahg_descbar_bg', 'ahg_descbar_text', 'ahg_descbar_align',
             'ahg_card_header_bg', 'ahg_card_header_text',
             'ahg_button_bg', 'ahg_button_text',
             'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
@@ -645,8 +646,11 @@ class SettingsController extends Controller
             'ahg_body_text' => ['--ahg-body-text', '#212529'],
             'ahg_footer_bg' => ['--ahg-footer-bg', '#005837'],
             'ahg_footer_text_color' => ['--ahg-footer-text', '#ffffff'],
+            'ahg_header_bg' => ['--ahg-header-bg', '#212529'],
+            'ahg_header_text' => ['--ahg-header-text', '#ffffff'],
             'ahg_descbar_bg' => ['--ahg-descbar-bg', '#005837'],
             'ahg_descbar_text' => ['--ahg-descbar-text', '#ffffff'],
+            'ahg_descbar_align' => ['--ahg-descbar-align', 'left'],
             'ahg_card_header_bg' => ['--ahg-card-header-bg', '#005837'],
             'ahg_card_header_text' => ['--ahg-card-header-text', '#ffffff'],
             'ahg_button_bg' => ['--ahg-btn-bg', '#005837'],
@@ -675,7 +679,10 @@ class SettingsController extends Controller
             . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
             . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); }\n"
             . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
-            . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n";
+            . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
+            . "#top-bar { background-color: var(--ahg-header-bg) !important; }\n"
+            . "#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
+            . ".ahg-description-bar { text-align: var(--ahg-descbar-align, left); }\n";
     }
 
     public function ahgSection(Request $request, string $group)

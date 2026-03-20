@@ -3,7 +3,7 @@
   <a class="btn btn-sm btn-secondary" href="#main-column">Skip to main content</a>
 </div>
 
-<header id="top-bar" class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main navigation">
+<header id="top-bar" class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Main navigation" style="background-color: var(--ahg-header-bg, #212529) !important; color: var(--ahg-header-text, #fff) !important;">
   <div class="container-fluid">
     {{-- Brand / Logo --}}
     @if(($themeData['toggleLogo'] ?? true) || ($themeData['toggleTitle'] ?? true))

@@ -311,13 +311,13 @@
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'asc' ? 'active' : '' }}"
-           href="{{ glamBrowseUrl($fp, ['sortDir' => 'asc']) }}">
+           href="{{ glamBrowseUrl($fp, ['sortDir' => 'asc', 'dir' => 'asc']) }}">
           <i class="fas fa-sort-amount-up-alt me-1"></i> Ascending
         </a>
       </li>
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'desc' ? 'active' : '' }}"
-           href="{{ glamBrowseUrl($fp, ['sortDir' => 'desc']) }}">
+           href="{{ glamBrowseUrl($fp, ['sortDir' => 'desc', 'dir' => 'desc']) }}">
           <i class="fas fa-sort-amount-down me-1"></i> Descending
         </a>
       </li>
