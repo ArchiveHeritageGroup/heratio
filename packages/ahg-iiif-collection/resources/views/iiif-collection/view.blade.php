@@ -356,7 +356,7 @@ foreach ($collection->items as $item) {
                             </td>
                             <td>
                                 @if($item->slug)
-                                <a href="/iiif-manifest.php?slug={{ $item->slug }}" class="btn btn-sm btn-outline-info" target="_blank" title="View IIIF Manifest">
+                                <a href="{{ route('iiif-collection.object-manifest', $item->slug) }}" class="btn btn-sm btn-outline-info" target="_blank" title="View IIIF Manifest">
                                     <i class="fas fa-code"></i>
                                 </a>
                                 @endif

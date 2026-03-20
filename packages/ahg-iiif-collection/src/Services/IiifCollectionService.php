@@ -281,7 +281,7 @@ class IiifCollectionService
             } else {
                 $manifestUri = $item->manifest_uri;
                 if (!$manifestUri && $item->slug) {
-                    $manifestUri = $baseUrl . '/iiif-manifest.php?slug=' . $item->slug;
+                    $manifestUri = $baseUrl . '/iiif-manifest/' . $item->slug;
                 }
 
                 $manifestItem = [
@@ -435,6 +435,197 @@ class IiifCollectionService
             ->distinct()
             ->get()
             ->all();
+    }
+
+    /**
+     * Generate IIIF Presentation API 2.1 Manifest for an individual information object.
+     * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgIiifPlugin/bin/iiif-manifest.php
+     */
+    public function generateObjectManifest(string $slug): ?array
+    {
+        // Look up the object by slug
+        $object = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($join) {
+                $join->on('io.id', '=', 'i18n.id')
+                    ->where('i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+            ->where('s.slug', $slug)
+            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->first();
+
+        if (!$object) {
+            return null;
+        }
+
+        // Get digital object(s)
+        $digitalObjects = DB::table('digital_object as do')
+            ->where('do.object_id', $object->id)
+            ->orderBy('do.id')
+            ->select('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size')
+            ->get();
+
+        if ($digitalObjects->isEmpty()) {
+            return null;
+        }
+
+        $baseUrl = rtrim(config('app.url'), '/');
+        $label = $object->title ?: $object->identifier ?: 'Untitled';
+        $manifestId = $baseUrl . '/iiif-manifest/' . $object->slug;
+
+        // Cantaloupe direct access URL (server-side info.json lookup)
+        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
+
+        $canvases = [];
+        $canvasIndex = 1;
+
+        foreach ($digitalObjects as $do) {
+            $imagePath = ltrim($do->path, '/');
+            $cantaloupeId = str_replace('/', '_SL_', $imagePath) . $do->name;
+
+            // Check if this is a multi-page TIFF
+            $isMultiPageTiff = false;
+            $pageCount = 1;
+            $mimeType = strtolower($do->mime_type ?? '');
+            $fileName = strtolower($do->name ?? '');
+
+            if ($mimeType === 'image/tiff' || preg_match('/\.tiff?$/i', $fileName)) {
+                $page2InfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};2/info.json";
+                $page2Info = @file_get_contents($page2InfoUrl);
+
+                if ($page2Info !== false) {
+                    $isMultiPageTiff = true;
+                    $pageCount = 2;
+                    for ($i = 3; $i <= 100; $i++) {
+                        $pageInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};{$i}/info.json";
+                        $ctx = stream_context_create(['http' => ['timeout' => 1]]);
+                        $pageInfo = @file_get_contents($pageInfoUrl, false, $ctx);
+                        if ($pageInfo === false) {
+                            break;
+                        }
+                        $pageCount = $i;
+                    }
+                }
+            }
+
+            if ($isMultiPageTiff) {
+                for ($pageNum = 1; $pageNum <= $pageCount; $pageNum++) {
+                    $pageCantaloupeId = "{$cantaloupeId};{$pageNum}";
+                    $pageImageApiBase = "{$baseUrl}/iiif/2/{$pageCantaloupeId}";
+
+                    $pageInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$pageCantaloupeId}/info.json";
+                    $pageInfoJson = @file_get_contents($pageInfoUrl);
+
+                    $width = 1000;
+                    $height = 1000;
+                    if ($pageInfoJson) {
+                        $pageInfo = json_decode($pageInfoJson, true);
+                        $width = $pageInfo['width'] ?? 1000;
+                        $height = $pageInfo['height'] ?? 1000;
+                    }
+
+                    $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
+                    $canvases[] = [
+                        '@type' => 'sc:Canvas',
+                        '@id' => $canvasId,
+                        'label' => ($do->name ?: 'Image') . " - Page {$pageNum}",
+                        'width' => $width,
+                        'height' => $height,
+                        'images' => [[
+                            '@type' => 'oa:Annotation',
+                            'motivation' => 'sc:painting',
+                            'resource' => [
+                                '@id' => "{$pageImageApiBase}/full/full/0/default.jpg",
+                                '@type' => 'dctypes:Image',
+                                'format' => 'image/jpeg',
+                                'width' => $width,
+                                'height' => $height,
+                                'service' => [
+                                    '@context' => 'http://iiif.io/api/image/2/context.json',
+                                    '@id' => $pageImageApiBase,
+                                    'profile' => 'http://iiif.io/api/image/2/level2.json',
+                                ],
+                            ],
+                            'on' => $canvasId,
+                        ]],
+                    ];
+                    $canvasIndex++;
+                }
+            } else {
+                $imageApiBase = "{$baseUrl}/iiif/2/{$cantaloupeId}";
+
+                $localInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId}/info.json";
+                $infoJson = @file_get_contents($localInfoUrl);
+
+                $width = 1000;
+                $height = 1000;
+                if ($infoJson) {
+                    $info = json_decode($infoJson, true);
+                    $width = $info['width'] ?? 1000;
+                    $height = $info['height'] ?? 1000;
+                }
+
+                $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
+                $canvases[] = [
+                    '@type' => 'sc:Canvas',
+                    '@id' => $canvasId,
+                    'label' => $do->name ?: "Image {$canvasIndex}",
+                    'width' => $width,
+                    'height' => $height,
+                    'images' => [[
+                        '@type' => 'oa:Annotation',
+                        'motivation' => 'sc:painting',
+                        'resource' => [
+                            '@id' => "{$imageApiBase}/full/full/0/default.jpg",
+                            '@type' => 'dctypes:Image',
+                            'format' => 'image/jpeg',
+                            'width' => $width,
+                            'height' => $height,
+                            'service' => [
+                                '@context' => 'http://iiif.io/api/image/2/context.json',
+                                '@id' => $imageApiBase,
+                                'profile' => 'http://iiif.io/api/image/2/level2.json',
+                            ],
+                        ],
+                        'on' => $canvasId,
+                    ]],
+                ];
+                $canvasIndex++;
+            }
+        }
+
+        // Build IIIF Presentation API 2.1 Manifest
+        $manifest = [
+            '@context' => 'http://iiif.io/api/presentation/2/context.json',
+            '@type' => 'sc:Manifest',
+            '@id' => $manifestId,
+            'label' => $label,
+            'metadata' => [],
+            'sequences' => [[
+                '@type' => 'sc:Sequence',
+                '@id' => "{$manifestId}/sequence/normal",
+                'label' => 'Normal Order',
+                'canvases' => $canvases,
+            ]],
+        ];
+
+        if ($object->identifier) {
+            $manifest['metadata'][] = [
+                'label' => 'Identifier',
+                'value' => $object->identifier,
+            ];
+        }
+
+        // Add thumbnail from first canvas
+        if (!empty($canvases)) {
+            $firstCanvas = $canvases[0];
+            $manifest['thumbnail'] = [
+                '@id' => str_replace('/full/full/', '/full/200,/', $firstCanvas['images'][0]['resource']['@id']),
+                'service' => $firstCanvas['images'][0]['resource']['service'],
+            ];
+        }
+
+        return $manifest;
     }
 
     /**

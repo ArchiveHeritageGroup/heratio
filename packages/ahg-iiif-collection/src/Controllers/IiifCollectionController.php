@@ -244,6 +244,24 @@ class IiifCollectionController extends Controller
     }
 
     /**
+     * Output IIIF Presentation API 2.1 Manifest for an individual information object.
+     * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgIiifPlugin/bin/iiif-manifest.php
+     */
+    public function objectManifest($slug)
+    {
+        $json = $this->service->generateObjectManifest($slug);
+
+        if (!$json) {
+            return response()->json(['error' => 'Object not found or has no digital objects'], 404);
+        }
+
+        return response()->json($json, 200, [
+            'Content-Type' => 'application/ld+json',
+            'Access-Control-Allow-Origin' => '*',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
      * AJAX autocomplete for objects.
      */
     public function autocomplete(Request $request)

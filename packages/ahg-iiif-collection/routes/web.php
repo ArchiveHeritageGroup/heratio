@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/manifest-collections', [IiifCollectionController::class, 'index'])->name('iiif-collection.index');
 Route::get('/manifest-collection/{id}/view', [IiifCollectionController::class, 'view'])->name('iiif-collection.view');
 Route::get('/manifest-collection/{slug}/manifest.json', [IiifCollectionController::class, 'manifest'])->name('iiif-collection.manifest');
+Route::get('/iiif-manifest/{slug}', [IiifCollectionController::class, 'objectManifest'])->name('iiif-collection.object-manifest');
 
 // Authenticated routes
 Route::middleware('auth.required')->group(function () {
