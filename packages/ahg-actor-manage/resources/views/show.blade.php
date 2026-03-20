@@ -1,11 +1,9 @@
-@extends('theme::layouts.2col')
+@extends('theme::layouts.3col')
 
 @section('title', $actor->authorized_form_of_name ?? 'Authority record')
 @section('body-class', 'view actor')
 
 @section('sidebar')
-  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
-
   @if(count($relatedActors) > 0)
     <div class="card mb-3">
       <div class="card-header">
@@ -66,19 +64,6 @@
     </div>
   @endif
 
-  {{-- Print & Clipboard --}}
-  <div class="d-flex gap-2 mb-3">
-    <a class="btn atom-btn-white border-0" href="{{ route('actor.print', $actor->slug) }}" target="_blank">
-      <i class="fas fa-print me-1"></i>Print
-    </a>
-    <button class="btn atom-btn-white ms-auto active-primary clipboard"
-            data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
-            data-title="Add" data-alt-title="Remove">
-      <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-      <span class="visually-hidden">Add to clipboard</span>
-    </button>
-  </div>
-
   @if($relatedFunctions->isNotEmpty())
     <div class="card mb-3">
       <div class="card-header">
@@ -93,6 +78,22 @@
       </ul>
     </div>
   @endif
+@endsection
+
+@section('right')
+  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
+
+  <div class="d-grid gap-2 mb-3">
+    <a class="btn atom-btn-white" href="{{ route('actor.print', $actor->slug) }}" target="_blank">
+      <i class="fas fa-print me-1"></i>Print
+    </a>
+    <button class="btn atom-btn-white active-primary clipboard"
+            data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
+            data-title="Add" data-alt-title="Remove">
+      <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
+      <span class="visually-hidden">Add to clipboard</span>
+    </button>
+  </div>
 @endsection
 
 @section('content')
