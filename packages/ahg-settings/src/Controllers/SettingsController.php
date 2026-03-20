@@ -602,6 +602,14 @@ class SettingsController extends Controller
 
         $path = public_path('vendor/ahg-theme-b5/css/ahg-generated.css');
         file_put_contents($path, $css);
+
+        // Also write to the dynamic CSS path served by nginx
+        $dynamicPath = public_path('css/ahg-theme-dynamic.css');
+        $dir = dirname($dynamicPath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        file_put_contents($dynamicPath, $css);
     }
 
     public function dynamicCss()
@@ -659,6 +667,7 @@ class SettingsController extends Controller
             . ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
             . "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
             . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
+            . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); }\n"
             . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
             . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n";
     }

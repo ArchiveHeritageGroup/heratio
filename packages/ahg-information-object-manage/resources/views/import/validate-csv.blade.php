@@ -16,12 +16,6 @@
     </div>
   @endif
 
-  @if(session('success'))
-    <div class="alert alert-success">
-      {{ session('success') }}
-    </div>
-  @endif
-
   <form action="{{ route('object.validateCsv.process') }}" method="POST" enctype="multipart/form-data">
     @csrf
 

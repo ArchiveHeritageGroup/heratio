@@ -12,7 +12,6 @@
   </div>
   <p class="text-muted mb-4">LLM integration, NER, summarization, translation, and spellcheck services</p>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
   {{-- Provider Status Cards --}}

@@ -24,10 +24,6 @@
 
 @section('content')
 
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <h1>{{ $repository->authorized_form_of_name }}</h1>
 
   <div class="mb-3">

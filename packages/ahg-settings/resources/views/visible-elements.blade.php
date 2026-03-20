@@ -8,7 +8,6 @@
   <div class="col-md-9">
     <h1>Visible elements</h1>
 
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <form method="post" action="{{ route('settings.visible-elements') }}">
       @csrf

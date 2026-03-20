@@ -172,10 +172,6 @@
         </nav>
       @endif
 
-      @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
-
       {{-- ===== Elements area ===== --}}
       <section class="border-bottom mb-3">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">

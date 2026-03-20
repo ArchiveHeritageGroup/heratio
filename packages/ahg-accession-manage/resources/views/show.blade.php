@@ -5,10 +5,6 @@
 
 @section('content')
 
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <div class="d-flex justify-content-between align-items-start mb-3">
     <h1 class="mb-0">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</h1>
 

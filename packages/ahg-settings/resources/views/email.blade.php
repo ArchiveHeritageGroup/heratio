@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-envelope me-2"></i>Email Settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <form method="post" action="{{ route('settings.email') }}">
       @csrf

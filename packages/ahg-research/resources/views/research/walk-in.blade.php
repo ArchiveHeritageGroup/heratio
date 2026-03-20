@@ -2,7 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-walking me-2"></i>Walk-in Researcher Registration</h1>@endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="card mb-3">

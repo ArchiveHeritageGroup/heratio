@@ -10,9 +10,6 @@
 @section('content')
 <h1><i class="fas fa-book-reader text-primary me-2"></i>Research Services</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   @endif

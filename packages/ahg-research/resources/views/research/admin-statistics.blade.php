@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-chart-bar me-2"></i>Research Statistics</h1>@endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <div class="card mb-3">
     <div class="card-header"><h5 class="mb-0">Date Range Filter</h5></div>
     <div class="card-body">

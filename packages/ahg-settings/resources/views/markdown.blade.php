@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1>Markdown</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <div class="alert alert-info">
       <p>Please rebuild the search index if you are enabling/disabling Markdown support.</p>

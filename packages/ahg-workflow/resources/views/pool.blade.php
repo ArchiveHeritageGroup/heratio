@@ -9,7 +9,6 @@
     <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
   <p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>

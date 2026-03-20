@@ -13,13 +13,6 @@
   </div>
 
   {{-- Success flash --}}
-  @if(session('success'))
-    <div class="alert alert-success">
-      <i class="fas fa-check-circle" aria-hidden="true"></i>
-      {{ session('success') }}
-    </div>
-  @endif
-
   {{-- Search/Replace form --}}
   <form action="{{ route('search.globalReplace') }}" method="post" class="card mb-4">
     @csrf

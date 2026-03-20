@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-sitemap me-2"></i>Treeview Settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <form method="post" action="{{ route('settings.treeview') }}">
       @csrf

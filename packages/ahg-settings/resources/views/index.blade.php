@@ -9,7 +9,6 @@
   </div>
   <p class="text-muted mb-4">Configure theme, plugin, and system settings</p>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   <div class="row">
     {{-- Theme tile --}}

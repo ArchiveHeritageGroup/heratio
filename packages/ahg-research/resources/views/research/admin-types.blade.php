@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-user-tag me-2"></i>Researcher Types</h1>@endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Manage Researcher Types</h5>

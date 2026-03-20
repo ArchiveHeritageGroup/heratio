@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-shield-alt me-2"></i>Security Settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Incorrect security settings can result in the web UI becoming inaccessible.</div>
 
     <form method="post" action="{{ route('settings.security') }}">

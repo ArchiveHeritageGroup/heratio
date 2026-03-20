@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1>Diacritics settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
     <div class="alert alert-info">

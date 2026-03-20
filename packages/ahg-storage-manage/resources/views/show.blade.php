@@ -4,10 +4,6 @@
 @section('body-class', 'view physicalobject')
 
 @section('content')
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <h1>{{ $storage->name ?? '[Untitled]' }}</h1>
 
   @auth

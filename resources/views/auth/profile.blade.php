@@ -10,13 +10,6 @@
     User {{ $user->username }}
   </h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  @endif
-
   @if(!$user->active)
     <div class="alert alert-warning" role="alert">
       <i class="fas fa-exclamation-triangle me-1"></i>

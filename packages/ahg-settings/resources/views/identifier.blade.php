@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-fingerprint me-2"></i>Identifier Settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Configure global identifier and accession numbering. Clear the application cache and rebuild the search index if you change the reference code separator.</div>
 
     <form method="post" action="{{ route('settings.identifier') }}">

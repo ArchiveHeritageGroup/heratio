@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-tags me-2"></i>Interface Labels</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     <p class="text-muted">Customize the labels used throughout the user interface.</p>
 
     <form method="post" action="{{ route('settings.interface-labels') }}">

@@ -9,7 +9,6 @@
     <h1>{{ $sectionLabel }}</h1>
     <p class="text-muted">{{ $settings->count() }} {{ Str::plural('setting', $settings->count()) }}</p>
 
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     @if($settings->isEmpty())
       <div class="alert alert-info">No editable settings found in this section.</div>

@@ -12,8 +12,6 @@
     </div>
   </div>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
   <p class="text-muted">Gate rules define the criteria an object must meet before it can be published. Blockers prevent publishing; warnings are advisory.</p>
 
   @if(count($rules) === 0)

@@ -4,13 +4,6 @@
 @section('body-class', 'view user')
 
 @section('content')
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  @endif
-
   <h1>{{ $user->authorized_form_of_name ?? $user->username }}</h1>
 
   @if($user->active)

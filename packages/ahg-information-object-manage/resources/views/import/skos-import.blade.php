@@ -16,12 +16,6 @@
     </div>
   @endif
 
-  @if(session('success'))
-    <div class="alert alert-success">
-      <i class="fas fa-check-circle me-2"></i>{!! session('success') !!}
-    </div>
-  @endif
-
   <div class="alert alert-info mb-3">
     <i class="fas fa-info-circle me-2"></i>
     SKOS (Simple Knowledge Organization System) is a W3C standard for representing controlled vocabularies, taxonomies, thesauri, and classification schemes in RDF/XML format. You can import a SKOS file to populate a taxonomy with terms.

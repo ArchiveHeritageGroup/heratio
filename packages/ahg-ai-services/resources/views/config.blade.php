@@ -12,7 +12,6 @@
   </div>
   <p class="text-muted mb-4">Configure LLM providers, API keys, models, and AI feature settings</p>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
   {{-- LLM Provider Configurations --}}

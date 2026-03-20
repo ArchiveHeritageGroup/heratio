@@ -5,7 +5,6 @@
 @section('content')
   <h1>Plugins</h1>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   <form method="POST" action="{{ url('/sfPluginAdminPlugin/plugins') }}">
     @csrf

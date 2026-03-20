@@ -4,8 +4,6 @@
 
 @section('content')
 <h1><i class="fas fa-receipt me-2"></i>Order {{ $order->order_number }}</h1>
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <div class="row">
   <div class="col-md-8">
     <div class="card mb-4">

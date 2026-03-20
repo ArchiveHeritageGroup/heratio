@@ -4,13 +4,6 @@
 @section('body-class', 'browse feedback')
 
 @section('content')
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  @endif
-
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-comments me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">

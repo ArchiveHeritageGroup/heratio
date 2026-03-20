@@ -4,10 +4,6 @@
 @section('body-class', 'view rightsholder')
 
 @section('content')
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <h1>{{ $rightsHolder->authorized_form_of_name }}</h1>
 
   @auth

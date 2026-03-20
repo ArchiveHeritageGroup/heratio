@@ -7,7 +7,6 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-cloud me-2"></i>OAI Repository Settings</h1>
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <form method="post" action="{{ route('settings.oai') }}">
       @csrf

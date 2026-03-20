@@ -10,7 +10,6 @@
   <div class="col-md-9">
     <h1><i class="fas fa-globe me-2"></i>Global Settings</h1>
 
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <form method="post" action="{{ route('settings.global') }}">
       @csrf

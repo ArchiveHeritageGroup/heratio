@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-bell me-2"></i>Notifications</h1>@endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 @php
     $unreadCount = collect($notifications)->where('is_read', 0)->count();
 @endphp

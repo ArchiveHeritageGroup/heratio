@@ -26,7 +26,6 @@
         </div>
       </div>
 
-      @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
       @if($settings->isEmpty())
         <div class="alert alert-info">No settings found in this group.</div>

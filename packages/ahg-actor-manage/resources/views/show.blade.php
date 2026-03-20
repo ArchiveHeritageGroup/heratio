@@ -78,10 +78,6 @@
 
 @section('content')
 
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <h1>{{ $actor->authorized_form_of_name }}</h1>
 
   @if($entityTypeName)

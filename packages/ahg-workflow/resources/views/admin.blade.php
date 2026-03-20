@@ -12,8 +12,6 @@
     </div>
   </div>
 
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
   @if(count($workflows) === 0)
     <div class="alert alert-info">No workflows configured yet. Create your first workflow to get started.</div>
   @else

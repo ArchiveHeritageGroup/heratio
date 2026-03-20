@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>Journal Entry</h1><h2>{{ e($entry->title ?: 'Untitled') }}</h2>@endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Edit Entry</h5>

@@ -4,10 +4,6 @@
 @section('body-class', 'view donor')
 
 @section('content')
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
   <h1>{{ $donor->authorized_form_of_name ?? '[Untitled]' }}</h1>
 
   @auth
