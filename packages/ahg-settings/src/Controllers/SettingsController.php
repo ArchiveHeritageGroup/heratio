@@ -557,6 +557,7 @@ class SettingsController extends Controller
         $themeKeys = [
             'ahg_theme_enabled', 'ahg_primary_color', 'ahg_secondary_color',
             'ahg_body_bg', 'ahg_body_text',
+            'ahg_footer_bg', 'ahg_footer_text_color',
             'ahg_card_header_bg', 'ahg_card_header_text',
             'ahg_button_bg', 'ahg_button_text',
             'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
@@ -641,6 +642,8 @@ class SettingsController extends Controller
             'ahg_secondary_color' => ['--ahg-secondary', '#37A07F'],
             'ahg_body_bg' => ['--ahg-background-light', '#ffffff'],
             'ahg_body_text' => ['--ahg-body-text', '#212529'],
+            'ahg_footer_bg' => ['--ahg-footer-bg', '#005837'],
+            'ahg_footer_text_color' => ['--ahg-footer-text', '#ffffff'],
             'ahg_card_header_bg' => ['--ahg-card-header-bg', '#005837'],
             'ahg_card_header_text' => ['--ahg-card-header-text', '#ffffff'],
             'ahg_button_bg' => ['--ahg-btn-bg', '#005837'],

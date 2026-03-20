@@ -374,8 +374,8 @@ footer.ahg-site-footer {
   padding: 1rem 0 !important;
   font-size: 1rem !important;
   border-top: none !important;
-  background-color: var(--ahg-primary, #005837) !important;
-  color: #fff !important;
+  background-color: var(--ahg-footer-bg, var(--ahg-primary, #005837)) !important;
+  color: var(--ahg-footer-text, #fff) !important;
   justify-content: initial !important;
   flex-wrap: initial !important;
   align-items: initial !important;

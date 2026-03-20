@@ -178,6 +178,29 @@
       </div>
     </div>
 
+    {{-- Footer --}}
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-shoe-prints me-2"></i>Footer</h5></div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Footer Background</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_footer_bg" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Footer Text</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_footer_text_color" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Bootstrap Contextual Colours --}}
     <div class="card mb-4">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-swatchbook me-2"></i>Contextual Colours</h5></div>
