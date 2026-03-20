@@ -5,11 +5,11 @@
   @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
 @endsection
 
-@section('title')
-<h1><i class="fas fa-book-reader text-primary me-2"></i>Research Services</h1>
-@endsection
+@section('title', 'Research Services')
 
 @section('content')
+<h1><i class="fas fa-book-reader text-primary me-2"></i>Research Services</h1>
+
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   @endif
