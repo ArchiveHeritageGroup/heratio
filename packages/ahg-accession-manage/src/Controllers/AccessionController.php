@@ -139,6 +139,7 @@ class AccessionController extends Controller
         return view('ahg-accession-manage::edit', [
             'accession' => null,
             'donor' => null,
+            'donorContact' => null,
             'formChoices' => $formChoices,
         ]);
     }
@@ -151,11 +152,23 @@ class AccessionController extends Controller
         }
 
         $donor = $this->service->getDonor($accession->id);
+        $donorContact = null;
+        if ($donor) {
+            $donorContact = DB::table('contact_information')
+                ->leftJoin('contact_information_i18n', function ($j) {
+                    $j->on('contact_information.id', '=', 'contact_information_i18n.id')
+                      ->where('contact_information_i18n.culture', '=', app()->getLocale());
+                })
+                ->where('contact_information.actor_id', $donor->id ?? 0)
+                ->select('contact_information.*', 'contact_information_i18n.*')
+                ->first();
+        }
         $formChoices = $this->service->getFormChoices();
 
         return view('ahg-accession-manage::edit', [
             'accession' => $accession,
             'donor' => $donor,
+            'donorContact' => $donorContact,
             'formChoices' => $formChoices,
         ]);
     }
