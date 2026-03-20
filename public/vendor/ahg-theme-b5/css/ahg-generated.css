@@ -3,6 +3,8 @@
 :root {
     --ahg-primary: #005837;
     --ahg-secondary: #37a07f;
+    --ahg-background-light: #ffffff;
+    --ahg-body-text: #212529;
     --ahg-card-header-bg: #005837;
     --ahg-card-header-text: #ffffff;
     --ahg-btn-bg: #2b463b;
@@ -25,3 +27,5 @@
 .btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }
 a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }
 .sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }
+#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }
+body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }

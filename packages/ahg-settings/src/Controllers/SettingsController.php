@@ -556,6 +556,7 @@ class SettingsController extends Controller
     {
         $themeKeys = [
             'ahg_theme_enabled', 'ahg_primary_color', 'ahg_secondary_color',
+            'ahg_body_bg', 'ahg_body_text',
             'ahg_card_header_bg', 'ahg_card_header_text',
             'ahg_button_bg', 'ahg_button_text',
             'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
