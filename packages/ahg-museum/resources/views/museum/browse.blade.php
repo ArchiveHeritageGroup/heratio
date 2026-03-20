@@ -82,7 +82,7 @@
 
   @auth
     <div class="mb-3">
-      <a href="{{ route('museum.create') }}" class="btn btn-success btn-sm">
+      <a href="{{ route('museum.create') }}" class="btn atom-btn-outline-light">
         <i class="fas fa-plus me-1"></i> Add new
       </a>
     </div>

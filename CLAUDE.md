@@ -133,6 +133,7 @@ Use ahg-information-object-manage/ActorController.php as the structural pattern.
 - Every controller method must query the database via the injected Service class
 - Every form must have full validation rules matching AtoM field requirements
 - Views must render real Eloquent data, not static HTML
+- Always apply the central theme and colours to all pages regardless new or old.
 
 The controller must only call service methods. Write the ActorService class with create(), update(), delete() methods. The service must handle both the actors table and the actor_i18n table in a single transaction.
 

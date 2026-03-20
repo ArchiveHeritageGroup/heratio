@@ -55,7 +55,7 @@
       ])
 
       @auth
-        <a href="{{ route('gallery.create') }}" class="btn btn-sm btn-success">
+        <a href="{{ route('gallery.create') }}" class="btn atom-btn-outline-light">
           <i class="fas fa-plus me-1"></i> Add new
         </a>
       @endauth

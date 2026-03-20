@@ -110,7 +110,7 @@
 
   {{-- ===== Basic Information ===== --}}
   <section id="basicInfoArea" class="border-bottom">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
       <a class="text-decoration-none text-white" href="#basic-collapse">
         Basic information
       </a>
@@ -177,7 +177,7 @@
   {{-- ===== Standard Identifiers ===== --}}
   @if($item->isbn || $item->issn || $item->doi || $item->lccn || $item->oclc_number || $item->barcode || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
     <section id="identifiersArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
         <a class="text-decoration-none text-white" href="#identifiers-collapse">
           Standard identifiers
         </a>
@@ -217,7 +217,7 @@
   {{-- ===== Classification ===== --}}
   @if($item->classification_scheme || $item->call_number || $item->dewey_decimal || $item->cutter_number || $item->shelf_location || $item->copy_number || $item->volume_designation)
     <section id="classificationArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
         <a class="text-decoration-none text-white" href="#classification-collapse">
           Classification
         </a>
@@ -249,7 +249,7 @@
   {{-- ===== Publication ===== --}}
   @if($item->publisher || $item->publication_place || $item->publication_date || $item->edition || $item->edition_statement || $item->series_title || $item->series_number)
     <section id="publicationArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
         <a class="text-decoration-none text-white" href="#publication-collapse">
           Publication
         </a>
@@ -280,7 +280,7 @@
   {{-- ===== Physical Description ===== --}}
   @if($item->pages || $item->dimensions || $item->physical_details)
     <section id="physicalArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
         <a class="text-decoration-none text-white" href="#physical-collapse">
           Physical description
         </a>
@@ -307,7 +307,7 @@
   {{-- ===== Content ===== --}}
   @if($item->scope_and_content || $item->abstract || $item->table_of_contents || $item->general_note || $item->bibliography_note)
     <section id="contentArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
         <a class="text-decoration-none text-white" href="#content-show-collapse">
           Content
         </a>
@@ -348,7 +348,7 @@
 
   {{-- ===== Administration ===== --}}
   <section id="adminArea" class="border-bottom">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
       <a class="text-decoration-none text-white" href="#admin-collapse">
         Administration area
       </a>
