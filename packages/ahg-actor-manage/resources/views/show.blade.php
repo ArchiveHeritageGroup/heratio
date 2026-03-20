@@ -57,8 +57,27 @@
           </li>
         @endif
       </ul>
+      <div class="card-body p-0">
+        <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLod=0&actorId={{ $actor->id }}&eventTypeId=111">
+          <i class="fas fa-search me-1" aria-hidden="true"></i>
+          Browse {{ $relatedResources->count() }} result{{ $relatedResources->count() !== 1 ? 's' : '' }}
+        </a>
+      </div>
     </div>
   @endif
+
+  {{-- Print & Clipboard --}}
+  <div class="d-flex gap-2 mb-3">
+    <a class="btn atom-btn-white border-0" href="{{ route('actor.print', $actor->slug) }}" target="_blank">
+      <i class="fas fa-print me-1"></i>Print
+    </a>
+    <button class="btn atom-btn-white ms-auto active-primary clipboard"
+            data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
+            data-title="Add" data-alt-title="Remove">
+      <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
+      <span class="visually-hidden">Add to clipboard</span>
+    </button>
+  </div>
 
   @if($relatedFunctions->isNotEmpty())
     <div class="card mb-3">
@@ -190,40 +209,15 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
   </section>
 
-  {{-- Related descriptions link --}}
-  @if($relatedResources->isNotEmpty())
-    <section class="card mb-3">
-      <div class="card-body p-0">
-        <a class="btn atom-btn-white border-0 w-100" href="{{ route('informationobject.browse') }}?topLod=0&actorId={{ $actor->id }}&eventTypeId=111">
-          <i class="fas fa-search me-1" aria-hidden="true"></i>
-          Browse {{ $relatedResources->count() }} result{{ $relatedResources->count() !== 1 ? 's' : '' }}
-        </a>
-      </div>
-    </section>
-  @endif
-
-  {{-- Action buttons (bottom bar, matching AtoM) --}}
+  {{-- Action buttons (bottom bar) --}}
+  @auth
   <section class="actions mb-3">
     <ul class="actions mb-1 nav gap-2">
-      @auth
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
-      @endauth
-      <li>
-        <a class="btn atom-btn-outline-light" href="{{ route('actor.print', $actor->slug) }}" target="_blank">
-          <i class="fas fa-print me-1"></i>Print
-        </a>
-      </li>
-      <li>
-        <button class="btn atom-btn-white ms-auto active-primary clipboard"
-                data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
-                data-title="Add" data-alt-title="Remove">
-          <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-          <span class="visually-hidden">Add to clipboard</span>
-        </button>
-      </li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
     </ul>
   </section>
+  @endauth
 @endsection
