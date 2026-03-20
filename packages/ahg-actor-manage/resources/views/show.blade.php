@@ -39,7 +39,7 @@
   @if($relatedResources->isNotEmpty())
     <div class="card mb-3">
       <div class="card-header">
-        <h5 class="mb-0">Related descriptions</h5>
+        <h5 class="mb-0">Creator of</h5>
       </div>
       <ul class="list-group list-group-flush">
         @foreach($relatedResources->take(10) as $resource)
@@ -56,7 +56,7 @@
         @endif
       </ul>
       <div class="card-body p-0">
-        <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLod=0&actorId={{ $actor->id }}&eventTypeId=111">
+        <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&creator={{ $actor->id }}">
           <i class="fas fa-search me-1" aria-hidden="true"></i>
           Browse {{ $relatedResources->count() }} result{{ $relatedResources->count() !== 1 ? 's' : '' }}
         </a>
@@ -83,15 +83,14 @@
 @section('right')
   @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
-  <div class="d-grid gap-2 mb-3">
-    <a class="btn atom-btn-white" href="{{ route('actor.print', $actor->slug) }}" target="_blank">
-      <i class="fas fa-print me-1"></i>Print
+  <div class="d-flex gap-1 mb-3">
+    <a class="btn btn-sm atom-btn-white" href="{{ route('actor.print', $actor->slug) }}" target="_blank" title="Print">
+      <i class="fas fa-print"></i>
     </a>
-    <button class="btn atom-btn-white active-primary clipboard"
+    <button class="btn btn-sm atom-btn-white active-primary clipboard"
             data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
-            data-title="Add" data-alt-title="Remove">
-      <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-      <span class="visually-hidden">Add to clipboard</span>
+            data-title="Add" data-alt-title="Remove" title="Add to clipboard">
+      <i class="fas fa-paperclip"></i>
     </button>
   </div>
 @endsection
