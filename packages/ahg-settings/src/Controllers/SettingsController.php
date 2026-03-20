@@ -557,7 +557,10 @@ class SettingsController extends Controller
         $themeKeys = [
             'ahg_theme_enabled', 'ahg_primary_color', 'ahg_secondary_color',
             'ahg_body_bg', 'ahg_body_text',
-            'ahg_footer_bg', 'ahg_footer_text_color',
+            'ahg_footer_bg', 'ahg_footer_text_color', 'ahg_footer_copyright',
+            'ahg_footer_disclaimer', 'ahg_footer_system_name',
+            'ahg_footer_org_name', 'ahg_footer_org_url',
+            'ahg_footer_standards', 'ahg_footer_links', 'ahg_footer_utility_links',
             'ahg_header_bg', 'ahg_header_text',
             'ahg_descbar_bg', 'ahg_descbar_text', 'ahg_descbar_align',
             'ahg_card_header_bg', 'ahg_card_header_text',

@@ -238,19 +238,56 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Footer Background</label>
+            <label class="form-label">Background</label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_footer_bg" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Footer Text</label>
+            <label class="form-label">Text Colour</label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_footer_text_color" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Copyright Start Year</label>
+            <input type="text" class="form-control" name="ahg_footer_copyright" value="{{ $settings['ahg_footer_copyright'] ?? date('Y') }}" placeholder="2019">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Disclaimer</label>
+          <textarea class="form-control" name="ahg_footer_disclaimer" rows="2" placeholder="Research use only...">{{ $settings['ahg_footer_disclaimer'] ?? '' }}</textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">System Name</label>
+            <input type="text" class="form-control" name="ahg_footer_system_name" value="{{ $settings['ahg_footer_system_name'] ?? '' }}" placeholder="Public Service Information System">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Organisation Name</label>
+            <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="The Archive and Heritage Group">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Organisation URL</label>
+            <input type="url" class="form-control" name="ahg_footer_org_url" value="{{ $settings['ahg_footer_org_url'] ?? '' }}" placeholder="https://theahg.co.za">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Standards Badges</label>
+          <input type="text" class="form-control" name="ahg_footer_standards" value="{{ $settings['ahg_footer_standards'] ?? '' }}" placeholder="ISAD(G), RiC-O, OAIS/BagIt, WCAG 2.1 AA">
+          <div class="form-text">Comma-separated list of standards. Each becomes a badge.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Policy Links</label>
+          <textarea class="form-control font-monospace" name="ahg_footer_links" rows="4" placeholder="Privacy policy|/privacy&#10;Terms of use|/terms">{{ $settings['ahg_footer_links'] ?? '' }}</textarea>
+          <div class="form-text">One per line: <code>Label|/url</code></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Utility Links</label>
+          <textarea class="form-control font-monospace" name="ahg_footer_utility_links" rows="2" placeholder="Help|/help&#10;Contact|/contact">{{ $settings['ahg_footer_utility_links'] ?? '' }}</textarea>
+          <div class="form-text">One per line: <code>Label|/url</code></div>
         </div>
       </div>
     </div>

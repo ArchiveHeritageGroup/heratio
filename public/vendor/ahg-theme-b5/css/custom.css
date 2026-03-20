@@ -385,12 +385,16 @@ footer.ahg-site-footer::before {
   content: none !important;
 }
 
-footer.ahg-site-footer a {
+footer.ahg-site-footer a,
+footer.ahg-site-footer a.footer-link {
   color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: none !important;
 }
 
-footer.ahg-site-footer a:hover {
+footer.ahg-site-footer a:hover,
+footer.ahg-site-footer a.footer-link:hover {
   color: #fff !important;
+  text-decoration: underline !important;
 }
 
 /* Static page content - ensure Markdown/HTML renders properly */
