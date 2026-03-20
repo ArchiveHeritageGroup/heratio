@@ -216,7 +216,7 @@
 
             <ul class="actions mb-1 nav gap-2 justify-content-center">
               <li><input type="button" class="btn atom-btn-outline-danger reset" value="Reset" onclick="this.closest('form').querySelectorAll('select').forEach(s=>s.selectedIndex=0); this.closest('form').querySelectorAll('input[type=text]').forEach(i=>i.value='');"></li>
-              <li><input type="submit" class="btn atom-btn-outline-light" value="Search"></li>
+              <li><input type="submit" class="btn atom-btn-outline-light" value="Set filters"></li>
             </ul>
           </form>
         </div>
@@ -268,27 +268,31 @@
 
   @if($pager->getNbResults())
     @if($displayMode === 'grid')
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mb-3">
+      <div class="row g-3 mb-3">
         @foreach($pager->getResults() as $doc)
-          <div class="col">
-            <article class="card h-100">
+          <div class="col-sm-6 col-lg-4">
+            <div class="card h-100">
               @if(!empty($doc['logo']))
-                <div class="card-img-top text-center p-3 bg-light">
-                  <img src="{{ $doc['logo'] }}" class="img-thumbnail" alt="" style="max-height:150px;">
-                </div>
+                <a href="{{ route('repository.show', $doc['slug']) }}">
+                  <img alt="{{ $doc['name'] ?: '' }}" class="card-img-top" src="{{ $doc['logo'] }}">
+                </a>
+              @else
+                <a class="p-3" href="{{ route('repository.show', $doc['slug']) }}">
+                  {{ $doc['name'] ?: '[Untitled]' }}
+                </a>
               @endif
               <div class="card-body">
-                <h5 class="card-title text-truncate">
-                  <a href="{{ route('repository.show', $doc['slug']) }}">{{ $doc['name'] ?: '[Untitled]' }}</a>
-                </h5>
-                @if(!empty($doc['region']))
-                  <p class="card-text small text-muted mb-1">{{ $doc['region'] }}</p>
-                @endif
-                @if(!empty($doc['locality']))
-                  <p class="card-text small text-muted mb-0">{{ $doc['locality'] }}</p>
-                @endif
+                <div class="card-text d-flex align-items-start gap-2">
+                  <span>{{ $doc['name'] ?: '[Untitled]' }}</span>
+                  <button class="btn atom-btn-white ms-auto active-primary clipboard"
+                          data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
+                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                    <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
+                    <span class="visually-hidden">Add to clipboard</span>
+                  </button>
+                </div>
               </div>
-            </article>
+            </div>
           </div>
         @endforeach
       </div>
