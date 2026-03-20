@@ -1,5 +1,9 @@
-<footer class="bg-dark text-light py-3 mt-5">
-  <div class="container text-center">
-    <p class="mb-0 small">&copy; {{ date('Y') }} {{ config('app.name', 'Heratio') }}. Powered by <strong>Heratio</strong>.</p>
+<footer class="ahg-site-footer text-center py-3" role="contentinfo">
+  <div class="container">
+    @if(!empty($themeData['footerText'] ?? ''))
+      <small>{{ $themeData['footerText'] }}</small>
+    @else
+      <small>&copy; {{ date('Y') }} {{ config('app.name', 'Heratio') }}. Powered by <strong>Heratio</strong>.</small>
+    @endif
   </div>
 </footer>
