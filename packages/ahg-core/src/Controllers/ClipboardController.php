@@ -94,7 +94,7 @@ class ClipboardController extends Controller
     }
 
     /**
-     * Clear clipboard (AJAX).
+     * Clear clipboard.
      * POST /clipboard/clear
      */
     public function clear(Request $request)
@@ -102,10 +102,14 @@ class ClipboardController extends Controller
         $type = $request->input('type');
         $this->service->clearAll($this->getUserId(), $type);
 
-        return response()->json([
-            'success' => true,
-            'count'   => 0,
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'count'   => 0,
+            ]);
+        }
+
+        return redirect()->route('clipboard.index')->with('success', 'Clipboard cleared.');
     }
 
     /**
@@ -138,11 +142,18 @@ class ClipboardController extends Controller
 
         $result = $this->service->save($slugs, $this->getUserId());
 
-        if (isset($result['error'])) {
-            return response()->json(['error' => $result['error']], 400);
+        if ($request->expectsJson()) {
+            if (isset($result['error'])) {
+                return response()->json(['error' => $result['error']], 400);
+            }
+            return response()->json($result);
         }
 
-        return response()->json($result);
+        if (isset($result['error'])) {
+            return redirect()->route('clipboard.index')->with('error', $result['error']);
+        }
+
+        return redirect()->route('clipboard.index')->with('success', $result['message'] ?? 'Clipboard saved.');
     }
 
     /**
@@ -155,7 +166,7 @@ class ClipboardController extends Controller
     }
 
     /**
-     * Load clipboard by password (AJAX).
+     * Load clipboard by password.
      * POST /clipboard/load
      */
     public function load(Request $request)
@@ -164,16 +175,31 @@ class ClipboardController extends Controller
         $mode = $request->input('mode', 'merge');
 
         if (empty($password)) {
-            return response()->json(['error' => 'Clipboard ID is required.'], 400);
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Clipboard ID is required.'], 400);
+            }
+            return redirect()->route('clipboard.load')->with('error', 'Clipboard ID is required.');
         }
 
         $result = $this->service->load($password, $mode);
 
-        if (isset($result['error'])) {
-            return response()->json(['error' => $result['error']], 404);
+        if ($request->expectsJson()) {
+            if (isset($result['error'])) {
+                return response()->json(['error' => $result['error']], 404);
+            }
+            return response()->json($result);
         }
 
-        return response()->json($result);
+        if (isset($result['error'])) {
+            return redirect()->route('clipboard.load')->with('error', $result['error']);
+        }
+
+        // If "Load and view" was clicked
+        if ($request->has('loadView')) {
+            return redirect()->route('clipboard.view')->with('success', $result['message'] ?? 'Clipboard loaded.');
+        }
+
+        return redirect()->route('clipboard.load')->with('success', $result['message'] ?? 'Clipboard loaded.');
     }
 
     /**
@@ -208,6 +234,23 @@ class ClipboardController extends Controller
     {
         return response()->json([
             'count' => $this->service->count($this->getUserId()),
+        ]);
+    }
+
+    /**
+     * Check if clipboard has items for export (AJAX).
+     * POST /clipboard/exportCheck
+     * Used by the AtoM theme bundle JS.
+     */
+    public function exportCheck(Request $request)
+    {
+        $type = $request->input('type', 'informationObject');
+        $items = $this->service->getItems($this->getUserId());
+        $slugs = $items[$type] ?? [];
+
+        return response()->json([
+            'exportable' => count($slugs) > 0,
+            'count' => count($slugs),
         ]);
     }
 

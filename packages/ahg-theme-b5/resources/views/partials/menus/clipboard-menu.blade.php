@@ -20,9 +20,12 @@
       </span>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ url('/clipboard/clear') }}" title="Clear all selections">
-        <i class="fas fa-trash-alt me-2"></i>Clear all selections
-      </a>
+      <form method="POST" action="{{ route('clipboard.clear') }}" id="clipboard-clear-form">
+        @csrf
+        <button type="submit" class="dropdown-item" title="Clear all selections">
+          <i class="fas fa-trash-alt me-2"></i>Clear all selections
+        </button>
+      </form>
     </li>
     <li>
       <a class="dropdown-item" href="{{ route('clipboard.view') }}" title="Go to clipboard">
@@ -35,9 +38,12 @@
       </a>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ url('/clipboard/save') }}" title="Save clipboard">
-        <i class="fas fa-download me-2"></i>Save clipboard
-      </a>
+      <form method="POST" action="{{ route('clipboard.save') }}" id="clipboard-save-form">
+        @csrf
+        <button type="submit" class="dropdown-item" title="Save clipboard">
+          <i class="fas fa-download me-2"></i>Save clipboard
+        </button>
+      </form>
     </li>
   </ul>
 </li>
