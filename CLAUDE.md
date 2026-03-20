@@ -129,6 +129,7 @@ Use ahg-information-object-manage/ActorController.php as the structural pattern.
 
 - Never use placeholder comments like "// TODO: implement"
 - Never return empty collections or hardcoded dummy data
+- Never this message. Always complete the module. Library module is being migrated to Heratio. Use the GLAM browse for now. is not acceptable
 - Every controller method must query the database via the injected Service class
 - Every form must have full validation rules matching AtoM field requirements
 - Views must render real Eloquent data, not static HTML

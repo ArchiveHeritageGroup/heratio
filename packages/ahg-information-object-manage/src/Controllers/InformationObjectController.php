@@ -914,7 +914,16 @@ class InformationObjectController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
-        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards');
+        // Event type options (taxonomy_id = 40)
+        $eventTypes = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 40)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes');
     }
 
     /**
