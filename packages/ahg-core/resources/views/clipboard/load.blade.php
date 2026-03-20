@@ -128,13 +128,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function showAlert(message, type) {
     var wrapper = document.getElementById('wrapper') || document.querySelector('.container-xxl');
+    // Clear any existing alerts first
+    wrapper.querySelectorAll('.alert').forEach(function(el) { el.remove(); });
     var alert = document.createElement('div');
     alert.className = 'alert ' + type + ' alert-dismissible fade show';
     alert.setAttribute('role', 'alert');
     alert.innerHTML = message +
       '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
     wrapper.insertBefore(alert, wrapper.firstChild);
-    window.scrollTo({ top: 0 });
   }
 });
 </script>
