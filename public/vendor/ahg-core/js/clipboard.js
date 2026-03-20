@@ -50,7 +50,7 @@
 
   function updateMenuBadge(items) {
     var count = totalCount(items);
-    var menuBtn = document.getElementById('clipboard-menu');
+    var menuBtn = document.getElementById('clipboard-nav');
     if (!menuBtn) return;
 
     var badge = menuBtn.querySelector('.clipboard-count');

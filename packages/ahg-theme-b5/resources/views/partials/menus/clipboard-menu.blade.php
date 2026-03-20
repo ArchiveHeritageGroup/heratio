@@ -1,16 +1,10 @@
 <li class="nav-item dropdown d-flex flex-column">
-  <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="clipboard-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false"
-     data-total-count-label="records added"
-     data-alert-close="Close"
-     data-load-alert-message="There was an error loading the clipboard content."
-     data-export-alert-message="The clipboard is empty for this entity type."
-     data-export-check-url="{{ url('/clipboard/exportCheck') }}"
-     data-delete-alert-message="Note: clipboard items unclipped in this page will be removed from the clipboard when the page is refreshed.">
+  <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="clipboard-nav" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="fas fa-2x fa-fw fa-paperclip px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Clipboard" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Clipboard</span>
     <span class="visually-hidden">Clipboard</span>
   </a>
-  <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="clipboard-menu">
+  <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="clipboard-nav">
     <li><h6 class="dropdown-header">Clipboard</h6></li>
     <li class="text-muted text-nowrap px-3 pb-2">
       <span id="counts-block"

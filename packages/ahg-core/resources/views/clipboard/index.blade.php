@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (Array.isArray(items[t])) total += items[t].length;
     }
 
-    var menuBtn = document.getElementById('clipboard-menu');
+    var menuBtn = document.getElementById('clipboard-nav');
     if (menuBtn) {
       var badge = menuBtn.querySelector('.clipboard-count');
       if (total > 0) {
