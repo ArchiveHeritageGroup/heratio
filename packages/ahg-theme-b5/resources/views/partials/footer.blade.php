@@ -16,20 +16,20 @@
     $version = $v['version'] ?? '';
   }
 @endphp
-<footer class="ahg-site-footer py-4" role="contentinfo">
-  <div class="container">
+<footer class="ahg-site-footer py-3" role="contentinfo">
+  <div class="container small">
 
     {{-- Disclaimer --}}
     @if($ftDisclaimer)
-      <div class="text-center mb-3">
+      <div class="text-center mb-2">
         <small class="text-white-50">{{ $ftDisclaimer }}</small>
       </div>
-      <hr class="border-light my-3 opacity-25">
+      <hr class="border-light my-2 opacity-25">
     @endif
 
     <div class="row">
       {{-- Left: System & Org --}}
-      <div class="col-md-4 mb-3 mb-md-0">
+      <div class="col-md-4 mb-2 mb-md-0">
         @if($ftSystemName)
           <strong>{{ $ftSystemName }}</strong><br>
         @endif
@@ -42,7 +42,7 @@
         @endif
 
         @if($ftStandards)
-          <div class="mt-2">
+          <div class="mt-1">
             @foreach(explode(',', $ftStandards) as $std)
               <span class="badge bg-dark border border-light border-opacity-25 me-1 mb-1">{{ trim($std) }}</span>
             @endforeach
@@ -51,7 +51,7 @@
       </div>
 
       {{-- Centre: Policy links --}}
-      <div class="col-md-4 mb-3 mb-md-0">
+      <div class="col-md-4 mb-2 mb-md-0">
         @if($ftLinks)
           <div class="d-flex flex-wrap justify-content-center gap-1">
             @foreach(explode("\n", $ftLinks) as $line)
@@ -67,11 +67,11 @@
       {{-- Right: Copyright & utility --}}
       <div class="col-md-4 text-md-end">
         <div class="small">
-          &copy; {{ $ftCopyrightStart }}{{ $ftCopyrightStart != date('Y') ? '&ndash;' . date('Y') : '' }} {{ $ftOrgName }}. All rights reserved.
+          &copy; {{ $ftCopyrightStart }}{!! $ftCopyrightStart != date('Y') ? '&ndash;' . date('Y') : '' !!} {{ $ftOrgName }}. All rights reserved.
         </div>
 
         @if($ftUtilityLinks)
-          <div class="mt-2">
+          <div class="mt-1">
             @foreach(explode("\n", $ftUtilityLinks) as $line)
               @php $parts = explode('|', trim($line)); @endphp
               @if(count($parts) === 2)
@@ -82,11 +82,8 @@
           </div>
         @endif
 
-        @if($ftCustomText)
-          <div class="mt-1"><small>{{ $ftCustomText }}</small></div>
-        @endif
-
-        <div class="mt-2 text-white-50 small">
+        <div class="mt-1 text-white-50">
+          @if($ftCustomText){{ $ftCustomText }} &middot; @endif
           Powered by <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
         </div>
       </div>
