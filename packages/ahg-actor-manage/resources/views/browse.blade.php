@@ -516,23 +516,28 @@
                 <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
-                <button class="btn atom-btn-white ms-auto clipboard"
+                <button class="btn atom-btn-white ms-auto active-primary clipboard"
                         data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
-                        title="Add to clipboard">
+                        data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
                   <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
                   <span class="visually-hidden">Add to clipboard</span>
                 </button>
               </div>
-              <div class="d-flex flex-wrap">
-                @if(!empty($doc['identifier']))
-                  <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
-                @endif
-                @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                  <span class="text-muted me-2">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
-                @endif
-                @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
-                  <span class="text-muted">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
-                @endif
+              <div class="d-flex flex-column gap-2">
+                <div class="d-flex flex-wrap">
+                  @if(!empty($doc['identifier']))
+                    <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
+                  @endif
+                  @if(!empty($doc['identifier']) && !empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                    <span class="text-muted mx-2">&middot;</span>
+                  @endif
+                  @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                    <span class="text-muted">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
+                  @endif
+                  @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
+                    <span class="text-muted ms-2">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
+                  @endif
+                </div>
               </div>
             </div>
           </article>
