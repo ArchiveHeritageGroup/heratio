@@ -4,6 +4,10 @@ namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
 use AhgResearch\Services\ResearchService;
+use AhgResearch\Services\CollaborationService;
+use AhgResearch\Services\ValidationQueueService;
+use AhgResearch\Services\EntityResolutionService;
+use AhgResearch\Services\OdrlService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -2252,6 +2256,276 @@ class ResearchController extends Controller
         return view('research::research.renewal', array_merge(
             $this->getSidebarData('profile'),
             compact('researcher')
+        ));
+    }
+
+    // =========================================================================
+    // TEAM WORKSPACES
+    // =========================================================================
+
+    public function workspaces(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collaborationService = new CollaborationService();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'create') {
+            $collaborationService->createWorkspace($researcher->id, [
+                'name' => $request->input('name'),
+                'description' => $request->input('description'),
+                'visibility' => $request->input('visibility', 'private'),
+            ]);
+            return redirect('/research/workspaces')->with('success', 'Workspace created.');
+        }
+
+        $workspaces = $collaborationService->getWorkspaces($researcher->id);
+
+        return view('ahg-research::research.workspaces', array_merge(
+            $this->getSidebarData('workspaces'),
+            compact('workspaces')
+        ));
+    }
+
+    // =========================================================================
+    // VALIDATION QUEUE
+    // =========================================================================
+
+    public function validationQueue(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $vqService = new ValidationQueueService();
+
+        $filters = [
+            'status' => $request->input('status', 'pending'),
+            'result_type' => $request->input('result_type'),
+            'extraction_type' => $request->input('extraction_type'),
+            'min_confidence' => $request->input('min_confidence'),
+        ];
+
+        $page = max(1, (int) $request->input('page', 1));
+        $queue = $vqService->getQueue(null, $filters, $page);
+        $stats = $vqService->getQueueStats();
+        $pendingCount = $vqService->getPendingCount();
+
+        return view('ahg-research::research.validation-queue', array_merge(
+            $this->getSidebarData('validationQueue'),
+            compact('queue', 'stats', 'pendingCount')
+        ));
+    }
+
+    public function validateResult(Request $request, $resultId)
+    {
+        if (!Auth::check()) return response()->json(['error' => 'Unauthorized'], 401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
+
+        $vqService = new ValidationQueueService();
+        $action = $request->input('form_action');
+
+        if ($action === 'accept') {
+            $success = $vqService->acceptResult((int) $resultId, $researcher->id);
+        } elseif ($action === 'reject') {
+            $success = $vqService->rejectResult((int) $resultId, $researcher->id, $request->input('reason', ''));
+        } elseif ($action === 'modify') {
+            $success = $vqService->modifyResult((int) $resultId, $researcher->id, $request->input('modified_data', []));
+        } else {
+            return response()->json(['error' => 'Invalid action'], 400);
+        }
+
+        return response()->json(['success' => $success]);
+    }
+
+    public function bulkValidate(Request $request)
+    {
+        if (!Auth::check()) return response()->json(['error' => 'Unauthorized'], 401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
+
+        $vqService = new ValidationQueueService();
+        $resultIds = $request->input('result_ids', []);
+        $action = $request->input('form_action');
+
+        if ($action === 'accept') {
+            $count = $vqService->bulkAccept($resultIds, $researcher->id);
+        } elseif ($action === 'reject') {
+            $count = $vqService->bulkReject($resultIds, $researcher->id, $request->input('reason', ''));
+        } else {
+            return response()->json(['error' => 'Invalid action'], 400);
+        }
+
+        return response()->json(['success' => true, 'count' => $count]);
+    }
+
+    // =========================================================================
+    // ENTITY RESOLUTION
+    // =========================================================================
+
+    public function entityResolution(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $erService = new EntityResolutionService();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'propose') {
+            $erService->proposeMatch([
+                'entity_a_type' => $request->input('entity_a_type'),
+                'entity_a_id' => (int) $request->input('entity_a_id'),
+                'entity_b_type' => $request->input('entity_b_type'),
+                'entity_b_id' => (int) $request->input('entity_b_id'),
+                'relationship_type' => $request->input('relationship_type', 'sameAs'),
+                'match_method' => $request->input('match_method', 'manual'),
+                'confidence' => $request->input('confidence') !== null ? (float) $request->input('confidence') : null,
+                'notes' => $request->input('notes'),
+                'proposer_id' => $researcher->id,
+            ]);
+            return redirect('/research/entityResolution')->with('success', 'Match proposed.');
+        }
+
+        $filters = [
+            'status' => $request->input('status'),
+            'entity_type' => $request->input('entity_type'),
+            'relationship_type' => $request->input('relationship_type'),
+        ];
+
+        $page = max(1, (int) $request->input('page', 1));
+        $proposals = $erService->getProposals($filters, $page);
+
+        return view('ahg-research::research.entity-resolution', array_merge(
+            $this->getSidebarData('entityResolution'),
+            compact('proposals')
+        ));
+    }
+
+    public function resolveEntityResolution(Request $request, $id)
+    {
+        if (!Auth::check()) return response()->json(['error' => 'Unauthorized'], 401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
+
+        $erService = new EntityResolutionService();
+        $status = $request->input('status');
+        $success = $erService->resolveMatch((int) $id, $status, $researcher->id);
+
+        return response()->json(['success' => $success]);
+    }
+
+    public function entityResolutionConflicts($id)
+    {
+        $erService = new EntityResolutionService();
+        $conflicts = $erService->getConflictingAssertions((int) $id);
+        return response()->json(['conflicts' => $conflicts]);
+    }
+
+    // =========================================================================
+    // ODRL POLICIES
+    // =========================================================================
+
+    public function odrlPolicies(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $odrlService = new OdrlService();
+
+        if ($request->isMethod('post')) {
+            $formAction = $request->input('form_action');
+
+            if ($formAction === 'create') {
+                $constraintsJson = $request->input('constraints_json');
+                if ($constraintsJson) {
+                    $decoded = json_decode($constraintsJson, true);
+                    if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+                        return redirect('/research/odrlPolicies')->with('error', 'Invalid JSON in constraints.');
+                    }
+                }
+
+                $odrlService->createPolicy([
+                    'target_type' => $request->input('target_type'),
+                    'target_id' => (int) $request->input('target_id'),
+                    'policy_type' => $request->input('policy_type'),
+                    'action_type' => $request->input('action_type'),
+                    'constraints_json' => $constraintsJson ?: null,
+                    'created_by' => $researcher->id,
+                ]);
+                return redirect('/research/odrlPolicies')->with('success', 'Policy created.');
+            }
+
+            if ($formAction === 'delete') {
+                $odrlService->deletePolicy((int) $request->input('policy_id'));
+                return redirect('/research/odrlPolicies')->with('success', 'Policy deleted.');
+            }
+        }
+
+        $filters = [
+            'target_type' => $request->input('filter_target_type'),
+            'policy_type' => $request->input('filter_policy_type'),
+            'action_type' => $request->input('filter_action_type'),
+        ];
+
+        $page = max(1, (int) $request->input('page', 1));
+        $policies = $odrlService->getAllPolicies($filters, 25, ($page - 1) * 25);
+
+        return view('ahg-research::research.odrl-policies', array_merge(
+            $this->getSidebarData('odrlPolicies'),
+            compact('policies')
+        ));
+    }
+
+    // =========================================================================
+    // DOCUMENT TEMPLATES
+    // =========================================================================
+
+    public function documentTemplates(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        if ($request->isMethod('post')) {
+            $formAction = $request->input('form_action');
+
+            if ($formAction === 'create') {
+                DB::table('research_document_template')->insert([
+                    'name' => $request->input('name'),
+                    'document_type' => $request->input('document_type'),
+                    'description' => $request->input('description'),
+                    'fields_json' => $request->input('fields_json') ?: '[]',
+                    'created_by' => $researcher->id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+                return redirect('/research/documentTemplates')->with('success', 'Template created.');
+            }
+
+            if ($formAction === 'update') {
+                $templateId = (int) $request->input('template_id');
+                DB::table('research_document_template')
+                    ->where('id', $templateId)
+                    ->update([
+                        'name' => $request->input('name'),
+                        'document_type' => $request->input('document_type'),
+                        'description' => $request->input('description'),
+                        'fields_json' => $request->input('fields_json') ?: '[]',
+                    ]);
+                return redirect('/research/documentTemplates')->with('success', 'Template updated.');
+            }
+        }
+
+        $templates = DB::table('research_document_template')
+            ->orderBy('name')
+            ->get()
+            ->toArray();
+
+        return view('ahg-research::research.document-templates', array_merge(
+            $this->getSidebarData('documentTemplates'),
+            compact('templates')
         ));
     }
 }

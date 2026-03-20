@@ -31,8 +31,27 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::match(['get', 'post'], '/apiKeys', [ResearchController::class, 'apiKeys'])->name('apiKeys');
     Route::match(['get', 'post'], '/renewal', [ResearchController::class, 'renewal'])->name('renewal');
 
-    // Workspace
+    // Workspace (personal)
     Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
+
+    // Team Workspaces
+    Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
+
+    // Validation Queue
+    Route::get('/validationQueue', [ResearchController::class, 'validationQueue'])->name('validationQueue');
+    Route::post('/validate/{resultId}', [ResearchController::class, 'validateResult'])->name('validateResult')->where('resultId', '[0-9]+');
+    Route::post('/bulk-validate', [ResearchController::class, 'bulkValidate'])->name('bulkValidate');
+
+    // Entity Resolution
+    Route::match(['get', 'post'], '/entityResolution', [ResearchController::class, 'entityResolution'])->name('entityResolution');
+    Route::post('/entity-resolution/{id}/resolve', [ResearchController::class, 'resolveEntityResolution'])->name('resolveEntityResolution')->where('id', '[0-9]+');
+    Route::get('/entity-resolution/{id}/conflicts', [ResearchController::class, 'entityResolutionConflicts'])->name('entityResolutionConflicts')->where('id', '[0-9]+');
+
+    // ODRL Policies
+    Route::match(['get', 'post'], '/odrlPolicies', [ResearchController::class, 'odrlPolicies'])->name('odrlPolicies');
+
+    // Document Templates
+    Route::match(['get', 'post'], '/documentTemplates', [ResearchController::class, 'documentTemplates'])->name('documentTemplates');
 
     // Saved Searches
     Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');

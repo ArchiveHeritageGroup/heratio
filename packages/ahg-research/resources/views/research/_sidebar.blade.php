@@ -11,7 +11,7 @@
        class="list-group-item list-group-item-action {{ $active === 'projects' ? 'active' : '' }}">
         <i class="fas fa-project-diagram me-2"></i>My Projects
     </a>
-    <a href="{{ url('/research/workspaces') }}"
+    <a href="{{ route('research.workspaces') }}"
        class="list-group-item list-group-item-action {{ $active === 'workspaces' ? 'active' : '' }}">
         <i class="fas fa-users me-2"></i>Team Workspaces
     </a>
@@ -47,19 +47,19 @@
        class="list-group-item list-group-item-action {{ $active === 'annotations' ? 'active' : '' }}">
         <i class="fas fa-highlighter me-2"></i>Annotation Studio
     </a>
-    <a href="{{ url('/research/validationQueue') }}"
+    <a href="{{ route('research.validationQueue') }}"
        class="list-group-item list-group-item-action {{ $active === 'validationQueue' ? 'active' : '' }}">
         <i class="fas fa-check-double me-2"></i>Validation Queue
     </a>
-    <a href="{{ url('/research/entityResolution') }}"
+    <a href="{{ route('research.entityResolution') }}"
        class="list-group-item list-group-item-action {{ $active === 'entityResolution' ? 'active' : '' }}">
         <i class="fas fa-object-group me-2"></i>Entity Resolution
     </a>
-    <a href="{{ url('/research/odrlPolicies') }}"
+    <a href="{{ route('research.odrlPolicies') }}"
        class="list-group-item list-group-item-action {{ $active === 'odrlPolicies' ? 'active' : '' }}">
         <i class="fas fa-balance-scale me-2"></i>ODRL Policies
     </a>
-    <a href="{{ url('/research/documentTemplates') }}"
+    <a href="{{ route('research.documentTemplates') }}"
        class="list-group-item list-group-item-action {{ $active === 'documentTemplates' ? 'active' : '' }}">
         <i class="fas fa-file-alt me-2"></i>Document Templates
     </a>
