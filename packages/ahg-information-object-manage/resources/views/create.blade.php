@@ -4,7 +4,9 @@
 @section('body-class', 'create informationobject')
 
 @section('content')
-  <h1>Add new archival description</h1>
+  <div class="multiline-header d-flex flex-column mb-3">
+    <h1 class="mb-0">Add new archival description</h1>
+  </div>
 
   @if($parentTitle)
     <div class="alert alert-info">
@@ -22,7 +24,7 @@
 
     <div class="accordion mb-3">
 
-      {{-- ===== Identity area (ISAD 3.1) ===== --}}
+      {{-- ===== Identity area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="true" aria-controls="identity-collapse">
@@ -32,7 +34,7 @@
         <div id="identity-collapse" class="accordion-collapse collapse show" aria-labelledby="identity-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="identifier" class="form-label">Identifier <span class="form-required text-primary" title="This is a mandatory element.">*</span></label>
+              <label for="identifier" class="form-label">Identifier</label>
               <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
               <div class="form-text">Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)</div>
             </div>
@@ -42,6 +44,29 @@
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text">Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Date(s)</label>
+              <table class="table table-sm" id="events-table">
+                <thead><tr><th>Type</th><th>Date</th><th>Start</th><th>End</th><th></th></tr></thead>
+                <tbody>
+                  <tr class="event-row">
+                    <td><select name="events[0][type_id]" class="form-select form-select-sm">
+                      <option value="">-- Select --</option>
+                      @foreach($eventTypes ?? [] as $et)
+                        <option value="{{ $et->id }}">{{ $et->name }}</option>
+                      @endforeach
+                    </select></td>
+                    <td><input type="text" name="events[0][date]" class="form-control form-control-sm" placeholder="e.g. ca. 1940-1960"></td>
+                    <td><input type="text" name="events[0][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" name="events[0][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-event-row"><i class="fas fa-times"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">Add date</button>
+              <div class="form-text">Identify and record the date(s) of the unit of description. Use the start and end fields to make the dates searchable. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY. (ISAD 3.1.3)</div>
             </div>
 
             <div class="mb-3">
@@ -64,7 +89,7 @@
         </div>
       </div>
 
-      {{-- ===== Context area (ISAD 3.2) ===== --}}
+      {{-- ===== Context area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="context-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#context-collapse" aria-expanded="false" aria-controls="context-collapse">
@@ -81,7 +106,7 @@
                   <option value="{{ $repo->id }}" @selected(old('repository_id') == $repo->id)>{{ $repo->name }}</option>
                 @endforeach
               </select>
-              <div class="form-text">Record the name of the organization which has custody of the archival material.</div>
+              <div class="form-text">Record the name of the organization which has custody of the archival material. Search for an existing name in the archival institution records by typing the first few characters of the name.</div>
             </div>
 
             <div class="mb-3">
@@ -99,7 +124,7 @@
         </div>
       </div>
 
-      {{-- ===== Content and structure area (ISAD 3.3) ===== --}}
+      {{-- ===== Content and structure area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="content-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-collapse" aria-expanded="false" aria-controls="content-collapse">
@@ -115,7 +140,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling</label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling information</label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal') }}</textarea>
               <div class="form-text">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)</div>
             </div>
@@ -135,7 +160,7 @@
         </div>
       </div>
 
-      {{-- ===== Conditions of access and use area (ISAD 3.4) ===== --}}
+      {{-- ===== Conditions of access and use area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="conditions-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#conditions-collapse" aria-expanded="false" aria-controls="conditions-collapse">
@@ -147,7 +172,7 @@
             <div class="mb-3">
               <label for="access_conditions" class="form-label">Conditions governing access</label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions') }}</textarea>
-              <div class="form-text">Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)</div>
+              <div class="form-text">Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. (ISAD 3.4.1)</div>
             </div>
 
             <div class="mb-3">
@@ -157,9 +182,27 @@
             </div>
 
             <div class="mb-3">
+              <label for="language_of_material" class="form-label">Language(s) of material</label>
+              <input type="text" class="form-control" id="language_of_material" name="language_of_material" value="{{ old('language_of_material') }}" placeholder="e.g. English, Afrikaans">
+              <div class="form-text">Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="script_of_material" class="form-label">Script(s) of material</label>
+              <input type="text" class="form-control" id="script_of_material" name="script_of_material" value="{{ old('script_of_material') }}" placeholder="e.g. Latin">
+              <div class="form-text">Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="language_notes" class="form-label">Language and script notes</label>
+              <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes') }}</textarea>
+              <div class="form-text">Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)</div>
+            </div>
+
+            <div class="mb-3">
               <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements</label>
               <textarea class="form-control" id="physical_characteristics" name="physical_characteristics" rows="3">{{ old('physical_characteristics') }}</textarea>
-              <div class="form-text">Indicate any important physical conditions, such as preservation requirements, that affect the use of the unit of description. Note any software and/or hardware required to access the unit of description.</div>
+              <div class="form-text">Indicate any important physical conditions, such as preservation requirements, that affect the use of the unit of description.</div>
             </div>
 
             <div class="mb-3">
@@ -171,7 +214,7 @@
         </div>
       </div>
 
-      {{-- ===== Allied materials area (ISAD 3.5) ===== --}}
+      {{-- ===== Allied materials area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="allied-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#allied-collapse" aria-expanded="false" aria-controls="allied-collapse">
@@ -197,11 +240,16 @@
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description') }}</textarea>
               <div class="form-text">Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). (ISAD 3.5.3)</div>
             </div>
+
+            <div class="mb-3">
+              <label for="publication_notes" class="form-label">Publication notes</label>
+              <textarea class="form-control" id="publication_notes" name="publication_notes" rows="3">{{ old('publication_notes') }}</textarea>
+            </div>
           </div>
         </div>
       </div>
 
-      {{-- ===== Notes area (ISAD 3.6) ===== --}}
+      {{-- ===== Notes area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="notes-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse" aria-expanded="false" aria-controls="notes-collapse">
@@ -231,13 +279,11 @@
             <div class="mb-3">
               <label for="subject_access_points" class="form-label">Subject access points</label>
               <input type="text" class="form-control" id="subject_access_points" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Separate multiple subjects with semicolons">
-              <div class="form-text">Enter subject terms separated by semicolons.</div>
             </div>
 
             <div class="mb-3">
               <label for="place_access_points" class="form-label">Place access points</label>
               <input type="text" class="form-control" id="place_access_points" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Separate multiple places with semicolons">
-              <div class="form-text">Enter place terms separated by semicolons.</div>
             </div>
 
             <div class="mb-3">
@@ -246,14 +292,14 @@
             </div>
 
             <div class="mb-3">
-              <label for="name_access_points" class="form-label">Name access points (subjects)</label>
+              <label for="name_access_points" class="form-label">Name access points</label>
               <input type="text" class="form-control" id="name_access_points" name="name_access_points" value="{{ old('name_access_points') }}" placeholder="Separate multiple names with semicolons">
             </div>
           </div>
         </div>
       </div>
 
-      {{-- ===== Description control area (ISAD 3.7) ===== --}}
+      {{-- ===== Description control area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
@@ -270,7 +316,7 @@
 
             <div class="mb-3">
               <label for="institution_responsible_identifier" class="form-label">Institution identifier</label>
-              <input type="text" class="form-control" id="institution_responsible_identifier" name="institution_responsible_identifier" value="{{ old('institution_responsible_identifier') }}">
+              <textarea class="form-control" id="institution_responsible_identifier" name="institution_responsible_identifier" rows="2">{{ old('institution_responsible_identifier') }}</textarea>
               <div class="form-text">Record the full authorised form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the description.</div>
             </div>
 
@@ -281,7 +327,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status</label>
+              <label for="description_status_id" class="form-label">Status of description</label>
               <select class="form-select" id="description_status_id" name="description_status_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionStatuses as $status)
@@ -327,6 +373,14 @@
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
           <div class="accordion-body">
             <div class="mb-3">
+              <label for="publication_status_id" class="form-label">Publication status</label>
+              <select class="form-select" id="publication_status_id" name="publication_status_id">
+                <option value="159">Draft</option>
+                <option value="160">Published</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
               <label for="source_standard" class="form-label">Source standard</label>
               <input type="text" class="form-control" id="source_standard" name="source_standard" value="{{ old('source_standard') }}">
             </div>
@@ -354,4 +408,32 @@
       </ul>
     </section>
   </form>
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var eventIdx = 1;
+  document.getElementById('add-event-row')?.addEventListener('click', function() {
+    var tbody = document.querySelector('#events-table tbody');
+    var tr = document.createElement('tr');
+    tr.className = 'event-row';
+    tr.innerHTML = '<td><select name="events[' + eventIdx + '][type_id]" class="form-select form-select-sm"><option value="">-- Select --</option>' +
+      document.querySelector('#events-table select').innerHTML.replace(/<option value="">.*?<\/option>/, '') +
+      '</select></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][date]" class="form-control form-control-sm" placeholder="e.g. ca. 1940-1960"></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
+      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-event-row"><i class="fas fa-times"></i></button></td>';
+    tbody.appendChild(tr);
+    eventIdx++;
+  });
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-event-row')) {
+      var rows = document.querySelectorAll('#events-table .event-row');
+      if (rows.length > 1) e.target.closest('tr').remove();
+    }
+  });
+});
+</script>
+@endpush
 @endsection
