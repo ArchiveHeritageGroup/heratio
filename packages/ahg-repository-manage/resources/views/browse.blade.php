@@ -274,7 +274,7 @@
             <article class="card h-100">
               @if(!empty($doc['logo']))
                 <div class="card-img-top text-center p-3 bg-light">
-                  <img src="{{ $doc['logo'] }}" class="img-thumbnail" alt="" style="max-height:80px;">
+                  <img src="{{ $doc['logo'] }}" class="img-thumbnail" alt="" style="max-height:150px;">
                 </div>
               @endif
               <div class="card-body">
@@ -315,7 +315,7 @@
               <tr>
                 <td>
                   @if(!empty($doc['logo']))
-                    <p><img class="img-thumbnail" width="100" src="{{ $doc['logo'] }}" alt=""></p>
+                    <p><img class="img-thumbnail" width="120" src="{{ $doc['logo'] }}" alt=""></p>
                   @endif
                   <a href="{{ route('repository.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">{{ $doc['name'] ?: '[Untitled]' }}</a>
                 </td>
