@@ -46,6 +46,29 @@
       </div>
     </div>
 
+    {{-- Site Description Bar --}}
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Site Description Bar</h5></div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Background</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_descbar_bg" value="{{ $settings['ahg_descbar_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_descbar_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Text Colour</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" name="ahg_descbar_text" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
+              <input type="text" class="form-control" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Primary Colours --}}
     <div class="card mb-4">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-tint me-2"></i>Primary Colours</h5></div>

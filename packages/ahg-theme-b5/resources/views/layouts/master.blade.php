@@ -33,7 +33,7 @@
 
     {{-- Site description bar --}}
     @if(($themeData['toggleDescription'] ?? false) && !empty($themeData['siteDescription']))
-      <div class="bg-secondary text-white">
+      <div class="ahg-description-bar" style="background-color: var(--ahg-descbar-bg, var(--ahg-primary, #005837)); color: var(--ahg-descbar-text, #fff);">
         <div class="container-xl py-1">
           {{ $themeData['siteDescription'] }}
         </div>
