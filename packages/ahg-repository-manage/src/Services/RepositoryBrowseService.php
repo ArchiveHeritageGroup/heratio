@@ -107,6 +107,10 @@ class RepositoryBrowseService extends BrowseService
             $thematicArea = $ta ?: '';
         }
 
+        // Check for logo
+        $logoPath = '/uploads/r/' . ($row->slug ?? '') . '/conf/logo.png';
+        $hasLogo = $row->slug && file_exists('/usr/share/nginx/archive/uploads/r/' . $row->slug . '/conf/logo.png');
+
         return [
             'id' => $row->id,
             'name' => $row->name ?? '',
@@ -116,6 +120,7 @@ class RepositoryBrowseService extends BrowseService
             'region' => $row->region ?? '',
             'locality' => $row->locality ?? '',
             'thematic_area' => $thematicArea,
+            'logo' => $hasLogo ? $logoPath : null,
         ];
     }
 
