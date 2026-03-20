@@ -592,35 +592,12 @@ class SettingsController extends Controller
 
         $css = "/* AHG Theme - Generated CSS */\n/* Do not edit - regenerated when settings saved */\n";
         $css .= ":root {\n";
-        $vars = [
-            'ahg_primary_color' => ['--ahg-primary', '#005837'],
-            'ahg_secondary_color' => ['--ahg-secondary', '#37A07F'],
-            'ahg_card_header_bg' => ['--ahg-card-header-bg', '#005837'],
-            'ahg_card_header_text' => ['--ahg-card-header-text', '#ffffff'],
-            'ahg_button_bg' => ['--ahg-btn-bg', '#005837'],
-            'ahg_button_text' => ['--ahg-btn-text', '#ffffff'],
-            'ahg_link_color' => ['--ahg-link-color', '#005837'],
-            'ahg_sidebar_bg' => ['--ahg-sidebar-bg', '#f8f9fa'],
-            'ahg_sidebar_text' => ['--ahg-sidebar-text', '#333333'],
-            'ahg_success_color' => ['--ahg-success', '#28a745'],
-            'ahg_danger_color' => ['--ahg-danger', '#dc3545'],
-            'ahg_warning_color' => ['--ahg-warning', '#ffc107'],
-            'ahg_info_color' => ['--ahg-info', '#17a2b8'],
-            'ahg_light_color' => ['--ahg-light', '#f8f9fa'],
-            'ahg_dark_color' => ['--ahg-dark', '#343a40'],
-            'ahg_muted_color' => ['--ahg-muted', '#6c757d'],
-            'ahg_border_color' => ['--ahg-border', '#dee2e6'],
-        ];
+        $vars = $this->getThemeVars();
         foreach ($vars as $key => [$var, $default]) {
             $css .= "    {$var}: " . ($rows[$key] ?? $default) . ";\n";
         }
         $css .= "}\n";
-        $css .= ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n";
-        $css .= ".card-header * { color: var(--ahg-card-header-text) !important; }\n";
-        $css .= ".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n";
-        $css .= ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n";
-        $css .= "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n";
-        $css .= ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n";
+        $css .= $this->getThemeRules();
 
         $path = public_path('vendor/ahg-theme-b5/css/ahg-generated.css');
         file_put_contents($path, $css);
@@ -633,9 +610,28 @@ class SettingsController extends Controller
             ->pluck('setting_value', 'setting_key');
 
         $css = "/* AHG Theme - Dynamic CSS */\n:root {\n";
-        $vars = [
+        $vars = $this->getThemeVars();
+        foreach ($vars as $key => [$var, $default]) {
+            $css .= "    {$var}: " . ($rows[$key] ?? $default) . ";\n";
+        }
+        $css .= "}\n";
+        $css .= $this->getThemeRules();
+
+        $customCss = $rows['ahg_custom_css'] ?? '';
+        if (!empty(trim($customCss))) {
+            $css .= "\n/* Custom CSS */\n" . $customCss . "\n";
+        }
+
+        return response($css, 200)->header('Content-Type', 'text/css');
+    }
+
+    private function getThemeVars(): array
+    {
+        return [
             'ahg_primary_color' => ['--ahg-primary', '#005837'],
             'ahg_secondary_color' => ['--ahg-secondary', '#37A07F'],
+            'ahg_body_bg' => ['--ahg-background-light', '#ffffff'],
+            'ahg_body_text' => ['--ahg-body-text', '#212529'],
             'ahg_card_header_bg' => ['--ahg-card-header-bg', '#005837'],
             'ahg_card_header_text' => ['--ahg-card-header-text', '#ffffff'],
             'ahg_button_bg' => ['--ahg-btn-bg', '#005837'],
@@ -652,23 +648,18 @@ class SettingsController extends Controller
             'ahg_muted_color' => ['--ahg-muted', '#6c757d'],
             'ahg_border_color' => ['--ahg-border', '#dee2e6'],
         ];
-        foreach ($vars as $key => [$var, $default]) {
-            $css .= "    {$var}: " . ($rows[$key] ?? $default) . ";\n";
-        }
-        $css .= "}\n";
-        $css .= ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n";
-        $css .= ".card-header * { color: var(--ahg-card-header-text) !important; }\n";
-        $css .= ".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n";
-        $css .= ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n";
-        $css .= "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n";
-        $css .= ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n";
+    }
 
-        $customCss = $rows['ahg_custom_css'] ?? '';
-        if (!empty(trim($customCss))) {
-            $css .= "\n/* Custom CSS */\n" . $customCss . "\n";
-        }
-
-        return response($css, 200)->header('Content-Type', 'text/css');
+    private function getThemeRules(): string
+    {
+        return ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n"
+            . ".card-header * { color: var(--ahg-card-header-text) !important; }\n"
+            . ".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n"
+            . ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
+            . "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
+            . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
+            . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
+            . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n";
     }
 
     public function ahgSection(Request $request, string $group)
