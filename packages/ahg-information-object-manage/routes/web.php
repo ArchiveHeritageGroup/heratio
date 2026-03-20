@@ -44,6 +44,9 @@ Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ea
 
 // Auth-required features
 Route::middleware('auth')->group(function () {
+    // Publication status update
+    Route::post('/informationobject/{slug}/update-status', [InformationObjectController::class, 'updateStatus'])->name('io.updateStatus');
+
     // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
     Route::get('/informationobject/import/csv/{slug?}', [ImportController::class, 'csv'])->name('informationobject.import.csv');

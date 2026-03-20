@@ -1224,6 +1224,52 @@ class InformationObjectController extends Controller
     /**
      * Delete an information object.
      */
+    /**
+     * Update publication status for an information object.
+     * Status is stored in the `status` table with type_id=158.
+     * 160 = Published, 159 = Draft.
+     */
+    public function updateStatus(Request $request, string $slug)
+    {
+        $statusId = (int) $request->input('publication_status');
+        if (!in_array($statusId, [159, 160], true)) {
+            return redirect()->back()->with('error', 'Invalid publication status.');
+        }
+
+        $io = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // type_id 158 = publicationStatus
+        $exists = DB::table('status')
+            ->where('object_id', $io->id)
+            ->where('type_id', 158)
+            ->first();
+
+        if ($exists) {
+            DB::table('status')
+                ->where('object_id', $io->id)
+                ->where('type_id', 158)
+                ->update(['status_id' => $statusId]);
+        } else {
+            DB::table('status')->insert([
+                'object_id' => $io->id,
+                'type_id' => 158,
+                'status_id' => $statusId,
+            ]);
+        }
+
+        $label = $statusId === 160 ? 'Published' : 'Draft';
+
+        return redirect()->back()->with('success', "Publication status updated to {$label}.");
+    }
+
     public function destroy(Request $request, string $slug)
     {
         // Resolve the IO id from slug
