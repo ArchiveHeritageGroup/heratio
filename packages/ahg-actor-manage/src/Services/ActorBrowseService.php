@@ -41,8 +41,13 @@ class ActorBrowseService extends BrowseService
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
             ->where('actor_i18n.culture', $this->culture)
+            ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)  // Exclude root actor
-            ->where('actor.id', '!=', 4); // Exclude default actor
+            ->where('actor.id', '!=', 4)  // Exclude default actor
+            ->where(function ($q) {
+                $q->whereNotNull('actor_i18n.authorized_form_of_name')
+                  ->where('actor_i18n.authorized_form_of_name', '!=', '');
+            });
     }
 
     public function browse(array $params): array
@@ -76,9 +81,14 @@ class ActorBrowseService extends BrowseService
         $rows = DB::table('actor')
             ->select('actor.entity_type_id', DB::raw('COUNT(*) as cnt'))
             ->join('object', 'actor.id', '=', 'object.id')
+            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $this->culture)
+            ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)
             ->where('actor.id', '!=', 4)
             ->whereNotNull('actor.entity_type_id')
+            ->whereNotNull('actor_i18n.authorized_form_of_name')
+            ->where('actor_i18n.authorized_form_of_name', '!=', '')
             ->groupBy('actor.entity_type_id')
             ->get();
 
@@ -217,8 +227,13 @@ class ActorBrowseService extends BrowseService
     {
         return DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
+            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $this->culture)
+            ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)
             ->where('actor.id', '!=', 4)
+            ->whereNotNull('actor_i18n.authorized_form_of_name')
+            ->where('actor_i18n.authorized_form_of_name', '!=', '')
             ->count();
     }
 
