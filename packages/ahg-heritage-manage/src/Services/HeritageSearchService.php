@@ -155,7 +155,8 @@ class HeritageSearchService
                 'ioi.alternate_title',
                 'ioi.archival_history',
                 'ioi.arrangement',
-                DB::raw("(SELECT evi.date FROM event ev LEFT JOIN event_i18n evi ON ev.id = evi.id AND evi.culture = '{$this->culture}' WHERE ev.object_id = io.id LIMIT 1) as io_dates"),
+                DB::raw("(SELECT YEAR(ev.start_date) FROM event ev WHERE ev.object_id = io.id LIMIT 1) as io_start_year"),
+                DB::raw("(SELECT YEAR(ev.end_date) FROM event ev WHERE ev.object_id = io.id LIMIT 1) as io_end_year"),
                 'do_master.path as image_path',
                 'do_master.name as image_name',
                 'do_master.mime_type',
@@ -310,13 +311,34 @@ class HeritageSearchService
                 'thumbnail'  => $thumbnail,
                 'snippet'    => $snippet,
                 'type'       => $row->level_of_description ?? '',
-                'date'       => $row->io_dates ?? '',
+                'date'       => $this->formatDateRange($row->io_start_year ?? null, $row->io_end_year ?? null),
                 'collection' => $row->repository_name ?? '',
                 'media_type' => $mediaType,
             ];
         }
 
         return $results;
+    }
+
+    /**
+     * Format a date range from start/end years like AtoM does.
+     */
+    private function formatDateRange(?int $startYear, ?int $endYear): string
+    {
+        if (!$startYear && !$endYear) {
+            return '';
+        }
+        $start = $startYear ?: 0;
+        $end = $endYear ?: 0;
+
+        // Format: "2001" or "0001-0030"
+        $startStr = str_pad(abs($start), 4, '0', STR_PAD_LEFT);
+        $endStr = str_pad(abs($end), 4, '0', STR_PAD_LEFT);
+
+        if ($start === $end || !$end) {
+            return $startStr;
+        }
+        return $startStr . '-' . $endStr;
     }
 
     /**
