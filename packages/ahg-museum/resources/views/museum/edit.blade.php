@@ -37,8 +37,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingIdentification">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIdentification" aria-expanded="true" aria-controls="collapseIdentification">
-            Object Identification
-            <span class="cco-chapter">CCO Chapter 1</span>
+            Object/Work
+            <span class="cco-chapter">CCO Chapter 2</span>
           </button>
         </h2>
         <div id="collapseIdentification" class="accordion-collapse collapse show" aria-labelledby="headingIdentification" data-bs-parent="#museumAccordion">
@@ -131,7 +131,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTitle">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="false" aria-controls="collapseTitle">
-            Title
+            Titles/Names
+            <span class="cco-chapter">CCO Chapter 3</span>
           </button>
         </h2>
         <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#museumAccordion">
@@ -163,6 +164,7 @@
         <h2 class="accordion-header" id="headingCreator">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreator" aria-expanded="false" aria-controls="collapseCreator">
             Creator
+            <span class="cco-chapter">CCO Chapter 4 (Creator)</span>
           </button>
         </h2>
         <div id="collapseCreator" class="accordion-collapse collapse" aria-labelledby="headingCreator" data-bs-parent="#museumAccordion">
@@ -212,6 +214,7 @@
         <h2 class="accordion-header" id="headingCreation">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
             Creation
+            <span class="cco-chapter">CCO Chapter 4</span>
           </button>
         </h2>
         <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#museumAccordion">
@@ -325,6 +328,7 @@
         <h2 class="accordion-header" id="headingMeasurements">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeasurements" aria-expanded="false" aria-controls="collapseMeasurements">
             Measurements
+            <span class="cco-chapter">CCO Chapter 6</span>
           </button>
         </h2>
         <div id="collapseMeasurements" class="accordion-collapse collapse" aria-labelledby="headingMeasurements" data-bs-parent="#museumAccordion">
@@ -366,7 +370,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingMaterials">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaterials" aria-expanded="false" aria-controls="collapseMaterials">
-            Materials / Techniques
+            Materials/Techniques
+            <span class="cco-chapter">CCO Chapter 7</span>
           </button>
         </h2>
         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#museumAccordion">
@@ -431,7 +436,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSubject">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
-            Subject / Content
+            Subject Matter
+            <span class="cco-chapter">CCO Chapter 8</span>
           </button>
         </h2>
         <div id="collapseSubject" class="accordion-collapse collapse" aria-labelledby="headingSubject" data-bs-parent="#museumAccordion">
@@ -503,7 +509,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingEdition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdition" aria-expanded="false" aria-controls="collapseEdition">
-            Edition / State
+            State/Edition
+            <span class="cco-chapter">CCO Chapter 10</span>
           </button>
         </h2>
         <div id="collapseEdition" class="accordion-collapse collapse" aria-labelledby="headingEdition" data-bs-parent="#museumAccordion">
@@ -552,6 +559,7 @@
         <h2 class="accordion-header" id="headingInscriptions">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInscriptions" aria-expanded="false" aria-controls="collapseInscriptions">
             Inscriptions
+            <span class="cco-chapter">CCO Chapter 9</span>
           </button>
         </h2>
         <div id="collapseInscriptions" class="accordion-collapse collapse" aria-labelledby="headingInscriptions" data-bs-parent="#museumAccordion">
@@ -631,6 +639,7 @@
         <h2 class="accordion-header" id="headingCondition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCondition" aria-expanded="false" aria-controls="collapseCondition">
             Condition
+            <span class="cco-chapter">CCO Chapter 12</span>
           </button>
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#museumAccordion">
@@ -704,7 +713,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingProvenance">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProvenance" aria-expanded="false" aria-controls="collapseProvenance">
-            Provenance / Location
+            Current Location
+            <span class="cco-chapter">CCO Chapter 13</span>
           </button>
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#museumAccordion">
@@ -805,6 +815,7 @@
         <h2 class="accordion-header" id="headingRelated">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRelated" aria-expanded="false" aria-controls="collapseRelated">
             Related Works
+            <span class="cco-chapter">CCO Chapter 14</span>
           </button>
         </h2>
         <div id="collapseRelated" class="accordion-collapse collapse" aria-labelledby="headingRelated" data-bs-parent="#museumAccordion">
@@ -846,7 +857,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCataloging">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCataloging" aria-expanded="false" aria-controls="collapseCataloging">
-            Cataloging
+            Rights
+            <span class="cco-chapter">CCO Chapter 15</span>
           </button>
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#museumAccordion">
