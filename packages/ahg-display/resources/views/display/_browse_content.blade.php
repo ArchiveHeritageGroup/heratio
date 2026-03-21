@@ -434,7 +434,7 @@
 
   {{-- ===== GRID VIEW ===== --}}
   @elseif(($viewMode ?? 'card') === 'grid')
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3 mb-3">
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
       @foreach($objects as $obj)
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
@@ -442,45 +442,20 @@
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
-          $objIdentifier = $obj->identifier ?? '';
-          $objLevel = $obj->level_of_description ?? $obj->level ?? '';
           $objUrl = '/' . $objSlug;
         @endphp
         <div class="col">
           <div class="card h-100 shadow-sm">
-            <a href="{{ $objUrl }}" class="text-decoration-none">
-              <div class="grid-img-wrapper">
-                @if($objThumb)
-                  <img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="grid-img" loading="lazy">
-                @else
-                  <div class="text-center text-muted py-4">
-                    <i class="fas {{ $otc['icon'] }} fa-3x"></i>
-                  </div>
-                @endif
-              </div>
-            </a>
-            <div class="card-body p-2">
-              <a href="{{ $objUrl }}" class="text-decoration-none">
-                <h6 class="card-title mb-1 small" title="{{ e($objTitle) }}">
-                  {{ Str::limit($objTitle, 50) }}
-                </h6>
-              </a>
-              @if($objIdentifier)
-                <div class="small text-muted">{{ e($objIdentifier) }}</div>
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center grid-img-wrapper">
+              @if($objThumb)
+                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="img-fluid grid-img" loading="lazy"></a>
+              @else
+                <a href="{{ $objUrl }}" class="text-muted py-4"><i class="fas {{ $otc['icon'] }} fa-3x"></i></a>
               @endif
-              @if($objLevel)
-                <span class="badge bg-light text-dark border mt-1" style="font-size:0.65rem;">{{ e($objLevel) }}</span>
-              @endif
-              <span class="badge bg-{{ $otc['color'] }} mt-1" style="font-size:0.65rem;">
-                <i class="fas {{ $otc['icon'] }}"></i> {{ $otc['label'] }}
-              </span>
             </div>
-            {{-- Discovery metadata footer --}}
-            @if(!empty($discoveryMode) && !empty($obj->_discovery))
-              <div class="card-footer p-1">
-                @include('ahg-display::display._discovery_meta', ['discovery' => $obj->_discovery])
-              </div>
-            @endif
+            <div class="card-body p-2">
+              <a href="{{ $objUrl }}" class="text-success text-decoration-none small d-block text-truncate">{{ e($objTitle) }}</a>
+            </div>
           </div>
         </div>
       @endforeach
@@ -643,68 +618,19 @@
 
   {{-- ========== PAGINATION ========== --}}
   @if(($totalPages ?? 1) > 1)
-    <nav aria-label="Browse pagination">
-      <ul class="pagination justify-content-center flex-wrap">
-        {{-- Previous --}}
-        @if(($page ?? 1) > 1)
-          <li class="page-item">
-            <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $page - 1]) }}" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span> Previous
-            </a>
-          </li>
-        @else
-          <li class="page-item disabled">
-            <span class="page-link"><span aria-hidden="true">&laquo;</span> Previous</span>
-          </li>
-        @endif
-
-        {{-- Page numbers --}}
-        @php
-          $window = 3;
-          $startPage = max(1, $page - $window);
-          $endPage = min($totalPages, $page + $window);
-        @endphp
-
-        @if($startPage > 1)
-          <li class="page-item">
-            <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => 1]) }}">1</a>
-          </li>
-          @if($startPage > 2)
-            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-          @endif
-        @endif
-
-        @for($p = $startPage; $p <= $endPage; $p++)
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {{ ($page ?? 1) <= 1 ? 'disabled' : '' }}">
+          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => max(0, $page - 1)]) }}">Previous</a>
+        </li>
+        @for($p = 1; $p <= min($totalPages, 4); $p++)
           <li class="page-item {{ $p == $page ? 'active' : '' }}">
-            @if($p == $page)
-              <span class="page-link">{{ $p }}</span>
-            @else
-              <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $p]) }}">{{ $p }}</a>
-            @endif
+            <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $p]) }}">{{ $p }}</a>
           </li>
         @endfor
-
-        @if($endPage < $totalPages)
-          @if($endPage < $totalPages - 1)
-            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-          @endif
-          <li class="page-item">
-            <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $totalPages]) }}">{{ $totalPages }}</a>
-          </li>
-        @endif
-
-        {{-- Next --}}
-        @if(($page ?? 1) < ($totalPages ?? 1))
-          <li class="page-item">
-            <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $page + 1]) }}" aria-label="Next">
-              Next <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-        @else
-          <li class="page-item disabled">
-            <span class="page-link">Next <span aria-hidden="true">&raquo;</span></span>
-          </li>
-        @endif
+        <li class="page-item {{ ($page ?? 1) >= ($totalPages ?? 1) ? 'disabled' : '' }}">
+          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $page + 1]) }}">Next</a>
+        </li>
       </ul>
     </nav>
   @endif
