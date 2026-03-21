@@ -46,16 +46,39 @@
 
     <ul class="actions mb-3 nav gap-2">
       <li>
-        <button type="submit" name="load" class="btn atom-btn-outline-light">Load</button>
+        <button type="submit" name="load" class="btn atom-btn-outline-success">Load</button>
       </li>
       <li>
-        <button type="submit" name="loadView" class="btn atom-btn-outline-light">Load and view</button>
+        <button type="submit" name="loadView" class="btn atom-btn-outline-success">Load and view</button>
       </li>
     </ul>
   </form>
 
 @endsection
 
+@push('css')
+<style>
+.accordion-button {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button:not(.collapsed) {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+  box-shadow: none;
+}
+.accordion-button.collapsed {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
+}
+</style>
+@endpush
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
