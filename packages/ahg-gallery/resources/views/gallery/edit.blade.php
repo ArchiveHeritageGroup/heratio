@@ -70,7 +70,7 @@
 
     <div class="accordion" id="galleryAccordion">
 
-      {{-- ===== Object/Work (CCO Ch 2) ===== --}}
+      {{-- ===== 1. Object/Work (CCO Ch 2) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingObjectWork">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObjectWork" aria-expanded="true" aria-controls="collapseObjectWork">
@@ -195,55 +195,11 @@
               </div>
             </div>
 
-            {{-- classification: non-CCO --}}
-            <div class="cco-field level-optional" data-field="classification">
-              <div class="field-header">
-                <label for="classification">
-                  Classification
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="classification" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="classification" name="classification"
-                       value="{{ old('classification', $artwork->classification ?? '') }}">
-              </div>
-              <div class="field-help" id="help-classification" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Classification scheme or category. (CCO 2.1)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- identifier: non-CCO --}}
-            <div class="cco-field level-optional" data-field="identifier">
-              <div class="field-header">
-                <label for="identifier">
-                  Identifier / Accession number
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="identifier" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="identifier" name="identifier"
-                       value="{{ old('identifier', $artwork->identifier ?? '') }}">
-              </div>
-              <div class="field-help" id="help-identifier" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">A unique numeric or alphanumeric identifier assigned to the object by the holding institution (e.g. accession number, catalogue number).</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {{-- ===== Title ===== --}}
+      {{-- ===== 2. Titles/Names (CCO Ch 3) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTitle">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="false" aria-controls="collapseTitle">
@@ -365,15 +321,15 @@
         </div>
       </div>
 
-      {{-- ===== Creator ===== --}}
+      {{-- ===== 3. Creation (CCO Ch 4) ===== --}}
       <div class="accordion-item">
-        <h2 class="accordion-header" id="headingCreator">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreator" aria-expanded="false" aria-controls="collapseCreator">
-            Creator
-            <span class="cco-chapter">CCO Chapter 4 (Creator)</span>
+        <h2 class="accordion-header" id="headingCreation">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
+            Creation
+            <span class="cco-chapter">CCO Chapter 4</span>
           </button>
         </h2>
-        <div id="collapseCreator" class="accordion-collapse collapse" aria-labelledby="headingCreator" data-bs-parent="#galleryAccordion">
+        <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <p class="category-description">Information about who created the work, when, and where.</p>
 
@@ -424,28 +380,6 @@
               <div class="field-help" id="help-creator" style="display: none;">
                 <div class="help-content">
                   <p class="help-text">Link to authority record. (CCO 4.1)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- creator_identity: non-CCO --}}
-            <div class="cco-field level-optional" data-field="creator_identity">
-              <div class="field-header">
-                <label for="creator_identity">
-                  Creator identity
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="creator_identity" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="creator_identity" name="creator_identity"
-                       value="{{ old('creator_identity', $artwork->creator_identity ?? '') }}">
-              </div>
-              <div class="field-help" id="help-creator_identity" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">The name of the artist or maker.</p>
                 </div>
               </div>
             </div>
@@ -514,22 +448,6 @@
                 </div>
               </div>
             </div>
-
-          </div>
-        </div>
-      </div>
-
-      {{-- ===== Creation ===== --}}
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingCreation">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
-            Creation
-            <span class="cco-chapter">CCO Chapter 4</span>
-          </button>
-        </h2>
-        <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#galleryAccordion">
-          <div class="accordion-body">
-            <p class="category-description">Style, period, group, school, or movement. Dates and places of creation.</p>
 
             {{-- creation_date_display: required, CCO 4.2 --}}
             <div class="cco-field level-required" data-field="creation_date_display">
@@ -658,6 +576,72 @@
               </div>
             </div>
 
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== 4. Styles/Periods (CCO Ch 5) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingStylesPeriods">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStylesPeriods" aria-expanded="false" aria-controls="collapseStylesPeriods">
+            Styles/Periods
+            <span class="cco-chapter">CCO Chapter 5</span>
+          </button>
+        </h2>
+        <div id="collapseStylesPeriods" class="accordion-collapse collapse" aria-labelledby="headingStylesPeriods" data-bs-parent="#galleryAccordion">
+          <div class="accordion-body">
+            <p class="category-description">Style, period, group, school, or movement.</p>
+
+            {{-- style: optional, CCO 5.1, AAT_STYLES --}}
+            <div class="cco-field level-optional" data-field="style">
+              <div class="field-header">
+                <label for="style">
+                  Style
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">5.1</span>
+                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_STYLES</span>
+                </span>
+                <button type="button" class="btn-help" data-field="style" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="style" name="style"
+                       value="{{ old('style', $artwork->style ?? '') }}">
+              </div>
+              <div class="field-help" id="help-style" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">The visual style of the work (e.g. "Impressionism", "Art Nouveau", "Abstract Expressionism").</p>
+                </div>
+              </div>
+            </div>
+
+            {{-- period: optional, CCO 5.2, AAT_PERIODS --}}
+            <div class="cco-field level-optional" data-field="period">
+              <div class="field-header">
+                <label for="period">
+                  Period
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">5.2</span>
+                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_PERIODS</span>
+                </span>
+                <button type="button" class="btn-help" data-field="period" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="period" name="period"
+                       value="{{ old('period', $artwork->period ?? '') }}">
+              </div>
+              <div class="field-help" id="help-period" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">The broad cultural or chronological period (e.g. "Renaissance", "Modern", "Contemporary").</p>
+                </div>
+              </div>
+            </div>
+
             {{-- school_group: optional, CCO 5.3 --}}
             <div class="cco-field level-optional" data-field="school_group">
               <div class="field-header">
@@ -681,115 +665,11 @@
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                {{-- style: optional, CCO 5.1, AAT_STYLES --}}
-                <div class="cco-field level-optional" data-field="style">
-                  <div class="field-header">
-                    <label for="style">
-                      Style
-                    </label>
-                    <span class="field-badges">
-                      <span class="badge badge-cco" title="CCO Reference">5.1</span>
-                      <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_STYLES</span>
-                    </span>
-                    <button type="button" class="btn-help" data-field="style" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="style" name="style"
-                           value="{{ old('style', $artwork->style ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-style" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The visual style of the work (e.g. "Impressionism", "Art Nouveau", "Abstract Expressionism").</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                {{-- period: optional, CCO 5.2, AAT_PERIODS --}}
-                <div class="cco-field level-optional" data-field="period">
-                  <div class="field-header">
-                    <label for="period">
-                      Period
-                    </label>
-                    <span class="field-badges">
-                      <span class="badge badge-cco" title="CCO Reference">5.2</span>
-                      <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_PERIODS</span>
-                    </span>
-                    <button type="button" class="btn-help" data-field="period" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="period" name="period"
-                           value="{{ old('period', $artwork->period ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-period" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The broad cultural or chronological period (e.g. "Renaissance", "Modern", "Contemporary").</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                {{-- movement: non-CCO --}}
-                <div class="cco-field level-optional" data-field="movement">
-                  <div class="field-header">
-                    <label for="movement">
-                      Movement
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="movement" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="movement" name="movement"
-                           value="{{ old('movement', $artwork->movement ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-movement" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The art movement the artwork belongs to (e.g. "Cubism", "Surrealism", "Pop Art").</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                {{-- school: non-CCO --}}
-                <div class="cco-field level-optional" data-field="school">
-                  <div class="field-header">
-                    <label for="school">
-                      School
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="school" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="school" name="school"
-                           value="{{ old('school', $artwork->school ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-school" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The art school or regional tradition (e.g. "Dutch School", "Bauhaus", "Hudson River School").</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {{-- ===== Measurements ===== --}}
+      {{-- ===== 5. Measurements (CCO Ch 6) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingMeasurements">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeasurements" aria-expanded="false" aria-controls="collapseMeasurements">
@@ -943,49 +823,7 @@
               </div>
               <div class="field-help" id="help-dimension_notes" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Notes about how measurements were taken. (CCO 6.6)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- measurements: non-CCO --}}
-            <div class="cco-field level-optional" data-field="measurements">
-              <div class="field-header">
-                <label for="measurements">
-                  Measurements (legacy)
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="measurements" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="measurements" name="measurements" rows="3">{{ old('measurements', $artwork->measurements ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-measurements" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Legacy measurements field.</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- dimensions: non-CCO --}}
-            <div class="cco-field level-optional" data-field="dimensions">
-              <div class="field-header">
-                <label for="dimensions">
-                  Dimensions (legacy)
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="dimensions" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="dimensions" name="dimensions" rows="3">{{ old('dimensions', $artwork->dimensions ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-dimensions" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Additional or structured dimensional information (height, width, depth, weight, diameter). Include units and specify whether framed or unframed.</p>
+                  <p class="help-text">Notes about how measurements were taken. (CCO 6.4)</p>
                 </div>
               </div>
             </div>
@@ -994,11 +832,11 @@
         </div>
       </div>
 
-      {{-- ===== Materials/Techniques ===== --}}
+      {{-- ===== 6. Materials/Techniques (CCO Ch 7) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingMaterials">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaterials" aria-expanded="false" aria-controls="collapseMaterials">
-            Materials / Techniques
+            Materials/Techniques
             <span class="cco-chapter">CCO Chapter 7</span>
           </button>
         </h2>
@@ -1050,31 +888,7 @@
               </div>
               <div class="field-help" id="help-materials" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">Individual materials for searching. (CCO 7.2)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- support: optional, CCO 7.3, AAT_SUPPORTS --}}
-            <div class="cco-field level-optional" data-field="support">
-              <div class="field-header">
-                <label for="support">
-                  Support
-                </label>
-                <span class="field-badges">
-                  <span class="badge badge-cco" title="CCO Reference">7.3</span>
-                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
-                </span>
-                <button type="button" class="btn-help" data-field="support" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="support" name="support" value="{{ old('support', $artwork->support ?? '') }}">
-              </div>
-              <div class="field-help" id="help-support" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">The material on which the work is executed (e.g. canvas, paper). (CCO 7.4)</p>
+                  <p class="help-text">Individual materials for searching. (CCO 7.1.1)</p>
                 </div>
               </div>
             </div>
@@ -1103,11 +917,35 @@
               </div>
             </div>
 
+            {{-- support: optional, CCO 7.3, AAT_SUPPORTS --}}
+            <div class="cco-field level-optional" data-field="support">
+              <div class="field-header">
+                <label for="support">
+                  Support
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">7.3</span>
+                  <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
+                </span>
+                <button type="button" class="btn-help" data-field="support" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="support" name="support" value="{{ old('support', $artwork->support ?? '') }}">
+              </div>
+              <div class="field-help" id="help-support" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">The material on which the work is executed (e.g. canvas, paper). (CCO 7.3)</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {{-- ===== Subject ===== --}}
+      {{-- ===== 7. Subject Matter (CCO Ch 8) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSubject">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
@@ -1213,78 +1051,11 @@
               </div>
             </div>
 
-            {{-- scope_and_content: non-CCO --}}
-            <div class="cco-field level-optional" data-field="scope_and_content">
-              <div class="field-header">
-                <label for="scope_and_content">
-                  Description
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="scope_and_content" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="5">{{ old('scope_and_content', $artwork->scope_and_content ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-scope_and_content" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Free-text description of the work. (CCO 11.1)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- description: optional, CCO 11.1 --}}
-            <div class="cco-field level-optional" data-field="description">
-              <div class="field-header">
-                <label for="description">
-                  Description (CCO)
-                </label>
-                <span class="field-badges">
-                  <span class="badge badge-cco" title="CCO Reference">11.1</span>
-                </span>
-                <button type="button" class="btn-help" data-field="description" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $artwork->description ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-description" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Narrative description supplementing other fields. (CCO 11.1)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- physical_description: optional, CCO 11.2 --}}
-            <div class="cco-field level-optional" data-field="physical_description">
-              <div class="field-header">
-                <label for="physical_description">
-                  Physical description
-                </label>
-                <span class="field-badges">
-                  <span class="badge badge-cco" title="CCO Reference">11.2</span>
-                </span>
-                <button type="button" class="btn-help" data-field="physical_description" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="physical_description" name="physical_description" rows="3">{{ old('physical_description', $artwork->physical_description ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-physical_description" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Physical characteristics not covered elsewhere. (CCO 11.2)</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {{-- ===== Inscriptions ===== --}}
+      {{-- ===== 8. Inscriptions (CCO Ch 9) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingInscriptions">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInscriptions" aria-expanded="false" aria-controls="collapseInscriptions">
@@ -1365,53 +1136,11 @@
               </div>
             </div>
 
-            {{-- inscription: non-CCO --}}
-            <div class="cco-field level-optional" data-field="inscription">
-              <div class="field-header">
-                <label for="inscription">
-                  Inscription (legacy)
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="inscription" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="inscription" name="inscription" rows="3">{{ old('inscription', $artwork->inscription ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-inscription" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Transcription of text on the artwork, including signature and location.</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- mark_description: non-CCO --}}
-            <div class="cco-field level-optional" data-field="mark_description">
-              <div class="field-header">
-                <label for="mark_description">
-                  Marks
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="mark_description" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="mark_description" name="mark_description" rows="3">{{ old('mark_description', $artwork->mark_description ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-mark_description" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Description of any marks, labels, stamps, or seals found on the artwork other than inscriptions. Include collector marks, gallery labels, exhibition labels, and customs stamps.</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {{-- ===== State/Edition (CCO Ch 10) ===== --}}
+      {{-- ===== 9. State/Edition (CCO Ch 10) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingStateEdition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStateEdition" aria-expanded="false" aria-controls="collapseStateEdition">
@@ -1524,7 +1253,69 @@
         </div>
       </div>
 
-      {{-- ===== Condition ===== --}}
+      {{-- ===== 10. Description (CCO Ch 11) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingDescription">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
+            Description
+            <span class="cco-chapter">CCO Chapter 11</span>
+          </button>
+        </h2>
+        <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#galleryAccordion">
+          <div class="accordion-body">
+            <p class="category-description">Descriptive text about the work.</p>
+
+            {{-- description: optional, CCO 11.1 --}}
+            <div class="cco-field level-optional" data-field="description">
+              <div class="field-header">
+                <label for="description">
+                  Description
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">11.1</span>
+                </span>
+                <button type="button" class="btn-help" data-field="description" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <textarea class="form-control" id="description" name="description" rows="4">{{ old('description', $artwork->description ?? '') }}</textarea>
+              </div>
+              <div class="field-help" id="help-description" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">Narrative description supplementing other fields. (CCO 11.1)</p>
+                </div>
+              </div>
+            </div>
+
+            {{-- physical_description: optional, CCO 11.2 --}}
+            <div class="cco-field level-optional" data-field="physical_description">
+              <div class="field-header">
+                <label for="physical_description">
+                  Physical description
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">11.2</span>
+                </span>
+                <button type="button" class="btn-help" data-field="physical_description" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <textarea class="form-control" id="physical_description" name="physical_description" rows="4">{{ old('physical_description', $artwork->physical_description ?? '') }}</textarea>
+              </div>
+              <div class="field-help" id="help-physical_description" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">Physical characteristics not covered elsewhere. (CCO 11.2)</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== 11. Condition (CCO Ch 12) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCondition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCondition" aria-expanded="false" aria-controls="collapseCondition">
@@ -1582,62 +1373,19 @@
               </div>
             </div>
 
-            {{-- condition_term: non-CCO --}}
-            <div class="cco-field level-optional" data-field="condition_term">
-              <div class="field-header">
-                <label for="condition_term">
-                  Condition term
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="condition_term" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="condition_term" name="condition_term"
-                       value="{{ old('condition_term', $artwork->condition_term ?? '') }}">
-              </div>
-              <div class="field-help" id="help-condition_term" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">A standardized term describing the overall condition (e.g. "Excellent", "Good", "Fair", "Poor", "Requires conservation").</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- condition_description: non-CCO --}}
-            <div class="cco-field level-optional" data-field="condition_description">
-              <div class="field-header">
-                <label for="condition_description">
-                  Condition notes
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="condition_description" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="condition_description" name="condition_description" rows="4">{{ old('condition_description', $artwork->condition_description ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-condition_description" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">A detailed narrative of the current physical condition. Note any damage, repairs, losses, discoloration, or conservation treatments. Record the date of the most recent condition assessment.</p>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
 
-      {{-- ===== Provenance ===== --}}
+      {{-- ===== 12. Current Location (CCO Ch 13) ===== --}}
       <div class="accordion-item">
-        <h2 class="accordion-header" id="headingProvenance">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProvenance" aria-expanded="false" aria-controls="collapseProvenance">
+        <h2 class="accordion-header" id="headingCurrentLocation">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCurrentLocation" aria-expanded="false" aria-controls="collapseCurrentLocation">
             Current Location
             <span class="cco-chapter">CCO Chapter 13</span>
           </button>
         </h2>
-        <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#galleryAccordion">
+        <div id="collapseCurrentLocation" class="accordion-collapse collapse" aria-labelledby="headingCurrentLocation" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <p class="category-description">Where the work is currently held.</p>
 
@@ -1711,94 +1459,64 @@
               </div>
             </div>
 
-            {{-- provenance: non-CCO --}}
-            <div class="cco-field level-optional" data-field="provenance">
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== 13. Related Works (CCO Ch 14) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingRelatedWorks">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRelatedWorks" aria-expanded="false" aria-controls="collapseRelatedWorks">
+            Related Works
+            <span class="cco-chapter">CCO Chapter 14</span>
+          </button>
+        </h2>
+        <div id="collapseRelatedWorks" class="accordion-collapse collapse" aria-labelledby="headingRelatedWorks" data-bs-parent="#galleryAccordion">
+          <div class="accordion-body">
+            <p class="category-description">Relationships to other works.</p>
+
+            {{-- related_works: optional, CCO 14.1 --}}
+            <div class="cco-field level-optional" data-field="related_works">
               <div class="field-header">
-                <label for="provenance">
-                  Provenance
+                <label for="related_works">
+                  Related works
                 </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="provenance" title="Help">
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">14.1</span>
+                </span>
+                <button type="button" class="btn-help" data-field="related_works" title="Help">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="provenance" name="provenance" rows="4">{{ old('provenance', $artwork->provenance ?? '') }}</textarea>
+                <textarea class="form-control" id="related_works" name="related_works" rows="3">{{ old('related_works', $artwork->related_works ?? '') }}</textarea>
               </div>
-              <div class="field-help" id="help-provenance" style="display: none;">
+              <div class="field-help" id="help-related_works" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The ownership history of the artwork from creation to present. List each owner in chronological order with dates, methods of transfer (purchase, gift, bequest, auction), and sources of information.</p>
+                  <p class="help-text">Identify related works. (CCO 14.1)</p>
                 </div>
               </div>
             </div>
 
-            {{-- current_location: non-CCO --}}
-            <div class="cco-field level-optional" data-field="current_location">
+            {{-- relationship_type: optional, CCO 14.2 --}}
+            <div class="cco-field level-optional" data-field="relationship_type">
               <div class="field-header">
-                <label for="current_location">
-                  Current location
+                <label for="relationship_type">
+                  Relationship type
                 </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="current_location" title="Help">
+                <span class="field-badges">
+                  <span class="badge badge-cco" title="CCO Reference">14.2</span>
+                </span>
+                <button type="button" class="btn-help" data-field="relationship_type" title="Help">
                   <i class="fa fa-question-circle"></i>
                 </button>
               </div>
               <div class="field-input">
-                <input type="text" class="form-control" id="current_location" name="current_location"
-                       value="{{ old('current_location', $artwork->current_location ?? '') }}">
+                <input type="text" class="form-control" id="relationship_type" name="relationship_type" value="{{ old('relationship_type', $artwork->relationship_type ?? '') }}">
               </div>
-              <div class="field-help" id="help-current_location" style="display: none;">
+              <div class="field-help" id="help-relationship_type" style="display: none;">
                 <div class="help-content">
-                  <p class="help-text">The current physical location of the artwork within the gallery or storage facility (e.g. "Gallery 3, West Wall" or "Vault B, Rack 12").</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                {{-- rights_type: non-CCO --}}
-                <div class="cco-field level-optional" data-field="rights_type">
-                  <div class="field-header">
-                    <label for="rights_type">
-                      Rights type
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="rights_type" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="rights_type" name="rights_type"
-                           value="{{ old('rights_type', $artwork->rights_type ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-rights_type" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The type of intellectual property rights (e.g. "Copyright", "Public Domain", "Creative Commons", "Artist's Rights Society (ARS)").</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                {{-- rights_holder: non-CCO --}}
-                <div class="cco-field level-optional" data-field="rights_holder">
-                  <div class="field-header">
-                    <label for="rights_holder">
-                      Rights holder
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="rights_holder" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="rights_holder" name="rights_holder"
-                           value="{{ old('rights_holder', $artwork->rights_holder ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-rights_holder" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The person, estate, or organization that holds the intellectual property rights to this artwork.</p>
-                    </div>
-                  </div>
+                  <p class="help-text">Type of relationship to related work. (CCO 14.2)</p>
                 </div>
               </div>
             </div>
@@ -1807,15 +1525,15 @@
         </div>
       </div>
 
-      {{-- ===== Cataloging ===== --}}
+      {{-- ===== 14. Rights (CCO Ch 15) ===== --}}
       <div class="accordion-item">
-        <h2 class="accordion-header" id="headingCataloging">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCataloging" aria-expanded="false" aria-controls="collapseCataloging">
+        <h2 class="accordion-header" id="headingRights">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRights" aria-expanded="false" aria-controls="collapseRights">
             Rights
             <span class="cco-chapter">CCO Chapter 15</span>
           </button>
         </h2>
-        <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#galleryAccordion">
+        <div id="collapseRights" class="accordion-collapse collapse" aria-labelledby="headingRights" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <p class="category-description">Rights and reproduction information.</p>
 
@@ -1884,129 +1602,6 @@
               <div class="field-help" id="help-reproduction_conditions" style="display: none;">
                 <div class="help-content">
                   <p class="help-text">Conditions governing reproduction. (CCO 15.3)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- related_works: optional, CCO 14.1 --}}
-            <div class="cco-field level-optional" data-field="related_works">
-              <div class="field-header">
-                <label for="related_works">
-                  Related works
-                </label>
-                <span class="field-badges">
-                  <span class="badge badge-cco" title="CCO Reference">14.1</span>
-                </span>
-                <button type="button" class="btn-help" data-field="related_works" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <textarea class="form-control" id="related_works" name="related_works" rows="3">{{ old('related_works', $artwork->related_works ?? '') }}</textarea>
-              </div>
-              <div class="field-help" id="help-related_works" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Identify related works. (CCO 14.1)</p>
-                </div>
-              </div>
-            </div>
-
-            {{-- relationship_type: optional, CCO 14.2 --}}
-            <div class="cco-field level-optional" data-field="relationship_type">
-              <div class="field-header">
-                <label for="relationship_type">
-                  Relationship type
-                </label>
-                <span class="field-badges">
-                  <span class="badge badge-cco" title="CCO Reference">14.2</span>
-                </span>
-                <button type="button" class="btn-help" data-field="relationship_type" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <input type="text" class="form-control" id="relationship_type" name="relationship_type" value="{{ old('relationship_type', $artwork->relationship_type ?? '') }}">
-              </div>
-              <div class="field-help" id="help-relationship_type" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">Type of relationship to related work. (CCO 14.2)</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                {{-- cataloger_name: non-CCO --}}
-                <div class="cco-field level-optional" data-field="cataloger_name">
-                  <div class="field-header">
-                    <label for="cataloger_name">
-                      Cataloger
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="cataloger_name" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="cataloger_name" name="cataloger_name"
-                           value="{{ old('cataloger_name', $artwork->cataloger_name ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-cataloger_name" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The name of the person who created or last edited this catalogue record.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                {{-- cataloging_date: non-CCO --}}
-                <div class="cco-field level-optional" data-field="cataloging_date">
-                  <div class="field-header">
-                    <label for="cataloging_date">
-                      Cataloging date
-                    </label>
-                    <span class="field-badges"></span>
-                    <button type="button" class="btn-help" data-field="cataloging_date" title="Help">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
-                  </div>
-                  <div class="field-input">
-                    <input type="text" class="form-control" id="cataloging_date" name="cataloging_date"
-                           value="{{ old('cataloging_date', $artwork->cataloging_date ?? '') }}">
-                  </div>
-                  <div class="field-help" id="help-cataloging_date" style="display: none;">
-                    <div class="help-content">
-                      <p class="help-text">The date this catalogue record was created or last modified (YYYY-MM-DD).</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {{-- repository_id: non-CCO --}}
-            <div class="cco-field level-optional" data-field="repository_id">
-              <div class="field-header">
-                <label for="repository_id">
-                  Repository
-                </label>
-                <span class="field-badges"></span>
-                <button type="button" class="btn-help" data-field="repository_id" title="Help">
-                  <i class="fa fa-question-circle"></i>
-                </button>
-              </div>
-              <div class="field-input">
-                <select class="form-select" id="repository_id" name="repository_id">
-                  <option value="">-- Select --</option>
-                  @foreach($repositories as $repo)
-                    <option value="{{ $repo->id }}" @selected(old('repository_id', $artwork->repository_id ?? '') == $repo->id)>
-                      {{ $repo->name }}
-                    </option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="field-help" id="help-repository_id" style="display: none;">
-                <div class="help-content">
-                  <p class="help-text">The institution or gallery that holds this artwork.</p>
                 </div>
               </div>
             </div>
