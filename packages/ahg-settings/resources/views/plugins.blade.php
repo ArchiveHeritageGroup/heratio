@@ -3,7 +3,7 @@
 @section('body-class', 'admin plugins')
 
 @section('content')
-  <h1>Plugins</h1>
+  <h1>List plugins</h1>
 
 
   <form method="POST" action="{{ url('/sfPluginAdminPlugin/plugins') }}">
@@ -29,7 +29,7 @@
       </table>
     </div>
     <section class="actions mb-3">
-      <button type="submit" class="btn atom-btn-outline-light">Save</button>
+      <input type="submit" class="btn atom-btn-outline-success" value="Save">
     </section>
   </form>
 @endsection
