@@ -388,7 +388,7 @@
 
   {{-- ===== Digital object upload/manage ===== --}}
   <div class="accordion mb-4" id="digitalObjectAccordion">
-    @include('io-manage::partials._upload-form')
+    @include('ahg-io-manage::partials._upload-form')
   </div>
 @push('css')
 <style>

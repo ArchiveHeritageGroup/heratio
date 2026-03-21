@@ -124,7 +124,7 @@ class DigitalObjectController extends Controller
             $ioSlug = DB::table('slug')->where('object_id', $doRow->object_id)->value('slug') ?? '';
         }
 
-        return view('io-manage::digitalobject.show', [
+        return view('ahg-io-manage::digitalobject.show', [
             'digitalObject' => $doRow,
             'metadata' => $metadata,
             'mediaTypeName' => $mediaTypeName,

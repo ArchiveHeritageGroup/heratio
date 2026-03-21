@@ -1243,7 +1243,7 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
-        return view('io-manage::delete', [
+        return view('ahg-io-manage::delete', [
             'io' => $io,
         ]);
     }

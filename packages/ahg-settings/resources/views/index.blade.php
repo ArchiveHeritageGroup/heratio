@@ -5,7 +5,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
-    <h1 class="mb-0"><i class="fas fa-cogs"></i> Settings</h1>
+    <h1 class="mb-0">AHG Plugin Settings</h1>
   </div>
   <p class="text-muted mb-4">Configure theme, plugin, and system settings</p>
 
