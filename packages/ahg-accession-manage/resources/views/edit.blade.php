@@ -335,6 +335,64 @@
               <div class="form-text text-muted small">The name of the creator of the accession or the name of the department that created the accession.</div>
             </div>
 
+            <!-- ISAD Date(s) multi-row table -->
+            <h3 class="fs-6 mb-2">
+              Date(s)
+              <span class="form-required" title="This is a mandatory element.">*</span>
+            </h3>
+            <div class="table-responsive mb-2">
+              <table class="table table-bordered mb-0" id="isad-dates-table">
+                <thead class="table-light">
+                  <tr>
+                    <th id="isad-events-type-head" class="w-25">Type</th>
+                    <th id="isad-events-date-head" class="w-30">Date</th>
+                    <th id="isad-events-start-head">Start</th>
+                    <th id="isad-events-end-head">End</th>
+                    <th><span class="visually-hidden">Delete</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select name="editEvents[0][type]" class="form-select form-select-sm" aria-labelledby="isad-events-type-head" aria-describedby="isad-events-table-help">
+                        <option value=""></option>
+                        @foreach($formChoices['eventTypes'] ?? [] as $et)
+                          <option value="{{ $et->id }}">{{ $et->name }}</option>
+                        @endforeach
+                      </select>
+                    </td>
+                    <td>
+                      <input type="text" name="editEvents[0][date]" class="form-control form-control-sm" aria-labelledby="isad-events-date-head" aria-describedby="isad-events-table-help">
+                    </td>
+                    <td>
+                      <input type="text" name="editEvents[0][startDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD" aria-labelledby="isad-events-start-head" aria-describedby="isad-events-table-help">
+                    </td>
+                    <td>
+                      <input type="text" name="editEvents[0][endDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD" aria-labelledby="isad-events-end-head" aria-describedby="isad-events-table-help">
+                    </td>
+                    <td>
+                      <button type="button" class="btn atom-btn-white remove-isaddate-row">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span class="visually-hidden">Delete row</span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5">
+                      <button type="button" class="btn atom-btn-white" id="add-isaddate-row">
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="form-text mb-3" id="isad-events-table-help">
+              "Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate." (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable. Do not use any qualifiers or typographical symbols to express uncertainty. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY.
+            </div>
+
             <!-- Event(s) multi-row table -->
             <h3 class="fs-6 mb-2">Event(s)</h3>
             <div class="table-responsive mb-2">
@@ -514,9 +572,23 @@ document.addEventListener('DOMContentLoaded', function() {
     eventIdx++;
   });
 
+  // ISAD Date(s) multi-row
+  var isadIdx = 1;
+  var isadTypeOptions = document.querySelector('#isad-dates-table select')?.innerHTML || '';
+  document.getElementById('add-isaddate-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><select name="editEvents[' + isadIdx + '][type]" class="form-select form-select-sm">' + isadTypeOptions + '</select></td>' +
+      '<td><input type="text" name="editEvents[' + isadIdx + '][date]" class="form-control form-control-sm"></td>' +
+      '<td><input type="text" name="editEvents[' + isadIdx + '][startDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
+      '<td><input type="text" name="editEvents[' + isadIdx + '][endDate]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
+      '<td><button type="button" class="btn atom-btn-white remove-isaddate-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
+    document.querySelector('#isad-dates-table tbody').appendChild(tr);
+    isadIdx++;
+  });
+
   // Remove row handler for all multi-row tables
   document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-altid-row, .remove-event-row');
+    var btn = e.target.closest('.remove-altid-row, .remove-event-row, .remove-isaddate-row');
     if (btn) {
       var table = btn.closest('table');
       if (table.querySelectorAll('tbody tr').length > 1) {
