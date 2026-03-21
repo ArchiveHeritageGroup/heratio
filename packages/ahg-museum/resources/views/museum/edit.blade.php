@@ -116,6 +116,31 @@
             </div>
 
             <div class="mb-3">
+              <label for="work_type_qualifier" class="form-label">Work type qualifier</label>
+              <select class="form-select" id="work_type_qualifier" name="work_type_qualifier">
+                <option value="">-- Select --</option>
+                <option value="possibly" @selected(old('work_type_qualifier', $museum->work_type_qualifier ?? '') === 'possibly')>Possibly</option>
+                <option value="probably" @selected(old('work_type_qualifier', $museum->work_type_qualifier ?? '') === 'probably')>Probably</option>
+                <option value="formerly classified as" @selected(old('work_type_qualifier', $museum->work_type_qualifier ?? '') === 'formerly classified as')>Formerly classified as</option>
+              </select>
+              <div class="form-text text-muted small">Qualifies uncertainty about the work type. (CCO 2.1.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="components_count" class="form-label">Components/Parts</label>
+              <input type="text" class="form-control" id="components_count" name="components_count"
+                     value="{{ old('components_count', $museum->components_count ?? '') }}">
+              <div class="form-text text-muted small">Number and description of physical components, e.g. "diptych (2 panels)", "portfolio of 12 prints". (CCO 2.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="object_number" class="form-label">Object number <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="object_number" name="object_number"
+                     value="{{ old('object_number', $museum->object_number ?? '') }}">
+              <div class="form-text text-muted small">Unique identifier assigned by the repository. This should follow your institution's numbering system. (CCO 2.3)</div>
+            </div>
+
+            <div class="mb-3">
               <label for="object_type" class="form-label">Object type</label>
               <input type="text" class="form-control" id="object_type" name="object_type"
                      value="{{ old('object_type', $museum->object_type ?? '') }}">
@@ -209,10 +234,32 @@
             </div>
 
             <div class="mb-3">
-              <label for="alternate_title" class="form-label">Alternate title</label>
-              <input type="text" class="form-control" id="alternate_title" name="alternate_title"
-                     value="{{ old('alternate_title', $museum->alternate_title ?? '') }}">
-              <div class="form-text text-muted small">Any alternative, former, or translated titles for this object.</div>
+              <label for="title_type" class="form-label">Title type <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <select class="form-select" id="title_type" name="title_type">
+                <option value="repository" @selected(old('title_type', $museum->title_type ?? 'repository') === 'repository')>Repository (assigned by institution)</option>
+                <option value="creator" @selected(old('title_type', $museum->title_type ?? '') === 'creator')>Creator (given by artist)</option>
+                <option value="inscribed" @selected(old('title_type', $museum->title_type ?? '') === 'inscribed')>Inscribed (found on work)</option>
+                <option value="popular" @selected(old('title_type', $museum->title_type ?? '') === 'popular')>Popular (commonly known)</option>
+                <option value="descriptive" @selected(old('title_type', $museum->title_type ?? '') === 'descriptive')>Descriptive (based on subject)</option>
+                <option value="former" @selected(old('title_type', $museum->title_type ?? '') === 'former')>Former (previously used)</option>
+                <option value="translated" @selected(old('title_type', $museum->title_type ?? '') === 'translated')>Translated</option>
+                <option value="series" @selected(old('title_type', $museum->title_type ?? '') === 'series')>Series title</option>
+              </select>
+              <div class="form-text text-muted small">The source or nature of the title. (CCO 3.1.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="title_language" class="form-label">Title language</label>
+              <input type="text" class="form-control" id="title_language" name="title_language"
+                     value="{{ old('title_language', $museum->title_language ?? 'eng') }}">
+              <div class="form-text text-muted small">Language of the title (ISO 639-2 code). (CCO 3.1.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="alternate_titles" class="form-label">Alternate titles</label>
+              <input type="text" class="form-control" id="alternate_titles" name="alternate_titles"
+                     value="{{ old('alternate_titles', $museum->alternate_titles ?? $museum->alternate_title ?? '') }}">
+              <div class="form-text text-muted small">Other titles by which the work is known. Include former titles, translations, and variant spellings. (CCO 3.2)</div>
             </div>
 
           </div>
@@ -229,6 +276,37 @@
         </h2>
         <div id="collapseCreator" class="accordion-collapse collapse" aria-labelledby="headingCreator" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="creator_display" class="form-label">Creator (Display) <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="creator_display" name="creator_display"
+                     value="{{ old('creator_display', $museum->creator_display ?? '') }}">
+              <div class="form-text text-muted small">Creator name as it should appear in displays. Format: Surname, Forename (Nationality, birth-death). (CCO 4.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="creator" class="form-label">Creator (Authority) <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="creator" name="creator"
+                     value="{{ old('creator', $museum->creator ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
+              <div class="form-text text-muted small">Link to authority record. Search ULAN or local authority file. (CCO 4.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="attribution_qualifier" class="form-label">Attribution qualifier</label>
+              <select class="form-select" id="attribution_qualifier" name="attribution_qualifier">
+                <option value="" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === '')>(No qualifier - certain attribution)</option>
+                <option value="attributed_to" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'attributed_to')>Attributed to</option>
+                <option value="workshop_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'workshop_of')>Workshop of</option>
+                <option value="studio_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'studio_of')>Studio of</option>
+                <option value="circle_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'circle_of')>Circle of</option>
+                <option value="school_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'school_of')>School of</option>
+                <option value="follower_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'follower_of')>Follower of</option>
+                <option value="manner_of" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'manner_of')>Manner of</option>
+                <option value="after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'after')>After</option>
+                <option value="copy_after" @selected(old('attribution_qualifier', $museum->attribution_qualifier ?? '') === 'copy_after')>Copy after</option>
+              </select>
+              <div class="form-text text-muted small">Qualifies degree of certainty about attribution. (CCO 4.1.2)</div>
+            </div>
 
             <div class="mb-3">
               <label for="creator_identity" class="form-label">Creator identity</label>
@@ -310,10 +388,17 @@
             </div>
 
             <div class="mb-3">
-              <label for="creation_place" class="form-label">Creation place</label>
+              <label for="creation_place" class="form-label">Place of creation</label>
               <input type="text" class="form-control" id="creation_place" name="creation_place"
-                     value="{{ old('creation_place', $museum->creation_place ?? '') }}">
-              <div class="form-text text-muted small">The geographic location where the object was created.</div>
+                     value="{{ old('creation_place', $museum->creation_place ?? '') }}" placeholder="Type to search places..." autocomplete="off">
+              <div class="form-text text-muted small">The geographic location where the object was created. Use TGN (Getty Thesaurus of Geographic Names) when possible. (CCO 4.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="culture" class="form-label">Culture/People</label>
+              <input type="text" class="form-control" id="culture" name="culture"
+                     value="{{ old('culture', $museum->culture ?? '') }}" placeholder="Type to search cultures..." autocomplete="off">
+              <div class="form-text text-muted small">The culture, people, or nationality associated with the creation. Use AAT culture terms when possible. (CCO 4.4)</div>
             </div>
 
             <div class="mb-3">
@@ -366,10 +451,10 @@
             </div>
 
             <div class="mb-3">
-              <label for="school" class="form-label">School</label>
-              <input type="text" class="form-control" id="school" name="school"
-                     value="{{ old('school', $museum->school ?? '') }}">
-              <div class="form-text text-muted small">The school of art (e.g. Flemish School, Hudson River School).</div>
+              <label for="school_group" class="form-label">School/Group</label>
+              <input type="text" class="form-control" id="school_group" name="school_group"
+                     value="{{ old('school_group', $museum->school_group ?? $museum->school ?? '') }}" placeholder="Type to search..." autocomplete="off">
+              <div class="form-text text-muted small">The school of art or artistic group (e.g. Flemish School, Hudson River School). (CCO 5.3)</div>
             </div>
 
             <div class="mb-3">
@@ -402,10 +487,45 @@
             </div>
 
             <div class="mb-3">
-              <label for="dimensions" class="form-label">Dimensions</label>
+              <label for="dimensions_display" class="form-label">Dimensions (Display)</label>
+              <input type="text" class="form-control" id="dimensions_display" name="dimensions_display"
+                     value="{{ old('dimensions_display', $museum->dimensions_display ?? '') }}">
+              <div class="form-text text-muted small">Dimensions as they should appear in displays, e.g. "72.4 x 91.4 cm (28 1/2 x 36 in.)". (CCO 6.1)</div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="height_value" class="form-label">Height</label>
+                <input type="text" class="form-control" id="height_value" name="height_value"
+                       value="{{ old('height_value', $museum->height_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="width_value" class="form-label">Width</label>
+                <input type="text" class="form-control" id="width_value" name="width_value"
+                       value="{{ old('width_value', $museum->width_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="depth_value" class="form-label">Depth</label>
+                <input type="text" class="form-control" id="depth_value" name="depth_value"
+                       value="{{ old('depth_value', $museum->depth_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="weight_value" class="form-label">Weight</label>
+                <input type="text" class="form-control" id="weight_value" name="weight_value"
+                       value="{{ old('weight_value', $museum->weight_value ?? '') }}">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="dimension_notes" class="form-label">Dimension notes</label>
+              <textarea class="form-control" id="dimension_notes" name="dimension_notes" rows="2">{{ old('dimension_notes', $museum->dimension_notes ?? '') }}</textarea>
+              <div class="form-text text-muted small">Notes about how measurements were taken or special considerations. (CCO 6.6)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="dimensions" class="form-label">Dimensions (legacy)</label>
               <input type="text" class="form-control" id="dimensions" name="dimensions"
                      value="{{ old('dimensions', $museum->dimensions ?? '') }}">
-              <div class="form-text text-muted small">Structured dimensions (height, width, depth, weight, etc.).</div>
             </div>
 
             <div class="mb-3">
@@ -438,9 +558,16 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="materials" class="form-label">Materials</label>
+              <label for="materials_display" class="form-label">Medium (Display) <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="materials_display" name="materials_display"
+                     value="{{ old('materials_display', $museum->materials_display ?? '') }}">
+              <div class="form-text text-muted small">Medium as it should appear in displays, e.g. "oil on canvas", "gelatin silver print". (CCO 7.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="materials" class="form-label">Materials (Indexed)</label>
               <textarea class="form-control" id="materials" name="materials" rows="3">{{ old('materials', $museum->materials ?? '') }}</textarea>
-              <div class="form-text text-muted small">The materials and media used (e.g. oil on canvas, bronze, marble).</div>
+              <div class="form-text text-muted small">Individual materials indexed for searching. Use AAT material terms. (CCO 7.2)</div>
             </div>
 
             <div class="mb-3">
@@ -461,6 +588,13 @@
               <input type="text" class="form-control" id="technique_qualifier" name="technique_qualifier"
                      value="{{ old('technique_qualifier', $museum->technique_qualifier ?? '') }}">
               <div class="form-text text-muted small">Qualifier for the technique (e.g. possibly, probably).</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="support" class="form-label">Support</label>
+              <input type="text" class="form-control" id="support" name="support"
+                     value="{{ old('support', $museum->support ?? '') }}">
+              <div class="form-text text-muted small">The material on which the work is executed, e.g. "canvas", "paper", "panel". (CCO 7.4)</div>
             </div>
 
             <div class="mb-3">
@@ -531,7 +665,27 @@
             </div>
 
             <div class="mb-3">
-              <label for="subject_display" class="form-label">Subject display</label>
+              <label for="subjects_depicted" class="form-label">Subjects depicted</label>
+              <input type="text" class="form-control" id="subjects_depicted" name="subjects_depicted"
+                     value="{{ old('subjects_depicted', $museum->subjects_depicted ?? '') }}" placeholder="Type to search subjects..." autocomplete="off">
+              <div class="form-text text-muted small">Specific subjects depicted in the work. Use controlled vocabulary terms. (CCO 8.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="iconography" class="form-label">Iconography</label>
+              <textarea class="form-control" id="iconography" name="iconography" rows="3">{{ old('iconography', $museum->iconography ?? '') }}</textarea>
+              <div class="form-text text-muted small">Iconographic themes, symbols, or narratives depicted. (CCO 8.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="named_subjects" class="form-label">Named subjects</label>
+              <input type="text" class="form-control" id="named_subjects" name="named_subjects"
+                     value="{{ old('named_subjects', $museum->named_subjects ?? '') }}">
+              <div class="form-text text-muted small">Named people, places, or events depicted. (CCO 8.4)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="subject_display" class="form-label">Subject (Display)</label>
               <textarea class="form-control" id="subject_display" name="subject_display" rows="3">{{ old('subject_display', $museum->subject_display ?? '') }}</textarea>
               <div class="form-text text-muted small">Display text for the subject of the work.</div>
             </div>
@@ -595,6 +749,20 @@
                        value="{{ old('edition_size', $museum->edition_size ?? '') }}">
                 <div class="form-text text-muted small">Total number of impressions in the edition.</div>
               </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="state" class="form-label">State</label>
+              <input type="text" class="form-control" id="state" name="state"
+                     value="{{ old('state', $museum->state ?? '') }}">
+              <div class="form-text text-muted small">The state of the print or edition. (CCO 10.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="impression_quality" class="form-label">Impression quality</label>
+              <input type="text" class="form-control" id="impression_quality" name="impression_quality"
+                     value="{{ old('impression_quality', $museum->impression_quality ?? '') }}">
+              <div class="form-text text-muted small">Quality assessment of the impression (for prints). (CCO 10.4)</div>
             </div>
 
             <div class="mb-3">
@@ -671,6 +839,18 @@
             </div>
 
             <div class="mb-3">
+              <label for="signature" class="form-label">Signature</label>
+              <textarea class="form-control" id="signature" name="signature" rows="2">{{ old('signature', $museum->signature ?? '') }}</textarea>
+              <div class="form-text text-muted small">Description of the artist's signature on the work. (CCO 9.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="marks" class="form-label">Marks/Labels</label>
+              <textarea class="form-control" id="marks" name="marks" rows="2">{{ old('marks', $museum->marks ?? '') }}</textarea>
+              <div class="form-text text-muted small">Collector's marks, labels, stamps, or other identifying marks. (CCO 9.3)</div>
+            </div>
+
+            <div class="mb-3">
               <label for="mark_type" class="form-label">Mark type</label>
               <input type="text" class="form-control" id="mark_type" name="mark_type"
                      value="{{ old('mark_type', $museum->mark_type ?? '') }}">
@@ -704,6 +884,12 @@
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="condition_summary" class="form-label">Condition summary <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <textarea class="form-control" id="condition_summary" name="condition_summary" rows="3">{{ old('condition_summary', $museum->condition_summary ?? '') }}</textarea>
+              <div class="form-text text-muted small">Brief summary of the current condition. (CCO 12.1)</div>
+            </div>
 
             <div class="mb-3">
               <label for="condition_term" class="form-label">Condition term</label>
@@ -779,6 +965,39 @@
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="repository" class="form-label">Repository <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="repository" name="repository"
+                     value="{{ old('repository', $museum->repository ?? '') }}" placeholder="Type to search repositories..." autocomplete="off">
+              <div class="form-text text-muted small">The repository or institution that holds this object. (CCO 13.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="location_within_repository" class="form-label">Location</label>
+              <input type="text" class="form-control" id="location_within_repository" name="location_within_repository"
+                     value="{{ old('location_within_repository', $museum->location_within_repository ?? '') }}">
+              <div class="form-text text-muted small">Specific location within the repository (gallery, shelf, case). (CCO 13.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="credit_line" class="form-label">Credit line</label>
+              <input type="text" class="form-control" id="credit_line" name="credit_line"
+                     value="{{ old('credit_line', $museum->credit_line ?? '') }}">
+              <div class="form-text text-muted small">The credit line for display, acknowledging gift/purchase/bequest. (CCO 13.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4">{{ old('description', $museum->description ?? '') }}</textarea>
+              <div class="form-text text-muted small">A free-text description of the work that supplements other fields. (CCO 11.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="physical_description" class="form-label">Physical description</label>
+              <textarea class="form-control" id="physical_description" name="physical_description" rows="3">{{ old('physical_description', $museum->physical_description ?? '') }}</textarea>
+              <div class="form-text text-muted small">Description of the physical characteristics not covered elsewhere. (CCO 11.2)</div>
+            </div>
 
             <div class="mb-3">
               <label for="provenance" class="form-label">Provenance</label>
@@ -882,6 +1101,19 @@
           <div class="accordion-body">
 
             <div class="mb-3">
+              <label for="related_works" class="form-label">Related works</label>
+              <textarea class="form-control" id="related_works" name="related_works" rows="3">{{ old('related_works', $museum->related_works ?? '') }}</textarea>
+              <div class="form-text text-muted small">Identify related works and describe the nature of the relationship. (CCO 14.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="relationship_type" class="form-label">Relationship type</label>
+              <input type="text" class="form-control" id="relationship_type" name="relationship_type"
+                     value="{{ old('relationship_type', $museum->relationship_type ?? '') }}">
+              <div class="form-text text-muted small">The type of relationship between this work and the related work. (CCO 14.2)</div>
+            </div>
+
+            <div class="mb-3">
               <label for="related_work_type" class="form-label">Related work type</label>
               <input type="text" class="form-control" id="related_work_type" name="related_work_type"
                      value="{{ old('related_work_type', $museum->related_work_type ?? '') }}">
@@ -923,6 +1155,25 @@
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#museumAccordion">
           <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="rights_statement" class="form-label">Rights statement</label>
+              <textarea class="form-control" id="rights_statement" name="rights_statement" rows="3">{{ old('rights_statement', $museum->rights_statement ?? '') }}</textarea>
+              <div class="form-text text-muted small">Statement of rights associated with the work. (CCO 15.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="copyright_holder" class="form-label">Copyright holder</label>
+              <input type="text" class="form-control" id="copyright_holder" name="copyright_holder"
+                     value="{{ old('copyright_holder', $museum->copyright_holder ?? '') }}">
+              <div class="form-text text-muted small">Name of the copyright holder. (CCO 15.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="reproduction_conditions" class="form-label">Reproduction conditions</label>
+              <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="2">{{ old('reproduction_conditions', $museum->reproduction_conditions ?? '') }}</textarea>
+              <div class="form-text text-muted small">Conditions governing reproduction of the work. (CCO 15.3)</div>
+            </div>
 
             <div class="mb-3">
               <label for="cataloger_name" class="form-label">Cataloger name</label>
