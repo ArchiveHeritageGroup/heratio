@@ -1,23 +1,21 @@
 @extends('theme::layouts.1col')
 
-@section('title', $isNew ? 'Add museum object' : 'Edit: ' . ($museum->title ?? 'Untitled'))
+@section('title', $isNew ? 'CCO Cataloguing' : 'CCO Cataloguing')
 @section('body-class', ($isNew ? 'create' : 'edit') . ' museum')
 
 @section('content')
-  <h1>
-    @if($isNew)
-      <i class="fas fa-university me-2"></i>Add museum object
-    @else
-      <i class="fas fa-university me-2"></i>Edit: {{ $museum->title ?? '[Untitled]' }}
-    @endif
+  <h1 class="multiline">
+    CCO Cataloguing
+    <span class="sub">Museum Object</span>
   </h1>
 
   @if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
+    <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
   @endif
 
   @if($errors->any())
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" role="alert">
+      <h5><i class="fas fa-exclamation-triangle"></i> Validation Errors</h5>
       <ul class="mb-0">
         @foreach($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -26,7 +24,7 @@
     </div>
   @endif
 
-  <form method="POST" id="editForm"
+  <form method="POST" id="editForm" class="cco-cataloguing-form"
         action="{{ $isNew ? route('museum.store') : route('museum.update', $museum->slug) }}">
     @csrf
     @if(!$isNew)
@@ -39,7 +37,8 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingIdentification">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIdentification" aria-expanded="true" aria-controls="collapseIdentification">
-            Object Identification <small class="text-muted ms-2">(CCO)</small>
+            Object Identification
+            <span class="cco-chapter">CCO Chapter 1</span>
           </button>
         </h2>
         <div id="collapseIdentification" class="accordion-collapse collapse show" aria-labelledby="headingIdentification" data-bs-parent="#museumAccordion">
@@ -899,15 +898,71 @@
 
     </div>{{-- end accordion --}}
 
-    {{-- Actions --}}
-    <div class="d-flex gap-2 mt-4 mb-4">
-      <a href="{{ $isNew ? route('museum.browse') : route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light">
-        Cancel
-      </a>
-      <button type="submit" class="btn atom-btn-outline-success">
-        {{ $isNew ? 'Create' : 'Save' }}
-      </button>
-    </div>
+    <ul class="actions mb-3 nav gap-2">
+      @if(!$isNew)
+        <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+      @else
+        <li><a href="{{ route('museum.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+      @endif
+    </ul>
 
   </form>
+
+@push('css')
+<style>
+/* CCO Form Styling - match AtoM museum cataloguing theme */
+.cco-cataloguing-form .accordion-item {
+  border: none;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.cco-cataloguing-form .accordion-button {
+  background: var(--ahg-primary, #005837) !important;
+  color: #fff !important;
+}
+
+.cco-cataloguing-form .accordion-button:not(.collapsed) {
+  background: var(--ahg-primary, #005837) !important;
+  color: #fff !important;
+}
+
+.cco-cataloguing-form .accordion-button.collapsed {
+  background-color: var(--ahg-primary, #005837);
+  color: #fff;
+}
+
+.cco-cataloguing-form .accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+
+.cco-cataloguing-form .accordion-button:focus {
+  box-shadow: none;
+}
+
+.cco-cataloguing-form .accordion-body {
+  padding: 20px;
+  background: #fff;
+}
+
+.cco-chapter {
+  margin-left: 15px;
+  float: right;
+  font-size: 11px;
+  opacity: 1;
+  font-weight: normal;
+}
+
+h1.multiline .sub {
+  display: block;
+  font-size: 0.6em;
+  color: #666;
+  font-weight: normal;
+}
+</style>
+@endpush
 @endsection
