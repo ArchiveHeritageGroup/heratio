@@ -1221,6 +1221,302 @@
 
     </div>{{-- end accordion --}}
 
+    {{-- ===== Item Physical Location ===== --}}
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-physical-location">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-physical-location"
+                  aria-expanded="false" aria-controls="collapse-physical-location"
+                  style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
+            Item Physical Location
+            <span class="cco-chapter">Storage &amp; Access</span>
+          </button>
+        </h2>
+        <div id="collapse-physical-location" class="accordion-collapse collapse" aria-labelledby="heading-physical-location">
+          <div class="accordion-body">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Storage container</label>
+                <select name="item_physical_object_id" class="form-select">
+                  <option value="">-- Select container --</option>
+                  @foreach($physicalObjects ?? [] as $poId => $poName)
+                    <option value="{{ $poId }}" @selected(old('item_physical_object_id', $itemLocation['physical_object_id'] ?? '') == $poId)>{{ $poName }}</option>
+                  @endforeach
+                </select>
+                <small class="form-text text-muted">Link to a physical storage container</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Item barcode</label>
+                <input type="text" name="item_barcode" class="form-control" value="{{ old('item_barcode', $itemLocation['barcode'] ?? '') }}">
+              </div>
+            </div>
+
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
+            <div class="row mb-3">
+              <div class="col-md-2">
+                <label class="form-label">Box</label>
+                <input type="text" name="item_box_number" class="form-control" value="{{ old('item_box_number', $itemLocation['box_number'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Folder</label>
+                <input type="text" name="item_folder_number" class="form-control" value="{{ old('item_folder_number', $itemLocation['folder_number'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Shelf</label>
+                <input type="text" name="item_shelf" class="form-control" value="{{ old('item_shelf', $itemLocation['shelf'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Row</label>
+                <input type="text" name="item_row" class="form-control" value="{{ old('item_row', $itemLocation['row'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Position</label>
+                <input type="text" name="item_position" class="form-control" value="{{ old('item_position', $itemLocation['position'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Item #</label>
+                <input type="text" name="item_item_number" class="form-control" value="{{ old('item_item_number', $itemLocation['item_number'] ?? '') }}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">Extent value</label>
+                <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ old('item_extent_value', $itemLocation['extent_value'] ?? '') }}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Extent unit</label>
+                <select name="item_extent_unit" class="form-select">
+                  <option value="">-- Select --</option>
+                  @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_extent_unit', $itemLocation['extent_unit'] ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">Condition</label>
+                <select name="item_condition_status" class="form-select">
+                  <option value="">-- Select --</option>
+                  @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_condition_status', $itemLocation['condition_status'] ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Access status</label>
+                <select name="item_access_status" class="form-select">
+                  @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Condition notes</label>
+                <input type="text" name="item_condition_notes" class="form-control" value="{{ old('item_condition_notes', $itemLocation['condition_notes'] ?? '') }}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label class="form-label">Location notes</label>
+                <textarea name="item_location_notes" class="form-control" rows="2">{{ old('item_location_notes', $itemLocation['notes'] ?? '') }}</textarea>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- ===== Watermark Settings ===== --}}
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-watermark">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-watermark"
+                  aria-expanded="false" aria-controls="collapse-watermark"
+                  style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
+            Watermark Settings
+            <span class="cco-chapter">Digital Protection</span>
+          </button>
+        </h2>
+        <div id="collapse-watermark" class="accordion-collapse collapse" aria-labelledby="heading-watermark">
+          <div class="accordion-body">
+
+            <div class="cco-field">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch"
+                       id="watermark_enabled" name="watermark_enabled" value="1"
+                       {{ old('watermark_enabled', $watermarkSetting->watermark_enabled ?? 0) ? 'checked' : '' }}
+                       style="width: 3em; height: 1.5em;">
+                <label class="form-check-label" for="watermark_enabled" style="margin-left: 10px;">
+                  <strong>Enable watermark for this object</strong>
+                </label>
+              </div>
+            </div>
+
+            <div id="watermark-options" style="{{ old('watermark_enabled', $watermarkSetting->watermark_enabled ?? 0) ? '' : 'display:none;' }}">
+
+              <div class="cco-field">
+                <div class="field-header">
+                  <label for="watermark_type_id">System Watermark</label>
+                </div>
+                <div class="field-input">
+                  <select name="watermark_type_id" id="watermark_type_id" class="form-select">
+                    <option value="">Use default</option>
+                    @foreach($watermarkTypes ?? [] as $type)
+                      <option value="{{ $type->id }}" @selected(old('watermark_type_id', $watermarkSetting->watermark_type_id ?? '') == $type->id)>{{ $type->name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+
+              @if(($customWatermarks ?? collect())->count() > 0)
+              <div class="cco-field">
+                <div class="field-header">
+                  <label for="custom_watermark_id">Or use Custom Watermark</label>
+                </div>
+                <div class="field-input">
+                  <select name="custom_watermark_id" id="custom_watermark_id" class="form-select">
+                    <option value="">None</option>
+                    @foreach($customWatermarks as $custom)
+                      <option value="{{ $custom->id }}" @selected(old('custom_watermark_id', $watermarkSetting->custom_watermark_id ?? '') == $custom->id)>
+                        {{ $custom->name }}{{ $custom->object_id ? '' : ' (Global)' }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              @endif
+
+              <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
+                <div class="field-header">
+                  <label>Upload NEW Custom Watermark</label>
+                </div>
+                <p class="text-muted small">Leave empty to keep existing selection above</p>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="new_watermark_name" class="form-label">Watermark Name</label>
+                    <input type="text" class="form-control" id="new_watermark_name"
+                           name="new_watermark_name" placeholder="e.g., Company Logo">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="new_watermark_file" class="form-label">Watermark Image</label>
+                    <input type="file" class="form-control" id="new_watermark_file"
+                           name="new_watermark_file" accept="image/png,image/gif">
+                    <div class="form-text">PNG or GIF with transparency recommended</div>
+                  </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                  <div class="col-md-6">
+                    <label for="new_watermark_position" class="form-label">Position</label>
+                    @php $wmPosition = old('new_watermark_position', $watermarkSetting->position ?? 'center'); @endphp
+                    <select name="new_watermark_position" id="new_watermark_position" class="form-select">
+                      @foreach(['center' => 'Center', 'top left' => 'Top Left', 'top center' => 'Top Center', 'top right' => 'Top Right', 'left center' => 'Left Center', 'right center' => 'Right Center', 'bottom left' => 'Bottom Left', 'bottom center' => 'Bottom Center', 'bottom right' => 'Bottom Right', 'repeat' => 'Repeat/Tile'] as $val => $label)
+                        <option value="{{ $val }}" @selected($wmPosition == $val)>{{ $label }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    @php $wmOpacity = old('new_watermark_opacity', round(($watermarkSetting->opacity ?? 0.4) * 100)); @endphp
+                    <label for="new_watermark_opacity" class="form-label">
+                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span>
+                    </label>
+                    <input type="range" class="form-range" id="new_watermark_opacity"
+                           name="new_watermark_opacity" min="10" max="100" step="5"
+                           value="{{ $wmOpacity }}">
+                  </div>
+                </div>
+
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" id="new_watermark_global"
+                         name="new_watermark_global" value="1">
+                  <label class="form-check-label" for="new_watermark_global">
+                    Make available globally (for all records)
+                  </label>
+                </div>
+              </div>
+
+              <div class="cco-field">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="regenerate_watermark"
+                         name="regenerate_watermark" value="1">
+                  <label class="form-check-label" for="regenerate_watermark">
+                    <strong>Regenerate derivatives with new watermark</strong>
+                  </label>
+                  <div class="form-text">Check this to apply the new watermark to existing images. This may take a moment.</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- ===== Administration Area ===== --}}
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse"
+                  style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
+            Administration area
+          </button>
+        </h2>
+        <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Source language</label>
+                  <div>{{ $sourceCulture ?? 'English' }}</div>
+                </div>
+
+                @if(!$isNew && isset($museum->updated_at) && $museum->updated_at)
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Last updated</label>
+                  <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('F j, Y, g:i a') }}</div>
+                </div>
+                @endif
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="displayStandard" class="form-label fw-bold">Display standard</label>
+                  <select name="displayStandard" id="displayStandard" class="form-select">
+                    @foreach($displayStandards ?? [] as $dsId => $dsName)
+                      <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>
+                    @endforeach
+                  </select>
+                  <small class="form-text text-muted">Select the display standard for this record</small>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="displayStandardUpdateDescendants"
+                           name="displayStandardUpdateDescendants" value="1">
+                    <label class="form-check-label" for="displayStandardUpdateDescendants">
+                      Make this selection the new default for existing children
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <ul class="actions mb-3 nav gap-2">
       @if(!$isNew)
         <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
@@ -1265,6 +1561,29 @@
       else if (pct >= 50) bar.classList.add('bg-warning');
       else bar.classList.add('bg-danger');
     }
+  }
+  // Watermark toggle
+  var enableToggle = document.getElementById('watermark_enabled');
+  var optionsDiv = document.getElementById('watermark-options');
+  if (enableToggle && optionsDiv) {
+    enableToggle.addEventListener('change', function() {
+      optionsDiv.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+  // Watermark opacity slider
+  var opacitySlider = document.getElementById('new_watermark_opacity');
+  var opacityValue = document.getElementById('opacity-value');
+  if (opacitySlider && opacityValue) {
+    opacitySlider.addEventListener('input', function() {
+      opacityValue.textContent = this.value + '%';
+    });
+  }
+  // Clear system watermark when custom selected and vice versa
+  var systemSelect = document.getElementById('watermark_type_id');
+  var customSelect = document.getElementById('custom_watermark_id');
+  if (systemSelect && customSelect) {
+    customSelect.addEventListener('change', function() { if (this.value) systemSelect.value = ''; });
+    systemSelect.addEventListener('change', function() { if (this.value) customSelect.value = ''; });
   }
 })();
 </script>

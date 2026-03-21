@@ -726,4 +726,116 @@ class MuseumService
 
         return compact('levels', 'repositories', 'workTypes');
     }
+
+    /**
+     * Get extra data needed for edit form: physical location, watermark settings, admin area.
+     */
+    public function getEditExtras(?int $objectId, string $culture): array
+    {
+        // Physical objects for storage container dropdown
+        $physicalObjects = [];
+        try {
+            $poResult = DB::table('physical_object as po')
+                ->leftJoin('physical_object_i18n as poi', function ($join) use ($culture) {
+                    $join->on('poi.id', '=', 'po.id')->where('poi.culture', '=', $culture);
+                })
+                ->select(['po.id', 'poi.name', 'poi.location'])
+                ->orderBy('poi.name')
+                ->get();
+            foreach ($poResult as $po) {
+                $physicalObjects[$po->id] = $po->name . ($po->location ? ' (' . $po->location . ')' : '');
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Item location data
+        $itemLocation = [];
+        if ($objectId) {
+            try {
+                $loc = DB::table('item_physical_location')->where('object_id', $objectId)->first();
+                if ($loc) {
+                    $itemLocation = (array) $loc;
+                }
+            } catch (\Exception $e) {
+                // Table may not exist
+            }
+        }
+
+        // Watermark settings
+        $watermarkSetting = null;
+        $watermarkTypes = collect();
+        $customWatermarks = collect();
+        if ($objectId) {
+            try {
+                $watermarkSetting = DB::table('object_watermark_setting')->where('object_id', $objectId)->first();
+            } catch (\Exception $e) {
+                // Table may not exist
+            }
+        }
+        try {
+            $watermarkTypes = DB::table('watermark_type')->where('active', 1)->orderBy('name')->get();
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+        try {
+            $customWatermarks = DB::table('custom_watermark')
+                ->where('active', 1)
+                ->where(function ($q) use ($objectId) {
+                    $q->whereNull('object_id');
+                    if ($objectId) {
+                        $q->orWhere('object_id', $objectId);
+                    }
+                })
+                ->orderBy('name')
+                ->get();
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Display standards
+        $displayStandards = [];
+        try {
+            $terms = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', 53) // display standard taxonomy
+                ->where('term_i18n.culture', $culture)
+                ->orderBy('term_i18n.name')
+                ->select('term.id', 'term_i18n.name')
+                ->get();
+            foreach ($terms as $t) {
+                $displayStandards[$t->id] = $t->name;
+            }
+        } catch (\Exception $e) {
+            // Taxonomy may not exist
+        }
+
+        // Current display standard
+        $currentDisplayStandard = null;
+        if ($objectId) {
+            $currentDisplayStandard = DB::table('information_object')
+                ->where('id', $objectId)
+                ->value('display_standard_id');
+        }
+
+        // Source culture
+        $sourceCulture = 'English';
+        if ($objectId) {
+            $sc = DB::table('information_object')->where('id', $objectId)->value('source_culture');
+            if ($sc) {
+                $sourceCulture = locale_get_display_language($sc, 'en') ?: $sc;
+            }
+        }
+
+        return compact(
+            'physicalObjects',
+            'itemLocation',
+            'watermarkSetting',
+            'watermarkTypes',
+            'customWatermarks',
+            'displayStandards',
+            'currentDisplayStandard',
+            'sourceCulture'
+        );
+    }
 }

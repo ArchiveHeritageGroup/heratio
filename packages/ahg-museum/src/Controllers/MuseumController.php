@@ -174,10 +174,12 @@ class MuseumController extends Controller
     {
         $culture = app()->getLocale();
         $formChoices = $this->service->getFormChoices($culture);
+        $editExtras = $this->service->getEditExtras(null, $culture);
 
         return view('ahg-museum::museum.edit', array_merge(
             ['museum' => null, 'isNew' => true],
-            $formChoices
+            $formChoices,
+            $editExtras
         ));
     }
 
@@ -217,10 +219,12 @@ class MuseumController extends Controller
         }
 
         $formChoices = $this->service->getFormChoices($culture);
+        $editExtras = $this->service->getEditExtras($museum->id ?? null, $culture);
 
         return view('ahg-museum::museum.edit', array_merge(
             ['museum' => $museum, 'isNew' => false],
-            $formChoices
+            $formChoices,
+            $editExtras
         ));
     }
 
