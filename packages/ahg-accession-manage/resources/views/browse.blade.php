@@ -51,6 +51,12 @@
           <th>
             Acquisition date
           </th>
+          <th>
+            Status
+          </th>
+          <th>
+            Priority
+          </th>
           @if(request('sort') === 'lastUpdated')
             <th>
               Updated
@@ -74,6 +80,12 @@
             <td class="w-20">
               {{ $doc['accession_date'] ? \Carbon\Carbon::parse($doc['accession_date'])->format('Y-m-d') : '' }}
             </td>
+            <td>
+              {{ $doc['processing_status'] ?? '' }}
+            </td>
+            <td>
+              {{ $doc['processing_priority'] ?? '' }}
+            </td>
             @if(request('sort') === 'lastUpdated')
               <td class="w-20">
                 {{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d H:i') : '' }}
@@ -85,6 +97,16 @@
     </table>
   </div>
 @endsection
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 
 @section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
