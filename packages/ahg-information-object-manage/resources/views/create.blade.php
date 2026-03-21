@@ -14,7 +14,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('informationobject.store') }}" id="editForm">
+  <form method="POST" action="{{ route('informationobject.store') }}" id="editForm" enctype="multipart/form-data">
     @csrf
     @if($parentId)
       <input type="hidden" name="parent_id" value="{{ $parentId }}">
@@ -25,15 +25,18 @@
       {{-- ===== Identity area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="true" aria-controls="identity-collapse">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
             Identity area
           </button>
         </h2>
-        <div id="identity-collapse" class="accordion-collapse collapse show" aria-labelledby="identity-heading">
+        <div id="identity-collapse" class="accordion-collapse collapse" aria-labelledby="identity-heading">
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="identifier" class="form-label">Identifier</label>
+              <label for="identifier" class="form-label">
+                Identifier
+                <span class="form-required" title="This is a mandatory element.">*</span>
+              </label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
                 <button type="button" class="btn btn-outline-secondary" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
@@ -62,7 +65,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">
                 Title
-                <span class="form-required" title="This is a mandatory field.">*</span>
+                <span class="form-required" title="This is a mandatory element.">*</span>
               </label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -106,7 +109,7 @@
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">
                 Level of description
-                <span class="form-required" title="This is a mandatory field.">*</span>
+                <span class="form-required" title="This is a mandatory element.">*</span>
               </label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
@@ -117,10 +120,61 @@
               <div class="form-text text-muted small">Record the level of this unit of description. (ISAD 3.1.4)</div>
             </div>
 
+            <!-- Add new child levels -->
+            <div class="mb-3">
+              <h3 class="fs-6 mb-2">Add new child levels</h3>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="childlevels-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th id="child-identifier-head" class="w-20">Identifier</th>
+                      <th id="child-level-head" class="w-20">Level</th>
+                      <th id="child-title-head" class="w-40">Title</th>
+                      <th id="child-date-head" class="w-20">Date</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="text" name="childLevels[0][identifier]" class="form-control form-control-sm" aria-labelledby="child-identifier-head" aria-describedby="child-table-help"></td>
+                      <td>
+                        <select name="childLevels[0][levelOfDescription]" class="form-select form-select-sm" aria-labelledby="child-level-head" aria-describedby="child-table-help">
+                          <option value=""></option>
+                          @foreach($levels as $level)
+                            <option value="{{ $level->id }}">{{ $level->name }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td><input type="text" name="childLevels[0][title]" class="form-control form-control-sm" aria-labelledby="child-title-head" aria-describedby="child-table-help"></td>
+                      <td><input type="text" name="childLevels[0][date]" class="form-control form-control-sm" aria-labelledby="child-date-head" aria-describedby="child-table-help"></td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-childlevel-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="5">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="add-childlevel-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="form-text mb-3" id="child-table-help">
+                Identifier: Provide a specific local reference code, control number, or other unique identifier. Level of description: Record the level of this unit of description. Title: Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions.
+              </div>
+            </div>
+
             <div class="mb-3">
               <label for="extent_and_medium" class="form-label">
                 Extent and medium
-                <span class="form-required" title="This is a mandatory field.">*</span>
+                <span class="form-required" title="This is a mandatory element.">*</span>
               </label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <div class="form-text text-muted small">Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)</div>
@@ -138,6 +192,16 @@
         </h2>
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
           <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="creators" class="form-label">
+                Name of creator(s)
+                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span>
+              </label>
+              <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators') }}" placeholder="Type to search creators..." autocomplete="off">
+              <div class="form-text text-muted small">Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)</div>
+            </div>
+
             <div class="mb-3">
               <label for="repository_id" class="form-label">Repository</label>
               <select class="form-select" id="repository_id" name="repository_id">
@@ -180,7 +244,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling information</label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling</label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal') }}</textarea>
               <div class="form-text text-muted small">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)</div>
             </div>
@@ -222,13 +286,13 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Language(s) of material</label>
+              <label class="form-label">Languages of the material</label>
               <input type="text" class="form-control" name="language_of_material" value="{{ old('language_of_material') }}" placeholder="e.g. English, Afrikaans">
               <div class="form-text text-muted small">Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Script(s) of material</label>
+              <label class="form-label">Scripts of the material</label>
               <input type="text" class="form-control" name="script_of_material" value="{{ old('script_of_material') }}" placeholder="e.g. Latin">
               <div class="form-text text-muted small">Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
             </div>
@@ -282,8 +346,24 @@
             </div>
 
             <div class="mb-3">
+              <label class="form-label">Related descriptions</label>
+              <input type="text" class="form-control" name="related_descriptions" value="{{ old('related_descriptions') }}" placeholder="Type to search related descriptions..." autocomplete="off">
+              <div class="form-text text-muted small">To create a relationship between this description and another description held in the system, begin typing the name of the related description and select it from the autocomplete drop-down menu when it appears below. Multiple relationships can be created.</div>
+            </div>
+
+            <!-- Publication notes (multi-row) -->
+            <div class="mb-3">
               <label class="form-label">Publication notes</label>
-              <textarea class="form-control" name="publication_notes" rows="3">{{ old('publication_notes') }}</textarea>
+              <table class="table table-sm" id="pubnotes-table">
+                <thead><tr><th>Content</th><th></th></tr></thead>
+                <tbody>
+                  <tr class="pubnote-row">
+                    <td><textarea name="publication_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('publication_notes.0.content') }}</textarea></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-pubnote-row"><i class="fas fa-times"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
             </div>
           </div>
         </div>
@@ -306,11 +386,8 @@
                   <tr class="note-row">
                     <td><textarea name="notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('notes.0.content') }}</textarea></td>
                     <td><select name="notes[0][type]" class="form-select form-select-sm">
-                      <option value="general">General note</option>
-                      <option value="conservation">Conservation</option>
-                      <option value="physical_description">Physical description</option>
-                      <option value="accompanying_material">Accompanying material</option>
-                      <option value="alpha_numeric_designation">Alpha-numeric designation</option>
+                      <option value="125">General note</option>
+                      <option value="174">Language note</option>
                     </select></td>
                     <td><button type="button" class="btn btn-sm btn-outline-danger remove-note-row"><i class="fas fa-times"></i></button></td>
                   </tr>
@@ -333,22 +410,22 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label class="form-label">Subject access points</label>
-              <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects...">
+              <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects..." autocomplete="off">
             </div>
 
             <div class="mb-3">
               <label class="form-label">Place access points</label>
-              <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places...">
+              <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places..." autocomplete="off">
             </div>
 
             <div class="mb-3">
               <label class="form-label">Genre access points</label>
-              <input type="text" class="form-control" name="genre_access_points" value="{{ old('genre_access_points') }}" placeholder="Type to search genres...">
+              <input type="text" class="form-control" name="genre_access_points" value="{{ old('genre_access_points') }}" placeholder="Type to search genres..." autocomplete="off">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Name access points</label>
-              <input type="text" class="form-control" name="name_access_points" value="{{ old('name_access_points') }}" placeholder="Type to search names...">
+              <label class="form-label">Name access points (subjects)</label>
+              <input type="text" class="form-control" name="name_access_points" value="{{ old('name_access_points') }}" placeholder="Type to search names..." autocomplete="off">
             </div>
           </div>
         </div>
@@ -366,7 +443,7 @@
             <div class="mb-3">
               <label for="description_identifier" class="form-label">Description identifier</label>
               <input type="text" class="form-control" id="description_identifier" name="description_identifier" value="{{ old('description_identifier') }}">
-              <div class="form-text text-muted small">Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 - Codes for the representation of names of countries.</div>
+              <div class="form-text text-muted small">Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 - Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code.</div>
             </div>
 
             <div class="mb-3">
@@ -382,7 +459,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status of description</label>
+              <label for="description_status_id" class="form-label">Status</label>
               <select class="form-select" id="description_status_id" name="description_status_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionStatuses as $status)
@@ -410,13 +487,13 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Language(s) of description</label>
+              <label class="form-label">Language(s)</label>
               <input type="text" class="form-control" name="language_of_description" value="{{ old('language_of_description') }}" placeholder="e.g. English">
               <div class="form-text text-muted small">Indicate the language(s) used to create the description of the archival material.</div>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Script(s) of description</label>
+              <label class="form-label">Script(s)</label>
               <input type="text" class="form-control" name="script_of_description" value="{{ old('script_of_description') }}" placeholder="e.g. Latin">
               <div class="form-text text-muted small">Indicate the script(s) used to create the description of the archival material.</div>
             </div>
@@ -427,9 +504,161 @@
               <div class="form-text text-muted small">Record citations for any external sources used in the archival description (such as the Scope and Content, Archival History, or Notes fields).</div>
             </div>
 
+            <!-- Archivist's notes (multi-row) -->
             <div class="mb-3">
               <label class="form-label">Archivist's notes</label>
-              <textarea class="form-control" name="archivists_notes" rows="3">{{ old('archivists_notes') }}</textarea>
+              <table class="table table-sm" id="archnotes-table">
+                <thead><tr><th>Content</th><th></th></tr></thead>
+                <tbody>
+                  <tr class="archnote-row">
+                    <td><textarea name="archivists_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('archivists_notes.0.content') }}</textarea></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-archnote-row"><i class="fas fa-times"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Security Classification ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="security-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security-collapse" aria-expanded="false" aria-controls="security-collapse">
+            Security Classification
+          </button>
+        </h2>
+        <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
+          <div class="accordion-body">
+
+            <div class="mb-3">
+              <label for="security_classification_id" class="form-label">Security Classification</label>
+              <select class="form-select" id="security_classification_id" name="security_classification_id">
+                <option value="">Public (No Classification)</option>
+                @foreach($securityClassifications as $classification)
+                  <option value="{{ $classification->id }}" data-level="{{ $classification->level }}" @selected(old('security_classification_id') == $classification->id)>{{ $classification->name }}</option>
+                @endforeach
+              </select>
+              <small class="text-muted">Security classification watermarks override all other watermarks.</small>
+            </div>
+
+            <div id="classification-details" style="display: none;">
+              <div class="mb-3">
+                <label for="security_reason" class="form-label">Classification Reason</label>
+                <textarea class="form-control" id="security_reason" name="security_reason" rows="2">{{ old('security_reason') }}</textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="security_review_date" class="form-label">Review Date</label>
+                  <input type="date" class="form-control" id="security_review_date" name="security_review_date" value="{{ old('security_review_date') }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="security_declassify_date" class="form-label">Declassify Date</label>
+                  <input type="date" class="form-control" id="security_declassify_date" name="security_declassify_date" value="{{ old('security_declassify_date') }}">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="security_handling_instructions" class="form-label">Handling Instructions</label>
+                <textarea class="form-control" id="security_handling_instructions" name="security_handling_instructions" rows="2">{{ old('security_handling_instructions') }}</textarea>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="security_inherit_to_children" name="security_inherit_to_children" value="1" checked>
+                <label class="form-check-label" for="security_inherit_to_children">
+                  Apply to child records
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Watermark Settings ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="watermark-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watermark-collapse" aria-expanded="false" aria-controls="watermark-collapse">
+            Watermark Settings
+          </button>
+        </h2>
+        <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
+          <div class="accordion-body">
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="watermark_enabled" name="watermark_enabled" value="1" checked>
+                <label class="form-check-label" for="watermark_enabled">
+                  Enable watermark for this object
+                </label>
+              </div>
+            </div>
+
+            <div id="watermark-options">
+
+              <div class="mb-3">
+                <label for="watermark_type_id" class="form-label">System Watermark</label>
+                <select class="form-select" id="watermark_type_id" name="watermark_type_id">
+                  <option value="">Use default</option>
+                  @foreach($watermarkTypes as $wtype)
+                    <option value="{{ $wtype->id }}" @selected(old('watermark_type_id') == $wtype->id)>{{ $wtype->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <!-- Upload New Custom Watermark -->
+              <div class="card bg-light mb-3">
+                <div class="card-body">
+                  <h6 class="card-title">Upload NEW Custom Watermark</h6>
+                  <small class="text-muted d-block mb-2">Leave empty to keep existing selection above</small>
+
+                  <div class="mb-2">
+                    <label for="new_watermark_name" class="form-label">Watermark Name</label>
+                    <input type="text" class="form-control form-control-sm" id="new_watermark_name" name="new_watermark_name" placeholder="e.g., Company Logo">
+                  </div>
+
+                  <div class="mb-2">
+                    <label for="new_watermark_file" class="form-label">Watermark Image</label>
+                    <input type="file" class="form-control form-control-sm" id="new_watermark_file" name="new_watermark_file" accept="image/png,image/gif">
+                    <small class="text-muted">PNG or GIF with transparency recommended</small>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="new_watermark_position" class="form-label">Position</label>
+                      <select class="form-select form-select-sm" id="new_watermark_position" name="new_watermark_position">
+                        <option value="center" selected>Center</option>
+                        <option value="repeat">Repeat (tile)</option>
+                        <option value="bottom right">Bottom Right</option>
+                        <option value="bottom left">Bottom Left</option>
+                        <option value="top right">Top Right</option>
+                        <option value="top left">Top Left</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <label for="new_watermark_opacity" class="form-label">Opacity</label>
+                      <input type="range" class="form-range" id="new_watermark_opacity" name="new_watermark_opacity" min="10" max="80" value="40">
+                      <small class="text-muted"><span id="opacity-value">40</span>%</small>
+                    </div>
+                  </div>
+
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="new_watermark_global" name="new_watermark_global" value="1">
+                    <label class="form-check-label" for="new_watermark_global">
+                      Make available globally (for all records)
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-info py-2 mb-0">
+                <small><i class="fas fa-info-circle me-1"></i>
+                Security classification watermarks have the highest priority and will override custom watermarks.
+                </small>
+              </div>
+
             </div>
           </div>
         </div>
@@ -444,27 +673,44 @@
         </h2>
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
           <div class="accordion-body">
-            <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status</label>
-              <select class="form-select" id="publication_status_id" name="publication_status_id">
-                <option value="159">Draft</option>
-                <option value="160">Published</option>
-              </select>
-            </div>
+            <div class="row">
 
-            <div class="mb-3">
-              <label for="display_standard_id" class="form-label">Display standard</label>
-              <select class="form-select" id="display_standard_id" name="display_standard_id">
-                <option value="">-- Select --</option>
-                @foreach($displayStandards as $std)
-                  <option value="{{ $std->id }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
-                @endforeach
-              </select>
-            </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="publication_status_id" class="form-label">Publication status</label>
+                  <select class="form-select" id="publication_status_id" name="publication_status_id">
+                    <option value="159">Draft</option>
+                    <option value="160">Published</option>
+                  </select>
+                </div>
 
-            <div class="mb-3">
-              <label class="form-label">Source language</label>
-              <span class="form-control-plaintext text-muted">{{ app()->getLocale() }}</span>
+                <div class="mb-3">
+                  <h3 class="fs-6 mb-2">Source language</h3>
+                  <span class="text-muted">{{ app()->getLocale() == 'en' ? 'English' : app()->getLocale() }}</span>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="display_standard_id" class="form-label">Display standard</label>
+                  <select class="form-select" id="display_standard_id" name="display_standard_id">
+                    <option value="">-- Select --</option>
+                    @foreach($displayStandards as $std)
+                      <option value="{{ $std->id }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="display_standard_update_descendants" name="display_standard_update_descendants" value="1">
+                    <label class="form-check-label" for="display_standard_update_descendants">
+                      Make this selection the new default for existing children
+                    </label>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -522,9 +768,45 @@ document.addEventListener('DOMContentLoaded', function() {
     noteIdx++;
   });
 
+  // Child levels multi-row
+  var childIdx = 1;
+  var childLevelOptions = document.querySelector('#childlevels-table select')?.innerHTML || '';
+  document.getElementById('add-childlevel-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><input type="text" name="childLevels[' + childIdx + '][identifier]" class="form-control form-control-sm"></td>' +
+      '<td><select name="childLevels[' + childIdx + '][levelOfDescription]" class="form-select form-select-sm">' + childLevelOptions + '</select></td>' +
+      '<td><input type="text" name="childLevels[' + childIdx + '][title]" class="form-control form-control-sm"></td>' +
+      '<td><input type="text" name="childLevels[' + childIdx + '][date]" class="form-control form-control-sm"></td>' +
+      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-childlevel-row"><i class="fas fa-times" aria-hidden="true"></i></button></td>';
+    document.querySelector('#childlevels-table tbody').appendChild(tr);
+    childIdx++;
+  });
+
+  // Publication notes multi-row
+  var pubIdx = 1;
+  document.getElementById('add-pubnote-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.className = 'pubnote-row';
+    tr.innerHTML = '<td><textarea name="publication_notes[' + pubIdx + '][content]" class="form-control form-control-sm" rows="2"></textarea></td>' +
+      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-pubnote-row"><i class="fas fa-times"></i></button></td>';
+    document.querySelector('#pubnotes-table tbody').appendChild(tr);
+    pubIdx++;
+  });
+
+  // Archivist's notes multi-row
+  var archIdx = 1;
+  document.getElementById('add-archnote-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.className = 'archnote-row';
+    tr.innerHTML = '<td><textarea name="archivists_notes[' + archIdx + '][content]" class="form-control form-control-sm" rows="2"></textarea></td>' +
+      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-archnote-row"><i class="fas fa-times"></i></button></td>';
+    document.querySelector('#archnotes-table tbody').appendChild(tr);
+    archIdx++;
+  });
+
   // Remove row handler for all tables
   document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-event-row, .remove-altid-row, .remove-note-row');
+    var btn = e.target.closest('.remove-event-row, .remove-altid-row, .remove-note-row, .remove-childlevel-row, .remove-pubnote-row, .remove-archnote-row');
     if (btn) {
       var table = btn.closest('table');
       if (table.querySelectorAll('tbody tr').length > 1) {
@@ -532,6 +814,33 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+
+  // Security classification toggle
+  var classSelect = document.getElementById('security_classification_id');
+  var classDetails = document.getElementById('classification-details');
+  if (classSelect && classDetails) {
+    classSelect.addEventListener('change', function() {
+      classDetails.style.display = this.value ? 'block' : 'none';
+    });
+  }
+
+  // Watermark enabled toggle
+  var wmEnabled = document.getElementById('watermark_enabled');
+  var wmOptions = document.getElementById('watermark-options');
+  if (wmEnabled && wmOptions) {
+    wmEnabled.addEventListener('change', function() {
+      wmOptions.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+
+  // Opacity slider display
+  var opacitySlider = document.getElementById('new_watermark_opacity');
+  var opacityValue = document.getElementById('opacity-value');
+  if (opacitySlider && opacityValue) {
+    opacitySlider.addEventListener('input', function() {
+      opacityValue.textContent = this.value;
+    });
+  }
 });
 </script>
 @endpush

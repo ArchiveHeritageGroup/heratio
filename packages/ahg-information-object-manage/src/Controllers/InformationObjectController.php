@@ -923,7 +923,25 @@ class InformationObjectController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
-        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes');
+        // Note types for general notes (ISAD)
+        $noteTypes = collect([
+            (object) ['id' => 125, 'name' => 'General note'],
+            (object) ['id' => 174, 'name' => 'Language note'],
+        ]);
+
+        // Security classifications
+        $securityClassifications = DB::table('security_classification')
+            ->orderBy('level')
+            ->select('id', 'name', 'level')
+            ->get();
+
+        // Watermark types
+        $watermarkTypes = DB::table('watermark_type')
+            ->orderBy('name')
+            ->select('id', 'name', 'image_file')
+            ->get();
+
+        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes', 'noteTypes', 'securityClassifications', 'watermarkTypes');
     }
 
     /**
