@@ -67,11 +67,26 @@
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names." (ISAAR 5.1.2)</div>
             </div>
 
-            {{-- Other names: Parallel, Standardized, Other --}}
-            @include('ahg-actor-manage::partials._other-names', [
-                'otherNames' => $otherNames ?? collect(),
-                'nameTypes' => $formChoices['nameTypes'],
-            ])
+            <div class="mb-3">
+              <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+              <input type="text" name="parallel_name" id="parallel_name" class="form-control"
+                     value="{{ old('parallel_name', $actor->parallel_name ?? '') }}">
+              <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules." (ISAAR 5.1.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="standardized_name" class="form-label">Standardized form(s) of name according to other rules</label>
+              <input type="text" name="standardized_name" id="standardized_name" class="form-control"
+                     value="{{ old('standardized_name', $actor->standardized_name ?? '') }}">
+              <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed." (ISAAR 5.1.4)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="other_name" class="form-label">Other form(s) of name</label>
+              <input type="text" name="other_name" id="other_name" class="form-control"
+                     value="{{ old('other_name', $actor->other_name ?? '') }}">
+              <div class="form-text text-muted small">The purpose of this field is to "indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area." Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)</div>
+            </div>
 
             <div class="mb-3">
               <label for="corporate_body_identifiers" class="form-label">Identifiers for corporate bodies</label>
