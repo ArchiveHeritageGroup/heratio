@@ -44,7 +44,7 @@
             @endif
 
             <!-- Search Box -->
-            <form action="{{ route('informationobject.browse') }}" method="get" class="heritage-search-box">
+            <form action="{{ url('/heritage/search') }}" method="get" class="heritage-search-box">
                 <input type="text"
                        name="q"
                        placeholder="{{ $searchPlaceholder }}"
@@ -60,7 +60,7 @@
             <div class="heritage-suggested-searches">
                 <span>Try:</span>
                 @foreach($suggestedSearches as $search)
-                <a href="{{ route('informationobject.browse', ['q' => $search]) }}">
+                <a href="{{ url('/heritage/search') }}?q={{ urlencode($search) }}">
                     {{ $search }}
                 </a>
                 @endforeach
@@ -81,25 +81,25 @@
     <section class="heritage-explore-by" id="heritage-explore">
         <div class="heritage-section-label">Explore By</div>
         <div class="heritage-explore-buttons">
-            <a href="{{ route('informationobject.browse', ['sort' => 'date']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/timeline') }}" class="heritage-explore-btn">
                 <i class="fas fa-clock"></i> Time
             </a>
-            <a href="{{ route('informationobject.browse', ['category' => 'place']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/explore') }}?category=place" class="heritage-explore-btn">
                 <i class="fas fa-map-marker-alt"></i> Place
             </a>
-            <a href="{{ route('actor.browse') }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/creators') }}" class="heritage-explore-btn">
                 <i class="fas fa-users"></i> People
             </a>
-            <a href="{{ route('informationobject.browse', ['category' => 'theme']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/explore') }}?category=theme" class="heritage-explore-btn">
                 <i class="fas fa-tag"></i> Theme
             </a>
-            <a href="{{ route('informationobject.browse', ['category' => 'format']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/explore') }}?category=format" class="heritage-explore-btn">
                 <i class="fas fa-layer-group"></i> Format
             </a>
-            <a href="{{ route('informationobject.browse', ['sort' => 'popular']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/trending') }}" class="heritage-explore-btn">
                 <i class="fas fa-chart-line"></i> Trending
             </a>
-            <a href="{{ route('informationobject.browse', ['view' => 'graph']) }}" class="heritage-explore-btn">
+            <a href="{{ url('/heritage/graph') }}" class="heritage-explore-btn">
                 <i class="fas fa-project-diagram"></i> Knowledge Graph
             </a>
         </div>
@@ -136,9 +136,9 @@
                 @foreach($curatedCollections as $index => $collection)
                 @php
                 if (($collection['type'] ?? 'iiif') === 'archival') {
-                    $collectionUrl = route('informationobject.browse', ['collection' => $collection['id']]);
+                    $collectionUrl = url('/informationobject/browse') . '?collection=' . $collection['id'];
                 } else {
-                    $collectionUrl = route('iiif-collection.view', ['id' => $collection['id']]);
+                    $collectionUrl = url('/manifest-collection/' . $collection['id'] . '/view/');
                 }
                 $collectionIcon = ($collection['type'] ?? 'iiif') === 'archival' ? 'fa-archive' : 'fa-layer-group';
                 @endphp
@@ -187,7 +187,7 @@
     <section class="heritage-creators">
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">Browse by Creator</h2>
-            <a href="{{ route('actor.browse') }}" class="heritage-view-all">
+            <a href="{{ url('/heritage/creators') }}" class="heritage-view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -219,7 +219,7 @@
     <section class="heritage-timeline">
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">Explore by Time</h2>
-            <a href="{{ route('informationobject.browse', ['sort' => 'date']) }}" class="heritage-view-all">
+            <a href="{{ url('/heritage/timeline') }}" class="heritage-view-all">
                 Full Timeline <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -231,7 +231,7 @@
             @php
                 $position = $periodCount > 1 ? ($index / ($periodCount - 1)) * 100 : 50;
             @endphp
-            <a href="{{ route('informationobject.browse', ['date_start' => $period->start_year, 'date_end' => $period->end_year ?? '']) }}"
+            <a href="{{ url('/heritage/timeline') }}?period_id={{ $period->id }}"
                class="heritage-timeline-marker"
                style="left: {{ $position }}%;"
                title="{{ $period->name }}">
@@ -251,7 +251,7 @@
     <section class="heritage-recent">
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">Recently Added</h2>
-            <a href="{{ route('informationobject.browse', ['sort' => 'recent']) }}" class="heritage-view-all">
+            <a href="{{ url('/heritage/search') }}?sort=recent" class="heritage-view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -308,21 +308,21 @@
                     <div class="heritage-cta-icon"><i class="fas fa-file-alt"></i></div>
                     <h3 class="heritage-cta-title">Transcribe</h3>
                     <p class="heritage-cta-description">Help make handwritten documents searchable by transcribing them.</p>
-                    <a href="{{ route('login') }}" class="heritage-cta-button">Start Transcribing</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Start Transcribing</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-id-badge"></i></div>
                     <h3 class="heritage-cta-title">Identify</h3>
                     <p class="heritage-cta-description">Help identify people, places, and objects in historical photographs.</p>
-                    <a href="{{ route('login') }}" class="heritage-cta-button">Help Identify</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Help Identify</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-book"></i></div>
                     <h3 class="heritage-cta-title">Add Context</h3>
                     <p class="heritage-cta-description">Share your knowledge about local history and personal memories.</p>
-                    <a href="{{ route('login') }}" class="heritage-cta-button">Share Stories</a>
+                    <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">Share Stories</a>
                 </div>
             </div>
 

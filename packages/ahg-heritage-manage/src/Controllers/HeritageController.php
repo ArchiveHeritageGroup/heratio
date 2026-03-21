@@ -19,11 +19,11 @@ class HeritageController extends Controller
     {
         $culture = 'en';
 
-        // --- Hero Images ---
+        // --- Hero Images (from heritage_hero_slide table) ---
         $heroImages = [];
         try {
-            if (Schema::hasTable('heritage_landing_hero_images')) {
-                $heroImages = DB::table('heritage_landing_hero_images')
+            if (Schema::hasTable('heritage_hero_slide')) {
+                $heroImages = DB::table('heritage_hero_slide')
                     ->where('is_enabled', 1)
                     ->orderBy('display_order')
                     ->get()
@@ -34,27 +34,24 @@ class HeritageController extends Controller
             $heroImages = [];
         }
 
-        // --- Config ---
-        $configArray = [];
+        // --- Config (heritage_landing_config is a single-row table with named columns) ---
+        $config = null;
         try {
             if (Schema::hasTable('heritage_landing_config')) {
-                $rows = DB::table('heritage_landing_config')->get();
-                foreach ($rows as $row) {
-                    $configArray[$row->key ?? $row->name ?? ''] = $row->value ?? '';
-                }
+                $config = DB::table('heritage_landing_config')->first();
             }
         } catch (\Exception $e) {
-            $configArray = [];
+            $config = null;
         }
 
-        $tagline = $configArray['hero_tagline'] ?? 'Discover Our Heritage';
-        $subtext = $configArray['hero_subtext'] ?? 'Explore collections spanning centuries of history, culture, and human achievement';
-        $searchPlaceholder = $configArray['hero_search_placeholder'] ?? 'Search photographs, documents, artifacts...';
-        $suggestedSearches = $configArray['suggested_searches'] ?? [];
+        $tagline = $config->hero_tagline ?? 'Discover Our Heritage';
+        $subtext = $config->hero_subtext ?? 'Explore collections spanning centuries of history, culture, and human achievement';
+        $searchPlaceholder = $config->hero_search_placeholder ?? 'Try: Egyptian artifacts, Victorian letters, landscape photographs...';
+        $suggestedSearches = $config->suggested_searches ?? '[]';
         if (is_string($suggestedSearches)) {
             $suggestedSearches = json_decode($suggestedSearches, true) ?: [];
         }
-        $primaryColor = $configArray['primary_color'] ?? '#0d6efd';
+        $primaryColor = $config->primary_color ?? '#0d6efd';
 
         // --- Curated Collections ---
         $curatedCollections = $this->getCuratedCollections($culture, 12);
@@ -166,6 +163,79 @@ class HeritageController extends Controller
             'recentItems',
             'topContributors'
         ));
+    }
+
+    /**
+     * Heritage search — redirects to GLAM browse with query.
+     */
+    public function search(Request $request)
+    {
+        return redirect()->route('informationobject.browse', $request->query());
+    }
+
+    /**
+     * Heritage timeline — redirects to GLAM browse sorted by date.
+     */
+    public function timeline(Request $request)
+    {
+        $params = ['sort' => 'date'];
+        if ($request->has('period_id')) {
+            $period = null;
+            try {
+                $period = DB::table('heritage_timeline_period')
+                    ->where('id', $request->input('period_id'))
+                    ->first();
+            } catch (\Exception $e) {
+                // ignore
+            }
+            if ($period) {
+                $params['date_start'] = $period->start_year;
+                if ($period->end_year) {
+                    $params['date_end'] = $period->end_year;
+                }
+            }
+        }
+        return redirect()->route('informationobject.browse', $params);
+    }
+
+    /**
+     * Heritage creators — redirects to actor browse.
+     */
+    public function creators()
+    {
+        return redirect()->route('actor.browse');
+    }
+
+    /**
+     * Heritage explore — redirects to GLAM browse with category filter.
+     */
+    public function explore(Request $request)
+    {
+        return redirect()->route('informationobject.browse', $request->query());
+    }
+
+    /**
+     * Heritage knowledge graph — redirects to GLAM browse with graph view.
+     */
+    public function graph()
+    {
+        return redirect()->route('informationobject.browse', ['view' => 'graph']);
+    }
+
+    /**
+     * Heritage trending — redirects to GLAM browse sorted by popularity.
+     */
+    public function trending()
+    {
+        return redirect()->route('informationobject.browse', ['sort' => 'popular']);
+    }
+
+    /**
+     * Heritage login — redirects to the login page.
+     */
+    public function login()
+    {
+        return redirect()->route('login');
     }
 
     /**
