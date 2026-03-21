@@ -38,11 +38,6 @@
 
       <div class="d-flex flex-nowrap flex-column flex-lg-row align-items-strech align-items-lg-center">
         <ul class="navbar-nav mx-lg-2">
-          {{-- Main menu (Add / Manage / Import / Admin) --}}
-          @if($themeData['isAuthenticated'] ?? false)
-            @include('theme::partials.menus.main-menu')
-          @endif
-
           {{-- RiC Tools Dropdown --}}
           @if(true)
             <li class="nav-item dropdown d-flex flex-column">
@@ -72,6 +67,11 @@
               <span class="visually-hidden">Help Center</span>
             </a>
           </li>
+
+          {{-- Main menu (Add / Manage / Import / Admin) - after Help Center, matching AtoM --}}
+          @if($themeData['isAuthenticated'] ?? false)
+            @include('theme::partials.menus.main-menu')
+          @endif
 
           {{-- Clipboard --}}
           @include('theme::partials.menus.clipboard-menu')
