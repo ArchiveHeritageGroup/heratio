@@ -80,4 +80,22 @@
       <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="Export storage report">Export storage report</a>
     </section>
   @endauth
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+.table thead th a {
+  color: var(--ahg-card-header-text, #fff);
+  text-decoration: none;
+}
+.table thead th a:hover {
+  color: var(--ahg-card-header-text, #fff);
+  text-decoration: underline;
+}
+</style>
+@endpush
 @endsection
