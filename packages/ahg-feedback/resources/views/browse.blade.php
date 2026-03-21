@@ -7,14 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-comments me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">
-        @if($pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Feedback</span>
+      <h1 class="mb-0">Feedback Management</h1>
     </div>
   </div>
 
@@ -76,11 +69,11 @@
 
       @if($pager->getNbResults())
         <div class="table-responsive mb-3">
-          <table class="table table-bordered table-striped mb-0">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
                 <th style="width:40px">#</th>
-                <th>Subject / Record</th>
+                <th>Subject/Record</th>
                 <th>Type</th>
                 <th>Remarks</th>
                 <th>Contact</th>
@@ -170,4 +163,14 @@
       @endif
     </div>
   </div>
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 @endsection
