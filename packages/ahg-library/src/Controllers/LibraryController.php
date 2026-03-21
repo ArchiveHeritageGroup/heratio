@@ -72,6 +72,9 @@ class LibraryController extends Controller
         return view('ahg-library::library.edit', [
             'item' => null,
             'formChoices' => $formChoices,
+            'creators' => collect(),
+            'subjects' => collect(),
+            'itemLocation' => [],
         ]);
     }
 
@@ -84,9 +87,22 @@ class LibraryController extends Controller
 
         $formChoices = $this->service->getFormChoices();
 
+        $creators = collect();
+        $subjects = collect();
+        if ($item->library_item_id) {
+            $creators = $this->service->getCreators($item->library_item_id);
+            $subjects = $this->service->getSubjects($item->library_item_id);
+        }
+
+        // Item physical location (from item_physical_location table if exists)
+        $itemLocation = $this->service->getItemLocation($item->id);
+
         return view('ahg-library::library.edit', [
             'item' => $item,
             'formChoices' => $formChoices,
+            'creators' => $creators,
+            'subjects' => $subjects,
+            'itemLocation' => $itemLocation,
         ]);
     }
 

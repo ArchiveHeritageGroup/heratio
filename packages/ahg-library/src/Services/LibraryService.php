@@ -514,11 +514,57 @@ class LibraryService
             'Other' => 'Other',
         ]);
 
+        // Creator roles from ahg_dropdown
+        $creatorRoles = DB::table('ahg_dropdown')
+            ->where('taxonomy', 'creator_role')
+            ->where('is_active', 1)
+            ->orderBy('sort_order')
+            ->pluck('label', 'code')
+            ->toArray();
+
+        // Languages (ISO 639-1 subset commonly used)
+        $languages = [
+            'af' => 'Afrikaans',
+            'ar' => 'Arabic',
+            'de' => 'German',
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'he' => 'Hebrew',
+            'hi' => 'Hindi',
+            'it' => 'Italian',
+            'ja' => 'Japanese',
+            'ko' => 'Korean',
+            'la' => 'Latin',
+            'nl' => 'Dutch',
+            'pt' => 'Portuguese',
+            'ru' => 'Russian',
+            'xh' => 'Xhosa',
+            'zh' => 'Chinese',
+            'zu' => 'Zulu',
+        ];
+
+        // Physical objects for storage container dropdown
+        $physicalObjects = DB::table('physical_object as po')
+            ->leftJoin('physical_object_i18n as poi', function ($join) use ($culture) {
+                $join->on('poi.id', '=', 'po.id')->where('poi.culture', '=', $culture);
+            })
+            ->select(['po.id', 'poi.name', 'poi.location'])
+            ->orderBy('poi.name')
+            ->get()
+            ->mapWithKeys(function ($po) {
+                return [$po->id => $po->name . ($po->location ? ' (' . $po->location . ')' : '')];
+            })
+            ->toArray();
+
         return [
             'levels' => $levels,
             'repositories' => $repositories,
             'materialTypes' => $materialTypes,
             'classificationSchemes' => $classificationSchemes,
+            'creatorRoles' => $creatorRoles,
+            'languages' => $languages,
+            'physicalObjects' => $physicalObjects,
         ];
     }
 
@@ -582,5 +628,21 @@ class LibraryService
             ->where('id', $termId)
             ->where('culture', $this->culture)
             ->value('name');
+    }
+
+    /**
+     * Get item physical location data for an information_object.
+     */
+    public function getItemLocation(int $informationObjectId): array
+    {
+        $row = DB::table('information_object_physical_location')
+            ->where('information_object_id', $informationObjectId)
+            ->first();
+
+        if (!$row) {
+            return [];
+        }
+
+        return (array) $row;
     }
 }
