@@ -5,7 +5,13 @@
 
 @section('content')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">Add new archival description</h1>
+    <h1 class="mb-0" aria-describedby="heading-label">
+      @if($parentTitle && request('copy_from'))
+        Item - {{ $parentTitle }}
+      @else
+        Add new archival description
+      @endif
+    </h1>
   </div>
 
   @if($parentTitle)
@@ -396,6 +402,61 @@
 
 
     </div>
+
+    @if(request('copy_from'))
+      {{-- Security Classification (shown on copy) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="security-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security-collapse" aria-expanded="false">
+            Security Classification
+          </button>
+        </h2>
+        <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="security_classification_id" class="form-label">Classification level</label>
+              <select name="security_classification_id" id="security_classification_id" class="form-select">
+                <option value="">-- None --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Watermark Settings (shown on copy) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="watermark-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watermark-collapse" aria-expanded="false">
+            Watermark Settings
+          </button>
+        </h2>
+        <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
+          <div class="accordion-body">
+            <p class="text-muted">Watermark settings are managed via the digital object interface.</p>
+          </div>
+        </div>
+      </div>
+
+      {{-- Administration area (shown on copy) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
+            Administration area
+          </button>
+        </h2>
+        <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="publication_status_id" class="form-label">Publication status</label>
+              <select name="publication_status_id" id="publication_status_id" class="form-select">
+                <option value="159" selected>Draft</option>
+                <option value="160">Published</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    @endif
 
     <ul class="actions mb-3 nav gap-2">
       <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
