@@ -5,7 +5,7 @@
 @extends('theme::layouts.master')
 
 @section('title', 'GLAM Browser')
-@section('body-class', 'browse glam-browse')
+@section('body-class', 'display browse')
 
 @php
   // Type configuration map
@@ -79,7 +79,7 @@
   <div class="row">
 
     {{-- ========== SIDEBAR (LEFT COLUMN) ========== --}}
-    <div class="col-md-3 col-lg-3 mb-3" id="glam-sidebar" role="complementary" aria-label="Filters and navigation">
+    <div id="sidebar" class="col-md-3" role="complementary" aria-label="Filters and navigation">
 
       {{-- Sidebar header --}}
       <div class="card mb-3 glam-filter-header">
@@ -97,7 +97,7 @@
         </div>
         <div id="facetType" class="collapse show">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($typeFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($typeFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['type']) }}" class="text-decoration-none small {{ empty($typeFilter) ? 'text-white' : '' }}">
                 All
               </a>
@@ -108,9 +108,9 @@
                   $typeKey = $type->object_type ?? $type->name ?? '';
                   $tc = $typeConfig[$typeKey] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($typeKey)];
                 @endphp
-                <li class="list-group-item py-1 px-3 {{ ($typeFilter ?? '') === $typeKey ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($typeFilter ?? '') === $typeKey ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['type' => $typeKey]) }}"
-                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($typeFilter ?? '') === $typeKey ? 'text-white' : '' }}">
+                     class="text-decoration-none small {{ ($typeFilter ?? '') === $typeKey ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $tc['label'] }}">
                       <i class="fas {{ $tc['icon'] }} me-1 text-{{ $tc['color'] }}"></i> {{ $tc['label'] }}
                     </span>
@@ -130,16 +130,16 @@
         </div>
         <div id="facetCreator" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($creatorFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($creatorFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['creator']) }}" class="text-decoration-none small {{ empty($creatorFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($creators))
               @foreach($creators as $creator)
-                <li class="list-group-item py-1 px-3 {{ ($creatorFilter ?? '') == $creator->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($creatorFilter ?? '') == $creator->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['creator' => $creator->id]) }}"
-                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($creatorFilter ?? '') == $creator->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small text-truncate facet-link {{ ($creatorFilter ?? '') == $creator->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $creator->name }}">{{ $creator->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($creator->count) }}</span>
                   </a>
@@ -157,16 +157,16 @@
         </div>
         <div id="facetPlace" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($placeFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($placeFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['place']) }}" class="text-decoration-none small {{ empty($placeFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($places))
               @foreach($places as $place)
-                <li class="list-group-item py-1 px-3 {{ ($placeFilter ?? '') == $place->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($placeFilter ?? '') == $place->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['place' => $place->id]) }}"
-                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($placeFilter ?? '') == $place->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small text-truncate facet-link {{ ($placeFilter ?? '') == $place->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $place->name }}">{{ $place->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($place->count) }}</span>
                   </a>
@@ -184,16 +184,16 @@
         </div>
         <div id="facetSubject" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($subjectFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($subjectFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['subject']) }}" class="text-decoration-none small {{ empty($subjectFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($subjects))
               @foreach($subjects as $subject)
-                <li class="list-group-item py-1 px-3 {{ ($subjectFilter ?? '') == $subject->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($subjectFilter ?? '') == $subject->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['subject' => $subject->id]) }}"
-                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($subjectFilter ?? '') == $subject->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small text-truncate facet-link {{ ($subjectFilter ?? '') == $subject->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $subject->name }}">{{ $subject->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($subject->count) }}</span>
                   </a>
@@ -211,16 +211,16 @@
         </div>
         <div id="facetGenre" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($genreFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($genreFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['genre']) }}" class="text-decoration-none small {{ empty($genreFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($genres))
               @foreach($genres as $genre)
-                <li class="list-group-item py-1 px-3 {{ ($genreFilter ?? '') == $genre->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($genreFilter ?? '') == $genre->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['genre' => $genre->id]) }}"
-                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($genreFilter ?? '') == $genre->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small text-truncate facet-link {{ ($genreFilter ?? '') == $genre->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $genre->name }}">{{ $genre->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($genre->count) }}</span>
                   </a>
@@ -238,16 +238,16 @@
         </div>
         <div id="facetLevel" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($levelFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($levelFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['level']) }}" class="text-decoration-none small {{ empty($levelFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($levels))
               @foreach($levels as $level)
-                <li class="list-group-item py-1 px-3 {{ ($levelFilter ?? '') == $level->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($levelFilter ?? '') == $level->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['level' => $level->id]) }}"
-                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($levelFilter ?? '') == $level->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small {{ ($levelFilter ?? '') == $level->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $level->name }}">{{ $level->name }}</span>
                     @if($level->count)
                       <span class="badge bg-secondary rounded-pill">{{ number_format($level->count) }}</span>
@@ -270,16 +270,16 @@
         </div>
         <div id="facetMedia" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($mediaFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($mediaFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['media']) }}" class="text-decoration-none small {{ empty($mediaFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($mediaTypes))
               @foreach($mediaTypes as $mt)
-                <li class="list-group-item py-1 px-3 {{ ($mediaFilter ?? '') == $mt->media_type ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($mediaFilter ?? '') == $mt->media_type ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['media' => $mt->media_type]) }}"
-                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($mediaFilter ?? '') == $mt->media_type ? 'text-white' : '' }}">
+                     class="text-decoration-none small {{ ($mediaFilter ?? '') == $mt->media_type ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ ucfirst($mt->media_type) }}">
                       <i class="fas {{ $mediaIcons[$mt->media_type] ?? 'fa-file' }}"></i> {{ ucfirst($mt->media_type) }}
                     </span>
@@ -301,16 +301,16 @@
         </div>
         <div id="facetRepo" class="collapse">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item py-1 px-3 {{ empty($repoFilter) ? 'active' : '' }}">
+            <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($repoFilter) ? 'active' : '' }}">
               <a href="{{ glamBrowseUrl($fp, [], ['repo']) }}" class="text-decoration-none small {{ empty($repoFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
             @if(!empty($repositories))
               @foreach($repositories as $repo)
-                <li class="list-group-item py-1 px-3 {{ ($repoFilter ?? '') == $repo->id ? 'active' : '' }}">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($repoFilter ?? '') == $repo->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['repo' => $repo->id]) }}"
-                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($repoFilter ?? '') == $repo->id ? 'text-white' : '' }}">
+                     class="text-decoration-none small text-truncate facet-link {{ ($repoFilter ?? '') == $repo->id ? 'text-white' : '' }}">
                     <span class="facet-link text-truncate" title="{{ $repo->name }}">{{ $repo->name }}</span>
                     @if($repo->count)
                       <span class="badge bg-secondary rounded-pill">{{ number_format($repo->count) }}</span>
@@ -328,7 +328,7 @@
     </div>{{-- /sidebar --}}
 
     {{-- ========== MAIN CONTENT (RIGHT COLUMN) ========== --}}
-    <div class="col-md-9 col-lg-9" id="glam-main">
+    <div id="main-column" class="col-md-9" role="main">
       @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>
@@ -338,7 +338,7 @@
 @else
   {{-- Full width (1-column) layout --}}
   <div class="row">
-    <div class="col-12" id="glam-main">
+    <div class="col-12" id="main-column" role="main">
       @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>

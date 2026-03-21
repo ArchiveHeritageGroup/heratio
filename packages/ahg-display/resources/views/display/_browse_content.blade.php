@@ -260,14 +260,9 @@
   {{-- Limit dropdown --}}
   <div class="dropdown">
     <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>
-    <ul class="dropdown-menu dropdown-menu-end">
+    <ul class="dropdown-menu">
       @foreach([10, 30, 50, 100] as $lim)
-        <li>
-          <a class="dropdown-item {{ ($limit ?? 30) == $lim ? 'active' : '' }}"
-             href="{{ glamBrowseUrl($fp, ['limit' => $lim]) }}">
-            {{ $lim }} per page
-          </a>
-        </li>
+        <li><a class="dropdown-item {{ ($limit ?? 30) == $lim ? 'active' : '' }}" href="{{ glamBrowseUrl($fp, ['limit' => $lim]) }}">{{ $lim }}</a></li>
       @endforeach
     </ul>
   </div>
