@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Function')
-@section('body-class', 'browse function')
+@section('title', 'Browse functions')
+@section('body-class', 'functionManage browse')
 
 @section('content')
   <h1>Browse functions</h1>
@@ -12,15 +12,15 @@
         'landmarkLabel' => 'Function',
     ])
 
-    <div class="d-flex flex-wrap gap-2 ms-auto align-items-center">
+    <div class="d-flex flex-wrap gap-2 ms-auto">
       {{-- Sort by dropdown --}}
       @php $activeSort = request('sort', 'alphabetic'); @endphp
       <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
-          Sort by: {{ ['lastUpdated' => 'Date modified', 'alphabetic' => 'Name', 'identifier' => 'Identifier'][$activeSort] ?? 'Name' }}
+        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+          Sort by: {{ ['alphabetic' => 'Name', 'lastUpdated' => 'Date modified', 'identifier' => 'Identifier'][$activeSort] ?? 'Name' }}
         </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2">
-          @foreach(['lastUpdated' => 'Date modified', 'alphabetic' => 'Name', 'identifier' => 'Identifier'] as $key => $label)
+        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
+          @foreach(['alphabetic' => 'Name', 'lastUpdated' => 'Date modified', 'identifier' => 'Identifier'] as $key => $label)
             <li><a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => 1]) }}">{{ $label }}</a></li>
           @endforeach
         </ul>
@@ -28,10 +28,10 @@
       {{-- Direction dropdown --}}
       @php $activeDir = request('sortDir', 'asc'); @endphp
       <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
+        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
           Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
         </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2">
+        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
           <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}">Ascending</a></li>
           <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}">Descending</a></li>
         </ul>

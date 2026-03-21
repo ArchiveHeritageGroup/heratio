@@ -6,7 +6,7 @@
     <input class="form-control form-control-sm" type="search" name="subquery"
            value="{{ request('subquery') }}"
            placeholder="{{ $label ?? 'Search...' }}"
-           aria-label="Search {{ strtolower($landmarkLabel ?? '') }}">
+           aria-label="{{ $label ?? 'Search' }}">
     <button class="btn btn-sm atom-btn-white" type="submit">
       <i class="fas fa-search" aria-hidden="true"></i>
       <span class="visually-hidden">Search</span>
