@@ -48,9 +48,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          @if(request('sort', 'alphabetic') !== 'alphabetic')
-            <th>Updated</th>
-          @endif
+          <th>Updated</th>
         </tr>
       </thead>
       <tbody>
@@ -61,13 +59,11 @@
                 {{ $doc['name'] ?: '[Untitled]' }}
               </a>
             </td>
-            @if(request('sort', 'alphabetic') !== 'alphabetic')
-              <td>
-                @if(!empty($doc['updated_at']))
-                  {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
-                @endif
-              </td>
-            @endif
+            <td>
+              @if(!empty($doc['updated_at']))
+                {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
+              @endif
+            </td>
           </tr>
         @endforeach
       </tbody>
@@ -81,4 +77,14 @@
       <a class="btn atom-btn-outline-light" href="{{ route('rightsholder.create') }}" title="Add new">Add new</a>
     </section>
   @endauth
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 @endsection
