@@ -70,7 +70,7 @@
                         <input type="text" name="alternativeIdentifiers[0][identifier]" class="form-control form-control-sm" aria-labelledby="alt-identifiers-identifier-head" aria-describedby="alt-identifiers-table-help">
                       </td>
                       <td>
-                        <input type="text" name="alternativeIdentifiers[0][note]" class="form-control form-control-sm" aria-labelledby="alt-identifiers-note-head" aria-describedby="alt-identifiers-table-help">
+                        <textarea name="alternativeIdentifiers[0][note]" class="form-control form-control-sm" rows="1" aria-labelledby="alt-identifiers-note-head" aria-describedby="alt-identifiers-table-help"></textarea>
                       </td>
                       <td>
                         <button type="button" class="btn atom-btn-white remove-altid-row">
@@ -423,7 +423,7 @@
                       <input type="text" name="events[0][agent]" class="form-control form-control-sm" aria-labelledby="accession-events-agent-head" aria-describedby="accession-events-help">
                     </td>
                     <td>
-                      <input type="text" name="events[0][note]" class="form-control form-control-sm" aria-labelledby="accession-events-notes-head" aria-describedby="accession-events-help">
+                      <textarea name="events[0][note]" class="form-control form-control-sm" rows="1" aria-labelledby="accession-events-notes-head" aria-describedby="accession-events-help"></textarea>
                     </td>
                     <td>
                       <button type="button" class="btn atom-btn-white remove-event-row">
@@ -542,6 +542,29 @@
     </ul>
   </form>
 
+@push('css')
+<style>
+.accordion-button {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button:not(.collapsed) {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+  box-shadow: none;
+}
+.accordion-button.collapsed {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
+}
+</style>
+@endpush
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
