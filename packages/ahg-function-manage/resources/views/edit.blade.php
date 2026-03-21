@@ -129,132 +129,7 @@
         </div>
       </div>
 
-      {{-- ===== Relationships area (ISDF 5.3) ===== --}}
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="relationships-heading">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#relationships-collapse" aria-expanded="false" aria-controls="relationships-collapse">
-            Relationships area
-          </button>
-        </h2>
-        <div id="relationships-collapse" class="accordion-collapse collapse" aria-labelledby="relationships-heading">
-          <div class="accordion-body">
-
-            <!-- Related functions -->
-            <h3 class="fs-6 mb-2">Related functions</h3>
-            <div class="table-responsive mb-3">
-              <table class="table table-bordered mb-0" id="related-functions-table">
-                <thead class="table-light">
-                  <tr>
-                    <th class="w-30">Name</th>
-                    <th class="w-20">Category</th>
-                    <th class="w-30">Description</th>
-                    <th class="w-20">Dates</th>
-                    <th><span class="visually-hidden">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><input type="text" name="relatedFunctions[0][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>
-                    <td><input type="text" name="relatedFunctions[0][category]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="relatedFunctions[0][description]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="relatedFunctions[0][dates]" class="form-control form-control-sm"></td>
-                    <td>
-                      <button type="button" class="btn atom-btn-white remove-relfunc-row">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="5">
-                      <button type="button" class="btn atom-btn-white" id="add-relfunc-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
-                      </button>
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-            <!-- Related authority records -->
-            <h3 class="fs-6 mb-2">Related authority records</h3>
-            <div class="table-responsive mb-3">
-              <table class="table table-bordered mb-0" id="related-actors-table">
-                <thead class="table-light">
-                  <tr>
-                    <th class="w-30">Identifier/name</th>
-                    <th class="w-40">Nature of relationship</th>
-                    <th class="w-30">Dates</th>
-                    <th><span class="visually-hidden">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><input type="text" name="relatedActors[0][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>
-                    <td><input type="text" name="relatedActors[0][nature]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="relatedActors[0][dates]" class="form-control form-control-sm"></td>
-                    <td>
-                      <button type="button" class="btn atom-btn-white remove-relactor-row">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="4">
-                      <button type="button" class="btn atom-btn-white" id="add-relactor-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
-                      </button>
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-            <!-- Related resources -->
-            <h3 class="fs-6 mb-2">Related resources</h3>
-            <div class="table-responsive">
-              <table class="table table-bordered mb-0" id="related-resources-table">
-                <thead class="table-light">
-                  <tr>
-                    <th class="w-30">Identifier/title</th>
-                    <th class="w-40">Nature of relationship</th>
-                    <th class="w-30">Dates</th>
-                    <th><span class="visually-hidden">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><input type="text" name="relatedResources[0][title]" class="form-control form-control-sm" placeholder="Type to search..."></td>
-                    <td><input type="text" name="relatedResources[0][nature]" class="form-control form-control-sm"></td>
-                    <td><input type="text" name="relatedResources[0][dates]" class="form-control form-control-sm"></td>
-                    <td>
-                      <button type="button" class="btn atom-btn-white remove-relresource-row">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="visually-hidden">Delete row</span>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="4">
-                      <button type="button" class="btn atom-btn-white" id="add-relresource-row">
-                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
-                      </button>
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      {{-- Relationships area removed — not shown on AtoM add page --}}
 
       {{-- ===== Control area (ISDF 5.4) ===== --}}
       <div class="accordion-item">
@@ -361,6 +236,29 @@
     </ul>
   </form>
 
+@push('css')
+<style>
+.accordion-button {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button:not(.collapsed) {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+  box-shadow: none;
+}
+.accordion-button.collapsed {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
+}
+</style>
+@endpush
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
