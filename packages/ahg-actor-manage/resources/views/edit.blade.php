@@ -310,8 +310,8 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td><input type="text" name="occupations[0][occupation]" class="form-control form-control-sm" placeholder="Type to search occupations..." aria-labelledby="occupations-occupation-head"></td>
-                    <td><input type="text" name="occupations[0][content]" class="form-control form-control-sm" aria-labelledby="occupations-content-head"></td>
+                    <td><select name="occupations[0][occupation]" class="form-select form-select-sm" aria-labelledby="occupations-occupation-head"><option value="">-- Select --</option>@foreach($formChoices['occupations'] ?? [] as $occ)<option value="{{ $occ }}">{{ $occ }}</option>@endforeach</select></td>
+                    <td><textarea name="occupations[0][content]" class="form-control form-control-sm" rows="1" aria-labelledby="occupations-content-head"></textarea></td>
                     <td>
                       <button type="button" class="btn atom-btn-white remove-occupation-row">
                         <i class="fas fa-times" aria-hidden="true"></i>
@@ -415,13 +415,13 @@
 
             <div class="mb-3">
               <label for="language" class="form-label">Language(s)</label>
-              <input type="text" class="form-control" id="language" name="language" value="{{ old('language') }}" placeholder="e.g. English, French">
+              <input type="hidden" id="language" name="language" value="{{ old('language') }}">
               <div class="form-text text-muted small">Select the language(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
             </div>
 
             <div class="mb-3">
               <label for="script" class="form-label">Script(s)</label>
-              <input type="text" class="form-control" id="script" name="script" value="{{ old('script') }}" placeholder="e.g. Latin, Cyrillic">
+              <input type="hidden" id="script" name="script" value="{{ old('script') }}">
               <div class="form-text text-muted small">Select the script(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
             </div>
 
@@ -452,6 +452,29 @@
     </ul>
   </form>
 
+@push('css')
+<style>
+.accordion-button {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button:not(.collapsed) {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+  box-shadow: none;
+}
+.accordion-button.collapsed {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
+}
+</style>
+@endpush
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
