@@ -1643,6 +1643,9 @@
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
     </li>
     <li>
+      <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
+    </li>
+    <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
           More
@@ -1676,6 +1679,11 @@
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.import.xml', $io->slug) }}">
               <i class="fas fa-file-import me-2"></i>Import digital objects
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">
+              <i class="fas fa-balance-scale me-2"></i>Create new rights
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
