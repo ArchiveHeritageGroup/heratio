@@ -4,7 +4,7 @@
 @section('body-class', 'edit informationobject')
 
 @section('content')
-  <h1>Edit: {{ $io->title ?? '[Untitled]' }}</h1>
+  <h1>Item {{ $io->identifier ? $io->identifier . ' - ' : '' }}{{ $io->title ?? '[Untitled]' }}</h1>
 
   @if(session('error'))
     <div class="alert alert-danger">{{ session('error') }}</div>
@@ -376,6 +376,94 @@
       </div>
 
     </div>
+
+    {{-- ===== Security Classification ===== --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="security-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#security-collapse" aria-expanded="false">
+          Security Classification
+        </button>
+      </h2>
+      <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <label for="security_classification_id" class="form-label">Classification level</label>
+            <select name="security_classification_id" id="security_classification_id" class="form-select">
+              <option value="">-- None --</option>
+              @foreach($formChoices['securityLevels'] ?? [] as $level)
+                <option value="{{ $level->id }}" @selected(old('security_classification_id', $io->security_classification_id ?? '') == $level->id)>{{ $level->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="security_reason" class="form-label">Reason</label>
+            <textarea name="security_reason" id="security_reason" class="form-control" rows="2">{{ old('security_reason', $io->security_reason ?? '') }}</textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="security_review_date" class="form-label">Review date</label>
+              <input type="date" name="security_review_date" id="security_review_date" class="form-control" value="{{ old('security_review_date', $io->security_review_date ?? '') }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="security_declassify_date" class="form-label">Declassify date</label>
+              <input type="date" name="security_declassify_date" id="security_declassify_date" class="form-control" value="{{ old('security_declassify_date', $io->security_declassify_date ?? '') }}">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="security_handling_instructions" class="form-label">Handling instructions</label>
+            <textarea name="security_handling_instructions" id="security_handling_instructions" class="form-control" rows="2">{{ old('security_handling_instructions', $io->security_handling_instructions ?? '') }}</textarea>
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" name="security_inherit_to_children" id="security_inherit_to_children" value="1" {{ old('security_inherit_to_children', $io->security_inherit_to_children ?? '') ? 'checked' : '' }}>
+            <label class="form-check-label" for="security_inherit_to_children">Apply classification to children</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- ===== Watermark Settings ===== --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="watermark-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#watermark-collapse" aria-expanded="false">
+          Watermark Settings
+        </button>
+      </h2>
+      <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
+        <div class="accordion-body">
+          <p class="text-muted">Watermark settings are managed via the digital object interface.</p>
+        </div>
+      </div>
+    </div>
+
+    {{-- ===== Administration area ===== --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="admin-heading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false">
+          Administration area
+        </button>
+      </h2>
+      <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <label for="publication_status_id" class="form-label">Publication status</label>
+            <select name="publication_status_id" id="publication_status_id" class="form-select">
+              <option value="159" @selected(old('publication_status_id', $io->publication_status_id ?? '') == 159)>Draft</option>
+              <option value="160" @selected(old('publication_status_id', $io->publication_status_id ?? '') == 160)>Published</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="display_standard_id" class="form-label">Display standard</label>
+            <select name="display_standard_id" id="display_standard_id" class="form-select">
+              @foreach($formChoices['displayStandards'] ?? [] as $dsId => $dsName)
+                <option value="{{ $dsId }}" @selected(old('display_standard_id', $io->display_standard_id ?? '') == $dsId)>{{ $dsName }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>{{-- end main accordion --}}
 
     {{-- ===== Form actions ===== --}}
     <section class="actions mb-3">
