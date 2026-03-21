@@ -1,47 +1,46 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
 @section('title', $taxonomyName ? $taxonomyName . ' - Terms' : 'Terms')
-@section('body-class', 'browse term')
+@section('body-class', 'taxonomy index')
 
-@section('content')
-<div class="row">
-  {{-- LEFT SIDEBAR: Treeview --}}
-  <div class="col-md-3">
-    <h2 class="d-grid">
-      <button class="btn btn-lg atom-btn-white text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-treeview" aria-expanded="true">
-        Browse {{ $taxonomyName ?? 'Terms' }}:
-      </button>
-    </h2>
-    <div class="collapse show" id="collapse-treeview">
-      <div class="tab-content mb-3" id="treeview-content">
-        <div class="tab-pane fade show active" id="treeview">
-          <div class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
-            @foreach($treeTerms as $tt)
-              <a href="{{ route('term.show', $tt->slug) }}" class="list-group-item">
-                <span class="text text-truncate">{{ $tt->name }}</span>
-              </a>
-            @endforeach
-          </div>
-        </div>
+@section('sidebar')
+  <h2 class="d-grid">
+    <button class="btn btn-lg atom-btn-white text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-treeview" aria-expanded="true" aria-controls="collapse-treeview">
+      Browse {{ $taxonomyName ?? 'Terms' }}:
+    </button>
+  </h2>
+  <div class="collapse show" id="collapse-treeview">
+    <div class="tab-content mb-3" id="treeview-content">
+      <div class="tab-pane fade show active" id="treeview" role="tabpanel" aria-labelledby="treeview-tab">
+        <ul class="list-group rounded-0">
+          @foreach($treeTerms as $tt)
+            <li class="list-group-item" data-content="{{ $tt->name }}">
+              <span class="text text-truncate"><a href="{{ route('term.show', $tt->slug) }}" title="{{ $tt->name }}">{{ $tt->name }}</a></span>
+            </li>
+          @endforeach
+        </ul>
       </div>
     </div>
   </div>
+@endsection
 
-  {{-- MAIN CONTENT --}}
-  <div class="col-md-9">
-    <div class="multiline-header d-flex align-items-center mb-3">
-      <i class="fas fa-3x {{ $icon ?? 'fa-tag' }} me-3" aria-hidden="true"></i>
-      <div class="d-flex flex-column">
-        <h1 class="mb-0">
-          @if($pager->getNbResults())
-            Showing {{ number_format($pager->getNbResults()) }} results
-          @else
-            No results found
-          @endif
-        </h1>
-        <span class="small text-muted">{{ $taxonomyName ?? 'Terms' }}</span>
-      </div>
+@section('title-block')
+  <div class="multiline-header d-flex align-items-center mb-3">
+    <i class="fas fa-3x {{ $icon ?? 'fa-tag' }} me-3" aria-hidden="true"></i>
+    <div class="d-flex flex-column">
+      <h1 class="mb-0" aria-describedby="heading-label">
+        @if($pager->getNbResults())
+          Showing {{ number_format($pager->getNbResults()) }} results
+        @else
+          No results found
+        @endif
+      </h1>
+      <span class="small" id="heading-label">{{ $taxonomyName ?? 'Terms' }}</span>
     </div>
+  </div>
+@endsection
+
+@section('before-content')
 
     {{-- Search bar with field selector + sort (matching AtoM exactly) --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
@@ -86,32 +85,33 @@
         </div>
       </form>
 
-      <div class="d-flex flex-wrap gap-2 ms-auto align-items-center">
-        {{-- Sort by dropdown (matching AtoM genericPicker) --}}
+      <div class="d-flex flex-wrap gap-2 ms-auto">
         @php $activeSort = request('sort', 'alphabetic'); @endphp
         <div class="dropdown d-inline-block">
-          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
             Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end mt-2">
+          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
             @foreach($sortOptions as $key => $label)
               <li><a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => 1]) }}">{{ $label }}</a></li>
             @endforeach
           </ul>
         </div>
-        {{-- Direction dropdown (matching AtoM genericPicker) --}}
         @php $activeDir = request('sortDir', 'asc'); @endphp
         <div class="dropdown d-inline-block">
-          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
             Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end mt-2">
+          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
             <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}">Ascending</a></li>
             <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}">Descending</a></li>
           </ul>
         </div>
       </div>
     </div>
+@endsection
+
+@section('content')
 
     @if($pager->getNbResults())
       <div class="table-responsive mb-3">
@@ -164,14 +164,14 @@
         </table>
       </div>
     @endif
+@endsection
 
-    @include('ahg-core::components.pager', ['pager' => $pager])
+@section('after-content')
+  @include('ahg-core::components.pager', ['pager' => $pager])
 
-    @auth
-      <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
-        <a href="{{ route('term.create', ['taxonomy' => $taxonomyId]) }}" class="btn atom-btn-outline-light">Add new</a>
-      </div>
-    @endauth
-  </div>
-</div>
+  @auth
+    <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
+      <a href="{{ route('term.create', ['taxonomy' => $taxonomyId]) }}" class="btn atom-btn-outline-light">Add new</a>
+    </div>
+  @endauth
 @endsection
