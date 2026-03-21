@@ -27,7 +27,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">Site description</label>
-                <textarea name="siteDescription" class="form-control" rows="3">{{ e($settings['siteDescription']) }}</textarea>
+                <input type="text" name="siteDescription" class="form-control" value="{{ e($settings['siteDescription']) }}">
                 <small class="text-muted">A brief site description or "tagline" for the header</small>
               </div>
               <div class="mb-3">
