@@ -1,7 +1,27 @@
-@extends('theme::layouts.1col')
+@extends(request('copy_from') ? 'theme::layouts.2col' : 'theme::layouts.1col')
 
 @section('title', 'Add new archival description')
 @section('body-class', 'create informationobject')
+
+@if(request('copy_from'))
+@section('sidebar')
+  @if($parentId)
+    @php
+      $repoId = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $parentId)->value('repository_id');
+      $repoSlug = $repoId ? \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $repoId)->value('slug') : null;
+    @endphp
+    @if($repoSlug)
+      <div class="repository-logo mb-3 mx-auto">
+        <a class="text-decoration-none" href="{{ url('/repository/' . $repoSlug) }}">
+          <img alt="Go to repository" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
+               src="/uploads/r/{{ $repoSlug }}/conf/logo.png"
+               onerror="this.parentElement.style.display='none'">
+        </a>
+      </div>
+    @endif
+  @endif
+@endsection
+@endif
 
 @section('content')
   <div class="multiline-header d-flex flex-column mb-3">
