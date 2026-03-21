@@ -7,8 +7,13 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-history me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Description updates</h1>
-      <span class="small text-muted">Browse recently added or modified descriptions</span>
+      <h1 class="mb-0">
+        @if(isset($pager) && $pager->getNbResults())
+          Showing {{ number_format($pager->getNbResults()) }} results
+        @else
+          Description updates
+        @endif
+      </h1>
     </div>
   </div>
 
@@ -85,12 +90,8 @@
 
         {{-- Buttons --}}
         <div class="col-md-9 d-flex align-items-end gap-2">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-search" aria-hidden="true"></i> Search
-          </button>
-          <a href="{{ route('search.descriptionUpdates') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-undo" aria-hidden="true"></i> Reset
-          </a>
+          <button type="submit" class="btn atom-btn-outline-light">Search</button>
+          <a href="{{ route('search.descriptionUpdates') }}" class="btn atom-btn-outline-light">Reset</a>
         </div>
       </div>
     </div>
@@ -102,15 +103,12 @@
       Showing {{ number_format($pager->getNbResults()) }} result(s)
     </div>
 
-    <table class="table table-striped table-hover">
+    <table class="table table-bordered mb-0">
       <thead>
         <tr>
-          <th>Title / Name</th>
-          <th>Entity type</th>
-          <th>Date</th>
-          @if($results->first() && $results->first()->username)
-            <th>User</th>
-          @endif
+          <th>Title</th>
+          <th>Repository</th>
+          <th>Created</th>
         </tr>
       </thead>
       <tbody>
@@ -123,13 +121,8 @@
                 {{ $row->title }}
               @endif
             </td>
-            <td>
-              <span class="badge bg-secondary">{{ $row->entity_type }}</span>
-            </td>
+            <td>{{ $row->repository ?? '' }}</td>
             <td>{{ $row->date ? \Carbon\Carbon::parse($row->date)->format('Y-m-d H:i') : '' }}</td>
-            @if($results->first() && $results->first()->username)
-              <td>{{ $row->username }}</td>
-            @endif
           </tr>
         @endforeach
       </tbody>
@@ -142,4 +135,14 @@
       No description updates found matching the current filters.
     </div>
   @endif
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 @endsection
