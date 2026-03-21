@@ -1,9 +1,69 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
-@section('title', $isNew ? 'CCO Cataloguing' : 'CCO Cataloguing')
+@section('title', 'CCO Cataloguing')
 @section('body-class', ($isNew ? 'create' : 'edit') . ' museum')
 
+@section('sidebar')
+<div class="sidebar-content">
+
+  <!-- Template Selector -->
+  <section id="template-selector" class="sidebar-section">
+    <h4>Object Template</h4>
+    <div class="template-list">
+      <a href="#" data-template="general" class="template-option active">
+        <i class="fas fa-cube"></i> <span>General</span>
+      </a>
+      <a href="#" data-template="painting" class="template-option">
+        <i class="fas fa-palette"></i> <span>Painting</span>
+      </a>
+      <a href="#" data-template="sculpture" class="template-option">
+        <i class="fas fa-monument"></i> <span>Sculpture</span>
+      </a>
+      <a href="#" data-template="photograph" class="template-option">
+        <i class="fas fa-camera"></i> <span>Photograph</span>
+      </a>
+      <a href="#" data-template="textile" class="template-option">
+        <i class="fas fa-scroll"></i> <span>Textile</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Completeness Meter -->
+  <section id="completeness-meter" class="sidebar-section">
+    <h4>Record Completeness</h4>
+    <div class="progress-container">
+      <div class="progress">
+        <div class="progress-bar bg-danger" id="completeness-bar" style="width: 0%"></div>
+      </div>
+      <span class="completeness-value" id="completeness-value">0%</span>
+    </div>
+    <p class="help-text">Fill all required and recommended fields for complete cataloguing.</p>
+  </section>
+
+  <!-- CCO Reference -->
+  <section id="cco-reference" class="sidebar-section">
+    <h4>CCO Reference</h4>
+    <p class="small">This form follows the Cataloguing Cultural Objects (CCO) standard.</p>
+    <a href="http://cco.vrafoundation.org/" target="_blank" class="btn btn-sm btn-cco-guide">
+      <i class="fas fa-external-link-alt"></i> CCO Guide
+    </a>
+  </section>
+
+  <!-- Field Legend -->
+  <section id="field-legend" class="sidebar-section">
+    <h4>Field Legend</h4>
+    <ul class="legend-list">
+      <li><span class="badge badge-required">Required</span> Must be completed</li>
+      <li><span class="badge badge-recommended">Recommended</span> Should be completed</li>
+      <li><span class="badge badge-optional">Optional</span> Complete if applicable</li>
+    </ul>
+  </section>
+
+</div>
+@endsection
+
 @section('content')
+
   <h1 class="multiline">
     CCO Cataloguing
     <span class="sub">Museum Object</span>
@@ -922,9 +982,120 @@
 
   </form>
 
+@push('js')
+<script>
+(function() {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCompleteness();
+    var form = document.getElementById('editForm');
+    if (form) {
+      form.addEventListener('input', function() { setTimeout(updateCompleteness, 100); });
+      form.addEventListener('change', function() { setTimeout(updateCompleteness, 100); });
+    }
+  });
+  function updateCompleteness() {
+    var form = document.getElementById('editForm');
+    if (!form) return;
+    var fields = form.querySelectorAll('input[name]:not([type="hidden"]):not([type="submit"]), select[name], textarea[name]');
+    var total = fields.length;
+    var filled = 0;
+    fields.forEach(function(f) {
+      if (f.value && f.value.trim() !== '') filled++;
+    });
+    var pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+    var bar = document.getElementById('completeness-bar');
+    var value = document.getElementById('completeness-value');
+    if (bar && value) {
+      bar.style.width = pct + '%';
+      value.textContent = pct + '%';
+      bar.className = 'progress-bar';
+      if (pct >= 80) bar.classList.add('bg-success');
+      else if (pct >= 50) bar.classList.add('bg-warning');
+      else bar.classList.add('bg-danger');
+    }
+  }
+})();
+</script>
+@endpush
+
 @push('css')
 <style>
-/* CCO Form Styling - match AtoM museum cataloguing theme */
+/* CCO Form Styling - Collections Management Dashboard Theme (cloned from AtoM) */
+.sidebar-section {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+}
+.sidebar-section h4 {
+  color: var(--ahg-primary, #005837);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+.template-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.template-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  text-decoration: none;
+  color: #333;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s;
+}
+.template-option:hover {
+  background: #e9ecef;
+  text-decoration: none;
+  color: var(--ahg-primary, #005837);
+}
+.template-option.active {
+  background: var(--ahg-primary, #005837);
+  color: #fff;
+  border-color: var(--ahg-primary, #005837);
+}
+.template-option i { margin-right: 5px; font-size: 11px; }
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.progress {
+  flex: 1;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s;
+}
+.completeness-value { font-weight: 700; min-width: 40px; }
+.btn-cco-guide {
+  background: var(--ahg-primary, #005837);
+  color: #fff;
+  border: none;
+}
+.btn-cco-guide:hover { background: #145043; color: #fff; }
+.legend-list { list-style: none; padding: 0; margin: 0; }
+.legend-list li { margin-bottom: 6px; font-size: 12px; }
+.badge-required { background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+.badge-recommended { background: #f39c12; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+.badge-optional { background: #95a5a6; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+
+/* Accordion Sections */
 .cco-cataloguing-form .accordion-item {
   border: none;
   margin-bottom: 10px;
@@ -932,35 +1103,23 @@
   overflow: hidden;
   border: 1px solid #ddd;
 }
-
 .cco-cataloguing-form .accordion-button {
   background: var(--ahg-primary, #005837) !important;
   color: #fff !important;
 }
-
 .cco-cataloguing-form .accordion-button:not(.collapsed) {
   background: var(--ahg-primary, #005837) !important;
   color: #fff !important;
 }
-
 .cco-cataloguing-form .accordion-button.collapsed {
   background-color: var(--ahg-primary, #005837);
   color: #fff;
 }
-
 .cco-cataloguing-form .accordion-button::after {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
 }
-
-.cco-cataloguing-form .accordion-button:focus {
-  box-shadow: none;
-}
-
-.cco-cataloguing-form .accordion-body {
-  padding: 20px;
-  background: #fff;
-}
-
+.cco-cataloguing-form .accordion-button:focus { box-shadow: none; }
+.cco-cataloguing-form .accordion-body { padding: 20px; background: #fff; }
 .cco-chapter {
   margin-left: 15px;
   float: right;
@@ -975,6 +1134,8 @@ h1.multiline .sub {
   color: #666;
   font-weight: normal;
 }
+
+.help-text { font-size: 13px; color: #666; margin: 0; }
 </style>
 @endpush
 @endsection
