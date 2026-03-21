@@ -26,20 +26,22 @@ class RepositoryController extends Controller
         $params = [
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
-            'sort' => $request->get('sort', 'alphabetic'),
+            'sort' => $request->get('sort', 'lastUpdated'),
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
             'thematicArea' => $request->get('thematicAreas', ''),
-            'region' => $request->get('region', ''),
+            'region' => $request->get('regions', $request->get('region', '')),
             'locality' => $request->get('locality', ''),
             'hasDigitalObject' => $request->get('hasDigitalObject', ''),
-            'archiveType' => $request->get('archiveType', ''),
-            'subregion' => $request->get('subregion', ''),
+            'archiveType' => $request->get('types', $request->get('archiveType', '')),
+            'subregion' => $request->get('geographicSubregions', $request->get('subregion', '')),
+            'languages' => $request->get('languages', ''),
         ];
 
         $hasAdvanced = $params['thematicArea'] || $params['region']
             || $params['locality'] || $params['hasDigitalObject']
-            || $params['archiveType'] || $params['subregion'];
+            || $params['archiveType'] || $params['subregion']
+            || $params['languages'];
 
         $result = $hasAdvanced
             ? $browseService->browseAdvanced($params)
@@ -51,6 +53,24 @@ class RepositoryController extends Controller
         $regions = $browseService->getRegionFacets();
         $archiveTypeFacets = $browseService->getArchiveTypeFacets();
         $subregionFacets = $browseService->getSubregionFacets();
+        $languageFacets = $browseService->getLanguageFacets();
+        $localityFacets = $browseService->getLocalityFacets();
+
+        // Thematic area options for advanced search dropdown (full list from taxonomy)
+        $thematicAreaOptions = \Illuminate\Support\Facades\DB::table('term')
+            ->join('term_i18n', function ($j) use ($culture) { $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture); })
+            ->where('term.taxonomy_id', 72)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Repository types for advanced search dropdown
+        $repositoryTypes = \Illuminate\Support\Facades\DB::table('term')
+            ->join('term_i18n', function ($j) use ($culture) { $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture); })
+            ->where('term.taxonomy_id', 37)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
 
         return view('ahg-repository-manage::browse', [
             'pager' => $pager,
@@ -58,13 +78,15 @@ class RepositoryController extends Controller
             'regions' => $regions,
             'archiveTypeFacets' => $archiveTypeFacets,
             'subregionFacets' => $subregionFacets,
+            'languageFacets' => $languageFacets,
+            'localityFacets' => $localityFacets,
+            'thematicAreaOptions' => $thematicAreaOptions,
+            'repositoryTypes' => $repositoryTypes,
             'params' => $params,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Name',
                 'identifier' => 'Identifier',
-                'region' => 'Region',
-                'locality' => 'Locality',
             ],
         ]);
     }

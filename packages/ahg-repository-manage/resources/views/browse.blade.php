@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'Archival institutions')
-@section('body-class', 'browse repository')
+@section('title', 'Archival institution browse')
+@section('body-class', 'repositoryManage browse')
 
 @section('sidebar')
   <h2 class="d-grid">
@@ -13,55 +13,28 @@
   </h2>
 
   <div class="collapse" id="collapse-aggregations">
-    {{-- Thematic Area facet --}}
-    @if(!empty($thematicAreaFacets))
+
+    {{-- Language facet --}}
+    @if(!empty($languageFacets))
       <div class="accordion mb-3">
         <div class="accordion-item aggregation">
-          <h2 class="accordion-header" id="heading-thematicArea">
+          <h2 class="accordion-header" id="heading-languages">
             <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#collapse-thematicArea"
-                    aria-expanded="false" aria-controls="collapse-thematicArea">
-              Thematic area
+                    data-bs-toggle="collapse" data-bs-target="#collapse-languages"
+                    aria-expanded="false" aria-controls="collapse-languages">
+              Language
             </button>
           </h2>
-          <div id="collapse-thematicArea" class="accordion-collapse collapse list-group list-group-flush"
-               aria-labelledby="heading-thematicArea">
-            @php $currentThematic = request('thematicAreas', ''); @endphp
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentThematic === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['thematicAreas', 'page'])) }}">All</a>
-            @foreach($thematicAreaFacets as $taId => $facet)
-              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentThematic == $taId ? 'active text-decoration-underline' : '' }}"
-                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['thematicAreas', 'page']), ['thematicAreas' => $taId])) }}">
+          <div id="collapse-languages" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-languages">
+            @php $currentLang = request('languages', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['languages', 'page'])) }}">All</a>
+            @foreach($languageFacets as $langCode => $facet)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['languages', 'page']), ['languages' => $langCode])) }}">
                 {{ $facet['name'] }}
                 <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
-              </a>
-            @endforeach
-          </div>
-        </div>
-      </div>
-    @endif
-
-    {{-- Region / Province facet --}}
-    @if(!empty($regions))
-      <div class="accordion mb-3">
-        <div class="accordion-item aggregation">
-          <h2 class="accordion-header" id="heading-region">
-            <button class="accordion-button collapsed" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#collapse-region"
-                    aria-expanded="false" aria-controls="collapse-region">
-              Region / Province
-            </button>
-          </h2>
-          <div id="collapse-region" class="accordion-collapse collapse list-group list-group-flush"
-               aria-labelledby="heading-region">
-            @php $currentRegion = request('region', ''); @endphp
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentRegion === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['region', 'page'])) }}">All</a>
-            @foreach($regions as $r)
-              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentRegion === $r->region ? 'active text-decoration-underline' : '' }}"
-                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['region', 'page']), ['region' => $r->region])) }}">
-                {{ $r->region }}
-                <span class="ms-3 text-nowrap">{{ $r->cnt }}</span>
               </a>
             @endforeach
           </div>
@@ -82,12 +55,12 @@
           </h2>
           <div id="collapse-archiveType" class="accordion-collapse collapse list-group list-group-flush"
                aria-labelledby="heading-archiveType">
-            @php $currentArchiveType = request('archiveType', ''); @endphp
+            @php $currentArchiveType = request('types', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentArchiveType === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['archiveType', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['types', 'page'])) }}">All</a>
             @foreach($archiveTypeFacets as $atId => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentArchiveType == $atId ? 'active text-decoration-underline' : '' }}"
-                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['archiveType', 'page']), ['archiveType' => $atId])) }}">
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['types', 'page']), ['types' => $atId])) }}">
                 {{ $facet['name'] }}
                 <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
               </a>
@@ -97,7 +70,35 @@
       </div>
     @endif
 
-    {{-- Geographic subregion facet --}}
+    {{-- Geographic Region facet --}}
+    @if(!empty($regions))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-region">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-region"
+                    aria-expanded="false" aria-controls="collapse-region">
+              Geographic Region
+            </button>
+          </h2>
+          <div id="collapse-region" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-region">
+            @php $currentRegion = request('regions', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentRegion === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['regions', 'page'])) }}">All</a>
+            @foreach($regions as $r)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentRegion === $r->region ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['regions', 'page']), ['regions' => $r->region])) }}">
+                {{ $r->region }}
+                <span class="ms-3 text-nowrap">{{ $r->cnt }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
+
+    {{-- Geographic Subregion facet --}}
     @if(!empty($subregionFacets))
       <div class="accordion mb-3">
         <div class="accordion-item aggregation">
@@ -105,17 +106,17 @@
             <button class="accordion-button collapsed" type="button"
                     data-bs-toggle="collapse" data-bs-target="#collapse-subregion"
                     aria-expanded="false" aria-controls="collapse-subregion">
-              Geographic subregion
+              Geographic Subregion
             </button>
           </h2>
           <div id="collapse-subregion" class="accordion-collapse collapse list-group list-group-flush"
                aria-labelledby="heading-subregion">
-            @php $currentSubregion = request('subregion', ''); @endphp
+            @php $currentSubregion = request('geographicSubregions', ''); @endphp
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentSubregion === '' ? 'active text-decoration-underline' : '' }}"
-               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['subregion', 'page'])) }}">All</a>
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['geographicSubregions', 'page'])) }}">All</a>
             @foreach($subregionFacets as $srId => $facet)
               <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubregion == $srId ? 'active text-decoration-underline' : '' }}"
-                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['subregion', 'page']), ['subregion' => $srId])) }}">
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['geographicSubregions', 'page']), ['geographicSubregions' => $srId])) }}">
                 {{ $facet['name'] }}
                 <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
               </a>
@@ -124,6 +125,63 @@
         </div>
       </div>
     @endif
+
+    {{-- Locality facet --}}
+    @if(!empty($localityFacets))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-locality">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-locality"
+                    aria-expanded="false" aria-controls="collapse-locality">
+              Locality
+            </button>
+          </h2>
+          <div id="collapse-locality" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-locality">
+            @php $currentLocality = request('locality', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLocality === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['locality', 'page'])) }}">All</a>
+            @foreach($localityFacets as $loc => $facet)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLocality === $loc ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['locality', 'page']), ['locality' => $loc])) }}">
+                {{ $facet['name'] }}
+                <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
+
+    {{-- Thematic Area facet --}}
+    @if(!empty($thematicAreaFacets))
+      <div class="accordion mb-3">
+        <div class="accordion-item aggregation">
+          <h2 class="accordion-header" id="heading-thematicArea">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse-thematicArea"
+                    aria-expanded="false" aria-controls="collapse-thematicArea">
+              Thematic Area
+            </button>
+          </h2>
+          <div id="collapse-thematicArea" class="accordion-collapse collapse list-group list-group-flush"
+               aria-labelledby="heading-thematicArea">
+            @php $currentThematic = request('thematicAreas', ''); @endphp
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentThematic === '' ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/repository/browse') }}?{{ http_build_query(request()->except(['thematicAreas', 'page'])) }}">All</a>
+            @foreach($thematicAreaFacets as $taId => $facet)
+              <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentThematic == $taId ? 'active text-decoration-underline' : '' }}"
+                 href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['thematicAreas', 'page']), ['thematicAreas' => $taId])) }}">
+                {{ $facet['name'] }}
+                <span class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+              </a>
+            @endforeach
+          </div>
+        </div>
+      </div>
+    @endif
+
   </div>
 @endsection
 
@@ -152,7 +210,7 @@
   </div>
 
   {{-- Advanced Search Accordion --}}
-  <div class="accordion mb-3 adv-search" role="search">
+  <div class="accordion mb-3" role="search">
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-adv-search">
         <button class="accordion-button collapsed" type="button"
@@ -163,59 +221,48 @@
       </h2>
       <div id="collapse-adv-search" class="accordion-collapse collapse" aria-labelledby="heading-adv-search">
         <div class="accordion-body">
-          <form method="get" action="{{ url('/repository/browse') }}">
-            @if(request('sort'))
-              <input type="hidden" name="sort" value="{{ request('sort') }}">
-            @endif
-            @if(request('sortDir'))
-              <input type="hidden" name="sortDir" value="{{ request('sortDir') }}">
-            @endif
+          <form method="get">
+            @foreach(request()->except(['thematicAreas', 'types', 'regions', 'page']) as $hk => $hv)
+              @if($hv !== '' && $hv !== null)
+                <input type="hidden" name="{{ $hk }}" value="{{ $hv }}">
+              @endif
+            @endforeach
 
             <div class="row mb-4">
-              <div class="col-md-4">
-                <div class="mb-3">
-                  <label class="form-label" for="thematicAreas">Thematic area</label>
-                  <select class="form-select" name="thematicAreas" id="thematicAreas">
-                    <option value=""></option>
-                    @foreach($thematicAreaFacets as $taId => $facet)
-                      <option value="{{ $taId }}" {{ ($params['thematicArea'] ?? '') == $taId ? 'selected' : '' }}>{{ $facet['name'] }}</option>
-                    @endforeach
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="mb-3">
-                  <label class="form-label" for="region">Region/Province</label>
-                  <select class="form-select" name="region" id="region">
-                    <option value=""></option>
-                    @foreach($regions as $r)
-                      <option value="{{ $r->region }}" {{ ($params['region'] ?? '') === $r->region ? 'selected' : '' }}>{{ $r->region }}</option>
-                    @endforeach
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="mb-3">
-                  <label class="form-label" for="locality">Locality</label>
-                  <input type="text" class="form-control" name="locality" id="locality" value="{{ $params['locality'] ?? '' }}" placeholder="City or town">
-                </div>
-              </div>
-            </div>
 
-            <div class="row mb-2">
               <div class="col-md-4">
-                <div class="mb-3">
-                  <label class="form-label" for="hasDigitalObject">Digital object available</label>
-                  <select class="form-select" name="hasDigitalObject" id="hasDigitalObject">
-                    <option value=""></option>
-                    <option value="1" {{ ($params['hasDigitalObject'] ?? '') === '1' ? 'selected' : '' }}>Yes</option>
-                  </select>
-                </div>
+                <label class="form-label" for="thematicAreas">Thematic area</label>
+                <select class="form-select" name="thematicAreas" id="thematicAreas">
+                  <option selected="selected"></option>
+                  @foreach($thematicAreaOptions ?? [] as $ta)
+                    <option value="{{ $ta->id }}" {{ request('thematicAreas') == $ta->id ? 'selected' : '' }}>{{ $ta->name }}</option>
+                  @endforeach
+                </select>
               </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="types">Archive type</label>
+                <select class="form-select" name="types" id="types">
+                  <option selected="selected"></option>
+                  @foreach($repositoryTypes ?? [] as $rt)
+                    <option value="{{ $rt->id }}" {{ request('types') == $rt->id ? 'selected' : '' }}>{{ $rt->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="regions">Region</label>
+                <select class="form-select" name="regions" id="regions">
+                  <option selected="selected"></option>
+                  @foreach($regions ?? [] as $r)
+                    <option value="{{ $r->region }}" {{ request('regions') === $r->region ? 'selected' : '' }}>{{ $r->region }}</option>
+                  @endforeach
+                </select>
+              </div>
+
             </div>
 
             <ul class="actions mb-1 nav gap-2 justify-content-center">
-              <li><input type="button" class="btn atom-btn-outline-danger reset" value="Reset" onclick="this.closest('form').querySelectorAll('select').forEach(s=>s.selectedIndex=0); this.closest('form').querySelectorAll('input[type=text]').forEach(i=>i.value='');"></li>
               <li><input type="submit" class="btn atom-btn-outline-light" value="Set filters"></li>
             </ul>
           </form>
@@ -246,12 +293,12 @@
     <div class="d-flex flex-wrap gap-2 ms-auto">
       @include('ahg-core::components.sort-pickers', [
           'options' => $sortOptions,
-          'default' => 'alphabetic',
+          'default' => 'lastUpdated',
       ])
 
       @php
-        $currentSort = request('sort', 'alphabetic');
-        $currentDir = request('sortDir', ($currentSort === 'lastUpdated' ? 'desc' : 'asc'));
+        $currentSort = request('sort', 'lastUpdated');
+        $currentDir = request('sortDir', 'asc');
         $dirQuery = request()->except(['sortDir', 'page']);
       @endphp
       <div class="dropdown d-inline-block">
@@ -267,6 +314,15 @@
   </div>
 
   @if($pager->getNbResults())
+    {{-- Results info --}}
+    @php
+      $from = ($pager->getPage() - 1) * $pager->getMaxPerPage() + 1;
+      $to = min($pager->getPage() * $pager->getMaxPerPage(), $pager->getNbResults());
+    @endphp
+    <div class="small text-muted mb-2">
+      Results {{ $from }} to {{ $to }} of {{ $pager->getNbResults() }}
+    </div>
+
     @if($displayMode === 'grid')
       <div class="row g-3 mb-3">
         @foreach($pager->getResults() as $doc)
@@ -301,14 +357,14 @@
         <table class="table table-bordered mb-0">
           <thead>
             <tr>
-              <th class="w-40">
-                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'alphabetic'])) }}">Name</a>
+              <th class="sortable w-40">
+                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
               </th>
-              <th class="w-20">
-                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'region'])) }}">Region</a>
+              <th class="sortable w-20">
+                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'regionUp' ? 'regionDown' : 'regionUp'])) }}">Region</a>
               </th>
-              <th class="w-20">
-                <a title="Sort" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => 'locality'])) }}">Locality</a>
+              <th class="sortable w-20">
+                <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'localityUp' ? 'localityDown' : 'localityUp'])) }}">Locality</a>
               </th>
               <th class="w-20">Thematic area</th>
               <th><span class="visually-hidden">Clipboard</span></th>
@@ -319,7 +375,7 @@
               <tr>
                 <td>
                   @if(!empty($doc['logo']))
-                    <p><img class="img-thumbnail" width="120" src="{{ $doc['logo'] }}" alt=""></p>
+                    <p><img class="img-thumbnail" width="100" src="{{ $doc['logo'] }}" alt=""></p>
                   @endif
                   <a href="{{ route('repository.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">{{ $doc['name'] ?: '[Untitled]' }}</a>
                 </td>
@@ -327,11 +383,10 @@
                 <td>{{ $doc['locality'] ?? '' }}</td>
                 <td>{{ $doc['thematic_area'] ?? '' }}</td>
                 <td>
-                  <button class="btn btn-sm atom-btn-white clipboard"
+                  <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="repository"
-                          data-title="Add" data-alt-title="Remove"
-                          title="Add to clipboard">
-                    <i class="fas fa-paperclip" aria-hidden="true"></i>
+                          data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                    <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
                     <span class="visually-hidden">Add to clipboard</span>
                   </button>
                 </td>

@@ -229,6 +229,57 @@ class RepositoryBrowseService extends BrowseService
     }
 
     /**
+     * Get language facets for sidebar.
+     */
+    public function getLanguageFacets(): array
+    {
+        $rows = DB::table('repository')
+            ->join('repository_i18n', function ($j) {
+                $j->on('repository.id', '=', 'repository_i18n.id');
+            })
+            ->where('repository.id', '!=', 6)
+            ->whereNotNull('repository_i18n.culture')
+            ->where('repository_i18n.culture', '!=', '')
+            ->select('repository_i18n.culture', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('repository_i18n.culture')
+            ->orderBy('repository_i18n.culture')
+            ->get();
+
+        $facets = [];
+        foreach ($rows as $r) {
+            $langName = locale_get_display_language($r->culture, 'en') ?: $r->culture;
+            $facets[$r->culture] = ['name' => ucfirst($langName), 'count' => $r->cnt];
+        }
+        return $facets;
+    }
+
+    /**
+     * Get locality facets for sidebar.
+     */
+    public function getLocalityFacets(): array
+    {
+        $rows = DB::table('repository')
+            ->join('contact_information', 'repository.id', '=', 'contact_information.actor_id')
+            ->join('contact_information_i18n', function ($j) {
+                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
+                  ->where('contact_information_i18n.culture', '=', $this->culture);
+            })
+            ->where('repository.id', '!=', 6)
+            ->whereNotNull('contact_information_i18n.city')
+            ->where('contact_information_i18n.city', '!=', '')
+            ->select('contact_information_i18n.city as locality', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('contact_information_i18n.city')
+            ->orderBy('contact_information_i18n.city')
+            ->get();
+
+        $facets = [];
+        foreach ($rows as $r) {
+            $facets[$r->locality] = ['name' => $r->locality, 'count' => $r->cnt];
+        }
+        return $facets;
+    }
+
+    /**
      * Apply advanced filters.
      */
     public function browseAdvanced(array $params): array
