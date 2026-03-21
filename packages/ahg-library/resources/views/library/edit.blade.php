@@ -1,12 +1,9 @@
 @extends('theme::layouts.1col')
 
-@section('title', ($item ? 'Edit' : 'Create') . ' library item')
+@section('title', $item ? 'Edit ' . ($item->title ?? '') : 'Add new library item')
 
 @section('content')
-  <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">
-      {{ $item ? 'Edit library item' : 'Create library item' }}
-    </h1>
+  <h1>{{ $item ? 'Edit ' . ($item->title ?? '') : 'Add new library item' }}</h1>
     @if($item)
       <span class="small" id="heading-label">{{ $item->title ?: $item->identifier }}</span>
     @endif
@@ -18,6 +15,9 @@
     @csrf
     @if($item)
       @method('PUT')
+    @endif
+    @if(request('parent'))
+      <input type="hidden" name="parent" value="{{ request('parent') }}">
     @endif
 
     <div class="accordion mb-3">
@@ -340,7 +340,7 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="pages" class="form-label">Pages / Extent</label>
-                <input type="text" name="pages" id="pages" class="form-control @error('pages') is-invalid @enderror"
+                <input type="text" name="pagination" id="pages" class="form-control @error('pages') is-invalid @enderror"
                        value="{{ old('pages', $item->pages ?? '') }}">
                 @error('pages') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 <div class="form-text text-muted small">Number of pages, volumes, or other physical extent.</div>
@@ -374,14 +374,20 @@
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Abstract / Scope and content</label>
-              <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="4">{{ old('scope_and_content', $item->scope_and_content ?? $item->abstract ?? '') }}</textarea>
-              <div class="form-text text-muted small">A brief summary or abstract describing the content or subject matter of the library item.</div>
+              <label for="summary" class="form-label">Summary / Abstract</label>
+              <textarea name="summary" id="summary" class="form-control" rows="4">{{ old('summary', $item->summary ?? '') }}</textarea>
+              <div class="form-text text-muted small">A brief summary or abstract describing the content of the library item.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="scope_and_content" class="form-label">Scope and content</label>
+              <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="3">{{ old('scope_and_content', $item->scope_and_content ?? '') }}</textarea>
+              <div class="form-text text-muted small">Scope and content of the item.</div>
             </div>
 
             <div class="mb-3">
               <label for="table_of_contents" class="form-label">Table of contents</label>
-              <textarea name="table_of_contents" id="table_of_contents" class="form-control" rows="4">{{ old('table_of_contents', $item->table_of_contents ?? '') }}</textarea>
+              <textarea name="contents_note" id="table_of_contents" class="form-control" rows="4">{{ old('table_of_contents', $item->table_of_contents ?? '') }}</textarea>
               <div class="form-text text-muted small">The table of contents or list of chapters/sections in the item.</div>
             </div>
 
