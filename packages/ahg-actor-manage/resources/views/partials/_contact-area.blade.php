@@ -17,10 +17,33 @@
         <input type="hidden" name="contacts[{{ $index }}][delete]" value="0" class="delete-flag">
 
         <div class="row">
-          <div class="col-md-6 mb-3">
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Title</label>
+            <select name="contacts[{{ $index }}][title]" class="form-select">
+              <option value="">Select...</option>
+              @foreach($titles as $t)
+                <option value="{{ $t }}" @selected(($contact->title ?? '') === $t)>{{ $t }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-5 mb-3">
             <label class="form-label">Contact person</label>
             <input type="text" name="contacts[{{ $index }}][contact_person]" class="form-control"
                    value="{{ $contact->contact_person ?? '' }}">
+          </div>
+          <div class="col-md-5 mb-3">
+            <label class="form-label">Role/Position</label>
+            <input type="text" name="contacts[{{ $index }}][role]" class="form-control"
+                   value="{{ $contact->role ?? '' }}"
+                   placeholder="e.g., Director, Manager, Curator">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Department</label>
+            <input type="text" name="contacts[{{ $index }}][department]" class="form-control"
+                   value="{{ $contact->department ?? '' }}">
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Contact type</label>
@@ -32,26 +55,72 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
+            <label class="form-label">ID/Passport number</label>
+            <input type="text" name="contacts[{{ $index }}][id_number]" class="form-control"
+                   value="{{ $contact->id_number ?? '' }}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Preferred contact method</label>
+            <select name="contacts[{{ $index }}][preferred_contact_method]" class="form-select">
+              <option value="">Select...</option>
+              <option value="email" @selected(($contact->preferred_contact_method ?? '') === 'email')>Email</option>
+              <option value="phone" @selected(($contact->preferred_contact_method ?? '') === 'phone')>Phone</option>
+              <option value="cell" @selected(($contact->preferred_contact_method ?? '') === 'cell')>Cell/Mobile</option>
+              <option value="fax" @selected(($contact->preferred_contact_method ?? '') === 'fax')>Fax</option>
+              <option value="mail" @selected(($contact->preferred_contact_method ?? '') === 'mail')>Post/Mail</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Language preference</label>
+            <input type="text" name="contacts[{{ $index }}][language_preference]" class="form-control"
+                   value="{{ $contact->language_preference ?? '' }}" placeholder="e.g. English">
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
             <label class="form-label">Telephone</label>
             <input type="tel" name="contacts[{{ $index }}][telephone]" class="form-control"
                    value="{{ $contact->telephone ?? '' }}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Cell/Mobile</label>
+            <input type="tel" name="contacts[{{ $index }}][cell]" class="form-control"
+                   value="{{ $contact->cell ?? '' }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Fax</label>
             <input type="tel" name="contacts[{{ $index }}][fax]" class="form-control"
                    value="{{ $contact->fax ?? '' }}">
           </div>
-          <div class="col-md-4 mb-3">
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
             <label class="form-label">Email</label>
             <input type="email" name="contacts[{{ $index }}][email]" class="form-control"
                    value="{{ $contact->email ?? '' }}">
           </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Alternative email</label>
+            <input type="email" name="contacts[{{ $index }}][alternative_email]" class="form-control"
+                   value="{{ $contact->alternative_email ?? '' }}">
+          </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Website</label>
-          <input type="url" name="contacts[{{ $index }}][website]" class="form-control"
-                 value="{{ $contact->website ?? '' }}" placeholder="https://">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Website</label>
+            <input type="url" name="contacts[{{ $index }}][website]" class="form-control"
+                   value="{{ $contact->website ?? '' }}" placeholder="https://">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Alternative phone</label>
+            <input type="tel" name="contacts[{{ $index }}][alternative_phone]" class="form-control"
+                   value="{{ $contact->alternative_phone ?? '' }}">
+          </div>
         </div>
 
         <hr>
@@ -136,9 +205,30 @@
         <input type="hidden" name="contacts[__INDEX__][delete]" value="0" class="delete-flag">
 
         <div class="row">
-          <div class="col-md-6 mb-3">
+          <div class="col-md-2 mb-3">
+            <label class="form-label">Title</label>
+            <select name="contacts[__INDEX__][title]" class="form-select">
+              <option value="">Select...</option>
+              @foreach($titles as $t)
+                <option value="{{ $t }}">{{ $t }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-5 mb-3">
             <label class="form-label">Contact person</label>
             <input type="text" name="contacts[__INDEX__][contact_person]" class="form-control">
+          </div>
+          <div class="col-md-5 mb-3">
+            <label class="form-label">Role/Position</label>
+            <input type="text" name="contacts[__INDEX__][role]" class="form-control"
+                   placeholder="e.g., Director, Manager, Curator">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Department</label>
+            <input type="text" name="contacts[__INDEX__][department]" class="form-control">
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Contact type</label>
@@ -149,22 +239,63 @@
 
         <div class="row">
           <div class="col-md-4 mb-3">
+            <label class="form-label">ID/Passport number</label>
+            <input type="text" name="contacts[__INDEX__][id_number]" class="form-control">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Preferred contact method</label>
+            <select name="contacts[__INDEX__][preferred_contact_method]" class="form-select">
+              <option value="">Select...</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="cell">Cell/Mobile</option>
+              <option value="fax">Fax</option>
+              <option value="mail">Post/Mail</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Language preference</label>
+            <input type="text" name="contacts[__INDEX__][language_preference]" class="form-control" placeholder="e.g. English">
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
             <label class="form-label">Telephone</label>
             <input type="tel" name="contacts[__INDEX__][telephone]" class="form-control">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Cell/Mobile</label>
+            <input type="tel" name="contacts[__INDEX__][cell]" class="form-control">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Fax</label>
             <input type="tel" name="contacts[__INDEX__][fax]" class="form-control">
           </div>
-          <div class="col-md-4 mb-3">
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
             <label class="form-label">Email</label>
             <input type="email" name="contacts[__INDEX__][email]" class="form-control">
           </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Alternative email</label>
+            <input type="email" name="contacts[__INDEX__][alternative_email]" class="form-control">
+          </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">Website</label>
-          <input type="url" name="contacts[__INDEX__][website]" class="form-control" placeholder="https://">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Website</label>
+            <input type="url" name="contacts[__INDEX__][website]" class="form-control" placeholder="https://">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Alternative phone</label>
+            <input type="tel" name="contacts[__INDEX__][alternative_phone]" class="form-control">
+          </div>
         </div>
 
         <hr>
@@ -246,24 +377,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const visibleEntries = container.querySelectorAll('.contact-entry:not([style*="display: none"])');
     visibleEntries.forEach(function(entry) {
       const removeBtn = entry.querySelector('.remove-contact');
-      if (removeBtn) {
-        removeBtn.style.display = visibleEntries.length > 1 ? '' : 'none';
-      }
+      if (removeBtn) removeBtn.style.display = visibleEntries.length > 1 ? '' : 'none';
     });
   }
 
   addBtn.addEventListener('click', function() {
     const newIndex = getNextIndex();
     const newNumber = container.querySelectorAll('.contact-entry:not([style*="display: none"])').length + 1;
-    let html = template.innerHTML;
-    html = html.replace(/__INDEX__/g, newIndex);
-    html = html.replace(/__NUMBER__/g, newNumber);
+    let html = template.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newNumber);
     const div = document.createElement('div');
     div.innerHTML = html;
-    const newEntry = div.firstElementChild;
-    container.appendChild(newEntry);
+    container.appendChild(div.firstElementChild);
     updateContactNumbers();
-    newEntry.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   container.addEventListener('click', function(e) {
