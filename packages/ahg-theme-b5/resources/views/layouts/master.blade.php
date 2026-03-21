@@ -65,10 +65,20 @@
     {{-- Footer --}}
     @include('theme::partials.footer')
 
+    {{-- D3.js for visualizations --}}
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
     {{-- Base JS --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/display-mode.js') }}"></script>
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
     <script src="{{ asset('vendor/ahg-core/js/clipboard.js') }}"></script>
+
+    {{-- Voice Commands --}}
+    @include('theme::partials.voice-commands')
+    <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandRegistry.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandTranslations.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommands.js') }}"></script>
 
     @stack('js')
   </body>

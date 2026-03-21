@@ -138,7 +138,7 @@
                 if (($collection['type'] ?? 'iiif') === 'archival') {
                     $collectionUrl = url('/informationobject/browse') . '?collection=' . $collection['id'];
                 } else {
-                    $collectionUrl = url('/manifest-collection/' . $collection['id'] . '/view/');
+                    $collectionUrl = route('iiif-collection.view', ['id' => $collection['id']]);
                 }
                 $collectionIcon = ($collection['type'] ?? 'iiif') === 'archival' ? 'fa-archive' : 'fa-layer-group';
                 @endphp
@@ -357,10 +357,10 @@
     <footer class="heritage-footer">
         <div class="heritage-footer-inner">
             <div class="heritage-footer-links">
-                <a href="{{ route('staticpage.show', ['slug' => 'about']) }}">About</a>
-                <a href="{{ route('staticpage.contact') }}">Contact</a>
-                <a href="{{ route('staticpage.show', ['slug' => 'privacy']) }}">Privacy</a>
-                <a href="{{ route('staticpage.show', ['slug' => 'terms']) }}">Terms</a>
+                <a href="{{ url('/about') }}">About</a>
+                <a href="{{ url('/contact') }}">Contact</a>
+                <a href="{{ url('/privacy') }}">Privacy</a>
+                <a href="{{ url('/terms') }}">Terms</a>
             </div>
             <div class="heritage-footer-copyright">
                 &copy; {{ date('Y') }} {{ $themeData['siteTitle'] ?? config('app.name', 'Heratio') }}. All rights reserved.
