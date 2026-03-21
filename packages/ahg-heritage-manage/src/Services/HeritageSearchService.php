@@ -173,16 +173,36 @@ class HeritageSearchService
      */
     private function applyKeywordSearch(\Illuminate\Database\Query\Builder $query, array $terms): \Illuminate\Database\Query\Builder
     {
-        // OR logic: match ANY term across ANY searchable column (matches AtoM behaviour)
+        // OR logic: match ANY term across text columns, taxonomy terms, creator names, and identifier
         $query->where(function ($q) use ($terms) {
             foreach ($terms as $term) {
                 $pattern = '%' . addcslashes($term, '%_') . '%';
-                $q->orWhere(function ($inner) use ($pattern) {
+                $q->orWhere(function ($inner) use ($pattern, $term) {
+                    // Text column search
                     $inner->where('ioi.title', 'LIKE', $pattern)
                         ->orWhere('ioi.scope_and_content', 'LIKE', $pattern)
                         ->orWhere('ioi.alternate_title', 'LIKE', $pattern)
                         ->orWhere('ioi.archival_history', 'LIKE', $pattern)
-                        ->orWhere('ioi.arrangement', 'LIKE', $pattern);
+                        ->orWhere('ioi.arrangement', 'LIKE', $pattern)
+                        ->orWhere('io.identifier', 'LIKE', $pattern)
+                        // Taxonomy term search (subjects, places, genres, etc.)
+                        ->orWhereExists(function ($sub) use ($pattern) {
+                            $sub->select(DB::raw(1))
+                                ->from('object_term_relation as otr_kw')
+                                ->join('term_i18n as ti_kw', 'otr_kw.term_id', '=', 'ti_kw.id')
+                                ->whereColumn('otr_kw.object_id', 'io.id')
+                                ->where('ti_kw.culture', $this->culture)
+                                ->where('ti_kw.name', 'LIKE', $pattern);
+                        })
+                        // Creator/actor name search
+                        ->orWhereExists(function ($sub) use ($pattern) {
+                            $sub->select(DB::raw(1))
+                                ->from('relation as rel_kw')
+                                ->join('actor_i18n as ai_kw', 'rel_kw.object_id', '=', 'ai_kw.id')
+                                ->whereColumn('rel_kw.subject_id', 'io.id')
+                                ->where('ai_kw.culture', $this->culture)
+                                ->where('ai_kw.authorized_form_of_name', 'LIKE', $pattern);
+                        });
                 });
             }
         });
@@ -330,7 +350,24 @@ class HeritageSearchService
                         ->orWhere('ioi.scope_and_content', 'LIKE', $pattern)
                         ->orWhere('ioi.alternate_title', 'LIKE', $pattern)
                         ->orWhere('ioi.archival_history', 'LIKE', $pattern)
-                        ->orWhere('ioi.arrangement', 'LIKE', $pattern);
+                        ->orWhere('ioi.arrangement', 'LIKE', $pattern)
+                        ->orWhere('io.identifier', 'LIKE', $pattern)
+                        ->orWhereExists(function ($sub) use ($pattern) {
+                            $sub->select(DB::raw(1))
+                                ->from('object_term_relation as otr_tm')
+                                ->join('term_i18n as ti_tm', 'otr_tm.term_id', '=', 'ti_tm.id')
+                                ->whereColumn('otr_tm.object_id', 'io.id')
+                                ->where('ti_tm.culture', 'en')
+                                ->where('ti_tm.name', 'LIKE', $pattern);
+                        })
+                        ->orWhereExists(function ($sub) use ($pattern) {
+                            $sub->select(DB::raw(1))
+                                ->from('relation as rel_tm')
+                                ->join('actor_i18n as ai_tm', 'rel_tm.object_id', '=', 'ai_tm.id')
+                                ->whereColumn('rel_tm.subject_id', 'io.id')
+                                ->where('ai_tm.culture', 'en')
+                                ->where('ai_tm.authorized_form_of_name', 'LIKE', $pattern);
+                        });
                 })
                 ->count();
 
@@ -368,15 +405,33 @@ class HeritageSearchService
             ->select('io.id');
 
         if (!empty($terms)) {
-            $ioQuery->where(function ($q) use ($terms) {
+            $culture = $this->culture;
+            $ioQuery->where(function ($q) use ($terms, $culture) {
                 foreach ($terms as $term) {
                     $pattern = '%' . addcslashes($term, '%_') . '%';
-                    $q->orWhere(function ($inner) use ($pattern) {
+                    $q->orWhere(function ($inner) use ($pattern, $culture) {
                         $inner->where('ioi.title', 'LIKE', $pattern)
                             ->orWhere('ioi.scope_and_content', 'LIKE', $pattern)
                             ->orWhere('ioi.alternate_title', 'LIKE', $pattern)
                             ->orWhere('ioi.archival_history', 'LIKE', $pattern)
-                            ->orWhere('ioi.arrangement', 'LIKE', $pattern);
+                            ->orWhere('ioi.arrangement', 'LIKE', $pattern)
+                            ->orWhere('io.identifier', 'LIKE', $pattern)
+                            ->orWhereExists(function ($sub) use ($pattern, $culture) {
+                                $sub->select(DB::raw(1))
+                                    ->from('object_term_relation as otr_f')
+                                    ->join('term_i18n as ti_f', 'otr_f.term_id', '=', 'ti_f.id')
+                                    ->whereColumn('otr_f.object_id', 'io.id')
+                                    ->where('ti_f.culture', $culture)
+                                    ->where('ti_f.name', 'LIKE', $pattern);
+                            })
+                            ->orWhereExists(function ($sub) use ($pattern, $culture) {
+                                $sub->select(DB::raw(1))
+                                    ->from('relation as rel_f')
+                                    ->join('actor_i18n as ai_f', 'rel_f.object_id', '=', 'ai_f.id')
+                                    ->whereColumn('rel_f.subject_id', 'io.id')
+                                    ->where('ai_f.culture', $culture)
+                                    ->where('ai_f.authorized_form_of_name', 'LIKE', $pattern);
+                            });
                     });
                 }
             });
@@ -386,10 +441,10 @@ class HeritageSearchService
 
         if (empty($matchingIds)) {
             return [
-                'place'      => ['label' => 'Place',      'icon' => 'bi bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => []],
-                'subject'    => ['label' => 'Subject',    'icon' => 'bi bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => []],
-                'creator'    => ['label' => 'Creator',    'icon' => 'bi bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => []],
-                'collection' => ['label' => 'Collection', 'icon' => 'bi bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => []],
+                'place'      => ['label' => 'Place',      'icon' => 'bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => []],
+                'subject'    => ['label' => 'Subject',    'icon' => 'bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => []],
+                'creator'    => ['label' => 'Creator',    'icon' => 'bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => []],
+                'collection' => ['label' => 'Collection', 'icon' => 'bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => []],
             ];
         }
 
@@ -409,10 +464,10 @@ class HeritageSearchService
         $collectionFacet = $this->buildCollectionFacet($idChunks);
 
         return [
-            'place'      => ['label' => 'Place',      'icon' => 'bi bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => $placeFacet],
-            'subject'    => ['label' => 'Subject',    'icon' => 'bi bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => $subjectFacet],
-            'creator'    => ['label' => 'Creator',    'icon' => 'bi bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => $creatorFacet],
-            'collection' => ['label' => 'Collection', 'icon' => 'bi bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => $collectionFacet],
+            'place'      => ['label' => 'Place',      'icon' => 'bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => $placeFacet],
+            'subject'    => ['label' => 'Subject',    'icon' => 'bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => $subjectFacet],
+            'creator'    => ['label' => 'Creator',    'icon' => 'bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => $creatorFacet],
+            'collection' => ['label' => 'Collection', 'icon' => 'bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => $collectionFacet],
         ];
     }
 
