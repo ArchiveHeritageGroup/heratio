@@ -404,64 +404,25 @@ class HeritageSearchService
     }
 
     /**
-     * Build facets from the data for the current search context.
+     * Build facets from ALL published items (matches AtoM FilterService behaviour).
      *
-     * Returns arrays of [label, count] for Place, Subject, Creator, Collection.
+     * AtoM computes facets across the entire published corpus, not just search results.
+     * This ensures the sidebar always shows all available filter options.
      */
     private function buildFacets(string $query, array $currentFilters): array
     {
-        $terms = $this->parseQueryTerms($query);
-
-        // Build a subquery of matching IO ids to compute facets against
-        $ioQuery = DB::table('information_object as io')
+        // Get ALL published IO ids for facet computation (matching AtoM)
+        $allIds = DB::table('information_object as io')
             ->join('status as pub_status', function ($join) {
                 $join->on('io.id', '=', 'pub_status.object_id')
                     ->where('pub_status.type_id', '=', 158);
             })
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
             ->where('pub_status.status_id', 160)
             ->where('io.id', '!=', 1)
-            ->select('io.id');
+            ->pluck('io.id')
+            ->toArray();
 
-        if (!empty($terms)) {
-            $culture = $this->culture;
-            $ioQuery->where(function ($q) use ($terms, $culture) {
-                foreach ($terms as $term) {
-                    $pattern = '%' . addcslashes($term, '%_') . '%';
-                    $q->orWhere(function ($inner) use ($pattern, $culture) {
-                        $inner->where('ioi.title', 'LIKE', $pattern)
-                            ->orWhere('ioi.scope_and_content', 'LIKE', $pattern)
-                            ->orWhere('ioi.alternate_title', 'LIKE', $pattern)
-                            ->orWhere('ioi.archival_history', 'LIKE', $pattern)
-                            ->orWhere('ioi.arrangement', 'LIKE', $pattern)
-                            ->orWhere('io.identifier', 'LIKE', $pattern)
-                            ->orWhereExists(function ($sub) use ($pattern, $culture) {
-                                $sub->select(DB::raw(1))
-                                    ->from('object_term_relation as otr_f')
-                                    ->join('term_i18n as ti_f', 'otr_f.term_id', '=', 'ti_f.id')
-                                    ->whereColumn('otr_f.object_id', 'io.id')
-                                    ->where('ti_f.culture', $culture)
-                                    ->where('ti_f.name', 'LIKE', $pattern);
-                            })
-                            ->orWhereExists(function ($sub) use ($pattern, $culture) {
-                                $sub->select(DB::raw(1))
-                                    ->from('relation as rel_f')
-                                    ->join('actor_i18n as ai_f', 'rel_f.object_id', '=', 'ai_f.id')
-                                    ->whereColumn('rel_f.subject_id', 'io.id')
-                                    ->where('ai_f.culture', $culture)
-                                    ->where('ai_f.authorized_form_of_name', 'LIKE', $pattern);
-                            });
-                    });
-                }
-            });
-        }
-
-        $matchingIds = $ioQuery->pluck('io.id')->toArray();
-
-        if (empty($matchingIds)) {
+        if (empty($allIds)) {
             return [
                 'place'      => ['label' => 'Place',      'icon' => 'bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => []],
                 'subject'    => ['label' => 'Subject',    'icon' => 'bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => []],
@@ -471,7 +432,7 @@ class HeritageSearchService
         }
 
         // Chunk IDs for large result sets
-        $idChunks = array_chunk($matchingIds, 5000);
+        $idChunks = array_chunk($allIds, 5000);
 
         // Place facet (taxonomy_id=42)
         $placeFacet = $this->buildTaxonomyFacet($idChunks, 42);
