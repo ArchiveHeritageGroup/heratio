@@ -22,6 +22,14 @@ class TermController extends Controller
     /**
      * List all taxonomies.
      */
+    /**
+     * AtoM-compatible URL: /taxonomy/index/id/{id}
+     */
+    public function taxonomyIndexById(Request $request, int $id)
+    {
+        return redirect()->route('term.browse', array_merge($request->query(), ['taxonomy' => $id]));
+    }
+
     public function taxonomyIndex(Request $request)
     {
         // If ?id= is provided, show terms for that taxonomy (matching AtoM URL pattern)

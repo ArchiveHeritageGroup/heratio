@@ -4,6 +4,7 @@ use AhgTermTaxonomy\Controllers\TermController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/taxonomy/index', [TermController::class, 'taxonomyIndex'])->name('taxonomy.index');
+Route::get('/taxonomy/index/id/{id}', [TermController::class, 'taxonomyIndexById']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/taxonomy/browse', [TermController::class, 'taxonomyIndex'])->name('taxonomy.browse');
