@@ -17,7 +17,7 @@
 @endsection
 
 @section('content')
-  <h1>List static pages</h1>
+  <h1>List pages</h1>
 
   @php
     $protectedSlugs = ['home', 'about', 'contact'];
@@ -29,9 +29,6 @@
         <tr>
           <th>Title</th>
           <th>Slug</th>
-          @auth
-            <th>Actions</th>
-          @endauth
         </tr>
       </thead>
       <tbody>
@@ -44,22 +41,6 @@
               @endif
             </td>
             <td>{{ $page->slug }}</td>
-            @auth
-              <td>
-                <a href="{{ url('/pages/' . $page->slug . '/edit') }}" class="btn btn-sm btn-outline-primary" title="Edit">
-                  <i class="fas fa-pencil-alt"></i> Edit
-                </a>
-                @if(!in_array($page->slug, $protectedSlugs))
-                  <form action="{{ route('staticpage.destroy', $page->id) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Are you sure you want to delete this page?');">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                      <i class="fas fa-trash"></i> Delete
-                    </button>
-                  </form>
-                @endif
-              </td>
-            @endauth
           </tr>
         @endforeach
       </tbody>
