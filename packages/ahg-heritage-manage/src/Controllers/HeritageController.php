@@ -166,11 +166,71 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage search — redirects to GLAM browse with query.
+     * Heritage search page with full-text search, faceted filtering, and pagination.
      */
     public function search(Request $request)
     {
-        return redirect()->route('informationobject.browse', $request->query());
+        $query = trim($request->input('q', ''));
+        $page = max(1, (int) $request->input('page', 1));
+
+        // Collect filters from request (place[], subject[], creator[], collection[])
+        $filters = [];
+        foreach (['place', 'subject', 'creator', 'collection'] as $filterCode) {
+            $values = $request->input($filterCode, []);
+            if (!empty($values)) {
+                $filters[$filterCode] = (array) $values;
+            }
+        }
+
+        $searchService = new \AhgHeritageManage\Services\HeritageSearchService('en');
+        $results = $searchService->search($query, $filters, $page, 10);
+
+        // Extract variables for the view
+        $totalResults = $results['total'];
+        $currentPage = $results['page'];
+        $totalPages = $results['pages'];
+        $searchResults = $results['results'];
+        $facets = $results['facets'];
+        $termMatches = $results['term_matches'];
+        $searchId = $results['search_id'];
+        $suggestions = $results['suggestions'];
+
+        // Identify unmatched search terms
+        $unmatchedTerms = [];
+        $matchedTerms = [];
+        foreach ($termMatches as $tm) {
+            if (!($tm['matched'] ?? true)) {
+                $unmatchedTerms[] = $tm['term'];
+            } else {
+                $matchedTerms[] = $tm['term'];
+            }
+        }
+
+        // Build filterOptions array for the view (matching AtoM template structure)
+        $filterOptions = [];
+        foreach ($facets as $code => $facet) {
+            $filterOptions[] = [
+                'code'           => $facet['code'],
+                'label'          => $facet['label'],
+                'icon'           => $facet['icon'],
+                'show_in_search' => $facet['show_in_search'],
+                'values'         => $facet['values'],
+            ];
+        }
+
+        return view('ahg-heritage-manage::search', compact(
+            'query',
+            'totalResults',
+            'currentPage',
+            'totalPages',
+            'searchResults',
+            'filters',
+            'filterOptions',
+            'unmatchedTerms',
+            'matchedTerms',
+            'searchId',
+            'suggestions'
+        ));
     }
 
     /**
