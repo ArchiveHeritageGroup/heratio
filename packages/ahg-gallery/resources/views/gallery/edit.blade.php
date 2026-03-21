@@ -80,6 +80,7 @@
         </h2>
         <div id="collapseObjectWork" class="accordion-collapse collapse show" aria-labelledby="headingObjectWork" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Information that identifies the work, including type, components, and count.</p>
 
             {{-- work_type: required, CCO 2.1, AAT_OBJECT_TYPES --}}
             <div class="cco-field level-required" data-field="work_type">
@@ -180,6 +181,12 @@
               <div class="field-input">
                 <input type="text" class="form-control" id="object_number" name="object_number"
                        value="{{ old('object_number', $artwork->object_number ?? '') }}">
+                <div class="d-flex gap-2 mt-1">
+                  <button type="button" id="btn-generate-identifier" class="btn btn-sm atom-btn-white">
+                    <i class="fa fa-cog me-1"></i> Generate identifier
+                  </button>
+                  <small id="identifier-scheme-info" class="text-muted align-self-center"></small>
+                </div>
               </div>
               <div class="field-help" id="help-object_number" style="display: none;">
                 <div class="help-content">
@@ -246,6 +253,7 @@
         </h2>
         <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Titles, names, or other identifying phrases for the work.</p>
 
             {{-- title: required, CCO 3.1 --}}
             <div class="cco-field level-required" data-field="title">
@@ -367,6 +375,7 @@
         </h2>
         <div id="collapseCreator" class="accordion-collapse collapse" aria-labelledby="headingCreator" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Information about who created the work, when, and where.</p>
 
             {{-- creator_display: required, CCO 4.1 --}}
             <div class="cco-field level-required" data-field="creator_display">
@@ -520,6 +529,7 @@
         </h2>
         <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Style, period, group, school, or movement. Dates and places of creation.</p>
 
             {{-- creation_date_display: required, CCO 4.2 --}}
             <div class="cco-field level-required" data-field="creation_date_display">
@@ -789,6 +799,7 @@
         </h2>
         <div id="collapseMeasurements" class="accordion-collapse collapse" aria-labelledby="headingMeasurements" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Physical dimensions and other measurements.</p>
 
             {{-- dimensions_display: required, CCO 6.1 --}}
             <div class="cco-field level-required" data-field="dimensions_display">
@@ -993,6 +1004,7 @@
         </h2>
         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Physical materials and techniques used to create the work.</p>
 
             {{-- materials_display: required, CCO 7.1 --}}
             <div class="cco-field level-required" data-field="materials_display">
@@ -1105,6 +1117,7 @@
         </h2>
         <div id="collapseSubject" class="accordion-collapse collapse" aria-labelledby="headingSubject" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">What the work represents or depicts.</p>
 
             {{-- subject_display: optional, CCO 8.1 --}}
             <div class="cco-field level-optional" data-field="subject_display">
@@ -1281,6 +1294,7 @@
         </h2>
         <div id="collapseInscriptions" class="accordion-collapse collapse" aria-labelledby="headingInscriptions" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Marks, inscriptions, and signatures on the work.</p>
 
             {{-- inscriptions: optional, CCO 9.1 --}}
             <div class="cco-field level-optional" data-field="inscriptions">
@@ -1407,6 +1421,7 @@
         </h2>
         <div id="collapseStateEdition" class="accordion-collapse collapse" aria-labelledby="headingStateEdition" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">For prints, photographs, and multiples.</p>
 
             <div class="row">
               <div class="col-md-6">
@@ -1519,6 +1534,7 @@
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Current physical condition.</p>
 
             {{-- condition_summary: optional, CCO 12.1 --}}
             <div class="cco-field level-optional" data-field="condition_summary">
@@ -1623,6 +1639,7 @@
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Where the work is currently held.</p>
 
             {{-- repository: required, CCO 13.1 --}}
             <div class="cco-field level-required" data-field="repository">
@@ -1800,6 +1817,7 @@
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <p class="category-description">Rights and reproduction information.</p>
 
             {{-- rights_statement: optional, CCO 15.1 --}}
             <div class="cco-field level-optional" data-field="rights_statement">
@@ -2223,6 +2241,16 @@
 
 @push('css')
 <style>
+/* Font size overrides (match AtoM) */
+.accordion-body label { font-size: 14px !important; font-weight: 500 !important; }
+.field-input input, .field-input select, .field-input textarea { font-size: 13px !important; }
+.accordion-button { font-size: 14px !important; }
+.cco-chapter { font-size: 11px !important; }
+.category-description { font-size: 12px !important; color: #666; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+.help-text, .field-help { font-size: 12px !important; }
+.badge { font-size: 10px !important; }
+.cco-field label { font-size: 14px !important; }
+
 /* Sidebar */
 .sidebar-section { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; }
 .sidebar-section h4 { color: var(--ahg-primary, #005837); font-size: 13px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
