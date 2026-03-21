@@ -1,11 +1,11 @@
 @extends('theme::layouts.1col')
 
-@section('title', ($accession ? 'Edit' : 'Create') . ' accession record')
+@section('title', ($accession ? 'Edit' : 'Add new') . ' accession record')
 
 @section('content')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
-      {{ $accession ? 'Edit accession record' : 'Create accession record' }}
+      {{ $accession ? 'Edit accession record' : 'Add new accession record' }}
     </h1>
     @if($accession)
       <span class="small" id="heading-label">{{ $accession->title ?: $accession->identifier }}</span>
@@ -34,6 +34,66 @@
                      value="{{ old('identifier', $accession->identifier ?? '') }}">
               @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text text-muted small">Accession number should be a combination of values recorded in the field and should be a unique accession number for the repository</div>
+            </div>
+
+            <!-- Alternative identifier(s) -->
+            <div class="text-end mb-3">
+              <button class="btn atom-btn-white text-wrap collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#alternative-identifiers-table" aria-expanded="false" aria-controls="alternative-identifiers-table">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>
+                Add alternative identifier(s)
+              </button>
+            </div>
+
+            <div id="alternative-identifiers-table" class="collapse">
+              <h3 class="fs-6 mb-2">Alternative identifier(s)</h3>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="altids-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th id="alt-identifiers-type-head" class="w-30">Type</th>
+                      <th id="alt-identifiers-identifier-head" class="w-35">Identifier</th>
+                      <th id="alt-identifiers-note-head" class="w-35">Notes</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <select name="alternativeIdentifiers[0][identifierType]" class="form-select form-select-sm" aria-labelledby="alt-identifiers-type-head" aria-describedby="alt-identifiers-table-help">
+                          <option value=""></option>
+                          @foreach($formChoices['altIdentifierTypes'] ?? [] as $ait)
+                            <option value="{{ $ait->id }}">{{ $ait->name }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td>
+                        <input type="text" name="alternativeIdentifiers[0][identifier]" class="form-control form-control-sm" aria-labelledby="alt-identifiers-identifier-head" aria-describedby="alt-identifiers-table-help">
+                      </td>
+                      <td>
+                        <input type="text" name="alternativeIdentifiers[0][note]" class="form-control form-control-sm" aria-labelledby="alt-identifiers-note-head" aria-describedby="alt-identifiers-table-help">
+                      </td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-altid-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4">
+                        <button type="button" class="btn atom-btn-white" id="add-altid-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="form-text mb-3" id="alt-identifiers-table-help">
+                <strong>Type:</strong> Enter a name for the alternative identifier field that indicates its purpose and usage.<br><strong>Identifier:</strong> Enter a legacy reference code, alternative identifier, or any other alpha-numeric string associated with the record.
+              </div>
             </div>
 
             <div class="mb-3">
@@ -77,83 +137,157 @@
         </h2>
         <div id="donor-collapse" class="accordion-collapse collapse" aria-labelledby="donor-heading">
           <div class="accordion-body">
-            @if($donor ?? null)
-              <div class="mb-3">
-                <label class="form-label">Related donor</label>
-                <div><a href="{{ route('donor.show', $donor->slug) }}">{{ $donor->name }}</a></div>
-              </div>
-            @endif
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="donor_name" class="form-label">Name</label>
-                <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}">
+            <h3 class="fs-6 mb-2">Related donors</h3>
+
+            <div class="atom-table-modal">
+              <div class="table-responsive">
+                <table class="table table-bordered mb-0" id="donor-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="w-100">Name</th>
+                      <th><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if($donor ?? null)
+                      <tr>
+                        <td>{{ $donor->name }}</td>
+                        <td class="text-nowrap">
+                          <button type="button" class="btn atom-btn-white me-1 edit-donor-row" data-bs-toggle="modal" data-bs-target="#donor-modal">
+                            <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
+                            <span class="visually-hidden">Edit row</span>
+                          </button>
+                          <button type="button" class="btn atom-btn-white delete-donor-row">
+                            <i class="fas fa-fw fa-times" aria-hidden="true"></i>
+                            <span class="visually-hidden">Delete row</span>
+                          </button>
+                        </td>
+                      </tr>
+                    @endif
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2">
+                        <button type="button" class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#donor-modal">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
-              <div class="col-md-6 mb-3">
-                <label for="donor_contact_person" class="form-label">Contact person</label>
-                <input type="text" name="donor_contact_person" id="donor_contact_person" class="form-control" value="{{ old('donor_contact_person', $donorContact->contact_person ?? '') }}">
+
+              <!-- Donor Modal -->
+              <div class="modal fade" id="donor-modal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="related-donor-heading" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="h5 modal-title" id="related-donor-heading">Related donor record</h4>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal">
+                        <span class="visually-hidden">Close</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body pb-2">
+
+                      <div class="mb-3">
+                        <label for="donor_name" class="form-label">Name</label>
+                        <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="Type to search donors..." autocomplete="off">
+                        <div class="form-text text-muted small">This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form.</div>
+                      </div>
+
+                      <h5>Primary contact information</h5>
+
+                      <ul class="nav nav-pills mb-3 d-flex gap-2" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="btn atom-btn-white active-primary text-wrap active" id="pills-main-tab" data-bs-toggle="pill" data-bs-target="#pills-main" type="button" role="tab" aria-controls="pills-main" aria-selected="true">Main</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-phys-tab" data-bs-toggle="pill" data-bs-target="#pills-phys" type="button" role="tab" aria-controls="pills-phys" aria-selected="false">Physical location</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="btn atom-btn-white active-primary text-wrap" id="pills-other-tab" data-bs-toggle="pill" data-bs-target="#pills-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false">Other details</button>
+                        </li>
+                      </ul>
+
+                      <div class="tab-content">
+                        <div class="tab-pane fade show active" id="pills-main" role="tabpanel" aria-labelledby="pills-main-tab">
+                          <div class="mb-3">
+                            <label for="donor_contact_person" class="form-label">Contact person</label>
+                            <input type="text" name="donor_contact_person" id="donor_contact_person" class="form-control" value="{{ old('donor_contact_person', $donorContact->contact_person ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_telephone" class="form-label">Telephone</label>
+                            <input type="text" name="donor_telephone" id="donor_telephone" class="form-control" value="{{ old('donor_telephone', $donorContact->telephone ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_fax" class="form-label">Fax</label>
+                            <input type="text" name="donor_fax" id="donor_fax" class="form-control" value="{{ old('donor_fax', $donorContact->fax ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_email" class="form-label">Email</label>
+                            <input type="email" name="donor_email" id="donor_email" class="form-control" value="{{ old('donor_email', $donorContact->email ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_url" class="form-label">URL</label>
+                            <input type="url" name="donor_url" id="donor_url" class="form-control" value="{{ old('donor_url', $donorContact->website ?? '') }}">
+                          </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-phys" role="tabpanel" aria-labelledby="pills-phys-tab">
+                          <div class="mb-3">
+                            <label for="donor_street_address" class="form-label">Street address</label>
+                            <input type="text" name="donor_street_address" id="donor_street_address" class="form-control" value="{{ old('donor_street_address', $donorContact->street_address ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_region" class="form-label">Region/province</label>
+                            <input type="text" name="donor_region" id="donor_region" class="form-control" value="{{ old('donor_region', $donorContact->region ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_country" class="form-label">Country</label>
+                            <input type="text" name="donor_country" id="donor_country" class="form-control" value="{{ old('donor_country', $donorContact->country_code ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_postal_code" class="form-label">Postal code</label>
+                            <input type="text" name="donor_postal_code" id="donor_postal_code" class="form-control" value="{{ old('donor_postal_code', $donorContact->postal_code ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_city" class="form-label">City</label>
+                            <input type="text" name="donor_city" id="donor_city" class="form-control" value="{{ old('donor_city', $donorContact->city ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_latitude" class="form-label">Latitude</label>
+                            <input type="text" name="donor_latitude" id="donor_latitude" class="form-control" value="{{ old('donor_latitude', $donorContact->latitude ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_longitude" class="form-label">Longitude</label>
+                            <input type="text" name="donor_longitude" id="donor_longitude" class="form-control" value="{{ old('donor_longitude', $donorContact->longitude ?? '') }}">
+                          </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="pills-other" role="tabpanel" aria-labelledby="pills-other-tab">
+                          <div class="mb-3">
+                            <label for="donor_contact_type" class="form-label">Contact type</label>
+                            <input type="text" name="donor_contact_type" id="donor_contact_type" class="form-control" value="{{ old('donor_contact_type', $donorContact->contact_type ?? '') }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="donor_note" class="form-label">Note</label>
+                            <textarea name="donor_note" id="donor_note" class="form-control" rows="2">{{ old('donor_note', $donorContact->note ?? '') }}</textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn btn-success modal-submit" data-bs-dismiss="modal">Submit</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="donor_telephone" class="form-label">Telephone</label>
-                <input type="text" name="donor_telephone" id="donor_telephone" class="form-control" value="{{ old('donor_telephone', $donorContact->telephone ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_fax" class="form-label">Fax</label>
-                <input type="text" name="donor_fax" id="donor_fax" class="form-control" value="{{ old('donor_fax', $donorContact->fax ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_email" class="form-label">Email</label>
-                <input type="email" name="donor_email" id="donor_email" class="form-control" value="{{ old('donor_email', $donorContact->email ?? '') }}">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="donor_url" class="form-label">URL</label>
-              <input type="url" name="donor_url" id="donor_url" class="form-control" value="{{ old('donor_url', $donorContact->website ?? '') }}">
-            </div>
-            <div class="mb-3">
-              <label for="donor_street_address" class="form-label">Street address</label>
-              <input type="text" name="donor_street_address" id="donor_street_address" class="form-control" value="{{ old('donor_street_address', $donorContact->street_address ?? '') }}">
-            </div>
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="donor_region" class="form-label">Region/province</label>
-                <input type="text" name="donor_region" id="donor_region" class="form-control" value="{{ old('donor_region', $donorContact->region ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_country" class="form-label">Country</label>
-                <input type="text" name="donor_country" id="donor_country" class="form-control" value="{{ old('donor_country', $donorContact->country_code ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_postal_code" class="form-label">Postal code</label>
-                <input type="text" name="donor_postal_code" id="donor_postal_code" class="form-control" value="{{ old('donor_postal_code', $donorContact->postal_code ?? '') }}">
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="donor_city" class="form-label">City</label>
-                <input type="text" name="donor_city" id="donor_city" class="form-control" value="{{ old('donor_city', $donorContact->city ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_latitude" class="form-label">Latitude</label>
-                <input type="text" name="donor_latitude" id="donor_latitude" class="form-control" value="{{ old('donor_latitude', $donorContact->latitude ?? '') }}">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="donor_longitude" class="form-label">Longitude</label>
-                <input type="text" name="donor_longitude" id="donor_longitude" class="form-control" value="{{ old('donor_longitude', $donorContact->longitude ?? '') }}">
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="donor_contact_type" class="form-label">Contact type</label>
-                <input type="text" name="donor_contact_type" id="donor_contact_type" class="form-control" value="{{ old('donor_contact_type', $donorContact->contact_type ?? '') }}">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="donor_note" class="form-label">Note</label>
-                <textarea name="donor_note" id="donor_note" class="form-control" rows="2">{{ old('donor_note', $donorContact->note ?? '') }}</textarea>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -197,8 +331,66 @@
 
             <div class="mb-3">
               <label for="creators" class="form-label">Creators</label>
-              <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records...">
+              <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
               <div class="form-text text-muted small">The name of the creator of the accession or the name of the department that created the accession.</div>
+            </div>
+
+            <!-- Event(s) multi-row table -->
+            <h3 class="fs-6 mb-2">Event(s)</h3>
+            <div class="table-responsive mb-2">
+              <table class="table table-bordered mb-0" id="events-table">
+                <thead class="table-light">
+                  <tr>
+                    <th id="accession-events-type-head" class="w-20">Type</th>
+                    <th id="accession-events-date-head" class="w-25">Date</th>
+                    <th id="accession-events-agent-head">Agent</th>
+                    <th id="accession-events-notes-head">Notes</th>
+                    <th><span class="visually-hidden">Delete</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select name="events[0][eventType]" class="form-select form-select-sm" aria-labelledby="accession-events-type-head" aria-describedby="accession-events-help">
+                        <option value=""></option>
+                        @foreach($formChoices['eventTypes'] ?? [] as $et)
+                          <option value="{{ $et->id }}">{{ $et->name }}</option>
+                        @endforeach
+                      </select>
+                    </td>
+                    <td>
+                      <input type="text" name="events[0][date]" class="form-control form-control-sm" aria-labelledby="accession-events-date-head" aria-describedby="accession-events-help">
+                    </td>
+                    <td>
+                      <input type="text" name="events[0][agent]" class="form-control form-control-sm" aria-labelledby="accession-events-agent-head" aria-describedby="accession-events-help">
+                    </td>
+                    <td>
+                      <input type="text" name="events[0][note]" class="form-control form-control-sm" aria-labelledby="accession-events-notes-head" aria-describedby="accession-events-help">
+                    </td>
+                    <td>
+                      <button type="button" class="btn atom-btn-white remove-event-row">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span class="visually-hidden">Delete row</span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5">
+                      <button type="button" class="btn atom-btn-white" id="add-event-row">
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="form-text mb-3" id="accession-events-help">
+              <strong>Type:</strong> Select the type of the event.
+              <strong>Date:</strong> Enter the date of the event.
+              <strong>Agent:</strong> Enter the agent associated with the event.
+              <strong>Note:</strong> Enter notes associated with the event.
             </div>
 
             <div class="mb-3">
@@ -273,8 +465,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="information_objects" class="form-label">Archival description</label>
-              <input type="text" name="information_objects" id="information_objects" class="form-control" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions...">
-              <div class="form-text text-muted small">Link this accession to existing archival descriptions.</div>
+              <input type="text" name="information_objects" id="information_objects" class="form-control" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions..." autocomplete="off">
             </div>
           </div>
         </div>
@@ -292,4 +483,63 @@
       @endif
     </ul>
   </form>
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Alternative identifiers multi-row
+  var altIdx = 1;
+  var altTypeOptions = document.querySelector('#altids-table select')?.innerHTML || '';
+  document.getElementById('add-altid-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><select name="alternativeIdentifiers[' + altIdx + '][identifierType]" class="form-select form-select-sm">' + altTypeOptions + '</select></td>' +
+      '<td><input type="text" name="alternativeIdentifiers[' + altIdx + '][identifier]" class="form-control form-control-sm"></td>' +
+      '<td><input type="text" name="alternativeIdentifiers[' + altIdx + '][note]" class="form-control form-control-sm"></td>' +
+      '<td><button type="button" class="btn atom-btn-white remove-altid-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
+    document.querySelector('#altids-table tbody').appendChild(tr);
+    altIdx++;
+  });
+
+  // Events multi-row
+  var eventIdx = 1;
+  var eventTypeOptions = document.querySelector('#events-table select')?.innerHTML || '';
+  document.getElementById('add-event-row')?.addEventListener('click', function() {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><select name="events[' + eventIdx + '][eventType]" class="form-select form-select-sm">' + eventTypeOptions + '</select></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][date]" class="form-control form-control-sm"></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][agent]" class="form-control form-control-sm"></td>' +
+      '<td><input type="text" name="events[' + eventIdx + '][note]" class="form-control form-control-sm"></td>' +
+      '<td><button type="button" class="btn atom-btn-white remove-event-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
+    document.querySelector('#events-table tbody').appendChild(tr);
+    eventIdx++;
+  });
+
+  // Remove row handler for all multi-row tables
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-altid-row, .remove-event-row');
+    if (btn) {
+      var table = btn.closest('table');
+      if (table.querySelectorAll('tbody tr').length > 1) {
+        btn.closest('tr').remove();
+      }
+    }
+  });
+
+  // Delete donor row
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.delete-donor-row');
+    if (btn) {
+      btn.closest('tr').remove();
+      // Clear donor fields
+      ['donor_name','donor_contact_person','donor_telephone','donor_fax','donor_email','donor_url',
+       'donor_street_address','donor_region','donor_country','donor_postal_code','donor_city',
+       'donor_latitude','donor_longitude','donor_contact_type','donor_note'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    }
+  });
+});
+</script>
+@endpush
 @endsection

@@ -130,11 +130,19 @@ class AccessionService
                 ->get();
         };
 
+        // Event types for accession events (taxonomy 40)
+        $eventTypes = $termLookup(40);
+
+        // Alternative identifier types (taxonomy 66)
+        $altIdentifierTypes = $termLookup(66);
+
         return [
             'acquisitionTypes' => $termLookup(63),
             'processingPriorities' => $termLookup(64),
             'processingStatuses' => $termLookup(65),
             'resourceTypes' => $termLookup(62),
+            'eventTypes' => $eventTypes,
+            'altIdentifierTypes' => $altIdentifierTypes,
         ];
     }
 
