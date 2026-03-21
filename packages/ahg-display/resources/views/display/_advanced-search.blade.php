@@ -28,6 +28,8 @@
   }
 @endphp
 
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
 <div class="accordion mb-3" id="glamAdvancedSearchAccordion">
   <div class="accordion-item">
     <h2 class="accordion-header">
@@ -109,10 +111,37 @@
 
             {{-- Filters Tab --}}
             <div class="tab-pane fade" id="adv-filters">
+              {{-- Search specific field --}}
+              <div class="mb-3 p-3 bg-light rounded">
+                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field</label>
+                <div id="field-search-rows">
+                  <div class="input-group mb-2 field-search-row">
+                    <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
+                      <option value="" selected>-- Select field --</option>
+                      <option value="title">Title</option>
+                      <option value="identifier">Identifier</option>
+                      <option value="referenceCode">Reference code</option>
+                      <option value="scopeAndContent">Scope and content</option>
+                      <option value="extentAndMedium">Extent and medium</option>
+                      <option value="archivalHistory">Archival history</option>
+                      <option value="acquisition">Acquisition</option>
+                      <option value="creatorSearch">Creator</option>
+                      <option value="subjectSearch">Subject</option>
+                      <option value="placeSearch">Place</option>
+                      <option value="genreSearch">Genre</option>
+                    </select>
+                    <input type="text" name="" class="form-control" value="" placeholder="Enter search term...">
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="add-field-search-btn">
+                  <i class="fas fa-plus me-1"></i>Add criterion
+                </button>
+              </div>
+
               <div class="row g-3">
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Sector</label>
-                  <select name="type" class="form-select">
+                  <select name="type" class="form-select" id="sector-filter-select">
                     <option value="">All sectors</option>
                     <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>Archive</option>
                     <option value="library" {{ $currentType === 'library' ? 'selected' : '' }}>Library</option>
@@ -123,7 +152,7 @@
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Level of description</label>
-                  <select name="level" class="form-select">
+                  <select name="level" class="form-select" id="level-filter-select">
                     <option value="">Any level</option>
                     @foreach($levels as $level)
                       <option value="{{ $level->id }}" {{ ($params['level'] ?? '') == $level->id ? 'selected' : '' }}>{{ $level->name }}</option>
@@ -132,7 +161,7 @@
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Repository</label>
-                  <select name="repo" class="form-select">
+                  <select name="repo" id="repo-select">
                     <option value="">Any repository</option>
                     @foreach($repositories as $repo)
                       <option value="{{ $repo->id }}" {{ ($params['repo'] ?? '') == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>
@@ -200,10 +229,8 @@
 @if(request('topLevel') === '1')
   <div class="d-flex flex-wrap gap-2 mb-3">
     @php $removeTop = request()->except(['topLevel']); @endphp
-    <a href="{{ url('/glam/browse?' . http_build_query($removeTop)) }}" class="btn btn-sm atom-btn-white filter-tag d-flex align-items-center">
-      <span class="visually-hidden">Remove filter:</span>
-      <span class="text-truncate">Only top-level descriptions</span>
-      <i class="fas fa-times ms-2"></i>
+    <a href="{{ url('/glam/browse?' . http_build_query(array_merge($removeTop, ['topLevel' => '0']))) }}" class="badge bg-primary p-2 text-decoration-none text-white">
+      Only top-level descriptions <i class="fas fa-times ms-1"></i>
     </a>
   </div>
 @endif
@@ -269,3 +296,105 @@ document.getElementById('glam-save-search-btn').addEventListener('click', functi
 });
 </script>
 @endauth
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tom Select for repository dropdown
+    var repoSelect = document.getElementById('repo-select');
+    if (repoSelect) {
+        new TomSelect(repoSelect, {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            placeholder: 'Type to search...',
+            allowEmptyOption: true
+        });
+    }
+
+    // Field search: add criterion
+    var addBtn = document.getElementById('add-field-search-btn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function() {
+            var container = document.getElementById('field-search-rows');
+            var firstRow = container.querySelector('.field-search-row');
+            var newRow = firstRow.cloneNode(true);
+            var select = newRow.querySelector('select');
+            var input = newRow.querySelector('input');
+            select.selectedIndex = 0;
+            input.name = '';
+            input.value = '';
+            if (!newRow.querySelector('.btn-outline-danger')) {
+                var removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-outline-danger';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.onclick = function() { this.closest('.field-search-row').remove(); };
+                newRow.appendChild(removeBtn);
+            }
+            container.appendChild(newRow);
+        });
+    }
+
+    // Field search: sync dropdown to input name
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('field-select')) {
+            var input = e.target.closest('.field-search-row').querySelector('input[type="text"]');
+            if (input) { input.name = e.target.value; }
+        }
+    });
+
+    // Before submit: remove unnamed field inputs to keep URL clean
+    var form = document.getElementById('glam-advanced-search-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            form.querySelectorAll('.field-search-row input[type="text"]').forEach(function(input) {
+                if (!input.name || !input.value.trim()) { input.removeAttribute('name'); }
+            });
+        });
+    }
+
+    // Sync sector quick filter buttons with the level dropdown
+    var sectorSelect = document.getElementById('sector-filter-select');
+    if (sectorSelect) {
+        @php
+            // Build levels-by-sector map from DB
+            $levelsBySectorMap = [];
+            $sectorLevelMap = [
+                'library' => [1700,1701,1702,1703,1759,1704,1161],
+                'dam' => [905146,905147,1755,1756,1161,1757,1758],
+                'archive' => [238,241,236,242,299,434,239,237,240],
+                'museum' => [1757,1751,1750,512,500,1752],
+                'gallery' => [1750,905146,512],
+            ];
+            $allLevels = $levels->keyBy('id');
+            foreach ($sectorLevelMap as $sector => $ids) {
+                $sectorLevels = [];
+                foreach ($ids as $id) {
+                    if ($allLevels->has($id)) {
+                        $sectorLevels[] = ['id' => $id, 'name' => $allLevels[$id]->name];
+                    }
+                }
+                $levelsBySectorMap[$sector] = $sectorLevels;
+            }
+            $levelsBySectorMap[''] = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
+        @endphp
+        var levelsBySector = @json($levelsBySectorMap);
+
+        sectorSelect.addEventListener('change', function() {
+            var sector = this.value;
+            var levelSelect = document.getElementById('level-filter-select');
+            if (!levelSelect) return;
+            var currentLevel = levelSelect.value;
+            levelSelect.innerHTML = '<option value="">Any level</option>';
+            var levels = levelsBySector[sector] || levelsBySector[''] || [];
+            levels.forEach(function(l) {
+                var opt = document.createElement('option');
+                opt.value = l.id;
+                opt.textContent = l.name;
+                if (String(l.id) === currentLevel) opt.selected = true;
+                levelSelect.appendChild(opt);
+            });
+        });
+    }
+});
+</script>

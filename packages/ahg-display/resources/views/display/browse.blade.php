@@ -62,7 +62,7 @@
   .grid-img { max-width: 100%; max-height: 160px; object-fit: contain; }
   .full-img-bg { width: 280px; min-width: 280px; height: 220px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 6px; }
   .full-img { max-width: 100%; max-height: 220px; object-fit: contain; }
-  .card-img-browse { width: 80px; min-width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+  .card-img-browse { max-height: 150px; object-fit: contain; }
   .browse-hidden { display: none; }
 
   /* Table resizable columns */
@@ -84,19 +84,21 @@
       {{-- Sidebar header --}}
       <div class="card mb-3 glam-filter-header">
         <div class="card-body py-2 text-white text-center">
-          <strong><i class="fas fa-filter"></i> Filters</strong>
+          <i class="fas fa-filter"></i> Narrow your results by:
         </div>
       </div>
 
+      <nav aria-label="Filter results">
+
       {{-- GLAM Type facet (open by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-type" aria-expanded="true">
-          <i class="fas fa-caret-down me-1"></i> Type
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="true" aria-controls="facetType" data-bs-toggle="collapse" data-bs-target="#facetType">
+          <strong>GLAM Type</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-type" class="collapse show">
+        <div id="facetType" class="collapse show">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($typeFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['type']) }}" class="text-decoration-none {{ empty($typeFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['type']) }}" class="text-decoration-none small {{ empty($typeFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -108,8 +110,8 @@
                 @endphp
                 <li class="list-group-item py-1 px-3 {{ ($typeFilter ?? '') === $typeKey ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['type' => $typeKey]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($typeFilter ?? '') === $typeKey ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $tc['label'] }}">
+                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($typeFilter ?? '') === $typeKey ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $tc['label'] }}">
                       <i class="fas {{ $tc['icon'] }} me-1 text-{{ $tc['color'] }}"></i> {{ $tc['label'] }}
                     </span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($type->count) }}</span>
@@ -123,13 +125,13 @@
 
       {{-- Creator facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-creator" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Creator
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetCreator" data-bs-toggle="collapse" data-bs-target="#facetCreator">
+          <strong>Creator</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-creator" class="collapse">
+        <div id="facetCreator" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($creatorFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['creator']) }}" class="text-decoration-none {{ empty($creatorFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['creator']) }}" class="text-decoration-none small {{ empty($creatorFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -137,8 +139,8 @@
               @foreach($creators as $creator)
                 <li class="list-group-item py-1 px-3 {{ ($creatorFilter ?? '') == $creator->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['creator' => $creator->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($creatorFilter ?? '') == $creator->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $creator->name }}">{{ $creator->name }}</span>
+                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($creatorFilter ?? '') == $creator->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $creator->name }}">{{ $creator->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($creator->count) }}</span>
                   </a>
                 </li>
@@ -150,13 +152,13 @@
 
       {{-- Place facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-place" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Place
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetPlace" data-bs-toggle="collapse" data-bs-target="#facetPlace">
+          <strong>Place</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-place" class="collapse">
+        <div id="facetPlace" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($placeFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['place']) }}" class="text-decoration-none {{ empty($placeFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['place']) }}" class="text-decoration-none small {{ empty($placeFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -164,8 +166,8 @@
               @foreach($places as $place)
                 <li class="list-group-item py-1 px-3 {{ ($placeFilter ?? '') == $place->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['place' => $place->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($placeFilter ?? '') == $place->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $place->name }}">{{ $place->name }}</span>
+                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($placeFilter ?? '') == $place->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $place->name }}">{{ $place->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($place->count) }}</span>
                   </a>
                 </li>
@@ -177,13 +179,13 @@
 
       {{-- Subject facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-subject" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Subject
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetSubject" data-bs-toggle="collapse" data-bs-target="#facetSubject">
+          <strong>Subject</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-subject" class="collapse">
+        <div id="facetSubject" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($subjectFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['subject']) }}" class="text-decoration-none {{ empty($subjectFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['subject']) }}" class="text-decoration-none small {{ empty($subjectFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -191,8 +193,8 @@
               @foreach($subjects as $subject)
                 <li class="list-group-item py-1 px-3 {{ ($subjectFilter ?? '') == $subject->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['subject' => $subject->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($subjectFilter ?? '') == $subject->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $subject->name }}">{{ $subject->name }}</span>
+                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($subjectFilter ?? '') == $subject->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $subject->name }}">{{ $subject->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($subject->count) }}</span>
                   </a>
                 </li>
@@ -204,13 +206,13 @@
 
       {{-- Genre facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-genre" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Genre
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetGenre" data-bs-toggle="collapse" data-bs-target="#facetGenre">
+          <strong>Genre</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-genre" class="collapse">
+        <div id="facetGenre" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($genreFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['genre']) }}" class="text-decoration-none {{ empty($genreFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['genre']) }}" class="text-decoration-none small {{ empty($genreFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -218,8 +220,8 @@
               @foreach($genres as $genre)
                 <li class="list-group-item py-1 px-3 {{ ($genreFilter ?? '') == $genre->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['genre' => $genre->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($genreFilter ?? '') == $genre->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $genre->name }}">{{ $genre->name }}</span>
+                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($genreFilter ?? '') == $genre->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $genre->name }}">{{ $genre->name }}</span>
                     <span class="badge bg-secondary rounded-pill">{{ number_format($genre->count) }}</span>
                   </a>
                 </li>
@@ -231,13 +233,13 @@
 
       {{-- Level of description facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-level" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Level of description
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetLevel" data-bs-toggle="collapse" data-bs-target="#facetLevel">
+          <strong>Level of description</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-level" class="collapse">
+        <div id="facetLevel" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($levelFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['level']) }}" class="text-decoration-none {{ empty($levelFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['level']) }}" class="text-decoration-none small {{ empty($levelFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -245,8 +247,8 @@
               @foreach($levels as $level)
                 <li class="list-group-item py-1 px-3 {{ ($levelFilter ?? '') == $level->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['level' => $level->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($levelFilter ?? '') == $level->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $level->name }}">{{ $level->name }}</span>
+                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($levelFilter ?? '') == $level->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $level->name }}">{{ $level->name }}</span>
                     @if($level->count)
                       <span class="badge bg-secondary rounded-pill">{{ number_format($level->count) }}</span>
                     @endif
@@ -259,14 +261,17 @@
       </div>
 
       {{-- Media type facet (closed by default) --}}
+      @php
+        $mediaIcons = ['image' => 'fa-image', 'application' => 'fa-file-alt', 'video' => 'fa-video', 'audio' => 'fa-music', 'model' => 'fa-file', 'text' => 'fa-file'];
+      @endphp
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-media" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Media type
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetMedia" data-bs-toggle="collapse" data-bs-target="#facetMedia">
+          <strong>Media type</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-media" class="collapse">
+        <div id="facetMedia" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($mediaFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['media']) }}" class="text-decoration-none {{ empty($mediaFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['media']) }}" class="text-decoration-none small {{ empty($mediaFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -274,8 +279,10 @@
               @foreach($mediaTypes as $mt)
                 <li class="list-group-item py-1 px-3 {{ ($mediaFilter ?? '') == $mt->media_type ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['media' => $mt->media_type]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($mediaFilter ?? '') == $mt->media_type ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $mt->media_type }}">{{ $mt->media_type }}</span>
+                     class="text-decoration-none small d-flex justify-content-between align-items-center {{ ($mediaFilter ?? '') == $mt->media_type ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ ucfirst($mt->media_type) }}">
+                      <i class="fas {{ $mediaIcons[$mt->media_type] ?? 'fa-file' }}"></i> {{ ucfirst($mt->media_type) }}
+                    </span>
                     @if($mt->count)
                       <span class="badge bg-secondary rounded-pill">{{ number_format($mt->count) }}</span>
                     @endif
@@ -289,13 +296,13 @@
 
       {{-- Repository facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#facet-repo" aria-expanded="false">
-          <i class="fas fa-caret-right me-1"></i> Repository
+        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetRepo" data-bs-toggle="collapse" data-bs-target="#facetRepo">
+          <strong>Repository</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
-        <div id="facet-repo" class="collapse">
+        <div id="facetRepo" class="collapse">
           <ul class="list-group list-group-flush">
             <li class="list-group-item py-1 px-3 {{ empty($repoFilter) ? 'active' : '' }}">
-              <a href="{{ glamBrowseUrl($fp, [], ['repo']) }}" class="text-decoration-none {{ empty($repoFilter) ? 'text-white' : '' }}">
+              <a href="{{ glamBrowseUrl($fp, [], ['repo']) }}" class="text-decoration-none small {{ empty($repoFilter) ? 'text-white' : '' }}">
                 All
               </a>
             </li>
@@ -303,8 +310,8 @@
               @foreach($repositories as $repo)
                 <li class="list-group-item py-1 px-3 {{ ($repoFilter ?? '') == $repo->id ? 'active' : '' }}">
                   <a href="{{ glamBrowseUrl($fp, ['repo' => $repo->id]) }}"
-                     class="text-decoration-none d-flex justify-content-between align-items-center {{ ($repoFilter ?? '') == $repo->id ? 'text-white' : '' }}">
-                    <span class="facet-link" title="{{ $repo->name }}">{{ $repo->name }}</span>
+                     class="text-decoration-none small text-truncate d-flex justify-content-between align-items-center {{ ($repoFilter ?? '') == $repo->id ? 'text-white' : '' }}">
+                    <span class="facet-link text-truncate" title="{{ $repo->name }}">{{ $repo->name }}</span>
                     @if($repo->count)
                       <span class="badge bg-secondary rounded-pill">{{ number_format($repo->count) }}</span>
                     @endif
@@ -315,6 +322,8 @@
           </ul>
         </div>
       </div>
+
+      </nav>
 
     </div>{{-- /sidebar --}}
 
@@ -396,21 +405,6 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Toggle caret direction on facet collapse/expand
-  document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(el) {
-    var target = document.querySelector(el.getAttribute('data-bs-target'));
-    if (target) {
-      target.addEventListener('show.bs.collapse', function() {
-        var icon = el.querySelector('.fas');
-        if (icon) { icon.classList.replace('fa-caret-right', 'fa-caret-down'); }
-      });
-      target.addEventListener('hide.bs.collapse', function() {
-        var icon = el.querySelector('.fas');
-        if (icon) { icon.classList.replace('fa-caret-down', 'fa-caret-right'); }
-      });
-    }
-  });
-
   // Semantic modal: toggle preview visibility
   var semToggle = document.getElementById('semantic-toggle');
   var semPreview = document.getElementById('semantic-expansion-preview');

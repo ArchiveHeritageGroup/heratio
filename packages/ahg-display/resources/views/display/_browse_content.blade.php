@@ -25,26 +25,23 @@
 @endphp
 
 {{-- ========== TITLE SECTION ========== --}}
-<div class="d-flex align-items-center justify-content-between mb-3">
-  <div class="d-flex align-items-center">
-    <i class="fas fa-3x fa-layer-group me-3 text-success" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0 h3">
-        @if(($total ?? 0) > 0)
-          Showing {{ number_format($total) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">GLAM Browser</span>
-    </div>
+<div class="multiline-header d-flex align-items-center mb-3">
+  <i class="fas fa-folder-open fa-2x text-muted me-3" aria-hidden="true"></i>
+  <div class="flex-grow-1">
+    <h1 class="mb-0 text-success">
+      @if(($total ?? 0) > 0)
+        Showing {{ number_format($total) }} results
+      @else
+        No results found
+      @endif
+    </h1>
+    <span class="small text-muted">GLAM Browser</span>
   </div>
-  <div>
-    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#semanticSearchModal"
-            title="Semantic Search">
-      <i class="fas fa-brain me-1"></i> Semantic Search
-    </button>
-  </div>
+  <button type="button" class="btn btn-primary ms-3" id="openSemanticSearchBtn" data-bs-toggle="modal" data-bs-target="#semanticSearchModal">
+    <i class="fas fa-brain me-1"></i>
+    <span class="d-none d-md-inline">Semantic Search</span>
+    <span class="d-md-none">Search</span>
+  </button>
 </div>
 
 {{-- ========== BREADCRUMB (if browsing within a parent) ========== --}}
@@ -233,45 +230,38 @@
 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
   {{-- Print --}}
-  <a href="{{ route('glam.print', array_filter($fp)) }}" class="btn btn-sm btn-outline-secondary" title="Print" target="_blank">
-    <i class="fas fa-print"></i>
+  <a href="{{ route('glam.print', array_filter($fp)) }}" target="_blank" class="btn btn-success btn-sm">
+    <i class="fas fa-print"></i> Print
   </a>
 
   {{-- CSV Export --}}
-  <a href="{{ route('glam.export.csv', array_filter($fp)) }}" class="btn btn-sm btn-outline-secondary" title="Export CSV">
-    <i class="fas fa-file-csv"></i>
+  <a href="{{ route('glam.export.csv', array_filter($fp)) }}" class="btn btn-success btn-sm">
+    <i class="fas fa-download"></i> CSV
   </a>
 
   {{-- View mode buttons --}}
-  <div class="btn-group btn-group-sm" role="group" aria-label="View mode">
-    <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
-       class="btn btn-outline-secondary {{ ($viewMode ?? 'card') === 'card' ? 'active' : '' }}" title="Card view">
-      <i class="fas fa-th-list"></i>
-    </a>
-    <a href="{{ glamBrowseUrl($fp, ['view' => 'grid']) }}"
-       class="btn btn-outline-secondary {{ ($viewMode ?? 'card') === 'grid' ? 'active' : '' }}" title="Grid view">
-      <i class="fas fa-th"></i>
-    </a>
-    <a href="{{ glamBrowseUrl($fp, ['view' => 'table']) }}"
-       class="btn btn-outline-secondary {{ ($viewMode ?? 'card') === 'table' ? 'active' : '' }}" title="Table view">
-      <i class="fas fa-table"></i>
-    </a>
-    <a href="{{ glamBrowseUrl($fp, ['view' => 'full']) }}"
-       class="btn btn-outline-secondary {{ ($viewMode ?? 'card') === 'full' ? 'active' : '' }}" title="Full width view">
-      <i class="fas fa-expand"></i>
-    </a>
-  </div>
-
-  {{-- Spacer --}}
-  <div class="ms-auto"></div>
+  <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'btn-success' : 'btn-outline-success' }}" title="Card view" aria-label="Card view">
+    <i class="fas fa-th-large"></i>
+  </a>
+  <a href="{{ glamBrowseUrl($fp, ['view' => 'grid']) }}"
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'btn-success' : 'btn-outline-success' }}" title="Grid view" aria-label="Grid view">
+    <i class="fas fa-th"></i>
+  </a>
+  <a href="{{ glamBrowseUrl($fp, ['view' => 'table']) }}"
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'btn-success' : 'btn-outline-success' }}" title="Table view" aria-label="Table view">
+    <i class="fas fa-list"></i>
+  </a>
+  <a href="{{ glamBrowseUrl($fp, ['view' => 'full']) }}"
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'btn-success' : 'btn-outline-success' }}" title="Full width" aria-label="Full width">
+    <i class="fas fa-bars"></i>
+  </a>
 
   {{-- Limit dropdown --}}
   <div class="dropdown">
-    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      {{ $limit ?? 30 }} per page
-    </button>
+    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>
     <ul class="dropdown-menu dropdown-menu-end">
-      @foreach([10, 20, 30, 50, 100] as $lim)
+      @foreach([10, 30, 50, 100] as $lim)
         <li>
           <a class="dropdown-item {{ ($limit ?? 30) == $lim ? 'active' : '' }}"
              href="{{ glamBrowseUrl($fp, ['limit' => $lim]) }}">
@@ -283,10 +273,8 @@
   </div>
 
   {{-- Sort dropdown --}}
-  <div class="dropdown">
-    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="fas fa-sort me-1"></i> {{ $sortLabels[$sort ?? 'title'] ?? 'Title' }}
-    </button>
+  <div class="dropdown ms-auto">
+    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'title'] ?? 'Title' }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       @foreach($sortLabels as $sKey => $sLabel)
         <li>
@@ -301,13 +289,7 @@
 
   {{-- Sort direction dropdown --}}
   <div class="dropdown">
-    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      @if(($sortDir ?? 'asc') === 'asc')
-        <i class="fas fa-sort-amount-up-alt"></i> Ascending
-      @else
-        <i class="fas fa-sort-amount-down"></i> Descending
-      @endif
-    </button>
+    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ ($sortDir ?? 'asc') === 'asc' ? 'Asc' : 'Desc' }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'asc' ? 'active' : '' }}"
@@ -332,11 +314,11 @@
       <i class="fas fa-image me-1"></i> {{ number_format($digitalObjectCount) }} with digital objects
     </span>
     @if(empty($hasDigital))
-      <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn btn-xs btn-outline-info" style="font-size:0.75rem; padding: 0.1rem 0.4rem;">
-        <i class="fas fa-filter me-1"></i> With digital objects
+      <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn btn-outline-success btn-sm">
+        <i class="fas fa-image"></i> With digital objects
       </a>
     @else
-      <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="btn btn-xs btn-info text-white" style="font-size:0.75rem; padding: 0.1rem 0.4rem;">
+      <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="btn btn-success btn-sm">
         <i class="fas fa-times me-1"></i> Showing digital only
       </a>
     @endif
@@ -614,59 +596,43 @@
           $objIdentifier = $obj->identifier ?? '';
           $objLevel = $obj->level_of_description ?? $obj->level ?? '';
           $objUrl = '/' . $objSlug;
-          $objDates = $obj->dates ?? $obj->date ?? '';
-          $objRepo = $obj->repository_name ?? $obj->repository ?? '';
+          $objScope = $obj->scope_and_content ?? '';
+          $childCount = $obj->child_count ?? 0;
         @endphp
         <div class="card mb-2 shadow-sm">
-          <div class="card-body py-2 px-3">
-            <div class="d-flex align-items-center gap-3">
-              {{-- Thumbnail --}}
-              <div class="flex-shrink-0">
-                @if($objThumb)
-                  <a href="{{ $objUrl }}">
-                    <img src="{{ $objThumb }}" alt="" class="card-img-browse" loading="lazy">
-                  </a>
-                @else
-                  <div class="browse-placeholder-lg" style="width:80px;height:80px;font-size:1.6rem;">
-                    <i class="fas {{ $otc['icon'] }}"></i>
-                  </div>
+          <div class="row g-0">
+            <div class="col-md-2 d-flex align-items-center justify-content-center p-2 bg-light">
+              @if($objThumb)
+                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="img-fluid rounded card-img-browse"></a>
+              @else
+                <a href="{{ $objUrl }}" aria-label="{{ e($objTitle) }}"><i class="fas {{ $otc['icon'] }} fa-4x text-{{ $otc['color'] }}"></i></a>
+              @endif
+            </div>
+            <div class="col-md-9">
+              <div class="card-body py-2">
+                <h3 class="h6 card-title mb-1">
+                  <a href="{{ $objUrl }}" class="text-success text-decoration-none">{{ e($objTitle) }}</a>
+                </h3>
+                <p class="card-text mb-1 small">
+                  @if($objIdentifier)
+                    <span class="text-success">{{ e($objIdentifier) }}</span>
+                  @endif
+                  @if($objLevel)
+                    <span class="mx-1">&middot;</span>{{ e($objLevel) }}
+                  @endif
+                  @if($childCount > 0)
+                    <span class="mx-1">&middot;</span><a href="{{ glamBrowseUrl($fp, ['parent' => $obj->id]) }}"><i class="fas fa-folder"></i> {{ $childCount }}</a>
+                  @endif
+                </p>
+                @if($objScope)
+                  <p class="card-text text-muted small mb-1">{{ Str::limit(strip_tags($objScope), 150) }}</p>
                 @endif
+                <span class="badge bg-{{ $otc['color'] }}">{{ $otc['label'] }}</span>
               </div>
-              {{-- Details --}}
-              <div class="flex-grow-1 min-width-0">
-                <div class="d-flex align-items-start justify-content-between">
-                  <div class="min-width-0">
-                    <a href="{{ $objUrl }}" class="text-decoration-none fw-semibold">
-                      {{ e($objTitle) }}
-                    </a>
-                    <div class="small text-muted mt-1">
-                      @if($objIdentifier)
-                        <span class="me-2"><i class="fas fa-barcode me-1"></i>{{ e($objIdentifier) }}</span>
-                      @endif
-                      @if($objDates)
-                        <span class="me-2"><i class="fas fa-calendar me-1"></i>{{ e($objDates) }}</span>
-                      @endif
-                      @if($objRepo)
-                        <span class="me-2"><i class="fas fa-building me-1"></i>{{ e($objRepo) }}</span>
-                      @endif
-                    </div>
-                    <div class="mt-1">
-                      <span class="badge bg-{{ $otc['color'] }}" style="font-size:0.7rem;">
-                        <i class="fas {{ $otc['icon'] }} me-1"></i> {{ $otc['label'] }}
-                      </span>
-                      @if($objLevel)
-                        <span class="badge bg-light text-dark border" style="font-size:0.7rem;">{{ e($objLevel) }}</span>
-                      @endif
-                    </div>
-                  </div>
-                  {{-- Actions --}}
-                  <div class="flex-shrink-0 ms-2">
-                    <a href="{{ $objUrl }}" class="btn btn-sm btn-outline-primary" title="View">
-                      <i class="fas fa-eye"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
+            </div>
+            <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">
+              <a href="{{ $objUrl }}" class="btn btn-outline-success btn-sm" aria-label="View"><i class="fas fa-eye"></i></a>
+              <button class="btn btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
             </div>
           </div>
           {{-- Discovery metadata footer --}}
