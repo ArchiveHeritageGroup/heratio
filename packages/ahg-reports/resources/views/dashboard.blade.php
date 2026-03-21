@@ -41,6 +41,8 @@
   $hasNAZ = $has('ahgNAZPlugin');
   $hasIPSAS = $has('ahgIPSASPlugin');
   $hasNMMZ = $has('ahgNMMZPlugin');
+  $hasDataIngest = $has('ahgDataIngestPlugin');
+  $hasKnowledge = $has('ahgKnowledgePlugin');
 @endphp
 
 @section('content')
@@ -59,9 +61,9 @@
         <div class="col-md-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h2 class="mb-0">{{ number_format($stats['recent_updates'] ?? 0) }}</h2><p class="mb-0">Updated (7 days)</p></div></div></div>
       </div>
 
-      {{-- 3-Column: Reports / Dashboards / Export --}}
+      {{-- Row 1: Reports / Sector Dashboards / Export (cards 1-3) --}}
       <div class="row mb-4">
-        {{-- Reports (blue) --}}
+        {{-- 1. Reports (blue) --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Reports</h5></div>
@@ -86,10 +88,10 @@
           </div>
         </div>
 
-        {{-- Dashboards (teal) --}}
+        {{-- 2. Sector Dashboards (teal) --}}
         <div class="col-md-4">
           <div class="card h-100">
-            <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Dashboards</h5></div>
+            <div class="card-header bg-info text-white"><h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Sector Dashboards</h5></div>
             <ul class="list-group list-group-flush">
               @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/dashboard') }}"><i class="fas fa-layer-group me-2 text-muted"></i>Spectrum Workflow</a></li>@endif
               @if($hasWorkflow)
@@ -114,7 +116,7 @@
           </div>
         </div>
 
-        {{-- Export (green) --}}
+        {{-- 3. Export (green) --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fas fa-download me-2"></i>Export</h5></div>
@@ -128,9 +130,10 @@
         </div>
       </div>
 
-      {{-- Workflow Row --}}
+      {{-- Row 2: Approval Workflow / Spectrum Workflow (cards 4-5) --}}
       @if($hasWorkflow)
       <div class="row mb-4">
+        {{-- 4. Approval Workflow --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Approval Workflow</h5></div>
@@ -143,6 +146,7 @@
             </ul>
           </div>
         </div>
+        {{-- 5. Spectrum Workflow --}}
         @if($hasSpectrum)
         <div class="col-md-4">
           <div class="card h-100">
@@ -159,9 +163,75 @@
       </div>
       @endif
 
-      {{-- Compliance Row --}}
-      @if($hasSecurity || $hasAudit || $hasPrivacy || $hasCondition || $hasAiCondition)
+      {{-- Row 3: Research Services / Knowledge Platform / Research Admin (cards 6-8) --}}
+      @if($hasResearch || $hasKnowledge)
       <div class="row mb-4">
+        {{-- 6. Research Services --}}
+        @if($hasResearch)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Research Services</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ url('/research/dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Research Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-alt me-2 text-muted"></i>Bookings</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/enquiries') }}"><i class="fas fa-envelope me-2 text-muted"></i>Research Enquiries</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/reproductions') }}"><i class="fas fa-copy me-2 text-muted"></i>Reproductions</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 7. Knowledge Platform --}}
+        @if($hasKnowledge)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#6f42c1!important"><h5 class="mb-0"><i class="fas fa-brain me-2"></i>Knowledge Platform</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ url('/knowledge') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Knowledge Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/knowledge/articles') }}"><i class="fas fa-file-alt me-2 text-muted"></i>Articles</a></li>
+              <li class="list-group-item"><a href="{{ url('/knowledge/categories') }}"><i class="fas fa-folder me-2 text-muted"></i>Categories</a></li>
+              <li class="list-group-item"><a href="{{ url('/knowledge/search') }}"><i class="fas fa-search me-2 text-muted"></i>Search Knowledge Base</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 8. Research Admin --}}
+        @if($hasResearch)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>Research Admin</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ url('/research/admin') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Admin Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/admin/users') }}"><i class="fas fa-users me-2 text-muted"></i>Researcher Accounts</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/admin/settings') }}"><i class="fas fa-cog me-2 text-muted"></i>Research Settings</a></li>
+              <li class="list-group-item"><a href="{{ url('/research/admin/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>Usage Reports</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+      </div>
+      @endif
+
+      {{-- Row 4: Access Requests (card 9) --}}
+      @if($hasAccessRequest)
+      <div class="row mb-4">
+        {{-- 9. Access Requests --}}
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Access Requests</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ route('acl.access-requests') }}"><i class="fas fa-clock me-2 text-muted"></i>Pending Requests</a></li>
+              <li class="list-group-item"><a href="{{ route('acl.approvers') }}"><i class="fas fa-user-check me-2 text-muted"></i>Approvers</a></li>
+              <li class="list-group-item"><a href="{{ route('acl.access-requests', ['status' => 'all']) }}"><i class="fas fa-history me-2 text-muted"></i>Request History</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      @endif
+
+      {{-- Row 5: Security & Compliance / Privacy & Data Protection / Condition (cards 10-12) --}}
+      @if($hasSecurity || $hasAudit || $hasPrivacy || $hasCondition)
+      <div class="row mb-4">
+        {{-- 10. Security & Compliance --}}
         @if($hasSecurity || $hasAudit)
         <div class="col-md-4">
           <div class="card h-100">
@@ -180,6 +250,7 @@
         </div>
         @endif
 
+        {{-- 11. Privacy & Data Protection --}}
         @if($hasPrivacy)
         <div class="col-md-4">
           <div class="card h-100">
@@ -197,6 +268,7 @@
         </div>
         @endif
 
+        {{-- 12. Condition (Spectrum 5.1) --}}
         @if($hasCondition)
         <div class="col-md-4">
           <div class="card h-100">
@@ -209,8 +281,13 @@
           </div>
         </div>
         @endif
+      </div>
+      @endif
 
-        @if($hasAiCondition)
+      {{-- Row 6: AI Condition Assessment (card 13) --}}
+      @if($hasAiCondition)
+      <div class="row mb-4">
+        {{-- 13. AI Condition Assessment --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header bg-success text-white"><h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Condition Assessment</h5></div>
@@ -224,13 +301,13 @@
             </ul>
           </div>
         </div>
-        @endif
       </div>
       @endif
 
-      {{-- Rights Row --}}
+      {{-- Row 7: Rights & Licensing / Embargo Management / Rights Vocabularies (cards 14-16) --}}
       @if($hasRights)
       <div class="row mb-4">
+        {{-- 14. Rights & Licensing --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#6f42c1!important"><h5 class="mb-0"><i class="fas fa-gavel me-2"></i>Rights & Licensing</h5></div>
@@ -242,6 +319,7 @@
             </ul>
           </div>
         </div>
+        {{-- 15. Embargo Management --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#e83e8c!important"><h5 class="mb-0"><i class="fas fa-lock me-2"></i>Embargo Management</h5></div>
@@ -252,6 +330,7 @@
             </ul>
           </div>
         </div>
+        {{-- 16. Rights Vocabularies --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-book-open me-2"></i>Rights Vocabularies</h5></div>
@@ -266,9 +345,11 @@
       </div>
       @endif
 
-      {{-- Vendor Row --}}
-      @if($hasVendor)
+      {{-- Row 8: Vendor Management / Donor Management (cards 17-18) --}}
+      @if($hasVendor || $hasDonor)
       <div class="row mb-4">
+        {{-- 17. Vendor Management --}}
+        @if($hasVendor)
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#fd7e14!important"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Vendor Management</h5></div>
@@ -282,12 +363,28 @@
             </ul>
           </div>
         </div>
+        @endif
+        {{-- 18. Donor Management --}}
+        @if($hasDonor)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#17a2b8!important"><h5 class="mb-0"><i class="fas fa-handshake me-2"></i>Donor Management</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Donor Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Donors</a></li>
+              <li class="list-group-item"><a href="{{ url('/donor/agreements') }}"><i class="fas fa-file-contract me-2 text-muted"></i>Donor Agreements</a></li>
+              <li class="list-group-item"><a href="{{ url('/donor/reports') }}"><i class="fas fa-chart-bar me-2 text-muted"></i>Donor Reports</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
       </div>
       @endif
 
-      {{-- Marketplace Row --}}
+      {{-- Row 9: Marketplace / Sales & Payouts (cards 19-20) --}}
       @if($hasMarketplace || $hasCart)
       <div class="row mb-4">
+        {{-- 19. Marketplace --}}
         @if($hasMarketplace)
         <div class="col-md-4">
           <div class="card h-100">
@@ -301,18 +398,7 @@
             </ul>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#2563eb!important"><h5 class="mb-0"><i class="fas fa-users me-2"></i>Sellers & Stores</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ url('/marketplace/admin/sellers') }}"><i class="fas fa-id-badge me-2 text-muted"></i>Manage Sellers</a></li>
-              <li class="list-group-item"><a href="{{ url('/marketplace/admin/reviews') }}"><i class="fas fa-star me-2 text-muted"></i>Moderate Reviews</a></li>
-              <li class="list-group-item"><a href="{{ url('/marketplace/admin/categories') }}"><i class="fas fa-tags me-2 text-muted"></i>Categories</a></li>
-              <li class="list-group-item"><a href="{{ url('/marketplace/admin/currencies') }}"><i class="fas fa-coins me-2 text-muted"></i>Currencies</a></li>
-              <li class="list-group-item"><a href="{{ url('/marketplace/admin/settings') }}"><i class="fas fa-cog me-2 text-muted"></i>Marketplace Settings</a></li>
-            </ul>
-          </div>
-        </div>
+        {{-- 20. Sales & Payouts --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#059669!important"><h5 class="mb-0"><i class="fas fa-cash-register me-2"></i>Sales & Payouts</h5></div>
@@ -338,21 +424,39 @@
       </div>
       @endif
 
-      {{-- Access / RiC / Backup Row --}}
-      @if($hasAccessRequest || $hasRic || $hasBackup)
+      {{-- Row 10: Form Templates / DOI Management / Records in Contexts (cards 21-23) --}}
+      @if($hasForms || $hasDoi || $hasRic)
       <div class="row mb-4">
-        @if($hasAccessRequest)
+        {{-- 21. Form Templates --}}
+        @if($hasForms)
         <div class="col-md-4">
           <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#0d6efd!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Access Requests</h5></div>
+            <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-edit me-2"></i>Form Templates</h5></div>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ route('acl.access-requests') }}"><i class="fas fa-clock me-2 text-muted"></i>Pending Requests</a></li>
-              <li class="list-group-item"><a href="{{ route('acl.approvers') }}"><i class="fas fa-user-check me-2 text-muted"></i>Approvers</a></li>
-              <li class="list-group-item"><a href="{{ route('acl.access-requests', ['status' => 'all']) }}"><i class="fas fa-history me-2 text-muted"></i>Request History</a></li>
+              <li class="list-group-item"><a href="{{ url('/admin/formTemplates') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Forms Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Templates</a></li>
+              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/create') }}"><i class="fas fa-plus me-2 text-muted"></i>Create Template</a></li>
+              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/assignments') }}"><i class="fas fa-link me-2 text-muted"></i>Assignments</a></li>
             </ul>
           </div>
         </div>
         @endif
+        {{-- 22. DOI Management --}}
+        @if($hasDoi)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#0dcaf0!important"><h5 class="mb-0"><i class="fas fa-link me-2"></i>DOI Management</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ route('doi.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>DOI Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ route('doi.browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse DOIs</a></li>
+              <li class="list-group-item"><a href="{{ route('doi.queue') }}"><i class="fas fa-tasks me-2 text-muted"></i>Minting Queue</a></li>
+              <li class="list-group-item"><a href="{{ route('doi.index') }}"><i class="fas fa-layer-group me-2 text-muted"></i>Batch Mint</a></li>
+              <li class="list-group-item"><a href="{{ route('doi.config') }}"><i class="fas fa-cog me-2 text-muted"></i>DataCite Config</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 23. Records in Contexts (RiC) --}}
         @if($hasRic)
         <div class="col-md-4">
           <div class="card h-100">
@@ -365,6 +469,41 @@
           </div>
         </div>
         @endif
+      </div>
+      @endif
+
+      {{-- Row 11: Data Migration / Data Ingest / Backup & Maintenance (cards 24-26) --}}
+      @if($hasDataMigration || $hasDataIngest || $hasBackup)
+      <div class="row mb-4">
+        {{-- 24. Data Migration --}}
+        @if($hasDataMigration)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#fd7e14!important"><h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Data Migration</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ route('data-migration.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Migration Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ route('data-migration.upload') }}"><i class="fas fa-upload me-2 text-muted"></i>Import Data</a></li>
+              <li class="list-group-item"><a href="{{ route('data-migration.batch-export') }}"><i class="fas fa-download me-2 text-muted"></i>Export Data</a></li>
+              <li class="list-group-item"><a href="{{ route('data-migration.jobs') }}"><i class="fas fa-history me-2 text-muted"></i>Migration History</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 25. Data Ingest --}}
+        @if($hasDataIngest)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-file-import me-2"></i>Data Ingest</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ url('/data-ingest') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Ingest Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ url('/data-ingest/upload') }}"><i class="fas fa-upload me-2 text-muted"></i>Upload Files</a></li>
+              <li class="list-group-item"><a href="{{ url('/data-ingest/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Ingests</a></li>
+              <li class="list-group-item"><a href="{{ url('/data-ingest/validation') }}"><i class="fas fa-check-double me-2 text-muted"></i>Validation Rules</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 26. Backup & Maintenance --}}
         @if($hasBackup)
         <div class="col-md-4">
           <div class="card h-100">
@@ -380,9 +519,23 @@
       </div>
       @endif
 
-      {{-- Dedupe / Forms / DOI Row --}}
-      @if($hasDedupe || $hasForms || $hasDoi)
+      {{-- Row 12: Heritage Management / Duplicate Detection (cards 27-28) --}}
+      @if($hasHeritage2 || $hasDedupe)
       <div class="row mb-4">
+        {{-- 27. Heritage Management --}}
+        @if($hasHeritage2)
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-header text-white" style="background-color:#6c757d!important"><h5 class="mb-0"><i class="fas fa-landmark me-2"></i>Heritage Management</h5></div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><a href="{{ route('heritage.admin') }}"><i class="fas fa-cogs me-2 text-muted"></i>Admin Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ route('heritage.analytics') }}"><i class="fas fa-chart-line me-2 text-muted"></i>Analytics Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ route('heritage.custodian') }}"><i class="fas fa-user-shield me-2 text-muted"></i>Custodian Dashboard</a></li>
+            </ul>
+          </div>
+        </div>
+        @endif
+        {{-- 28. Duplicate Detection --}}
         @if($hasDedupe)
         <div class="col-md-4">
           <div class="card h-100">
@@ -397,81 +550,13 @@
           </div>
         </div>
         @endif
-        @if($hasForms)
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#198754!important"><h5 class="mb-0"><i class="fas fa-edit me-2"></i>Form Templates</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ url('/admin/formTemplates') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Forms Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Templates</a></li>
-              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/create') }}"><i class="fas fa-plus me-2 text-muted"></i>Create Template</a></li>
-              <li class="list-group-item"><a href="{{ url('/admin/formTemplates/assignments') }}"><i class="fas fa-link me-2 text-muted"></i>Assignments</a></li>
-            </ul>
-          </div>
-        </div>
-        @endif
-        @if($hasDoi)
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#0dcaf0!important"><h5 class="mb-0"><i class="fas fa-link me-2"></i>DOI Management</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ route('doi.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>DOI Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ route('doi.browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse DOIs</a></li>
-              <li class="list-group-item"><a href="{{ route('doi.queue') }}"><i class="fas fa-tasks me-2 text-muted"></i>Minting Queue</a></li>
-              <li class="list-group-item"><a href="{{ route('doi.index') }}"><i class="fas fa-layer-group me-2 text-muted"></i>Batch Mint</a></li>
-              <li class="list-group-item"><a href="{{ route('doi.config') }}"><i class="fas fa-cog me-2 text-muted"></i>DataCite Config</a></li>
-            </ul>
-          </div>
-        </div>
-        @endif
       </div>
       @endif
 
-      {{-- Data Migration / Heritage / Preservation Row --}}
-      @if($hasDataMigration || $hasHeritage2 || $hasPreservation)
-      <div class="row mb-4">
-        @if($hasDataMigration)
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#fd7e14!important"><h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Data Migration</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ route('data-migration.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Migration Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ route('data-migration.upload') }}"><i class="fas fa-upload me-2 text-muted"></i>Import Data</a></li>
-              <li class="list-group-item"><a href="{{ route('data-migration.batch-export') }}"><i class="fas fa-download me-2 text-muted"></i>Export Data</a></li>
-              <li class="list-group-item"><a href="{{ route('data-migration.jobs') }}"><i class="fas fa-history me-2 text-muted"></i>Migration History</a></li>
-            </ul>
-          </div>
-        </div>
-        @endif
-        @if($hasPreservation)
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>TIFF to PDF Merge</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ url('/tiffpdfmerge') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>New Merge Job</a></li>
-              <li class="list-group-item"><a href="{{ url('/tiffpdfmerge/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Merge Jobs</a></li>
-            </ul>
-          </div>
-        </div>
-        @endif
-        @if($hasHeritage2)
-        <div class="col-md-4">
-          <div class="card h-100">
-            <div class="card-header text-white" style="background-color:#6c757d!important"><h5 class="mb-0"><i class="fas fa-landmark me-2"></i>Heritage Management</h5></div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ route('heritage.admin') }}"><i class="fas fa-cogs me-2 text-muted"></i>Admin Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ route('heritage.analytics') }}"><i class="fas fa-chart-line me-2 text-muted"></i>Analytics Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ route('heritage.custodian') }}"><i class="fas fa-user-shield me-2 text-muted"></i>Custodian Dashboard</a></li>
-            </ul>
-          </div>
-        </div>
-        @endif
-      </div>
-      @endif
-
-      {{-- Preservation Detail Row --}}
+      {{-- Row 13: Digital Preservation / Format Registry / Checksums & Integrity (cards 29-31) --}}
       @if($hasPreservation)
       <div class="row mb-4">
+        {{-- 29. Digital Preservation --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#17a2b8!important"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Digital Preservation</h5></div>
@@ -483,6 +568,7 @@
             </ul>
           </div>
         </div>
+        {{-- 30. Format Registry --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#6610f2!important"><h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Format Registry</h5></div>
@@ -493,6 +579,7 @@
             </ul>
           </div>
         </div>
+        {{-- 31. Checksums & Integrity --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#28a745!important"><h5 class="mb-0"><i class="fas fa-fingerprint me-2"></i>Checksums & Integrity</h5></div>
@@ -506,9 +593,10 @@
       </div>
       @endif
 
-      {{-- Zimbabwe Compliance Row --}}
+      {{-- Row 14: CDPA Data Protection / NAZ Archives / IPSAS Heritage Assets (cards 32-34) --}}
       @if($hasCDPA || $hasNAZ || $hasIPSAS || $hasNMMZ)
       <div class="row mb-4">
+        {{-- 32. CDPA Data Protection --}}
         @if($hasCDPA)
         <div class="col-md-4">
           <div class="card h-100">
@@ -522,6 +610,7 @@
           </div>
         </div>
         @endif
+        {{-- 33. NAZ Archives --}}
         @if($hasNAZ)
         <div class="col-md-4">
           <div class="card h-100">
@@ -535,6 +624,7 @@
           </div>
         </div>
         @endif
+        {{-- 34. IPSAS Heritage Assets --}}
         @if($hasIPSAS)
         <div class="col-md-4">
           <div class="card h-100">
@@ -550,8 +640,10 @@
         @endif
       </div>
 
+      {{-- Row 15: NMMZ Monuments (card 35) --}}
       @if($hasNMMZ)
       <div class="row mb-4">
+        {{-- 35. NMMZ Monuments --}}
         <div class="col-md-4">
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#6c757d!important"><h5 class="mb-0"><i class="fas fa-monument me-2"></i>NMMZ Monuments</h5></div>
