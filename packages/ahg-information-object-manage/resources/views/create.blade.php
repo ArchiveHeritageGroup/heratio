@@ -479,7 +479,12 @@
     @endif
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
+      @if(request('copy_from') && $parentTitle)
+        @php $sourceSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', request('copy_from'))->value('slug'); @endphp
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ $sourceSlug ? url('/' . $sourceSlug) : route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
+      @else
+        <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="Cancel">Cancel</a></li>
+      @endif
       <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
     </ul>
   </form>
