@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-palette me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Theme Settings</h1>
+      <h1 class="mb-0">List themes</h1>
       <span class="small text-muted">Customize colours, logo, branding, and custom CSS</span>
     </div>
   </div>
@@ -367,7 +367,7 @@
     </div>
 
     <div class="d-flex gap-2 mb-4">
-      <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Save Theme Settings</button>
+      <input type="submit" class="btn atom-btn-outline-success" value="Save">
       <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Back to Settings</a>
     </div>
   </form>
