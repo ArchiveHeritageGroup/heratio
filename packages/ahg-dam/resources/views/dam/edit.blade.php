@@ -1,12 +1,14 @@
 @extends('theme::layouts.1col')
 
-@section('title', ($asset ? 'Edit' : 'Create') . ' DAM asset')
+@section('title', $asset ? 'Edit DAM Asset' : 'Create DAM Asset')
 
 @section('content')
-  <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">
-      {{ $asset ? 'Edit DAM asset' : 'Create DAM asset' }}
-    </h1>
+  <div class="multiline-header d-flex align-items-center mb-3">
+    <i class="fas fa-{{ $asset ? 'edit' : 'plus-circle' }} fa-2x text-success me-3"></i>
+    <div>
+      <h1 class="mb-0">{{ $asset ? 'Edit DAM Asset' : 'Create DAM Asset' }}</h1>
+      <span class="small text-muted">{{ $asset ? 'Update digital asset metadata' : 'Add a new digital asset with IPTC/XMP metadata' }}</span>
+    </div>
     @if($asset)
       <span class="small" id="heading-label">{{ $asset->title ?: $asset->identifier }}</span>
     @endif
@@ -18,6 +20,9 @@
     @csrf
     @if($asset)
       @method('PUT')
+    @endif
+    @if(request('parent_id'))
+      <input type="hidden" name="parent_id" value="{{ request('parent_id') }}">
     @endif
 
     <div class="accordion mb-3">
@@ -76,8 +81,8 @@
             </div>
 
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content</label>
-              <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="3">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
+              <label for="scope_content" class="form-label">Scope and content</label>
+              <textarea name="scope_content" id="scope_content" class="form-control" rows="3">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
               <div class="form-text text-muted small">A description of the intellectual content and document types represented in this asset.</div>
             </div>
           </div>
@@ -232,14 +237,14 @@
           <div class="accordion-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="creator" class="form-label">Creator / Photographer</label>
-                <input type="text" name="creator" id="creator" class="form-control"
+                <label for="iptc_creator" class="form-label">Creator / Photographer</label>
+                <input type="text" name="iptc_creator" id="iptc_creator" class="form-control"
                        value="{{ old('creator', $asset->creator ?? '') }}">
                 <div class="form-text text-muted small">The person or organisation that created the asset.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="creator_job_title" class="form-label">Job title</label>
-                <input type="text" name="creator_job_title" id="creator_job_title" class="form-control"
+                <label for="iptc_creator_job_title" class="form-label">Job title</label>
+                <input type="text" name="iptc_creator_job_title" id="iptc_creator_job_title" class="form-control"
                        value="{{ old('creator_job_title', $asset->creator_job_title ?? '') }}">
                 <div class="form-text text-muted small">The job title of the creator.</div>
               </div>
@@ -247,20 +252,20 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="creator_email" class="form-label">Email</label>
-                <input type="email" name="creator_email" id="creator_email" class="form-control"
+                <label for="iptc_creator_email" class="form-label">Email</label>
+                <input type="email" name="iptc_creator_email" id="iptc_creator_email" class="form-control"
                        value="{{ old('creator_email', $asset->creator_email ?? '') }}">
                 <div class="form-text text-muted small">Contact email address for the creator.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="creator_phone" class="form-label">Phone</label>
-                <input type="text" name="creator_phone" id="creator_phone" class="form-control"
+                <label for="iptc_creator_phone" class="form-label">Phone</label>
+                <input type="text" name="iptc_creator_phone" id="iptc_creator_phone" class="form-control"
                        value="{{ old('creator_phone', $asset->creator_phone ?? '') }}">
                 <div class="form-text text-muted small">Contact phone number for the creator.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="creator_website" class="form-label">Website</label>
-                <input type="text" name="creator_website" id="creator_website" class="form-control"
+                <label for="iptc_creator_website" class="form-label">Website</label>
+                <input type="text" name="iptc_creator_website" id="iptc_creator_website" class="form-control"
                        value="{{ old('creator_website', $asset->creator_website ?? '') }}">
                 <div class="form-text text-muted small">Website URL for the creator.</div>
               </div>
@@ -268,14 +273,14 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="creator_city" class="form-label">City</label>
-                <input type="text" name="creator_city" id="creator_city" class="form-control"
+                <label for="iptc_creator_city" class="form-label">City</label>
+                <input type="text" name="iptc_creator_city" id="iptc_creator_city" class="form-control"
                        value="{{ old('creator_city', $asset->creator_city ?? '') }}">
                 <div class="form-text text-muted small">The city where the creator is located.</div>
               </div>
               <div class="col-md-8 mb-3">
-                <label for="creator_address" class="form-label">Address</label>
-                <input type="text" name="creator_address" id="creator_address" class="form-control"
+                <label for="iptc_creator_address" class="form-label">Address</label>
+                <input type="text" name="iptc_creator_address" id="iptc_creator_address" class="form-control"
                        value="{{ old('creator_address', $asset->creator_address ?? '') }}">
                 <div class="form-text text-muted small">Street address of the creator.</div>
               </div>
@@ -294,16 +299,16 @@
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="headline" class="form-label">Headline</label>
-              <input type="text" name="headline" id="headline" class="form-control"
+              <label for="iptc_headline" class="form-label">Headline</label>
+              <input type="text" name="iptc_headline" id="iptc_headline" class="form-control"
                      value="{{ old('headline', $asset->headline ?? '') }}">
               <div class="form-text text-muted small">A brief synopsis or summary of the content.</div>
             </div>
 
             <div class="mb-3">
-              <label for="duration_minutes" class="form-label">Running time</label>
+              <label for="iptc_duration_minutes" class="form-label">Running time</label>
               <div class="input-group" style="max-width: 200px;">
-                <input type="number" name="duration_minutes" id="duration_minutes" class="form-control"
+                <input type="number" name="iptc_duration_minutes" id="iptc_duration_minutes" class="form-control"
                        value="{{ old('duration_minutes', $asset->duration_minutes ?? '') }}" min="0">
                 <span class="input-group-text">min</span>
               </div>
@@ -311,14 +316,14 @@
             </div>
 
             <div class="mb-3">
-              <label for="caption" class="form-label">Caption / Description</label>
-              <textarea name="caption" id="caption" class="form-control" rows="3">{{ old('caption', $asset->caption ?? '') }}</textarea>
+              <label for="iptc_caption" class="form-label">Caption / Description</label>
+              <textarea name="iptc_caption" id="iptc_caption" class="form-control" rows="3">{{ old('caption', $asset->caption ?? '') }}</textarea>
               <div class="form-text text-muted small">A textual description of the content.</div>
             </div>
 
             <div class="mb-3">
-              <label for="keywords" class="form-label">Keywords</label>
-              <input type="text" name="keywords" id="keywords" class="form-control"
+              <label for="iptc_keywords" class="form-label">Keywords</label>
+              <input type="text" name="iptc_keywords" id="iptc_keywords" class="form-control"
                      value="{{ old('keywords', $asset->keywords ?? '') }}" placeholder="Comma-separated">
               <div class="form-text text-muted small">Keywords or tags describing the content, comma-separated.</div>
             </div>
@@ -331,23 +336,23 @@
                 <div class="form-text text-muted small">IPTC subject reference code for categorisation.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="intellectual_genre" class="form-label">Intellectual genre</label>
-                <input type="text" name="intellectual_genre" id="intellectual_genre" class="form-control"
+                <label for="iptc_intellectual_genre" class="form-label">Intellectual genre</label>
+                <input type="text" name="iptc_intellectual_genre" id="iptc_intellectual_genre" class="form-control"
                        value="{{ old('intellectual_genre', $asset->intellectual_genre ?? '') }}">
                 <div class="form-text text-muted small">The intellectual genre of the content (e.g., Feature, Actuality).</div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="persons_shown" class="form-label">Persons shown</label>
-              <input type="text" name="persons_shown" id="persons_shown" class="form-control"
+              <label for="iptc_persons_shown" class="form-label">Persons shown</label>
+              <input type="text" name="iptc_persons_shown" id="iptc_persons_shown" class="form-control"
                      value="{{ old('persons_shown', $asset->persons_shown ?? '') }}">
               <div class="form-text text-muted small">Names of persons depicted in the content.</div>
             </div>
 
             <div class="mb-3">
-              <label for="date_created" class="form-label">Date created</label>
-              <input type="date" name="date_created" id="date_created" class="form-control"
+              <label for="iptc_date_created" class="form-label">Date created</label>
+              <input type="date" name="iptc_date_created" id="iptc_date_created" class="form-control"
                      value="{{ old('date_created', $asset->iptc_date_created ?? '') }}">
               <div class="form-text text-muted small">The date the intellectual content was created.</div>
             </div>
@@ -366,20 +371,20 @@
           <div class="accordion-body">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="city" class="form-label">City</label>
-                <input type="text" name="city" id="city" class="form-control"
+                <label for="iptc_city" class="form-label">City</label>
+                <input type="text" name="iptc_city" id="iptc_city" class="form-control"
                        value="{{ old('city', $asset->city ?? '') }}">
                 <div class="form-text text-muted small">The city where the content was created or depicts.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="state_province" class="form-label">State / Province</label>
-                <input type="text" name="state_province" id="state_province" class="form-control"
+                <label for="iptc_state_province" class="form-label">State / Province</label>
+                <input type="text" name="iptc_state_province" id="iptc_state_province" class="form-control"
                        value="{{ old('state_province', $asset->state_province ?? '') }}">
                 <div class="form-text text-muted small">The state or province of the location.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="sublocation" class="form-label">Sublocation</label>
-                <input type="text" name="sublocation" id="sublocation" class="form-control"
+                <label for="iptc_sublocation" class="form-label">Sublocation</label>
+                <input type="text" name="iptc_sublocation" id="iptc_sublocation" class="form-control"
                        value="{{ old('sublocation', $asset->sublocation ?? '') }}">
                 <div class="form-text text-muted small">A more specific location within the city.</div>
               </div>
@@ -387,14 +392,14 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="country" class="form-label">Country</label>
-                <input type="text" name="country" id="country" class="form-control"
+                <label for="iptc_country" class="form-label">Country</label>
+                <input type="text" name="iptc_country" id="iptc_country" class="form-control"
                        value="{{ old('country', $asset->country ?? '') }}">
                 <div class="form-text text-muted small">The country name of the location depicted.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="country_code" class="form-label">Country code</label>
-                <input type="text" name="country_code" id="country_code" class="form-control" maxlength="10"
+                <label for="iptc_country_code" class="form-label">Country code</label>
+                <input type="text" name="iptc_country_code" id="iptc_country_code" class="form-control" maxlength="10"
                        value="{{ old('country_code', $asset->country_code ?? '') }}" placeholder="ISO 3166-1 alpha-3">
                 <div class="form-text text-muted small">ISO 3166-1 country code (e.g., ZAF, GBR, USA).</div>
               </div>
@@ -402,14 +407,14 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="production_country" class="form-label">Production country</label>
-                <input type="text" name="production_country" id="production_country" class="form-control"
+                <label for="iptc_production_country" class="form-label">Production country</label>
+                <input type="text" name="iptc_production_country" id="iptc_production_country" class="form-control"
                        value="{{ old('production_country', $asset->production_country ?? '') }}">
                 <div class="form-text text-muted small">Country where the content was produced (may differ from filming location).</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="production_country_code" class="form-label">Production country code</label>
-                <input type="text" name="production_country_code" id="production_country_code" class="form-control" maxlength="10"
+                <label for="iptc_production_country_code" class="form-label">Production country code</label>
+                <input type="text" name="iptc_production_country_code" id="iptc_production_country_code" class="form-control" maxlength="10"
                        value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="e.g., NLD, ZAF">
                 <div class="form-text text-muted small">ISO 3166-1 country code for the production country.</div>
               </div>
@@ -429,36 +434,36 @@
           <div class="accordion-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="credit_line" class="form-label">Credit line</label>
-                <input type="text" name="credit_line" id="credit_line" class="form-control"
+                <label for="iptc_credit_line" class="form-label">Credit line</label>
+                <input type="text" name="iptc_credit_line" id="iptc_credit_line" class="form-control"
                        value="{{ old('credit_line', $asset->credit_line ?? '') }}">
                 <div class="form-text text-muted small">The credit line required when reproducing this asset.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="source" class="form-label">Source</label>
-                <input type="text" name="source" id="source" class="form-control"
+                <label for="iptc_source" class="form-label">Source</label>
+                <input type="text" name="iptc_source" id="iptc_source" class="form-control"
                        value="{{ old('source', $asset->source ?? '') }}">
                 <div class="form-text text-muted small">The original owner or provider of the asset.</div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="copyright_notice" class="form-label">Copyright notice</label>
-              <input type="text" name="copyright_notice" id="copyright_notice" class="form-control"
+              <label for="iptc_copyright_notice" class="form-label">Copyright notice</label>
+              <input type="text" name="iptc_copyright_notice" id="iptc_copyright_notice" class="form-control"
                      value="{{ old('copyright_notice', $asset->copyright_notice ?? '') }}" placeholder="&copy; 2024 Photographer Name">
               <div class="form-text text-muted small">The copyright notice text (e.g., &copy; Year Name).</div>
             </div>
 
             <div class="mb-3">
-              <label for="rights_usage_terms" class="form-label">Rights usage terms</label>
-              <textarea name="rights_usage_terms" id="rights_usage_terms" class="form-control" rows="2">{{ old('rights_usage_terms', $asset->rights_usage_terms ?? '') }}</textarea>
+              <label for="iptc_rights_usage_terms" class="form-label">Rights usage terms</label>
+              <textarea name="iptc_rights_usage_terms" id="iptc_rights_usage_terms" class="form-control" rows="2">{{ old('rights_usage_terms', $asset->rights_usage_terms ?? '') }}</textarea>
               <div class="form-text text-muted small">Free-text instructions on how the asset can be used legally.</div>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="license_type" class="form-label">License type</label>
-                <select name="license_type" id="license_type" class="form-select">
+                <label for="iptc_license_type" class="form-label">License type</label>
+                <select name="iptc_license_type" id="iptc_license_type" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach([
                     'All Rights Reserved' => 'All Rights Reserved',
@@ -479,14 +484,14 @@
                 <div class="form-text text-muted small">The type of license governing use of this asset.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="license_url" class="form-label">License URL</label>
-                <input type="text" name="license_url" id="license_url" class="form-control"
+                <label for="iptc_license_url" class="form-label">License URL</label>
+                <input type="text" name="iptc_license_url" id="iptc_license_url" class="form-control"
                        value="{{ old('license_url', $asset->license_url ?? '') }}">
                 <div class="form-text text-muted small">URL to the full license text.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="license_expiry" class="form-label">License expiry</label>
-                <input type="date" name="license_expiry" id="license_expiry" class="form-control"
+                <label for="iptc_license_expiry" class="form-label">License expiry</label>
+                <input type="date" name="iptc_license_expiry" id="iptc_license_expiry" class="form-control"
                        value="{{ old('license_expiry', $asset->license_expiry ?? '') }}">
                 <div class="form-text text-muted small">The date when the current license expires.</div>
               </div>
@@ -495,8 +500,8 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="model_release_status" class="form-label">Model release status</label>
-                  <select name="model_release_status" id="model_release_status" class="form-select">
+                  <label for="iptc_model_release_status" class="form-label">Model release status</label>
+                  <select name="iptc_model_release_status" id="iptc_model_release_status" class="form-select">
                     <option value="">-- Select --</option>
                     @foreach([
                       'None' => 'None',
@@ -510,16 +515,16 @@
                   <div class="form-text text-muted small">The status of model releases for persons depicted.</div>
                 </div>
                 <div class="mb-3">
-                  <label for="model_release_id" class="form-label">Model release ID</label>
-                  <input type="text" name="model_release_id" id="model_release_id" class="form-control"
+                  <label for="iptc_model_release_id" class="form-label">Model release ID</label>
+                  <input type="text" name="iptc_model_release_id" id="iptc_model_release_id" class="form-control"
                          value="{{ old('model_release_id', $asset->model_release_id ?? '') }}">
                   <div class="form-text text-muted small">Identifier of the model release document.</div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="property_release_status" class="form-label">Property release status</label>
-                  <select name="property_release_status" id="property_release_status" class="form-select">
+                  <label for="iptc_property_release_status" class="form-label">Property release status</label>
+                  <select name="iptc_property_release_status" id="iptc_property_release_status" class="form-select">
                     <option value="">-- Select --</option>
                     @foreach([
                       'None' => 'None',
@@ -533,8 +538,8 @@
                   <div class="form-text text-muted small">The status of property releases for depicted properties.</div>
                 </div>
                 <div class="mb-3">
-                  <label for="property_release_id" class="form-label">Property release ID</label>
-                  <input type="text" name="property_release_id" id="property_release_id" class="form-control"
+                  <label for="iptc_property_release_id" class="form-label">Property release ID</label>
+                  <input type="text" name="iptc_property_release_id" id="iptc_property_release_id" class="form-control"
                          value="{{ old('property_release_id', $asset->property_release_id ?? '') }}">
                   <div class="form-text text-muted small">Identifier of the property release document.</div>
                 </div>
@@ -555,34 +560,34 @@
           <div class="accordion-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="artwork_title" class="form-label">Artwork title</label>
-                <input type="text" name="artwork_title" id="artwork_title" class="form-control"
+                <label for="iptc_artwork_title" class="form-label">Artwork title</label>
+                <input type="text" name="iptc_artwork_title" id="iptc_artwork_title" class="form-control"
                        value="{{ old('artwork_title', $asset->artwork_title ?? '') }}">
                 <div class="form-text text-muted small">The title of the depicted artwork or object.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="artwork_creator" class="form-label">Artwork creator</label>
-                <input type="text" name="artwork_creator" id="artwork_creator" class="form-control"
+                <label for="iptc_artwork_creator" class="form-label">Artwork creator</label>
+                <input type="text" name="iptc_artwork_creator" id="iptc_artwork_creator" class="form-control"
                        value="{{ old('artwork_creator', $asset->artwork_creator ?? '') }}">
                 <div class="form-text text-muted small">The creator of the depicted artwork or object.</div>
               </div>
             </div>
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="artwork_date" class="form-label">Artwork date</label>
-                <input type="text" name="artwork_date" id="artwork_date" class="form-control"
+                <label for="iptc_artwork_date" class="form-label">Artwork date</label>
+                <input type="text" name="iptc_artwork_date" id="iptc_artwork_date" class="form-control"
                        value="{{ old('artwork_date', $asset->artwork_date ?? '') }}" placeholder="e.g., 1889">
                 <div class="form-text text-muted small">The date the artwork or object was created.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="artwork_source" class="form-label">Artwork source</label>
-                <input type="text" name="artwork_source" id="artwork_source" class="form-control"
+                <label for="iptc_artwork_source" class="form-label">Artwork source</label>
+                <input type="text" name="iptc_artwork_source" id="iptc_artwork_source" class="form-control"
                        value="{{ old('artwork_source', $asset->artwork_source ?? '') }}">
                 <div class="form-text text-muted small">The institution or collection holding the artwork.</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="artwork_copyright" class="form-label">Artwork copyright</label>
-                <input type="text" name="artwork_copyright" id="artwork_copyright" class="form-control"
+                <label for="iptc_artwork_copyright" class="form-label">Artwork copyright</label>
+                <input type="text" name="iptc_artwork_copyright" id="iptc_artwork_copyright" class="form-control"
                        value="{{ old('artwork_copyright', $asset->artwork_copyright ?? '') }}">
                 <div class="form-text text-muted small">Copyright notice for the depicted artwork or object.</div>
               </div>
@@ -608,16 +613,16 @@
                 <div class="form-text text-muted small">The IPTC Object Name, a shorthand reference for the asset.</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="job_id" class="form-label">Job / Assignment ID</label>
-                <input type="text" name="job_id" id="job_id" class="form-control"
+                <label for="iptc_job_id" class="form-label">Job / Assignment ID</label>
+                <input type="text" name="iptc_job_id" id="iptc_job_id" class="form-control"
                        value="{{ old('job_id', $asset->job_id ?? '') }}">
                 <div class="form-text text-muted small">The job or assignment identifier for tracking purposes.</div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="instructions" class="form-label">Special instructions</label>
-              <textarea name="instructions" id="instructions" class="form-control" rows="2">{{ old('instructions', $asset->instructions ?? '') }}</textarea>
+              <label for="iptc_instructions" class="form-label">Special instructions</label>
+              <textarea name="iptc_instructions" id="iptc_instructions" class="form-control" rows="2">{{ old('instructions', $asset->instructions ?? '') }}</textarea>
               <div class="form-text text-muted small">Any special instructions regarding the use of this asset.</div>
             </div>
           </div>
