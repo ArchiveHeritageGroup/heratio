@@ -1,17 +1,58 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
-@section('title', ($isNew ? 'Add gallery artwork' : 'Edit: ' . ($artwork->title ?? 'Untitled')))
+@section('title', 'Gallery Cataloguing')
 @section('body-class', ($isNew ? 'create' : 'edit') . ' gallery')
 
+@section('sidebar')
+<div class="sidebar-content">
+  <section id="template-selector" class="sidebar-section">
+    <h4>Artwork Template</h4>
+    <div class="template-list">
+      <a href="#" data-template="painting" class="template-option active"><i class="fas fa-palette"></i> <span>Painting</span></a>
+      <a href="#" data-template="sculpture" class="template-option"><i class="fas fa-monument"></i> <span>Sculpture</span></a>
+      <a href="#" data-template="photograph" class="template-option"><i class="fas fa-camera"></i> <span>Photograph</span></a>
+      <a href="#" data-template="print" class="template-option"><i class="fas fa-print"></i> <span>Print</span></a>
+      <a href="#" data-template="mixed_media" class="template-option"><i class="fas fa-layer-group"></i> <span>Mixed Media</span></a>
+    </div>
+  </section>
+  <section id="completeness-meter" class="sidebar-section">
+    <h4>Record Completeness</h4>
+    <div class="progress-container">
+      <div class="progress"><div class="progress-bar bg-danger" id="completeness-bar" style="width: 0%"></div></div>
+      <span class="completeness-value" id="completeness-value">0%</span>
+    </div>
+    <p class="help-text">Fill all required and recommended fields for complete cataloguing.</p>
+  </section>
+  <section id="cco-reference" class="sidebar-section">
+    <h4>Standards Reference</h4>
+    <p class="small">This form follows CCO/CDWA standards for artwork cataloguing.</p>
+    <a href="http://cco.vrafoundation.org/" target="_blank" class="btn btn-sm btn-cco-guide"><i class="fas fa-external-link-alt"></i> CCO Guide</a>
+    <a href="https://www.getty.edu/research/publications/electronic_publications/cdwa/" target="_blank" class="btn btn-sm btn-cco-guide mt-1"><i class="fas fa-external-link-alt"></i> CDWA</a>
+  </section>
+  <section id="field-legend" class="sidebar-section">
+    <h4>Field Legend</h4>
+    <ul class="legend-list">
+      <li><span class="badge badge-required">Required</span> Must be completed</li>
+      <li><span class="badge badge-recommended">Recommended</span> Should be completed</li>
+      <li><span class="badge badge-optional">Optional</span> Complete if applicable</li>
+    </ul>
+  </section>
+</div>
+@endsection
+
 @section('content')
-  <h1>{{ $isNew ? 'Add gallery artwork' : 'Edit: ' . ($artwork->title ?? '[Untitled]') }}</h1>
+  <h1 class="multiline">
+    Gallery Cataloguing
+    <span class="sub">Artwork</span>
+  </h1>
 
   @if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
+    <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
   @endif
 
   @if($errors->any())
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" role="alert">
+      <h5><i class="fas fa-exclamation-triangle"></i> Validation Errors</h5>
       <ul class="mb-0">
         @foreach($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -20,7 +61,7 @@
     </div>
   @endif
 
-  <form method="POST" id="editForm"
+  <form method="POST" id="editForm" class="gallery-cataloguing-form"
         action="{{ $isNew ? route('gallery.store') : route('gallery.update', $artwork->slug) }}">
     @csrf
     @if(!$isNew)
@@ -29,11 +70,12 @@
 
     <div class="accordion" id="galleryAccordion">
 
-      {{-- ===== Object/Work ===== --}}
+      {{-- ===== Object/Work (CCO Ch 2) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingObjectWork">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseObjectWork" aria-expanded="true" aria-controls="collapseObjectWork">
             Object/Work
+            <span class="cco-chapter">CCO Chapter 2</span>
           </button>
         </h2>
         <div id="collapseObjectWork" class="accordion-collapse collapse show" aria-labelledby="headingObjectWork" data-bs-parent="#galleryAccordion">
@@ -50,10 +92,35 @@
             </div>
 
             <div class="mb-3">
+              <label for="work_type_qualifier" class="form-label">Work type qualifier</label>
+              <select class="form-select" id="work_type_qualifier" name="work_type_qualifier">
+                <option value="">-- Select --</option>
+                <option value="possibly" @selected(old('work_type_qualifier', $artwork->work_type_qualifier ?? '') === 'possibly')>Possibly</option>
+                <option value="probably" @selected(old('work_type_qualifier', $artwork->work_type_qualifier ?? '') === 'probably')>Probably</option>
+                <option value="formerly classified as" @selected(old('work_type_qualifier', $artwork->work_type_qualifier ?? '') === 'formerly classified as')>Formerly classified as</option>
+              </select>
+              <div class="form-text text-muted small">Qualifies uncertainty about the work type. (CCO 2.1.1)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="components_count" class="form-label">Components/Parts</label>
+              <input type="text" class="form-control" id="components_count" name="components_count"
+                     value="{{ old('components_count', $artwork->components_count ?? '') }}">
+              <div class="form-text text-muted small">Number and description of physical components. (CCO 2.2)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="object_number" class="form-label">Object number <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="object_number" name="object_number"
+                     value="{{ old('object_number', $artwork->object_number ?? '') }}">
+              <div class="form-text text-muted small">Unique identifier assigned by the repository. (CCO 2.3)</div>
+            </div>
+
+            <div class="mb-3">
               <label for="classification" class="form-label">Classification</label>
               <input type="text" class="form-control" id="classification" name="classification"
                      value="{{ old('classification', $artwork->classification ?? '') }}">
-              <div class="form-text text-muted small">Classification scheme or category. A term that identifies the broader context for the object, such as "Impressionist paintings" or "Contemporary sculpture".</div>
+              <div class="form-text text-muted small">Classification scheme or category. (CCO 2.1)</div>
             </div>
 
             <div class="mb-3">
@@ -70,19 +137,41 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTitle">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTitle" aria-expanded="false" aria-controls="collapseTitle">
-            Title
+            Titles/Names
+            <span class="cco-chapter">CCO Chapter 3</span>
           </button>
         </h2>
         <div id="collapseTitle" class="accordion-collapse collapse" aria-labelledby="headingTitle" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+              <label for="title" class="form-label">Title <span class="form-required" title="This is a mandatory element.">*</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                      value="{{ old('title', $artwork->title ?? '') }}" required>
-              @error('title')
-                <div class="invalid-feedback">{{ $message }}</div>
-              @enderror
-              <div class="form-text text-muted small">The title or name given to the artwork by the artist, collector, or institution. Use the most commonly known or preferred title. If untitled, enter "Untitled" and add any descriptive title in brackets.</div>
+              @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+              <div class="form-text text-muted small">The primary title of the work. (CCO 3.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="title_type" class="form-label">Title type</label>
+              <select class="form-select" id="title_type" name="title_type">
+                <option value="repository" @selected(old('title_type', $artwork->title_type ?? 'repository') === 'repository')>Repository</option>
+                <option value="creator" @selected(old('title_type', $artwork->title_type ?? '') === 'creator')>Creator</option>
+                <option value="inscribed" @selected(old('title_type', $artwork->title_type ?? '') === 'inscribed')>Inscribed</option>
+                <option value="popular" @selected(old('title_type', $artwork->title_type ?? '') === 'popular')>Popular</option>
+                <option value="descriptive" @selected(old('title_type', $artwork->title_type ?? '') === 'descriptive')>Descriptive</option>
+                <option value="former" @selected(old('title_type', $artwork->title_type ?? '') === 'former')>Former</option>
+                <option value="translated" @selected(old('title_type', $artwork->title_type ?? '') === 'translated')>Translated</option>
+              </select>
+              <div class="form-text text-muted small">The source or nature of the title. (CCO 3.1.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="title_language" class="form-label">Title language</label>
+              <input type="text" class="form-control" id="title_language" name="title_language" value="{{ old('title_language', $artwork->title_language ?? 'eng') }}">
+              <div class="form-text text-muted small">Language of the title (ISO 639-2). (CCO 3.1.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="alternate_titles" class="form-label">Alternate titles</label>
+              <input type="text" class="form-control" id="alternate_titles" name="alternate_titles" value="{{ old('alternate_titles', $artwork->alternate_titles ?? '') }}">
+              <div class="form-text text-muted small">Other titles by which the work is known. (CCO 3.2)</div>
             </div>
           </div>
         </div>
@@ -93,17 +182,29 @@
         <h2 class="accordion-header" id="headingCreator">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreator" aria-expanded="false" aria-controls="collapseCreator">
             Creator
+            <span class="cco-chapter">CCO Chapter 4 (Creator)</span>
           </button>
         </h2>
         <div id="collapseCreator" class="accordion-collapse collapse" aria-labelledby="headingCreator" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="creator_identity" class="form-label">Creator</label>
+              <label for="creator_display" class="form-label">Creator (Display) <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="creator_display" name="creator_display"
+                     value="{{ old('creator_display', $artwork->creator_display ?? '') }}">
+              <div class="form-text text-muted small">Creator name as it should appear in displays. Format: Surname, Forename (Nationality, birth-death). (CCO 4.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="creator" class="form-label">Creator (Authority) <span class="form-required" title="This is a mandatory element.">*</span></label>
+              <input type="text" class="form-control" id="creator" name="creator"
+                     value="{{ old('creator', $artwork->creator ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
+              <div class="form-text text-muted small">Link to authority record. (CCO 4.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="creator_identity" class="form-label">Creator identity</label>
               <input type="text" class="form-control" id="creator_identity" name="creator_identity"
                      value="{{ old('creator_identity', $artwork->creator_identity ?? '') }}">
-              <div class="form-text text-muted small">The name of the artist or maker of the artwork (CCO: Creator). Enter the name in inverted form (Surname, Forename) or as commonly known. For unknown creators, use "Unknown" or qualifiers such as "Attributed to" or "Circle of".</div>
+              <div class="form-text text-muted small">The name of the artist or maker.</div>
             </div>
-
             <div class="mb-3">
               <label for="creator_role" class="form-label">Creator role</label>
               <select class="form-select" id="creator_role" name="creator_role">
@@ -112,7 +213,23 @@
                   <option value="{{ $cr }}" @selected(old('creator_role', $artwork->creator_role ?? '') == $cr)>{{ $cr }}</option>
                 @endforeach
               </select>
-              <div class="form-text text-muted small">The role of the creator in relation to this artwork. Use qualifiers where the attribution is uncertain (e.g. "Attributed to", "Circle of", "After").</div>
+              <div class="form-text text-muted small">The role of the creator. (CCO 4.1.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="attribution_qualifier" class="form-label">Attribution qualifier</label>
+              <select class="form-select" id="attribution_qualifier" name="attribution_qualifier">
+                <option value="">(No qualifier)</option>
+                <option value="attributed_to" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'attributed_to')>Attributed to</option>
+                <option value="workshop_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'workshop_of')>Workshop of</option>
+                <option value="studio_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'studio_of')>Studio of</option>
+                <option value="circle_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'circle_of')>Circle of</option>
+                <option value="school_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'school_of')>School of</option>
+                <option value="follower_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'follower_of')>Follower of</option>
+                <option value="manner_of" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'manner_of')>Manner of</option>
+                <option value="after" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'after')>After</option>
+                <option value="copy_after" @selected(old('attribution_qualifier', $artwork->attribution_qualifier ?? '') === 'copy_after')>Copy after</option>
+              </select>
+              <div class="form-text text-muted small">Qualifies degree of certainty about attribution. (CCO 4.1.2)</div>
             </div>
           </div>
         </div>
@@ -123,6 +240,7 @@
         <h2 class="accordion-header" id="headingCreation">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreation" aria-expanded="false" aria-controls="collapseCreation">
             Creation
+            <span class="cco-chapter">CCO Chapter 4</span>
           </button>
         </h2>
         <div id="collapseCreation" class="accordion-collapse collapse" aria-labelledby="headingCreation" data-bs-parent="#galleryAccordion">
@@ -154,10 +272,22 @@
             </div>
 
             <div class="mb-3">
-              <label for="creation_place" class="form-label">Creation place</label>
+              <label for="creation_place" class="form-label">Place of creation</label>
               <input type="text" class="form-control" id="creation_place" name="creation_place"
-                     value="{{ old('creation_place', $artwork->creation_place ?? '') }}">
-              <div class="form-text text-muted small">The geographic location where the artwork was created. Use a hierarchical form where possible (e.g. "Paris, France").</div>
+                     value="{{ old('creation_place', $artwork->creation_place ?? '') }}" placeholder="Type to search places..." autocomplete="off">
+              <div class="form-text text-muted small">Geographic location where the work was created. (CCO 4.3)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="culture" class="form-label">Culture/People</label>
+              <input type="text" class="form-control" id="culture" name="culture" value="{{ old('culture', $artwork->culture ?? '') }}" placeholder="Type to search..." autocomplete="off">
+              <div class="form-text text-muted small">Culture, people, or nationality associated with the creation. (CCO 4.4)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="school_group" class="form-label">School/Group</label>
+              <input type="text" class="form-control" id="school_group" name="school_group" value="{{ old('school_group', $artwork->school_group ?? '') }}" placeholder="Type to search..." autocomplete="off">
+              <div class="form-text text-muted small">The school of art or artistic group. (CCO 5.3)</div>
             </div>
 
             <div class="row">
@@ -206,18 +336,46 @@
         <h2 class="accordion-header" id="headingMeasurements">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeasurements" aria-expanded="false" aria-controls="collapseMeasurements">
             Measurements
+            <span class="cco-chapter">CCO Chapter 6</span>
           </button>
         </h2>
         <div id="collapseMeasurements" class="accordion-collapse collapse" aria-labelledby="headingMeasurements" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="measurements" class="form-label">Measurements</label>
-              <textarea class="form-control" id="measurements" name="measurements" rows="3">{{ old('measurements', $artwork->measurements ?? '') }}</textarea>
-              <div class="form-text text-muted small">Physical measurements of the artwork in a display-ready format (e.g. "120 x 80 cm", "48 x 32 inches (framed)").</div>
+              <label for="dimensions_display" class="form-label">Dimensions (Display)</label>
+              <input type="text" class="form-control" id="dimensions_display" name="dimensions_display"
+                     value="{{ old('dimensions_display', $artwork->dimensions_display ?? '') }}">
+              <div class="form-text text-muted small">Dimensions as displayed, e.g. "72.4 x 91.4 cm". (CCO 6.1)</div>
             </div>
-
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="height_value" class="form-label">Height</label>
+                <input type="text" class="form-control" id="height_value" name="height_value" value="{{ old('height_value', $artwork->height_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="width_value" class="form-label">Width</label>
+                <input type="text" class="form-control" id="width_value" name="width_value" value="{{ old('width_value', $artwork->width_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="depth_value" class="form-label">Depth</label>
+                <input type="text" class="form-control" id="depth_value" name="depth_value" value="{{ old('depth_value', $artwork->depth_value ?? '') }}">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="weight_value" class="form-label">Weight</label>
+                <input type="text" class="form-control" id="weight_value" name="weight_value" value="{{ old('weight_value', $artwork->weight_value ?? '') }}">
+              </div>
+            </div>
             <div class="mb-3">
-              <label for="dimensions" class="form-label">Dimensions</label>
+              <label for="dimension_notes" class="form-label">Dimension notes</label>
+              <textarea class="form-control" id="dimension_notes" name="dimension_notes" rows="2">{{ old('dimension_notes', $artwork->dimension_notes ?? '') }}</textarea>
+              <div class="form-text text-muted small">Notes about how measurements were taken. (CCO 6.6)</div>
+            </div>
+            <div class="mb-3">
+              <label for="measurements" class="form-label">Measurements (legacy)</label>
+              <textarea class="form-control" id="measurements" name="measurements" rows="3">{{ old('measurements', $artwork->measurements ?? '') }}</textarea>
+            </div>
+            <div class="mb-3">
+              <label for="dimensions" class="form-label">Dimensions (legacy)</label>
               <textarea class="form-control" id="dimensions" name="dimensions" rows="3">{{ old('dimensions', $artwork->dimensions ?? '') }}</textarea>
               <div class="form-text text-muted small">Additional or structured dimensional information (height, width, depth, weight, diameter). Include units and specify whether framed or unframed.</div>
             </div>
@@ -230,14 +388,26 @@
         <h2 class="accordion-header" id="headingMaterials">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaterials" aria-expanded="false" aria-controls="collapseMaterials">
             Materials / Techniques
+            <span class="cco-chapter">CCO Chapter 7</span>
           </button>
         </h2>
         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="materials" class="form-label">Materials</label>
+              <label for="materials_display" class="form-label">Medium (Display) <span class="form-required" title="Required">*</span></label>
+              <input type="text" class="form-control" id="materials_display" name="materials_display"
+                     value="{{ old('materials_display', $artwork->materials_display ?? '') }}">
+              <div class="form-text text-muted small">Medium as displayed, e.g. "oil on canvas". (CCO 7.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="materials" class="form-label">Materials (Indexed)</label>
               <textarea class="form-control" id="materials" name="materials" rows="3">{{ old('materials', $artwork->materials ?? '') }}</textarea>
-              <div class="form-text text-muted small">The physical materials or media used to create the artwork (e.g. "Oil on canvas", "Bronze", "Graphite on paper", "Acrylic and mixed media on board").</div>
+              <div class="form-text text-muted small">Individual materials for searching. (CCO 7.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="support" class="form-label">Support</label>
+              <input type="text" class="form-control" id="support" name="support" value="{{ old('support', $artwork->support ?? '') }}">
+              <div class="form-text text-muted small">The material on which the work is executed (e.g. canvas, paper). (CCO 7.4)</div>
             </div>
 
             <div class="mb-3">
@@ -253,15 +423,46 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingSubject">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
-            Subject
+            Subject Matter
+            <span class="cco-chapter">CCO Chapter 8</span>
           </button>
         </h2>
         <div id="collapseSubject" class="accordion-collapse collapse" aria-labelledby="headingSubject" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Description / Subject matter</label>
+              <label for="subject_display" class="form-label">Subject (Display)</label>
+              <textarea class="form-control" id="subject_display" name="subject_display" rows="3">{{ old('subject_display', $artwork->subject_display ?? '') }}</textarea>
+              <div class="form-text text-muted small">Subject as it should appear in displays. (CCO 8.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="subjects_depicted" class="form-label">Subjects depicted</label>
+              <input type="text" class="form-control" id="subjects_depicted" name="subjects_depicted" value="{{ old('subjects_depicted', $artwork->subjects_depicted ?? '') }}" placeholder="Type to search..." autocomplete="off">
+              <div class="form-text text-muted small">Specific subjects depicted. (CCO 8.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="iconography" class="form-label">Iconography</label>
+              <textarea class="form-control" id="iconography" name="iconography" rows="3">{{ old('iconography', $artwork->iconography ?? '') }}</textarea>
+              <div class="form-text text-muted small">Iconographic themes, symbols, or narratives. (CCO 8.3)</div>
+            </div>
+            <div class="mb-3">
+              <label for="named_subjects" class="form-label">Named subjects</label>
+              <input type="text" class="form-control" id="named_subjects" name="named_subjects" value="{{ old('named_subjects', $artwork->named_subjects ?? '') }}">
+              <div class="form-text text-muted small">Named people, places, or events depicted. (CCO 8.4)</div>
+            </div>
+            <div class="mb-3">
+              <label for="scope_and_content" class="form-label">Description</label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="5">{{ old('scope_and_content', $artwork->scope_and_content ?? '') }}</textarea>
-              <div class="form-text text-muted small">A narrative description of the subject matter, imagery, or content of the artwork. Describe what is depicted or represented, including themes, motifs, and iconographic elements.</div>
+              <div class="form-text text-muted small">Free-text description of the work. (CCO 11.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description (CCO)</label>
+              <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $artwork->description ?? '') }}</textarea>
+              <div class="form-text text-muted small">Narrative description supplementing other fields. (CCO 11.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="physical_description" class="form-label">Physical description</label>
+              <textarea class="form-control" id="physical_description" name="physical_description" rows="3">{{ old('physical_description', $artwork->physical_description ?? '') }}</textarea>
+              <div class="form-text text-muted small">Physical characteristics not covered elsewhere. (CCO 11.2)</div>
             </div>
           </div>
         </div>
@@ -272,14 +473,30 @@
         <h2 class="accordion-header" id="headingInscriptions">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInscriptions" aria-expanded="false" aria-controls="collapseInscriptions">
             Inscriptions
+            <span class="cco-chapter">CCO Chapter 9</span>
           </button>
         </h2>
         <div id="collapseInscriptions" class="accordion-collapse collapse" aria-labelledby="headingInscriptions" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="inscription" class="form-label">Inscription</label>
+              <label for="inscriptions" class="form-label">Inscriptions</label>
+              <textarea class="form-control" id="inscriptions" name="inscriptions" rows="3">{{ old('inscriptions', $artwork->inscriptions ?? '') }}</textarea>
+              <div class="form-text text-muted small">Text inscriptions on the work. (CCO 9.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="signature" class="form-label">Signature</label>
+              <textarea class="form-control" id="signature" name="signature" rows="2">{{ old('signature', $artwork->signature ?? '') }}</textarea>
+              <div class="form-text text-muted small">Description of the artist's signature. (CCO 9.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="marks" class="form-label">Marks/Labels</label>
+              <textarea class="form-control" id="marks" name="marks" rows="2">{{ old('marks', $artwork->marks ?? '') }}</textarea>
+              <div class="form-text text-muted small">Collector's marks, labels, stamps. (CCO 9.3)</div>
+            </div>
+            <div class="mb-3">
+              <label for="inscription" class="form-label">Inscription (legacy)</label>
               <textarea class="form-control" id="inscription" name="inscription" rows="3">{{ old('inscription', $artwork->inscription ?? '') }}</textarea>
-              <div class="form-text text-muted small">Transcription of any text written, printed, stamped, or engraved on the artwork, including the artist's signature, date, or dedication. Note the location on the work (e.g. "Signed lower right: Monet 1872").</div>
+              <div class="form-text text-muted small">Transcription of text on the artwork, including signature and location.</div>
             </div>
 
             <div class="mb-3">
@@ -291,17 +508,64 @@
         </div>
       </div>
 
+      {{-- ===== State/Edition (CCO Ch 10) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingStateEdition">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStateEdition" aria-expanded="false" aria-controls="collapseStateEdition">
+            State/Edition
+            <span class="cco-chapter">CCO Chapter 10</span>
+          </button>
+        </h2>
+        <div id="collapseStateEdition" class="accordion-collapse collapse" aria-labelledby="headingStateEdition" data-bs-parent="#galleryAccordion">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="edition_number" class="form-label">Edition number</label>
+                <input type="text" class="form-control" id="edition_number" name="edition_number" value="{{ old('edition_number', $artwork->edition_number ?? '') }}">
+                <div class="form-text text-muted small">Number of this impression within the edition. (CCO 10.1)</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="edition_size" class="form-label">Edition size</label>
+                <input type="text" class="form-control" id="edition_size" name="edition_size" value="{{ old('edition_size', $artwork->edition_size ?? '') }}">
+                <div class="form-text text-muted small">Total number of impressions. (CCO 10.2)</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="state" class="form-label">State</label>
+              <input type="text" class="form-control" id="state" name="state" value="{{ old('state', $artwork->state ?? '') }}">
+              <div class="form-text text-muted small">The state of the print or edition. (CCO 10.3)</div>
+            </div>
+            <div class="mb-3">
+              <label for="impression_quality" class="form-label">Impression quality</label>
+              <input type="text" class="form-control" id="impression_quality" name="impression_quality" value="{{ old('impression_quality', $artwork->impression_quality ?? '') }}">
+              <div class="form-text text-muted small">Quality assessment of the impression. (CCO 10.4)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{-- ===== Condition ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCondition">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCondition" aria-expanded="false" aria-controls="collapseCondition">
             Condition
+            <span class="cco-chapter">CCO Chapter 12</span>
           </button>
         </h2>
         <div id="collapseCondition" class="accordion-collapse collapse" aria-labelledby="headingCondition" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="condition_term" class="form-label">Condition</label>
+              <label for="condition_summary" class="form-label">Condition summary</label>
+              <textarea class="form-control" id="condition_summary" name="condition_summary" rows="3">{{ old('condition_summary', $artwork->condition_summary ?? '') }}</textarea>
+              <div class="form-text text-muted small">Brief summary of the current condition. (CCO 12.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="condition_notes" class="form-label">Condition notes</label>
+              <textarea class="form-control" id="condition_notes" name="condition_notes" rows="3">{{ old('condition_notes', $artwork->condition_notes ?? '') }}</textarea>
+              <div class="form-text text-muted small">Detailed notes on the condition. (CCO 12.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="condition_term" class="form-label">Condition term</label>
               <input type="text" class="form-control" id="condition_term" name="condition_term"
                      value="{{ old('condition_term', $artwork->condition_term ?? '') }}">
               <div class="form-text text-muted small">A standardized term describing the overall condition (e.g. "Excellent", "Good", "Fair", "Poor", "Requires conservation").</div>
@@ -320,11 +584,27 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingProvenance">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProvenance" aria-expanded="false" aria-controls="collapseProvenance">
-            Provenance
+            Current Location
+            <span class="cco-chapter">CCO Chapter 13</span>
           </button>
         </h2>
         <div id="collapseProvenance" class="accordion-collapse collapse" aria-labelledby="headingProvenance" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <div class="mb-3">
+              <label for="repository" class="form-label">Repository <span class="form-required" title="Required">*</span></label>
+              <input type="text" class="form-control" id="repository" name="repository" value="{{ old('repository', $artwork->repository ?? '') }}" placeholder="Type to search..." autocomplete="off">
+              <div class="form-text text-muted small">The repository holding this work. (CCO 13.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="location_within_repository" class="form-label">Location</label>
+              <input type="text" class="form-control" id="location_within_repository" name="location_within_repository" value="{{ old('location_within_repository', $artwork->location_within_repository ?? '') }}">
+              <div class="form-text text-muted small">Location within the repository. (CCO 13.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="credit_line" class="form-label">Credit line</label>
+              <input type="text" class="form-control" id="credit_line" name="credit_line" value="{{ old('credit_line', $artwork->credit_line ?? '') }}">
+              <div class="form-text text-muted small">Credit line for display. (CCO 13.3)</div>
+            </div>
             <div class="mb-3">
               <label for="provenance" class="form-label">Provenance</label>
               <textarea class="form-control" id="provenance" name="provenance" rows="4">{{ old('provenance', $artwork->provenance ?? '') }}</textarea>
@@ -364,11 +644,37 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingCataloging">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCataloging" aria-expanded="false" aria-controls="collapseCataloging">
-            Cataloging
+            Rights
+            <span class="cco-chapter">CCO Chapter 15</span>
           </button>
         </h2>
         <div id="collapseCataloging" class="accordion-collapse collapse" aria-labelledby="headingCataloging" data-bs-parent="#galleryAccordion">
           <div class="accordion-body">
+            <div class="mb-3">
+              <label for="rights_statement" class="form-label">Rights statement</label>
+              <textarea class="form-control" id="rights_statement" name="rights_statement" rows="3">{{ old('rights_statement', $artwork->rights_statement ?? '') }}</textarea>
+              <div class="form-text text-muted small">Statement of rights associated with the work. (CCO 15.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="copyright_holder" class="form-label">Copyright holder</label>
+              <input type="text" class="form-control" id="copyright_holder" name="copyright_holder" value="{{ old('copyright_holder', $artwork->copyright_holder ?? '') }}">
+              <div class="form-text text-muted small">Name of the copyright holder. (CCO 15.2)</div>
+            </div>
+            <div class="mb-3">
+              <label for="reproduction_conditions" class="form-label">Reproduction conditions</label>
+              <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="2">{{ old('reproduction_conditions', $artwork->reproduction_conditions ?? '') }}</textarea>
+              <div class="form-text text-muted small">Conditions governing reproduction. (CCO 15.3)</div>
+            </div>
+            <div class="mb-3">
+              <label for="related_works" class="form-label">Related works</label>
+              <textarea class="form-control" id="related_works" name="related_works" rows="3">{{ old('related_works', $artwork->related_works ?? '') }}</textarea>
+              <div class="form-text text-muted small">Identify related works. (CCO 14.1)</div>
+            </div>
+            <div class="mb-3">
+              <label for="relationship_type" class="form-label">Relationship type</label>
+              <input type="text" class="form-control" id="relationship_type" name="relationship_type" value="{{ old('relationship_type', $artwork->relationship_type ?? '') }}">
+              <div class="form-text text-muted small">Type of relationship to related work. (CCO 14.2)</div>
+            </div>
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
@@ -406,18 +712,78 @@
 
     </div>{{-- end accordion --}}
 
-    {{-- ===== Form actions ===== --}}
-    <section class="actions mb-3 mt-3">
-      <ul class="actions mb-1 nav gap-2">
-        <li>
-          @if($isNew)
-            <a href="{{ route('gallery.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
-          @else
-            <a href="{{ route('gallery.show', $artwork->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
-          @endif
-        </li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ $isNew ? 'Create' : 'Save' }}"></li>
-      </ul>
-    </section>
+    <ul class="actions mb-3 nav gap-2">
+      <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+      <li>
+        @if($isNew)
+          <a href="{{ route('gallery.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
+        @else
+          <a href="{{ route('gallery.show', $artwork->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a>
+        @endif
+      </li>
+    </ul>
   </form>
+
+@push('js')
+<script>
+(function() {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', function() {
+    updateCompleteness();
+    var form = document.getElementById('editForm');
+    if (form) {
+      form.addEventListener('input', function() { setTimeout(updateCompleteness, 100); });
+      form.addEventListener('change', function() { setTimeout(updateCompleteness, 100); });
+    }
+  });
+  function updateCompleteness() {
+    var form = document.getElementById('editForm');
+    if (!form) return;
+    var fields = form.querySelectorAll('input[name]:not([type="hidden"]):not([type="submit"]), select[name], textarea[name]');
+    var total = fields.length, filled = 0;
+    fields.forEach(function(f) { if (f.value && f.value.trim() !== '') filled++; });
+    var pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+    var bar = document.getElementById('completeness-bar');
+    var val = document.getElementById('completeness-value');
+    if (bar && val) {
+      bar.style.width = pct + '%'; val.textContent = pct + '%';
+      bar.className = 'progress-bar ' + (pct >= 80 ? 'bg-success' : pct >= 50 ? 'bg-warning' : 'bg-danger');
+    }
+  }
+})();
+</script>
+@endpush
+
+@push('css')
+<style>
+.sidebar-section { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; }
+.sidebar-section h4 { color: #1a5c4c; font-size: 13px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
+.template-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.template-option { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 15px; font-size: 12px; text-decoration: none; color: #333; background: #f8f9fa; border: 1px solid #e0e0e0; transition: all 0.2s; }
+.template-option:hover { background: #e9ecef; text-decoration: none; color: #1a5c4c; }
+.template-option.active { background: #1a5c4c; color: #fff; border-color: #1a5c4c; }
+.template-option i { margin-right: 5px; font-size: 11px; }
+.progress-container { display: flex; align-items: center; gap: 10px; }
+.progress { flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 10px; transition: width 0.3s; }
+.completeness-value { font-weight: 700; min-width: 40px; }
+.btn-cco-guide { background: #1a5c4c; color: #fff; border: none; display: block; width: 100%; text-align: center; }
+.btn-cco-guide:hover { background: #145043; color: #fff; }
+.legend-list { list-style: none; padding: 0; margin: 0; }
+.legend-list li { margin-bottom: 6px; font-size: 12px; }
+.badge-required { background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+.badge-recommended { background: #f39c12; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+.badge-optional { background: #95a5a6; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+.gallery-cataloguing-form .accordion-item { border: none; margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
+.gallery-cataloguing-form .accordion-button { background: #1a5c4c !important; color: #fff !important; }
+.gallery-cataloguing-form .accordion-button:not(.collapsed) { background: #1a5c4c !important; color: #fff !important; }
+.gallery-cataloguing-form .accordion-button.collapsed { background-color: #1a5c4c; color: #fff; }
+.gallery-cataloguing-form .accordion-button::after { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e"); }
+.gallery-cataloguing-form .accordion-button:focus { box-shadow: none; }
+.gallery-cataloguing-form .accordion-body { padding: 20px; background: #fff; }
+.cco-chapter { margin-left: 15px; float: right; font-size: 11px; opacity: 1; font-weight: normal; }
+h1.multiline .sub { display: block; font-size: 0.6em; color: #666; font-weight: normal; }
+.help-text { font-size: 13px; color: #666; margin: 0; }
+</style>
+@endpush
 @endsection
