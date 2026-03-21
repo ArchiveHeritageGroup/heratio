@@ -32,14 +32,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-paper-plane fa-2x text-primary me-3" aria-hidden="true"></i>
     <div>
-      <h1 class="h3 mb-0">
-        @if($pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-        @else
-          No results found
-        @endif
-      </h1>
-      <span class="small text-muted">Request to Publish</span>
+      <h1 class="h3 mb-0">Request to Publish</h1>
     </div>
   </div>
 
@@ -110,13 +103,13 @@
             <thead class="table-light">
               <tr>
                 <th style="width: 100px;">Status</th>
-                <th>Archival Description</th>
+                <th>Archival Item</th>
                 <th>Requester</th>
-                <th>Contact</th>
                 <th>Institution</th>
+                <th>Planned Use</th>
                 <th>Need By</th>
-                <th>Created</th>
-                <th style="width: 80px;">Action</th>
+                <th>Submitted</th>
+                <th style="width: 80px;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -148,23 +141,14 @@
                     <strong>{{ ($row['rtp_name'] ?? '') . ' ' . ($row['rtp_surname'] ?? '') }}</strong>
                   </td>
                   <td>
-                    @if(!empty($row['rtp_email']))
-                      <a href="mailto:{{ $row['rtp_email'] }}" title="{{ $row['rtp_email'] }}">
-                        <i class="fas fa-envelope text-muted"></i>
-                      </a>
-                    @endif
-                    @if(!empty($row['rtp_phone']))
-                      <a href="tel:{{ $row['rtp_phone'] }}" title="{{ $row['rtp_phone'] }}" class="ms-1">
-                        <i class="fas fa-phone text-muted"></i>
-                      </a>
-                    @endif
-                  </td>
-                  <td>
                     @if(!empty($row['rtp_institution']))
-                      <i class="fas fa-building me-1 text-muted"></i>{{ $row['rtp_institution'] }}
+                      {{ $row['rtp_institution'] }}
                     @else
                       <span class="text-muted">-</span>
                     @endif
+                  </td>
+                  <td>
+                    {{ $row['rtp_planned_use'] ?? '' }}
                   </td>
                   <td>
                     @if(!empty($row['rtp_need_image_by']))
@@ -245,4 +229,14 @@
       @endif
     </div>
   </div>
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 @endsection
