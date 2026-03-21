@@ -729,4 +729,82 @@ class GalleryService
 
         return compact('levels', 'repositories', 'workTypes', 'creatorRoles', 'artistTypes');
     }
+
+    /**
+     * Get extra data needed for edit form: physical location, admin area.
+     */
+    public function getEditExtras(?int $objectId, string $culture): array
+    {
+        // Physical objects for storage container dropdown
+        $physicalObjects = [];
+        try {
+            $poResult = DB::table('physical_object as po')
+                ->leftJoin('physical_object_i18n as poi', function ($join) use ($culture) {
+                    $join->on('poi.id', '=', 'po.id')->where('poi.culture', '=', $culture);
+                })
+                ->select(['po.id', 'poi.name', 'poi.location'])
+                ->orderBy('poi.name')
+                ->get();
+            foreach ($poResult as $po) {
+                $physicalObjects[$po->id] = $po->name . ($po->location ? ' (' . $po->location . ')' : '');
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Item location data
+        $itemLocation = [];
+        if ($objectId) {
+            try {
+                $loc = DB::table('item_physical_location')->where('object_id', $objectId)->first();
+                if ($loc) {
+                    $itemLocation = (array) $loc;
+                }
+            } catch (\Exception $e) {
+                // Table may not exist
+            }
+        }
+
+        // Display standards
+        $displayStandards = [];
+        try {
+            $terms = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', 53)
+                ->where('term_i18n.culture', $culture)
+                ->orderBy('term_i18n.name')
+                ->select('term.id', 'term_i18n.name')
+                ->get();
+            foreach ($terms as $t) {
+                $displayStandards[$t->id] = $t->name;
+            }
+        } catch (\Exception $e) {
+            // Taxonomy may not exist
+        }
+
+        // Current display standard
+        $currentDisplayStandard = null;
+        if ($objectId) {
+            $currentDisplayStandard = DB::table('information_object')
+                ->where('id', $objectId)
+                ->value('display_standard_id');
+        }
+
+        // Source culture
+        $sourceCulture = 'English';
+        if ($objectId) {
+            $sc = DB::table('information_object')->where('id', $objectId)->value('source_culture');
+            if ($sc) {
+                $sourceCulture = locale_get_display_language($sc, 'en') ?: $sc;
+            }
+        }
+
+        return compact(
+            'physicalObjects',
+            'itemLocation',
+            'displayStandards',
+            'currentDisplayStandard',
+            'sourceCulture'
+        );
+    }
 }

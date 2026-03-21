@@ -712,6 +712,170 @@
 
     </div>{{-- end accordion --}}
 
+    {{-- ===== Item Physical Location ===== --}}
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-physical-location">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-physical-location"
+                  aria-expanded="false" aria-controls="collapse-physical-location"
+                  style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
+            Item Physical Location
+            <span class="cco-chapter">Storage &amp; Access</span>
+          </button>
+        </h2>
+        <div id="collapse-physical-location" class="accordion-collapse collapse" aria-labelledby="heading-physical-location">
+          <div class="accordion-body">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Storage container</label>
+                <select name="item_physical_object_id" class="form-select">
+                  <option value="">-- Select container --</option>
+                  @foreach($physicalObjects ?? [] as $poId => $poName)
+                    <option value="{{ $poId }}" @selected(old('item_physical_object_id', $itemLocation['physical_object_id'] ?? '') == $poId)>{{ $poName }}</option>
+                  @endforeach
+                </select>
+                <small class="form-text text-muted">Link to a physical storage container</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Item barcode</label>
+                <input type="text" name="item_barcode" class="form-control" value="{{ old('item_barcode', $itemLocation['barcode'] ?? '') }}">
+              </div>
+            </div>
+
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
+            <div class="row mb-3">
+              <div class="col-md-2">
+                <label class="form-label">Box</label>
+                <input type="text" name="item_box_number" class="form-control" value="{{ old('item_box_number', $itemLocation['box_number'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Folder</label>
+                <input type="text" name="item_folder_number" class="form-control" value="{{ old('item_folder_number', $itemLocation['folder_number'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Shelf</label>
+                <input type="text" name="item_shelf" class="form-control" value="{{ old('item_shelf', $itemLocation['shelf'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Row</label>
+                <input type="text" name="item_row" class="form-control" value="{{ old('item_row', $itemLocation['row'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Position</label>
+                <input type="text" name="item_position" class="form-control" value="{{ old('item_position', $itemLocation['position'] ?? '') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Item #</label>
+                <input type="text" name="item_item_number" class="form-control" value="{{ old('item_item_number', $itemLocation['item_number'] ?? '') }}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">Extent value</label>
+                <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ old('item_extent_value', $itemLocation['extent_value'] ?? '') }}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Extent unit</label>
+                <select name="item_extent_unit" class="form-select">
+                  <option value="">-- Select --</option>
+                  @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_extent_unit', $itemLocation['extent_unit'] ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+
+            <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">Condition</label>
+                <select name="item_condition_status" class="form-select">
+                  <option value="">-- Select --</option>
+                  @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_condition_status', $itemLocation['condition_status'] ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Access status</label>
+                <select name="item_access_status" class="form-select">
+                  @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Condition notes</label>
+                <input type="text" name="item_condition_notes" class="form-control" value="{{ old('item_condition_notes', $itemLocation['condition_notes'] ?? '') }}">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label class="form-label">Location notes</label>
+                <textarea name="item_location_notes" class="form-control" rows="2">{{ old('item_location_notes', $itemLocation['notes'] ?? '') }}</textarea>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- ===== Administration Area ===== --}}
+    <div class="accordion mb-3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse"
+                  style="background-color: var(--ahg-primary, #005837) !important; color: #fff !important;">
+            Administration area
+          </button>
+        </h2>
+        <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+          <div class="accordion-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Source language</label>
+                  <div>{{ $sourceCulture ?? 'English' }}</div>
+                </div>
+                @if(!$isNew && isset($artwork->updated_at) && $artwork->updated_at)
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Last updated</label>
+                  <div>{{ \Carbon\Carbon::parse($artwork->updated_at)->format('F j, Y, g:i a') }}</div>
+                </div>
+                @endif
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="displayStandard" class="form-label fw-bold">Display standard</label>
+                  <select name="displayStandard" id="displayStandard" class="form-select">
+                    @foreach($displayStandards ?? [] as $dsId => $dsName)
+                      <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>
+                    @endforeach
+                  </select>
+                  <small class="form-text text-muted">Select the display standard for this record</small>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="displayStandardUpdateDescendants"
+                           name="displayStandardUpdateDescendants" value="1">
+                    <label class="form-check-label" for="displayStandardUpdateDescendants">
+                      Make this selection the new default for existing children
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <ul class="actions mb-3 nav gap-2">
       <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
       <li>
@@ -757,17 +921,17 @@
 @push('css')
 <style>
 .sidebar-section { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; }
-.sidebar-section h4 { color: #1a5c4c; font-size: 13px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
+.sidebar-section h4 { color: var(--ahg-primary, #005837); font-size: 13px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
 .template-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .template-option { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 15px; font-size: 12px; text-decoration: none; color: #333; background: #f8f9fa; border: 1px solid #e0e0e0; transition: all 0.2s; }
-.template-option:hover { background: #e9ecef; text-decoration: none; color: #1a5c4c; }
-.template-option.active { background: #1a5c4c; color: #fff; border-color: #1a5c4c; }
+.template-option:hover { background: #e9ecef; text-decoration: none; color: var(--ahg-primary, #005837); }
+.template-option.active { background: var(--ahg-primary, #005837); color: #fff; border-color: var(--ahg-primary, #005837); }
 .template-option i { margin-right: 5px; font-size: 11px; }
 .progress-container { display: flex; align-items: center; gap: 10px; }
 .progress { flex: 1; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; }
 .progress-bar { height: 100%; border-radius: 10px; transition: width 0.3s; }
 .completeness-value { font-weight: 700; min-width: 40px; }
-.btn-cco-guide { background: #1a5c4c; color: #fff; border: none; display: block; width: 100%; text-align: center; }
+.btn-cco-guide { background: var(--ahg-primary, #005837); color: #fff; border: none; display: block; width: 100%; text-align: center; }
 .btn-cco-guide:hover { background: #145043; color: #fff; }
 .legend-list { list-style: none; padding: 0; margin: 0; }
 .legend-list li { margin-bottom: 6px; font-size: 12px; }
@@ -775,9 +939,9 @@
 .badge-recommended { background: #f39c12; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
 .badge-optional { background: #95a5a6; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
 .gallery-cataloguing-form .accordion-item { border: none; margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; }
-.gallery-cataloguing-form .accordion-button { background: #1a5c4c !important; color: #fff !important; }
-.gallery-cataloguing-form .accordion-button:not(.collapsed) { background: #1a5c4c !important; color: #fff !important; }
-.gallery-cataloguing-form .accordion-button.collapsed { background-color: #1a5c4c; color: #fff; }
+.gallery-cataloguing-form .accordion-button { background: var(--ahg-primary, #005837) !important; color: #fff !important; }
+.gallery-cataloguing-form .accordion-button:not(.collapsed) { background: var(--ahg-primary, #005837) !important; color: #fff !important; }
+.gallery-cataloguing-form .accordion-button.collapsed { background-color: var(--ahg-primary, #005837); color: #fff; }
 .gallery-cataloguing-form .accordion-button::after { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e"); }
 .gallery-cataloguing-form .accordion-button:focus { box-shadow: none; }
 .gallery-cataloguing-form .accordion-body { padding: 20px; background: #fff; }

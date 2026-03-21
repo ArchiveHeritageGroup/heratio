@@ -261,11 +261,12 @@ class GalleryController extends Controller
     {
         $culture = app()->getLocale();
         $choices = $this->service->getFormChoices($culture);
+        $editExtras = $this->service->getEditExtras(null, $culture);
 
         return view('ahg-gallery::gallery.edit', array_merge([
             'artwork' => null,
             'isNew' => true,
-        ], $choices));
+        ], $choices, $editExtras));
     }
 
     /**
@@ -327,11 +328,12 @@ class GalleryController extends Controller
         }
 
         $choices = $this->service->getFormChoices($culture);
+        $editExtras = $this->service->getEditExtras($artwork->id ?? null, $culture);
 
         return view('ahg-gallery::gallery.edit', array_merge([
             'artwork' => $artwork,
             'isNew' => false,
-        ], $choices));
+        ], $choices, $editExtras));
     }
 
     /**
