@@ -90,6 +90,16 @@
               <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records</label>
             </div>
 
+            <div class="mb-3">
+              <label class="form-label" for="collection-select">Limit matches to:</label>
+              <select class="form-select" name="collection" id="collection-select">
+                <option value="">Top-level description</option>
+                @foreach($collections ?? [] as $coll)
+                  <option value="{{ $coll->slug }}">{{ $coll->title }}</option>
+                @endforeach
+              </select>
+            </div>
+
             <div class="mb-3 form-check">
               <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox">
               <label class="form-check-label" for="skip-matched-input">Skip matched records</label>
@@ -128,4 +138,27 @@
 
   </form>
 
+@push('css')
+<style>
+.accordion-button {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button:not(.collapsed) {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+  box-shadow: none;
+}
+.accordion-button.collapsed {
+  background-color: var(--ahg-primary) !important;
+  color: var(--ahg-card-header-text, #fff) !important;
+}
+.accordion-button::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'//%3e%3c/svg%3e");
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
+}
+</style>
+@endpush
 @endsection
