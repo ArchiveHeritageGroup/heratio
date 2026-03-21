@@ -122,12 +122,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <select class="form-select" id="work_type" name="work_type">
-                  <option value="">-- Select --</option>
-                  @foreach($workTypes as $wt)
-                    <option value="{{ $wt }}" @selected(old('work_type', $museum->work_type ?? '') === $wt)>{{ $wt }}</option>
-                  @endforeach
-                </select>
+                <input type="text" class="form-control" id="work_type" name="work_type" value="{{ old('work_type', $museum->work_type ?? '') }}" placeholder="Type to search..." autocomplete="off">
               </div>
               <div class="field-help" id="help-work_type" style="display: none;">
                 <div class="help-content">
@@ -306,8 +301,12 @@
                 </button>
               </div>
               <div class="field-input">
-                <input type="text" class="form-control" id="creator" name="creator"
-                       value="{{ old('creator', $museum->creator ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
+                <select class="form-select" id="creator" name="creator">
+                  <option value="">-- Select --</option>
+                  @foreach($creators ?? [] as $c)
+                    <option value="{{ $c->id ?? $c }}" @selected(old('creator', $museum->creator ?? '') == ($c->id ?? $c))>{{ $c->name ?? $c }}</option>
+                  @endforeach
+                </select>
               </div>
               <div class="field-help" id="help-creator" style="display: none;">
                 <div class="help-content">
@@ -344,10 +343,11 @@
             </div>
 
             {{-- attribution_qualifier: optional, CCO 4.1.2, vocab CCO_ATTRIBUTION --}}
-            <div class="cco-field level-optional" data-field="attribution_qualifier">
+            <div class="cco-field level-recommended" data-field="attribution_qualifier">
               <div class="field-header">
                 <label for="attribution_qualifier">Attribution qualifier</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> CCO_ATTRIBUTION</span>
                 </span>
@@ -405,10 +405,11 @@
             {{-- creation_date_earliest + creation_date_latest: optional, CCO 4.2.1 / 4.2.2 --}}
             <div class="row">
               <div class="col-md-6">
-                <div class="cco-field level-optional" data-field="creation_date_earliest">
+                <div class="cco-field level-recommended" data-field="creation_date_earliest">
                   <div class="field-header">
                     <label for="creation_date_earliest">Creation date (earliest)</label>
                     <span class="field-badges">
+                      <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.1</span>
                     </span>
                     <button type="button" class="btn-help" data-field="creation_date_earliest" title="Help">
@@ -427,10 +428,11 @@
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="cco-field level-optional" data-field="creation_date_latest">
+                <div class="cco-field level-recommended" data-field="creation_date_latest">
                   <div class="field-header">
                     <label for="creation_date_latest">Creation date (latest)</label>
                     <span class="field-badges">
+                      <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="creation_date_latest" title="Help">
@@ -451,10 +453,11 @@
             </div>
 
             {{-- creation_place: optional, CCO 4.3, vocab TGN --}}
-            <div class="cco-field level-optional" data-field="creation_place">
+            <div class="cco-field level-recommended" data-field="creation_place">
               <div class="field-header">
                 <label for="creation_place">Place of creation</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.3</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> TGN</span>
                 </span>
@@ -513,10 +516,11 @@
             <p class="category-description">Style, period, group, school, or movement.</p>
 
             {{-- style: optional, CCO 5.1, vocab AAT_STYLES --}}
-            <div class="cco-field level-optional" data-field="style">
+            <div class="cco-field level-recommended" data-field="style">
               <div class="field-header">
                 <label for="style">Style</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">5.1</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_STYLES</span>
                 </span>
@@ -603,10 +607,11 @@
             {{-- height_value, width_value, depth_value: optional, CCO 6.2 --}}
             <div class="row">
               <div class="col-md-4">
-                <div class="cco-field level-optional" data-field="height_value">
+                <div class="cco-field level-recommended" data-field="height_value">
                   <div class="field-header">
                     <label for="height_value">Height</label>
                     <span class="field-badges">
+                      <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="height_value" title="Help">
@@ -614,7 +619,7 @@
                     </button>
                   </div>
                   <div class="field-input">
-                    <input type="text" class="form-control" id="height_value" name="height_value"
+                    <input type="number" step="0.01" class="form-control" id="height_value" name="height_value"
                            value="{{ old('height_value', $museum->height_value ?? '') }}">
                   </div>
                   <div class="field-help" id="help-height_value" style="display: none;">
@@ -625,10 +630,11 @@
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="cco-field level-optional" data-field="width_value">
+                <div class="cco-field level-recommended" data-field="width_value">
                   <div class="field-header">
                     <label for="width_value">Width</label>
                     <span class="field-badges">
+                      <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="width_value" title="Help">
@@ -636,7 +642,7 @@
                     </button>
                   </div>
                   <div class="field-input">
-                    <input type="text" class="form-control" id="width_value" name="width_value"
+                    <input type="number" step="0.01" class="form-control" id="width_value" name="width_value"
                            value="{{ old('width_value', $museum->width_value ?? '') }}">
                   </div>
                   <div class="field-help" id="help-width_value" style="display: none;">
@@ -658,7 +664,7 @@
                     </button>
                   </div>
                   <div class="field-input">
-                    <input type="text" class="form-control" id="depth_value" name="depth_value"
+                    <input type="number" step="0.01" class="form-control" id="depth_value" name="depth_value"
                            value="{{ old('depth_value', $museum->depth_value ?? '') }}">
                   </div>
                   <div class="field-help" id="help-depth_value" style="display: none;">
@@ -713,10 +719,11 @@
             </div>
 
             {{-- materials: optional, CCO 7.1.1, vocab AAT_MATERIALS --}}
-            <div class="cco-field level-optional" data-field="materials">
+            <div class="cco-field level-recommended" data-field="materials">
               <div class="field-header">
                 <label for="materials">Materials (Indexed)</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.1.1</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_MATERIALS</span>
                 </span>
@@ -725,7 +732,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="materials" name="materials" rows="3">{{ old('materials', $museum->materials ?? '') }}</textarea>
+                <input type="text" class="form-control" id="materials" name="materials" value="{{ old('materials', $museum->materials ?? '') }}">
               </div>
               <div class="field-help" id="help-materials" style="display: none;">
                 <div class="help-content">
@@ -735,10 +742,11 @@
             </div>
 
             {{-- techniques: optional, CCO 7.2, vocab AAT_TECHNIQUES --}}
-            <div class="cco-field level-optional" data-field="techniques">
+            <div class="cco-field level-recommended" data-field="techniques">
               <div class="field-header">
                 <label for="techniques">Techniques</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_TECHNIQUES</span>
                 </span>
@@ -747,7 +755,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="techniques" name="techniques" rows="3">{{ old('techniques', $museum->techniques ?? '') }}</textarea>
+                <input type="text" class="form-control" id="techniques" name="techniques" value="{{ old('techniques', $museum->techniques ?? '') }}">
               </div>
               <div class="field-help" id="help-techniques" style="display: none;">
                 <div class="help-content">
@@ -757,10 +765,14 @@
             </div>
 
             {{-- support: optional, CCO 7.3, vocab AAT_SUPPORTS --}}
-            <div class="cco-field level-optional" data-field="support">
+            <div class="cco-field level-required" data-field="support">
               <div class="field-header">
-                <label for="support">Support</label>
+                <label for="support">
+                  Support
+                  <span class="required">*</span>
+                </label>
                 <span class="field-badges">
+                  <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">7.3</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUPPORTS</span>
                 </span>
@@ -796,10 +808,11 @@
             <p class="category-description">What the work represents or depicts.</p>
 
             {{-- subject_display: optional, CCO 8.1 --}}
-            <div class="cco-field level-optional" data-field="subject_display">
+            <div class="cco-field level-recommended" data-field="subject_display">
               <div class="field-header">
                 <label for="subject_display">Subject (Display)</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="subject_display" title="Help">
@@ -817,10 +830,11 @@
             </div>
 
             {{-- subjects_depicted: optional, CCO 8.2, vocab AAT_SUBJECTS --}}
-            <div class="cco-field level-optional" data-field="subjects_depicted">
+            <div class="cco-field level-recommended" data-field="subjects_depicted">
               <div class="field-header">
                 <label for="subjects_depicted">Subjects depicted</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_SUBJECTS</span>
                 </span>
@@ -877,10 +891,11 @@
             </div>
 
             {{-- signature: optional, CCO 9.2 --}}
-            <div class="cco-field level-optional" data-field="signature">
+            <div class="cco-field level-recommended" data-field="signature">
               <div class="field-header">
                 <label for="signature">Signature</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">9.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="signature" title="Help">
@@ -888,7 +903,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="signature" name="signature" rows="2">{{ old('signature', $museum->signature ?? '') }}</textarea>
+                <input type="text" class="form-control" id="signature" name="signature" value="{{ old('signature', $museum->signature ?? '') }}">
               </div>
               <div class="field-help" id="help-signature" style="display: none;">
                 <div class="help-content">
@@ -914,10 +929,11 @@
             <p class="category-description">Descriptive text about the work.</p>
 
             {{-- description: optional, CCO 11.1 --}}
-            <div class="cco-field level-optional" data-field="description">
+            <div class="cco-field level-recommended" data-field="description">
               <div class="field-header">
                 <label for="description">Description</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">11.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="description" title="Help">
@@ -951,10 +967,11 @@
             <p class="category-description">Current physical condition.</p>
 
             {{-- condition_summary: optional, CCO 12.1 --}}
-            <div class="cco-field level-optional" data-field="condition_summary">
+            <div class="cco-field level-recommended" data-field="condition_summary">
               <div class="field-header">
                 <label for="condition_summary">Condition summary</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">12.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="condition_summary" title="Help">
@@ -962,7 +979,12 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="condition_summary" name="condition_summary" rows="3">{{ old('condition_summary', $museum->condition_summary ?? '') }}</textarea>
+                <select class="form-select" id="condition_summary" name="condition_summary">
+                  <option value="">-- Select --</option>
+                  @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'needs conservation' => 'Needs conservation'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('condition_summary', $museum->condition_summary ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
               </div>
               <div class="field-help" id="help-condition_summary" style="display: none;">
                 <div class="help-content">
@@ -1003,8 +1025,12 @@
                 </button>
               </div>
               <div class="field-input">
-                <input type="text" class="form-control" id="repository" name="repository"
-                       value="{{ old('repository', $museum->repository ?? '') }}" placeholder="Type to search repositories..." autocomplete="off">
+                <select class="form-select" id="repository" name="repository">
+                  <option value="">-- Select --</option>
+                  @foreach($repositories ?? [] as $repo)
+                    <option value="{{ $repo->id }}" @selected(old('repository', $museum->repository_id ?? $museum->repository ?? '') == $repo->id)>{{ $repo->name }}</option>
+                  @endforeach
+                </select>
               </div>
               <div class="field-help" id="help-repository" style="display: none;">
                 <div class="help-content">
@@ -1014,10 +1040,11 @@
             </div>
 
             {{-- location_within_repository: optional, CCO 13.2 --}}
-            <div class="cco-field level-optional" data-field="location_within_repository">
+            <div class="cco-field level-recommended" data-field="location_within_repository">
               <div class="field-header">
                 <label for="location_within_repository">Location</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="location_within_repository" title="Help">
@@ -1036,10 +1063,11 @@
             </div>
 
             {{-- credit_line: optional, CCO 13.3 --}}
-            <div class="cco-field level-optional" data-field="credit_line">
+            <div class="cco-field level-recommended" data-field="credit_line">
               <div class="field-header">
                 <label for="credit_line">Credit line</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="credit_line" title="Help">
@@ -1089,10 +1117,11 @@
             <p class="category-description">Rights and reproduction information.</p>
 
             {{-- rights_statement: optional, CCO 15.1 --}}
-            <div class="cco-field level-optional" data-field="rights_statement">
+            <div class="cco-field level-recommended" data-field="rights_statement">
               <div class="field-header">
                 <label for="rights_statement">Rights statement</label>
                 <span class="field-badges">
+                  <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">15.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="rights_statement" title="Help">
@@ -1100,7 +1129,7 @@
                 </button>
               </div>
               <div class="field-input">
-                <textarea class="form-control" id="rights_statement" name="rights_statement" rows="3">{{ old('rights_statement', $museum->rights_statement ?? '') }}</textarea>
+                <input type="text" class="form-control" id="rights_statement" name="rights_statement" value="{{ old('rights_statement', $museum->rights_statement ?? '') }}">
               </div>
               <div class="field-help" id="help-rights_statement" style="display: none;">
                 <div class="help-content">
