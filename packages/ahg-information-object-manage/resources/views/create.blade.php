@@ -49,17 +49,27 @@
             <!-- Alternative identifiers -->
             <div class="mb-3">
               <label class="form-label">Alternative identifier(s)</label>
-              <table class="table table-sm" id="altids-table">
-                <thead>
-                  <tr>
-                    <th>Label</th>
-                    <th>Value</th>
-                    <th style="width:80px"></th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">Add alternative identifier</button>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="altids-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Label</th>
+                      <th>Value</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3">
+                        <button type="button" class="btn atom-btn-white" id="add-altid-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
 
             <div class="mb-3">
@@ -75,34 +85,49 @@
             <!-- Events (dates) multi-row -->
             <div class="mb-3">
               <label class="form-label">Date(s)</label>
-              <table class="table table-sm" id="events-table">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Actor</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="event-row">
-                    <td><select name="events[0][type_id]" class="form-select form-select-sm">
-                      <option value="">-- Select --</option>
-                      @foreach($eventTypes ?? [] as $et)
-                        <option value="{{ $et->id }}">{{ $et->name }}</option>
-                      @endforeach
-                    </select></td>
-                    <td><input type="text" name="events[0][date]" class="form-control form-control-sm" placeholder="e.g. ca. 1940-1960"></td>
-                    <td><input type="text" name="events[0][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
-                    <td><input type="text" name="events[0][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
-                    <td><input type="text" name="events[0][actor]" class="form-control form-control-sm" placeholder="Actor name"></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-event-row"><i class="fas fa-times"></i></button></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">Add date</button>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="events-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Type</th>
+                      <th>Date</th>
+                      <th>Start</th>
+                      <th>End</th>
+                      <th>Actor</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="event-row">
+                      <td><select name="events[0][type_id]" class="form-select form-select-sm">
+                        <option value="">-- Select --</option>
+                        @foreach($eventTypes ?? [] as $et)
+                          <option value="{{ $et->id }}">{{ $et->name }}</option>
+                        @endforeach
+                      </select></td>
+                      <td><input type="text" name="events[0][date]" class="form-control form-control-sm" placeholder="e.g. ca. 1940-1960"></td>
+                      <td><input type="text" name="events[0][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
+                      <td><input type="text" name="events[0][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>
+                      <td><input type="text" name="events[0][actor]" class="form-control form-control-sm" placeholder="Actor name"></td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-event-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="6">
+                        <button type="button" class="btn atom-btn-white" id="add-event-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
               <div class="form-text text-muted small">"Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate." (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable. Do not use any qualifiers or typographical symbols to express uncertainty. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY.</div>
             </div>
 
@@ -148,7 +173,7 @@
                       <td><input type="text" name="childLevels[0][title]" class="form-control form-control-sm" aria-labelledby="child-title-head" aria-describedby="child-table-help"></td>
                       <td><input type="text" name="childLevels[0][date]" class="form-control form-control-sm" aria-labelledby="child-date-head" aria-describedby="child-table-help"></td>
                       <td>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-childlevel-row">
+                        <button type="button" class="btn atom-btn-white remove-childlevel-row">
                           <i class="fas fa-times" aria-hidden="true"></i>
                           <span class="visually-hidden">Delete row</span>
                         </button>
@@ -158,7 +183,7 @@
                   <tfoot>
                     <tr>
                       <td colspan="5">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="add-childlevel-row">
+                        <button type="button" class="btn atom-btn-white" id="add-childlevel-row">
                           <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
                         </button>
                       </td>
@@ -354,16 +379,36 @@
             <!-- Publication notes (multi-row) -->
             <div class="mb-3">
               <label class="form-label">Publication notes</label>
-              <table class="table table-sm" id="pubnotes-table">
-                <thead><tr><th>Content</th><th></th></tr></thead>
-                <tbody>
-                  <tr class="pubnote-row">
-                    <td><textarea name="publication_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('publication_notes.0.content') }}</textarea></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-pubnote-row"><i class="fas fa-times"></i></button></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="pubnotes-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Content</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="pubnote-row">
+                      <td><textarea name="publication_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('publication_notes.0.content') }}</textarea></td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-pubnote-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2">
+                        <button type="button" class="btn atom-btn-white" id="add-pubnote-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -380,20 +425,41 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label class="form-label">Notes</label>
-              <table class="table table-sm" id="notes-table">
-                <thead><tr><th>Content</th><th>Type</th><th></th></tr></thead>
-                <tbody>
-                  <tr class="note-row">
-                    <td><textarea name="notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('notes.0.content') }}</textarea></td>
-                    <td><select name="notes[0][type]" class="form-select form-select-sm">
-                      <option value="125">General note</option>
-                      <option value="174">Language note</option>
-                    </select></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-note-row"><i class="fas fa-times"></i></button></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">Add note</button>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="notes-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Content</th>
+                      <th>Type</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="note-row">
+                      <td><textarea name="notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('notes.0.content') }}</textarea></td>
+                      <td><select name="notes[0][type]" class="form-select form-select-sm">
+                        <option value="125">General note</option>
+                        <option value="174">Language note</option>
+                      </select></td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-note-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3">
+                        <button type="button" class="btn atom-btn-white" id="add-note-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -507,16 +573,36 @@
             <!-- Archivist's notes (multi-row) -->
             <div class="mb-3">
               <label class="form-label">Archivist's notes</label>
-              <table class="table table-sm" id="archnotes-table">
-                <thead><tr><th>Content</th><th></th></tr></thead>
-                <tbody>
-                  <tr class="archnote-row">
-                    <td><textarea name="archivists_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('archivists_notes.0.content') }}</textarea></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger remove-archnote-row"><i class="fas fa-times"></i></button></td>
-                  </tr>
-                </tbody>
-              </table>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add note</button>
+              <div class="table-responsive mb-2">
+                <table class="table table-bordered mb-0" id="archnotes-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Content</th>
+                      <th><span class="visually-hidden">Delete</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="archnote-row">
+                      <td><textarea name="archivists_notes[0][content]" class="form-control form-control-sm" rows="2">{{ old('archivists_notes.0.content') }}</textarea></td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-archnote-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">Delete row</span>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2">
+                        <button type="button" class="btn atom-btn-white" id="add-archnote-row">
+                          <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+                        </button>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -738,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function() {
       '<td><input type="text" name="events[' + eventIdx + '][start_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
       '<td><input type="text" name="events[' + eventIdx + '][end_date]" class="form-control form-control-sm" placeholder="YYYY-MM-DD"></td>' +
       '<td><input type="text" name="events[' + eventIdx + '][actor]" class="form-control form-control-sm" placeholder="Actor name"></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-event-row"><i class="fas fa-times"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-event-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#events-table tbody').appendChild(tr);
     eventIdx++;
   });
@@ -750,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tr.className = 'altid-row';
     tr.innerHTML = '<td><input type="text" name="alt_ids[' + altIdx + '][label]" class="form-control form-control-sm" placeholder="Label"></td>' +
       '<td><input type="text" name="alt_ids[' + altIdx + '][value]" class="form-control form-control-sm" placeholder="Value"></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-altid-row"><i class="fas fa-times"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-altid-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#altids-table tbody').appendChild(tr);
     altIdx++;
   });
@@ -763,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tr.className = 'note-row';
     tr.innerHTML = '<td><textarea name="notes[' + noteIdx + '][content]" class="form-control form-control-sm" rows="2"></textarea></td>' +
       '<td><select name="notes[' + noteIdx + '][type]" class="form-select form-select-sm">' + noteTypeOptions + '</select></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-note-row"><i class="fas fa-times"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-note-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#notes-table tbody').appendChild(tr);
     noteIdx++;
   });
@@ -777,7 +863,7 @@ document.addEventListener('DOMContentLoaded', function() {
       '<td><select name="childLevels[' + childIdx + '][levelOfDescription]" class="form-select form-select-sm">' + childLevelOptions + '</select></td>' +
       '<td><input type="text" name="childLevels[' + childIdx + '][title]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="childLevels[' + childIdx + '][date]" class="form-control form-control-sm"></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-childlevel-row"><i class="fas fa-times" aria-hidden="true"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-childlevel-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#childlevels-table tbody').appendChild(tr);
     childIdx++;
   });
@@ -788,7 +874,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var tr = document.createElement('tr');
     tr.className = 'pubnote-row';
     tr.innerHTML = '<td><textarea name="publication_notes[' + pubIdx + '][content]" class="form-control form-control-sm" rows="2"></textarea></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-pubnote-row"><i class="fas fa-times"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-pubnote-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#pubnotes-table tbody').appendChild(tr);
     pubIdx++;
   });
@@ -799,7 +885,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var tr = document.createElement('tr');
     tr.className = 'archnote-row';
     tr.innerHTML = '<td><textarea name="archivists_notes[' + archIdx + '][content]" class="form-control form-control-sm" rows="2"></textarea></td>' +
-      '<td><button type="button" class="btn btn-sm btn-outline-danger remove-archnote-row"><i class="fas fa-times"></i></button></td>';
+      '<td><button type="button" class="btn atom-btn-white remove-archnote-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
     document.querySelector('#archnotes-table tbody').appendChild(tr);
     archIdx++;
   });
