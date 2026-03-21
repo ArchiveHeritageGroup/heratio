@@ -10,6 +10,346 @@ use Illuminate\Support\Facades\Schema;
 class HeritageController extends Controller
 {
     /**
+     * Heritage Landing Page.
+     *
+     * Queries hero images, config, curated collections, creators,
+     * timeline periods, recently added items, and contributors.
+     */
+    public function landing()
+    {
+        $culture = 'en';
+
+        // --- Hero Images ---
+        $heroImages = [];
+        try {
+            if (Schema::hasTable('heritage_landing_hero_images')) {
+                $heroImages = DB::table('heritage_landing_hero_images')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get()
+                    ->map(fn ($row) => (array) $row)
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            $heroImages = [];
+        }
+
+        // --- Config ---
+        $configArray = [];
+        try {
+            if (Schema::hasTable('heritage_landing_config')) {
+                $rows = DB::table('heritage_landing_config')->get();
+                foreach ($rows as $row) {
+                    $configArray[$row->key ?? $row->name ?? ''] = $row->value ?? '';
+                }
+            }
+        } catch (\Exception $e) {
+            $configArray = [];
+        }
+
+        $tagline = $configArray['hero_tagline'] ?? 'Discover Our Heritage';
+        $subtext = $configArray['hero_subtext'] ?? 'Explore collections spanning centuries of history, culture, and human achievement';
+        $searchPlaceholder = $configArray['hero_search_placeholder'] ?? 'Search photographs, documents, artifacts...';
+        $suggestedSearches = $configArray['suggested_searches'] ?? [];
+        if (is_string($suggestedSearches)) {
+            $suggestedSearches = json_decode($suggestedSearches, true) ?: [];
+        }
+        $primaryColor = $configArray['primary_color'] ?? '#0d6efd';
+
+        // --- Curated Collections ---
+        $curatedCollections = $this->getCuratedCollections($culture, 12);
+
+        // --- Creators ---
+        $creators = collect();
+        try {
+            $creators = DB::table('actor')
+                ->leftJoin('actor_i18n', function ($join) use ($culture) {
+                    $join->on('actor.id', '=', 'actor_i18n.id')
+                        ->where('actor_i18n.culture', '=', $culture);
+                })
+                ->leftJoin('slug', function ($join) {
+                    $join->on('actor.id', '=', 'slug.object_id');
+                })
+                ->leftJoin('relation', 'actor.id', '=', 'relation.object_id')
+                ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name')
+                ->selectRaw('COUNT(relation.id) as item_count')
+                ->whereNotNull('actor_i18n.authorized_form_of_name')
+                ->where('actor_i18n.authorized_form_of_name', '!=', '')
+                ->groupBy('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name')
+                ->orderByDesc('item_count')
+                ->limit(10)
+                ->get();
+        } catch (\Exception $e) {
+            $creators = collect();
+        }
+
+        // --- Timeline Periods ---
+        $timelinePeriods = collect();
+        try {
+            if (Schema::hasTable('heritage_timeline_period')) {
+                $timelinePeriods = DB::table('heritage_timeline_period')
+                    ->where('is_enabled', 1)
+                    ->where('show_on_landing', 1)
+                    ->orderBy('start_year')
+                    ->get();
+            }
+        } catch (\Exception $e) {
+            $timelinePeriods = collect();
+        }
+
+        // --- Recently Added Items with Digital Objects ---
+        $recentItems = collect();
+        try {
+            $recentItems = DB::table('information_object')
+                ->join('object', 'information_object.id', '=', 'object.id')
+                ->join('status as pub_status', function ($join) {
+                    $join->on('information_object.id', '=', 'pub_status.object_id')
+                        ->where('pub_status.type_id', '=', 158);
+                })
+                ->leftJoin('information_object_i18n', function ($join) use ($culture) {
+                    $join->on('information_object.id', '=', 'information_object_i18n.id')
+                        ->where('information_object_i18n.culture', '=', $culture);
+                })
+                ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+                ->leftJoin('digital_object', function ($join) {
+                    $join->on('information_object.id', '=', 'digital_object.object_id')
+                        ->where('digital_object.usage_id', '=', 140);
+                })
+                ->leftJoin('digital_object as do_thumb', function ($join) {
+                    $join->on('do_thumb.parent_id', '=', 'digital_object.id')
+                        ->where('do_thumb.usage_id', '=', 142);
+                })
+                ->select(
+                    'information_object.id',
+                    'slug.slug',
+                    'information_object_i18n.title',
+                    'digital_object.path as image_path',
+                    'digital_object.name as image_name',
+                    'digital_object.mime_type',
+                    'do_thumb.path as thumb_child_path',
+                    'do_thumb.name as thumb_child_name'
+                )
+                ->where('pub_status.status_id', 160) // Published only
+                ->whereNotNull('digital_object.id')
+                ->where('information_object.id', '!=', 1)
+                ->orderByDesc('object.created_at')
+                ->limit(12)
+                ->get();
+        } catch (\Exception $e) {
+            $recentItems = collect();
+        }
+
+        // --- Top Contributors ---
+        $topContributors = collect();
+        try {
+            if (Schema::hasTable('heritage_contributor')) {
+                $topContributors = DB::table('heritage_contributor')
+                    ->where('is_active', 1)
+                    ->orderByDesc('points')
+                    ->limit(5)
+                    ->get();
+            }
+        } catch (\Exception $e) {
+            $topContributors = collect();
+        }
+
+        return view('ahg-heritage-manage::landing', compact(
+            'heroImages',
+            'tagline',
+            'subtext',
+            'searchPlaceholder',
+            'suggestedSearches',
+            'primaryColor',
+            'curatedCollections',
+            'creators',
+            'timelinePeriods',
+            'recentItems',
+            'topContributors'
+        ));
+    }
+
+    /**
+     * Get curated collections from the heritage_featured_collection table.
+     * Only shows explicitly selected collections.
+     */
+    protected function getCuratedCollections(string $culture, int $limit = 12): array
+    {
+        $result = [];
+
+        try {
+            if (!Schema::hasTable('heritage_featured_collection')) {
+                return [];
+            }
+
+            $featured = DB::table('heritage_featured_collection')
+                ->where('is_enabled', 1)
+                ->orderBy('display_order')
+                ->orderBy('id')
+                ->limit($limit)
+                ->get();
+
+            foreach ($featured as $item) {
+                if ($item->source_type === 'iiif') {
+                    // Get IIIF collection details
+                    if (!Schema::hasTable('iiif_collection')) {
+                        continue;
+                    }
+
+                    $collection = DB::table('iiif_collection as c')
+                        ->leftJoin('iiif_collection_i18n as ci', function ($join) use ($culture) {
+                            $join->on('c.id', '=', 'ci.collection_id')
+                                ->where('ci.culture', '=', $culture);
+                        })
+                        ->where('c.id', $item->source_id)
+                        ->select([
+                            'c.id', 'c.name', 'c.slug', 'c.description', 'c.thumbnail_url',
+                            DB::raw('COALESCE(ci.name, c.name) as display_name'),
+                            DB::raw('COALESCE(ci.description, c.description) as display_description'),
+                        ])
+                        ->first();
+
+                    if (!$collection) {
+                        continue;
+                    }
+
+                    $itemCount = DB::table('iiif_collection_item')
+                        ->where('collection_id', $collection->id)
+                        ->count();
+
+                    $thumbnail = $item->thumbnail_path ?? null;
+                    if (!$thumbnail) {
+                        $thumbnail = $collection->thumbnail_url ?? null;
+                    }
+                    if (!$thumbnail) {
+                        $firstItem = DB::table('iiif_collection_item as ci')
+                            ->leftJoin('digital_object as do', function ($join) {
+                                $join->on('ci.object_id', '=', 'do.object_id')
+                                    ->where('do.usage_id', '=', 140);
+                            })
+                            ->leftJoin('digital_object as do_thumb', function ($join) {
+                                $join->on('do_thumb.parent_id', '=', 'do.id')
+                                    ->where('do_thumb.usage_id', '=', 142);
+                            })
+                            ->where('ci.collection_id', $collection->id)
+                            ->whereNotNull('ci.object_id')
+                            ->select(['do.path', 'do.name', 'do_thumb.path as thumb_path', 'do_thumb.name as thumb_name'])
+                            ->orderBy('ci.sort_order')
+                            ->first();
+
+                        if ($firstItem) {
+                            if (!empty($firstItem->thumb_path) && !empty($firstItem->thumb_name)) {
+                                $thumbnail = rtrim($firstItem->thumb_path, '/') . '/' . $firstItem->thumb_name;
+                            } elseif (!empty($firstItem->path) && !empty($firstItem->name)) {
+                                $candidate = rtrim($firstItem->path, '/') . '/' . pathinfo($firstItem->name, PATHINFO_FILENAME) . '_142.jpg';
+                                $rootDir = config('heratio.uploads_path', '/usr/share/nginx/archive');
+                                if (file_exists($rootDir . $candidate)) {
+                                    $thumbnail = $candidate;
+                                }
+                            }
+                        }
+                    }
+
+                    $result[] = [
+                        'type' => 'iiif',
+                        'id' => $collection->id,
+                        'name' => $item->title ?? $collection->display_name ?? $collection->name,
+                        'slug' => $collection->slug,
+                        'description' => $item->description ?? $collection->display_description ?? $collection->description,
+                        'thumbnail' => $thumbnail,
+                        'item_count' => $itemCount,
+                        'sort_order' => $item->display_order,
+                    ];
+                } else {
+                    // Get archival collection (information_object) details
+                    $collection = DB::table('information_object as io')
+                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                            $join->on('io.id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', $culture);
+                        })
+                        ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                        ->leftJoin('digital_object as do', function ($join) {
+                            $join->on('io.id', '=', 'do.object_id')
+                                ->where('do.usage_id', '=', 140);
+                        })
+                        ->leftJoin('digital_object as do_thumb', function ($join) {
+                            $join->on('do_thumb.parent_id', '=', 'do.id')
+                                ->where('do_thumb.usage_id', '=', 142);
+                        })
+                        ->where('io.id', $item->source_id)
+                        ->select([
+                            'io.id', 'ioi.title', 'ioi.scope_and_content as description',
+                            's.slug', 'do.path as thumb_path', 'do.name as thumb_name',
+                            'do_thumb.path as thumb_child_path', 'do_thumb.name as thumb_child_name',
+                            'io.lft', 'io.rgt',
+                        ])
+                        ->first();
+
+                    if (!$collection) {
+                        continue;
+                    }
+
+                    $itemCount = (int) (($collection->rgt - $collection->lft - 1) / 2);
+
+                    $thumbnail = $item->thumbnail_path ?? null;
+                    if (!$thumbnail && !empty($collection->thumb_child_path) && !empty($collection->thumb_child_name)) {
+                        $thumbnail = rtrim($collection->thumb_child_path, '/') . '/' . $collection->thumb_child_name;
+                    }
+                    if (!$thumbnail && !empty($collection->thumb_path) && !empty($collection->thumb_name)) {
+                        $candidate = rtrim($collection->thumb_path, '/') . '/' . pathinfo($collection->thumb_name, PATHINFO_FILENAME) . '_142.jpg';
+                        $rootDir = config('heratio.uploads_path', '/usr/share/nginx/archive');
+                        if (file_exists($rootDir . $candidate)) {
+                            $thumbnail = $candidate;
+                        }
+                    }
+                    if (!$thumbnail) {
+                        $firstChild = DB::table('information_object as io')
+                            ->join('digital_object as do', function ($join) {
+                                $join->on('io.id', '=', 'do.object_id')
+                                    ->where('do.usage_id', '=', 140);
+                            })
+                            ->leftJoin('digital_object as do_thumb', function ($join) {
+                                $join->on('do_thumb.parent_id', '=', 'do.id')
+                                    ->where('do_thumb.usage_id', '=', 142);
+                            })
+                            ->where('io.lft', '>', $collection->lft)
+                            ->where('io.rgt', '<', $collection->rgt)
+                            ->select(['do.path', 'do.name', 'do_thumb.path as tp', 'do_thumb.name as tn'])
+                            ->orderBy('io.lft')
+                            ->first();
+
+                        if ($firstChild) {
+                            if (!empty($firstChild->tp) && !empty($firstChild->tn)) {
+                                $thumbnail = rtrim($firstChild->tp, '/') . '/' . $firstChild->tn;
+                            } elseif (!empty($firstChild->path) && !empty($firstChild->name)) {
+                                $candidate = rtrim($firstChild->path, '/') . '/' . pathinfo($firstChild->name, PATHINFO_FILENAME) . '_142.jpg';
+                                $rootDir = config('heratio.uploads_path', '/usr/share/nginx/archive');
+                                if (file_exists($rootDir . $candidate)) {
+                                    $thumbnail = $candidate;
+                                }
+                            }
+                        }
+                    }
+
+                    $result[] = [
+                        'type' => 'archival',
+                        'id' => $collection->id,
+                        'name' => $item->title ?? $collection->title,
+                        'slug' => $collection->slug,
+                        'description' => $item->description ?? $collection->description,
+                        'thumbnail' => $thumbnail,
+                        'item_count' => $itemCount,
+                        'sort_order' => $item->display_order,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Tables may not exist yet
+        }
+
+        return $result;
+    }
+
+    /**
      * Heritage Admin Dashboard.
      */
     public function adminDashboard()
