@@ -32,4 +32,14 @@
   @if(isset($pager))
     @include('ahg-core::components.pager', ['pager' => $pager])
   @endif
+
+@push('css')
+<style>
+.table thead th {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+</style>
+@endpush
 @endsection
