@@ -13,7 +13,7 @@
 </div>
 @if (!empty($unmatchedTerms))
 <div class="alert alert-info mt-3 mb-0 py-2 small">
-    <i class="bi-info-circle me-1"></i>
+    <i class="fas fa-info-circle me-1"></i>
     No results found for <strong>{{ implode(', ', $unmatchedTerms) }}</strong>.
     @if (!empty($matchedTerms))
         Showing results matching: <strong>{{ implode(', ', $matchedTerms) }}</strong>
@@ -36,7 +36,7 @@
                            placeholder="Search..."
                            value="{{ $query }}">
                     <button class="btn btn-primary" type="submit">
-                        <i class="bi-search"></i>
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
 
@@ -76,8 +76,8 @@
                     (empty($newFilters) ? '' : '&' . http_build_query($newFilters));
                 @endphp
                 <a href="{{ $removeUrl }}" class="btn btn-sm btn-outline-secondary mb-1 me-1">
-                    {{ $val }}
-                    <i class="bi-x ms-1"></i>
+                    {{ $filterLabelMap[$filterCode][$val] ?? $val }}
+                    <i class="fas fa-times ms-1"></i>
                 </a>
                 @endforeach
             @endforeach
@@ -131,7 +131,7 @@
                     <a href="{{ url('/heritage/search') . '?' . http_build_query(['q' => $query]) }}&{{ http_build_query($newFilters) }}"
                        class="text-decoration-none d-flex justify-content-between align-items-center py-1 {{ $isSelected ? 'fw-bold text-primary' : 'text-dark' }}">
                         <span class="text-truncate">
-                            @if ($isSelected)<i class="bi-check2 me-1"></i>@endif
+                            @if ($isSelected)<i class="fas fa-check me-1"></i>@endif
                             {{ $value['label'] }}
                         </span>
                         <span class="badge bg-light text-muted">{{ number_format($value['count']) }}</span>
@@ -152,7 +152,7 @@
     <!-- Back to Landing -->
     <div class="mt-4">
         <a href="{{ url('/heritage') }}" class="btn btn-outline-secondary w-100">
-            <i class="bi-house me-2"></i> Back to Home
+            <i class="fas fa-home me-2"></i> Back to Home
         </a>
     </div>
 
@@ -166,7 +166,7 @@
     <!-- No Results -->
     @if (empty($searchResults))
     <div class="text-center py-5">
-        <i class="bi-search display-1 text-muted mb-4"></i>
+        <i class="fas fa-search display-1 text-muted mb-4"></i>
         <h2 class="h4">No results found</h2>
         <p class="text-muted">
             @if ($query)
@@ -213,17 +213,17 @@
                              class="img-fluid rounded-start h-100 object-fit-cover"
                              style="max-height: 180px; width: 100%;"
                              loading="lazy"
-                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'bg-light h-100 d-flex align-items-center justify-content-center text-muted rounded-start\' style=\'min-height: 150px;\'><i class=\'bi-image fs-1\'></i></div>';">
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'bg-light h-100 d-flex align-items-center justify-content-center text-muted rounded-start\' style=\'min-height: 150px;\'><i class=\'fas fa-image fs-1\'></i></div>';">
                         @else
                         @php
                         $iconClass = match($result['media_type'] ?? null) {
-                            'image' => 'bi-image',
-                            'video' => 'bi-camera-video',
-                            'audio' => 'bi-music-note-beamed',
-                            'model' => 'bi-box',
-                            'document' => 'bi-file-pdf',
-                            'text' => 'bi-file-text',
-                            default => 'bi-archive'
+                            'image' => 'fas fa-image',
+                            'video' => 'fas fa-video',
+                            'audio' => 'fas fa-music',
+                            'model' => 'fas fa-cube',
+                            'document' => 'fas fa-file-pdf',
+                            'text' => 'fas fa-file-alt',
+                            default => 'fas fa-archive'
                         };
                         $bgClass = match($result['media_type'] ?? null) {
                             'image' => 'bg-info',
@@ -258,19 +258,19 @@
                         <div class="d-flex flex-wrap gap-2 mb-2">
                             @if (!empty($result['type']))
                             <span class="badge bg-light text-dark">
-                                <i class="bi-tag me-1"></i>{{ $result['type'] }}
+                                <i class="fas fa-tag me-1"></i>{{ $result['type'] }}
                             </span>
                             @endif
 
                             @if (!empty($result['date']))
                             <span class="badge bg-light text-dark">
-                                <i class="bi-calendar me-1"></i>{{ $result['date'] }}
+                                <i class="fas fa-calendar me-1"></i>{{ $result['date'] }}
                             </span>
                             @endif
 
                             @if (!empty($result['collection']))
                             <span class="badge bg-light text-dark">
-                                <i class="bi-collection me-1"></i>{{ $result['collection'] }}
+                                <i class="fas fa-layer-group me-1"></i>{{ $result['collection'] }}
                             </span>
                             @endif
                         </div>
@@ -295,7 +295,7 @@
             <!-- Previous -->
             <li class="page-item {{ $currentPage <= 1 ? 'disabled' : '' }}">
                 <a class="page-link" href="{{ url('/heritage/search') . '?' . http_build_query(array_merge(['q' => $query, 'page' => $currentPage - 1], $filters)) }}">
-                    <i class="bi-chevron-left"></i>
+                    <i class="fas fa-chevron-left"></i>
                 </a>
             </li>
 
@@ -335,7 +335,7 @@
             <!-- Next -->
             <li class="page-item {{ $currentPage >= $totalPages ? 'disabled' : '' }}">
                 <a class="page-link" href="{{ url('/heritage/search') . '?' . http_build_query(array_merge(['q' => $query, 'page' => $currentPage + 1], $filters)) }}">
-                    <i class="bi-chevron-right"></i>
+                    <i class="fas fa-chevron-right"></i>
                 </a>
             </li>
         </ul>

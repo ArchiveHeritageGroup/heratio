@@ -208,6 +208,7 @@ class HeritageController extends Controller
 
         // Build filterOptions array for the view (matching AtoM template structure)
         $filterOptions = [];
+        $filterLabelMap = []; // Map filter_code => id => label for active filter display
         foreach ($facets as $code => $facet) {
             $filterOptions[] = [
                 'code'           => $facet['code'],
@@ -216,6 +217,9 @@ class HeritageController extends Controller
                 'show_in_search' => $facet['show_in_search'],
                 'values'         => $facet['values'],
             ];
+            foreach ($facet['values'] as $v) {
+                $filterLabelMap[$facet['code']][$v['value']] = $v['label'];
+            }
         }
 
         return view('ahg-heritage-manage::search', compact(
@@ -226,6 +230,7 @@ class HeritageController extends Controller
             'searchResults',
             'filters',
             'filterOptions',
+            'filterLabelMap',
             'unmatchedTerms',
             'matchedTerms',
             'searchId',

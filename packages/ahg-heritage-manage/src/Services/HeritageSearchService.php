@@ -203,51 +203,33 @@ class HeritageSearchService
                 continue;
             }
 
+            // Filter values are IDs (matching AtoM URL pattern)
+            $intValues = array_map('intval', $values);
+
             switch ($filterCode) {
                 case 'place':
                     $alias = 'otr_place_' . $aliasCounter++;
-                    $tAlias = 't_place_' . $aliasCounter++;
-                    $tiAlias = 'ti_place_' . $aliasCounter++;
 
                     $query->join("object_term_relation as {$alias}", 'io.id', '=', "{$alias}.object_id")
-                        ->join("term as {$tAlias}", "{$alias}.term_id", '=', "{$tAlias}.id")
-                        ->join("term_i18n as {$tiAlias}", "{$tAlias}.id", '=', "{$tiAlias}.id")
-                        ->where("{$tAlias}.taxonomy_id", 42)
-                        ->where("{$tiAlias}.culture", $this->culture)
-                        ->whereIn("{$tiAlias}.name", $values);
+                        ->whereIn("{$alias}.term_id", $intValues);
                     break;
 
                 case 'subject':
                     $alias = 'otr_subj_' . $aliasCounter++;
-                    $tAlias = 't_subj_' . $aliasCounter++;
-                    $tiAlias = 'ti_subj_' . $aliasCounter++;
 
                     $query->join("object_term_relation as {$alias}", 'io.id', '=', "{$alias}.object_id")
-                        ->join("term as {$tAlias}", "{$alias}.term_id", '=', "{$tAlias}.id")
-                        ->join("term_i18n as {$tiAlias}", "{$tAlias}.id", '=', "{$tiAlias}.id")
-                        ->where("{$tAlias}.taxonomy_id", 35)
-                        ->where("{$tiAlias}.culture", $this->culture)
-                        ->whereIn("{$tiAlias}.name", $values);
+                        ->whereIn("{$alias}.term_id", $intValues);
                     break;
 
                 case 'creator':
                     $relAlias = 'rel_creator_' . $aliasCounter++;
-                    $aiAlias = 'ai_creator_' . $aliasCounter++;
 
                     $query->join("relation as {$relAlias}", 'io.id', '=', "{$relAlias}.subject_id")
-                        ->join("actor_i18n as {$aiAlias}", "{$relAlias}.object_id", '=', "{$aiAlias}.id")
-                        ->where("{$aiAlias}.culture", $this->culture)
-                        ->whereIn("{$aiAlias}.authorized_form_of_name", $values);
+                        ->whereIn("{$relAlias}.object_id", $intValues);
                     break;
 
                 case 'collection':
-                    $repoAlias = 'repo_filter_' . $aliasCounter++;
-
-                    $query->join("actor_i18n as {$repoAlias}", function ($join) use ($repoAlias) {
-                        $join->on('io.repository_id', '=', "{$repoAlias}.id")
-                            ->where("{$repoAlias}.culture", '=', $this->culture);
-                    })
-                    ->whereIn("{$repoAlias}.authorized_form_of_name", $values);
+                    $query->whereIn('io.repository_id', $intValues);
                     break;
             }
         }
@@ -404,10 +386,10 @@ class HeritageSearchService
 
         if (empty($matchingIds)) {
             return [
-                'place'      => ['label' => 'Place',      'icon' => 'bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => []],
-                'subject'    => ['label' => 'Subject',    'icon' => 'bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => []],
-                'creator'    => ['label' => 'Creator',    'icon' => 'bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => []],
-                'collection' => ['label' => 'Collection', 'icon' => 'bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => []],
+                'place'      => ['label' => 'Place',      'icon' => 'bi bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => []],
+                'subject'    => ['label' => 'Subject',    'icon' => 'bi bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => []],
+                'creator'    => ['label' => 'Creator',    'icon' => 'bi bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => []],
+                'collection' => ['label' => 'Collection', 'icon' => 'bi bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => []],
             ];
         }
 
@@ -427,10 +409,10 @@ class HeritageSearchService
         $collectionFacet = $this->buildCollectionFacet($idChunks);
 
         return [
-            'place'      => ['label' => 'Place',      'icon' => 'bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => $placeFacet],
-            'subject'    => ['label' => 'Subject',    'icon' => 'bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => $subjectFacet],
-            'creator'    => ['label' => 'Creator',    'icon' => 'bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => $creatorFacet],
-            'collection' => ['label' => 'Collection', 'icon' => 'bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => $collectionFacet],
+            'place'      => ['label' => 'Place',      'icon' => 'bi bi-geo-alt',    'code' => 'place',      'show_in_search' => true, 'values' => $placeFacet],
+            'subject'    => ['label' => 'Subject',    'icon' => 'bi bi-tag',        'code' => 'subject',    'show_in_search' => true, 'values' => $subjectFacet],
+            'creator'    => ['label' => 'Creator',    'icon' => 'bi bi-person',     'code' => 'creator',    'show_in_search' => true, 'values' => $creatorFacet],
+            'collection' => ['label' => 'Collection', 'icon' => 'bi bi-collection', 'code' => 'collection', 'show_in_search' => true, 'values' => $collectionFacet],
         ];
     }
 
@@ -448,19 +430,21 @@ class HeritageSearchService
                 ->where('t.taxonomy_id', $taxonomyId)
                 ->where('ti.culture', $this->culture)
                 ->whereIn('otr.object_id', $chunk)
-                ->select('ti.name', DB::raw('COUNT(DISTINCT otr.object_id) as cnt'))
-                ->groupBy('ti.name')
+                ->select('t.id', 'ti.name', DB::raw('COUNT(DISTINCT otr.object_id) as cnt'))
+                ->groupBy('t.id', 'ti.name')
                 ->get();
 
             foreach ($partial as $row) {
-                $existing = $counts->get($row->name, 0);
-                $counts->put($row->name, $existing + $row->cnt);
+                $key = $row->id;
+                $existing = $counts->get($key, ['id' => $row->id, 'name' => $row->name, 'cnt' => 0]);
+                $existing['cnt'] += $row->cnt;
+                $counts->put($key, $existing);
             }
         }
 
-        return $counts->sortByDesc(fn ($v) => $v)
+        return $counts->sortByDesc(fn ($v) => $v['cnt'])
             ->take(6)
-            ->map(fn ($count, $name) => ['value' => $name, 'label' => $name, 'count' => $count])
+            ->map(fn ($item) => ['value' => (string) $item['id'], 'label' => $item['name'], 'count' => $item['cnt']])
             ->values()
             ->toArray();
     }
@@ -479,19 +463,21 @@ class HeritageSearchService
                 ->whereNotNull('ai.authorized_form_of_name')
                 ->where('ai.authorized_form_of_name', '!=', '')
                 ->whereIn('r.subject_id', $chunk)
-                ->select('ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT r.subject_id) as cnt'))
-                ->groupBy('ai.authorized_form_of_name')
+                ->select('ai.id', 'ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT r.subject_id) as cnt'))
+                ->groupBy('ai.id', 'ai.authorized_form_of_name')
                 ->get();
 
             foreach ($partial as $row) {
-                $existing = $counts->get($row->name, 0);
-                $counts->put($row->name, $existing + $row->cnt);
+                $key = $row->id;
+                $existing = $counts->get($key, ['id' => $row->id, 'name' => $row->name, 'cnt' => 0]);
+                $existing['cnt'] += $row->cnt;
+                $counts->put($key, $existing);
             }
         }
 
-        return $counts->sortByDesc(fn ($v) => $v)
+        return $counts->sortByDesc(fn ($v) => $v['cnt'])
             ->take(6)
-            ->map(fn ($count, $name) => ['value' => $name, 'label' => $name, 'count' => $count])
+            ->map(fn ($item) => ['value' => (string) $item['id'], 'label' => $item['name'], 'count' => $item['cnt']])
             ->values()
             ->toArray();
     }
@@ -513,19 +499,21 @@ class HeritageSearchService
                 ->whereNotNull('ai.authorized_form_of_name')
                 ->where('ai.authorized_form_of_name', '!=', '')
                 ->whereIn('io.id', $chunk)
-                ->select('ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                ->groupBy('ai.authorized_form_of_name')
+                ->select('io.repository_id', 'ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                ->groupBy('io.repository_id', 'ai.authorized_form_of_name')
                 ->get();
 
             foreach ($partial as $row) {
-                $existing = $counts->get($row->name, 0);
-                $counts->put($row->name, $existing + $row->cnt);
+                $key = $row->repository_id;
+                $existing = $counts->get($key, ['id' => $row->repository_id, 'name' => $row->name, 'cnt' => 0]);
+                $existing['cnt'] += $row->cnt;
+                $counts->put($key, $existing);
             }
         }
 
-        return $counts->sortByDesc(fn ($v) => $v)
+        return $counts->sortByDesc(fn ($v) => $v['cnt'])
             ->take(6)
-            ->map(fn ($count, $name) => ['value' => $name, 'label' => $name, 'count' => $count])
+            ->map(fn ($item) => ['value' => (string) $item['id'], 'label' => $item['name'], 'count' => $item['cnt']])
             ->values()
             ->toArray();
     }
