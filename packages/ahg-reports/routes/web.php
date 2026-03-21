@@ -3,14 +3,14 @@
 use AhgReports\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
-// Public alias routes (auth only, no admin required)
+// Main dashboard at /reports (matching AtoM URL)
 Route::middleware('auth')->group(function () {
-    Route::get('/reports', [ReportController::class, 'dashboard']);
+    Route::get('/reports', [ReportController::class, 'dashboard'])->name('reports.dashboard');
     Route::get('/reports/index', [ReportController::class, 'dashboard']);
+    Route::get('/admin/reports', [ReportController::class, 'dashboard']); // legacy alias
 });
 
 Route::middleware('admin')->prefix('admin/reports')->group(function () {
-    Route::get('/', [ReportController::class, 'dashboard'])->name('reports.dashboard');
     Route::get('/accessions', [ReportController::class, 'accessions'])->name('reports.accessions');
     Route::get('/descriptions', [ReportController::class, 'descriptions'])->name('reports.descriptions');
     Route::get('/authorities', [ReportController::class, 'authorities'])->name('reports.authorities');

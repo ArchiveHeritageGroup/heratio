@@ -571,4 +571,17 @@
     </div>
   </div>
 </div>
+
+@push('css')
+<style>
+.card-header {
+  background-color: var(--ahg-primary, #005837);
+  color: var(--ahg-card-header-text, #fff);
+  border-color: var(--ahg-primary, #005837);
+}
+.card-header a {
+  color: var(--ahg-card-header-text, #fff);
+}
+</style>
+@endpush
 @endsection
