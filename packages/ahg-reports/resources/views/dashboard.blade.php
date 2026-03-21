@@ -41,8 +41,8 @@
   $hasNAZ = $has('ahgNAZPlugin');
   $hasIPSAS = $has('ahgIPSASPlugin');
   $hasNMMZ = $has('ahgNMMZPlugin');
-  $hasDataIngest = $has('ahgDataIngestPlugin');
-  $hasKnowledge = $has('ahgKnowledgePlugin');
+  $hasDataIngest = $has('ahgIngestPlugin');
+  $hasKnowledge = $has('ahgResearchPlugin');
 @endphp
 
 @section('content')
@@ -666,13 +666,11 @@
 
 @push('css')
 <style>
-.card-header {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
+.reports-dashboard .col-md-9 .card-header {
+  color: #fff;
 }
-.card-header a {
-  color: var(--ahg-card-header-text, #fff);
+.reports-dashboard .col-md-9 .card-header a {
+  color: #fff;
 }
 </style>
 @endpush
