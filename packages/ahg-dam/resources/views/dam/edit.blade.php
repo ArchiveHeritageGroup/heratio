@@ -691,11 +691,11 @@
             <input type="hidden" name="version_id[]" value="{{ $v->id }}">
             <div class="row mb-2">
               <div class="col-md-4">
-                <label class="form-label small">Title</label>
+                <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_title[]" value="{{ $v->title }}" placeholder="e.g., Kuddes van die veld">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Type</label>
+                <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select form-select-sm" name="version_type[]">
                   <option value="language" @selected($v->version_type === 'language')>Language</option>
                   <option value="format" @selected($v->version_type === 'format')>Format</option>
@@ -706,21 +706,21 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Language</label>
+                <label class="form-label small">Language <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_language[]" value="{{ $v->language_name }}" placeholder="Afrikaans">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">ISO Code</label>
+                <label class="form-label small">ISO Code <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_language_code[]" value="{{ $v->language_code }}" maxlength="3" placeholder="afr">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Year</label>
+                <label class="form-label small">Year <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_year[]" value="{{ $v->year }}" placeholder="1954">
               </div>
             </div>
             <div class="row">
               <div class="col-md-11">
-                <label class="form-label small">Notes</label>
+                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="version_notes[]" value="{{ $v->notes }}" placeholder="Additional information about this version">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -749,7 +749,7 @@
             <input type="hidden" name="holding_id[]" value="{{ $h->id }}">
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Format</label>
+                <label class="form-label small">Format <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select form-select-sm" name="holding_format[]">
                   <optgroup label="Film">
                     <option value="35mm" @selected($h->format_type === '35mm')>35mm</option>
@@ -784,25 +784,25 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Format Details</label>
+                <label class="form-label small">Format Details <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_format_details[]" value="{{ $h->format_details }}" placeholder="Color, sound, ratio">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Institution</label>
+                <label class="form-label small">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_institution[]" value="{{ $h->holding_institution }}" placeholder="e.g., NFVSA, WCPLS">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Location</label>
+                <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_location[]" value="{{ $h->holding_location }}" placeholder="Department/vault">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Accession #</label>
+                <label class="form-label small">Accession # <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_accession[]" value="{{ $h->accession_number }}" placeholder="Ref number">
               </div>
             </div>
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Condition</label>
+                <label class="form-label small">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select form-select-sm" name="holding_condition[]">
                   <option value="unknown" @selected($h->condition_status === 'unknown')>Unknown</option>
                   <option value="excellent" @selected($h->condition_status === 'excellent')>Excellent</option>
@@ -813,7 +813,7 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Access</label>
+                <label class="form-label small">Access <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select form-select-sm" name="holding_access[]">
                   <option value="unknown" @selected($h->access_status === 'unknown')>Unknown</option>
                   <option value="available" @selected($h->access_status === 'available')>Available</option>
@@ -825,15 +825,15 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Access URL</label>
+                <label class="form-label small">Access URL <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="url" class="form-control form-control-sm" name="holding_url[]" value="{{ $h->access_url }}" placeholder="Streaming/download URL">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Verified Date</label>
+                <label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" class="form-control form-control-sm" name="holding_verified[]" value="{{ $h->verified_date }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Primary</label>
+                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check mt-1">
                   <input type="checkbox" class="form-check-input" name="holding_primary[]" value="{{ $h->id }}" @checked($h->is_primary)>
                   <label class="form-check-label small">Primary copy</label>
@@ -842,11 +842,11 @@
             </div>
             <div class="row">
               <div class="col-md-6">
-                <label class="form-label small">Access Notes</label>
+                <label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_access_notes[]" value="{{ $h->access_notes }}" placeholder="How to request, viewing conditions">
               </div>
               <div class="col-md-5">
-                <label class="form-label small">Notes</label>
+                <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="holding_notes[]" value="{{ $h->notes }}" placeholder="Additional notes">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -875,7 +875,7 @@
             <input type="hidden" name="link_id[]" value="{{ $l->id }}">
             <div class="row mb-2">
               <div class="col-md-2">
-                <label class="form-label small">Type</label>
+                <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select form-select-sm" name="link_type[]">
                   <optgroup label="South African">
                     <option value="ESAT" @selected($l->link_type === 'ESAT')>ESAT</option>
@@ -909,19 +909,19 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label small">URL</label>
+                <label class="form-label small">URL <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="url" class="form-control form-control-sm" name="link_url[]" value="{{ $l->url }}" placeholder="https://...">
               </div>
               <div class="col-md-3">
-                <label class="form-label small">Title</label>
+                <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_title[]" value="{{ $l->title }}" placeholder="Link display text">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Verified</label>
+                <label class="form-label small">Verified <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" class="form-control form-control-sm" name="link_verified[]" value="{{ $l->verified_date }}">
               </div>
               <div class="col-md-1">
-                <label class="form-label small">Primary</label>
+                <label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check mt-1">
                   <input type="checkbox" class="form-check-input" name="link_primary[]" value="{{ $l->id }}" @checked($l->is_primary)>
                 </div>
@@ -929,15 +929,15 @@
             </div>
             <div class="row">
               <div class="col-md-2">
-                <label class="form-label small">Person</label>
+                <label class="form-label small">Person <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_person[]" value="{{ $l->person_name }}" placeholder="e.g., Donald Swanson">
               </div>
               <div class="col-md-2">
-                <label class="form-label small">Role</label>
+                <label class="form-label small">Role <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_role[]" value="{{ $l->person_role }}" placeholder="Director, Actor">
               </div>
               <div class="col-md-7">
-                <label class="form-label small">Description</label>
+                <label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control form-control-sm" name="link_description[]" value="{{ $l->description }}" placeholder="What this link provides">
               </div>
               <div class="col-md-1 d-flex align-items-end">
@@ -1052,14 +1052,14 @@ document.addEventListener('DOMContentLoaded', function () {
       row.className = 'version-row border rounded p-2 mb-2 bg-light';
       row.innerHTML = '<input type="hidden" name="version_id[]" value="">' +
         '<div class="row mb-2">' +
-        '<div class="col-md-4"><label class="form-label small">Title</label><input type="text" class="form-control form-control-sm" name="version_title[]" placeholder="e.g., Kuddes van die veld"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Type</label><select class="form-select form-select-sm" name="version_type[]"><option value="language">Language</option><option value="format">Format</option><option value="restoration">Restoration</option><option value="directors_cut">Director\'s Cut</option><option value="censored">Censored</option><option value="other">Other</option></select></div>' +
-        '<div class="col-md-2"><label class="form-label small">Language</label><input type="text" class="form-control form-control-sm" name="version_language[]" placeholder="Afrikaans"></div>' +
-        '<div class="col-md-2"><label class="form-label small">ISO Code</label><input type="text" class="form-control form-control-sm" name="version_language_code[]" maxlength="3" placeholder="afr"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Year</label><input type="text" class="form-control form-control-sm" name="version_year[]" placeholder="1954"></div>' +
+        '<div class="col-md-4"><label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="version_title[]" placeholder="e.g., Kuddes van die veld"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select form-select-sm" name="version_type[]"><option value="language">Language</option><option value="format">Format</option><option value="restoration">Restoration</option><option value="directors_cut">Director\'s Cut</option><option value="censored">Censored</option><option value="other">Other</option></select></div>' +
+        '<div class="col-md-2"><label class="form-label small">Language <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="version_language[]" placeholder="Afrikaans"></div>' +
+        '<div class="col-md-2"><label class="form-label small">ISO Code <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="version_language_code[]" maxlength="3" placeholder="afr"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Year <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="version_year[]" placeholder="1954"></div>' +
         '</div>' +
         '<div class="row">' +
-        '<div class="col-md-11"><label class="form-label small">Notes</label><input type="text" class="form-control form-control-sm" name="version_notes[]" placeholder="Additional information"></div>' +
+        '<div class="col-md-11"><label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="version_notes[]" placeholder="Additional information"></div>' +
         '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-version w-100"><i class="fas fa-times"></i></button></div>' +
         '</div>';
       container.appendChild(row);
@@ -1075,28 +1075,28 @@ document.addEventListener('DOMContentLoaded', function () {
       row.className = 'holding-row border rounded p-2 mb-2 bg-light';
       row.innerHTML = '<input type="hidden" name="holding_id[]" value="">' +
         '<div class="row mb-2">' +
-        '<div class="col-md-2"><label class="form-label small">Format</label>' +
+        '<div class="col-md-2"><label class="form-label small">Format <span class="badge bg-secondary ms-1">Optional</span></label>' +
         '<select class="form-select form-select-sm" name="holding_format[]">' +
         '<optgroup label="Film"><option value="35mm">35mm</option><option value="16mm">16mm</option><option value="8mm">8mm</option><option value="Super8">Super 8</option><option value="Nitrate">Nitrate</option><option value="Safety">Safety</option><option value="Polyester">Polyester</option></optgroup>' +
         '<optgroup label="Video"><option value="VHS">VHS</option><option value="Betacam">Betacam</option><option value="U-matic">U-matic</option><option value="DV">DV</option></optgroup>' +
         '<optgroup label="Digital"><option value="DVD">DVD</option><option value="Blu-ray">Blu-ray</option><option value="LaserDisc">LaserDisc</option><option value="Digital_File">Digital File</option><option value="DCP">DCP</option><option value="ProRes">ProRes</option></optgroup>' +
         '<optgroup label="Audio"><option value="Audio_Reel">Audio Reel</option><option value="Audio_Cassette">Audio Cassette</option><option value="Vinyl">Vinyl</option><option value="CD">CD</option></optgroup>' +
         '<option value="Other">Other</option></select></div>' +
-        '<div class="col-md-2"><label class="form-label small">Format Details</label><input type="text" class="form-control form-control-sm" name="holding_format_details[]" placeholder="Color, sound"></div>' +
-        '<div class="col-md-3"><label class="form-label small">Institution</label><input type="text" class="form-control form-control-sm" name="holding_institution[]" placeholder="e.g., NFVSA"></div>' +
-        '<div class="col-md-3"><label class="form-label small">Location</label><input type="text" class="form-control form-control-sm" name="holding_location[]" placeholder="Department/vault"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Accession #</label><input type="text" class="form-control form-control-sm" name="holding_accession[]" placeholder="Ref number"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Format Details <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_format_details[]" placeholder="Color, sound"></div>' +
+        '<div class="col-md-3"><label class="form-label small">Institution <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_institution[]" placeholder="e.g., NFVSA"></div>' +
+        '<div class="col-md-3"><label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_location[]" placeholder="Department/vault"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Accession # <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_accession[]" placeholder="Ref number"></div>' +
         '</div>' +
         '<div class="row mb-2">' +
-        '<div class="col-md-2"><label class="form-label small">Condition</label><select class="form-select form-select-sm" name="holding_condition[]"><option value="unknown">Unknown</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="deteriorating">Deteriorating</option></select></div>' +
-        '<div class="col-md-2"><label class="form-label small">Access</label><select class="form-select form-select-sm" name="holding_access[]"><option value="unknown">Unknown</option><option value="available">Available</option><option value="restricted">Restricted</option><option value="preservation_only">Preservation Only</option><option value="digitized_available">Digitized</option><option value="on_request">On Request</option><option value="staff_only">Staff Only</option></select></div>' +
-        '<div class="col-md-3"><label class="form-label small">Access URL</label><input type="url" class="form-control form-control-sm" name="holding_url[]" placeholder="Streaming URL"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Verified Date</label><input type="date" class="form-control form-control-sm" name="holding_verified[]"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Primary</label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="holding_primary[]" value="new"><label class="form-check-label small">Primary copy</label></div></div>' +
+        '<div class="col-md-2"><label class="form-label small">Condition <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select form-select-sm" name="holding_condition[]"><option value="unknown">Unknown</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="deteriorating">Deteriorating</option></select></div>' +
+        '<div class="col-md-2"><label class="form-label small">Access <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select form-select-sm" name="holding_access[]"><option value="unknown">Unknown</option><option value="available">Available</option><option value="restricted">Restricted</option><option value="preservation_only">Preservation Only</option><option value="digitized_available">Digitized</option><option value="on_request">On Request</option><option value="staff_only">Staff Only</option></select></div>' +
+        '<div class="col-md-3"><label class="form-label small">Access URL <span class="badge bg-secondary ms-1">Optional</span></label><input type="url" class="form-control form-control-sm" name="holding_url[]" placeholder="Streaming URL"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control form-control-sm" name="holding_verified[]"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="holding_primary[]" value="new"><label class="form-check-label small">Primary copy</label></div></div>' +
         '</div>' +
         '<div class="row">' +
-        '<div class="col-md-6"><label class="form-label small">Access Notes</label><input type="text" class="form-control form-control-sm" name="holding_access_notes[]" placeholder="How to request, viewing conditions"></div>' +
-        '<div class="col-md-5"><label class="form-label small">Notes</label><input type="text" class="form-control form-control-sm" name="holding_notes[]" placeholder="Additional notes"></div>' +
+        '<div class="col-md-6"><label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_access_notes[]" placeholder="How to request, viewing conditions"></div>' +
+        '<div class="col-md-5"><label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_notes[]" placeholder="Additional notes"></div>' +
         '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-holding w-100"><i class="fas fa-times"></i></button></div>' +
         '</div>';
       container.appendChild(row);
@@ -1112,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', function () {
       row.className = 'link-row border rounded p-2 mb-2 bg-light';
       row.innerHTML = '<input type="hidden" name="link_id[]" value="">' +
         '<div class="row mb-2">' +
-        '<div class="col-md-2"><label class="form-label small">Type</label>' +
+        '<div class="col-md-2"><label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>' +
         '<select class="form-select form-select-sm" name="link_type[]">' +
         '<optgroup label="South African"><option value="ESAT">ESAT</option><option value="SAFILM">SA Film</option><option value="NFVSA">NFVSA</option></optgroup>' +
         '<optgroup label="Film Databases"><option value="IMDb">IMDb</option><option value="BFI">BFI</option><option value="AFI">AFI</option><option value="Letterboxd">Letterboxd</option><option value="MUBI">MUBI</option><option value="Filmography">Filmography</option></optgroup>' +
@@ -1120,15 +1120,15 @@ document.addEventListener('DOMContentLoaded', function () {
         '<optgroup label="Media Platforms"><option value="YouTube">YouTube</option><option value="Vimeo">Vimeo</option><option value="Archive_org">Archive.org</option></optgroup>' +
         '<optgroup label="Other"><option value="Review">Review</option><option value="Academic">Academic</option><option value="Press">Press</option><option value="Other">Other</option></optgroup>' +
         '</select></div>' +
-        '<div class="col-md-4"><label class="form-label small">URL</label><input type="url" class="form-control form-control-sm" name="link_url[]" placeholder="https://..."></div>' +
-        '<div class="col-md-3"><label class="form-label small">Title</label><input type="text" class="form-control form-control-sm" name="link_title[]" placeholder="Link display text"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Verified</label><input type="date" class="form-control form-control-sm" name="link_verified[]"></div>' +
-        '<div class="col-md-1"><label class="form-label small">Primary</label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="link_primary[]" value="new"></div></div>' +
+        '<div class="col-md-4"><label class="form-label small">URL <span class="badge bg-secondary ms-1">Optional</span></label><input type="url" class="form-control form-control-sm" name="link_url[]" placeholder="https://..."></div>' +
+        '<div class="col-md-3"><label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="link_title[]" placeholder="Link display text"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Verified <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control form-control-sm" name="link_verified[]"></div>' +
+        '<div class="col-md-1"><label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="link_primary[]" value="new"></div></div>' +
         '</div>' +
         '<div class="row">' +
-        '<div class="col-md-2"><label class="form-label small">Person</label><input type="text" class="form-control form-control-sm" name="link_person[]" placeholder="e.g., Donald Swanson"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Role</label><input type="text" class="form-control form-control-sm" name="link_role[]" placeholder="Director, Actor"></div>' +
-        '<div class="col-md-7"><label class="form-label small">Description</label><input type="text" class="form-control form-control-sm" name="link_description[]" placeholder="What this link provides"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Person <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="link_person[]" placeholder="e.g., Donald Swanson"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Role <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="link_role[]" placeholder="Director, Actor"></div>' +
+        '<div class="col-md-7"><label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="link_description[]" placeholder="What this link provides"></div>' +
         '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-link w-100"><i class="fas fa-times"></i></button></div>' +
         '</div>';
       container.appendChild(row);

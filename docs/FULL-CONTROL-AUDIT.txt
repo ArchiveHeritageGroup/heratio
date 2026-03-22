@@ -1,11 +1,11 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 10:20:23
+# Generated: 2026-03-22 10:22:25
 # Total Heratio views: 361
 # Views with AtoM equivalent: 194
 # Views without AtoM equivalent: 167
-# Total Heratio controls: 12712
+# Total Heratio controls: 12858
 # Total AtoM controls (matched): 9647
-# Total delta: 1469
+# Total delta: 1366
 
 ## SUMMARY BY PACKAGE
 
@@ -20,7 +20,7 @@ ahg-audit-trail                    4     83      70      -13     1col      none 
 ahg-backup                         3     124     215     91      1col      none      3/3   
 ahg-cart                           7     122     125     3       1col      none      4/7   
 ahg-core                           7     61      9       -52     unknown,1colnone      2/7   
-ahg-dam                            4     480     525     45      1col,3col none,detected4/4   
+ahg-dam                            4     532     525     -7      1col,3col none,detected4/4   
 ahg-data-migration                 11    246     243     -3      1col      none      4/11  
 ahg-dedupe                         6     89      214     125     1col      none,detected5/6   
 ahg-display                        11    459     275     -184    unknown,masternone,detected,left6/11  
@@ -35,7 +35,7 @@ ahg-gallery                        6     728     440     -288    1col,2col,3coln
 ahg-help                           5     69      58      -11     unknown,1coldetected  4/5   
 ahg-heritage-manage                6     229     100     -129    1col,unknown,2colleft,right,none,detected2/6   
 ahg-iiif-collection                5     181     164     -17     2col      detected  4/5   
-ahg-information-object-manage      34    1323    375     -948    1col,unknown,2col,print,3colnone,detected,right9/34  
+ahg-information-object-manage      34    1417    375     -1042   1col,unknown,2col,print,3colnone,detected,right9/34  
 ahg-integrity                      1     37      42      5       1col      none      1/1   
 ahg-jobs-manage                    2     30      39      9       1col      none      1/2   
 ahg-library                        3     338     1119    781     1col,3col none,detected3/3   
@@ -354,9 +354,9 @@ dashboard                     1col    none    0     7     0     5     0     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/dashboardSuccess.php
 
-edit                          1col    none    14    1     118   1     114   60    346    13    0     109   272    -74    
+edit                          1col    none    14    1     118   1     114   112   398    13    0     109   272    -126   
   BTN classes: btn(14), btn-sm(13), btn-outline-danger(6), btn-remove-version(2), btn-remove-holding(2), btn-remove-link(2), btn-lg(1)
-  Field badges: Req=3 Rec=0 Opt=57
+  Field badges: Req=3 Rec=0 Opt=109
   URLs: {{ $asset ? route(
   AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/editSuccess.php
 
@@ -840,9 +840,9 @@ index                         1col    none    0     6     0     3     0     2   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
-create                        unknown detected28    3     47    12    43    0     134    —   —   —   —    ?      
+create                        unknown detected28    3     47    12    43    43    177    —   —   —   —    ?      
   BTN classes: btn(18), btn-sm(12), btn-outline-secondary(9), btn-add-lang-row(2), btn-add-script-row(2), btn-outline-danger(6), btn-remove-row(3), btn-remove-ap(3)
-  ⚠ NO FIELD BADGES on 43 labels
+  Field badges: Req=6 Rec=8 Opt=29
   URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -855,9 +855,9 @@ show                          1col    none    0     2     0     2     0     0   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
-edit                          2col    detected45    3     77    12    53    0     191    55    1     73    196    5      
+edit                          2col    detected45    3     77    12    53    51    242    55    1     73    196    -46    
   BTN classes: btn(33), btn-sm(17), btn-outline-danger(22), btn-remove-row(7), btn-outline-secondary(10), btn-remove-ap(15), btn-add-lang-row(2), btn-add-script-row(2)
-  ⚠ NO FIELD BADGES on 53 labels
+  Field badges: Req=5 Rec=8 Opt=38
   URLs: {{ url( | {{ route(
   AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/editSuccess.php
 
@@ -2128,7 +2128,7 @@ ahg-audit-trail                    settings                      9       0    0 
 ahg-backup                         index                         4       1    0    0    PARTIAL        
 ahg-backup                         restore                       5       0    0    1    PARTIAL        
 ahg-cart                           settings                      10      0    0    8    PARTIAL        
-ahg-dam                            edit                          114     3    0    57   PARTIAL        
+ahg-dam                            edit                          114     3    0    109  PARTIAL        
 ahg-display                        _advanced-search              27      1    2    19   PARTIAL        
 ahg-display                        browse-settings               7       0    0    4    PARTIAL        
 ahg-display                        browse                        3       0    0    2    PARTIAL        
@@ -2139,8 +2139,7 @@ ahg-gallery                        edit                          67      13   18
 ahg-iiif-collection                add-items                     5       0    0    4    PARTIAL        
 ahg-iiif-collection                create                        6       1    0    4    PARTIAL        
 ahg-iiif-collection                edit                          6       1    0    4    PARTIAL        
-ahg-information-object-manage      create                        43      0    0    0    MISSING        
-ahg-information-object-manage      edit                          53      0    0    0    MISSING        
+ahg-information-object-manage      edit                          53      5    8    38   PARTIAL        
 ahg-information-object-manage      select                        9       0    0    6    PARTIAL        
 ahg-information-object-manage      index                         46      0    0    42   PARTIAL        
 ahg-information-object-manage      embargo                       10      2    0    5    PARTIAL        

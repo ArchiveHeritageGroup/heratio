@@ -61,7 +61,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
@@ -73,7 +73,7 @@
 
             {{-- Alternative identifiers multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Alternative identifier(s)</label>
+              <label class="form-label">Alternative identifier(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <table class="table table-sm" id="altids-table">
                 <thead>
                   <tr>
@@ -90,7 +90,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">
                 Title
-                <span class="form-required" title="This is a mandatory element.">*</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text text-muted small">Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)</div>
@@ -98,7 +98,7 @@
 
             {{-- Events (dates) multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Date(s)</label>
+              <label class="form-label">Date(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <table class="table table-sm" id="events-table">
                 <thead>
                   <tr>
@@ -119,7 +119,7 @@
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">
                 Level of description
-                <span class="form-required" title="This is a mandatory element.">*</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -132,7 +132,7 @@
             <div class="mb-3">
               <label for="extent_and_medium" class="form-label">
                 Extent and medium
-                <span class="form-required" title="This is a mandatory element.">*</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <div class="form-text text-muted small">Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)</div>
             </div>
@@ -155,7 +155,7 @@
             <div class="mb-3">
               <label class="form-label">
                 Name of creator(s)
-                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span></label>
+                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <div id="creator-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="Type to add creator..." autocomplete="off">
@@ -164,7 +164,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Repository</label>
+              <label for="repository_id" class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="repository_id" name="repository_id">
                 <option value="">-- Select --</option>
                 @foreach($repositories as $repo)
@@ -175,13 +175,13 @@
             </div>
 
             <div class="mb-3">
-              <label for="archival_history" class="form-label">Archival history</label>
+              <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history') }}</textarea>
               <div class="form-text text-muted small">Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer</label>
+              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="acquisition" name="acquisition" rows="3">{{ old('acquisition') }}</textarea>
               <div class="form-text text-muted small">Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)</div>
             </div>
@@ -199,25 +199,25 @@
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content</label>
+              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="4">{{ old('scope_and_content') }}</textarea>
               <div class="form-text text-muted small">Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling</label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal') }}</textarea>
               <div class="form-text text-muted small">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="accruals" class="form-label">Accruals</label>
+              <label for="accruals" class="form-label">Accruals <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="accruals" name="accruals" rows="3">{{ old('accruals') }}</textarea>
               <div class="form-text text-muted small">Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="arrangement" class="form-label">System of arrangement</label>
+              <label for="arrangement" class="form-label">System of arrangement <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="arrangement" name="arrangement" rows="3">{{ old('arrangement') }}</textarea>
               <div class="form-text text-muted small">Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)</div>
             </div>
@@ -235,20 +235,20 @@
         <div id="conditions-collapse" class="accordion-collapse collapse" aria-labelledby="conditions-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="access_conditions" class="form-label">Conditions governing access</label>
+              <label for="access_conditions" class="form-label">Conditions governing access <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions') }}</textarea>
               <div class="form-text text-muted small">Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction</label>
+              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions') }}</textarea>
               <div class="form-text text-muted small">Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)</div>
             </div>
 
             {{-- Language(s) of material - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Language(s) of material</label>
+              <label class="form-label">Language(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="languages-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">Add language</button>
               <div class="form-text text-muted small">Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
@@ -256,26 +256,26 @@
 
             {{-- Script(s) of material - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Script(s) of material</label>
+              <label class="form-label">Script(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="scripts-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">Add script</button>
               <div class="form-text text-muted small">Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="language_notes" class="form-label">Language and script notes</label>
+              <label for="language_notes" class="form-label">Language and script notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes') }}</textarea>
               <div class="form-text text-muted small">Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements</label>
+              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements <span class="badge bg-danger ms-1">Required</span></label>
               <textarea class="form-control" id="physical_characteristics" name="physical_characteristics" rows="3">{{ old('physical_characteristics') }}</textarea>
               <div class="form-text text-muted small">Indicate any important physical conditions, such as preservation requirements, that affect the use of the unit of description. Note any software and/or hardware required to access the unit of description.</div>
             </div>
 
             <div class="mb-3">
-              <label for="finding_aids" class="form-label">Finding aids</label>
+              <label for="finding_aids" class="form-label">Finding aids <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="finding_aids" name="finding_aids" rows="3">{{ old('finding_aids') }}</textarea>
               <div class="form-text text-muted small">Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)</div>
             </div>
@@ -293,26 +293,26 @@
         <div id="allied-collapse" class="accordion-collapse collapse" aria-labelledby="allied-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="location_of_originals" class="form-label">Existence and location of originals</label>
+              <label for="location_of_originals" class="form-label">Existence and location of originals <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="location_of_originals" name="location_of_originals" rows="3">{{ old('location_of_originals') }}</textarea>
               <div class="form-text text-muted small">If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="location_of_copies" class="form-label">Existence and location of copies</label>
+              <label for="location_of_copies" class="form-label">Existence and location of copies <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="location_of_copies" name="location_of_copies" rows="3">{{ old('location_of_copies') }}</textarea>
               <div class="form-text text-muted small">If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="related_units_of_description" class="form-label">Related units of description</label>
+              <label for="related_units_of_description" class="form-label">Related units of description <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description') }}</textarea>
               <div class="form-text text-muted small">Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)</div>
             </div>
 
             {{-- Publication notes multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Publication notes</label>
+              <label class="form-label">Publication notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="pubnotes-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
             </div>
@@ -357,7 +357,7 @@
 
             {{-- Subject access points --}}
             <div class="mb-3">
-              <label class="form-label">Subject access points</label>
+              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="subject-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="Type to add subject..." autocomplete="off">
@@ -366,7 +366,7 @@
 
             {{-- Place access points --}}
             <div class="mb-3">
-              <label class="form-label">Place access points</label>
+              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="place-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="Type to add place..." autocomplete="off">
@@ -375,7 +375,7 @@
 
             {{-- Genre access points --}}
             <div class="mb-3">
-              <label class="form-label">Genre access points</label>
+              <label class="form-label">Genre access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="genre-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="Type to add genre..." autocomplete="off">
@@ -384,7 +384,7 @@
 
             {{-- Name access points (subjects) --}}
             <div class="mb-3">
-              <label class="form-label">Name access points (subjects)</label>
+              <label class="form-label">Name access points (subjects) <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="name-ap-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" data-target="name-ap-list" placeholder="Type to add name..." autocomplete="off">
@@ -405,25 +405,25 @@
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="description_identifier" class="form-label">Description identifier</label>
+              <label for="description_identifier" class="form-label">Description identifier <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" id="description_identifier" name="description_identifier" value="{{ old('description_identifier') }}">
               <div class="form-text text-muted small">Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 - Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code.</div>
             </div>
 
             <div class="mb-3">
-              <label for="institution_responsible_identifier" class="form-label">Institution identifier</label>
+              <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="institution_responsible_identifier" name="institution_responsible_identifier" value="{{ old('institution_responsible_identifier') }}">
               <div class="form-text text-muted small">Record the full authorised form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the description or, alternatively, record a code for the agency in accordance with the national or international agency code standard.</div>
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules or conventions</label>
+              <label for="rules" class="form-label">Rules or conventions <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="rules" name="rules" rows="3">{{ old('rules') }}</textarea>
               <div class="form-text text-muted small">Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status</label>
+              <label for="description_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="description_status_id" name="description_status_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionStatuses as $status)
@@ -434,7 +434,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_detail_id" class="form-label">Level of detail</label>
+              <label for="description_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="description_detail_id" name="description_detail_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionDetails as $detail)
@@ -445,14 +445,14 @@
             </div>
 
             <div class="mb-3">
-              <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="revision_history" name="revision_history" rows="3">{{ old('revision_history') }}</textarea>
               <div class="form-text text-muted small">Record the date(s) the entry was prepared and/or revised.</div>
             </div>
 
             {{-- Language(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Language(s) of description</label>
+              <label class="form-label">Language(s) of description <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="langs-of-desc-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">Add language</button>
               <div class="form-text text-muted small">Indicate the language(s) used to create the description of the archival material.</div>
@@ -460,27 +460,27 @@
 
             {{-- Script(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Script(s) of description</label>
+              <label class="form-label">Script(s) of description <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="scripts-of-desc-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">Add script</button>
               <div class="form-text text-muted small">Indicate the script(s) used to create the description of the archival material.</div>
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources</label>
+              <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="sources" name="sources" rows="3">{{ old('sources') }}</textarea>
               <div class="form-text text-muted small">Record citations for any external sources used in the archival description (such as the Scope and Content, Archival History, or Notes fields).</div>
             </div>
 
             {{-- Archivist's notes multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Archivist's notes</label>
+              <label class="form-label">Archivist's notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="archnotes-list"></div>
               <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add archivist's note</button>
             </div>
 
             <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status</label>
+              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="publication_status_id" name="publication_status_id">
                 <option value="159" selected>Draft</option>
                 <option value="160">Published</option>
@@ -488,7 +488,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="display_standard_id" class="form-label">Display standard</label>
+              <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="display_standard_id" name="display_standard_id">
                 <option value="">- Use global default -</option>
                 @foreach($displayStandards as $std)
@@ -514,7 +514,7 @@
         <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="security_classification_id" class="form-label">Classification level</label>
+              <label for="security_classification_id" class="form-label">Classification level <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="security_classification_id" id="security_classification_id" class="form-select">
                 <option value="">-- None --</option>
               </select>
@@ -547,7 +547,7 @@
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status</label>
+              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="publication_status_id" id="publication_status_id" class="form-select">
                 <option value="159" selected>Draft</option>
                 <option value="160">Published</option>
