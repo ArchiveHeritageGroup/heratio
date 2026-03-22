@@ -2,328 +2,345 @@
 
 namespace AhgDataMigration\Controllers;
 
-use AhgDataMigration\Services\DataMigrationService;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use AtomExtensions\Repositories\DataMigrationRepository;
 
-class DataMigrationController extends Controller
+class DataMigrationController extends \App\Http\Controllers\Controller
 {
-    private DataMigrationService $service;
+    protected DataMigrationRepository $repo;
 
-    public function __construct(DataMigrationService $service)
+    public function __construct(DataMigrationRepository $repo)
     {
-        $this->service = $service;
+        $this->repo = $repo;
     }
 
-    /**
-     * Dashboard: show saved mappings and recent jobs.
-     */
+    // ── Existing: index ──────────────────────────────────────
     public function index()
     {
-        $mappings = $this->service->getSavedMappings();
-        $jobs = $this->service->getJobs(20);
-
-        return view('ahg-data-migration::index', [
-            'mappings' => $mappings,
-            'jobs'     => $jobs,
-        ]);
+        $mappings   = $this->repo->getMappings();
+        $recentJobs = $this->repo->getRecentJobs(10);
+        $stats      = $this->repo->getStats();
+        return view('ahg-data-migration::index', compact('mappings', 'recentJobs', 'stats'));
     }
 
-    /**
-     * GET: show upload form. POST: store file and redirect to map.
-     */
-    public function upload(Request $request)
+    // ── Existing: upload ─────────────────────────────────────
+    public function upload(Request $req)
     {
-        if ($request->isMethod('post')) {
-            $request->validate([
-                'file'        => 'required|file|mimes:csv,txt,xml|max:102400',
-                'target_type' => 'required|in:informationObject,actor,accession,repository',
-                'import_type' => 'required|in:create,update,replace',
-            ]);
-
-            $file = $request->file('file');
-            $storagePath = storage_path('app/data-migration');
-            if (!is_dir($storagePath)) {
-                mkdir($storagePath, 0755, true);
-            }
-
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move($storagePath, $filename);
-            $fullPath = $storagePath . '/' . $filename;
-
-            session([
-                'dm_file_path'   => $fullPath,
-                'dm_file_name'   => $file->getClientOriginalName(),
-                'dm_target_type' => $request->input('target_type'),
-                'dm_import_type' => $request->input('import_type'),
-            ]);
-
-            return redirect()->route('data-migration.map');
+        if ($req->isMethod('get')) {
+            $savedMappings = $this->repo->getMappings();
+            $repositories  = $this->repo->getRepositories();
+            return view('ahg-data-migration::upload', compact('savedMappings', 'repositories'));
         }
-
-        return view('ahg-data-migration::upload');
+        $req->validate([
+            'file'        => 'required|file|max:102400',
+            'target_type' => 'required|string',
+        ]);
+        $path     = $req->file('file')->store('data-migration/uploads');
+        $fileName = $req->file('file')->getClientOriginalName();
+        session(['dm_file' => $path, 'dm_filename' => $fileName,
+                 'dm_target' => $req->target_type]);
+        return redirect()->route('data-migration.map');
     }
 
-    /**
-     * Show field mapping UI.
-     */
-    public function map(Request $request)
+    // ── Existing: map ────────────────────────────────────────
+    public function map()
     {
-        $filePath = session('dm_file_path');
-        $targetType = session('dm_target_type', 'informationObject');
-
-        if (!$filePath || !file_exists($filePath)) {
-            return redirect()->route('data-migration.upload')
-                ->with('error', 'No file uploaded. Please upload a CSV file first.');
-        }
-
-        $csvData = $this->service->parseCSV($filePath, 5);
-        $targetFields = $this->service->getTargetFields($targetType);
-        $savedMappings = $this->service->getSavedMappings();
-
-        // Filter saved mappings to only show ones for this target type
-        $relevantMappings = array_filter($savedMappings, fn ($m) => $m['target_type'] === $targetType);
-
-        return view('ahg-data-migration::map', [
-            'sourceColumns'    => $csvData['headers'],
-            'previewRows'      => $csvData['rows'],
-            'totalRows'        => $csvData['totalRows'],
-            'targetFields'     => $targetFields,
-            'targetType'       => $targetType,
-            'savedMappings'    => array_values($relevantMappings),
-            'fileName'         => session('dm_file_name', ''),
-        ]);
+        $filePath     = session('dm_file');
+        $fileName     = session('dm_filename', 'unknown');
+        $targetType   = session('dm_target', 'informationObject');
+        if (!$filePath) return redirect()->route('data-migration.upload')
+            ->with('error', 'No file uploaded. Please upload a file first.');
+        $sourceColumns = $this->repo->getFileColumns($filePath);
+        $totalRows     = $this->repo->getFileRowCount($filePath);
+        $targetFields  = $this->repo->getTargetFields($targetType);
+        $savedMappings = $this->repo->getMappings();
+        return view('ahg-data-migration::map',
+            compact('fileName','targetType','sourceColumns','totalRows','targetFields','savedMappings'));
     }
 
-    /**
-     * AJAX: save a mapping to the database.
-     */
-    public function saveMapping(Request $request)
+    // ── Existing: saveMapping ────────────────────────────────
+    public function saveMapping(Request $req)
     {
-        $request->validate([
-            'name'           => 'required|string|max:255',
-            'target_type'    => 'required|string|max:100',
-            'category'       => 'nullable|string|max:100',
-            'field_mappings' => 'required|array',
+        $req->validate(['name' => 'required|string|max:100',
+                        'mappings' => 'required|string']);
+        $id = $this->repo->saveMapping([
+            'name'           => $req->name,
+            'target_type'    => session('dm_target','informationObject'),
+            'field_mappings' => $req->mappings,
+            'category'       => $req->category ?? 'Custom',
         ]);
-
-        $id = $this->service->saveMapping([
-            'id'             => $request->input('mapping_id'),
-            'name'           => $request->input('name'),
-            'target_type'    => $request->input('target_type'),
-            'category'       => $request->input('category', 'Custom'),
-            'field_mappings' => $request->input('field_mappings'),
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'id' => $id]);
-        }
-
-        return redirect()->route('data-migration.index')
-            ->with('success', 'Mapping saved successfully.');
+        return response()->json(['success' => true, 'id' => $id]);
     }
 
-    /**
-     * AJAX: delete a mapping.
-     */
+    // ── Existing: deleteMapping ──────────────────────────────
     public function deleteMapping(int $id)
     {
-        $this->service->deleteMapping($id);
-
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true]);
-        }
-
+        $this->repo->deleteMapping($id);
         return redirect()->route('data-migration.index')
             ->with('success', 'Mapping deleted.');
     }
 
-    /**
-     * Show transformed data preview with mapping applied.
-     */
-    public function preview(Request $request)
+    // ── Existing: preview ────────────────────────────────────
+    public function preview(Request $req)
     {
-        $filePath = session('dm_file_path');
-        $targetType = session('dm_target_type', 'informationObject');
-
-        if (!$filePath || !file_exists($filePath)) {
-            return redirect()->route('data-migration.upload')
-                ->with('error', 'No file uploaded.');
-        }
-
-        $mappingJson = $request->input('mapping', '{}');
-        $mapping = is_string($mappingJson) ? json_decode($mappingJson, true) : $mappingJson;
-        if (!$mapping) {
-            $mapping = [];
-        }
-
-        $csvData = $this->service->parseCSV($filePath, 10);
-        $targetFields = $this->service->getTargetFields($targetType);
-
-        // Apply mapping to preview rows
-        $transformedRows = [];
-        foreach ($csvData['rows'] as $row) {
-            $transformed = [];
-            foreach ($mapping as $sourceCol => $targetField) {
-                if (!empty($targetField) && isset($row[$sourceCol])) {
-                    $label = $targetFields[$targetField] ?? $targetField;
-                    $transformed[$label] = $row[$sourceCol];
-                }
-            }
-            if (!empty($transformed)) {
-                $transformedRows[] = $transformed;
-            }
-        }
-
-        // Get target column headers from the transformed rows
-        $targetHeaders = [];
-        if (!empty($transformedRows)) {
-            $targetHeaders = array_keys($transformedRows[0]);
-        }
-
-        return view('ahg-data-migration::preview', [
-            'transformedRows' => $transformedRows,
-            'targetHeaders'   => $targetHeaders,
-            'totalRows'       => $csvData['totalRows'],
-            'mapping'         => $mapping,
-            'targetType'      => $targetType,
-        ]);
+        $filePath   = session('dm_file');
+        $targetType = session('dm_target', 'informationObject');
+        $mappings   = json_decode($req->input('mappings', '{}'), true);
+        $preview    = $this->repo->previewRecords($filePath, $mappings, 10);
+        return view('ahg-data-migration::preview',
+            compact('preview', 'targetType', 'mappings'));
     }
 
-    /**
-     * POST: create job, execute import, redirect to job status.
-     */
-    public function execute(Request $request)
+    // ── Existing: execute ────────────────────────────────────
+    public function execute(Request $req)
     {
-        $filePath = session('dm_file_path');
-        $targetType = session('dm_target_type', 'informationObject');
-        $importType = session('dm_import_type', 'create');
-
-        if (!$filePath || !file_exists($filePath)) {
-            return redirect()->route('data-migration.upload')
-                ->with('error', 'No file uploaded.');
-        }
-
-        $mappingJson = $request->input('mapping', '{}');
-        $mapping = is_string($mappingJson) ? json_decode($mappingJson, true) : $mappingJson;
-        if (!$mapping) {
-            return redirect()->route('data-migration.map')
-                ->with('error', 'No field mapping provided.');
-        }
-
-        $csvData = $this->service->parseCSV($filePath, 0);
-
-        $jobId = $this->service->createJob([
-            'name'             => $request->input('name', 'CSV Import ' . now()->format('Y-m-d H:i:s')),
-            'target_type'      => $targetType,
-            'source_file'      => $filePath,
-            'source_format'    => 'csv',
-            'mapping_id'       => $request->input('mapping_id'),
-            'mapping_snapshot' => $mapping,
-            'import_options'   => [
-                'import_type' => $importType,
-                'culture'     => app()->getLocale(),
-            ],
-            'total_records'    => $csvData['totalRows'],
-        ]);
-
-        $result = $this->service->executeImport($jobId);
-
-        session([
-            'dm_import_result' => $result,
-            'dm_job_id'        => $jobId,
-        ]);
-
-        return redirect()->route('data-migration.import-results');
+        $filePath   = session('dm_file');
+        $targetType = session('dm_target', 'informationObject');
+        $mappings   = json_decode($req->input('mappings', '{}'), true);
+        $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings);
+        return redirect()->route('data-migration.job', $jobId)
+            ->with('success', 'Import job queued. Job ID: '.$jobId);
     }
 
-    /**
-     * List all migration jobs.
-     */
+    // ── Existing: jobs ───────────────────────────────────────
     public function jobs()
     {
-        $jobs = $this->service->getJobs(100);
-
-        return view('ahg-data-migration::jobs', [
-            'jobs' => $jobs,
-        ]);
+        $jobs = $this->repo->getAllJobs();
+        return view('ahg-data-migration::jobs', compact('jobs'));
     }
 
-    /**
-     * Show single job with progress details.
-     */
+    // ── Existing: jobStatus ──────────────────────────────────
     public function jobStatus(int $id)
     {
-        $job = $this->service->getJob($id);
-
-        if (!$job) {
-            abort(404);
-        }
-
-        $progressPercent = 0;
-        if ($job['total_records'] > 0) {
-            $progressPercent = min(100, round(($job['processed_records'] / $job['total_records']) * 100));
-        }
-
-        return view('ahg-data-migration::job-status', [
-            'job'             => $job,
-            'progressPercent' => $progressPercent,
-        ]);
+        $job = $this->repo->getJob($id);
+        if (!$job) abort(404);
+        return view('ahg-data-migration::job-status', compact('job'));
     }
 
-    /**
-     * GET: show export form. With ?export=csv: stream CSV.
-     */
-    public function batchExport(Request $request)
+    // ── Existing: batchExport ────────────────────────────────
+    public function batchExport(Request $req)
     {
-        if ($request->has('export') && $request->input('export') === 'csv') {
-            $request->validate([
-                'entity_type' => 'required|in:informationObject,actor,repository,accession,donor,physicalObject',
-            ]);
-
-            $filters = [];
-            if ($request->filled('date_from')) {
-                $filters['date_from'] = $request->input('date_from');
-            }
-            if ($request->filled('date_to')) {
-                $filters['date_to'] = $request->input('date_to');
-            }
-
-            return $this->service->batchExportCsv(
-                $request->input('entity_type'),
-                $filters
-            );
-        }
-
-        // Show export form with record counts
-        $culture = app()->getLocale();
-        $counts = [
-            'informationObject' => DB::table('information_object')->where('id', '>', 1)->count(),
-            'actor'             => DB::table('object')->where('class_name', 'QubitActor')->count(),
-            'repository'        => DB::table('repository')->count(),
-            'accession'         => DB::table('accession')->count(),
-            'donor'             => DB::table('donor')->count(),
-            'physicalObject'    => DB::table('physical_object')->count(),
-        ];
-
-        return view('ahg-data-migration::batch-export', [
-            'counts' => $counts,
-        ]);
+        $repositories = $this->repo->getRepositories();
+        return view('ahg-data-migration::batch-export', compact('repositories'));
     }
 
-    /**
-     * Show import results from session.
-     */
+    // ── Existing: importResults ──────────────────────────────
     public function importResults()
     {
-        $result = session('dm_import_result', []);
-        $jobId = session('dm_job_id');
-        $job = $jobId ? $this->service->getJob($jobId) : null;
+        $results = $this->repo->getImportResults();
+        return view('ahg-data-migration::import-results', compact('results'));
+    }
 
-        return view('ahg-data-migration::import-results', [
-            'result' => $result,
-            'job'    => $job,
+    // ════════════════════════════════════════════════════════
+    // NEW METHODS — 17 gaps resolved
+    // ════════════════════════════════════════════════════════
+
+    /** GET /admin/data-migration/export */
+    public function export(Request $req)
+    {
+        $repositories = $this->repo->getRepositories();
+        if ($req->isMethod('post')) {
+            $jobId = $this->repo->queueExportJob($req->all());
+            return redirect()->route('data-migration.job', $jobId)
+                ->with('success', 'Export job queued. Job ID: '.$jobId);
+        }
+        return view('ahg-data-migration::export', compact('repositories'));
+    }
+
+    /** GET|POST /admin/data-migration/import (alias wizard entry) */
+    public function import(Request $req)
+    {
+        return redirect()->route('data-migration.upload');
+    }
+
+    /** GET|POST /admin/data-migration/preservica/import */
+    public function preservicaImport(Request $req)
+    {
+        $repositories = $this->repo->getRepositories();
+        if ($req->isMethod('post')) {
+            $jobId = $this->repo->queuePreservicaImportJob($req->all());
+            return redirect()->route('data-migration.job', $jobId)
+                ->with('success', 'Preservica import job queued. Job ID: '.$jobId);
+        }
+        return view('ahg-data-migration::preservica-import', compact('repositories'));
+    }
+
+    /** GET|POST /admin/data-migration/preservica/export
+     *  GET      /admin/data-migration/preservica/export/{id}  */
+    public function preservicaExport(Request $req, ?int $id = null)
+    {
+        $repositories = $this->repo->getRepositories();
+        if ($id) {
+            $job = $this->repo->getJob($id);
+            return view('ahg-data-migration::preservica-export', compact('repositories', 'job'));
+        }
+        if ($req->isMethod('post')) {
+            $jobId = $this->repo->queuePreservicaExportJob($req->all());
+            return redirect()->route('data-migration.job', $jobId)
+                ->with('success', 'Preservica export job queued. Job ID: '.$jobId);
+        }
+        return view('ahg-data-migration::preservica-export', compact('repositories'));
+    }
+
+    /** GET /admin/data-migration/download — download a completed export file */
+    public function download(Request $req)
+    {
+        $req->validate(['file' => 'required|string']);
+        $path = 'data-migration/exports/' . basename($req->file);
+        if (!Storage::exists($path)) abort(404, 'Export file not found.');
+        return Storage::download($path);
+    }
+
+    /** GET /admin/data-migration/mapping — return mapping JSON for AJAX */
+    public function getMapping(Request $req)
+    {
+        $req->validate(['id' => 'required|integer']);
+        $mapping = $this->repo->getMappingById((int)$req->id);
+        if (!$mapping) return response()->json(['error' => 'Not found'], 404);
+        return response()->json($mapping);
+    }
+
+    /** GET /dataMigration/job/progress — AJAX polling */
+    public function jobProgress(Request $req)
+    {
+        $req->validate(['id' => 'required|integer']);
+        $job = $this->repo->getJob((int)$req->id);
+        if (!$job) return response()->json(['error' => 'Not found'], 404);
+        return response()->json([
+            'id'       => $job['id'],
+            'status'   => $job['status'],
+            'progress' => $job['progress'] ?? 0,
+            'message'  => $job['status_message'] ?? '',
+            'errors'   => $job['error_count'] ?? 0,
         ]);
+    }
+
+    /** POST /dataMigration/queue — queue a migration job via AJAX */
+    public function queueJob(Request $req)
+    {
+        $req->validate(['type' => 'required|string']);
+        $jobId = $this->repo->queueGenericJob($req->type, $req->all());
+        return response()->json(['success' => true, 'job_id' => $jobId]);
+    }
+
+    /** POST /dataMigration/job/cancel */
+    public function cancelJob(Request $req)
+    {
+        $req->validate(['id' => 'required|integer']);
+        $this->repo->cancelJob((int)$req->id);
+        if ($req->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+        return redirect()->route('data-migration.jobs')
+            ->with('success', 'Job cancelled.');
+    }
+
+    /** GET /dataMigration/exportCsv — export current result set as CSV */
+    public function exportCsv(Request $req)
+    {
+        $req->validate(['job_id' => 'required|integer']);
+        $data = $this->repo->getJobResults((int)$req->job_id);
+        $fileName = 'migration-results-'.$req->job_id.'-'.date('Ymd').'.csv';
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+        ];
+        $callback = function() use ($data) {
+            $handle = fopen('php://output', 'w');
+            if (!empty($data)) fputcsv($handle, array_keys($data[0]));
+            foreach ($data as $row) fputcsv($handle, $row);
+            fclose($handle);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /** GET /dataMigration/loadMapping — load a saved mapping by id (AJAX) */
+    public function loadMapping(Request $req)
+    {
+        $req->validate(['id' => 'required|integer']);
+        $mapping = $this->repo->getMappingById((int)$req->id);
+        if (!$mapping) return response()->json(['error' => 'Not found'], 404);
+        return response()->json([
+            'id'             => $mapping['id'],
+            'name'           => $mapping['name'],
+            'field_mappings' => json_decode($mapping['field_mappings'] ?? '{}', true),
+        ]);
+    }
+
+    /** POST /dataMigration/previewValidation — validate before committing */
+    public function previewValidation(Request $req)
+    {
+        $filePath   = session('dm_file');
+        $targetType = session('dm_target', 'informationObject');
+        $mappings   = json_decode($req->input('mappings', '{}'), true);
+        $validation = $this->repo->validateImport($filePath, $targetType, $mappings);
+        return response()->json($validation);
+    }
+
+    /** GET /dataMigration/exportMapping/{id} — download mapping as JSON file */
+    public function exportMapping(int $id)
+    {
+        $mapping = $this->repo->getMappingById($id);
+        if (!$mapping) abort(404);
+        $fileName = 'mapping-'.$mapping['name'].'-'.date('Ymd').'.json';
+        return response()->json($mapping)
+            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+    }
+
+    /** POST /dataMigration/importMapping — upload and save a mapping JSON file */
+    public function importMapping(Request $req)
+    {
+        $req->validate(['mapping_file' => 'required|file|mimes:json|max:1024']);
+        $content = file_get_contents($req->file('mapping_file')->getRealPath());
+        $data    = json_decode($content, true);
+        if (!$data || !isset($data['name'])) {
+            return redirect()->route('data-migration.index')
+                ->with('error', 'Invalid mapping file format.');
+        }
+        $this->repo->saveMapping([
+            'name'           => $data['name'].' (imported)',
+            'target_type'    => $data['target_type'] ?? 'informationObject',
+            'field_mappings' => json_encode($data['field_mappings'] ?? []),
+            'category'       => $data['category'] ?? 'Imported',
+        ]);
+        return redirect()->route('data-migration.index')
+            ->with('success', 'Mapping imported successfully.');
+    }
+
+    /** POST /dataMigration/validate — validate file without executing */
+    public function validate(Request $req)
+    {
+        $filePath   = session('dm_file');
+        $targetType = session('dm_target', 'informationObject');
+        if (!$filePath) {
+            return response()->json(['valid' => false, 'error' => 'No file in session.']);
+        }
+        $result = $this->repo->validateImport($filePath, $targetType, []);
+        return response()->json($result);
+    }
+
+    /** POST /dataMigration/executeAhgImport — execute AHG-specific import */
+    public function executeAhgImport(Request $req)
+    {
+        $filePath   = session('dm_file');
+        $targetType = session('dm_target', 'informationObject');
+        $mappings   = json_decode($req->input('mappings', '{}'), true);
+        $options    = array_merge($req->only(['update_existing','skip_errors','publish']), [
+            'ahg_import' => true,
+        ]);
+        $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings, $options);
+        return response()->json(['success' => true, 'job_id' => $jobId]);
+    }
+
+    /** GET /dataMigration/ahgImportResults — AHG import results view */
+    public function ahgImportResults(Request $req)
+    {
+        $req->validate(['job_id' => 'required|integer']);
+        $job     = $this->repo->getJob((int)$req->job_id);
+        $results = $this->repo->getJobResults((int)$req->job_id);
+        return view('ahg-data-migration::import-results', compact('job', 'results'));
     }
 }
