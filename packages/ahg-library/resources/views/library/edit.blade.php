@@ -655,12 +655,40 @@
               <i class="fas fa-list me-2"></i>Browse library
             </a>
             @if($item)
-              <a href="{{ route('library.show', $item->slug) }}" class="btn atom-btn-white w-100 mb-2">
-                <i class="fas fa-upload me-2"></i>Upload digital object
+              <a href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}" class="btn atom-btn-white w-100 mb-2">
+                <i class="fas fa-upload me-2"></i>Add digital object
+              </a>
+              <a href="{{ url('/' . $item->slug . '/digitalobject/edit') }}" class="btn atom-btn-white w-100 mb-2">
+                <i class="fas fa-edit me-2"></i>Edit digital object
               </a>
             @endif
           </div>
         </section>
+
+        {{-- ===== External Catalogs ===== --}}
+        @if($item && ($item->oclc_number || $item->openlibrary_id || $item->openlibrary_url))
+        <section class="card mb-4">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+            <h5 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>External Catalogs</h5>
+          </div>
+          <div class="list-group list-group-flush">
+            @if($item->oclc_number)
+              <a href="https://www.worldcat.org/oclc/{{ $item->oclc_number }}" target="_blank" class="list-group-item list-group-item-action small">
+                <i class="fas fa-globe me-1"></i> WorldCat
+              </a>
+            @endif
+            @if($item->openlibrary_url)
+              <a href="{{ $item->openlibrary_url }}" target="_blank" class="list-group-item list-group-item-action small">
+                <i class="fas fa-book-open me-1"></i> OpenLibrary
+              </a>
+            @elseif($item->openlibrary_id)
+              <a href="https://openlibrary.org/books/{{ $item->openlibrary_id }}" target="_blank" class="list-group-item list-group-item-action small">
+                <i class="fas fa-book-open me-1"></i> OpenLibrary
+              </a>
+            @endif
+          </div>
+        </section>
+        @endif
 
       </div>
     </div>

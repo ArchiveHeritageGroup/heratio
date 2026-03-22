@@ -352,6 +352,12 @@
       <h4 class="h5 mb-2">Results</h4>
       <ul class="list-unstyled"><li>{{ number_format($relatedDescriptionsCount) }}</li></ul>
 
+      <h4 class="h5 mb-2">Browse</h4>
+      <ul class="list-unstyled">
+        <li><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-list me-1"></i>All terms in {{ $taxonomyName }}</a></li>
+        <li><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id, 'subquery' => $term->name]) }}"><i class="fas fa-search me-1"></i>Search &ldquo;{{ Str::limit($term->name, 30) }}&rdquo;</a></li>
+      </ul>
+
       @if($broaderTerm)
         <h4 class="h5 mb-2">Broader term</h4>
         <ul class="list-unstyled"><li><a href="{{ route('term.show', $broaderTerm->slug) }}">{{ $broaderTerm->name }}</a></li></ul>

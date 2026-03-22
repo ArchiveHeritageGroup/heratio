@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class DcManageController extends Controller
 {
-    public function edit() { return view('discovery::edit'); }
+    public function edit() { return view('dc-manage::edit'); }
 
 }

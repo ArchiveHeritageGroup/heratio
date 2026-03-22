@@ -6,60 +6,60 @@ use App\Http\Controllers\Controller;
 
 class SpectrumController extends Controller
 {
-    public function conditionAdmin() { return view('privacy::condition-admin'); }
+    public function conditionAdmin() { return view('spectrum::condition-admin'); }
 
-    public function conditionPhotos() { return view('privacy::condition-photos'); }
+    public function conditionPhotos() { return view('spectrum::condition-photos'); }
 
-    public function conditionRisk() { return view('privacy::condition-risk'); }
+    public function conditionRisk() { return view('spectrum::condition-risk'); }
 
-    public function dashboard() { return view('privacy::dashboard'); }
+    public function dashboard() { return view('spectrum::dashboard'); }
 
-    public function dataQuality() { return view('privacy::data-quality'); }
+    public function dataQuality() { return view('spectrum::data-quality'); }
 
-    public function export() { return view('privacy::export'); }
+    public function export() { return view('spectrum::export'); }
 
-    public function general() { return view('privacy::general'); }
+    public function general() { return view('spectrum::general'); }
 
-    public function generalWorkflow() { return view('privacy::general-workflow'); }
+    public function generalWorkflow() { return view('spectrum::general-workflow'); }
 
-    public function grapDashboard() { return view('privacy::grap-dashboard'); }
+    public function grapDashboard() { return view('spectrum::grap-dashboard'); }
 
-    public function index() { return view('privacy::index'); }
+    public function index() { return view('spectrum::index'); }
 
-    public function label() { return view('privacy::label'); }
+    public function label() { return view('spectrum::label'); }
 
-    public function myTasks() { return view('privacy::my-tasks'); }
+    public function myTasks() { return view('spectrum::my-tasks'); }
 
-    public function privacyAdmin() { return view('privacy::privacy-admin'); }
+    public function privacyAdmin() { return view('spectrum::privacy-admin'); }
 
-    public function privacyBreaches() { return view('privacy::privacy-breaches'); }
+    public function privacyBreaches() { return view('spectrum::privacy-breaches'); }
 
-    public function privacyCompliance() { return view('privacy::privacy-compliance'); }
+    public function privacyCompliance() { return view('spectrum::privacy-compliance'); }
 
-    public function privacyDsar() { return view('privacy::privacy-dsar'); }
+    public function privacyDsar() { return view('spectrum::privacy-dsar'); }
 
-    public function privacyRopa() { return view('privacy::privacy-ropa'); }
+    public function privacyRopa() { return view('spectrum::privacy-ropa'); }
 
-    public function privacyTemplates() { return view('privacy::privacy-templates'); }
+    public function privacyTemplates() { return view('spectrum::privacy-templates'); }
 
-    public function securityCompliance() { return view('privacy::security-compliance'); }
+    public function securityCompliance() { return view('spectrum::security-compliance'); }
 
-    public function spectrumExport() { return view('privacy::spectrum-export'); }
+    public function spectrumExport() { return view('spectrum::spectrum-export'); }
 
-    public function workflow() { return view('privacy::workflow'); }
+    public function workflow() { return view('spectrum::workflow'); }
 
-    public function acquisitions() { return view('privacy::acquisitions'); }
+    public function acquisitions() { return view('spectrum::acquisitions'); }
 
-    public function conditions() { return view('privacy::conditions'); }
+    public function conditions() { return view('spectrum::conditions'); }
 
-    public function conservation() { return view('privacy::conservation'); }
+    public function conservation() { return view('spectrum::conservation'); }
 
-    public function loans() { return view('privacy::loans'); }
+    public function loans() { return view('spectrum::loans'); }
 
-    public function movements() { return view('privacy::movements'); }
+    public function movements() { return view('spectrum::movements'); }
 
-    public function objectEntry() { return view('privacy::object-entry'); }
+    public function objectEntry() { return view('spectrum::object-entry'); }
 
-    public function valuations() { return view('privacy::valuations'); }
+    public function valuations() { return view('spectrum::valuations'); }
 
 }

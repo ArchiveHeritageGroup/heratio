@@ -109,6 +109,11 @@
                     <a href="{{ route('feedback.edit', $row['id']) }}">
                       {{ $row['name'] ?: '[Untitled]' }}
                     </a>
+                    @if(!empty($row['parent_id']))
+                      <br><a href="{{ url('/' . $row['parent_id']) }}" class="small text-muted" title="View related record">
+                        <i class="fas fa-link me-1"></i>{{ $row['parent_id'] }}
+                      </a>
+                    @endif
                     <br>{!! $statusBadge !!}
                   </td>
                   <td>

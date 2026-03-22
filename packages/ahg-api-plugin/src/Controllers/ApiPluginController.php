@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class ApiPluginController extends Controller
 {
-    public function searchInformationObjects() { return view('rad-manage::search-information-objects'); }
+    public function searchInformationObjects() { return view('api-plugin::search-information-objects'); }
 
 }

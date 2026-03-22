@@ -51,7 +51,9 @@
         @endforeach
         @if($relatedResources->count() > 10)
           <li class="list-group-item text-muted">
-            ... and {{ $relatedResources->count() - 10 }} more
+            <a href="{{ route('glam.browse') }}?topLevel=0&creator={{ $actor->id }}" class="text-muted">
+              ... and {{ $relatedResources->count() - 10 }} more
+            </a>
           </li>
         @endif
       </ul>
@@ -96,7 +98,7 @@
     <h4 class="h5 mb-2">Export</h4>
     <ul class="list-unstyled mb-3">
       <li>
-        <a class="atom-icon-link" href="{{ url('/' . $actor->slug . '/eac') }}">
+        <a class="atom-icon-link" href="{{ url('/' . $actor->slug . '/sfEacPlugin') }}">
           <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>EAC
         </a>
       </li>

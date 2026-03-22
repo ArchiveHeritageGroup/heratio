@@ -28,6 +28,20 @@
     <div class="row justify-content-center">
       <div class="col-lg-8">
 
+        {{-- Related record --}}
+        @if($feedback->parent_id)
+        <div class="card shadow-sm mb-3">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+            <i class="fas fa-link me-2"></i>Related Record
+          </div>
+          <div class="card-body">
+            <a href="{{ url('/' . $feedback->parent_id) }}" class="btn atom-btn-white w-100">
+              <i class="fas fa-file me-2"></i>View information object: {{ $feedback->parent_id }}
+            </a>
+          </div>
+        </div>
+        @endif
+
         {{-- Feedback Details (readonly) --}}
         <div class="card shadow-sm mb-3">
           <div class="card-header" style="background:var(--ahg-primary);color:#fff">

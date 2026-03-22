@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class DiscoveryController extends Controller
 {
-    public function index() { return view('graphql::index'); }
+    public function index() { return view('discovery::index'); }
 
 }

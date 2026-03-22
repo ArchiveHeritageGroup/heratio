@@ -2,6 +2,31 @@
 @section('title', 'Favorites')
 @section('body-class', 'favorites')
 
+@php
+  /**
+   * Resolve the URL for a favorited item based on its object_type and slug.
+   * Supports information_object, actor, repository, accession, donor, rights_holder,
+   * term, function, physical_object.
+   */
+  function favItemUrl($item): string {
+      $slug = $item->slug ?? '';
+      if (empty($slug)) {
+          return '#';
+      }
+      return match ($item->object_type ?? 'information_object') {
+          'actor'          => url('/actor/' . $slug),
+          'repository'     => url('/repository/' . $slug),
+          'accession'      => url('/accession/' . $slug),
+          'donor'          => url('/donor/' . $slug),
+          'rights_holder'  => url('/rights-holder/' . $slug),
+          'term'           => url('/term/' . $slug),
+          'function'       => url('/function/' . $slug),
+          'physical_object' => url('/physical-object/' . $slug),
+          default          => url('/' . $slug),
+      };
+  }
+@endphp
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1><i class="fas fa-heart me-2"></i>Favorites <span class="badge bg-primary">{{ $totalCount }}</span></h1>
@@ -225,7 +250,7 @@
                 </div>
                 <h6 class="card-title">
                   <i class="{{ $item->type_icon ?? 'fas fa-file-alt' }} text-muted me-1"></i>
-                  <a href="{{ url('/' . $item->slug) }}" class="text-decoration-none">{{ $item->archival_description }}</a>
+                  <a href="{{ favItemUrl($item) }}" class="text-decoration-none">{{ $item->archival_description }}</a>
                 </h6>
                 @if($item->reference_code)
                   <p class="card-text small text-muted mb-1"><i class="fas fa-barcode me-1"></i>{{ $item->reference_code }}</p>
@@ -275,7 +300,7 @@
               <tr>
                 <td><input type="checkbox" name="ids[]" value="{{ $item->id }}" class="form-check-input bulk-checkbox"></td>
                 <td>
-                  <a href="{{ url('/' . $item->slug) }}" class="text-decoration-none">
+                  <a href="{{ favItemUrl($item) }}" class="text-decoration-none">
                     <i class="{{ $item->type_icon ?? 'fas fa-file-alt' }} text-muted me-2"></i>
                     {{ $item->archival_description }}
                   </a>
@@ -296,7 +321,7 @@
                   </button>
                 </td>
                 <td class="text-center">
-                  <a href="{{ url('/' . $item->slug) }}" class="btn btn-sm atom-btn-white me-1" title="View">
+                  <a href="{{ favItemUrl($item) }}" class="btn btn-sm atom-btn-white me-1" title="View">
                     <i class="fas fa-eye"></i>
                   </a>
                   <form method="post" action="{{ route('favorites.remove', $item->id) }}" class="d-inline">

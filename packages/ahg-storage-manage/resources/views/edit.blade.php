@@ -361,6 +361,7 @@
           <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
           <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
         @endif
+        <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button"><i class="fas fa-list me-1"></i>Browse physical objects</a></li>
       </ul>
     </section>
   </form>

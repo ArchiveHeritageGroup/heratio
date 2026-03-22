@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class DacsManageController extends Controller
 {
-    public function edit() { return view('dc-manage::edit'); }
+    public function edit() { return view('dacs-manage::edit'); }
 
 }

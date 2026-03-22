@@ -272,14 +272,18 @@
         @if($item->goodreads_id)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Goodreads ID</h3>
-            <div class="col-9 p-2">{{ $item->goodreads_id }}</div>
+            <div class="col-9 p-2">
+              <a href="https://www.goodreads.com/book/show/{{ $item->goodreads_id }}" target="_blank">{{ $item->goodreads_id }}</a>
+            </div>
           </div>
         @endif
 
         @if($item->librarything_id)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">LibraryThing ID</h3>
-            <div class="col-9 p-2">{{ $item->librarything_id }}</div>
+            <div class="col-9 p-2">
+              <a href="https://www.librarything.com/work/{{ $item->librarything_id }}" target="_blank">{{ $item->librarything_id }}</a>
+            </div>
           </div>
         @endif
 
@@ -412,7 +416,11 @@
       </h2>
       <div id="subjects-collapse" class="p-3">
         @foreach($subjects as $subject)
-          <span class="badge bg-secondary me-1 mb-1">{{ $subject->name ?? '[Unknown]' }}</span>
+          @if($subject->slug ?? null)
+            <a href="{{ route('term.show', $subject->slug) }}" class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ $subject->name ?? '[Unknown]' }}</a>
+          @else
+            <span class="badge bg-secondary me-1 mb-1">{{ $subject->name ?? '[Unknown]' }}</span>
+          @endif
         @endforeach
       </div>
     </section>
@@ -552,9 +560,14 @@
           <ul class="dropdown-menu dropdown-menu-end w-100">
             <li><a class="dropdown-item" href="{{ route('library.edit', $item->slug) }}"><i class="fas fa-i-cursor me-2"></i>Rename</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('library.edit', $item->slug) }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/digitalobject/edit') }}"><i class="fas fa-edit me-2"></i>Edit digital object</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ route('library.edit', $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/editPhysicalObjects') }}"><i class="fas fa-box me-2"></i>Edit physical storage</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/default/move') }}"><i class="fas fa-arrows-alt me-2"></i>Move</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/informationobject/updatePublicationStatus') }}"><i class="fas fa-globe me-2"></i>Update publication status</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-gavel me-2"></i>Edit rights</a></li>
           </ul>
         </div>
       </div>
@@ -655,6 +668,14 @@
     </li>
     <li>
       <a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a>
+    </li>
+    <li>
+      <a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
+    </li>
+    <li>
+      <a href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}" class="btn atom-btn-outline-light">
+        <i class="fas fa-upload me-1"></i>Add digital object
+      </a>
     </li>
   </ul>
   @endauth

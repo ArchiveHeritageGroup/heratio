@@ -12,6 +12,24 @@
     </div>
   @endif
 
+  {{-- Pagination --}}
+  <div class="d-flex justify-content-between mb-2">
+    @if($previousLoan ?? null)
+      <a href="{{ route('loan.show', $previousLoan->id) }}" class="btn btn-sm atom-btn-white">
+        <i class="fas fa-chevron-left me-1"></i>Previous
+      </a>
+    @else
+      <span></span>
+    @endif
+    @if($nextLoan ?? null)
+      <a href="{{ route('loan.show', $nextLoan->id) }}" class="btn btn-sm atom-btn-white">
+        Next<i class="fas fa-chevron-right ms-1"></i>
+      </a>
+    @else
+      <span></span>
+    @endif
+  </div>
+
   {{-- Header --}}
   <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
@@ -398,7 +416,15 @@
             <tbody>
               @foreach($loan->documents as $doc)
                 <tr>
-                  <td><i class="fas fa-file me-1"></i>{{ $doc->file_name }}</td>
+                  <td>
+                    @if($doc->file_path)
+                      <a href="{{ url('/uploads/' . $doc->file_path) }}" target="_blank" title="Download {{ $doc->file_name }}">
+                        <i class="fas fa-file me-1"></i>{{ $doc->file_name }}
+                      </a>
+                    @else
+                      <i class="fas fa-file me-1"></i>{{ $doc->file_name }}
+                    @endif
+                  </td>
                   <td><span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}</span></td>
                   <td>{{ $doc->file_size ? round($doc->file_size / 1024, 1) . ' KB' : '-' }}</td>
                   <td>{{ $doc->created_at ? \Carbon\Carbon::parse($doc->created_at)->format('Y-m-d H:i') : '-' }}</td>

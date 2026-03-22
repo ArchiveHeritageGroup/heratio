@@ -6,44 +6,44 @@ use App\Http\Controllers\Controller;
 
 class CdpaController extends Controller
 {
-    public function breachCreate() { return view('vendor::breach-create'); }
+    public function breachCreate() { return view('cdpa::breach-create'); }
 
-    public function breachView() { return view('vendor::breach-view'); }
+    public function breachView() { return view('cdpa::breach-view'); }
 
-    public function breaches() { return view('vendor::breaches'); }
+    public function breaches() { return view('cdpa::breaches'); }
 
-    public function config() { return view('vendor::config'); }
+    public function config() { return view('cdpa::config'); }
 
-    public function consent() { return view('vendor::consent'); }
+    public function consent() { return view('cdpa::consent'); }
 
-    public function dpiaCreate() { return view('vendor::dpia-create'); }
+    public function dpiaCreate() { return view('cdpa::dpia-create'); }
 
-    public function dpia() { return view('vendor::dpia'); }
+    public function dpia() { return view('cdpa::dpia'); }
 
-    public function dpiaView() { return view('vendor::dpia-view'); }
+    public function dpiaView() { return view('cdpa::dpia-view'); }
 
-    public function dpoEdit() { return view('vendor::dpo-edit'); }
+    public function dpoEdit() { return view('cdpa::dpo-edit'); }
 
-    public function dpo() { return view('vendor::dpo'); }
+    public function dpo() { return view('cdpa::dpo'); }
 
-    public function index() { return view('vendor::index'); }
+    public function index() { return view('cdpa::index'); }
 
-    public function licenseEdit() { return view('vendor::license-edit'); }
+    public function licenseEdit() { return view('cdpa::license-edit'); }
 
-    public function license() { return view('vendor::license'); }
+    public function license() { return view('cdpa::license'); }
 
-    public function processingCreate() { return view('vendor::processing-create'); }
+    public function processingCreate() { return view('cdpa::processing-create'); }
 
-    public function processingEdit() { return view('vendor::processing-edit'); }
+    public function processingEdit() { return view('cdpa::processing-edit'); }
 
-    public function processing() { return view('vendor::processing'); }
+    public function processing() { return view('cdpa::processing'); }
 
-    public function reports() { return view('vendor::reports'); }
+    public function reports() { return view('cdpa::reports'); }
 
-    public function requestCreate() { return view('vendor::request-create'); }
+    public function requestCreate() { return view('cdpa::request-create'); }
 
-    public function requestView() { return view('vendor::request-view'); }
+    public function requestView() { return view('cdpa::request-view'); }
 
-    public function requests() { return view('vendor::requests'); }
+    public function requests() { return view('cdpa::requests'); }
 
 }

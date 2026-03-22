@@ -45,6 +45,8 @@ Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'tre
 // Export
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
 Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ead'])->name('informationobject.export.ead');
+Route::get('/informationobject/{slug}/export/mods', [ExportController::class, 'mods'])->name('informationobject.export.mods');
+Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'csv'])->name('informationobject.export.csv');
 
 // Auth-required features
 Route::middleware('auth')->group(function () {
@@ -80,6 +82,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'uploadForm'])->name('informationobject.findingaid.upload.form');
     Route::post('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'upload'])->name('informationobject.findingaid.upload');
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
+    Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete');
 
     // Collections Management — Provenance
     Route::get('/provenance/{slug}', [ProvenanceController::class, 'index'])->name('io.provenance');

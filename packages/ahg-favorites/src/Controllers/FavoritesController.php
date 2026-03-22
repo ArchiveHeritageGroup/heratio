@@ -27,7 +27,7 @@ class FavoritesController extends Controller
             return redirect()->route('login');
         }
 
-        $params = $request->only(['page', 'limit', 'sort', 'sortDir', 'query', 'folder_id', 'unfiled']);
+        $params = $request->only(['page', 'limit', 'sort', 'sortDir', 'query', 'folder_id', 'unfiled', 'view']);
         $data = $this->favoritesService->browse($userId, $params);
         $folders = $this->folderService->getUserFolders($userId);
         $unfiledCount = $this->folderService->getUnfiledCount($userId);

@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class RadManageController extends Controller
 {
-    public function edit() { return view('mods-manage::edit'); }
+    public function edit() { return view('rad-manage::edit'); }
 
 }

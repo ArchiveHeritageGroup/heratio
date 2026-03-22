@@ -63,6 +63,201 @@ class ExportController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_dc.xml"');
     }
 
+    /**
+     * Export an information object as MODS 3.5 XML.
+     * Migrated from AtoM sfModsPlugin export action.
+     */
+    public function mods(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $repository = $this->getRepository($io, $culture);
+        $events = $this->getEvents($io, $culture);
+        $creators = $this->getCreators($io, $culture);
+        $subjects = $this->getAccessPoints($io, 35, $culture);
+        $places = $this->getAccessPoints($io, 42, $culture);
+        $genres = $this->getAccessPoints($io, 78, $culture);
+        $levelName = $this->getLevelName($io, $culture);
+        $languages = $this->getLanguages($io, $culture);
+
+        $xml = $this->buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, $culture);
+
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_mods.xml"');
+    }
+
+    /**
+     * Export information objects as CSV.
+     * Migrated from AtoM InformationObjectExportCsvAction.
+     */
+    public function csv(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        // Get this IO and all descendants
+        $rows = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
+            })
+            ->join('slug as s', 's.object_id', '=', 'io.id')
+            ->where(function ($q) use ($io) {
+                $q->where('io.id', $io->id)
+                  ->orWhere(function ($q2) use ($io) {
+                      $q2->where('io.lft', '>', $io->lft)->where('io.rgt', '<', $io->rgt);
+                  });
+            })
+            ->orderBy('io.lft')
+            ->select([
+                'io.id', 'io.identifier', 'io.level_of_description_id',
+                'io.repository_id', 'io.parent_id',
+                'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium',
+                'i18n.archival_history', 'i18n.acquisition', 'i18n.appraisal',
+                'i18n.accruals', 'i18n.arrangement', 'i18n.access_conditions',
+                'i18n.reproduction_conditions', 'i18n.physical_characteristics',
+                'i18n.finding_aids', 'i18n.location_of_originals', 'i18n.location_of_copies',
+                'i18n.related_units_of_description', 'i18n.rules', 'i18n.sources',
+                's.slug',
+            ])
+            ->get();
+
+        $headers = [
+            'identifier', 'title', 'slug', 'level_of_description_id',
+            'scope_and_content', 'extent_and_medium', 'archival_history',
+            'acquisition', 'appraisal', 'accruals', 'arrangement',
+            'access_conditions', 'reproduction_conditions', 'physical_characteristics',
+            'finding_aids', 'location_of_originals', 'location_of_copies',
+            'related_units_of_description', 'rules', 'sources',
+        ];
+
+        $callback = function () use ($rows, $headers) {
+            $fp = fopen('php://output', 'w');
+            fputcsv($fp, $headers);
+            foreach ($rows as $row) {
+                $line = [];
+                foreach ($headers as $h) {
+                    $line[] = $row->$h ?? '';
+                }
+                fputcsv($fp, $line);
+            }
+            fclose($fp);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $io->slug . '_export.csv"',
+        ]);
+    }
+
+    private function buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, string $culture): string
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd" version="3.5">' . "\n";
+
+        // Title
+        $xml .= "  <titleInfo>\n    <title>" . $this->e($io->title) . "</title>\n  </titleInfo>\n";
+
+        // Creators
+        foreach ($creators as $creator) {
+            $type = match ((int) ($creator->entity_type_id ?? 0)) {
+                132 => 'personal',
+                130 => 'family',
+                131 => 'corporate',
+                default => 'personal',
+            };
+            $xml .= "  <name type=\"{$type}\">\n";
+            $xml .= "    <namePart>" . $this->e($creator->name) . "</namePart>\n";
+            $xml .= "    <role><roleTerm type=\"text\" authority=\"marcrelator\">creator</roleTerm></role>\n";
+            $xml .= "  </name>\n";
+        }
+
+        // Type of resource
+        if ($levelName) {
+            $xml .= "  <typeOfResource>" . $this->e($levelName) . "</typeOfResource>\n";
+        }
+
+        // Origin info (dates)
+        $hasOrigin = false;
+        $originXml = "  <originInfo>\n";
+        foreach ($events as $event) {
+            $dateVal = $event->date_display ?: ($event->start_date ?? '');
+            if ($dateVal) {
+                $hasOrigin = true;
+                $originXml .= "    <dateCreated>" . $this->e($dateVal) . "</dateCreated>\n";
+            }
+        }
+        $originXml .= "  </originInfo>\n";
+        if ($hasOrigin) {
+            $xml .= $originXml;
+        }
+
+        // Languages
+        foreach ($languages as $lang) {
+            $xml .= "  <language><languageTerm type=\"text\">" . $this->e($lang->name) . "</languageTerm></language>\n";
+        }
+
+        // Physical description
+        if ($io->extent_and_medium) {
+            $xml .= "  <physicalDescription>\n    <extent>" . $this->e($io->extent_and_medium) . "</extent>\n  </physicalDescription>\n";
+        }
+
+        // Abstract (scope and content)
+        if ($io->scope_and_content) {
+            $xml .= "  <abstract>" . $this->e($io->scope_and_content) . "</abstract>\n";
+        }
+
+        // Subjects
+        foreach ($subjects as $s) {
+            $xml .= "  <subject><topic>" . $this->e($s->name) . "</topic></subject>\n";
+        }
+
+        // Places
+        foreach ($places as $p) {
+            $xml .= "  <subject><geographic>" . $this->e($p->name) . "</geographic></subject>\n";
+        }
+
+        // Genres
+        foreach ($genres as $g) {
+            $xml .= "  <genre>" . $this->e($g->name) . "</genre>\n";
+        }
+
+        // Identifier
+        if ($io->identifier) {
+            $xml .= "  <identifier type=\"local\">" . $this->e($io->identifier) . "</identifier>\n";
+        }
+
+        // Location (repository)
+        if ($repository) {
+            $xml .= "  <location>\n    <physicalLocation>" . $this->e($repository->name) . "</physicalLocation>\n  </location>\n";
+        }
+
+        // Access conditions
+        if ($io->access_conditions) {
+            $xml .= "  <accessCondition type=\"restriction on access\">" . $this->e($io->access_conditions) . "</accessCondition>\n";
+        }
+        if ($io->reproduction_conditions) {
+            $xml .= "  <accessCondition type=\"use and reproduction\">" . $this->e($io->reproduction_conditions) . "</accessCondition>\n";
+        }
+
+        // Record info
+        $xml .= "  <recordInfo>\n";
+        $xml .= "    <recordContentSource>" . $this->e(config('app.name', 'Heratio')) . "</recordContentSource>\n";
+        $xml .= "    <recordCreationDate encoding=\"iso8601\">" . gmdate('Y-m-d') . "</recordCreationDate>\n";
+        $xml .= "    <languageOfCataloging><languageTerm authority=\"iso639-2b\">" . $this->e($culture) . "</languageTerm></languageOfCataloging>\n";
+        $xml .= "  </recordInfo>\n";
+
+        $xml .= "</mods>\n";
+        return $xml;
+    }
+
     private function getIO(string $slug, string $culture)
     {
         return DB::table('information_object')

@@ -114,6 +114,36 @@ class FindingAidController extends Controller
         return response()->download($path);
     }
 
+    /**
+     * Delete an existing finding aid.
+     * Migrated from AtoM InformationObjectDeleteFindingAidAction.
+     */
+    public function delete(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $path = $this->getFindingAidPath($io->id);
+        if ($path && file_exists($path)) {
+            unlink($path);
+
+            // Clear the findingAidStatus property in the database
+            DB::table('property')
+                ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                ->where('property.object_id', $io->id)
+                ->where('property.name', 'findingAidStatus')
+                ->delete();
+
+            return redirect()->route('informationobject.show', $slug)
+                ->with('success', 'Finding aid deleted successfully.');
+        }
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with('error', 'No finding aid exists for this description.');
+    }
+
     private function getIO(string $slug): ?object
     {
         $slugRow = DB::table('slug')->where('slug', $slug)->first();

@@ -6,6 +6,6 @@ use App\Http\Controllers\Controller;
 
 class ModsManageController extends Controller
 {
-    public function edit() { return view('dacs-manage::edit'); }
+    public function edit() { return view('mods-manage::edit'); }
 
 }

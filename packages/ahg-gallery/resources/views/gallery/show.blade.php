@@ -65,6 +65,21 @@
             <i class="fas fa-trash me-1"></i> Delete
           </button>
         </form>
+        @if(!empty($digitalObjects['reference']) || !empty($digitalObjects['thumbnail']))
+          <a href="{{ url('/' . $artwork->slug . '/digitalobject/edit') }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-edit me-1"></i> Edit digital object
+          </a>
+          <a href="{{ url('/' . $artwork->slug . '/digitalobject/delete') }}" class="list-group-item list-group-item-action small text-danger">
+            <i class="fas fa-times-circle me-1"></i> Delete digital object
+          </a>
+        @else
+          <a href="{{ url('/' . $artwork->slug . '/object/addDigitalObject') }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-upload me-1"></i> Add digital object
+          </a>
+        @endif
+        <a href="{{ url('/' . $artwork->slug . '/right/edit') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-gavel me-1"></i> Edit rights
+        </a>
       
     
   @endauth
