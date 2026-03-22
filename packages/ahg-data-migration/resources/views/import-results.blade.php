@@ -124,7 +124,7 @@
           <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
             <table class="table table-bordered table-sm table-striped mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th style="width: 80px;">Row</th>
                   <th>Error</th>
                 </tr>

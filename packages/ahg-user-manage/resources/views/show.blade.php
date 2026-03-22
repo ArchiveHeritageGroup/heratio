@@ -190,7 +190,7 @@
 
 @section('after-content')
   @auth
-    <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+    <ul class="actions mb-3 nav gap-2">
       <li><a href="{{ route('user.edit', $user->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
 
       @if(auth()->user()->id !== $user->id)

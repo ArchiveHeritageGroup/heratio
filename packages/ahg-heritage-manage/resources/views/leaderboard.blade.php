@@ -24,7 +24,7 @@
         @if(!empty($items))
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff">
+            <thead><tr>
               @foreach($columns ?? ['ID','Name','Status','Date'] as $col)
                 <th>{{ $col }}</th>
               @endforeach

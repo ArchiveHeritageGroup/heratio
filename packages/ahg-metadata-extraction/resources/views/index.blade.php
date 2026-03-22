@@ -88,7 +88,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>ID</th>
               <th>File Name</th>
               <th>MIME Type</th>

@@ -118,7 +118,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-sm table-striped">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>MIME Type</th>
               <th>Count</th>
               <th>Supported</th>

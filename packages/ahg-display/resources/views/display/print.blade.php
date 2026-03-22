@@ -43,7 +43,7 @@
   @if(!empty($objects) && count($objects))
     <table class="table table-bordered table-sm">
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
+        <tr>
           <th style="width: 15%;">Identifier</th>
           <th style="width: 25%;">Title</th>
           <th style="width: 10%;">Level</th>

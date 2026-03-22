@@ -96,7 +96,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-hover mb-0" id="termsTable">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th style="width:40px"></th>
               <th>Label</th>
               <th style="width:140px">Code</th>

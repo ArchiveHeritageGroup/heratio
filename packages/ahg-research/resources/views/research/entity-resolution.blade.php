@@ -62,7 +62,7 @@
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
         <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
                 <th>Entity A</th>
                 <th></th>
                 <th>Entity B</th>
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.evidence-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var evidence = JSON.parse(this.dataset.evidence);
-            var html = '<table class="table table-bordered table-sm"><thead><tr style="background:var(--ahg-primary);color:#fff"><th>Source Type</th><th>Source ID</th><th>Note</th></tr></thead><tbody>';
+            var html = '<table class="table table-bordered table-sm"><thead><tr><th>Source Type</th><th>Source ID</th><th>Note</th></tr></thead><tbody>';
             evidence.forEach(function(e) {
                 html += '<tr><td>' + (e.source_type || '-') + '</td><td>' + (e.source_id || '-') + '</td><td>' + (e.note || '-') + '</td></tr>';
             });

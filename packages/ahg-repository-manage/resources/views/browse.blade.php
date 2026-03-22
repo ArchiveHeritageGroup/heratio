@@ -356,7 +356,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th class="sortable w-40">
                 <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
               </th>

@@ -10,7 +10,7 @@
     <div class="table-responsive">
       <table class="table table-bordered table-sm table-striped mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>ID</th><th>Status</th><th>Files</th><th>Output</th><th>Created</th>
           </tr>
         </thead>

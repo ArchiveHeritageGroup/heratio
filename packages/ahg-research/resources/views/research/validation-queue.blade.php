@@ -73,7 +73,7 @@
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
         <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>Object</th>
                 <th>Extraction</th>

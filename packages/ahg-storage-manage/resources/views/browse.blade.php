@@ -45,7 +45,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th class="sortable">
               <a title="Sort" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">Name</a>
             </th>

@@ -94,7 +94,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>#</th>
                 <th>Description</th>
                 <th>Status</th>

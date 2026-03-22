@@ -182,7 +182,7 @@
     <h2 class="section-heading">Related authority records</h2>
     <table>
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
+        <tr>
           <th>Name</th>
           <th>Identifier</th>
           <th>Category</th>

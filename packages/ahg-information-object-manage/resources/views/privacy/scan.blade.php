@@ -156,7 +156,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-hover mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>Type</th>
                     <th>Value</th>
                     <th>Confidence</th>
@@ -236,7 +236,7 @@
           <div class="card-body p-0">
             <table class="table table-bordered table-sm mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>Type</th>
                   <th class="text-end">Count</th>
                 </tr>

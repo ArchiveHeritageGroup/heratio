@@ -40,7 +40,7 @@
       </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
-          <thead><tr style="background:var(--ahg-primary);color:#fff">
+          <thead><tr>
             <th width="40"></th><th>Name</th><th>Source</th><th>Status</th><th>Visibility</th><th>Updated</th><th width="200">Actions</th>
           </tr></thead>
           <tbody>

@@ -34,7 +34,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Target</th>

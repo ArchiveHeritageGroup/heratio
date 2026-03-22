@@ -37,7 +37,7 @@
     <div class="card-body p-0">
       <table class="table table-bordered table-hover mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>Object</th>
             <th class="text-center" style="width: 120px">Pending</th>
             <th class="text-center" style="width: 120px">Approved</th>

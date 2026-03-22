@@ -165,7 +165,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-sm table-hover mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>ID</th>
               <th>Object Title</th>
               <th>Filename</th>
@@ -233,7 +233,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-sm table-hover mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>ID</th>
               <th>Object Title</th>
               <th>Master</th>

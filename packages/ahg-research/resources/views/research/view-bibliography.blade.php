@@ -34,7 +34,7 @@
         <div class="table-responsive">
             <table class="table table-bordered table-hover table-striped mb-0">
                 <thead>
-                    <tr style="background:var(--ahg-primary);color:#fff">
+                    <tr>
                         <th>Title</th>
                         <th>Authors</th>
                         <th>Year</th>

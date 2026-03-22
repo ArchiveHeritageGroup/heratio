@@ -72,7 +72,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
-                            <tr style="background:var(--ahg-primary);color:#fff">
+                            <tr>
                                 <th>#</th>
                                 <th>File Name</th>
                                 <th>Relative Path</th>
@@ -111,7 +111,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
-                            <tr style="background:var(--ahg-primary);color:#fff">
+                            <tr>
                                 <th>Date/Time</th>
                                 <th>Type</th>
                                 <th>Outcome</th>

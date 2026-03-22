@@ -8,7 +8,7 @@
 <div class="table-responsive">
   <table class="table table-bordered table-striped">
     <thead>
-      <tr style="background:var(--ahg-primary);color:#fff">
+      <tr>
         <th>#</th><th>Name</th><th>Actions</th>
       </tr>
     </thead>

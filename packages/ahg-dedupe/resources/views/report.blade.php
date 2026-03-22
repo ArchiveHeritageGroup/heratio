@@ -67,7 +67,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-striped mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>Month</th>
                     <th class="text-end">Detected</th>
                     <th class="text-end">Merged</th>
@@ -137,7 +137,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Method</th>
                 <th class="text-end">Total</th>
                 <th class="text-end">Avg Score</th>

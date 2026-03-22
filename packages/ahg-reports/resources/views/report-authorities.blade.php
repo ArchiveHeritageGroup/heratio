@@ -29,7 +29,7 @@
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-sm">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>#</th><th>Name</th><th>Entity Type</th><th>Dates</th><th>Created</th><th>Updated</th>
           </tr>
         </thead>

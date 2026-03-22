@@ -37,7 +37,7 @@
         @if(!empty($records))
         <div class="table-responsive">
           <table class="table table-sm table-striped mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff">
+            <thead><tr>
               @foreach(array_keys((array)($records[0] ?? [])) as $col)
                 <th>{{ ucwords(str_replace('_', ' ', $col)) }}</th>
               @endforeach

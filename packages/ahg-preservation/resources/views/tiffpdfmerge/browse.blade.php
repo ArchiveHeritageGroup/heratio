@@ -15,7 +15,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff">
+            <thead><tr>
               <th>ID</th><th>Status</th><th>Output Format</th><th>Files</th><th>Output</th><th>Created</th><th>Actions</th>
             </tr></thead>
             <tbody>

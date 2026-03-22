@@ -84,7 +84,7 @@
           <div class="table-responsive">
             <table class="table table-bordered table-sm table-hover mb-0 align-middle">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th style="width:40px">On</th>
                   <th>Job</th>
                   <th>Schedule</th>

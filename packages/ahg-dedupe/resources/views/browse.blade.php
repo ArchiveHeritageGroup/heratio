@@ -77,7 +77,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="checkAll"></th>
                 <th style="width: 70px;">Score</th>
                 <th>Record A</th>

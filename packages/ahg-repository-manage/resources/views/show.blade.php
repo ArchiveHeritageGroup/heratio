@@ -342,7 +342,7 @@
 
   {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
-  <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+  <ul class="actions mb-3 nav gap-2">
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
     <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>

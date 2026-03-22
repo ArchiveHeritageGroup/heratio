@@ -335,7 +335,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped table-hover mb-0 browse-table" id="glam-browse-table">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th class="col-thumb">
               <span class="d-none d-md-inline">Image</span>
               <div class="resize-handle"></div>

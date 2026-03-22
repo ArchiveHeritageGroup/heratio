@@ -68,7 +68,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff">
+            <thead><tr>
               <th>File</th><th>Source</th><th>Target</th><th>Status</th><th>Tool</th><th>Created</th>
             </tr></thead>
             <tbody>

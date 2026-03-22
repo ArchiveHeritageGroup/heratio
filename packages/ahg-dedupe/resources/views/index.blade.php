@@ -91,7 +91,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-striped mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th style="width: 70px;">Score</th>
                     <th>Record A</th>
                     <th>Record B</th>

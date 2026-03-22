@@ -275,7 +275,7 @@ foreach ($collection->items as $item) {
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle" id="itemsTable">
                     <thead>
-                        <tr style="background:var(--ahg-primary);color:#fff">
+                        <tr>
                             <th style="width: 50px;"></th>
                             <th>Title</th>
                             <th>Identifier</th>

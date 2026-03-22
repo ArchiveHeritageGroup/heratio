@@ -52,7 +52,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Title</th>
                 <th>Slug</th>
                 <th>Notes</th>

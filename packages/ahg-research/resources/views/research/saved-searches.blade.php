@@ -22,7 +22,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Name</th>
                 <th>Query</th>
                 <th>Date Saved</th>

@@ -59,7 +59,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Object</th>
                 <th>Type</th>
                 <th>Scope</th>
@@ -126,7 +126,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Type</th>
                 <th>Requested</th>
                 <th>Urgency</th>

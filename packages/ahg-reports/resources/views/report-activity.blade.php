@@ -60,7 +60,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-sm">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
             <th>Date</th><th>User</th><th>Action</th>
             @if($auditTable === 'ahg_audit_log')
               <th>Entity type</th><th>Entity</th>

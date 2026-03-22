@@ -317,7 +317,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Title</th>
                 <th>Identifier</th>
                 <th>Type</th>
@@ -406,7 +406,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>File Name</th>
                 <th>Type</th>
                 <th>Size</th>
@@ -449,7 +449,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Previous End Date</th>
                 <th>New End Date</th>
                 <th>Reason</th>
@@ -486,7 +486,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Type</th>
                 <th>Examination Date</th>
                 <th>Examiner</th>
@@ -534,7 +534,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Venue</th>
                 <th>Assessment Date</th>
                 <th>Climate Control</th>
@@ -634,7 +634,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Type</th>
                 <th>Description</th>
                 <th>Amount</th>

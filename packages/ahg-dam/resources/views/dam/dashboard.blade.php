@@ -126,7 +126,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>License</th>
                 <th class="text-end" style="width:100px;">Count</th>
               </tr>
@@ -165,7 +165,7 @@
       @else
         <table class="table table-bordered table-hover mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>Title</th>
               <th style="width:120px;">Asset Type</th>
               <th style="width:150px;">Identifier</th>

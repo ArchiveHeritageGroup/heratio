@@ -60,7 +60,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff"><th>Algorithm</th><th>Value</th><th>Generated</th></tr></thead>
+            <thead><tr><th>Algorithm</th><th>Value</th><th>Generated</th></tr></thead>
             <tbody>
               @forelse($checksums ?? [] as $cs)
               <tr><td>{{ strtoupper($cs->algorithm ?? '') }}</td><td><code class="small">{{ $cs->value ?? '' }}</code></td><td><small>{{ $cs->created_at ?? '' }}</small></td></tr>
@@ -79,7 +79,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff"><th>Date</th><th>Type</th><th>Outcome</th><th>Detail</th></tr></thead>
+            <thead><tr><th>Date</th><th>Type</th><th>Outcome</th><th>Detail</th></tr></thead>
             <tbody>
               @forelse($events ?? [] as $event)
               <tr>

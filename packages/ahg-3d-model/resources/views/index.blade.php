@@ -17,7 +17,7 @@
   </div>
   @if(isset($models) && count($models))
     <div class="table-responsive"><table class="table table-bordered table-hover mb-0">
-      <thead><tr style="background:var(--ahg-primary);color:#fff"><th style="width:60px"></th><th>Model</th><th>Object</th><th>Format</th><th>Size</th><th>Status</th><th style="width:100px">Actions</th></tr></thead>
+      <thead><tr><th style="width:60px"></th><th>Model</th><th>Object</th><th>Format</th><th>Size</th><th>Status</th><th style="width:100px">Actions</th></tr></thead>
       <tbody>@foreach($models as $m)<tr>
         <td>@if($m->thumbnail)<img src="/uploads/{{ $m->thumbnail }}" class="rounded" style="width:50px;height:50px;object-fit:cover">@else<div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width:50px;height:50px"><i class="fas fa-cube"></i></div>@endif</td>
         <td><a href="{{ route('admin.3d-models.view', $m->id) }}"><strong>{{ $m->model_title ?: $m->original_filename }}</strong></a>@if($m->is_primary)<span class="badge bg-primary ms-1">Primary</span>@endif @if($m->ar_enabled)<span class="badge bg-success ms-1">AR</span>@endif</td>

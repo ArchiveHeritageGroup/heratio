@@ -124,7 +124,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Package Name / UUID</th>
                 <th>Type</th>
                 <th>Status</th>
@@ -210,7 +210,7 @@
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>PUID</th>
                   <th>MIME Type</th>
                   <th>Size</th>

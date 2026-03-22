@@ -102,7 +102,7 @@
               <div class="accordion-body p-0">
                 <table class="table table-bordered table-sm table-striped mb-0">
                   <thead>
-                    <tr style="background:var(--ahg-primary);color:#fff">
+                    <tr>
                       <th style="width: 30%">Field</th>
                       <th>Value</th>
                     </tr>

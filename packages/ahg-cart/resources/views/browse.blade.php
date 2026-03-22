@@ -24,7 +24,7 @@
   <div class="table-responsive mb-4">
     <table class="table table-bordered table-striped">
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
+        <tr>
           <th>Item</th>
           @if($isEcommerce)<th>Product</th><th>Price</th>@endif
           <th>Date added</th>

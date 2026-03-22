@@ -37,7 +37,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-hover mb-0">
                         <thead>
-                            <tr style="background:var(--ahg-primary);color:#fff">
+                            <tr>
                                 <th>Name</th>
                                 <th>Organization</th>
                                 <th>Purpose</th>

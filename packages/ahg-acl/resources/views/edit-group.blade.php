@@ -46,7 +46,7 @@
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>User</th>
                   <th>Username</th>
                   <th class="text-end">Actions</th>
@@ -107,7 +107,7 @@
           <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>Action</th>
                   <th>Object ID</th>
                   <th class="text-center">Grant / Deny</th>

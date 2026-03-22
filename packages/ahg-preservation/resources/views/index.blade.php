@@ -82,7 +82,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
-                            <tr style="background:var(--ahg-primary);color:#fff">
+                            <tr>
                                 <th>Date/Time</th>
                                 <th>Type</th>
                                 <th>File</th>
@@ -126,7 +126,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm table-striped mb-0">
                         <thead>
-                            <tr style="background:var(--ahg-primary);color:#fff">
+                            <tr>
                                 <th>Format</th>
                                 <th>PUID</th>
                                 <th>MIME Type</th>

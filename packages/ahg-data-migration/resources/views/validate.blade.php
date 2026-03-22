@@ -8,7 +8,7 @@
   </div>
   @if(isset($rows) && count($rows))
     <div class="table-responsive"><table class="table table-bordered table-hover mb-0">
-      <thead><tr style="background:var(--ahg-primary);color:#fff"><th>Row</th><th>Field</th><th>Issue</th><th>Severity</th></tr></thead>
+      <thead><tr><th>Row</th><th>Field</th><th>Issue</th><th>Severity</th></tr></thead>
       <tbody>@foreach($rows as $row)<tr>@foreach((array)$row as $v)<td>{{ $v }}</td>@endforeach</tr>@endforeach</tbody>
     </table></div>
     @if(isset($pager))@include('ahg-core::components.pager', ['pager' => $pager])@endif

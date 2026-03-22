@@ -84,7 +84,7 @@
                 <div class="table-responsive">
                   <table class="table table-bordered table-hover table-sm mb-0">
                     <thead>
-                      <tr style="background:var(--ahg-primary);color:#fff">
+                      <tr>
                         <th>Taxonomy</th>
                         <th style="width:120px">Code</th>
                         <th class="text-center" style="width:80px">Terms</th>

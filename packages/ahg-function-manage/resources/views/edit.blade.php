@@ -127,7 +127,83 @@
         </div>
       </div>
 
-      {{-- Relationships area removed — not shown on AtoM add page --}}
+      {{-- ===== Relationships area (ISDF 5.3) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="relationships-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#relationships-collapse" aria-expanded="false" aria-controls="relationships-collapse">
+            Relationships area
+          </button>
+        </h2>
+        <div id="relationships-collapse" class="accordion-collapse collapse" aria-labelledby="relationships-heading">
+          <div class="accordion-body">
+
+            {{-- Related functions --}}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Related function(s)</label>
+              <table class="table table-bordered table-sm" id="related-functions-table">
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <tbody>
+                  @if(isset($relatedFunctions) && count($relatedFunctions) > 0)
+                    @foreach($relatedFunctions as $rf)
+                      <tr>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][name]" class="form-control form-control-sm" value="{{ $rf->name ?? '' }}"></td>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][type]" class="form-control form-control-sm" value="{{ $rf->type ?? '' }}"></td>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][description]" class="form-control form-control-sm" value="{{ $rf->description ?? '' }}"></td>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rf->dates ?? '' }}"></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                      </tr>
+                    @endforeach
+                  @endif
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-functions-table', ['name','type','description','dates'])">Add related function</button>
+            </div>
+
+            {{-- Related authority records --}}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Related authority record(s)</label>
+              <table class="table table-bordered table-sm" id="related-actors-table">
+                <thead><tr><th>Name</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <tbody>
+                  @if(isset($relatedActors) && count($relatedActors) > 0)
+                    @foreach($relatedActors as $ra)
+                      <tr>
+                        <td><input type="text" name="related_actors[{{ $loop->index }}][name]" class="form-control form-control-sm" value="{{ $ra->name ?? '' }}"></td>
+                        <td><input type="text" name="related_actors[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $ra->nature ?? '' }}"></td>
+                        <td><input type="text" name="related_actors[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $ra->dates ?? '' }}"></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                      </tr>
+                    @endforeach
+                  @endif
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-actors-table', ['name','nature','dates'])">Add related authority record</button>
+            </div>
+
+            {{-- Related resources --}}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Related resource(s)</label>
+              <table class="table table-bordered table-sm" id="related-resources-table">
+                <thead><tr><th>Title</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <tbody>
+                  @if(isset($relatedResources) && count($relatedResources) > 0)
+                    @foreach($relatedResources as $rr)
+                      <tr>
+                        <td><input type="text" name="related_resources[{{ $loop->index }}][title]" class="form-control form-control-sm" value="{{ $rr->title ?? '' }}"></td>
+                        <td><input type="text" name="related_resources[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $rr->nature ?? '' }}"></td>
+                        <td><input type="text" name="related_resources[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rr->dates ?? '' }}"></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                      </tr>
+                    @endforeach
+                  @endif
+                </tbody>
+              </table>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-resources-table', ['title','nature','dates'])">Add related resource</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
 
       {{-- ===== Control area (ISDF 5.4) ===== --}}
       <div class="accordion-item">

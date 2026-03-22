@@ -79,7 +79,7 @@
 
       <table class="table table-bordered table-striped table-hover mb-4">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th style="width: 20%">Title</th>
             <th style="width: 40%">Current value</th>
             <th style="width: 40%">New value</th>

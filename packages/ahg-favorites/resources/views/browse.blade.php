@@ -282,7 +282,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-sm align-middle mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th style="width:30px"><input type="checkbox" id="selectAll" class="form-check-input" title="Select all"></th>
               <th>Title</th>
               <th style="width:140px">Reference Code</th>

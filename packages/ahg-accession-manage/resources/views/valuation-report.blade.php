@@ -20,7 +20,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-hover mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>Identifier</th>
             <th>Title</th>
             <th>Date</th>

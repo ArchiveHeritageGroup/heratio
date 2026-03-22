@@ -108,7 +108,7 @@
         <div class="card-body p-0">
           <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Name</th>
                 <th>Code</th>
                 <th>Status</th>

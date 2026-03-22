@@ -96,7 +96,7 @@
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>Name</th>
               <th>Label</th>
               <th>Path</th>

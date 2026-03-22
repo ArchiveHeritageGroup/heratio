@@ -72,7 +72,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>Type</th>
               <th>Date</th>
               <th>From</th>

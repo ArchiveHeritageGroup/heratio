@@ -76,7 +76,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>User</th>
                 <th class="text-end" style="width:150px">Action Count</th>
               </tr>
@@ -107,7 +107,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Time</th>
                 <th>User</th>
                 <th>Action</th>

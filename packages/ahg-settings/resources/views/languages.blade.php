@@ -28,7 +28,7 @@
             {{-- Current languages --}}
             <table class="table table-bordered table-sm mb-4">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>Language code</th>
                   <th>Language name</th>
                   <th style="width: 80px">Actions</th>

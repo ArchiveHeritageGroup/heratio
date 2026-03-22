@@ -99,7 +99,7 @@
             <div class="table-responsive">
               <table class="table table-bordered mb-0" id="contact-table">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th class="w-80">Contact person</th>
                     <th class="w-20">Primary</th>
                     <th><span class="visually-hidden">Actions</span></th>

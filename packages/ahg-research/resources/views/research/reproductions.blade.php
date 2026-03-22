@@ -24,7 +24,7 @@
 <div class="table-responsive">
     <table class="table table-bordered table-hover table-striped">
         <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
                 <th>ID</th>
                 <th>Item</th>
                 <th>Type</th>

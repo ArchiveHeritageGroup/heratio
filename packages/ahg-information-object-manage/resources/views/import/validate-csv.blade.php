@@ -99,7 +99,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Column name</th>
                 <th style="width: 120px">Status</th>
                 <th>Message</th>

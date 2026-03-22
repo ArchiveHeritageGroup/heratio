@@ -61,7 +61,7 @@
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
         <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
                 <th>#</th>
                 <th>Target</th>
                 <th>Policy Type</th>

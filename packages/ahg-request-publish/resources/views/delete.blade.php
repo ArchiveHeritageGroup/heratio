@@ -6,7 +6,7 @@
     <p>Are you sure you want to delete <strong>{{ $record->name ?? $record->title ?? 'this record' }}</strong>?</p>
     <p class="text-danger">This action cannot be undone.</p>
     <form method="POST" action="{{ $deleteUrl ?? '#' }}">@csrf @method('DELETE')
-      <div class="d-flex gap-2"><button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-trash me-1"></i> Delete</button><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-times me-1"></i> Cancel</a></div>
+      <div class="d-flex gap-2"><button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-trash me-1"></i> Delete</button><a href="{{ url()->previous() }}" class="btn atom-btn-outline-light"><i class="fas fa-times me-1"></i> Cancel</a></div>
     </form>
   </div></div>
 @endsection

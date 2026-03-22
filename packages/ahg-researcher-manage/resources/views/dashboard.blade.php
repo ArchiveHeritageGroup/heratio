@@ -85,7 +85,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Title</th>
                 @if($isAdmin)
                   <th>Researcher</th>

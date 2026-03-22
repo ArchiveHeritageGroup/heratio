@@ -81,7 +81,7 @@
       @if(!empty($levels) && count($levels))
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th style="width: 40px;"></th>
               <th>Name</th>
               <th>Code</th>

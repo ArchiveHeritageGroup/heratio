@@ -128,7 +128,7 @@
           @if($topContributors->isNotEmpty())
             <table class="table table-bordered table-hover mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th style="width:60px;" class="text-center">#</th>
                   <th>Username</th>
                   <th class="text-end" style="width:150px;">Actions</th>

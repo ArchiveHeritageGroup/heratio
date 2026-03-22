@@ -90,7 +90,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Room</th>

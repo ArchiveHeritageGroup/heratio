@@ -91,7 +91,7 @@
                   @endif
                   @if($contactItem->city ?? null)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Locality</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">City</h4>
                       <div class="col-9 p-1">{{ $contactItem->city }}</div>
                     </div>
                   @endif
@@ -103,7 +103,7 @@
                   @endif
                   @if($contactItem->country_code)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country name</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country</h4>
                       <div class="col-9 p-1">{{ $contactItem->country_code }}</div>
                     </div>
                   @endif
@@ -188,7 +188,7 @@
 
 @section('after-content')
   @auth
-    <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+    <ul class="actions mb-3 nav gap-2">
       <li><a href="{{ route('donor.edit', $donor->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
       <li><a href="{{ route('donor.confirmDelete', $donor->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
       <li><a href="{{ route('donor.create') }}" class="btn atom-btn-outline-light">Add new</a></li>

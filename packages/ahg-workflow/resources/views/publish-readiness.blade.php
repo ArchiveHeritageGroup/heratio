@@ -58,7 +58,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Status</th>
                 <th>Rule</th>
                 <th>Type</th>

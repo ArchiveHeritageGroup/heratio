@@ -1,4 +1,8 @@
-@extends('theme::layouts.1col')
+@if(isset($pager) && $pager->getNbResults())
+  @extends('theme::layouts.2col')
+@else
+  @extends('theme::layouts.1col')
+@endif
 
 @section('title', 'Archival descriptions')
 @section('body-class', 'browse informationobject')
@@ -8,7 +12,7 @@
     <i class="fas fa-3x fa-file-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">
-        @if($pager->getNbResults())
+        @if(isset($pager) && $pager->getNbResults())
           Showing {{ number_format($pager->getNbResults()) }} results
         @else
           No results found
@@ -19,75 +23,86 @@
   </div>
 @endsection
 
-@section('before-content')
-  <div class="d-inline-block mb-3">
-    @include('ahg-core::components.inline-search', [
-        'label' => 'Search archival descriptions',
-        'landmarkLabel' => 'Archival description',
-    ])
+@if(isset($pager) && $pager->getNbResults())
+@section('sidebar')
+  <h2 class="d-grid">
+    <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button"
+            data-bs-toggle="collapse" data-bs-target="#collapse-aggregations"
+            aria-expanded="false" aria-controls="collapse-aggregations">
+      Narrow your results by:
+    </button>
+  </h2>
+
+  <div class="collapse" id="collapse-aggregations">
+    @if(isset($facets))
+      @foreach($facets as $facetName => $facetData)
+        @if(!empty($facetData['terms']))
+          <section class="facet mb-3">
+            <h3 class="h6 px-2 py-1 border-bottom">{{ $facetData['label'] ?? ucfirst($facetName) }}</h3>
+            <ul class="list-unstyled px-2">
+              @foreach($facetData['terms'] as $term)
+                <li class="mb-1">
+                  @php
+                    $isActive = request($facetName) == ($term['value'] ?? $term['id'] ?? '');
+                    $params = request()->except([$facetName, 'page']);
+                    if (!$isActive) {
+                        $params[$facetName] = $term['value'] ?? $term['id'] ?? '';
+                    }
+                  @endphp
+                  <a href="{{ route('informationobject.browse', $params) }}" class="{{ $isActive ? 'fw-bold' : '' }}">
+                    {{ $term['label'] ?? $term['name'] ?? $term['value'] ?? '' }}
+                    <span class="badge bg-secondary rounded-pill float-end">{{ $term['count'] ?? 0 }}</span>
+                  </a>
+                </li>
+              @endforeach
+            </ul>
+          </section>
+        @endif
+      @endforeach
+    @endif
   </div>
+@endsection
+@endif
+
+@section('before-content')
+  {{-- Filter tags --}}
+  @if(isset($filterTags) && count($filterTags) > 0)
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      @foreach($filterTags as $tag)
+        <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
+          <span class="visually-hidden">Remove filter:</span>
+          <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
+          <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
+        </a>
+      @endforeach
+    </div>
+  @endif
 @endsection
 
 @section('content')
-  @if($pager->getNbResults())
+  @if(isset($pager) && $pager->getNbResults())
     <div class="d-flex flex-wrap gap-2 mb-3">
-      @if($repositories->isNotEmpty())
-        <div class="dropdown">
-          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            {{ $selectedRepository ? ($repositoryNames[$selectedRepository] ?? 'Repository') : 'Repository' }}
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item {{ !$selectedRepository ? 'active' : '' }}"
-                 href="{{ route('informationobject.browse', array_merge(request()->except('repository', 'page'), [])) }}">
-                All repositories
-              </a>
-            </li>
-            @foreach($repositories as $repo)
-              <li>
-                <a class="dropdown-item {{ $selectedRepository == $repo->id ? 'active' : '' }}"
-                   href="{{ route('informationobject.browse', array_merge(request()->except('page'), ['repository' => $repo->id])) }}">
-                  {{ $repo->name }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
+      @auth
+        @if(Route::has('informationobject.export.csv'))
+          <a class="btn btn-sm atom-btn-white"
+             href="{{ route('informationobject.export.csv', request()->query()) }}">
+            <i class="fas fa-upload me-1" aria-hidden="true"></i>Export CSV
+          </a>
+        @endif
+      @endauth
 
       <div class="d-flex flex-wrap gap-2 ms-auto">
         @include('ahg-core::components.sort-pickers', [
             'options' => $sortOptions,
             'default' => 'alphabetic',
         ])
-
-        @php
-          $currentSort = request('sort', 'alphabetic');
-          $currentDir = request('sortDir', ($currentSort === 'lastUpdated' ? 'desc' : 'asc'));
-          $dirQuery = request()->except(['sortDir', 'page']);
-        @endphp
-        <div class="dropdown d-inline-block">
-          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-            <li>
-              <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}"
-                 class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a>
-            </li>
-            <li>
-              <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}"
-                 class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a>
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>Title</th>
             <th>Level of description</th>
             <th>Repository</th>

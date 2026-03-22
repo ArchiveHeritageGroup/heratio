@@ -85,7 +85,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover mb-0" id="files-table">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Filename</th>
                 <th class="text-end" style="width:120px">Size</th>
                 <th style="width:180px">Modified</th>

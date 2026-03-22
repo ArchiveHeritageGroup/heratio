@@ -9,7 +9,7 @@
   <div class="table-responsive mb-3">
     <table class="table table-bordered mb-0">
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
+        <tr>
           <th>Name</th>
           <th>Note</th>
         </tr>

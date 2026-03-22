@@ -115,7 +115,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-hover table-striped mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>Date</th>
               <th>Type</th>
               <th>Components</th>
@@ -203,7 +203,7 @@
     @if(count($schedules) > 0)
       <table class="table table-bordered table-sm mb-0">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>Frequency</th>
             <th>Time</th>
             <th>Components</th>

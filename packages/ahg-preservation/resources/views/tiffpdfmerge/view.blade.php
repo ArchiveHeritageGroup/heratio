@@ -44,7 +44,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr style="background:var(--ahg-primary);color:#fff"><th>#</th><th>Filename</th><th>Size</th><th>Type</th></tr></thead>
+            <thead><tr><th>#</th><th>Filename</th><th>Size</th><th>Type</th></tr></thead>
             <tbody>
               @forelse($sourceFiles ?? [] as $file)
               <tr>

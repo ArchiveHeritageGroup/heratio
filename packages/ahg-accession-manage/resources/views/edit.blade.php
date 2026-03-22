@@ -49,7 +49,7 @@
               <div class="table-responsive mb-2">
                 <table class="table table-bordered mb-0" id="altids-table">
                   <thead>
-                    <tr style="background:var(--ahg-primary);color:#fff">
+                    <tr>
                       <th id="alt-identifiers-type-head" class="w-30">Type</th>
                       <th id="alt-identifiers-identifier-head" class="w-35">Identifier</th>
                       <th id="alt-identifiers-note-head" class="w-35">Notes</th>
@@ -141,7 +141,7 @@
               <div class="table-responsive">
                 <table class="table table-bordered mb-0" id="donor-table">
                   <thead>
-                    <tr style="background:var(--ahg-primary);color:#fff">
+                    <tr>
                       <th class="w-100">Name</th>
                       <th><span class="visually-hidden">Actions</span></th>
                     </tr>
@@ -340,7 +340,7 @@
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="isad-dates-table">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th id="isad-events-type-head" class="w-25">Type</th>
                     <th id="isad-events-date-head" class="w-30">Date</th>
                     <th id="isad-events-start-head">Start</th>
@@ -395,7 +395,7 @@
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="events-table">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th id="accession-events-type-head" class="w-20">Type</th>
                     <th id="accession-events-date-head" class="w-25">Date</th>
                     <th id="accession-events-agent-head">Agent</th>

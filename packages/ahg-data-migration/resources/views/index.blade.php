@@ -64,7 +64,7 @@
             <div class="table-responsive">
               <table class="table table-bordered mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>Name</th>
                     <th>Target Type</th>
                     <th>Category</th>
@@ -137,7 +137,7 @@
             <div class="table-responsive">
               <table class="table table-bordered mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>#</th>
                     <th>Type</th>
                     <th>Status</th>

@@ -19,7 +19,7 @@
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-sm">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>#</th><th>Identifier</th><th>Name</th><th>Holdings</th><th>Created</th><th>Updated</th>
           </tr>
         </thead>

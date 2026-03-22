@@ -129,7 +129,7 @@
           <div class="table-responsive mb-3">
             <table class="table table-bordered table-striped mb-0">
               <thead>
-                <tr style="background:var(--ahg-primary);color:#fff">
+                <tr>
                   <th>Action</th>
                   <th>Status Change</th>
                   <th>Performed At</th>

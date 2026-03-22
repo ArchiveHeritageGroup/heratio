@@ -11,7 +11,7 @@
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
+        <tr>
           <th>Order #</th><th>Date</th><th>Status</th><th>Total</th><th>Actions</th>
         </tr>
       </thead>

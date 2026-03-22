@@ -80,7 +80,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-hover mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>Task</th>
                     <th>Workflow</th>
                     <th>Status</th>
@@ -136,7 +136,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-hover mb-0">
                 <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
+                  <tr>
                     <th>Task</th>
                     <th>Workflow</th>
                     <th>Priority</th>
@@ -187,7 +187,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Time</th>
                 <th>Action</th>
                 <th>Workflow</th>

@@ -67,7 +67,7 @@
         <div class="card-body p-0">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th>Field Name</th>
                 <th>Code</th>
                 <th>Type</th>
@@ -129,7 +129,7 @@
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>Field Name</th>
               <th>Code</th>
               <th>Type</th>

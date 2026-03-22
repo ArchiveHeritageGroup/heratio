@@ -46,7 +46,7 @@
     @else
       <table class="table table-bordered table-striped table-hover">
         <thead>
-          <tr style="background:var(--ahg-primary);color:#fff">
+          <tr>
             <th>Name</th>
             <th>Type</th>
             <th class="text-end">Actions</th>

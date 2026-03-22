@@ -36,7 +36,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 <th style="width: 40px;">#</th>
                 @foreach($targetHeaders as $header)
                   <th class="text-nowrap">{{ $header }}</th>

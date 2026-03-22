@@ -145,7 +145,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th>DOI</th>
               <th>Record Title</th>
               <th>Status</th>

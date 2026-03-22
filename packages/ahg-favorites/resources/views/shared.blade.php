@@ -14,7 +14,7 @@
 <div class="table-responsive">
   <table class="table table-bordered table-striped">
     <thead>
-      <tr style="background:var(--ahg-primary);color:#fff">
+      <tr>
         <th>Title</th><th>Reference Code</th><th>Added</th><th>Actions</th>
       </tr>
     </thead>

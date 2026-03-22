@@ -72,7 +72,7 @@
       <div class="table-responsive">
         <table class="table table-bordered mb-0" id="mappingTable">
           <thead>
-            <tr style="background:var(--ahg-primary);color:#fff">
+            <tr>
               <th style="width: 40%;">Source Column (CSV)</th>
               <th style="width: 10%; text-align: center;"><i class="fas fa-arrow-right"></i></th>
               <th style="width: 50%;">Target Field</th>
@@ -111,7 +111,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead>
-              <tr style="background:var(--ahg-primary);color:#fff">
+              <tr>
                 @foreach($sourceColumns as $col)
                   <th class="text-nowrap">{{ $col }}</th>
                 @endforeach

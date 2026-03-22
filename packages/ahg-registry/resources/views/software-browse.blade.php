@@ -35,7 +35,7 @@
 @if(!empty($result['items']) && count($result['items']))
 <div class="table-responsive">
   <table class="table table-striped table-bordered">
-    <thead style="background:var(--ahg-primary);color:#fff;">
+    <thead>
       <tr>
         <th>{{ __('Name') }}</th>
         <th>{{ __('Updated') }}</th>
