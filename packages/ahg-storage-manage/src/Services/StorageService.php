@@ -204,4 +204,76 @@ class StorageService
     {
         return DB::table('slug')->where('object_id', $id)->value('slug');
     }
+
+    // ── Extended data (physical_object_extended table) ──────────────
+
+    private const EXTENDED_FIELDS = [
+        'building', 'floor', 'room', 'aisle', 'bay', 'rack', 'shelf', 'position',
+        'barcode', 'reference_code',
+        'width', 'height', 'depth',
+        'total_capacity', 'used_capacity', 'capacity_unit',
+        'total_linear_metres', 'used_linear_metres',
+        'climate_controlled', 'temperature_min', 'temperature_max',
+        'humidity_min', 'humidity_max',
+        'security_level', 'access_restrictions', 'status', 'notes',
+    ];
+
+    public function getExtendedData(int $physicalObjectId): array
+    {
+        $row = DB::table('physical_object_extended')
+            ->where('physical_object_id', $physicalObjectId)
+            ->first();
+
+        if (!$row) {
+            return [];
+        }
+
+        return (array) $row;
+    }
+
+    public function saveExtendedData(int $physicalObjectId, array $data): void
+    {
+        $values = [];
+        foreach (self::EXTENDED_FIELDS as $field) {
+            if (array_key_exists($field, $data)) {
+                $value = $data[$field];
+                // Convert empty strings to null for numeric/text fields
+                if ($value === '' || $value === null) {
+                    $value = null;
+                }
+                // climate_controlled is boolean
+                if ($field === 'climate_controlled') {
+                    $value = !empty($data[$field]) ? 1 : 0;
+                }
+                $values[$field] = $value;
+            }
+        }
+
+        if (empty($values)) {
+            return;
+        }
+
+        $exists = DB::table('physical_object_extended')
+            ->where('physical_object_id', $physicalObjectId)
+            ->exists();
+
+        if ($exists) {
+            $values['updated_at'] = now();
+            DB::table('physical_object_extended')
+                ->where('physical_object_id', $physicalObjectId)
+                ->update($values);
+        } else {
+            $values['physical_object_id'] = $physicalObjectId;
+            $values['created_at'] = now();
+            $values['updated_at'] = now();
+            DB::table('physical_object_extended')->insert($values);
+        }
+    }
+
+    public function deleteExtendedData(int $physicalObjectId): void
+    {
+        DB::table('physical_object_extended')
+            ->where('physical_object_id', $physicalObjectId)
+            ->delete();
+    }
 }

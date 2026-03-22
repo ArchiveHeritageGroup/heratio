@@ -1,0 +1,2225 @@
+# FULL CONTROL AUDIT: Heratio vs AtoM
+# Generated: 2026-03-22 08:16:45
+# Total Heratio views: 361
+# Views with AtoM equivalent: 43
+# Views without AtoM equivalent: 318
+# Total Heratio controls: 10964
+# Total AtoM controls (matched): 194
+# Total delta: -562
+
+## SUMMARY BY PACKAGE
+
+Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sidebar   AtoM? 
+───────────────────────────────────────────────────────────────────────────────────────────
+ahg-3d-model                       1     29      —     ?       1col      none      0/1   
+ahg-accession-manage               4     157     —     ?       1col      none,right0/4   
+ahg-acl                            9     219     —     ?       1col      none      0/9   
+ahg-actor-manage                   7     435     6       -429    2col,1col,unknown,print,3colleft,none,detected2/7   
+ahg-ai-services                    2     167     —     ?       1col      none      0/2   
+ahg-audit-trail                    4     78      —     ?       1col      none      0/4   
+ahg-backup                         3     119     —     ?       1col      none      0/3   
+ahg-cart                           7     101     —     ?       1col      none      0/7   
+ahg-core                           7     59      —     ?       unknown,1colnone      0/7   
+ahg-dam                            4     291     —     ?       1col,3col none,detected0/4   
+ahg-data-migration                 11    237     —     ?       1col      none      0/11  
+ahg-dedupe                         6     86      —     ?       1col      none,detected0/6   
+ahg-display                        11    428     —     ?       unknown,masternone,detected,left0/11  
+ahg-doi-manage                     6     97      —     ?       1col      none      0/6   
+ahg-donor-manage                   4     32      —     ?       1col      none,right0/4   
+ahg-dropdown-manage                2     88      —     ?       1col      detected  0/2   
+ahg-favorites                      2     66      —     ?       1col      left,none 0/2   
+ahg-feedback                       3     88      —     ?       1col      left,none 0/3   
+ahg-ftp-upload                     1     51      —     ?       1col      none      0/1   
+ahg-function-manage                4     87      5       -82     1col      none,right2/4   
+ahg-gallery                        6     686     —     ?       1col,2col,3colnone,detected0/6   
+ahg-help                           5     69      —     ?       unknown,1coldetected  0/5   
+ahg-heritage-manage                6     216     —     ?       1col,unknown,2colleft,none,detected0/6   
+ahg-iiif-collection                5     167     —     ?       2col      detected  0/5   
+ahg-information-object-manage      34    1123    15      -1108   1col,unknown,2col,print,3colnone,detected,right2/34  
+ahg-integrity                      1     36      —     ?       1col      none      0/1   
+ahg-jobs-manage                    2     16      8       -8      1col      none      1/2   
+ahg-library                        3     286     —     ?       1col,3col none,detected0/3   
+ahg-loan                           4     242     —     ?       1col      none      0/4   
+ahg-media-processing               2     88      —     ?       1col      none,detected0/2   
+ahg-menu-manage                    5     40      8       -32     1col,unknownnone      3/5   
+ahg-metadata-extraction            3     79      —     ?       1col      none      0/3   
+ahg-museum                         3     562     —     ?       1col,2col,3colnone,detected0/3   
+ahg-pdf-tools                      3     76      —     ?       1col      none      0/3   
+ahg-portable-export                1     48      —     ?       1col      none      0/1   
+ahg-preservation                   12    176     —     ?       unknown,1colnone,left 0/12  
+ahg-reports                        14    553     —     ?       unknown,1colnone,right,left0/14  
+ahg-repository-manage              5     218     8       -210    2col,1col,printdetected,none,right2/5   
+ahg-request-publish                2     87      —     ?       1col      none      0/2   
+ahg-research                       44    1301    —     ?       unknown,2coldetected  0/44  
+ahg-researcher-manage              3     65      —     ?       1col      none      0/3   
+ahg-ric                            6     98      —     ?       1col      none      0/6   
+ahg-rights-holder-manage           4     30      15      -15     1col      none,right4/4   
+ahg-search                         5     108     —     ?       1col,unknownnone,left,detected0/5   
+ahg-settings                       37    719     86      -633    unknown,1colnone,left,right,detected12/37 
+ahg-static-page                    3     20      8       -12     2col,1col detected,none3/3   
+ahg-storage-manage                 4     31      13      -18     1col      none,right4/4   
+ahg-term-taxonomy                  5     161     20      -141    2col,1col detected,none,right4/5   
+ahg-theme-b5                       19    316     —     ?       master,unknownnone,left,detected0/19  
+ahg-user-manage                    4     79      2       -77     1col      none,right4/4   
+ahg-workflow                       13    353     —     ?       1col      none,detected0/13  
+
+
+## DETAILED PAGE-BY-PAGE AUDIT
+
+### ahg-3d-model
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    4     6     0     5     0     5     29     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1), btn-close(3)
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-accession-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    1     5     0     1     0     0     7      —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(1), btn-white(1), btn-outline-light(1)
+  URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+delete                        1col    none    1     1     0     1     0     0     3      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    25    2     54    11    32    0     137    —   —   —   —    ?      
+  BTN classes: btn(20), btn-white(17), btn-close(1), btn-outline-success(1), btn-outline-light(2)
+  ⚠ NO FIELD BADGES on 32 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    right   0     4     0     6     0     0     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-acl
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+access-requests               1col    none    8     7     2     3     2     3     35     —   —   —   —    ?      
+  BTN classes: btn(7), btn-white(3), btn-outline-success(2), btn-outline-danger(2), btn-close(2), btn-close-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+approvers                     1col    none    4     3     4     3     4     1     27     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-close(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+audit-log                     1col    none    0     6     0     2     0     1     12     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+classifications               1col    none    0     3     0     2     0     1     23     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+clearances                    1col    none    6     1     8     2     8     5     37     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(2), btn-outline-success(2), btn-close(2), btn-sm(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit-group                    1col    none    5     3     4     3     4     2     31     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(1), btn-close(1), btn-sm(4), btn-outline-danger(2), btn-outline-success(2)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+groups                        1col    none    0     2     0     1     0     0     3      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+my-requests                   1col    none    1     2     0     3     0     8     20     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(1), btn-white(1)
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+pending-requests              1col    none    9     1     2     7     2     3     31     —   —   —   —    ?      
+  BTN classes: btn-close(3), btn(6), btn-outline-success(2), btn-outline-danger(2), btn-close-white(2), btn-white(2)
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-actor-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        2col    left    11    25    12    14    6     1     73     1     0     0     4      -69    
+  BTN classes: btn(5), btn-lg(1), btn-white(4), btn-sm(1), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: apps/qubit/modules/actor/templates/browseSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/actor/templates/deleteSuccess.php
+
+edit                          1col    none    17    2     45    11    27    0     111    —   —   —   —    ?      
+  BTN classes: btn(10), btn-white(9), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 27 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_contact-area                 unknown none    3     0     48    4     48    46    156    —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(2), btn-outline-light(2), btn-white(1)
+  Field badges: Req=0 Rec=0 Opt=46
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_other-names                  unknown none    3     0     6     0     6     6     24     —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(3), btn-outline-danger(2), btn-white(1)
+  Field badges: Req=2 Rec=0 Opt=4
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+print                         print   none    0     0     0     9     0     0     9      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected1     13    0     37    0     4     59     —   —   —   —    ?      
+  BTN classes: btn(7), btn-white(3), btn-sm(2), btn-outline-light(4)
+  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-ai-services
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+config                        1col    none    7     1     45    2     47    4     124    —   —   —   —    ?      
+  BTN classes: btn(8), btn-white(3), btn-outline-light(1), btn-sm(3), btn-outline-success(3), btn-outline-danger(1), btn-lg(1)
+  ⚠ NO FIELD BADGES on 47 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    5     3     2     1     2     12    43     —   —   —   —    ?      
+  BTN classes: btn(7), btn-white(6), btn-outline-success(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-audit-trail
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    1     4     5     1     5     2     20     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+settings                      1col    none    1     1     9     4     9     0     27     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 9 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    none    0     1     0     9     0     3     15     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+statistics                    1col    none    0     4     0     7     0     1     16     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-backup
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    8     4     4     2     4     15    70     —   —   —   —    ?      
+  BTN classes: btn(10), btn-sm(2), btn-white(7), btn-outline-success(1), btn-outline-light(1), btn-outline-danger(1), btn-close(1)
+  Field badges: Req=1 Rec=0 Opt=0
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+restore                       1col    none    1     2     5     3     5     4     35     —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(1), btn-white(1), btn-outline-danger(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+settings                      1col    none    1     1     4     1     4     0     14     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-cart
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+orders                        1col    none    0     3     0     1     0     3     9      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+settings                      1col    none    1     1     10    1     10    2     27     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 10 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse                        1col    none    2     3     1     1     0     1     14     —   —   —   —    ?      
+  BTN classes: btn(4), btn-outline-danger(2), btn-sm(2), btn-white(2)
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+checkout                      1col    none    1     1     13    1     13    0     35     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 13 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+order-confirmation            1col    none    0     1     0     1     0     3     6      —   —   —   —    ?      
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+orders                        1col    none    0     1     0     1     0     3     6      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+thank-you                     1col    none    0     1     0     1     0     0     4      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-core
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_button                       unknown none    1     0     0     0     0     0     2      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    5     6     0     1     0     13    29     —   —   —   —    ?      
+  BTN classes: btn(6), btn-sm(2), btn-white(1), btn-outline-danger(2), btn-outline-light(2), btn-close(1)
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+load                          1col    none    4     0     2     2     2     0     10     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(2), btn-close(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+digital-object                unknown none    0     3     0     0     0     2     7      —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  URLs: {{ $displayUrl }} | {{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+inline-search                 unknown none    1     1     1     0     0     0     5      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ request()->fullUrlWithoutQuery(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+pager                         unknown none    0     4     0     0     0     0     4      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+sort-pickers                  unknown none    1     1     0     0     0     0     2      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ request()->url() }}?{{ http_build_query($params) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-dam
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    3     5     0     1     0     1     14     —   —   —   —    ?      
+  BTN classes: btn(4), btn-sm(3), btn-white(3), btn-outline-light(1)
+  URLs: {{ request()->url() }}?{{ http_build_query(array_merge($assetTypeQuery, [ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     1col    none    0     7     0     5     0     1     28     —   —   —   —    ?      
+  BTN classes: btn(6), btn-outline-success(3), btn-lg(2), btn-white(3), btn-sm(3)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    5     1     65    1     59    0     157    —   —   —   —    ?      
+  BTN classes: btn(5), btn-outline-danger(3), btn-sm(4), btn-white(1), btn-outline-success(1), btn-lg(1)
+  ⚠ NO FIELD BADGES on 59 labels
+  URLs: {{ $asset ? route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected3     9     0     71    0     1     92     —   —   —   —    ?      
+  BTN classes: btn(5), btn-sm(2), btn-white(2), btn-outline-light(2), btn-outline-success(1)
+  URLs: {{ route( | mailto:{{ $asset->creator_email }} | {{ $asset->creator_website }} | {{ $asset->license_url }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-data-migration
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+batch-export                  1col    none    1     2     3     3     3     0     17     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+export                        1col    none    1     2     5     2     5     5     23     —   —   —   —    ?      
+  BTN classes: btnSave(1), btn-white(1)
+  Field badges: Req=2 Rec=1 Opt=2
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+import-results                1col    none    0     5     0     3     0     4     21     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(1), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    3     10    1     3     1     4     37     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn-white(7), btn-outline-light(2), btn-sm(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+job-status                    1col    none    0     4     0     4     0     5     20     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+jobs                          1col    none    0     4     0     1     0     5     14     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+map                           1col    none    7     3     3     5     2     0     35     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(8), btn-sm(3), btn-white(5), btn-outline-success(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+preservica-export             1col    none    1     2     4     2     4     4     20     —   —   —   —    ?      
+  BTN classes: btn-outline-success(1), btn-white(1)
+  Field badges: Req=3 Rec=1 Opt=0
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+preservica-import             1col    none    1     2     5     2     5     5     23     —   —   —   —    ?      
+  BTN classes: btn-outline-success(1), btn-white(1)
+  Field badges: Req=3 Rec=2 Opt=0
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+preview                       1col    none    1     3     0     2     0     0     12     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+upload                        1col    none    2     2     3     2     3     0     15     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-dedupe
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     5     3     1     3     3     22     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(4), btn-outline-light(1), btn-sm(2), btn-dismiss(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+compare                       1col    none    2     3     0     1     0     1     15     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    detected1     11    0     1     0     8     31     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(3), btn-dismiss(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+not-configured                1col    none    0     0     0     1     0     0     3      —   —   —   —    ?      
+  Field badges: Req=1 Rec=0 Opt=0
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report                        1col    none    0     1     0     1     0     1     5      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+rules                         1col    none    0     1     0     1     0     5     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-display
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_advanced-search              unknown none    13    9     27    2     27    2     99     —   —   —   —    ?      
+  BTN classes: btn(13), btn-sm(3), btn-white(3), btn-outline-success(4), btn-close(1)
+  ⚠ NO FIELD BADGES on 27 labels
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_browse_content               unknown none    9     47    0     4     0     19    137    —   —   —   —    ?      
+  BTN classes: btn(11), btn-white(3), btn-close(4), btn-outline-success(8), btn-sm(10)
+  URLs: {{ route( | {{ glamBrowseUrl($fp, [ | {{ glamBrowseUrl($fp, [], [ | #discoveryDetails | {{ $objUrl }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_discovery_meta               unknown none    0     1     0     0     0     2     7      —   —   —   —    ?      
+  URLs: #discovery-explain-{{ $discovery[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse-settings               master  detected2     3     7     2     7     0     25     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(1), btn-white(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 7 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse                        master  left    3     16    2     1     3     8     47     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn-close-white(1), btn(2), btn-white(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ glamBrowseUrl($fp, [], [ | {{ glamBrowseUrl($fp, [
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+bulk-set-type                 master  detected1     4     2     4     3     0     22     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+fields                        master  none    0     3     0     3     0     4     21     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         master  detected0     7     0     6     0     3     31     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+levels                        master  none    1     4     1     2     1     5     22     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-light(1), btn-sm(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+print                         unknown none    2     0     0     1     0     0     5      —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(2)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+profiles                      master  none    0     3     0     1     0     3     12     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-doi-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    0     6     0     1     0     3     13     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+config                        1col    none    2     1     8     1     8     0     23     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(1), btn-white(1), btn-close(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    0     8     0     2     0     3     23     —   —   —   —    ?      
+  BTN classes: btn(4), btn-white(4), btn-sm(4)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+queue                         1col    none    0     7     0     1     0     9     20     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report                        1col    none    0     1     0     3     0     0     7      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view                          1col    none    0     2     0     2     0     4     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-donor-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     5     0     1     0     0     8      —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(2), btn-white(2), btn-outline-light(1)
+  URLs: {{ request()->fullUrlWithQuery([ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+delete                        1col    none    1     1     0     1     0     0     3      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    4     2     1     3     1     0     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    right   0     5     0     5     0     0     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route( | {{ $contact->website }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-dropdown-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+edit                          1col    detected5     4     9     4     5     0     36     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(2), btn-outline-success(2), btn-sm(1), btn-outline-danger(1), btn-delete-term(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    detected16    3     7     5     5     3     52     —   —   —   —    ?      
+  BTN classes: btn(12), btn-outline-success(2), btn-sm(5), btn-white(9), btn-rename(1), btn-move(1), btn-outline-danger(1), btn-delete-taxonomy(1), btn-close(3)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: #section-{{ $sKey }} | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-favorites
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    left    15    7     13    3     5     5     59     —   —   —   —    ?      
+  BTN classes: btn(13), btn-white(8), btn-sm(8), btn-outline-danger(2), btn-outline-light(1), btn-close(2), btn-outline-success(2)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+shared                        1col    none    1     2     0     1     0     1     7      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-feedback
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    left    1     10    0     1     0     8     31     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-sm(2), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    1     1     11    1     11    0     31     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 11 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+general                       1col    none    1     1     8     1     8     0     26     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-outline-success(1), btn-lg(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-ftp-upload
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    7     2     1     5     0     9     51     —   —   —   —    ?      
+  BTN classes: btn(13), btn-white(4), btn-sm(7), btn-outline-danger(3), btn-outline-success(1)
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-function-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     5     0     1     0     0     8      0     0     0     3      -5     
+  BTN classes: btn(3), btn-sm(2), btn-white(2), btn-outline-light(1)
+  URLs: {{ request()->fullUrlWithQuery([ | {{ route(
+  AtoM: apps/qubit/modules/function/templates/browseSuccess.php, apps/qubit/modules/function/templates/listSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/function/templates/deleteSuccess.php
+
+edit                          1col    none    8     2     29    4     19    0     65     —   —   —   —    ?      
+  BTN classes: btn(4), btn-outline-light(1), btn-white(3)
+  ⚠ NO FIELD BADGES on 19 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    right   0     5     0     5     0     1     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-gallery
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+artist-create                 1col    none    1     3     25    1     25    0     55     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 25 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+artist-show                   1col    none    0     8     0     10    0     2     31     —   —   —   —    ?      
+  URLs: {{ route( | mailto:{{ $artist->email }} | {{ $artist->website }} | https://instagram.com/{{ ltrim($artist->instagram, | https://twitter.com/{{ ltrim($artist->twitter, | {{ $artist->facebook }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+artists                       1col    none    0     2     0     1     0     0     5      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse                        1col    none    1     5     0     2     0     1     14     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(1), btn-white(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          2col    detected67    9     65    23    67    201   507    —   —   —   —    ?      
+  BTN classes: btn(4), btn-sm(3), btn-cco-guide(2), btn-help(49), btn-white(1), btn-outline-light(1)
+  Field badges: Req=13 Rec=18 Opt=1
+  URLs: javascript:void(0) | http://cco.vrafoundation.org/ | https://www.getty.edu/research/publications/electronic_publications/cdwa/ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected1     9     0     51    0     5     74     —   —   —   —    ?      
+  URLs: {{ route( | /actor/{{ $creator->slug }} | /repository/{{ $repository->slug }} | {{ $digitalObjects[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-help
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_sidebar                      unknown detected1     3     1     2     0     1     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+article                       1col    detected1     7     1     1     0     0     17     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(3)
+  URLs: {{ route( | #{{ $entry[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+category                      1col    detected0     2     0     3     0     1     8      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    detected1     3     1     5     0     3     17     —   —   —   —    ?      
+  BTN classes: btn(2), btn-light(1), btn-white(1)
+  URLs: https://docs.theahg.co.za | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+search                        1col    detected1     3     1     4     0     5     16     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-heritage-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+admin-dashboard               1col    left    0     3     0     7     0     2     22     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(3)
+  URLs: {{ route( | /
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+analytics-dashboard           1col    left    0     3     0     13    0     0     23     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+custodian-dashboard           1col    left    0     3     0     8     0     8     34     —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(3), btn-white(3)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+landing                       1col    none    3     24    1     12    0     1     62     —   —   —   —    ?      
+  BTN classes: btn(7)
+  URLs: {{ url( | #heritage-explore | {{ route( | {{ $collectionUrl }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_admin-sidebar                unknown detected0     17    0     0     0     0     39     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+search                        2col    left    1     13    1     5     0     5     36     —   —   —   —    ?      
+  BTN classes: btn(4), btn-outline-success(1), btn-sm(1), btn-white(3)
+  URLs: {{ $removeUrl }} | {{ url( | {{ $result[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-iiif-collection
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+add-items                     2col    detected3     1     4     6     5     3     33     —   —   —   —    ?      
+  BTN classes: btn(4), btn-sm(2), btn-outline-success(2), btn-lg(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+create                        2col    detected1     2     6     3     6     0     24     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          2col    detected1     3     6     4     6     0     27     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         2col    detected0     6     0     3     0     1     18     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view                          2col    detected2     12    1     6     1     17    65     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-danger(1), btn-close(1)
+  URLs: {{ route( | {{ url( | {{ e($item->manifest_uri) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-information-object-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+extract                       1col    none    2     2     0     1     0     1     10     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-sm(2), btn-outline-success(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+review                        1col    none    8     3     3     8     0     5     41     —   —   —   —    ?      
+  BTN classes: btn(7), btn-white(4), btn-close(1), btn-close-white(1), btn-outline-success(2), btn-sm(2), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+summarize                     1col    none    1     0     0     0     0     0     2      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+translate                     1col    none    1     0     1     0     1     0     4      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse                        1col    none    1     2     0     1     0     0     5      1     5     0     13     8      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/informationobject/templates/browseSuccess.php
+
+index                         1col    none    0     6     0     3     0     2     19     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+create                        unknown detected13    3     38    12    38    0     105    —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-outline-light(2)
+  ⚠ NO FIELD BADGES on 38 labels
+  URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/informationobject/templates/deleteSuccess.php
+
+show                          1col    none    0     2     0     2     0     0     5      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          2col    detected12    2     44    12    44    0     114    —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 44 labels
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+upload                        1col    none    2     1     1     2     1     0     7      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+select                        1col    none    3     0     9     4     9     0     25     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 9 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+skos-import                   1col    none    3     0     3     3     3     0     13     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+validate-csv                  1col    none    3     0     2     4     2     6     20     —   —   —   —    ?      
+  Field badges: Req=1 Rec=0 Opt=0
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_treeview                     unknown detected1     1     0     0     0     0     14     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-link(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_upload-form                  unknown none    3     0     1     2     1     0     10     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-danger(1), btn-sm(2), btn-outline-light(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+feature-header                unknown none    0     2     0     1     0     0     4      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    7     15    2     8     2     2     54     —   —   —   —    ?      
+  BTN classes: btn(6), btn-outline-success(3), btn-white(3), btn-lg(1), btn-close(1)
+  URLs: {{ route( | javascript:void(0)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+print                         print   none    0     0     0     13    0     0     13     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     1col    none    0     0     0     18    0     0     21     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+redaction                     1col    right   13    3     0     1     0     3     48     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn(11), btn-outline-light(7), btn-sm(11), btn-outline-danger(3), btn-outline-success(1), btn-delete-region(1), btn-close-white(1)
+  URLs: {{ route( | {{ isset($io->slug) ? route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+scan                          1col    none    2     7     0     3     0     5     35     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-outline-success(1), btn-white(1), btn-sm(1)
+  URLs: {{ isset($io->slug) ? route( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    detected7     5     45    10    46    1     132    —   —   —   —    ?      
+  BTN classes: btn(11), btn-outline-success(3), btn-sm(6), btn-outline-danger(4)
+  ⚠ NO FIELD BADGES on 46 labels
+  URLs: {{ route( | {{ $doc->file_path }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+timeline                      1col    none    0     5     0     3     0     11    26     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+annotations                   1col    none    1     0     0     0     0     0     3      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+assessment                    1col    none    1     0     3     0     3     0     8      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+citation                      1col    none    3     0     0     0     0     0     6      —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(3), btn-white(3)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     1col    none    0     0     0     4     0     0     4      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+trust                         1col    none    1     0     0     1     0     0     3      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+embargo                       1col    none    1     1     10    4     10    1     31     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 10 labels
+  URLs: {{ isset($io->slug) ? route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+extended                      1col    none    1     2     4     1     5     4     18     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  Field badges: Req=0 Rec=0 Opt=4
+  URLs: {{ route( | {{ isset($io->slug) ? route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected23    91    7     76    0     11    318    —   —   —   —    ?      
+  BTN classes: btn(29), btn-white(24), btn-sm(9), btn-outline-light(2), btn-outline-danger(2), btn-outline-success(1)
+  URLs: {{ route( | {{ $masterUrl }} | {{ $imgSrc }} | /media/transcription/{{ $doId }}/vtt | /media/transcription/{{ $doId }}/srt | {{ url( | #identity-collapse | #context-collapse | #content-collapse | #conditions-collapse ... +10 more
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+heritage                      1col    none    0     0     0     0     0     0     1      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    0     0     0     0     0     0     1      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-integrity
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    0     8     1     5     1     7     36     —   —   —   —    ?      
+  BTN classes: btn(8), btn-sm(8), btn-white(8)
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-jobs-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    0     5     0     1     0     0     6      0     3     0     8      2      
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/jobs/templates/browseSuccess.php
+
+show                          1col    none    0     2     0     2     0     3     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ $job->download_path }} | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-library
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    3     6     0     1     0     1     15     —   —   —   —    ?      
+  BTN classes: btn(4), btn-sm(3), btn-white(3), btn-outline-light(1)
+  URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ request()->url() }}?{{ http_build_query(array_merge($materialTypeQuery, [ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    15    7     67    18    54    2     204    —   —   —   —    ?      
+  BTN classes: btn(23), btn-sm(10), btn-light(2), btn-outline-danger(7), btn-white(5), btn-outline-success(2), btn-close(1)
+  ⚠ NO FIELD BADGES on 54 labels
+  URLs: {{ $item->openlibrary_url }} | {{ route( | {{ $item->ebook_preview_url ?? old(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected1     22    0     26    0     2     67     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-danger(1), btn-outline-light(1)
+  URLs: {{ route( | {{ $creator->slug ? route( | {{ $item->openlibrary_url }} | https://openlibrary.org/works/{{ $item->openlibrary_id }} | https://www.goodreads.com/book/show/{{ $item->goodreads_id }} | https://www.librarything.com/work/{{ $item->librarything_id }} | {{ $item->ebook_preview_url }} | #basic-collapse | #identifiers-collapse | #classification-collapse ... +6 more
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-loan
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+create                        1col    none    5     1     22    5     20    0     59     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 20 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    5     1     22    5     20    0     59     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 20 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    1     3     5     1     5     4     26     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(1), btn-outline-light(1), btn-sm(2), btn-white(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    none    18    3     10    18    5     15    98     —   —   —   —    ?      
+  BTN classes: btn-close(4), btn(13), btn-sm(7), btn-white(7), btn-outline-success(4), btn-outline-danger(2)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route( | mailto:{{ $loan->partner_contact_email }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-media-processing
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    6     3     0     4     0     3     33     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(3), btn-close(2), btn-outline-success(2), btn-sm(1)
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+watermark-settings            1col    detected4     1     11    6     11    12    55     —   —   —   —    ?      
+  BTN classes: btn(4), btn-white(1), btn-close(1), btn-outline-success(2), btn-sm(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 11 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-menu-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    0     2     0     1     0     0     3      0     0     0     1      -2     
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/menu/templates/listSuccess.php
+
+delete                        1col    none    1     2     0     1     0     0     6      1     0     0     2      -4     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/menu/templates/deleteSuccess.php
+
+edit                          1col    none    2     2     5     1     5     0     16     2     0     0     5      -11    
+  BTN classes: btn(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/menu/templates/editSuccess.php
+
+tree-node                     unknown none    0     1     0     0     0     1     3      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          1col    none    0     5     0     2     0     0     12     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-metadata-extraction
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    3     7     2     1     2     5     30     —   —   —   —    ?      
+  BTN classes: btn(6), btn-white(2), btn-sm(4), btn-outline-light(2), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+status                        1col    none    0     1     0     12    0     8     28     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view                          1col    none    3     2     0     5     0     2     21     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-sm(3), btn-outline-success(1), btn-outline-danger(1)
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-museum
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     6     0     1     0     0     12     —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(2), btn-white(2), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          2col    detected53    8     58    24    61    162   422    —   —   —   —    ?      
+  BTN classes: btn(3), btn-sm(1), btn-cco-guide(1), btn-help(33), btn-white(1), btn-outline-light(1)
+  Field badges: Req=13 Rec=18 Opt=1
+  URLs: javascript:void(0) | http://cco.vrafoundation.org/ | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          3col    detected1     4     0     116   0     4     128    —   —   —   —    ?      
+  URLs: {{ route( | {{ url( | {{ $masterUrl ?: $displayUrl }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-pdf-tools
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+extract-result                1col    none    1     1     0     1     0     2     12     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(2), btn-sm(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    none    5     1     2     12    2     5     34     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(3), btn-outline-success(2), btn-close(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+merge                         1col    none    1     2     8     1     10    2     30     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-sm(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 10 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-portable-export
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    2     1     13    3     17    6     48     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 17 labels
+  URLs: {{ $export->output_path }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-preservation
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_menu                         unknown none    0     1     0     0     0     0     2      —   —   —   —    ?      
+  URLs: {{ route($item[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+backup                        1col    left    0     0     0     1     0     16    28     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+events                        1col    left    0     1     0     1     0     5     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+fixity-log                    1col    left    0     3     0     1     0     2     10     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+formats                       1col    left    0     0     0     1     0     8     13     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+index                         1col    left    0     2     0     7     0     7     25     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+package-view                  1col    left    0     1     0     1     0     11    18     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+packages                      1col    left    0     5     0     1     0     12    20     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+policies                      1col    left    0     0     0     1     0     3     7      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+reports                       1col    left    0     0     0     1     0     9     17     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+scheduler                     1col    left    0     0     0     1     0     8     13     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+virus-scan                    1col    left    0     0     0     1     0     5     13     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-reports
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_filters                      unknown none    1     0     5     0     5     0     13     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_menu                         unknown none    0     11    0     0     0     0     23     —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_pagination                   unknown none    0     3     0     0     0     0     3      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     1col    right   0     166   0     41    0     0     410    —   —   —   —    ?      
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-accessions             1col    left    0     1     0     1     0     1     5      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-activity               1col    left    1     0     5     1     5     4     19     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-authorities            1col    left    0     1     1     1     1     1     7      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-descriptions           1col    left    0     1     2     1     2     3     11     —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-donors                 1col    left    0     1     0     1     0     1     5      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-recent                 1col    left    0     0     1     1     1     1     5      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-repositories           1col    left    0     1     0     1     0     2     6      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-spatial                1col    left    3     0     8     1     8     0     35     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(2), btn-white(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-storage                1col    left    0     1     0     1     0     1     5      —   —   —   —    ?      
+  URLs: {{ request()->fullUrlWithQuery([
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+report-taxonomy               1col    left    0     0     1     1     1     2     6      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-repository-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        2col    detected12    22    3     9     3     0     54     2     0     0     6      -48    
+  BTN classes: btn(5), btn-lg(1), btn-white(4), btn-sm(1), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: apps/qubit/modules/repository/templates/browseSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/repository/templates/deleteSuccess.php
+
+edit                          1col    none    18    2     46    11    46    0     126    —   —   —   —    ?      
+  BTN classes: btn(9), btn-white(7), btn-close(1), btn-outline-success(1), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 46 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+print                         print   none    0     0     0     8     0     0     8      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+show                          2col    right   1     8     0     10    0     5     27     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(1), btn-outline-success(1), btn-white(1)
+  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-request-publish
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     10    0     4     3     6     43     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(1), btn-sm(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route( | /{{ $row[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit                          1col    none    1     5     2     9     9     2     44     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 9 labels
+  URLs: mailto:{{ $record->rtp_email }} | tel:{{ $record->rtp_phone }} | /{{ $record->object_slug ?? | /{{ $record->object_slug }} | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-research
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_sidebar                      unknown detected0     29    0     0     0     1     59     —   —   —   —    ?      
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+activities                    2col    detected1     0     3     4     0     2     16     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1), btn-sm(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+admin-statistics              2col    detected1     0     2     10    2     0     27     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+admin-types                   2col    detected6     1     8     4     8     1     35     —   —   —   —    ?      
+  BTN classes: btn(5), btn-outline-success(3), btn-sm(3), btn-outline-light(1), btn-outline-danger(1), btn-close(2)
+  ⚠ NO FIELD BADGES on 8 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+annotations                   2col    detected11    1     13    4     13    4     55     —   —   —   —    ?      
+  BTN classes: btn-close(3), btn(8), btn-outline-success(3), btn-outline-light(1), btn-sm(3), btn-white(3), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 13 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+api-keys                      2col    detected4     0     5     3     6     3     28     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(2), btn-sm(2), btn-outline-danger(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+bibliographies                2col    detected3     1     3     3     3     0     17     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+book                          2col    detected4     1     8     1     6     1     31     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(4), btn-outline-success(2), btn-add-material(1), btn-white(1), btn-outline-danger(1), btn-remove-material(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+bookings                      2col    detected3     4     0     1     0     1     16     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-sm(2), btn-outline-success(1), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+cite                          2col    detected1     0     1     3     1     0     13     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+collections                   2col    detected6     2     2     3     2     1     23     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn(4), btn-outline-success(2), btn-sm(1), btn-outline-danger(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     2col    detected1     27    0     11    0     5     75     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(20), btn-white(15), btn-lg(1), btn-outline-danger(1), btn-outline-success(3), btn-outline-dark(1), btn-sm(4)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+document-templates            2col    detected8     1     8     4     8     1     31     —   —   —   —    ?      
+  BTN classes: btn(7), btn-white(4), btn-sm(1), btn-close(2), btn-outline-success(2)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit-room                     2col    detected1     1     14    1     15    0     35     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 15 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+entity-resolution             2col    detected11    1     11    6     11    3     52     —   —   —   —    ?      
+  BTN classes: btn(12), btn-white(4), btn-outline-light(1), btn-sm(2), btn-outline-success(2), btn-outline-danger(1), btn-close(3)
+  ⚠ NO FIELD BADGES on 11 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+equipment                     2col    detected3     0     5     3     5     1     25     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-sm(1), btn-close(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+institutions                  2col    detected1     0     2     2     0     3     13     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1), btn-sm(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+journal-entry                 2col    detected2     1     6     3     6     1     23     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(1), btn-white(1), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+journal                       2col    detected4     1     11    4     7     2     36     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(2), btn-sm(2), btn-white(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 7 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+notifications                 2col    detected2     0     0     1     0     2     12     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(2), btn-sm(2)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+odrl-policies                 2col    detected6     2     8     2     8     2     30     —   —   —   —    ?      
+  BTN classes: btn(5), btn-outline-success(2), btn-outline-light(1), btn-sm(2), btn-outline-danger(1), btn-close(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route( | ?page={{ $i }}{{ request(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+profile                       2col    detected2     6     15    1     15    2     49     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(4), btn-sm(2), btn-white(2), btn-outline-danger(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 15 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+projects                      2col    detected5     5     6     3     6     1     34     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn(3), btn-outline-success(2), btn-white(1)
+  ⚠ NO FIELD BADGES on 6 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+public-register               2col    detected2     1     18    1     18    0     47     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-link(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 18 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+register                      2col    detected2     1     15    1     15    0     40     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-white(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 15 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+registration-complete         2col    detected0     1     0     1     0     0     4      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+renewal                       2col    detected1     0     1     3     1     3     15     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+reports                       2col    detected3     1     5     3     4     1     24     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+reproductions                 2col    detected3     0     5     2     4     1     20     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+researchers                   2col    detected3     6     1     1     0     6     21     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-white(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+retrieval-queue               2col    detected3     0     0     2     0     6     20     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-sm(3), btn-outline-success(1), btn-outline-light(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+rooms                         2col    detected0     2     0     1     0     2     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+saved-searches                2col    detected3     1     2     1     2     0     15     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+seats                         2col    detected6     0     2     2     2     1     24     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(3), btn-sm(4), btn-outline-success(2), btn-close(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+validation-queue              2col    detected11    1     7     3     4     4     36     —   —   —   —    ?      
+  BTN classes: btn(13), btn-outline-light(1), btn-sm(1), btn-white(3), btn-outline-success(3), btn-outline-danger(2), btn-close(2)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-bibliography             2col    detected5     2     11    4     11    1     43     —   —   —   —    ?      
+  BTN classes: btn(5), btn-outline-success(2), btn-sm(4), btn-outline-danger(2), btn-white(1), btn-close(1)
+  ⚠ NO FIELD BADGES on 11 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-booking                  2col    detected6     2     0     2     0     2     24     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(5), btn-outline-success(2), btn-dark(1), btn-white(1), btn-outline-danger(1)
+  URLs: {{ route( | {{ url()->previous() }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-collection               2col    detected4     2     4     1     4     0     23     —   —   —   —    ?      
+  BTN classes: btn-close(1), btn(4), btn-white(1), btn-outline-light(1), btn-sm(3), btn-outline-danger(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-project                  2col    detected0     1     0     6     0     3     16     —   —   —   —    ?      
+  URLs: {{ e($r->external_url) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-report                   2col    detected11    2     5     7     5     1     49     —   —   —   —    ?      
+  BTN classes: btn(9), btn-outline-success(4), btn-sm(4), btn-white(3), btn-outline-danger(2), btn-close(3)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-researcher               2col    detected8     2     1     3     1     2     30     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn(7), btn-outline-success(2), btn-outline-danger(2), btn-white(3)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+walk-in                       2col    detected3     0     11    4     11    1     35     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(2), btn-outline-danger(1), btn-sm(1)
+  ⚠ NO FIELD BADGES on 11 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+workspace                     2col    detected5     6     2     7     2     3     43     —   —   —   —    ?      
+  BTN classes: btn-close(2), btn(6), btn-outline-light(1), btn-sm(2), btn-outline-success(2), btn-white(3)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+workspaces                    2col    detected5     2     3     4     3     1     26     —   —   —   —    ?      
+  BTN classes: btn(4), btn-outline-success(3), btn-close(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-researcher-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+dashboard                     1col    none    0     4     0     2     0     10    20     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(3), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+import-exchange               1col    none    1     2     2     3     3     5     20     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+submissions                   1col    none    0     10    0     1     0     10    25     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-sm(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-ric
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+index                         1col    none    0     6     0     1     0     10    29     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+logs                          1col    none    0     2     5     1     5     4     19     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+not-configured                1col    none    0     0     0     1     0     0     3      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+orphans                       1col    none    0     5     0     1     0     8     16     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+queue                         1col    none    0     6     0     1     0     10    19     —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+sync-status                   1col    none    0     2     2     1     0     5     12     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-rights-holder-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    2     5     0     1     0     0     8      1     0     1     5      -3     
+  BTN classes: btn(3), btn-sm(2), btn-white(2), btn-outline-light(1)
+  URLs: {{ request()->fullUrlWithQuery([ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+  AtoM: apps/qubit/modules/rightsholder/templates/browseSuccess.php, apps/qubit/modules/rightsholder/templates/listSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/rightsholder/templates/deleteSuccess.php
+
+edit                          1col    none    4     2     1     3     1     0     11     4     0     0     7      -4     
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/rightsholder/templates/editSuccess.php
+
+show                          1col    right   0     4     0     4     0     0     8      0     0     0     1      -7     
+  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route( | {{ $contact->website }}
+  AtoM: apps/qubit/modules/rightsholder/templates/indexSuccess.php
+
+
+### ahg-search
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+advanced                      1col    none    1     2     8     1     8     0     24     —   —   —   —    ?      
+  BTN classes: btn(3), btn-outline-success(1), btn-white(2)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+search-box                    unknown none    1     0     1     0     0     0     3      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+description-updates           1col    left    1     2     9     1     11    0     26     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-light(2)
+  ⚠ NO FIELD BADGES on 11 labels
+  URLs: {{ route( | /{{ $row->slug }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+global-replace                1col    none    2     3     4     1     4     0     22     —   —   —   —    ?      
+  BTN classes: btn(4), btn-outline-success(1), btn-white(2), btn-outline-danger(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route( | /{{ $row->slug }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+search                        1col    detected1     9     2     2     0     5     33     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  URLs: {{ route( | /{{ $result[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-settings
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+_ahg-menu                     unknown none    0     2     0     0     0     0     4      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+_menu                         unknown none    0     1     0     0     0     0     2      0     0     0     0      -2     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/_menu.php
+
+ahg-section                   1col    left    2     2     8     1     7     0     23     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 7 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+ai-condition                  1col    left    1     1     0     2     0     0     5      —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+clipboard                     1col    left    4     0     10    4     13    0     31     4     0     0     8      -23    
+  ⚠ NO FIELD BADGES on 13 labels
+  AtoM: apps/qubit/modules/settings/templates/clipboardSuccess.php
+
+cron-jobs                     1col    right   9     3     6     6     5     7     45     —   —   —   —    ?      
+  BTN classes: btn(9), btn-sm(5), btn-white(7), btn-outline-success(2), btn-close(2)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: #cron-reference
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+csv-validator                 1col    left    2     0     3     2     4     0     11     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 4 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+default-template              1col    left    2     0     3     2     3     0     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+diacritics                    1col    left    3     0     3     3     4     0     13     3     0     0     6      -7     
+  ⚠ NO FIELD BADGES on 4 labels
+  AtoM: apps/qubit/modules/settings/templates/diacriticsSuccess.php
+
+digital-objects               1col    left    1     1     2     1     2     0     9      —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dip-upload                    1col    left    2     0     2     2     3     0     9      —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+email                         1col    left    2     1     8     2     5     0     24     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 5 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+errorLog                      1col    none    7     4     3     5     3     3     34     —   —   —   —    ?      
+  BTN classes: btn(8), btn-sm(7), btn-white(3), btn-outline-success(2), btn-outline-danger(2), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+finding-aid                   1col    left    2     0     6     2     8     0     18     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 8 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+global                        1col    left    7     1     18    7     18    0     53     8     0     0     16     -37    
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 18 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/globalSuccess.php
+
+header-customizations         1col    left    4     0     6     4     4     0     18     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 4 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+identifier                    1col    left    1     1     10    1     10    0     29     2     0     0     4      -25    
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 10 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/identifierSuccess.php
+
+index                         1col    none    0     7     0     8     0     0     29     —   —   —   —    ?      
+  URLs: {{ route( | {{ $cardRoute }} | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+interface-labels              1col    left    1     1     1     1     1     0     7      —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+inventory                     1col    left    2     1     1     2     1     0     7      2     0     0     4      -3     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/inventorySuccess.php
+
+languages                     1col    left    3     0     1     2     1     0     11     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+markdown                      1col    left    2     0     2     2     3     0     9      2     0     0     4      -5     
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: apps/qubit/modules/settings/templates/markdownSuccess.php
+
+oai                           1col    left    1     1     7     1     7     0     19     2     0     0     4      -15    
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 7 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/oaiSuccess.php
+
+permissions                   1col    left    8     0     12    6     14    0     40     18    0     0     24     -16    
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  ⚠ NO FIELD BADGES on 14 labels
+  AtoM: apps/qubit/modules/settings/templates/permissionsSuccess.php
+
+plugins                       1col    none    1     0     1     1     0     0     3      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+privacy-notification          1col    left    2     0     3     2     4     0     11     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 4 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+section                       1col    left    1     1     3     1     3     0     10     —   —   —   —    ?      
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+security                      1col    left    1     1     3     1     3     0     12     2     0     0     4      -8     
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/securitySuccess.php
+
+services                      1col    left    0     0     0     2     0     0     6      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+site-information              1col    left    2     0     3     2     3     0     10     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 3 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+storage-service               1col    left    2     0     6     2     7     0     17     —   —   —   —    ?      
+  ⚠ NO FIELD BADGES on 7 labels
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+system-info                   1col    right   0     0     0     1     0     0     2      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+themes                        1col    detected1     1     64    13    39    1     131    —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 39 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+treeview                      1col    left    1     1     8     1     8     0     21     4     0     0     8      -13    
+  BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 8 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/settings/templates/treeviewSuccess.php
+
+uploads                       1col    left    2     0     6     2     8     0     18     2     0     0     4      -14    
+  ⚠ NO FIELD BADGES on 8 labels
+  AtoM: apps/qubit/modules/settings/templates/uploadsSuccess.php
+
+visible-elements              1col    left    2     0     1     2     1     0     7      —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-success(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+web-analytics                 1col    left    3     0     2     3     2     0     10     —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-static-page
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        2col    detected0     2     0     2     0     0     5      0     0     0     2      -3     
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ url(
+  AtoM: apps/qubit/modules/staticpage/templates/listSuccess.php, apps/qubit/modules/staticpage/templates/indexSuccess.php
+
+edit                          1col    none    2     2     3     2     3     0     12     3     0     0     5      -7     
+  BTN classes: btn(2), btn-outline-light(2)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/staticpage/templates/editSuccess.php
+
+show                          1col    none    0     1     0     1     0     0     3      0     0     0     1      -2     
+  BTN classes: btn(1), btn-outline-light(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/staticpage/templates/indexSuccess.php
+
+
+### ahg-storage-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    0     5     0     1     0     0     6      0     1     0     4      -2     
+  BTN classes: btn(2), btn-outline-light(2)
+  URLs: {{ storageSortUrl( | {{ route( | {{ url(
+  AtoM: apps/qubit/modules/physicalobject/templates/browseSuccess.php, apps/qubit/modules/physicalobject/templates/indexSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/physicalobject/templates/deleteSuccess.php
+
+edit                          1col    none    3     2     4     2     4     0     15     2     0     0     4      -11    
+  BTN classes: btn(1), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 4 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/physicalobject/templates/editSuccess.php
+
+show                          1col    right   0     4     0     3     0     0     7      0     1     0     3      -4     
+  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/physicalobject/templates/indexSuccess.php
+
+
+### ahg-term-taxonomy
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        2col    detected5     7     4     2     3     0     26     0     1     0     6      -20    
+  BTN classes: btn(5), btn-lg(1), btn-white(5), btn-sm(4)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route( | {{ request()->fullUrlWithQuery([
+  AtoM: apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/listSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/term/templates/deleteSuccess.php
+
+edit                          1col    right   11    3     14    6     10    0     51     4     0     0     7      -44    
+  BTN classes: btn(8), btn-white(7), btn-outline-light(1)
+  ⚠ NO FIELD BADGES on 10 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/term/templates/editSuccess.php
+
+show                          1col    detected7     34    4     20    3     0     79     0     1     0     5      -74    
+  BTN classes: btn(7), btn-lg(2), btn-white(7), btn-sm(1)
+  ⚠ NO FIELD BADGES on 3 labels
+  URLs: {{ route( | {{ request()->fullUrlWithQuery([ | {{ url(
+  AtoM: apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
+
+taxonomy-index                1col    none    0     1     0     1     0     0     2      —   —   —   —    ?      
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-theme-b5
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+1col                          master  none    0     0     0     0     0     0     0      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+2col                          master  left    0     0     0     0     0     0     0      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+3col                          master  detected0     0     0     0     0     0     0      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+master                        unknown none    0     0     0     0     0     0     0      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+print                         unknown none    2     0     0     2     0     2     6      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+admin-notifications           unknown none    0     1     0     0     0     0     2      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-outline(1)
+  URLs: {{ $notif[
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+alerts                        unknown none    5     0     0     0     0     0     5      —   —   —   —    ?      
+  BTN classes: btn-close(5)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+footer                        unknown none    0     4     0     0     0     1     5      —   —   —   —    ?      
+  URLs: {{ $ftOrgUrl }} | {{ trim($parts[1]) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+header                        unknown none    1     10    0     1     0     0     21     —   —   —   —    ?      
+  BTN classes: btn(1), btn-outline-light(1), btn-sm(1), btn-white(1)
+  URLs: #main-column | {{ url( | https://www.ica.org/standards/RiC/ontology
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+ahg-admin-menu                unknown none    0     29    0     12    0     0     70     —   —   —   —    ?      
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+browse-menu                   unknown none    1     1     0     1     0     0     3      —   —   —   —    ?      
+  BTN classes: btn(1), btn-sm(1), btn-white(1)
+  URLs: {{ \AhgCore\Services\MenuService::resolvePath($item->path) }}
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+clipboard-menu                unknown none    2     3     0     1     0     0     11     —   —   —   —    ?      
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+glam-dam-menu                 unknown none    0     6     0     1     0     0     13     —   —   —   —    ?      
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+language-menu                 unknown none    0     1     0     1     0     0     3      —   —   —   —    ?      
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+main-menu                     unknown none    0     13    0     5     0     0     27     —   —   —   —    ?      
+  URLs: {{ MenuService::resolvePath($item->path) }} | {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+quick-links-menu              unknown none    0     3     0     1     0     0     7      —   —   —   —    ?      
+  URLs: {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+search-box                    unknown none    2     2     3     1     2     0     13     —   —   —   —    ?      
+  BTN classes: btn(2), btn-sm(2), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+user-menu                     unknown none    4     16    2     6     0     5     57     —   —   —   —    ?      
+  BTN classes: btn(5), btn-sm(5), btn-white(3), btn-outline-light(1), btn-outline-success(1)
+  URLs: {{ url( | {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+voice-commands                unknown none    3     0     1     11    0     46    73     —   —   —   —    ?      
+  BTN classes: btn(2), btn-close(1), btn-outline-light(1), btn-sm(1)
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+### ahg-user-manage
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+browse                        1col    none    0     6     0     1     0     1     9      0     0     0     0      -9     
+  BTN classes: btn(2), btn-sm(1), btn-outline-light(2)
+  URLs: {{ route( | ?status=active | ?status=inactive | ?status=all
+  AtoM: apps/qubit/modules/user/templates/listSuccess.php, apps/qubit/modules/user/templates/indexSuccess.php
+
+delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/user/templates/deleteSuccess.php
+
+edit                          1col    none    8     2     19    7     19    0     55     0     0     0     0      -55    
+  BTN classes: btn(1), btn-white(1)
+  ⚠ NO FIELD BADGES on 19 labels
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/user/templates/editSuccess.php
+
+show                          1col    right   0     3     0     5     0     4     12     0     0     0     0      -12    
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: apps/qubit/modules/user/templates/indexSuccess.php
+
+
+### ahg-workflow
+
+View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+admin                         1col    none    1     4     0     1     0     6     17     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-outline-success(1), btn-sm(1), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+create-workflow               1col    none    1     2     12    1     12    0     31     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 12 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+dashboard                     1col    none    1     10    0     8     0     13    46     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(4), btn-sm(4), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+edit-workflow                 1col    none    4     1     22    4     22    6     66     —   —   —   —    ?      
+  BTN classes: btn(5), btn-white(1), btn-outline-success(3), btn-sm(2), btn-outline-danger(1)
+  Field badges: Req=0 Rec=0 Opt=1
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+gate-admin                    1col    none    1     3     0     1     0     5     15     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(1), btn-outline-success(1), btn-sm(1), btn-outline-danger(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+gate-edit                     1col    none    1     2     12    1     12    0     31     —   —   —   —    ?      
+  BTN classes: btn(3), btn-white(2), btn-outline-success(1)
+  ⚠ NO FIELD BADGES on 12 labels
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+history                       1col    none    0     2     0     1     0     8     13     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+my-tasks                      1col    none    0     8     0     1     0     11    24     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(2)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+overdue                       1col    none    0     3     0     1     0     7     15     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+pool                          1col    none    1     2     0     1     0     4     12     —   —   —   —    ?      
+  BTN classes: btn(2), btn-white(1), btn-sm(1), btn-outline-success(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+publish-readiness             1col    none    0     1     0     5     0     6     19     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+queues                        1col    none    0     2     0     5     0     1     11     —   —   —   —    ?      
+  BTN classes: btn(1), btn-white(1)
+  URLs: {{ route(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+view-task                     1col    detected4     5     1     10    1     17    53     —   —   —   —    ?      
+  BTN classes: btn(6), btn-white(3), btn-outline-success(2), btn-outline-danger(1)
+  URLs: {{ route( | {{ url(
+  AtoM: ⚠ NO EQUIVALENT FOUND
+
+
+
+## MISSING FIELD BADGES REPORT
+
+Package                            View                          Labels  Req  Rec  Opt  Status         
+───────────────────────────────────────────────────────────────────────────────────────────────────────
+ahg-accession-manage               edit                          32      0    0    0    MISSING        
+ahg-acl                            approvers                     4       0    0    0    MISSING        
+ahg-acl                            clearances                    8       0    0    0    MISSING        
+ahg-acl                            edit-group                    4       0    0    0    MISSING        
+ahg-actor-manage                   browse                        6       0    0    0    MISSING        
+ahg-actor-manage                   edit                          27      0    0    0    MISSING        
+ahg-actor-manage                   _contact-area                 48      0    0    46   PARTIAL        
+ahg-ai-services                    config                        47      0    0    0    MISSING        
+ahg-audit-trail                    browse                        5       0    0    0    MISSING        
+ahg-audit-trail                    settings                      9       0    0    0    MISSING        
+ahg-backup                         index                         4       1    0    0    PARTIAL        
+ahg-backup                         restore                       5       0    0    0    MISSING        
+ahg-backup                         settings                      4       0    0    0    MISSING        
+ahg-cart                           settings                      10      0    0    0    MISSING        
+ahg-cart                           checkout                      13      0    0    0    MISSING        
+ahg-dam                            edit                          59      0    0    0    MISSING        
+ahg-data-migration                 batch-export                  3       0    0    0    MISSING        
+ahg-data-migration                 upload                        3       0    0    0    MISSING        
+ahg-dedupe                         browse                        3       0    0    0    MISSING        
+ahg-display                        _advanced-search              27      0    0    0    MISSING        
+ahg-display                        browse-settings               7       0    0    0    MISSING        
+ahg-display                        browse                        3       0    0    0    MISSING        
+ahg-display                        bulk-set-type                 3       0    0    0    MISSING        
+ahg-doi-manage                     config                        8       0    0    0    MISSING        
+ahg-dropdown-manage                edit                          5       0    0    0    MISSING        
+ahg-dropdown-manage                index                         5       0    0    0    MISSING        
+ahg-favorites                      browse                        5       0    0    0    MISSING        
+ahg-feedback                       edit                          11      0    0    0    MISSING        
+ahg-feedback                       general                       8       0    0    0    MISSING        
+ahg-function-manage                edit                          19      0    0    0    MISSING        
+ahg-gallery                        artist-create                 25      0    0    0    MISSING        
+ahg-gallery                        edit                          67      13   18   1    PARTIAL        
+ahg-iiif-collection                add-items                     5       0    0    0    MISSING        
+ahg-iiif-collection                create                        6       0    0    0    MISSING        
+ahg-iiif-collection                edit                          6       0    0    0    MISSING        
+ahg-information-object-manage      create                        38      0    0    0    MISSING        
+ahg-information-object-manage      edit                          44      0    0    0    MISSING        
+ahg-information-object-manage      select                        9       0    0    0    MISSING        
+ahg-information-object-manage      skos-import                   3       0    0    0    MISSING        
+ahg-information-object-manage      index                         46      0    0    0    MISSING        
+ahg-information-object-manage      assessment                    3       0    0    0    MISSING        
+ahg-information-object-manage      embargo                       10      0    0    0    MISSING        
+ahg-information-object-manage      extended                      5       0    0    4    PARTIAL        
+ahg-library                        edit                          54      0    0    0    MISSING        
+ahg-loan                           create                        20      0    0    0    MISSING        
+ahg-loan                           edit                          20      0    0    0    MISSING        
+ahg-loan                           index                         5       0    0    0    MISSING        
+ahg-loan                           show                          5       0    0    0    MISSING        
+ahg-media-processing               watermark-settings            11      0    0    0    MISSING        
+ahg-menu-manage                    edit                          5       0    0    0    MISSING        
+ahg-museum                         edit                          61      13   18   1    PARTIAL        
+ahg-pdf-tools                      merge                         10      0    0    0    MISSING        
+ahg-portable-export                index                         17      0    0    0    MISSING        
+ahg-reports                        _filters                      5       0    0    0    MISSING        
+ahg-reports                        report-activity               5       0    0    0    MISSING        
+ahg-reports                        report-spatial                8       0    0    0    MISSING        
+ahg-repository-manage              browse                        3       0    0    0    MISSING        
+ahg-repository-manage              edit                          46      0    0    0    MISSING        
+ahg-request-publish                browse                        3       0    0    0    MISSING        
+ahg-request-publish                edit                          9       0    0    0    MISSING        
+ahg-research                       admin-types                   8       0    0    0    MISSING        
+ahg-research                       annotations                   13      0    0    0    MISSING        
+ahg-research                       api-keys                      6       0    0    0    MISSING        
+ahg-research                       bibliographies                3       0    0    0    MISSING        
+ahg-research                       book                          6       0    0    0    MISSING        
+ahg-research                       document-templates            8       0    0    0    MISSING        
+ahg-research                       edit-room                     15      0    0    0    MISSING        
+ahg-research                       entity-resolution             11      0    0    0    MISSING        
+ahg-research                       equipment                     5       0    0    0    MISSING        
+ahg-research                       journal-entry                 6       0    0    0    MISSING        
+ahg-research                       journal                       7       0    0    0    MISSING        
+ahg-research                       odrl-policies                 8       0    0    0    MISSING        
+ahg-research                       profile                       15      0    0    0    MISSING        
+ahg-research                       projects                      6       0    0    0    MISSING        
+ahg-research                       public-register               18      0    0    0    MISSING        
+ahg-research                       register                      15      0    0    0    MISSING        
+ahg-research                       reports                       4       0    0    0    MISSING        
+ahg-research                       reproductions                 4       0    0    0    MISSING        
+ahg-research                       validation-queue              4       0    0    0    MISSING        
+ahg-research                       view-bibliography             11      0    0    0    MISSING        
+ahg-research                       view-collection               4       0    0    0    MISSING        
+ahg-research                       view-report                   5       0    0    0    MISSING        
+ahg-research                       walk-in                       11      0    0    0    MISSING        
+ahg-research                       workspaces                    3       0    0    0    MISSING        
+ahg-researcher-manage              import-exchange               3       0    0    0    MISSING        
+ahg-ric                            logs                          5       0    0    0    MISSING        
+ahg-search                         advanced                      8       0    0    0    MISSING        
+ahg-search                         description-updates           11      0    0    0    MISSING        
+ahg-search                         global-replace                4       0    0    0    MISSING        
+ahg-settings                       ahg-section                   7       0    0    0    MISSING        
+ahg-settings                       clipboard                     13      0    0    0    MISSING        
+ahg-settings                       cron-jobs                     5       0    0    0    MISSING        
+ahg-settings                       csv-validator                 4       0    0    0    MISSING        
+ahg-settings                       default-template              3       0    0    0    MISSING        
+ahg-settings                       diacritics                    4       0    0    0    MISSING        
+ahg-settings                       dip-upload                    3       0    0    0    MISSING        
+ahg-settings                       email                         5       0    0    0    MISSING        
+ahg-settings                       errorLog                      3       0    0    0    MISSING        
+ahg-settings                       finding-aid                   8       0    0    0    MISSING        
+ahg-settings                       global                        18      0    0    0    MISSING        
+ahg-settings                       header-customizations         4       0    0    0    MISSING        
+ahg-settings                       identifier                    10      0    0    0    MISSING        
+ahg-settings                       markdown                      3       0    0    0    MISSING        
+ahg-settings                       oai                           7       0    0    0    MISSING        
+ahg-settings                       permissions                   14      0    0    0    MISSING        
+ahg-settings                       privacy-notification          4       0    0    0    MISSING        
+ahg-settings                       section                       3       0    0    0    MISSING        
+ahg-settings                       security                      3       0    0    0    MISSING        
+ahg-settings                       site-information              3       0    0    0    MISSING        
+ahg-settings                       storage-service               7       0    0    0    MISSING        
+ahg-settings                       themes                        39      0    0    0    MISSING        
+ahg-settings                       treeview                      8       0    0    0    MISSING        
+ahg-settings                       uploads                       8       0    0    0    MISSING        
+ahg-static-page                    edit                          3       0    0    0    MISSING        
+ahg-storage-manage                 edit                          4       0    0    0    MISSING        
+ahg-term-taxonomy                  browse                        3       0    0    0    MISSING        
+ahg-term-taxonomy                  edit                          10      0    0    0    MISSING        
+ahg-term-taxonomy                  show                          3       0    0    0    MISSING        
+ahg-user-manage                    edit                          19      0    0    0    MISSING        
+ahg-workflow                       create-workflow               12      0    0    0    MISSING        
+ahg-workflow                       edit-workflow                 22      0    0    1    PARTIAL        
+ahg-workflow                       gate-edit                     12      0    0    0    MISSING        
+
+
+## BUTTON CLASS AUDIT (non-theme classes)
+
+Package                            View                          Bad Class           Count 
+───────────────────────────────────────────────────────────────────────────────────────────
+ahg-help                           index                         btn-light           1     
+ahg-library                        edit                          btn-light           2     
+ahg-research                       view-booking                  btn-dark            1     
+
+
+# END OF AUDIT

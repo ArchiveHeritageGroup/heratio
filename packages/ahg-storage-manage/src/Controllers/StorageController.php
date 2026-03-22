@@ -75,6 +75,7 @@ class StorageController extends Controller
             'storage' => $storage,
             'typeName' => $typeName,
             'descriptions' => $descriptions,
+            'extendedData' => $this->service->getExtendedData($storage->id),
         ]);
     }
 
@@ -83,6 +84,7 @@ class StorageController extends Controller
         return view('ahg-storage-manage::edit', [
             'storage' => null,
             'typeChoices' => $this->service->getFormChoices(),
+            'extendedData' => [],
         ]);
     }
 
@@ -96,13 +98,15 @@ class StorageController extends Controller
         return view('ahg-storage-manage::edit', [
             'storage' => $storage,
             'typeChoices' => $this->service->getFormChoices(),
+            'extendedData' => $this->service->getExtendedData($storage->id),
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate(['name' => 'required|string|max:1024']);
-        $id = $this->service->create($request->only($this->fields()));
+        $id = $this->service->create($request->only($this->baseFields()));
+        $this->service->saveExtendedData($id, $request->only($this->extendedFields()));
         return redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
             ->with('success', 'Physical storage created successfully.');
@@ -116,7 +120,8 @@ class StorageController extends Controller
         }
 
         $request->validate(['name' => 'required|string|max:1024']);
-        $this->service->update($storage->id, $request->only($this->fields()));
+        $this->service->update($storage->id, $request->only($this->baseFields()));
+        $this->service->saveExtendedData($storage->id, $request->only($this->extendedFields()));
         return redirect()
             ->route('physicalobject.show', $slug)
             ->with('success', 'Physical storage updated successfully.');
@@ -139,6 +144,7 @@ class StorageController extends Controller
             abort(404);
         }
 
+        $this->service->deleteExtendedData($storage->id);
         $this->service->delete($storage->id);
         return redirect()
             ->route('physicalobject.browse')
@@ -169,8 +175,22 @@ class StorageController extends Controller
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="storage-report-' . date('Ymd') . '.csv"']);
     }
 
-    private function fields(): array
+    private function baseFields(): array
     {
         return ['name', 'type_id', 'location', 'description'];
+    }
+
+    private function extendedFields(): array
+    {
+        return [
+            'building', 'floor', 'room', 'aisle', 'bay', 'rack', 'shelf', 'position',
+            'barcode', 'reference_code',
+            'width', 'height', 'depth',
+            'total_capacity', 'used_capacity', 'capacity_unit',
+            'total_linear_metres', 'used_linear_metres',
+            'climate_controlled', 'temperature_min', 'temperature_max',
+            'humidity_min', 'humidity_max',
+            'security_level', 'access_restrictions', 'status', 'notes',
+        ];
     }
 }
