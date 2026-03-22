@@ -1,0 +1,4 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>3D Model Viewer</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}.v{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:{{ $backgroundColor ?? '#f8f9fa' }}}</style>
+</head><body><div class="v"><div style="text-align:center;color:#6c757d"><p style="font-size:3rem">&#9724;</p><p>{{ $model->model_title ?? $model->original_filename ?? '3D Model' }}</p><small>{{ strtoupper($model->format ?? 'GLB') }}</small></div></div></body></html>

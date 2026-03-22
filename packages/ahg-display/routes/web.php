@@ -28,3 +28,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/glam/getBrowseSettings', [DisplayController::class, 'getBrowseSettings'])->name('glam.get.settings');
     Route::post('/glam/resetBrowseSettings', [DisplayController::class, 'resetBrowseSettings'])->name('glam.reset.settings');
 });
+    Route::get('/glam/browse-embedded', [DisplayController::class, 'browseEmbedded'])->name('glam.browse.embedded');
+    Route::get('/glam/reindex', [DisplayController::class, 'reindex'])->name('glam.reindex');
+    Route::get('/glam/search', [DisplayController::class, 'glamSearch'])->name('glam.search');
+    Route::get('/glam/treeview', [DisplayController::class, 'treeviewPage'])->name('glam.treeview');

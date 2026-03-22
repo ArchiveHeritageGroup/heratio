@@ -227,4 +227,12 @@ class JobController extends Controller
             fclose($handle);
         }, 200, $headers);
     }
+
+    public function queueBatches(Request $request) { return view('ahg-jobs-manage::queue-batches', ['rows' => collect()]); }
+
+    public function queueBrowse(Request $request) { return view('ahg-jobs-manage::queue-browse', ['rows' => collect()]); }
+
+    public function queueDetail(int $id) { $record = DB::table('job')->where('id', $id)->first(); return view('ahg-jobs-manage::queue-detail', ['record' => $record ?? (object)[]]); }
+
+    public function report() { return view('ahg-jobs-manage::report', ['totalJobs'=>0,'completedJobs'=>0,'failedJobs'=>0,'avgDuration'=>'0s']); }
 }

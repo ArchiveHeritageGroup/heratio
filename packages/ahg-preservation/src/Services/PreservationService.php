@@ -481,4 +481,189 @@ class PreservationService
             ->limit($limit)
             ->get();
     }
+
+    /**
+     * Available format conversion tools and their capabilities.
+     */
+    public function getConversionTools(): array
+    {
+        $tools = [];
+
+        // ImageMagick
+        $im = @shell_exec('convert --version 2>&1');
+        $tools['ImageMagick'] = [
+            'available' => $im && str_contains($im, 'ImageMagick'),
+            'version' => $im ? trim(explode("\n", $im)[0] ?? '') : '',
+            'formats' => ['JPEG', 'PNG', 'BMP', 'GIF', 'TIFF'],
+        ];
+
+        // FFmpeg
+        $ff = @shell_exec('ffmpeg -version 2>&1');
+        $tools['FFmpeg'] = [
+            'available' => $ff && str_contains($ff, 'ffmpeg'),
+            'version' => $ff ? trim(explode("\n", $ff)[0] ?? '') : '',
+            'formats' => ['MP3', 'AAC', 'OGG', 'WAV', 'MP4', 'MKV'],
+        ];
+
+        // Ghostscript
+        $gs = @shell_exec('gs --version 2>&1');
+        $tools['Ghostscript'] = [
+            'available' => $gs && preg_match('/\d+\.\d+/', $gs),
+            'version' => $gs ? 'Ghostscript ' . trim($gs) : '',
+            'formats' => ['PDF', 'PDF/A'],
+        ];
+
+        // LibreOffice
+        $lo = @shell_exec('libreoffice --version 2>&1');
+        $tools['LibreOffice'] = [
+            'available' => $lo && str_contains($lo, 'LibreOffice'),
+            'version' => $lo ? trim($lo) : '',
+            'formats' => ['DOC', 'DOCX', 'XLS', 'PPT', 'ODT'],
+        ];
+
+        return $tools;
+    }
+
+    /**
+     * Format conversion statistics.
+     */
+    public function getConversionStats(): array
+    {
+        $stats = ['completed' => 0, 'processing' => 0, 'pending' => 0, 'failed' => 0];
+
+        try {
+            $rows = DB::table('preservation_conversion')
+                ->select('status', DB::raw('COUNT(*) as cnt'))
+                ->groupBy('status')
+                ->get();
+
+            foreach ($rows as $row) {
+                $stats[$row->status] = $row->cnt;
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Recent format conversions.
+     */
+    public function getRecentConversions(int $limit = 20): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('preservation_conversion')
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->get();
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Format identification statistics.
+     */
+    public function getIdentificationStats(): array
+    {
+        $total = DB::table('digital_object')->count();
+        $identified = 0;
+        $uniqueFormats = 0;
+
+        try {
+            $identified = DB::table('preservation_identification')
+                ->distinct('digital_object_id')
+                ->count('digital_object_id');
+
+            $uniqueFormats = DB::table('preservation_identification')
+                ->distinct('puid')
+                ->count('puid');
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return [
+            'total' => $total,
+            'identified' => $identified,
+            'unidentified' => $total - $identified,
+            'unique_formats' => $uniqueFormats,
+        ];
+    }
+
+    /**
+     * Recent format identifications.
+     */
+    public function getRecentIdentifications(int $limit = 20): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('preservation_identification')
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->get();
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Get a digital object by ID with parent info.
+     */
+    public function getDigitalObject(int $id): ?object
+    {
+        return DB::table('digital_object as do')
+            ->leftJoin('information_object as io', 'do.object_id', '=', 'io.id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+            ->select('do.*', 'ioi.title as object_title', 's.slug')
+            ->where('do.id', $id)
+            ->first();
+    }
+
+    /**
+     * Get format info for a MIME type.
+     */
+    public function getFormatInfo(string $mimeType): ?object
+    {
+        try {
+            return DB::table('preservation_format')
+                ->where('mime_type', $mimeType)
+                ->first();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get checksums for a digital object.
+     */
+    public function getObjectChecksums(int $digitalObjectId): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('preservation_checksum')
+                ->where('digital_object_id', $digitalObjectId)
+                ->orderBy('algorithm')
+                ->get();
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Get PREMIS events for a digital object.
+     */
+    public function getObjectEvents(int $digitalObjectId, int $limit = 20): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('preservation_event')
+                ->where('digital_object_id', $digitalObjectId)
+                ->orderByDesc('event_datetime')
+                ->limit($limit)
+                ->get();
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
 }

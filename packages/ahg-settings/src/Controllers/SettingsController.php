@@ -74,6 +74,20 @@ class SettingsController extends Controller
         ['action' => 'header-customizations', 'label' => 'Header customizations', 'icon' => 'fa-heading'],
         ['action' => 'storage-service', 'label' => 'Storage service', 'icon' => 'fa-hdd'],
         ['action' => 'web-analytics', 'label' => 'Web analytics', 'icon' => 'fa-chart-bar'],
+        ['action' => 'ldap', 'label' => 'LDAP authentication', 'icon' => 'fa-network-wired'],
+        ['action' => 'levels', 'label' => 'Levels of description', 'icon' => 'fa-layer-group'],
+        ['action' => 'paths', 'label' => 'Paths', 'icon' => 'fa-folder-open'],
+        ['action' => 'preservation', 'label' => 'Preservation', 'icon' => 'fa-cloud-upload-alt'],
+        ['action' => 'webhooks', 'label' => 'Webhooks', 'icon' => 'fa-broadcast-tower'],
+        ['action' => 'tts', 'label' => 'Text-to-Speech', 'icon' => 'fa-volume-up'],
+        ['action' => 'icip-settings', 'label' => 'ICIP Settings', 'icon' => 'fa-shield-alt'],
+        ['action' => 'sector-numbering', 'label' => 'Sector numbering', 'icon' => 'fa-hashtag'],
+        ['action' => 'numbering-schemes', 'label' => 'Numbering schemes', 'icon' => 'fa-hashtag'],
+        ['action' => 'dam-tools', 'label' => 'DAM tools', 'icon' => 'fa-photo-video'],
+        ['action' => 'ai-services', 'label' => 'AI services', 'icon' => 'fa-brain'],
+        ['action' => 'ahg-import', 'label' => 'Import settings', 'icon' => 'fa-upload'],
+        ['action' => 'ahg-integration', 'label' => 'AHG Central', 'icon' => 'fa-cloud'],
+        ['action' => 'page-elements', 'label' => 'Page elements', 'icon' => 'fa-th-large'],
         // Heratio extras
         ['action' => 'system-info', 'label' => 'System information', 'icon' => 'fa-server'],
         ['action' => 'services', 'label' => 'Services monitor', 'icon' => 'fa-heartbeat'],
@@ -1550,4 +1564,461 @@ class SettingsController extends Controller
         return back()->with('success', $msg);
     }
 
+    // ─── LDAP ──────────────────────────────────────────────────────────
+    public function ldap(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('ldap');
+
+        $settingNames = ['ldapHost', 'ldapPort', 'ldapBaseDn', 'ldapBindAttribute'];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
+            }
+            return redirect()->route('settings.ldap')->with('success', 'LDAP settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+        $settings['ldapPort'] = $settings['ldapPort'] ?: '389';
+        $settings['ldapBindAttribute'] = $settings['ldapBindAttribute'] ?: 'uid';
+
+        return view('ahg-settings::ldap', compact('settings', 'menu'));
+    }
+
+    // ─── Levels ────────────────────────────────────────────────────────
+    public function levels(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('levels');
+
+        $allLevels = DB::table('term')
+            ->join('term_i18n', function ($j) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', 'en');
+            })
+            ->where('term.taxonomy_id', 34)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        // Get sectors from ahg_settings if available
+        $sectors = [];
+        $sectorLevels = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $sectorRows = DB::table('ahg_settings')
+                ->where('setting_key', 'like', 'sector_%_levels')
+                ->get();
+            foreach ($sectorRows as $row) {
+                preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
+                if (isset($m[1])) {
+                    $sectors[$m[1]] = ucfirst($m[1]);
+                    $sectorLevels[$m[1]] = json_decode($row->setting_value, true) ?: [];
+                }
+            }
+        }
+        if (empty($sectors)) {
+            $sectors = ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery'];
+        }
+
+        if ($request->isMethod('post')) {
+            foreach ($request->input('levels', []) as $sectorCode => $levelIds) {
+                $key = 'sector_' . $sectorCode . '_levels';
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'levels'],
+                    ['setting_value' => json_encode($levelIds)]
+                );
+            }
+            return redirect()->route('settings.levels')->with('success', 'Level assignments saved.');
+        }
+
+        return view('ahg-settings::levels', compact('menu', 'allLevels', 'sectors', 'sectorLevels'));
+    }
+
+    // ─── Paths ─────────────────────────────────────────────────────────
+    public function paths(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('paths');
+        $settingNames = ['bulk', 'bulk_index', 'bulk_optimize_index', 'bulk_rename'];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
+            }
+            return redirect()->route('settings.paths')->with('success', 'Paths saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+
+        return view('ahg-settings::paths', compact('settings', 'menu'));
+    }
+
+    // ─── Preservation ──────────────────────────────────────────────────
+    public function preservation(Request $request)
+    {
+        $menu = $this->buildMenu('preservation');
+
+        $targets = collect();
+        $stats = ['total_targets' => 0, 'active_targets' => 0, 'successful_syncs' => 0, 'failed_syncs' => 0];
+        if (Schema::hasTable('ahg_preservation_targets')) {
+            $targets = DB::table('ahg_preservation_targets')->orderBy('name')->get();
+            $stats['total_targets'] = $targets->count();
+            $stats['active_targets'] = $targets->where('is_active', 1)->count();
+            $stats['successful_syncs'] = $targets->sum('successful_syncs');
+            $stats['failed_syncs'] = $targets->sum('failed_syncs');
+        }
+
+        return view('ahg-settings::preservation', compact('menu', 'targets', 'stats'));
+    }
+
+    // ─── Webhooks ──────────────────────────────────────────────────────
+    public function webhooks(Request $request)
+    {
+        $menu = $this->buildMenu('webhooks');
+
+        $webhooks = collect();
+        if (Schema::hasTable('ahg_webhooks')) {
+            if ($request->isMethod('post')) {
+                DB::table('ahg_webhooks')->insert([
+                    'name' => $request->input('name', ''),
+                    'url' => $request->input('url', ''),
+                    'events' => json_encode($request->input('events', [])),
+                    'is_active' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                return redirect()->route('settings.webhooks')->with('success', 'Webhook created.');
+            }
+            $webhooks = DB::table('ahg_webhooks')->orderBy('name')->get()->map(function ($w) {
+                $w->events = json_decode($w->events, true) ?: [];
+                return $w;
+            });
+        }
+
+        return view('ahg-settings::webhooks', compact('menu', 'webhooks'));
+    }
+
+    // ─── TTS (Text-to-Speech) ──────────────────────────────────────────
+    public function tts(Request $request)
+    {
+        $menu = $this->buildMenu('tts');
+
+        $settings = ['all' => ['enabled' => '1', 'default_rate' => '1.0', 'read_labels' => '1', 'default_voice' => '', 'default_pitch' => '1.0']];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')->where('setting_group', 'tts')->pluck('setting_value', 'setting_key');
+            foreach ($rows as $key => $val) {
+                $settings['all'][$key] = $val;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            foreach ($request->input('tts.all', []) as $key => $value) {
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'tts'],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route('settings.tts')->with('success', 'Text-to-Speech settings saved.');
+        }
+
+        return view('ahg-settings::tts', compact('menu', 'settings'));
+    }
+
+    // ─── ICIP Settings ─────────────────────────────────────────────────
+    public function icipSettings(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('icip-settings');
+
+        $settingNames = ['enable_public_notices', 'enable_staff_notices', 'require_acknowledgement_default', 'require_community_consent', 'consultation_period_days'];
+        $defaults = ['enable_public_notices' => '0', 'enable_staff_notices' => '0', 'require_acknowledgement_default' => '0', 'require_community_consent' => '0', 'consultation_period_days' => '30'];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $this->service->saveSetting('icip_' . $name, null, $request->input("settings.{$name}", ''), $culture);
+            }
+            return redirect()->route('settings.icip-settings')->with('success', 'ICIP settings saved.');
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting('icip_' . $name, null, $culture) ?? ($defaults[$name] ?? '');
+        }
+
+        return view('ahg-settings::icip-settings', compact('settings', 'menu'));
+    }
+
+    // ─── Sector Numbering ──────────────────────────────────────────────
+    public function sectorNumbering(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('sector-numbering');
+
+        $globalValues = [
+            'identifier_mask_enabled' => $this->service->getSetting('identifier_mask_enabled', null, $culture) ?? '0',
+            'identifier_mask' => $this->service->getSetting('identifier_mask', null, $culture) ?? '',
+            'identifier_counter' => $this->service->getSetting('identifier_counter', null, $culture) ?? '0',
+        ];
+
+        $sectors = ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'];
+        $sectorSettings = [];
+        foreach (array_keys($sectors) as $code) {
+            $sectorSettings[$code] = [
+                'identifier_mask_enabled' => $this->service->getSetting("sector_{$code}_identifier_mask_enabled", null, $culture) ?? '0',
+                'identifier_mask' => $this->service->getSetting("sector_{$code}_identifier_mask", null, $culture) ?? '',
+                'identifier_counter' => $this->service->getSetting("sector_{$code}_identifier_counter", null, $culture) ?? '0',
+            ];
+        }
+
+        if ($request->isMethod('post')) {
+            foreach (array_keys($sectors) as $code) {
+                foreach (['identifier_mask_enabled', 'identifier_mask', 'identifier_counter'] as $field) {
+                    $val = $request->input("sector_{$code}__{$field}", '');
+                    $this->service->saveSetting("sector_{$code}_{$field}", null, $val, $culture);
+                }
+            }
+            return redirect()->route('settings.sector-numbering')->with('success', 'Sector numbering saved.');
+        }
+
+        return view('ahg-settings::sector-numbering', compact('menu', 'globalValues', 'sectors', 'sectorSettings'));
+    }
+
+    // ─── Numbering Schemes ─────────────────────────────────────────────
+    public function numberingSchemes(Request $request)
+    {
+        $menu = $this->buildMenu('numbering-schemes');
+        $sectorFilter = $request->get('sector', '');
+        $sectors = ['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'];
+
+        $schemes = collect();
+        if (Schema::hasTable('ahg_numbering_schemes')) {
+            $query = DB::table('ahg_numbering_schemes')->orderBy('name');
+            if ($sectorFilter) {
+                $query->where('sector', $sectorFilter);
+            }
+            $schemes = $query->get();
+        }
+
+        return view('ahg-settings::numbering-schemes', compact('menu', 'schemes', 'sectors', 'sectorFilter'));
+    }
+
+    // ─── Numbering Scheme Edit ─────────────────────────────────────────
+    public function numberingSchemeEdit(Request $request, ?int $id = null)
+    {
+        $menu = $this->buildMenu('numbering-scheme-edit');
+        $isNew = is_null($id);
+        $scheme = null;
+        $previews = [];
+        $schemeId = $id;
+
+        if (!$isNew && Schema::hasTable('ahg_numbering_schemes')) {
+            $scheme = DB::table('ahg_numbering_schemes')->find($id);
+        }
+
+        if ($request->isMethod('post') && Schema::hasTable('ahg_numbering_schemes')) {
+            $data = [
+                'name' => $request->input('name', ''),
+                'sector' => $request->input('sector', 'archive'),
+                'description' => $request->input('description', ''),
+                'pattern' => $request->input('pattern', ''),
+                'counter_start' => (int) $request->input('counter_start', 1),
+                'reset_period' => $request->input('reset_period', 'never'),
+                'is_default' => $request->has('is_default') ? 1 : 0,
+                'is_active' => 1,
+                'updated_at' => now(),
+            ];
+            if ($isNew) {
+                $data['created_at'] = now();
+                $schemeId = DB::table('ahg_numbering_schemes')->insertGetId($data);
+            } else {
+                DB::table('ahg_numbering_schemes')->where('id', $id)->update($data);
+            }
+            return redirect()->route('settings.numbering-schemes')->with('success', 'Numbering scheme saved.');
+        }
+
+        return view('ahg-settings::numbering-scheme-edit', compact('menu', 'isNew', 'scheme', 'schemeId', 'previews'));
+    }
+
+    // ─── DAM Tools ─────────────────────────────────────────────────────
+    public function damTools(Request $request)
+    {
+        $menu = $this->buildMenu('dam-tools');
+        $mergeSettings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $mergeSettings = DB::table('ahg_settings')
+                ->where('setting_group', 'dam_tools')
+                ->pluck('setting_value', 'setting_key')
+                ->toArray();
+        }
+
+        return view('ahg-settings::dam-tools', compact('menu', 'mergeSettings'));
+    }
+
+    // ─── AI Services ───────────────────────────────────────────────────
+    public function aiServices(Request $request)
+    {
+        $menu = $this->buildMenu('ai-services');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $settings = DB::table('ahg_settings')
+                ->where('setting_group', 'ai_services')
+                ->pluck('setting_value', 'setting_key')
+                ->toArray();
+        }
+
+        if ($request->isMethod('post')) {
+            $fields = ['processing_mode', 'api_url', 'ner_enabled', 'ner_confidence', 'translation_enabled', 'spellcheck_enabled'];
+            foreach ($fields as $key) {
+                $value = $request->input($key, '');
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'ai_services'],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route('settings.ai-services')->with('success', 'AI Services settings saved.');
+        }
+
+        return view('ahg-settings::ai-services', compact('menu', 'settings'));
+    }
+
+    // ─── AHG Import Settings ───────────────────────────────────────────
+    public function ahgImportSettings(Request $request)
+    {
+        $menu = $this->buildMenu('ahg-import');
+
+        if ($request->isMethod('post') && $request->hasFile('settings_file')) {
+            $file = $request->file('settings_file');
+            $content = json_decode(file_get_contents($file->getRealPath()), true);
+            if (is_array($content) && Schema::hasTable('ahg_settings')) {
+                foreach ($content as $key => $value) {
+                    DB::table('ahg_settings')->updateOrInsert(
+                        ['setting_key' => $key],
+                        ['setting_value' => is_array($value) ? json_encode($value) : $value]
+                    );
+                }
+                return redirect()->route('settings.ahg-import')->with('success', 'Settings imported successfully.');
+            }
+            return redirect()->route('settings.ahg-import')->with('error', 'Invalid JSON file.');
+        }
+
+        return view('ahg-settings::ahg-import-settings', compact('menu'));
+    }
+
+    // ─── AHG Integration ───────────────────────────────────────────────
+    public function ahgIntegration(Request $request)
+    {
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('ahg-integration');
+        $testResult = null;
+
+        $settingNames = ['ahg_central_enabled', 'ahg_central_api_url', 'ahg_central_api_key'];
+
+        if ($request->isMethod('post')) {
+            foreach ($settingNames as $name) {
+                $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
+            }
+
+            if ($request->input('action') === 'test') {
+                $testResult = ['success' => false, 'message' => 'Connection test not yet implemented.'];
+                $url = $request->input('settings.ahg_central_api_url', '');
+                if (!empty($url)) {
+                    try {
+                        $ch = curl_init($url . '/ping');
+                        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5]);
+                        $resp = curl_exec($ch);
+                        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        curl_close($ch);
+                        $testResult = $code === 200
+                            ? ['success' => true, 'message' => 'Connected successfully.']
+                            : ['success' => false, 'message' => "HTTP {$code} response."];
+                    } catch (\Exception $e) {
+                        $testResult = ['success' => false, 'message' => $e->getMessage()];
+                    }
+                }
+            } else {
+                return redirect()->route('settings.ahg-integration')->with('success', 'AHG Central integration settings saved.');
+            }
+        }
+
+        $settings = [];
+        foreach ($settingNames as $name) {
+            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+        }
+        $settings['ahg_central_api_url'] = $settings['ahg_central_api_url'] ?: 'https://central.theahg.co.za/api/v1';
+
+        return view('ahg-settings::ahg-integration', compact('menu', 'settings', 'testResult'));
+    }
+
+    // ─── Page Elements ─────────────────────────────────────────────────
+    public function pageElements(Request $request)
+    {
+        return $this->visibleElements($request);
+    }
+
+    // ─── Dropdown Manager ──────────────────────────────────────────────
+    public function dropdownIndex()
+    {
+        $menu = $this->buildMenu('dropdown');
+        $dropdowns = collect();
+        if (Schema::hasTable('ahg_dropdowns')) {
+            $dropdowns = DB::table('ahg_dropdowns')->orderBy('name')->get();
+        }
+
+        return view('ahg-settings::ahgDropdown.index', compact('menu', 'dropdowns'));
+    }
+
+    public function dropdownEdit(Request $request, ?int $id = null)
+    {
+        $menu = $this->buildMenu('dropdown');
+        $dropdown = null;
+        $values = collect();
+
+        if ($id && Schema::hasTable('ahg_dropdowns')) {
+            $dropdown = DB::table('ahg_dropdowns')->find($id);
+            if (Schema::hasTable('ahg_dropdown_values')) {
+                $values = DB::table('ahg_dropdown_values')->where('dropdown_id', $id)->orderBy('sort_order')->pluck('value');
+            }
+        }
+        if (!$dropdown) {
+            $dropdown = (object) ['id' => null, 'name' => '', 'slug' => '', 'description' => ''];
+        }
+
+        if ($request->isMethod('post') && Schema::hasTable('ahg_dropdowns')) {
+            $data = [
+                'name' => $request->input('name', ''),
+                'slug' => $request->input('slug', '') ?: \Illuminate\Support\Str::slug($request->input('name', '')),
+                'description' => $request->input('description', ''),
+                'updated_at' => now(),
+            ];
+            if ($id) {
+                DB::table('ahg_dropdowns')->where('id', $id)->update($data);
+            } else {
+                $data['created_at'] = now();
+                $id = DB::table('ahg_dropdowns')->insertGetId($data);
+            }
+            // Save values
+            if (Schema::hasTable('ahg_dropdown_values')) {
+                DB::table('ahg_dropdown_values')->where('dropdown_id', $id)->delete();
+                foreach ($request->input('values', []) as $i => $val) {
+                    if (trim($val) !== '') {
+                        DB::table('ahg_dropdown_values')->insert([
+                            'dropdown_id' => $id,
+                            'value' => trim($val),
+                            'sort_order' => $i,
+                        ]);
+                    }
+                }
+            }
+            return redirect()->route('settings.dropdown.index')->with('success', 'Dropdown saved.');
+        }
+
+        return view('ahg-settings::ahgDropdown.edit', compact('menu', 'dropdown', 'values'));
+    }
 }

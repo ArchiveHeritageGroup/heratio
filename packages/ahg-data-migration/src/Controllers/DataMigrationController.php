@@ -343,4 +343,8 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         $results = $this->repo->getJobResults((int)$req->job_id);
         return view('ahg-data-migration::import-results', compact('job', 'results'));
     }
+
+    public function previewData(Request $req) { return view('ahg-data-migration::preview-data', ['rows' => collect()]); }
+
+    public function sectorExport(Request $req) { return view('ahg-data-migration::sector-export', ['record' => (object)[]]); }
 }

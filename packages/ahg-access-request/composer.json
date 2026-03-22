@@ -1,0 +1,20 @@
+{
+    "name": "ahg/access-request",
+    "description": "Access request management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAccessRequest\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAccessRequest\\Providers\\AhgAccessRequestServiceProvider"
+            ]
+        }
+    }
+}

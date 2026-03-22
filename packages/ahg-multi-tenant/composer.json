@@ -1,0 +1,20 @@
+{
+    "name": "ahg/multi-tenant",
+    "description": "Multi-tenant management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgMultiTenant\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMultiTenant\\Providers\\AhgMultiTenantServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-discovery",
+    "description": "Heratio Discovery package (migrated from ahgDiscoveryPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgDiscovery\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDiscovery\\Providers\\AhgDiscoveryServiceProvider"
+            ]
+        }
+    }
+}

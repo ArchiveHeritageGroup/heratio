@@ -1,0 +1,1 @@
+@if(!empty($warning))<div class="alert alert-{{ $warning["level"]??"warning" }} d-flex align-items-center mb-3"><i class="fas fa-exclamation-triangle me-2 fs-4"></i><div><strong>{{ $warning["title"]??"Security Notice" }}</strong><br>{{ $warning["message"]??"" }}</div></div>@endif

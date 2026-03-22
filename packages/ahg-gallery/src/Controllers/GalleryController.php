@@ -9,6 +9,7 @@ use AhgGallery\Services\GalleryService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class GalleryController extends Controller
 {
@@ -447,6 +448,127 @@ class GalleryController extends Controller
             'artistTypes' => $choices['artistTypes'],
         ]);
     }
+
+    /** Gallery dashboard. */
+    public function dashboard()
+    {
+        $totalItems = DB::table('gallery_artwork')->count();
+        $itemsWithMedia = DB::table('gallery_artwork')->whereNotNull('digital_object_id')->count();
+        $totalArtists = DB::table('gallery_artist')->count();
+        $activeLoans = DB::table('gallery_loan')->where('status', 'active')->count();
+        $recentItems = DB::table('gallery_artwork')->orderBy('created_at', 'desc')->limit(10)->get();
+        return view('ahg-gallery::gallery.dashboard', compact('totalItems', 'itemsWithMedia', 'totalArtists', 'activeLoans', 'recentItems'));
+    }
+
+    /** Gallery index page. */
+    public function galleryIndex() { return view('ahg-gallery::gallery.index'); }
+
+    /** Loans list. */
+    public function loans()
+    {
+        $loans = Schema::hasTable('gallery_loan') ? DB::table('gallery_loan')->orderBy('created_at', 'desc')->get() : collect();
+        return view('ahg-gallery::gallery.loans', compact('loans'));
+    }
+
+    public function showLoan(int $id)
+    {
+        $loan = DB::table('gallery_loan')->where('id', $id)->first();
+        if (!$loan) abort(404);
+        return view('ahg-gallery::gallery.view-loan', compact('loan'));
+    }
+
+    public function createLoan() { return view('ahg-gallery::gallery.create-loan'); }
+    public function storeLoan(Request $request)
+    {
+        $request->validate(['title' => 'required|string|max:1024']);
+        if (Schema::hasTable('gallery_loan')) {
+            DB::table('gallery_loan')->insert(array_merge($request->only(['title','loan_type','borrower_name','start_date','end_date','insurance_value','loan_fee','conditions','notes']), ['status' => 'pending', 'created_at' => now(), 'updated_at' => now()]));
+        }
+        return redirect()->route('gallery.loans')->with('success', 'Loan created.');
+    }
+
+    /** Valuations list. */
+    public function valuations()
+    {
+        $valuations = Schema::hasTable('gallery_valuation') ? DB::table('gallery_valuation')->orderBy('created_at', 'desc')->get() : collect();
+        return view('ahg-gallery::gallery.valuations', compact('valuations'));
+    }
+
+    public function showValuation(int $id)
+    {
+        $valuation = DB::table('gallery_valuation')->where('id', $id)->first();
+        if (!$valuation) abort(404);
+        return view('ahg-gallery::gallery.valuations', ['valuations' => collect([$valuation])]);
+    }
+
+    public function createValuation() { return view('ahg-gallery::gallery.create-valuation'); }
+    public function storeValuation(Request $request)
+    {
+        $request->validate(['value' => 'required|numeric']);
+        if (Schema::hasTable('gallery_valuation')) {
+            DB::table('gallery_valuation')->insert(array_merge($request->only(['valuation_type','value','valuation_date','appraiser','notes']), ['created_at' => now(), 'updated_at' => now()]));
+        }
+        return redirect()->route('gallery.valuations')->with('success', 'Valuation created.');
+    }
+
+    /** Venues list. */
+    public function venues()
+    {
+        $venues = Schema::hasTable('gallery_venue') ? DB::table('gallery_venue')->orderBy('name')->get() : collect();
+        return view('ahg-gallery::gallery.venues', compact('venues'));
+    }
+
+    public function showVenue(int $id)
+    {
+        $venue = DB::table('gallery_venue')->where('id', $id)->first();
+        if (!$venue) abort(404);
+        return view('ahg-gallery::gallery.view-venue', compact('venue'));
+    }
+
+    public function createVenue() { return view('ahg-gallery::gallery.create-venue'); }
+    public function storeVenue(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:1024']);
+        if (Schema::hasTable('gallery_venue')) {
+            DB::table('gallery_venue')->insert(array_merge($request->only(['name','venue_type','address','city','country','contact_person','email','notes']), ['created_at' => now(), 'updated_at' => now()]));
+        }
+        return redirect()->route('gallery.venues')->with('success', 'Venue created.');
+    }
+
+    /** Facility Report. */
+    public function facilityReport(int $id)
+    {
+        $report = Schema::hasTable('gallery_facility_report') ? DB::table('gallery_facility_report')->where('id', $id)->first() : null;
+        if (!$report) abort(404);
+        return view('ahg-gallery::gallery.facility-report', compact('report'));
+    }
+
+    /** Gallery Reports */
+    public function reportsIndex()
+    {
+        $stats = [
+            'exhibitions' => ['total' => 0, 'open' => 0, 'planning' => 0, 'upcoming' => 0],
+            'loans' => ['total' => 0, 'overdue' => 0],
+            'valuations' => ['total' => 0, 'total_value' => 0],
+        ];
+        if (Schema::hasTable('gallery_exhibition')) {
+            $stats['exhibitions']['total'] = DB::table('gallery_exhibition')->count();
+        }
+        if (Schema::hasTable('gallery_loan')) {
+            $stats['loans']['total'] = DB::table('gallery_loan')->count();
+        }
+        if (Schema::hasTable('gallery_valuation')) {
+            $stats['valuations']['total'] = DB::table('gallery_valuation')->count();
+            $stats['valuations']['total_value'] = DB::table('gallery_valuation')->sum('value');
+        }
+        return view('ahg-gallery::galleryReports.index', compact('stats'));
+    }
+
+    public function reportsExhibitions() { $items = Schema::hasTable('gallery_exhibition') ? DB::table('gallery_exhibition')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-gallery::galleryReports.exhibitions', compact('items')); }
+    public function reportsFacilityReports() { $items = Schema::hasTable('gallery_facility_report') ? DB::table('gallery_facility_report')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-gallery::galleryReports.facility-reports', compact('items')); }
+    public function reportsLoans() { $items = Schema::hasTable('gallery_loan') ? DB::table('gallery_loan')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-gallery::galleryReports.loans', compact('items')); }
+    public function reportsSpaces() { $items = Schema::hasTable('gallery_space') ? DB::table('gallery_space')->orderBy('name')->get() : collect(); return view('ahg-gallery::galleryReports.spaces', compact('items')); }
+    public function reportsValuations() { $items = Schema::hasTable('gallery_valuation') ? DB::table('gallery_valuation')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-gallery::galleryReports.valuations', compact('items')); }
 
     /**
      * Store a new gallery artist.

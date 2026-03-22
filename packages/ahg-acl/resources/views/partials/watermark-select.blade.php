@@ -1,0 +1,1 @@
+<div class="mb-3"><label for="watermark_type_id" class="form-label">Watermark Type</label><select id="watermark_type_id" name="watermark_type_id" class="form-select"><option value="">None</option>@foreach($watermarkTypes??[] as $wt)<option value="{{ $wt->id }}" {{ ($selectedWatermarkId??0)==$wt->id?"selected":"" }}>{{ e($wt->name) }}</option>@endforeach</select></div>

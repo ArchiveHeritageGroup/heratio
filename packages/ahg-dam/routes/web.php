@@ -19,3 +19,11 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/dam/{slug}', [DamController::class, 'show'])->name('dam.show')
     ->where('slug', '(?!browse|create|dashboard)[a-z0-9\-]+');
+    Route::get('/dam/bulk-create', [DamController::class, 'bulkCreate'])->name('dam.bulk-create');
+    Route::match(['get','post'], '/dam/{slug}/edit-iptc', [DamController::class, 'editIptc'])->name('dam.edit-iptc');
+    Route::get('/dam/index', [DamController::class, 'damIndex'])->name('dam.index');
+    Route::get('/dam/reports', [DamController::class, 'reportIndex'])->name('dam.reports');
+    Route::get('/dam/reports/assets', [DamController::class, 'reportAssets'])->name('dam.reports.assets');
+    Route::get('/dam/reports/iptc', [DamController::class, 'reportIptc'])->name('dam.reports.iptc');
+    Route::get('/dam/reports/metadata', [DamController::class, 'reportMetadata'])->name('dam.reports.metadata');
+    Route::get('/dam/reports/storage', [DamController::class, 'reportStorage'])->name('dam.reports.storage');

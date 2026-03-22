@@ -396,4 +396,18 @@ class WorkflowController extends Controller
 
         return redirect()->route('workflow.gates.admin')->with('success', 'Gate rule deleted.');
     }
+
+    public function addStepForm(Request $request, int $workflowId) { return view('ahg-workflow::add-step', ['record' => (object)[]]); }
+
+    public function editStepForm(Request $request, int $id) { return view('ahg-workflow::edit-step', ['record' => (object)['id'=>$id]]); }
+
+    public function bulkPreview(Request $request) { return view('ahg-workflow::bulk-preview', ['rows' => collect()]); }
+
+    public function myWork(Request $request) { return view('ahg-workflow::my-work', ['rows' => collect()]); }
+
+    public function publishSimulate(int $objectId) { return view('ahg-workflow::publish-simulate', ['gates' => collect(), 'allPassed' => false]); }
+
+    public function teamWork(Request $request) { return view('ahg-workflow::team-work', ['rows' => collect()]); }
+
+    public function timeline(int $id) { return view('ahg-workflow::timeline', ['events' => collect()]); }
 }

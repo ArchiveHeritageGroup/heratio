@@ -14,3 +14,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/jobs/clear-inactive', [JobController::class, 'clearInactive'])->name('job.clear-inactive');
     Route::get('/admin/jobs/export-csv', [JobController::class, 'exportCsv'])->name('job.export-csv');
 });
+    Route::get('/admin/jobs/queue-batches', [JobController::class, 'queueBatches'])->name('job.queue-batches');
+    Route::get('/admin/jobs/queue-browse', [JobController::class, 'queueBrowse'])->name('job.queue-browse');
+    Route::get('/admin/jobs/queue/{id}', [JobController::class, 'queueDetail'])->name('job.queue-detail')->whereNumber('id');
+    Route::get('/admin/jobs/report', [JobController::class, 'report'])->name('job.report');

@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-rad-manage",
+    "description": "Heratio RadManage package (migrated from ahgRadManagePlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgRadManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRadManage\\Providers\\AhgRadManageServiceProvider"
+            ]
+        }
+    }
+}

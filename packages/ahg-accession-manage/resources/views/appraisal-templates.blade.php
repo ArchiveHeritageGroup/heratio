@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Appraisal Templates')
+@section('content')
+<div class="container py-4">
+<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route("accession.dashboard") }}">Accessions</a></li><li class="breadcrumb-item active">Appraisal Templates</li></ol></nav><h1><i class="fas fa-file-alt me-2"></i>Appraisal Templates</h1><div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr style="background:var(--ahg-primary);color:#fff"><th>Name</th><th>Sector</th><th class="text-center">Default</th><th class="text-center">Criteria</th><th>Actions</th></tr></thead><tbody>@forelse($templates??[] as $t)<tr><td><strong>{{ e($t->name) }}</strong>@if(!empty($t->description))<br><small class="text-muted">{{ \Illuminate\Support\Str::limit($t->description,60) }}</small>@endif</td><td>@if(!empty($t->sector))<span class="badge bg-secondary">{{ ucfirst($t->sector) }}</span>@else All @endif</td><td class="text-center">@if($t->is_default??false)<span class="badge bg-success"><i class="fas fa-check"></i></span>@endif</td><td class="text-center"><span class="badge bg-info">{{ count(json_decode($t->criteria??"[]",true)?:[]) }}</span></td><td><a href="#" class="btn btn-sm atom-btn-white">Edit</a></td></tr>@empty<tr><td colspan="5" class="text-muted text-center py-3">No templates.</td></tr>@endforelse</tbody></table></div></div>
+</div>
+@endsection

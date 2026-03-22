@@ -1,0 +1,20 @@
+{
+    "name": "ahg/provenance",
+    "description": "Provenance tracking and chain of custody for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgProvenance\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgProvenance\\Providers\\AhgProvenanceServiceProvider"
+            ]
+        }
+    }
+}

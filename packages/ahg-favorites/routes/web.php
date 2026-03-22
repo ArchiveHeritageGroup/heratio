@@ -11,6 +11,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', [FavoritesController::class, 'browse'])->name('favorites.browse');
     Route::get('/favorites/add/{slug}', [FavoritesController::class, 'add'])->name('favorites.add');
     Route::post('/favorites/remove/{id}', [FavoritesController::class, 'remove'])->name('favorites.remove')->where('id', '[0-9]+');
+    Route::post('/favorites/clear', [FavoritesController::class, 'clear'])->name('favorites.clear');
     Route::post('/favorites/bulk', [FavoritesController::class, 'bulk'])->name('favorites.bulk');
     Route::post('/favorites/notes/{id}', [FavoritesController::class, 'updateNotes'])->name('favorites.notes')->where('id', '[0-9]+');
 

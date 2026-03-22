@@ -303,4 +303,6 @@ class LoanController extends Controller
 
         return response()->json(['results' => $results]);
     }
+
+    public function dashboard() { return view('ahg-loan::loan-dashboard', ['activeCount'=>0,'overdueCount'=>0,'returningCount'=>0,'completedCount'=>0]); }
 }

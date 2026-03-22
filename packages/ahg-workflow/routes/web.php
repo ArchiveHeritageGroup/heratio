@@ -47,3 +47,10 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/workflow/admin/gates/edit/{id?}', [WorkflowController::class, 'gateRuleEdit'])->name('workflow.gates.edit');
     Route::post('/workflow/admin/gates/{id}/delete', [WorkflowController::class, 'deleteGateRule'])->name('workflow.gates.delete');
 });
+    Route::match(['get','post'], '/workflow/admin/{workflowId}/step/add-form', [WorkflowController::class, 'addStepForm'])->name('workflow.admin.step.add-form');
+    Route::match(['get','post'], '/workflow/admin/step/{id}/edit-form', [WorkflowController::class, 'editStepForm'])->name('workflow.admin.step.edit-form');
+    Route::get('/workflow/bulk-preview', [WorkflowController::class, 'bulkPreview'])->name('workflow.bulk-preview');
+    Route::get('/workflow/my-work', [WorkflowController::class, 'myWork'])->name('workflow.my-work');
+    Route::get('/workflow/publish-simulate/{objectId}', [WorkflowController::class, 'publishSimulate'])->name('workflow.publish-simulate')->whereNumber('objectId');
+    Route::get('/workflow/team-work', [WorkflowController::class, 'teamWork'])->name('workflow.team-work');
+    Route::get('/workflow/timeline/{id}', [WorkflowController::class, 'timeline'])->name('workflow.timeline')->whereNumber('id');

@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-dacs-manage",
+    "description": "Heratio DacsManage package (migrated from ahgDacsManagePlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgDacsManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDacsManage\\Providers\\AhgDacsManageServiceProvider"
+            ]
+        }
+    }
+}

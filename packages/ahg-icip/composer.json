@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-icip",
+    "description": "Heratio Icip package (migrated from ahgICIPPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgIcip\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgIcip\\Providers\\AhgIcipServiceProvider"
+            ]
+        }
+    }
+}

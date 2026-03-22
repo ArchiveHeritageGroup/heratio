@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-cdpa",
+    "description": "Heratio Cdpa package (migrated from ahgCDPAPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgCdpa\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgCdpa\\Providers\\AhgCdpaServiceProvider"
+            ]
+        }
+    }
+}

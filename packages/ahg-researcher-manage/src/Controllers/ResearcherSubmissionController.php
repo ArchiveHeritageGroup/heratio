@@ -238,4 +238,16 @@ class ResearcherSubmissionController extends Controller
             ->with('import_result', $result)
             ->with('success', 'Exchange file imported successfully. A draft submission has been created.');
     }
+
+    public function researcherBrowse(Request $request) { return view('ahg-researcher-manage::researcher-browse', ['rows' => collect()]); }
+
+    public function researcherAdd(Request $request) { return view('ahg-researcher-manage::researcher-add', ['record' => (object)[]]); }
+
+    public function researcherEdit(Request $request, int $id) { return view('ahg-researcher-manage::researcher-edit', ['record' => (object)['id'=>$id]]); }
+
+    public function researcherView(int $id) { return view('ahg-researcher-manage::researcher-view', ['record' => (object)['id'=>$id]]); }
+
+    public function researcherDelete(int $id) { return view('ahg-researcher-manage::researcher-delete', ['record' => (object)['id'=>$id]]); }
+
+    public function submissionView(int $id) { return view('ahg-researcher-manage::submission-view', ['record' => (object)['id'=>$id]]); }
 }

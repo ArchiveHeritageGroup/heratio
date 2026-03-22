@@ -1,0 +1,2 @@
+@php if(empty($badge)) return; $colors=["PUBLIC"=>"success","INTERNAL"=>"info","CONFIDENTIAL"=>"primary","SECRET"=>"warning","TOP_SECRET"=>"danger"]; @endphp
+<span class="badge bg-{{ $colors[$badge->code]??"secondary" }}" title="{{ e($badge->name??"") }}"><i class="fas fa-shield-alt me-1"></i>{{ e($badge->code??"") }}</span>

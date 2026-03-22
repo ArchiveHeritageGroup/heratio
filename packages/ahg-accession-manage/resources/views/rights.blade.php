@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Rights')
+@section('content')
+<div class="container py-4">
+<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route("accession.browse") }}">Accessions</a></li><li class="breadcrumb-item"><a href="{{ route("accession.show",$accession->slug??"") }}">{{ e($accession->identifier??"") }}</a></li><li class="breadcrumb-item active">Rights</li></ol></nav><ul class="nav nav-tabs mb-4"><li class="nav-item"><a class="nav-link" href="{{ route("accession.containers",$accession->id??0) }}">Containers</a></li><li class="nav-item"><a class="nav-link active" href="{{ route("accession.rights",$accession->id??0) }}">Rights</a></li></ul><div class="card"><div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Rights Records</h5></div><div class="card-body p-0"><table class="table table-striped mb-0"><thead><tr><th>Basis</th><th>Holder</th><th>Restriction</th><th>Start</th><th>End</th><th>Notes</th></tr></thead><tbody>@forelse($rights??[] as $r)<tr><td>{{ ucfirst($r->rights_basis??"") }}</td><td>{{ e($r->rights_holder??"") }}</td><td>{{ ucfirst($r->restriction_type??"") }}</td><td>{{ $r->start_date??"" }}</td><td>{{ $r->end_date??"" }}</td><td>{{ \Illuminate\Support\Str::limit($r->notes??"",50) }}</td></tr>@empty<tr><td colspan="6" class="text-muted text-center py-3">No rights records.</td></tr>@endforelse</tbody></table></div></div>
+</div>
+@endsection

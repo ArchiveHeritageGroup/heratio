@@ -84,6 +84,12 @@ class FavoritesController extends Controller
         return redirect()->route('favorites.browse')->with('success', 'Removed from favorites.');
     }
 
+    public function clear(Request $request)
+    {
+        $count = $this->favoritesService->clearAll(Auth::id());
+        return redirect()->route('favorites.browse')->with('success', "Cleared {$count} favorites.");
+    }
+
     public function ajaxToggle(Request $request)
     {
         $userId = Auth::id();

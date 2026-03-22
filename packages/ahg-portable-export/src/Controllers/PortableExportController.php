@@ -103,4 +103,6 @@ class PortableExportController extends Controller
             ->route('portable-export.index')
             ->with('success', 'Portable export has been queued. You will be notified when it is ready for download.');
     }
+
+    public function import(Request $request) { return view('ahg-portable-export::import'); }
 }

@@ -303,4 +303,14 @@ class FeedbackController extends Controller
         return redirect()->route('feedback.browse')
             ->with('success', 'Feedback deleted successfully.');
     }
+
+    public function view(int $id)
+    {
+        $culture = app()->getLocale();
+        $record = DB::table('feedback')->join('feedback_i18n', function($j) use ($culture) { $j->on('feedback.id','=','feedback_i18n.id')->where('feedback_i18n.culture','=',$culture); })->where('feedback.id', $id)->first();
+        if (!$record) abort(404);
+        return view('ahg-feedback::view', ['record' => $record]);
+    }
+
+    public function submitSuccess() { return view('ahg-feedback::submit'); }
 }

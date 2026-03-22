@@ -47,7 +47,7 @@
 @endforelse
 
 <div class="modal fade" id="newEntryModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-    <form method="POST"><@csrf><input type="hidden" name="do" value="create">
+    <form method="POST">@csrf <input type="hidden" name="do" value="create">
     <div class="modal-header"><h5 class="modal-title">New Journal Entry</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3"><label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title"></div>

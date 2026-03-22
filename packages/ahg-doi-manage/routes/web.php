@@ -12,3 +12,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/doi/config', [DoiController::class, 'configSave'])->name('doi.configSave');
     Route::get('/admin/doi/report', [DoiController::class, 'report'])->name('doi.report');
 });
+    Route::match(['get','post'], '/admin/doi/batch-mint', [DoiController::class, 'batchMint'])->name('doi.batch-mint');
+    Route::post('/admin/doi/{id}/deactivate', [DoiController::class, 'deactivate'])->name('doi.deactivate')->whereNumber('id');
+    Route::post('/admin/doi/{id}/mint', [DoiController::class, 'mint'])->name('doi.mint')->whereNumber('id');
+    Route::post('/admin/doi/sync', [DoiController::class, 'sync'])->name('doi.sync');

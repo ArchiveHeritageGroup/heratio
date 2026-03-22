@@ -1,0 +1,20 @@
+{
+    "name": "ahg/semantic-search",
+    "description": "Semantic search and search enhancement for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgSemanticSearch\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgSemanticSearch\\Providers\\AhgSemanticSearchServiceProvider"
+            ]
+        }
+    }
+}

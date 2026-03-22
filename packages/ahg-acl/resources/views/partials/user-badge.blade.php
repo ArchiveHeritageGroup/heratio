@@ -1,0 +1,2 @@
+@php if(empty($clearance)) return; @endphp
+<span class="badge" style="background-color:{{ $clearance->color??"#6c757d" }}" title="Clearance: {{ e($clearance->name??"") }}"><i class="fas fa-id-badge me-1"></i>{{ e($clearance->code??"") }}</span>

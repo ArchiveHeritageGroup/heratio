@@ -206,4 +206,6 @@ class CartController extends Controller
         $pricing = $this->ecommerceService->getProductPricing();
         return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing'));
     }
+
+    public function payment(int $id) { return view('ahg-cart::payment'); }
 }

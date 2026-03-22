@@ -37,6 +37,24 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
     Route::match(['get', 'post'], '/admin/settings/web-analytics', [SettingsController::class, 'webAnalytics'])->name('settings.web-analytics');
     Route::get('/admin/settings/ai-condition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
+    Route::match(['get', 'post'], '/admin/settings/ldap', [SettingsController::class, 'ldap'])->name('settings.ldap');
+    Route::match(['get', 'post'], '/admin/settings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
+    Route::match(['get', 'post'], '/admin/settings/paths', [SettingsController::class, 'paths'])->name('settings.paths');
+    Route::match(['get', 'post'], '/admin/settings/preservation', [SettingsController::class, 'preservation'])->name('settings.preservation');
+    Route::match(['get', 'post'], '/admin/settings/webhooks', [SettingsController::class, 'webhooks'])->name('settings.webhooks');
+    Route::match(['get', 'post'], '/admin/settings/tts', [SettingsController::class, 'tts'])->name('settings.tts');
+    Route::match(['get', 'post'], '/admin/settings/icip-settings', [SettingsController::class, 'icipSettings'])->name('settings.icip-settings');
+    Route::match(['get', 'post'], '/admin/settings/sector-numbering', [SettingsController::class, 'sectorNumbering'])->name('settings.sector-numbering');
+    Route::match(['get', 'post'], '/admin/settings/numbering-schemes', [SettingsController::class, 'numberingSchemes'])->name('settings.numbering-schemes');
+    Route::match(['get', 'post'], '/admin/settings/numbering-scheme-edit/{id?}', [SettingsController::class, 'numberingSchemeEdit'])->name('settings.numbering-scheme-edit');
+    Route::match(['get', 'post'], '/admin/settings/dam-tools', [SettingsController::class, 'damTools'])->name('settings.dam-tools');
+    Route::match(['get', 'post'], '/admin/settings/ai-services', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
+    Route::match(['get', 'post'], '/admin/settings/ahg-import', [SettingsController::class, 'ahgImportSettings'])->name('settings.ahg-import');
+    Route::match(['get', 'post'], '/admin/settings/ahg-integration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
+    Route::match(['get', 'post'], '/admin/settings/page-elements', [SettingsController::class, 'pageElements'])->name('settings.page-elements');
+    // Dropdown manager
+    Route::get('/admin/settings/dropdown', [SettingsController::class, 'dropdownIndex'])->name('settings.dropdown.index');
+    Route::match(['get', 'post'], '/admin/settings/dropdown/edit/{id?}', [SettingsController::class, 'dropdownEdit'])->name('settings.dropdown.store');
     Route::match(['get', 'post'], '/admin/errorLog', [SettingsController::class, 'errorLog'])->name('settings.error-log');
     Route::get('/admin/settings/cron-jobs', [SettingsController::class, 'cronJobs'])->name('settings.cron-jobs');
     Route::post('/admin/settings/cron-jobs/toggle/{id}', [SettingsController::class, 'cronJobToggle'])->name('settings.cron-toggle');

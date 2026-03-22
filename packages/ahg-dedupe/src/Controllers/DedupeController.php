@@ -674,4 +674,22 @@ class DedupeController extends Controller
             'topClusters' => $topClusters,
         ]);
     }
+
+    public function config(Request $request) { return view('ahg-dedupe::config', ['record' => (object)[]]); }
+
+    public function contact(int $id) { $record = DB::table('actor')->join('actor_i18n','actor.id','=','actor_i18n.id')->where('actor.id',$id)->where('actor_i18n.culture','en')->first(); return view('ahg-dedupe::contact', ['record' => $record ?? (object)[]]); }
+
+    public function dashboard() { return view('ahg-dedupe::authority-dashboard', ['totalCount'=>0,'dupeCount'=>0,'mergedCount'=>0,'avgCompleteness'=>0]); }
+
+    public function functionBrowse(Request $request) { return view('ahg-dedupe::function-browse', ['rows' => collect()]); }
+
+    public function functions(int $id) { return view('ahg-dedupe::functions', ['rows' => collect()]); }
+
+    public function identifiers(Request $request) { return view('ahg-dedupe::identifiers', ['rows' => collect()]); }
+
+    public function occupations(Request $request) { return view('ahg-dedupe::occupations', ['rows' => collect()]); }
+
+    public function split(Request $request, int $id) { $authority = DB::table('actor')->join('actor_i18n','actor.id','=','actor_i18n.id')->where('actor.id',$id)->where('actor_i18n.culture','en')->first(); return view('ahg-dedupe::split', ['authority' => $authority ?? (object)[]]); }
+
+    public function workqueue(Request $request) { return view('ahg-dedupe::workqueue', ['rows' => collect()]); }
 }

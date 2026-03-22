@@ -1,0 +1,20 @@
+{
+    "name": "ahg/statistics",
+    "description": "Usage statistics and analytics for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgStatistics\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgStatistics\\Providers\\AhgStatisticsServiceProvider"
+            ]
+        }
+    }
+}

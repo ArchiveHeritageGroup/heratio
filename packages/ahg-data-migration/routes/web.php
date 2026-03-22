@@ -141,3 +141,4 @@ Route::middleware('admin')->group(function () {
     Route::match(['get','post'], '/dataMigration/export/{sector?}',
         [DataMigrationController::class, 'export'])->name('data-migration.sector-export');
 });
+    Route::get('/admin/data-migration/preview-data', [DataMigrationController::class, 'previewData'])->name('data-migration.preview-data');

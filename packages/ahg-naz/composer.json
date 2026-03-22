@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-naz",
+    "description": "Heratio Naz package (migrated from ahgNAZPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgNaz\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgNaz\\Providers\\AhgNazServiceProvider"
+            ]
+        }
+    }
+}

@@ -330,4 +330,20 @@ class DamController extends Controller
             ->route('dam.browse')
             ->with('success', 'DAM asset deleted successfully.');
     }
+
+    public function bulkCreate(Request $request) { return view('ahg-dam::bulk-create'); }
+
+    public function editIptc(Request $request, string $slug) { return view('ahg-dam::edit-iptc', ['record' => (object)['slug'=>$slug]]); }
+
+    public function damIndex(Request $request) { return view('ahg-dam::dam-index', ['rows' => collect()]); }
+
+    public function reportIndex() { return view('ahg-dam::report-index', ['totalAssets'=>0,'storageUsed'=>0,'iptcTagged'=>0,'missingMeta'=>0]); }
+
+    public function reportAssets() { return view('ahg-dam::report-assets', ['rows' => collect()]); }
+
+    public function reportIptc() { return view('ahg-dam::report-iptc', ['rows' => collect()]); }
+
+    public function reportMetadata() { return view('ahg-dam::report-metadata', ['rows' => collect()]); }
+
+    public function reportStorage() { return view('ahg-dam::report-storage', ['rows' => collect()]); }
 }

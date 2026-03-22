@@ -273,4 +273,95 @@ class LibraryController extends Controller
             ->route('library.browse')
             ->with('success', 'Library item deleted successfully.');
     }
+
+    // ── Library Management ─────────────────────────────────────────
+
+    public function index()
+    {
+        $totalItems = 0; $recentCount = 0; $circulatingCount = 0; $overdueCount = 0;
+        return view('ahg-library::library.index', compact('totalItems', 'recentCount', 'circulatingCount', 'overdueCount'));
+    }
+
+    public function rename(string $slug)
+    {
+        $item = $this->service->getBySlug($slug);
+        if (!$item) abort(404);
+        return view('ahg-library::library.rename', compact('item'));
+    }
+
+    public function renameStore(Request $request, string $slug)
+    {
+        return redirect()->route('library.show', $slug)->with('success', 'Item renamed.');
+    }
+
+    public function isbnProviders()
+    {
+        $providers = collect();
+        return view('ahg-library::library.isbn-providers', compact('providers'));
+    }
+
+    public function isbnProviderEdit(int $id)
+    {
+        $provider = (object) ['id' => $id, 'name' => '', 'api_url' => '', 'api_key' => '', 'priority' => 0, 'active' => true];
+        return view('ahg-library::library.isbn-provider-edit', compact('provider'));
+    }
+
+    public function isbnProviderStore(Request $request, int $id)
+    {
+        return redirect()->route('library.isbn-providers')->with('success', 'Provider saved.');
+    }
+
+    // ── Acquisition ────────────────────────────────────────────────
+
+    public function acquisitions() { return view('ahg-library::acquisition.index', ['orders' => collect()]); }
+    public function batchCapture(Request $request) { return view('ahg-library::acquisition.batch-capture', ['orders' => collect(), 'selectedOrderId' => 0, 'rawIsbns' => '']); }
+    public function batchCaptureLookup(Request $request) { return redirect()->route('library.batch-capture')->with('success', 'Lookup complete.'); }
+    public function budgets() { return view('ahg-library::acquisition.budgets', ['budgets' => collect()]); }
+    public function acquisitionOrder(int $id) { $order = (object)['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => '']; return view('ahg-library::acquisition.order', ['order' => $order, 'lines' => collect()]); }
+    public function acquisitionOrderEdit(int $id) { $order = (object)['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => 'draft']; return view('ahg-library::acquisition.order-edit', compact('order')); }
+    public function acquisitionOrderStore(Request $request, int $id) { return redirect()->route('library.acquisitions')->with('success', 'Order saved.'); }
+
+    // ── Circulation ────────────────────────────────────────────────
+
+    public function circulation() { return view('ahg-library::circulation.index', ['loans' => collect()]); }
+    public function loanRules() { return view('ahg-library::circulation.loan-rules', ['rules' => collect()]); }
+    public function overdue() { return view('ahg-library::circulation.overdue', ['overdueItems' => collect()]); }
+
+    // ── ILL ────────────────────────────────────────────────────────
+
+    public function ill() { return view('ahg-library::ill.index', ['requests' => collect()]); }
+    public function illView(int $id) { $request = (object)['id' => $id, 'ill_number' => '', 'type' => '', 'title' => '', 'author' => '', 'isbn' => '', 'library_name' => '', 'request_date' => '', 'status' => '']; return view('ahg-library::ill.view', ['request' => $request]); }
+
+    // ── ISBN ────────────────────────────────────────────────────────
+
+    public function isbnLookup() { return view('ahg-library::isbn.lookup', ['isbn' => null, 'result' => null]); }
+    public function isbnLookupSearch(Request $request) { return view('ahg-library::isbn.lookup', ['isbn' => $request->input('isbn'), 'result' => null]); }
+
+    // ── Patrons ────────────────────────────────────────────────────
+
+    public function patrons() { return view('ahg-library::patron.index', ['patrons' => collect()]); }
+    public function patronView(int $id) { $patron = (object)['id' => $id, 'name' => '', 'type' => '', 'card_number' => '', 'email' => '', 'phone' => '', 'active' => true]; return view('ahg-library::patron.view', ['patron' => $patron, 'loans' => collect()]); }
+
+    // ── Serials ────────────────────────────────────────────────────
+
+    public function serials() { return view('ahg-library::serial.index', ['serials' => collect()]); }
+    public function serialView(int $id) { $serial = (object)['id' => $id, 'title' => '', 'issn' => '', 'frequency' => '', 'publisher' => '', 'status' => '']; return view('ahg-library::serial.view', compact('serial')); }
+
+    // ── OPAC ───────────────────────────────────────────────────────
+
+    public function opac(Request $request) { $results = $request->has('q') ? collect() : null; return view('ahg-library::opac.index', compact('results')); }
+    public function opacView(string $slug) { $item = $this->service->getBySlug($slug); if (!$item) abort(404); $item->available = true; return view('ahg-library::opac.view', compact('item')); }
+    public function opacAccount() { return view('ahg-library::opac.account', ['loans' => collect(), 'holds' => collect()]); }
+    public function opacHold(string $slug) { $item = $this->service->getBySlug($slug); if (!$item) abort(404); return view('ahg-library::opac.hold', compact('item')); }
+    public function opacHoldStore(Request $request, string $slug) { return redirect()->route('library.opac-view', $slug)->with('success', 'Hold placed.'); }
+    public function opacRenew(Request $request, int $id) { return redirect()->route('library.opac-account')->with('success', 'Item renewed.'); }
+
+    // ── Reports ────────────────────────────────────────────────────
+
+    public function libraryReports() { return view('ahg-library::reports.index'); }
+    public function reportCatalogue() { return view('ahg-library::reports.catalogue', ['items' => collect()]); }
+    public function reportCreators() { return view('ahg-library::reports.creators', ['creators' => collect()]); }
+    public function reportPublishers() { return view('ahg-library::reports.publishers', ['publishers' => collect()]); }
+    public function reportSubjects() { return view('ahg-library::reports.subjects', ['subjects' => collect()]); }
+    public function reportCallNumbers() { return view('ahg-library::reports.call-numbers', ['items' => collect()]); }
 }

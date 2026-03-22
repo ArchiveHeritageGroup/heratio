@@ -342,4 +342,370 @@ class ReportController extends Controller
             'levels' => $levels,
         ]);
     }
+
+    /**
+     * Reports index page.
+     */
+    public function index()
+    {
+        return view('ahg-reports::index');
+    }
+
+    /**
+     * Browse reports with strong room / location filters.
+     */
+    public function browse(Request $request)
+    {
+        $strongrooms = [];
+        $locations = [];
+
+        try {
+            if (Schema::hasTable('physical_object_i18n')) {
+                $strongrooms = DB::table('physical_object_i18n')
+                    ->select('location')
+                    ->whereNotNull('location')
+                    ->where('location', '!=', '')
+                    ->distinct()
+                    ->pluck('location')
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return view('ahg-reports::browse', compact('strongrooms', 'locations'));
+    }
+
+    /**
+     * Browse / publish preservation items.
+     */
+    public function browsePublish(Request $request)
+    {
+        $items = collect();
+
+        return view('ahg-reports::browse-publish', compact('items'));
+    }
+
+    /**
+     * Report type selector.
+     */
+    public function reportSelect(Request $request)
+    {
+        $objectType = $request->input('objectType');
+
+        if ($objectType) {
+            $routeMap = [
+                'accession' => 'reports.report-accession',
+                'informationObject' => 'reports.report-information-object',
+                'authorityRecord' => 'reports.report-authority-record',
+                'donor' => 'reports.report-donor',
+                'physical_storage' => 'reports.report-physical-storage',
+                'repository' => 'reports.report-repository',
+            ];
+
+            if (isset($routeMap[$objectType])) {
+                return redirect()->route($routeMap[$objectType]);
+            }
+        }
+
+        return view('ahg-reports::report-select');
+    }
+
+    /**
+     * Generic report viewer.
+     */
+    public function report(Request $request)
+    {
+        $reportName = $request->input('name', 'Report');
+        $results = [];
+        $summary = [];
+
+        return view('ahg-reports::report', compact('reportName', 'results', 'summary'));
+    }
+
+    /**
+     * Access report.
+     */
+    public function reportAccess(Request $request)
+    {
+        $results = collect();
+        $columns = ['Identifier', 'Title', 'Refusal', 'Sensitive', 'Publish', 'Classification', 'Restriction', 'Date'];
+
+        return view('ahg-reports::report-access', compact('results', 'columns'));
+    }
+
+    /**
+     * Accession report (audit-style).
+     */
+    public function reportAccession(Request $request)
+    {
+        $params = $request->only(['culture', 'dateStart', 'dateEnd', 'limit']);
+        $results = collect();
+        $columns = ['ID', 'Identifier', 'Title', 'Scope', 'Created', 'Updated'];
+
+        try {
+            $query = DB::table('accession')
+                ->leftJoin('accession_i18n', function ($j) {
+                    $j->on('accession.id', '=', 'accession_i18n.id')
+                      ->where('accession_i18n.culture', '=', $params['culture'] ?? 'en');
+                })
+                ->select('accession.id', 'accession.identifier', 'accession_i18n.title', 'accession_i18n.scope_and_content as scope', 'accession.created_at', 'accession.updated_at');
+
+            if (!empty($params['dateStart'])) {
+                $query->where('accession.created_at', '>=', $params['dateStart']);
+            }
+            if (!empty($params['dateEnd'])) {
+                $query->where('accession.created_at', '<=', $params['dateEnd']);
+            }
+
+            $results = $query->orderByDesc('accession.created_at')->paginate((int) ($params['limit'] ?? 25));
+        } catch (\Exception $e) {
+            $results = collect();
+        }
+
+        return view('ahg-reports::report-accession', compact('results', 'columns'));
+    }
+
+    /**
+     * Authority record report.
+     */
+    public function reportAuthorityRecord(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Identifier', 'Name', 'Entity Type', 'Created', 'Updated'];
+
+        try {
+            $results = DB::table('actor')
+                ->leftJoin('actor_i18n', function ($j) {
+                    $j->on('actor.id', '=', 'actor_i18n.id')
+                      ->where('actor_i18n.culture', '=', $request->input('culture', 'en'));
+                })
+                ->select('actor.id', 'actor.description_identifier as identifier', 'actor_i18n.authorized_form_of_name as name', 'actor.entity_type_id', 'actor.created_at', 'actor.updated_at')
+                ->where('actor.id', '!=', 1)
+                ->orderByDesc('actor.created_at')
+                ->paginate(25);
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return view('ahg-reports::report-authority-record', compact('results', 'columns'));
+    }
+
+    /**
+     * Donor report.
+     */
+    public function reportDonor(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Name', 'Created', 'Updated'];
+
+        try {
+            $results = DB::table('donor')
+                ->join('actor', 'donor.id', '=', 'actor.id')
+                ->leftJoin('actor_i18n', function ($j) {
+                    $j->on('actor.id', '=', 'actor_i18n.id')
+                      ->where('actor_i18n.culture', '=', $request->input('culture', 'en'));
+                })
+                ->select('donor.id', 'actor_i18n.authorized_form_of_name as name', 'actor.created_at', 'actor.updated_at')
+                ->orderByDesc('actor.created_at')
+                ->paginate(25);
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return view('ahg-reports::report-donor', compact('results', 'columns'));
+    }
+
+    /**
+     * Information object report.
+     */
+    public function reportInformationObject(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Identifier', 'Title', 'Level', 'Status', 'Created', 'Updated'];
+
+        return view('ahg-reports::report-information-object', compact('results', 'columns'));
+    }
+
+    /**
+     * Physical storage report.
+     */
+    public function reportPhysicalStorage(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Name', 'Location', 'Type', 'Created'];
+
+        return view('ahg-reports::report-physical-storage', compact('results', 'columns'));
+    }
+
+    /**
+     * Repository report.
+     */
+    public function reportRepository(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Identifier', 'Name', 'Created', 'Updated'];
+
+        return view('ahg-reports::report-repository', compact('results', 'columns'));
+    }
+
+    /**
+     * Spatial analysis report.
+     */
+    public function reportSpatialAnalysis(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Identifier', 'Title', 'Latitude', 'Longitude'];
+
+        return view('ahg-reports::report-spatial-analysis', compact('results', 'columns'));
+    }
+
+    /**
+     * Taxonomy report.
+     */
+    public function reportTaxonomyAudit(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Taxonomy', 'Term', 'Created', 'Updated'];
+
+        return view('ahg-reports::report-taxonomy-audit', compact('results', 'columns'));
+    }
+
+    /**
+     * Updates report.
+     */
+    public function reportUpdates(Request $request)
+    {
+        $results = collect();
+        $columns = ['ID', 'Entity', 'Title', 'Action', 'User', 'Date'];
+
+        return view('ahg-reports::report-updates', compact('results', 'columns'));
+    }
+
+    /**
+     * User activity report.
+     */
+    public function reportUser(Request $request)
+    {
+        $records = collect();
+        $columns = ['User', 'Action', 'Date', 'Identifier', 'Title', 'Repository', 'Area'];
+
+        try {
+            if (Schema::hasTable('ahg_audit_log')) {
+                $query = DB::table('ahg_audit_log')
+                    ->select('username as User', 'action as Action', 'created_at as Date', 'entity_id as Identifier', 'entity_type as Title', DB::raw("'' as Repository"), 'action as Area');
+
+                if ($request->filled('dateStart')) {
+                    $query->where('created_at', '>=', $request->input('dateStart'));
+                }
+                if ($request->filled('dateEnd')) {
+                    $query->where('created_at', '<=', $request->input('dateEnd'));
+                }
+
+                $records = $query->orderByDesc('created_at')->paginate(25);
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return view('ahg-reports::report-user', compact('records', 'columns'));
+    }
+
+    /**
+     * Audit: Actor records.
+     */
+    public function auditActor(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['actor', 'actor_i18n']);
+        return view('ahg-reports::audit-actor', compact('records'));
+    }
+
+    /**
+     * Audit: Archival descriptions.
+     */
+    public function auditDescription(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['information_object', 'information_object_i18n']);
+        return view('ahg-reports::audit-archival-description', compact('records'));
+    }
+
+    /**
+     * Audit: Donors.
+     */
+    public function auditDonor(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['donor']);
+        return view('ahg-reports::audit-donor', compact('records'));
+    }
+
+    /**
+     * Audit: Permissions.
+     */
+    public function auditPermissions(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['acl_permission', 'acl_group', 'acl_user_group']);
+        return view('ahg-reports::audit-permissions', compact('records'));
+    }
+
+    /**
+     * Audit: Physical storage.
+     */
+    public function auditPhysicalStorage(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['physical_object', 'physical_object_i18n']);
+        return view('ahg-reports::audit-physical-storage', compact('records'));
+    }
+
+    /**
+     * Audit: Repository.
+     */
+    public function auditRepository(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['repository', 'repository_i18n']);
+        return view('ahg-reports::audit-repository', compact('records'));
+    }
+
+    /**
+     * Audit: Taxonomy.
+     */
+    public function auditTaxonomy(Request $request)
+    {
+        $records = $this->getAuditRecords($request, ['term', 'term_i18n', 'taxonomy']);
+        return view('ahg-reports::audit-taxonomy', compact('records'));
+    }
+
+    /**
+     * Helper: get audit trail records for given DB tables.
+     */
+    private function getAuditRecords(Request $request, array $tables)
+    {
+        try {
+            if (!Schema::hasTable('ahg_audit_log')) {
+                return collect();
+            }
+
+            $query = DB::table('ahg_audit_log')
+                ->whereIn('entity_type', $tables)
+                ->select(
+                    'id',
+                    'username',
+                    'action',
+                    'created_at as action_date_time',
+                    'entity_id as record_id',
+                    'entity_type as db_table',
+                    'metadata as db_query'
+                );
+
+            if ($request->filled('dateStart')) {
+                $query->where('created_at', '>=', $request->input('dateStart'));
+            }
+            if ($request->filled('dateEnd')) {
+                $query->where('created_at', '<=', $request->input('dateEnd'));
+            }
+
+            return $query->orderByDesc('created_at')->paginate((int) $request->input('limit', 25));
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
 }

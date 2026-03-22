@@ -395,4 +395,23 @@ class AuditTrailController extends Controller
             'settings' => $settings,
         ]);
     }
+
+    public function authentication(Request $request)
+    {
+        $recentLogins = DB::table('audit_log')->where('action', 'login')->orderByDesc('created_at')->limit(50)->get();
+        $suspiciousActivity = DB::table('audit_log')->whereIn('action', ['failed_login','locked'])->orderByDesc('created_at')->limit(50)->get();
+        return view('ahg-audit-trail::authentication', compact('recentLogins', 'suspiciousActivity'));
+    }
+
+    public function entityHistory(int $id)
+    {
+        $rows = DB::table('audit_log')->where('entity_id', $id)->orderByDesc('created_at')->get();
+        return view('ahg-audit-trail::entity-history', ['rows' => $rows]);
+    }
+
+    public function export(Request $request) { return view('ahg-audit-trail::export'); }
+
+    public function securityAccess(Request $request) { return view('ahg-audit-trail::security-access', ['rows' => collect()]); }
+
+    public function userActivity(Request $request) { return view('ahg-audit-trail::user-activity', ['rows' => collect()]); }
 }

@@ -391,4 +391,50 @@ class AiController extends Controller
 
         return response()->json($result);
     }
+
+    public function batch(Request $request)
+    {
+        $rows = DB::table('job')->where('name', 'LIKE', '%ai%')->orderByDesc('created_at')->get();
+        return view('ahg-ai-services::batch', ['rows' => $rows]);
+    }
+
+    public function batchView(int $id)
+    {
+        $record = DB::table('job')->where('id', $id)->first();
+        if (!$record) abort(404);
+        return view('ahg-ai-services::batch-view', ['record' => $record]);
+    }
+
+    public function pdfOverlay(Request $request)
+    {
+        return view('ahg-ai-services::pdf-overlay');
+    }
+
+    public function review(Request $request)
+    {
+        return view('ahg-ai-services::review', ['rows' => collect()]);
+    }
+
+    public function suggestReview(Request $request)
+    {
+        return view('ahg-ai-services::suggest-review', ['rows' => collect()]);
+    }
+
+    public function conditionAssess(Request $request) { return view('ahg-ai-services::condition-assess', ['rows' => collect()]); }
+
+    public function conditionBrowse(Request $request) { return view('ahg-ai-services::condition-browse', ['rows' => collect()]); }
+
+    public function conditionBulk(Request $request) { return view('ahg-ai-services::condition-bulk'); }
+
+    public function conditionClients(Request $request) { return view('ahg-ai-services::condition-clients', ['rows' => collect()]); }
+
+    public function conditionDashboard() { return view('ahg-ai-services::condition-dashboard', ['completedCount'=>0,'pendingCount'=>0,'criticalCount'=>0]); }
+
+    public function conditionHistory(Request $request) { return view('ahg-ai-services::condition-history', ['rows' => collect()]); }
+
+    public function conditionManualAssess(Request $request) { return view('ahg-ai-services::condition-manual-assess', ['record' => (object)[]]); }
+
+    public function conditionTraining(Request $request) { return view('ahg-ai-services::condition-training'); }
+
+    public function conditionView(int $id) { return view('ahg-ai-services::condition-view', ['record' => (object)['id'=>$id]]); }
 }

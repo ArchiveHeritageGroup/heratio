@@ -184,4 +184,12 @@ class UserController extends Controller
             ->route('user.browse')
             ->with('success', 'User deleted successfully.');
     }
+
+    public function registrationPending(Request $request) { return view('ahg-user-manage::registration-pending', ['rows' => collect()]); }
+
+    public function register(Request $request) { return view('ahg-user-manage::registration-register'); }
+
+    public function verify(string $token) { return view('ahg-user-manage::registration-verify'); }
+
+    public function userView(string $slug) { return $this->show(request(), $slug); }
 }

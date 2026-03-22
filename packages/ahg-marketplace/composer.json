@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-marketplace",
+    "description": "Heratio Marketplace package (migrated from ahgMarketplacePlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgMarketplace\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMarketplace\\Providers\\AhgMarketplaceServiceProvider"
+            ]
+        }
+    }
+}

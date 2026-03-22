@@ -1,0 +1,20 @@
+{
+    "name": "ahg/export",
+    "description": "Export management for Heratio (CSV, EAD, archival, authority, repository exports)",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgExport\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgExport\\Providers\\AhgExportServiceProvider"
+            ]
+        }
+    }
+}

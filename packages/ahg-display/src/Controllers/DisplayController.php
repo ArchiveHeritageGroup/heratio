@@ -1365,4 +1365,12 @@ class DisplayController extends Controller
             });
         }
     }
+
+    public function browseEmbedded(Request $request) { return view('ahg-display::browse-embedded', ['rows' => collect()]); }
+
+    public function reindex(Request $request) { return view('ahg-display::reindex'); }
+
+    public function glamSearch(Request $request) { return view('ahg-display::search', ['rows' => collect()]); }
+
+    public function treeviewPage(Request $request) { return view('ahg-display::treeview-page'); }
 }

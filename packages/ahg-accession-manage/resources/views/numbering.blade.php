@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Numbering Scheme')
+@section('content')
+<div class="container py-4">
+<nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route("accession.dashboard") }}">Accessions</a></li><li class="breadcrumb-item active">Numbering</li></ol></nav><h1><i class="fas fa-sort-numeric-down me-2"></i>Accession Numbering</h1><div class="card"><div class="card-body"><form method="post" action="{{ route("accession.numbering-store") }}">@csrf<div class="row"><div class="col-md-4 mb-3"><label class="form-label">Format</label><select name="format" class="form-select"><option value="yyyy-nnn">YYYY-NNN</option><option value="nnn">NNN</option><option value="prefix-nnn">PREFIX-NNN</option></select></div><div class="col-md-4 mb-3"><label class="form-label">Prefix</label><input type="text" name="prefix" class="form-control" value="{{ $numbering->prefix??"" }}"></div><div class="col-md-4 mb-3"><label class="form-label">Next Number</label><input type="number" name="next_number" class="form-control" value="{{ $numbering->next_number??1 }}"></div></div><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button></form></div></div>
+</div>
+@endsection

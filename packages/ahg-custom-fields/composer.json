@@ -1,0 +1,20 @@
+{
+    "name": "ahg/custom-fields",
+    "description": "Custom field definitions and values management for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgCustomFields\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgCustomFields\\Providers\\AhgCustomFieldsServiceProvider"
+            ]
+        }
+    }
+}

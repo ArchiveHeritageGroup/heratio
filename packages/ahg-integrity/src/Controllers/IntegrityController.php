@@ -154,4 +154,20 @@ class IntegrityController extends Controller
             'dailyTrend' => $dailyTrend,
         ]);
     }
+
+    public function alerts() { $alerts = Schema::hasTable('integrity_alert') ? DB::table('integrity_alert')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.alerts', compact('alerts')); }
+    public function deadLetter() { $deadLetters = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.dead-letter', compact('deadLetters')); }
+    public function disposition() { $dispositions = Schema::hasTable('integrity_disposition') ? DB::table('integrity_disposition')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.disposition', compact('dispositions')); }
+    public function export() { return view('ahg-integrity::integrity.export'); }
+    public function holds() { $holds = Schema::hasTable('integrity_hold') ? DB::table('integrity_hold')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.holds', compact('holds')); }
+    public function ledger() { $items = Schema::hasTable('integrity_ledger') ? DB::table('integrity_ledger')->orderBy('verified_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.ledger', compact('items')); }
+    public function policies() { $items = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.policies', compact('items')); }
+    public function policyEdit(int $id) { $policy = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->where('id', $id)->first() : null; if (!$policy) abort(404); return view('ahg-integrity::integrity.policy-edit', compact('policy')); }
+    public function policyUpdate(\Illuminate\Http\Request $request, int $id) { if (Schema::hasTable('integrity_policy')) { DB::table('integrity_policy')->where('id', $id)->update($request->only(['name', 'description', 'frequency']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]); } return redirect()->route('integrity.policies')->with('success', 'Policy updated.'); }
+    public function report() { $items = collect(); return view('ahg-integrity::integrity.report', compact('items')); }
+    public function runs() { $items = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->orderBy('started_at', 'desc')->limit(50)->get() : collect(); return view('ahg-integrity::integrity.runs', compact('items')); }
+    public function runDetail(int $id) { $run = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->where('id', $id)->first() : null; if (!$run) abort(404); $failures = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->where('run_id', $id)->get() : collect(); return view('ahg-integrity::integrity.run-detail', compact('run', 'failures')); }
+    public function schedules() { $items = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.schedules', compact('items')); }
+    public function scheduleEdit(int $id) { $schedule = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->where('id', $id)->first() : null; if (!$schedule) abort(404); return view('ahg-integrity::integrity.schedule-edit', compact('schedule')); }
+    public function scheduleUpdate(\Illuminate\Http\Request $request, int $id) { if (Schema::hasTable('integrity_schedule')) { DB::table('integrity_schedule')->where('id', $id)->update($request->only(['name', 'cron_expression']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]); } return redirect()->route('integrity.schedules')->with('success', 'Schedule updated.'); }
 }

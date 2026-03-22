@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-dc-manage",
+    "description": "Heratio DcManage package (migrated from ahgDcManagePlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgDcManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgDcManage\\Providers\\AhgDcManageServiceProvider"
+            ]
+        }
+    }
+}

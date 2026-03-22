@@ -728,6 +728,46 @@ class HeritageController extends Controller
         ));
     }
 
+    // ──────────────────────────────────────────────────────────────────────
+    // Public heritage pages
+    // ──────────────────────────────────────────────────────────────────────
+
+    public function collections() { return view('ahg-heritage-manage::collections', ['items' => collect()]); }
+    public function entity(int $id) { return view('ahg-heritage-manage::entity', ['items' => collect()]); }
+    public function landingError() { return view('ahg-heritage-manage::landing-error'); }
+    public function searchError() { return view('ahg-heritage-manage::search-error'); }
+    public function contribute() { return view('ahg-heritage-manage::contribute', ['items' => collect()]); }
+    public function myContributions() { return view('ahg-heritage-manage::my-contributions', ['items' => collect()]); }
+    public function myAccessRequests() { return view('ahg-heritage-manage::my-access-requests', ['items' => collect()]); }
+    public function requestAccess(int $id = null) { return view('ahg-heritage-manage::request-access', ['items' => collect()]); }
+    public function contributorLogin() { return redirect()->route('login'); }
+    public function contributorRegister() { return view('ahg-heritage-manage::contributor-register', ['items' => collect()]); }
+    public function contributorVerify() { return view('ahg-heritage-manage::contributor-verify', ['items' => collect()]); }
+    public function contributorProfile() { return view('ahg-heritage-manage::contributor-profile', ['items' => collect()]); }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Admin heritage pages
+    // ──────────────────────────────────────────────────────────────────────
+
+    public function adminAccessRequests() { return view('ahg-heritage-manage::admin-access-requests', ['items' => collect()]); }
+    public function adminBranding() { return view('ahg-heritage-manage::admin-branding', ['items' => collect()]); }
+    public function adminConfig() { return view('ahg-heritage-manage::admin-config', ['items' => collect()]); }
+    public function adminEmbargoes() { return view('ahg-heritage-manage::admin-embargoes', ['items' => collect()]); }
+    public function adminFeaturedCollections() { return view('ahg-heritage-manage::admin-featured-collections', ['items' => collect()]); }
+    public function adminFeatures() { return view('ahg-heritage-manage::admin-features', ['items' => collect()]); }
+    public function adminHeroSlides() { return view('ahg-heritage-manage::admin-hero-slides', ['items' => collect()]); }
+    public function adminPopia() { return view('ahg-heritage-manage::admin-popia', ['items' => collect()]); }
+    public function adminUsers() { return view('ahg-heritage-manage::admin-users', ['items' => collect()]); }
+    public function analyticsAlerts() { return view('ahg-heritage-manage::analytics-alerts', ['stats' => [], 'records' => []]); }
+    public function analyticsContent() { return view('ahg-heritage-manage::analytics-content', ['stats' => [], 'records' => []]); }
+    public function analyticsSearch() { return view('ahg-heritage-manage::analytics-search', ['stats' => [], 'records' => []]); }
+    public function custodianBatch() { return view('ahg-heritage-manage::custodian-batch', ['items' => collect()]); }
+    public function custodianHistory() { return view('ahg-heritage-manage::custodian-history', ['items' => collect()]); }
+    public function custodianItem(int $id) { return view('ahg-heritage-manage::custodian-item', ['items' => collect()]); }
+    public function reviewQueue() { return view('ahg-heritage-manage::review-queue', ['items' => collect()]); }
+    public function reviewContribution(int $id) { return view('ahg-heritage-manage::review-contribution', ['items' => collect()]); }
+    public function leaderboard() { return view('ahg-heritage-manage::leaderboard', ['items' => collect()]); }
+
     /**
      * Heritage Custodian Dashboard.
      */

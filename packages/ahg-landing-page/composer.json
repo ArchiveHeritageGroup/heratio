@@ -1,0 +1,20 @@
+{
+    "name": "ahg/landing-page",
+    "description": "Landing page builder for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgLandingPage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgLandingPage\\Providers\\AhgLandingPageServiceProvider"
+            ]
+        }
+    }
+}

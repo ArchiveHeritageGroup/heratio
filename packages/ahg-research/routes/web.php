@@ -1,6 +1,7 @@
 <?php
 
 use AhgResearch\Controllers\ResearchController;
+use AhgResearch\Controllers\AuditController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -148,4 +149,18 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
     Route::post('/addToCollection', [ResearchController::class, 'addToCollection'])->name('addToCollection');
     Route::post('/createCollectionAjax', [ResearchController::class, 'createCollectionAjax'])->name('createCollectionAjax');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Audit Trail Routes
+|--------------------------------------------------------------------------
+| Migrated from AtoM: ahgResearchPlugin/modules/audit
+*/
+
+Route::prefix('audit')->name('audit.')->middleware('auth')->group(function () {
+    Route::get('/', [AuditController::class, 'index'])->name('index');
+    Route::get('/view/{id}', [AuditController::class, 'view'])->name('view')->where('id', '[0-9]+');
+    Route::get('/record/{tableName}/{recordId}', [AuditController::class, 'record'])->name('record')->where('recordId', '[0-9]+');
+    Route::get('/user/{userId}', [AuditController::class, 'user'])->name('user')->where('userId', '[0-9]+');
 });

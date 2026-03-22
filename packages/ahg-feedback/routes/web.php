@@ -15,3 +15,5 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/feedback/{id}/update', [FeedbackController::class, 'update'])->name('feedback.update')->whereNumber('id');
     Route::post('/admin/feedback/{id}/delete', [FeedbackController::class, 'destroy'])->name('feedback.destroy')->whereNumber('id');
 });
+Route::get('/feedback/view/{id}', [FeedbackController::class, 'view'])->name('feedback.view')->whereNumber('id');
+Route::get('/feedback/submit-success', [FeedbackController::class, 'submitSuccess'])->name('feedback.submit-success');

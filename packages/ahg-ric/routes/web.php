@@ -10,3 +10,4 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/ric/queue', [RicController::class, 'queue'])->name('ric.queue');
     Route::get('/admin/ric/logs', [RicController::class, 'logs'])->name('ric.logs');
 });
+    Route::match(['get','post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');

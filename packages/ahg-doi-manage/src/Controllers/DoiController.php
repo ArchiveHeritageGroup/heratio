@@ -349,4 +349,12 @@ class DoiController extends Controller
             'byRepository' => $byRepository,
         ]);
     }
+
+    public function batchMint(Request $request) { return view('ahg-doi-manage::batch-mint'); }
+
+    public function deactivate(int $id) { return view('ahg-doi-manage::deactivate', ['record' => (object)['id'=>$id]]); }
+
+    public function mint(int $id) { return view('ahg-doi-manage::mint'); }
+
+    public function sync(Request $request) { return view('ahg-doi-manage::sync'); }
 }

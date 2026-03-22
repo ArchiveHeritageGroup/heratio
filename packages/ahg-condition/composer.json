@@ -1,0 +1,20 @@
+{
+    "name": "ahg/condition",
+    "description": "Condition report photo annotation for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgCondition\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgCondition\\Providers\\AhgConditionServiceProvider"
+            ]
+        }
+    }
+}

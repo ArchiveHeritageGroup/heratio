@@ -280,4 +280,10 @@ class RequestPublishController extends Controller
             default => 'bg-secondary',
         };
     }
+
+    public function destroy(int $id) { return view('ahg-request-publish::delete', ['record' => (object)['id'=>$id]]); }
+
+    public function submit(Request $request, string $slug) { return view('ahg-request-publish::submit'); }
+
+    public function editRequest(Request $request, int $id) { return view('ahg-request-publish::edit-request', ['record' => (object)['id'=>$id]]); }
 }

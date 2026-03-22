@@ -1,0 +1,20 @@
+{
+    "name": "ahg/translation",
+    "description": "Translation management and settings for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgTranslation\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgTranslation\\Providers\\AhgTranslationServiceProvider"
+            ]
+        }
+    }
+}

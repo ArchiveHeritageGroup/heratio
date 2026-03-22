@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-vendor",
+    "description": "Heratio Vendor package (migrated from ahgVendorPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgVendor\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgVendor\\Providers\\AhgVendorServiceProvider"
+            ]
+        }
+    }
+}

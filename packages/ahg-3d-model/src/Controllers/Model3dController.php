@@ -247,4 +247,50 @@ class Model3dController extends Controller
             ->route('admin.3d-models.browse')
             ->with('success', $message);
     }
+
+    public function index(Request $request)
+    {
+        $models = DB::table('model_3d')->orderByDesc('created_at')->paginate(30);
+        return view('ahg-3d-model::index', ['models' => $models, 'total' => DB::table('model_3d')->count()]);
+    }
+
+    public function view(int $id)
+    {
+        $model = DB::table('model_3d')->where('id', $id)->first();
+        if (!$model) abort(404);
+        return view('ahg-3d-model::view', ['model' => $model]);
+    }
+
+    public function edit(Request $request, int $id)
+    {
+        $model = DB::table('model_3d')->where('id', $id)->first();
+        if (!$model) abort(404);
+        return view('ahg-3d-model::edit', ['model' => $model]);
+    }
+
+    public function embed(int $id)
+    {
+        $model = DB::table('model_3d')->where('id', $id)->first();
+        if (!$model) abort(404);
+        return view('ahg-3d-model::embed', ['model' => $model]);
+    }
+
+    public function upload(Request $request, int $objectId)
+    {
+        $object = DB::table('information_object')->join('slug', 'slug.object_id', '=', 'information_object.id')->where('information_object.id', $objectId)->select('information_object.id', 'slug.slug')->first();
+        if (!$object) abort(404);
+        return view('ahg-3d-model::upload', ['object' => $object]);
+    }
+
+    public function settings(Request $request)
+    {
+        $settings = DB::table('setting')->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')->where('setting.name', 'LIKE', 'model3d_%')->pluck('setting_i18n.value', 'setting.name')->toArray();
+        return view('ahg-3d-model::settings', ['settings' => $settings]);
+    }
+
+    public function triposr(Request $request)
+    {
+        $settings = DB::table('setting')->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')->where('setting.name', 'LIKE', 'triposr_%')->pluck('setting_i18n.value', 'setting.name')->toArray();
+        return view('ahg-3d-model::triposr', ['settings' => $settings]);
+    }
 }

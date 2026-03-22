@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Edit Purchase Order')
+@section('content')
+<div class="container py-4">
+<h1>{{ ($order->id??null)?"Edit":"New" }} Purchase Order</h1><div class="card"><div class="card-body"><form method="post" action="{{ route("library.acquisition-order-store",$order->id??0) }}">@csrf<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Order Number <span class="text-danger">*</span></label><input type="text" name="order_number" class="form-control" value="{{ e($order->order_number??"") }}" required></div><div class="col-md-6 mb-3"><label class="form-label">Vendor</label><input type="text" name="vendor_name" class="form-control" value="{{ e($order->vendor_name??"") }}"></div></div><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Date</label><input type="date" name="order_date" class="form-control" value="{{ $order->order_date??"" }}"></div><div class="col-md-6 mb-3"><label class="form-label">Status</label><select name="status" class="form-select"><option value="draft" {{ ($order->status??"")=="draft"?"selected":"" }}>Draft</option><option value="ordered" {{ ($order->status??"")=="ordered"?"selected":"" }}>Ordered</option><option value="received" {{ ($order->status??"")=="received"?"selected":"" }}>Received</option></select></div></div><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button></form></div></div>
+</div>
+@endsection

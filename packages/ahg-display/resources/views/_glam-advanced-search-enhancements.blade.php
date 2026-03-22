@@ -1,0 +1,2 @@
+{{-- Partial: GLAM search enhancements --}}
+<div class="search-enhancements mb-3"><div class="btn-group btn-group-sm"><button type="button" class="btn atom-btn-white"><i class="fas fa-filter me-1"></i>Filters</button><button type="button" class="btn atom-btn-white"><i class="fas fa-sort me-1"></i>Sort</button><button type="button" class="btn atom-btn-white"><i class="fas fa-map me-1"></i>Map View</button></div></div>

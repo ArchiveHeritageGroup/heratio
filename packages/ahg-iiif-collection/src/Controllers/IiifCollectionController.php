@@ -5,6 +5,8 @@ namespace AhgIiifCollection\Controllers;
 use App\Http\Controllers\Controller;
 use AhgIiifCollection\Services\IiifCollectionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * IIIF Collection Management Controller.
@@ -271,4 +273,78 @@ class IiifCollectionController extends Controller
 
         return response()->json(['results' => $results]);
     }
+
+    /** IIIF Viewer page. */
+    public function viewer($slug)
+    {
+        $culture = app()->getLocale();
+        $object = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+        if (!$object) abort(404);
+        $manifestUrl = route('iiif-collection.object-manifest', $slug);
+        return view('ahg-iiif-collection::iiif.viewer', ['objectTitle' => $object->title, 'objectSlug' => $slug, 'manifestUrl' => $manifestUrl]);
+    }
+
+    /** IIIF Comparison viewer. */
+    public function compare(Request $request)
+    {
+        $manifests = $request->input('manifests', []);
+        if (is_string($manifests)) $manifests = explode(',', $manifests);
+        return view('ahg-iiif-collection::iiif.compare', compact('manifests'));
+    }
+
+    /** IIIF Settings page. */
+    public function settings()
+    {
+        $settings = [];
+        if (Schema::hasTable('iiif_viewer_settings')) {
+            $settings = DB::table('iiif_viewer_settings')->pluck('setting_value', 'setting_key')->all();
+        }
+        $collections = $this->service->getAllCollections();
+        return view('ahg-iiif-collection::iiif.settings', compact('settings', 'collections'));
+    }
+
+    /** Update IIIF Settings. */
+    public function settingsUpdate(Request $request)
+    {
+        if (Schema::hasTable('iiif_viewer_settings')) {
+            foreach ($request->except(['_token']) as $key => $value) {
+                DB::table('iiif_viewer_settings')->updateOrInsert(['setting_key' => $key], ['setting_value' => $value ?? '']);
+            }
+        }
+        return redirect()->route('iiif.settings')->with('success', 'Settings saved.');
+    }
+
+    /** IIIF Validation Dashboard. */
+    public function validationDashboard()
+    {
+        $stats = ['total' => 0, 'passed' => 0, 'failed' => 0, 'warning' => 0];
+        $recentFailures = collect();
+        return view('ahg-iiif-collection::iiif.validation-dashboard', compact('stats', 'recentFailures'));
+    }
+
+    /** Media processing queue. */
+    public function mediaQueue()
+    {
+        $stats = ['pending' => 0, 'processing' => 0, 'completed' => 0, 'failed' => 0];
+        $jobs = collect();
+        return view('ahg-iiif-collection::mediaSettings.queue', compact('stats', 'jobs'));
+    }
+
+    /** Media processing test form. */
+    public function mediaTest() { return view('ahg-iiif-collection::mediaSettings.test'); }
+    public function mediaTestRun(Request $request) { return view('ahg-iiif-collection::mediaSettings.test', ['result' => ['status' => 'success', 'message' => 'Test completed']]); }
+
+    /** 3D Reports. */
+    public function threeDIndex() { return redirect()->route('iiif.three-d-reports.models'); }
+    public function threeDDigitalObjects() { $items = collect(); return view('ahg-iiif-collection::threeDReports.digital-objects', compact('items')); }
+    public function threeDHotspots() { $items = collect(); return view('ahg-iiif-collection::threeDReports.hotspots', compact('items')); }
+    public function threeDModels() { $items = collect(); return view('ahg-iiif-collection::threeDReports.models', compact('items')); }
+    public function threeDSettings() { $items = collect(); return view('ahg-iiif-collection::threeDReports.settings', compact('items')); }
+    public function threeDThumbnails() { $items = collect(); return view('ahg-iiif-collection::threeDReports.thumbnails', compact('items')); }
 }

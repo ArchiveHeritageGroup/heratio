@@ -26,3 +26,12 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/dedupe/rule/{id}/edit', [DedupeController::class, 'ruleUpdate'])->name('dedupe.rule.update')->whereNumber('id');
     Route::get('/admin/dedupe/rule/{id}/delete', [DedupeController::class, 'ruleDelete'])->name('dedupe.rule.delete')->whereNumber('id');
 });
+    Route::match(['get','post'], '/admin/dedupe/config', [DedupeController::class, 'config'])->name('dedupe.config');
+    Route::get('/admin/dedupe/contact/{id}', [DedupeController::class, 'contact'])->name('dedupe.contact')->whereNumber('id');
+    Route::get('/admin/dedupe/dashboard', [DedupeController::class, 'dashboard'])->name('dedupe.dashboard');
+    Route::get('/admin/dedupe/function-browse', [DedupeController::class, 'functionBrowse'])->name('dedupe.function-browse');
+    Route::get('/admin/dedupe/functions/{id}', [DedupeController::class, 'functions'])->name('dedupe.functions')->whereNumber('id');
+    Route::get('/admin/dedupe/identifiers', [DedupeController::class, 'identifiers'])->name('dedupe.identifiers');
+    Route::get('/admin/dedupe/occupations', [DedupeController::class, 'occupations'])->name('dedupe.occupations');
+    Route::match(['get','post'], '/admin/dedupe/split/{id}', [DedupeController::class, 'split'])->name('dedupe.split')->whereNumber('id');
+    Route::get('/admin/dedupe/workqueue', [DedupeController::class, 'workqueue'])->name('dedupe.workqueue');

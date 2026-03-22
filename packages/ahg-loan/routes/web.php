@@ -19,3 +19,4 @@ Route::middleware('auth.required')->group(function () {
     Route::post('/loan/{id}/return', [LoanController::class, 'returnLoan'])->name('loan.return');
     Route::post('/loan/{id}/upload-document', [LoanController::class, 'uploadDocument'])->name('loan.upload-document');
 });
+    Route::get('/loan/dashboard', [LoanController::class, 'dashboard'])->name('loan.dashboard');

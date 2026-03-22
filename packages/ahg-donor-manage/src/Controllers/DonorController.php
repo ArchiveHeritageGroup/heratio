@@ -131,4 +131,16 @@ class DonorController extends Controller
             'corporate_body_identifiers', 'contacts',
         ];
     }
+
+    public function agreementDashboard() { return view('ahg-donor-manage::agreement-dashboard', ['activeCount'=>0,'expiringCount'=>0,'archivedCount'=>0]); }
+
+    public function agreementAdd(Request $request) { return view('ahg-donor-manage::agreement-add', ['record' => (object)[]]); }
+
+    public function agreementView(int $id) { return view('ahg-donor-manage::agreement-view', ['record' => (object)['id'=>$id]]); }
+
+    public function agreementReminders(Request $request) { return view('ahg-donor-manage::agreement-reminders', ['rows' => collect()]); }
+
+    public function donorIndex(Request $request) { return view('ahg-donor-manage::donor-index', ['rows' => collect()]); }
+
+    public function donorView(string $slug) { return view('ahg-donor-manage::donor-view', ['record' => (object)['slug'=>$slug]]); }
 }

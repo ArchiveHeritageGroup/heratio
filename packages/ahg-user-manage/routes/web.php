@@ -20,3 +20,7 @@ Route::middleware('admin')->group(function () {
         ->name('user.show')
         ->where('slug', '^(?!register|profile|password|password-reset|add).*$');
 });
+    Route::get('/user/registration/pending', [UserController::class, 'registrationPending'])->name('user.registration.pending');
+    Route::match(['get','post'], '/user/register', [UserController::class, 'register'])->name('user.register');
+    Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');
+    Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view');

@@ -1,0 +1,20 @@
+{
+    "name": "ahg/metadata-export",
+    "description": "Metadata export in multiple RDF/linked data formats for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgMetadataExport\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgMetadataExport\\Providers\\AhgMetadataExportServiceProvider"
+            ]
+        }
+    }
+}

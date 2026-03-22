@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-graphql",
+    "description": "Heratio Graphql package (migrated from ahgGraphQLPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgGraphql\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgGraphql\\Providers\\AhgGraphqlServiceProvider"
+            ]
+        }
+    }
+}

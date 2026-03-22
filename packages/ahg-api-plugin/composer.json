@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-api-plugin",
+    "description": "Heratio ApiPlugin package (migrated from ahgAPIPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgApiPlugin\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgApiPlugin\\Providers\\AhgApiPluginServiceProvider"
+            ]
+        }
+    }
+}

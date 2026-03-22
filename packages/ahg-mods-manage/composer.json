@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-mods-manage",
+    "description": "Heratio ModsManage package (migrated from ahgModsManagePlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgModsManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgModsManage\\Providers\\AhgModsManageServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Library Dashboard')
+@section('content')
+<div class="container py-4">
+<h1><i class="fas fa-book me-2"></i>Library Management</h1><div class="d-flex gap-2 mb-3"><a href="{{ route("library.browse") }}" class="btn atom-btn-white"><i class="fas fa-th-list me-1"></i>Browse</a><a href="{{ route("library.create") }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>Add New</a><a href="{{ route("library.isbn-providers") }}" class="btn atom-btn-white"><i class="fas fa-barcode me-1"></i>ISBN Providers</a><a href="{{ route("library.reports") }}" class="btn atom-btn-white"><i class="fas fa-chart-bar me-1"></i>Reports</a></div><div class="row g-3 mb-4"><div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h2>{{ number_format($totalItems??0) }}</h2><small>Total Items</small></div></div></div><div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h2>{{ number_format($recentCount??0) }}</h2><small>Added (30d)</small></div></div></div><div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center"><h2>{{ number_format($circulatingCount??0) }}</h2><small>Circulating</small></div></div></div><div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center"><h2>{{ number_format($overdueCount??0) }}</h2><small>Overdue</small></div></div></div></div>
+</div>
+@endsection

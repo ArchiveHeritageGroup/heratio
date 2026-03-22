@@ -22,3 +22,4 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/orders', [CartController::class, 'adminOrders'])->name('cart.admin.orders');
     Route::match(['get', 'post'], '/admin/ecommerce-settings', [CartController::class, 'adminSettings'])->name('cart.admin.settings');
 });
+    Route::get('/cart/payment/{id}', [CartController::class, 'payment'])->name('cart.payment')->whereNumber('id');

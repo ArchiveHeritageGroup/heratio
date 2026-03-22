@@ -234,4 +234,6 @@ class RicController extends Controller
             'operation', 'status', 'entityType', 'dateFrom', 'dateTo'
         ));
     }
+
+    public function config(Request $request) { return view('ahg-ric::config', ['record' => (object)[]]); }
 }

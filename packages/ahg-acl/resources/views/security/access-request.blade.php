@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Access Request')
+@section('content')
+<div class="container py-4">
+<h1><i class="fas fa-hand-paper me-2"></i>Request Access</h1><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Requested Resource</h5></div><div class="card-body"><p><strong>Title:</strong> {{ e($object->title??"Untitled") }}</p>@if($classification??null)<p><strong>Classification:</strong> <span class="badge" style="background-color:{{ $classification->color??"#999" }}">{{ e($classification->name) }}</span></p>@endif</div></div><div class="card"><div class="card-header"><h5 class="mb-0">Access Request Details</h5></div><div class="card-body"><form method="post" action="{{ route("acl.submit-access-request") }}">@csrf<input type="hidden" name="object_id" value="{{ $object->id??"" }}"><div class="mb-3"><label class="form-label">Reason <span class="text-danger">*</span></label><textarea name="reason" class="form-control" rows="4" required></textarea></div><div class="mb-3"><label class="form-label">Duration</label><select name="duration" class="form-select"><option value="24h">24 Hours</option><option value="7d">7 Days</option><option value="30d">30 Days</option><option value="permanent">Permanent</option></select></div><button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane me-1"></i>Submit</button></form></div></div>
+</div>
+@endsection

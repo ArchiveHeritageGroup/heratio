@@ -176,4 +176,71 @@ class PreservationController extends Controller
             'daily' => $dailyStats,
         ]);
     }
+
+    /**
+     * Format conversion dashboard.
+     */
+    public function conversion()
+    {
+        $tools = $this->service->getConversionTools();
+        $conversionStats = $this->service->getConversionStats();
+        $recentConversions = $this->service->getRecentConversions(20);
+        $pendingConversions = $conversionStats['pending'] ?? 0;
+
+        return view('ahg-preservation::conversion', compact('tools', 'conversionStats', 'recentConversions', 'pendingConversions'));
+    }
+
+    /**
+     * Format identification dashboard.
+     */
+    public function identification()
+    {
+        $stats = $this->service->getIdentificationStats();
+        $identifications = $this->service->getRecentIdentifications(20);
+
+        return view('ahg-preservation::identification', compact('stats', 'identifications'));
+    }
+
+    /**
+     * Preservation object detail — checksums, events, format info.
+     */
+    public function object(int $id)
+    {
+        $digitalObject = $this->service->getDigitalObject($id);
+        if (!$digitalObject) {
+            abort(404, 'Digital object not found');
+        }
+
+        $formatInfo = $this->service->getFormatInfo($digitalObject->mime_type ?? '');
+        $checksums = $this->service->getObjectChecksums($id);
+        $events = $this->service->getObjectEvents($id, 20);
+
+        return view('ahg-preservation::object', compact('digitalObject', 'formatInfo', 'checksums', 'events'));
+    }
+
+    /**
+     * Edit OAIS package form.
+     */
+    public function packageEdit(int $id)
+    {
+        $package = $this->service->getPackage($id);
+        if (!$package) {
+            abort(404, 'Package not found');
+        }
+
+        $formAction = route('preservation.package-view', $id);
+
+        return view('ahg-preservation::package-edit', compact('package', 'formAction'));
+    }
+
+    /**
+     * Edit schedule form.
+     */
+    public function scheduleEdit(int $id)
+    {
+        $schedule = null;
+        $formAction = route('preservation.scheduler');
+
+        return view('ahg-preservation::schedule-edit', compact('schedule', 'formAction'));
+    }
 }

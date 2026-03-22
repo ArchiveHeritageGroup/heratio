@@ -1,0 +1,7 @@
+@extends('theme::layouts.1col')
+@section('title', 'Edit ISBN Provider')
+@section('content')
+<div class="container py-4">
+<h1><i class="fas fa-barcode me-2"></i>{{ ($provider->id??null)?"Edit":"Add" }} ISBN Provider</h1><div class="card"><div class="card-body"><form method="post" action="{{ route("library.isbn-provider-store",$provider->id??0) }}">@csrf<div class="row"><div class="col-md-6 mb-3"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" value="{{ e($provider->name??"") }}" required></div><div class="col-md-6 mb-3"><label class="form-label">API URL</label><input type="text" name="api_url" class="form-control" value="{{ e($provider->api_url??"") }}"></div></div><div class="row"><div class="col-md-4 mb-3"><label class="form-label">API Key</label><input type="text" name="api_key" class="form-control" value="{{ e($provider->api_key??"") }}"></div><div class="col-md-4 mb-3"><label class="form-label">Priority</label><input type="number" name="priority" class="form-control" value="{{ $provider->priority??0 }}"></div><div class="col-md-4 mb-3"><div class="form-check mt-4"><input type="checkbox" id="active" name="active" class="form-check-input" value="1" {{ ($provider->active??true)?"checked":"" }}><label for="active" class="form-check-label">Active</label></div></div></div><button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button></form></div></div>
+</div>
+@endsection

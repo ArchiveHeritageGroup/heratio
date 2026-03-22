@@ -1,0 +1,2 @@
+@php if(empty($classification)) return; $colors=["PUBLIC"=>"success","INTERNAL"=>"info","CONFIDENTIAL"=>"primary","SECRET"=>"warning","TOP_SECRET"=>"danger"]; @endphp
+<span class="badge bg-{{ $colors[$classification->code]??"secondary" }}" style="font-size:0.7rem;">{{ e($classification->code) }}</span>

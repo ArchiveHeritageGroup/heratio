@@ -1,0 +1,52 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('admin/marketplace')->middleware(['web'])->group(function () {
+    Route::get('/admin-categories', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminCategories'])->name('ahgmarketplace.admin-categories');
+    Route::get('/admin-currencies', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminCurrencies'])->name('ahgmarketplace.admin-currencies');
+    Route::get('/admin-dashboard', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminDashboard'])->name('ahgmarketplace.admin-dashboard');
+    Route::get('/admin-listing-review', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminListingReview'])->name('ahgmarketplace.admin-listing-review');
+    Route::get('/admin-listings', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminListings'])->name('ahgmarketplace.admin-listings');
+    Route::get('/admin-payouts', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminPayouts'])->name('ahgmarketplace.admin-payouts');
+    Route::get('/admin-reports', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminReports'])->name('ahgmarketplace.admin-reports');
+    Route::get('/admin-reviews', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminReviews'])->name('ahgmarketplace.admin-reviews');
+    Route::get('/admin-seller-verify', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminSellerVerify'])->name('ahgmarketplace.admin-seller-verify');
+    Route::get('/admin-sellers', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminSellers'])->name('ahgmarketplace.admin-sellers');
+    Route::get('/admin-settings', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminSettings'])->name('ahgmarketplace.admin-settings');
+    Route::get('/admin-transactions', [\AhgSpectrum\Controllers\SpectrumController::class, 'adminTransactions'])->name('ahgmarketplace.admin-transactions');
+    Route::get('/auction-browse', [\AhgSpectrum\Controllers\SpectrumController::class, 'auctionBrowse'])->name('ahgmarketplace.auction-browse');
+    Route::get('/bid-form', [\AhgSpectrum\Controllers\SpectrumController::class, 'bidForm'])->name('ahgmarketplace.bid-form');
+    Route::get('/browse', [\AhgSpectrum\Controllers\SpectrumController::class, 'browse'])->name('ahgmarketplace.browse');
+    Route::get('/category', [\AhgSpectrum\Controllers\SpectrumController::class, 'category'])->name('ahgmarketplace.category');
+    Route::get('/collection', [\AhgSpectrum\Controllers\SpectrumController::class, 'collection'])->name('ahgmarketplace.collection');
+    Route::get('/dashboard', [\AhgSpectrum\Controllers\SpectrumController::class, 'dashboard'])->name('ahgmarketplace.dashboard');
+    Route::get('/enquiry-form', [\AhgSpectrum\Controllers\SpectrumController::class, 'enquiryForm'])->name('ahgmarketplace.enquiry-form');
+    Route::get('/featured', [\AhgSpectrum\Controllers\SpectrumController::class, 'featured'])->name('ahgmarketplace.featured');
+    Route::get('/listing', [\AhgSpectrum\Controllers\SpectrumController::class, 'listing'])->name('ahgmarketplace.listing');
+    Route::get('/my-bids', [\AhgSpectrum\Controllers\SpectrumController::class, 'myBids'])->name('ahgmarketplace.my-bids');
+    Route::get('/my-following', [\AhgSpectrum\Controllers\SpectrumController::class, 'myFollowing'])->name('ahgmarketplace.my-following');
+    Route::get('/my-offers', [\AhgSpectrum\Controllers\SpectrumController::class, 'myOffers'])->name('ahgmarketplace.my-offers');
+    Route::get('/my-purchases', [\AhgSpectrum\Controllers\SpectrumController::class, 'myPurchases'])->name('ahgmarketplace.my-purchases');
+    Route::get('/offer-form', [\AhgSpectrum\Controllers\SpectrumController::class, 'offerForm'])->name('ahgmarketplace.offer-form');
+    Route::get('/review-form', [\AhgSpectrum\Controllers\SpectrumController::class, 'reviewForm'])->name('ahgmarketplace.review-form');
+    Route::get('/search', [\AhgSpectrum\Controllers\SpectrumController::class, 'search'])->name('ahgmarketplace.search');
+    Route::get('/sector', [\AhgSpectrum\Controllers\SpectrumController::class, 'sector'])->name('ahgmarketplace.sector');
+    Route::get('/seller-analytics', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerAnalytics'])->name('ahgmarketplace.seller-analytics');
+    Route::get('/seller-collection-create', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerCollectionCreate'])->name('ahgmarketplace.seller-collection-create');
+    Route::get('/seller-collections', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerCollections'])->name('ahgmarketplace.seller-collections');
+    Route::get('/seller-enquiries', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerEnquiries'])->name('ahgmarketplace.seller-enquiries');
+    Route::get('/seller-listing-create', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerListingCreate'])->name('ahgmarketplace.seller-listing-create');
+    Route::get('/seller-listing-edit', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerListingEdit'])->name('ahgmarketplace.seller-listing-edit');
+    Route::get('/seller-listing-images', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerListingImages'])->name('ahgmarketplace.seller-listing-images');
+    Route::get('/seller-listings', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerListings'])->name('ahgmarketplace.seller-listings');
+    Route::get('/seller-offer-respond', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerOfferRespond'])->name('ahgmarketplace.seller-offer-respond');
+    Route::get('/seller-offers', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerOffers'])->name('ahgmarketplace.seller-offers');
+    Route::get('/seller-payouts', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerPayouts'])->name('ahgmarketplace.seller-payouts');
+    Route::get('/seller-profile', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerProfile'])->name('ahgmarketplace.seller-profile');
+    Route::get('/seller-register', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerRegister'])->name('ahgmarketplace.seller-register');
+    Route::get('/seller-reviews', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerReviews'])->name('ahgmarketplace.seller-reviews');
+    Route::get('/seller', [\AhgSpectrum\Controllers\SpectrumController::class, 'seller'])->name('ahgmarketplace.seller');
+    Route::get('/seller-transaction-detail', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerTransactionDetail'])->name('ahgmarketplace.seller-transaction-detail');
+    Route::get('/seller-transactions', [\AhgSpectrum\Controllers\SpectrumController::class, 'sellerTransactions'])->name('ahgmarketplace.seller-transactions');
+});

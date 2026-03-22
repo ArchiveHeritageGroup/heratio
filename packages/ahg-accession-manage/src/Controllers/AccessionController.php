@@ -394,4 +394,173 @@ class AccessionController extends Controller
             ->route('accession.browse')
             ->with('success', 'Accession record deleted successfully.');
     }
+
+    // ── Appraisal & Valuation ──────────────────────────────────────
+
+    public function appraisal(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $currentAppraisal = null;
+        return view('ahg-accession-manage::appraisal', compact('accession', 'currentAppraisal'));
+    }
+
+    public function appraisalStore(Request $request, int $id)
+    {
+        return redirect()->route('accession.appraisal', $id)->with('success', 'Appraisal saved.');
+    }
+
+    public function appraisalTemplates()
+    {
+        $templates = collect();
+        return view('ahg-accession-manage::appraisal-templates', compact('templates'));
+    }
+
+    public function valuation(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $currentValuation = null;
+        $valuations = collect();
+        return view('ahg-accession-manage::valuation', compact('accession', 'currentValuation', 'valuations'));
+    }
+
+    // ── Containers & Rights ────────────────────────────────────────
+
+    public function containers(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $containers = collect();
+        return view('ahg-accession-manage::containers', compact('accession', 'containers'));
+    }
+
+    public function rights(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $rights = collect();
+        return view('ahg-accession-manage::rights', compact('accession', 'rights'));
+    }
+
+    // ── Intake Workflow ────────────────────────────────────────────
+
+    public function attachments(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $attachments = collect();
+        return view('ahg-accession-manage::attachments', compact('accession', 'attachments'));
+    }
+
+    public function attachmentsStore(Request $request, int $id)
+    {
+        return redirect()->route('accession.attachments', $id)->with('success', 'Attachment uploaded.');
+    }
+
+    public function checklist(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $checklistItems = collect();
+        return view('ahg-accession-manage::checklist', compact('accession', 'checklistItems'));
+    }
+
+    public function checklistStore(Request $request, int $id)
+    {
+        return redirect()->route('accession.checklist', $id)->with('success', 'Checklist saved.');
+    }
+
+    public function intakeConfig()
+    {
+        $config = (object) ['default_status_id' => null, 'default_priority_id' => null, 'prefix' => '', 'next_number' => 1];
+        $statuses = collect();
+        $priorities = collect();
+        return view('ahg-accession-manage::intake-config', compact('config', 'statuses', 'priorities'));
+    }
+
+    public function intakeConfigStore(Request $request)
+    {
+        return redirect()->route('accession.intake-config')->with('success', 'Configuration saved.');
+    }
+
+    public function numbering()
+    {
+        $numbering = (object) ['format' => 'yyyy-nnn', 'prefix' => '', 'next_number' => 1];
+        return view('ahg-accession-manage::numbering', compact('numbering'));
+    }
+
+    public function numberingStore(Request $request)
+    {
+        return redirect()->route('accession.numbering')->with('success', 'Numbering scheme saved.');
+    }
+
+    public function queue(Request $request)
+    {
+        $rows = collect();
+        return view('ahg-accession-manage::queue', compact('rows'));
+    }
+
+    public function queueDetail(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        return view('ahg-accession-manage::queue-detail', compact('accession'));
+    }
+
+    public function timeline(int $id)
+    {
+        $accession = DB::table('accession')
+            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('accession.id', $id)
+            ->where('accession_i18n.culture', app()->getLocale())
+            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->first();
+        if (!$accession) abort(404);
+        $events = collect();
+        return view('ahg-accession-manage::timeline', compact('accession', 'events'));
+    }
 }

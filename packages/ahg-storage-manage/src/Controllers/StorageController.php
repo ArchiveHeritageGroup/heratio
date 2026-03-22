@@ -193,4 +193,8 @@ class StorageController extends Controller
             'security_level', 'access_restrictions', 'status', 'notes',
         ];
     }
+
+    public function autocomplete(Request $request) { $q = $request->input('query', ''); $results = DB::table('physical_object')->join('physical_object_i18n','physical_object.id','=','physical_object_i18n.id')->where('physical_object_i18n.name','LIKE','%'.$q.'%')->where('physical_object_i18n.culture','en')->limit(10)->select('physical_object.id','physical_object_i18n.name')->get(); return response()->json($results); }
+
+    public function boxList(Request $request) { return view('ahg-storage-manage::box-list', ['rows' => collect()]); }
 }

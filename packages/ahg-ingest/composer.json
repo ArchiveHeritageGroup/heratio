@@ -1,0 +1,20 @@
+{
+    "name": "ahg/ingest",
+    "description": "Ingestion manager for Heratio",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgIngest\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgIngest\\Providers\\AhgIngestServiceProvider"
+            ]
+        }
+    }
+}

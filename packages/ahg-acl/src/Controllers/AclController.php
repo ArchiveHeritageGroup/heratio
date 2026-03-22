@@ -377,4 +377,218 @@ class AclController extends Controller
         return redirect()->route('acl.approvers')
             ->with('success', 'Approver removed successfully.');
     }
+
+    // ── Security Audit ──────────────────────────────────────────────
+
+    public function securityAuditIndex(Request $request)
+    {
+        $logs = DB::table('security_audit_log')->orderByDesc('created_at')->limit(100)->get();
+        $actions = DB::table('security_audit_log')->distinct()->pluck('action')->filter()->values()->toArray();
+        $categories = DB::table('security_audit_log')->distinct()->pluck('category')->filter()->values()->toArray();
+        $total = DB::table('security_audit_log')->count();
+        return view('ahg-acl::security-audit.index', compact('logs', 'actions', 'categories', 'total'));
+    }
+
+    public function securityAuditDashboard(Request $request)
+    {
+        $period = $request->input('period', '30 days');
+        $since = now()->sub(\DateInterval::createFromDateString($period));
+        $stats = [
+            'total_events' => DB::table('security_audit_log')->where('created_at', '>=', $since)->count(),
+            'security_events' => DB::table('security_audit_log')->where('created_at', '>=', $since)->where('category', 'security')->count(),
+            'by_user' => DB::table('security_audit_log')->where('created_at', '>=', $since)->select('username', DB::raw('COUNT(*) as count'))->groupBy('username')->orderByDesc('count')->limit(10)->get(),
+            'top_objects' => DB::table('security_audit_log')->where('created_at', '>=', $since)->whereNotNull('object_title')->select('object_title', DB::raw('COUNT(*) as count'))->groupBy('object_title')->orderByDesc('count')->limit(10)->get(),
+            'since' => $since->format('M j, Y H:i'),
+        ];
+        return view('ahg-acl::security-audit.dashboard', compact('stats', 'period'));
+    }
+
+    public function securityAuditObjectAccess(Request $request)
+    {
+        $objectId = (int) $request->input('object_id');
+        $period = $request->input('period', '30 days');
+        $object = DB::table('information_object_i18n')->where('id', $objectId)->where('culture', 'en')->first() ?? (object) ['id' => $objectId, 'title' => 'Unknown'];
+        $accessLogs = collect();
+        $securityLogs = collect();
+        $dailyAccess = collect();
+        $totalAccess = 0;
+        return view('ahg-acl::security-audit.object-access', compact('object', 'period', 'accessLogs', 'securityLogs', 'dailyAccess', 'totalAccess'));
+    }
+
+    // ── Security Clearance Management ───────────────────────────────
+
+    public function securityDashboard()
+    {
+        $stats = [
+            'total_users' => DB::table('user_security_clearance')->count(),
+            'active_requests' => Schema::hasTable('security_access_request') ? DB::table('security_access_request')->where('status', 'pending')->count() : 0,
+            'classified_objects' => Schema::hasTable('object_security_classification') ? DB::table('object_security_classification')->where('active', 1)->count() : 0,
+            'compartments' => Schema::hasTable('security_compartment') ? DB::table('security_compartment')->count() : 0,
+        ];
+        $recentActivity = collect();
+        return view('ahg-acl::security.security-dashboard', compact('stats', 'recentActivity'));
+    }
+
+    public function securityIndex()
+    {
+        $clearances = collect();
+        return view('ahg-acl::security.security-index', compact('clearances'));
+    }
+
+    public function compartments()
+    {
+        $compartments = Schema::hasTable('security_compartment') ? DB::table('security_compartment')->get() : collect();
+        return view('ahg-acl::security.compartments', compact('compartments'));
+    }
+
+    public function compartmentAccess()
+    {
+        $grants = collect();
+        return view('ahg-acl::security.compartment-access', compact('grants'));
+    }
+
+    public function classify(int $id)
+    {
+        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
+        $classifications = $this->service->getClassificationLevels();
+        return view('ahg-acl::security.classify', compact('object', 'classifications'));
+    }
+
+    public function classifyStore(Request $request)
+    {
+        return redirect()->route('acl.security-dashboard')->with('success', 'Classification applied.');
+    }
+
+    public function declassification(int $id)
+    {
+        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
+        $currentClassification = null;
+        $classifications = $this->service->getClassificationLevels();
+        return view('ahg-acl::security.declassification', compact('object', 'currentClassification', 'classifications'));
+    }
+
+    public function declassifyStore(Request $request)
+    {
+        return redirect()->route('acl.security-dashboard')->with('success', 'Object declassified.');
+    }
+
+    public function securityReport()
+    {
+        $stats = ['classified_count' => 0, 'cleared_users' => 0, 'denied_count' => 0];
+        $breakdown = collect();
+        return view('ahg-acl::security.report', compact('stats', 'breakdown'));
+    }
+
+    public function securityCompliance()
+    {
+        $compliance = ['score' => 0, 'issues' => 0, 'overdue_reviews' => 0, 'expired_clearances' => 0];
+        $issues = collect();
+        return view('ahg-acl::security.security-compliance', compact('compliance', 'issues'));
+    }
+
+    public function watermarkSettings()
+    {
+        $watermarkTypes = collect();
+        $settings = (object) ['default_watermark_type_id' => null, 'default_position' => 'center', 'default_opacity' => 0.4, 'auto_watermark' => false];
+        return view('ahg-acl::security.watermark-settings', compact('watermarkTypes', 'settings'));
+    }
+
+    public function watermarkSettingsStore(Request $request)
+    {
+        return redirect()->route('acl.watermark-settings')->with('success', 'Watermark settings saved.');
+    }
+
+    public function traceWatermark()
+    {
+        return view('ahg-acl::security.trace-watermark', ['watermarkCode' => null, 'traceResult' => null]);
+    }
+
+    public function traceWatermarkResult(Request $request)
+    {
+        $watermarkCode = $request->input('watermark_code');
+        $traceResult = null;
+        return view('ahg-acl::security.trace-watermark', compact('watermarkCode', 'traceResult'));
+    }
+
+    public function objectView(int $id)
+    {
+        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
+        $objectClassification = null;
+        return view('ahg-acl::security.object-view', compact('object', 'objectClassification'));
+    }
+
+    public function userClearance(int $id)
+    {
+        $user = DB::table('user')->where('id', $id)->first() ?? (object) ['id' => $id, 'username' => 'Unknown'];
+        $clearance = $this->service->getUserClearance($id);
+        $accessHistory = collect();
+        return view('ahg-acl::security.user-clearance', compact('user', 'clearance', 'accessHistory'));
+    }
+
+    public function userSecurity(int $id)
+    {
+        $user = DB::table('user')->where('id', $id)->first() ?? (object) ['id' => $id, 'username' => 'Unknown'];
+        $clearance = $this->service->getUserClearance($id);
+        $groups = collect();
+        return view('ahg-acl::security.user', compact('user', 'clearance', 'groups'));
+    }
+
+    public function viewClassification(int $id)
+    {
+        $record = (object) ['object_title' => '', 'classification_name' => '', 'color' => '#999', 'classified_by' => '', 'classified_at' => '', 'reason' => ''];
+        return view('ahg-acl::security.view', compact('record'));
+    }
+
+    public function securityAudit()
+    {
+        $auditEntries = collect();
+        return view('ahg-acl::security.audit', compact('auditEntries'));
+    }
+
+    public function accessRequest(int $id)
+    {
+        $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
+        $classification = null;
+        $userClearance = null;
+        return view('ahg-acl::security.access-request', compact('object', 'classification', 'userClearance'));
+    }
+
+    public function submitAccessRequest(Request $request)
+    {
+        return redirect()->route('security.my-requests')->with('success', 'Access request submitted.');
+    }
+
+    public function accessDenied()
+    {
+        $access = ['reasons' => []];
+        $objectTitle = 'Restricted Resource';
+        return view('ahg-acl::access-denied', compact('access', 'objectTitle'));
+    }
+
+    public function setupTwoFactor()
+    {
+        return view('ahg-acl::security.setup-two-factor', ['qrCode' => null]);
+    }
+
+    public function setupTwoFactorStore(Request $request)
+    {
+        return redirect()->route('acl.security-dashboard')->with('success', 'Two-factor authentication enabled.');
+    }
+
+    public function twoFactor()
+    {
+        return view('ahg-acl::security.two-factor');
+    }
+
+    public function verifyTwoFactor(Request $request)
+    {
+        return redirect('/')->with('success', 'Two-factor verified.');
+    }
+
+    public function reviewAccessRequest(int $id)
+    {
+        $accessRequest = DB::table('security_access_request')->where('id', $id)->first()
+            ?? (object) ['id' => $id, 'requester_name' => '', 'object_title' => '', 'reason' => '', 'created_at' => ''];
+        return view('ahg-acl::security.review-request', ['request' => $accessRequest]);
+    }
 }

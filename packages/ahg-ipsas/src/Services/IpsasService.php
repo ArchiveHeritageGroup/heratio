@@ -1,0 +1,210 @@
+<?php
+
+namespace AhgIpsas\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class IpsasService
+{
+    public function getDashboardStats(): array
+    {
+        return [
+            'assets' => [
+                'total' => DB::table('ipsas_heritage_asset')->count(),
+                'active' => DB::table('ipsas_heritage_asset')->where('status', 'active')->count(),
+            ],
+            'values' => [
+                'total' => DB::table('ipsas_heritage_asset')->sum('current_value') ?? 0,
+                'insured' => DB::table('ipsas_insurance')->where('status', 'active')->sum('sum_insured') ?? 0,
+            ],
+        ];
+    }
+
+    public function getComplianceStatus(): array
+    {
+        $issues = [];
+        $warnings = [];
+
+        $unvalued = DB::table('ipsas_heritage_asset')
+            ->whereNull('current_value')
+            ->where('status', 'active')
+            ->count();
+        if ($unvalued > 0) {
+            $warnings[] = "{$unvalued} active asset(s) have no current valuation";
+        }
+
+        $expiringInsurance = DB::table('ipsas_insurance')
+            ->where('status', 'active')
+            ->whereRaw('coverage_end <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
+            ->count();
+        if ($expiringInsurance > 0) {
+            $warnings[] = "{$expiringInsurance} insurance policy/policies expiring within 30 days";
+        }
+
+        return ['issues' => $issues, 'warnings' => $warnings];
+    }
+
+    public function getAllConfig(): array
+    {
+        $rows = DB::table('ahg_settings')
+            ->where('setting_group', 'ipsas')
+            ->get(['setting_key', 'setting_value']);
+
+        $config = [];
+        foreach ($rows as $row) {
+            $config[$row->setting_key] = $row->setting_value;
+        }
+
+        return $config;
+    }
+
+    public function setConfig(string $key, ?string $value): void
+    {
+        DB::table('ahg_settings')->updateOrInsert(
+            ['setting_group' => 'ipsas', 'setting_key' => $key],
+            ['setting_value' => $value, 'updated_at' => now()]
+        );
+    }
+
+    public function getAssets(array $filters = []): \Illuminate\Support\Collection
+    {
+        $query = DB::table('ipsas_heritage_asset as a')
+            ->leftJoin('ipsas_asset_category as c', 'a.category_id', '=', 'c.id')
+            ->select('a.*', 'c.name as category_name');
+
+        if (!empty($filters['category_id'])) {
+            $query->where('a.category_id', $filters['category_id']);
+        }
+        if (!empty($filters['status'])) {
+            $query->where('a.status', $filters['status']);
+        }
+        if (!empty($filters['valuation_basis'])) {
+            $query->where('a.valuation_basis', $filters['valuation_basis']);
+        }
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('a.title', 'LIKE', '%' . $filters['search'] . '%')
+                    ->orWhere('a.asset_number', 'LIKE', '%' . $filters['search'] . '%');
+            });
+        }
+
+        return $query->orderBy('a.asset_number')->get();
+    }
+
+    public function getAsset(int $id): ?object
+    {
+        return DB::table('ipsas_heritage_asset as a')
+            ->leftJoin('ipsas_asset_category as c', 'a.category_id', '=', 'c.id')
+            ->select('a.*', 'c.name as category_name')
+            ->where('a.id', $id)
+            ->first();
+    }
+
+    public function createAsset(array $data): int
+    {
+        $count = DB::table('ipsas_heritage_asset')->count();
+        $data['asset_number'] = 'HA-' . str_pad($count + 1, 5, '0', STR_PAD_LEFT);
+        $data['status'] = 'active';
+        $data['created_at'] = now();
+        $data['updated_at'] = now();
+
+        return DB::table('ipsas_heritage_asset')->insertGetId($data);
+    }
+
+    public function updateAsset(int $id, array $data, int $userId): void
+    {
+        $data['updated_at'] = now();
+        DB::table('ipsas_heritage_asset')->where('id', $id)->update($data);
+    }
+
+    public function getCategories(): \Illuminate\Support\Collection
+    {
+        return DB::table('ipsas_asset_category')->orderBy('name')->get();
+    }
+
+    public function getValuations(array $filters = []): \Illuminate\Support\Collection
+    {
+        $query = DB::table('ipsas_valuation as v')
+            ->leftJoin('ipsas_heritage_asset as a', 'v.asset_id', '=', 'a.id')
+            ->select('v.*', 'a.asset_number', 'a.title as asset_title');
+
+        if (!empty($filters['type'])) {
+            $query->where('v.valuation_type', $filters['type']);
+        }
+        if (!empty($filters['year'])) {
+            $query->whereYear('v.valuation_date', $filters['year']);
+        }
+
+        return $query->orderByDesc('v.valuation_date')->get();
+    }
+
+    public function getAssetValuations(int $assetId): \Illuminate\Support\Collection
+    {
+        return DB::table('ipsas_valuation')
+            ->where('asset_id', $assetId)
+            ->orderByDesc('valuation_date')
+            ->get();
+    }
+
+    public function createValuation(array $data): int
+    {
+        $data['created_at'] = now();
+
+        $id = DB::table('ipsas_valuation')->insertGetId($data);
+
+        if (!empty($data['new_value']) && !empty($data['asset_id'])) {
+            DB::table('ipsas_heritage_asset')->where('id', $data['asset_id'])->update([
+                'current_value' => $data['new_value'],
+                'updated_at' => now(),
+            ]);
+        }
+
+        return $id;
+    }
+
+    public function getImpairments(array $filters = []): \Illuminate\Support\Collection
+    {
+        $query = DB::table('ipsas_impairment as i')
+            ->leftJoin('ipsas_heritage_asset as a', 'i.asset_id', '=', 'a.id')
+            ->select('i.*', 'a.asset_number', 'a.title as asset_title');
+
+        if (!empty($filters['asset_id'])) {
+            $query->where('i.asset_id', $filters['asset_id']);
+        }
+        if (!empty($filters['recognized_only'])) {
+            $query->where('i.impairment_recognized', 1);
+        }
+
+        return $query->orderByDesc('i.assessment_date')->get();
+    }
+
+    public function getInsurancePolicies(array $filters = []): \Illuminate\Support\Collection
+    {
+        $query = DB::table('ipsas_insurance as ins')
+            ->leftJoin('ipsas_heritage_asset as a', 'ins.asset_id', '=', 'a.id')
+            ->select('ins.*', 'a.asset_number', 'a.title as asset_title');
+
+        if (!empty($filters['status'])) {
+            $query->where('ins.status', $filters['status']);
+        }
+
+        return $query->orderByDesc('ins.coverage_end')->get();
+    }
+
+    public function calculateFinancialYearSummary(string $year): array
+    {
+        $assets = DB::table('ipsas_heritage_asset')->where('status', 'active');
+
+        return [
+            'total_assets' => $assets->count(),
+            'total_value' => $assets->sum('current_value'),
+            'acquisitions' => DB::table('ipsas_heritage_asset')
+                ->whereYear('acquisition_date', $year)->count(),
+            'valuations' => DB::table('ipsas_valuation')
+                ->whereYear('valuation_date', $year)->count(),
+            'impairments' => DB::table('ipsas_impairment')
+                ->whereYear('assessment_date', $year)
+                ->where('impairment_recognized', 1)->count(),
+        ];
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "ahg/ahg-privacy",
+    "description": "Heratio Privacy package (migrated from ahgPrivacyPlugin)",
+    "autoload": {
+        "psr-4": {
+            "AhgPrivacy\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgPrivacy\\Providers\\AhgPrivacyServiceProvider"
+            ]
+        }
+    }
+}
