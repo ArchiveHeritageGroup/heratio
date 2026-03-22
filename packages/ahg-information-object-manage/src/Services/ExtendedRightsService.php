@@ -90,11 +90,16 @@ class ExtendedRightsService
 
     /**
      * Get extended rights for an object.
+     * Joins extended_rights_i18n for rights_note, usage_conditions, copyright_notice.
      */
     public function getExtendedRights(int $objectId): Collection
     {
         try {
             return DB::table('extended_rights as er')
+                ->leftJoin('extended_rights_i18n as eri', function ($j) {
+                    $j->on('eri.extended_rights_id', '=', 'er.id')
+                        ->where('eri.culture', '=', $this->culture);
+                })
                 ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
                 ->leftJoin('rights_statement_i18n as rs_i18n', function ($j) {
                     $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
@@ -104,10 +109,14 @@ class ExtendedRightsService
                 ->where('er.object_id', $objectId)
                 ->select([
                     'er.*',
+                    'eri.rights_note',
+                    'eri.usage_conditions',
+                    'eri.copyright_notice',
                     'rs.code as rights_statement_code',
                     'rs.uri as rights_statement_uri',
                     DB::raw("COALESCE(rs.icon_filename, '') as rights_statement_icon"),
                     'rs_i18n.name as rights_statement_name',
+                    'rs_i18n.definition as rights_statement_definition',
                     'cc.code as cc_license_code',
                     'cc.uri as cc_license_uri',
                 ])
@@ -133,6 +142,131 @@ class ExtendedRightsService
         } catch (\Illuminate\Database\QueryException $e) {
             return collect();
         }
+    }
+
+    /**
+     * Save (create) an extended right for an object.
+     * Inserts into extended_rights, extended_rights_i18n, and extended_rights_tk_label.
+     */
+    public function saveExtendedRight(int $objectId, array $data, ?int $userId = null): int
+    {
+        $now = date('Y-m-d H:i:s');
+
+        // If is_primary, unset any existing primary for this object
+        if (!empty($data['is_primary'])) {
+            DB::table('extended_rights')
+                ->where('object_id', $objectId)
+                ->where('is_primary', 1)
+                ->update(['is_primary' => 0, 'updated_at' => $now]);
+        }
+
+        $id = DB::table('extended_rights')->insertGetId([
+            'object_id'                   => $objectId,
+            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
+            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
+            'rights_date'                 => $data['rights_date'] ?? null,
+            'expiry_date'                 => $data['expiry_date'] ?? null,
+            'rights_holder'               => $data['rights_holder'] ?? null,
+            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
+            'is_primary'                  => $data['is_primary'] ?? 1,
+            'created_by'                  => $userId,
+            'updated_by'                  => $userId,
+            'created_at'                  => $now,
+            'updated_at'                  => $now,
+        ]);
+
+        // Insert i18n row
+        $i18nData = [
+            'extended_rights_id' => $id,
+            'culture'            => $this->culture,
+            'rights_note'        => $data['rights_note'] ?? null,
+            'usage_conditions'   => $data['usage_conditions'] ?? null,
+            'copyright_notice'   => $data['copyright_notice'] ?? null,
+        ];
+        DB::table('extended_rights_i18n')->insert($i18nData);
+
+        // Insert TK labels
+        if (!empty($data['tk_label_ids'])) {
+            foreach ($data['tk_label_ids'] as $tkLabelId) {
+                DB::table('extended_rights_tk_label')->insert([
+                    'extended_rights_id' => $id,
+                    'tk_label_id'        => (int) $tkLabelId,
+                    'created_at'         => $now,
+                    'updated_at'         => $now,
+                ]);
+            }
+        }
+
+        return $id;
+    }
+
+    /**
+     * Update an existing extended right.
+     */
+    public function updateExtendedRight(int $rightsId, array $data, ?int $userId = null): void
+    {
+        $now = date('Y-m-d H:i:s');
+
+        $record = [
+            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
+            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
+            'rights_date'                 => $data['rights_date'] ?? null,
+            'expiry_date'                 => $data['expiry_date'] ?? null,
+            'rights_holder'               => $data['rights_holder'] ?? null,
+            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
+            'is_primary'                  => $data['is_primary'] ?? 1,
+            'updated_by'                  => $userId,
+            'updated_at'                  => $now,
+        ];
+
+        DB::table('extended_rights')->where('id', $rightsId)->update($record);
+
+        // Upsert i18n row
+        $i18nExists = DB::table('extended_rights_i18n')
+            ->where('extended_rights_id', $rightsId)
+            ->where('culture', $this->culture)
+            ->exists();
+
+        $i18nData = [
+            'rights_note'      => $data['rights_note'] ?? null,
+            'usage_conditions' => $data['usage_conditions'] ?? null,
+            'copyright_notice' => $data['copyright_notice'] ?? null,
+        ];
+
+        if ($i18nExists) {
+            DB::table('extended_rights_i18n')
+                ->where('extended_rights_id', $rightsId)
+                ->where('culture', $this->culture)
+                ->update($i18nData);
+        } else {
+            DB::table('extended_rights_i18n')->insert(array_merge([
+                'extended_rights_id' => $rightsId,
+                'culture'            => $this->culture,
+            ], $i18nData));
+        }
+
+        // Replace TK labels
+        DB::table('extended_rights_tk_label')->where('extended_rights_id', $rightsId)->delete();
+        if (!empty($data['tk_label_ids'])) {
+            foreach ($data['tk_label_ids'] as $tkLabelId) {
+                DB::table('extended_rights_tk_label')->insert([
+                    'extended_rights_id' => $rightsId,
+                    'tk_label_id'        => (int) $tkLabelId,
+                    'created_at'         => $now,
+                    'updated_at'         => $now,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Delete an extended right and its i18n + TK label rows.
+     */
+    public function deleteExtendedRight(int $rightsId): void
+    {
+        DB::table('extended_rights_tk_label')->where('extended_rights_id', $rightsId)->delete();
+        DB::table('extended_rights_i18n')->where('extended_rights_id', $rightsId)->delete();
+        DB::table('extended_rights')->where('id', $rightsId)->delete();
     }
 
     // =========================================

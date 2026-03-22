@@ -150,6 +150,19 @@ class HeritageController extends Controller
             $topContributors = collect();
         }
 
+        // --- Explore Categories (from heritage_explore_category table) ---
+        $exploreCategories = collect();
+        try {
+            if (Schema::hasTable('heritage_explore_category')) {
+                $exploreCategories = DB::table('heritage_explore_category')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get();
+            }
+        } catch (\Exception $e) {
+            $exploreCategories = collect();
+        }
+
         return view('ahg-heritage-manage::landing', compact(
             'heroImages',
             'tagline',
@@ -161,7 +174,8 @@ class HeritageController extends Controller
             'creators',
             'timelinePeriods',
             'recentItems',
-            'topContributors'
+            'topContributors',
+            'exploreCategories'
         ));
     }
 
@@ -525,11 +539,34 @@ class HeritageController extends Controller
                 ->count();
         }
 
+        // Heritage asset stats
+        $totalAssets = 0;
+        $totalAssetValue = 0;
+        $pendingAssets = 0;
+        $recognisedAssets = 0;
+        if (Schema::hasTable('heritage_asset')) {
+            $totalAssets = DB::table('heritage_asset')->count();
+            $totalAssetValue = (float) DB::table('heritage_asset')->sum('current_carrying_amount');
+            $pendingAssets = DB::table('heritage_asset')->where('recognition_status', 'pending')->count();
+            $recognisedAssets = DB::table('heritage_asset')->where('recognition_status', 'recognised')->count();
+        }
+
+        // Heritage tenant info
+        $tenants = collect();
+        if (Schema::hasTable('heritage_tenant')) {
+            $tenants = DB::table('heritage_tenant')->orderBy('name')->get();
+        }
+
         return view('ahg-heritage-manage::admin-dashboard', compact(
             'totalUsers',
             'activeUsers',
             'newThisMonth',
-            'activeAlerts'
+            'activeAlerts',
+            'totalAssets',
+            'totalAssetValue',
+            'pendingAssets',
+            'recognisedAssets',
+            'tenants'
         ));
     }
 
@@ -656,6 +693,24 @@ class HeritageController extends Controller
                 ->count();
         }
 
+        // Heritage analytics daily metrics (supplement audit-log-based stats)
+        $dailyMetrics = collect();
+        $metricTotals = [];
+        if (Schema::hasTable('heritage_analytics_daily')) {
+            $dailyMetrics = DB::table('heritage_analytics_daily')
+                ->where('date', '>=', $since->toDateString())
+                ->orderBy('date')
+                ->get();
+
+            // Aggregate by metric_type
+            $metricTotals = DB::table('heritage_analytics_daily')
+                ->select('metric_type', DB::raw('SUM(metric_value) as total'), DB::raw('AVG(change_percent) as avg_change'))
+                ->where('date', '>=', $since->toDateString())
+                ->groupBy('metric_type')
+                ->pluck('total', 'metric_type')
+                ->toArray();
+        }
+
         return view('ahg-heritage-manage::analytics-dashboard', compact(
             'days',
             'pageViews',
@@ -667,7 +722,9 @@ class HeritageController extends Controller
             'clickThroughRate',
             'pendingRequests',
             'approvalRate',
-            'popiaFlags'
+            'popiaFlags',
+            'dailyMetrics',
+            'metricTotals'
         ));
     }
 

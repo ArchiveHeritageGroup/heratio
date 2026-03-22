@@ -122,6 +122,7 @@ class ActorService
                 $j->on('contact_information.id', '=', 'contact_information_i18n.id')
                     ->where('contact_information_i18n.culture', '=', $this->culture);
             })
+            ->leftJoin('contact_information_extended', 'contact_information.id', '=', 'contact_information_extended.contact_information_id')
             ->where('contact_information.actor_id', $actorId)
             ->select([
                 'contact_information.id',
@@ -142,6 +143,17 @@ class ActorService
                 'contact_information_i18n.city',
                 'contact_information_i18n.region',
                 'contact_information_i18n.note',
+                // Extended contact fields
+                'contact_information_extended.title',
+                'contact_information_extended.role',
+                'contact_information_extended.department',
+                'contact_information_extended.cell',
+                'contact_information_extended.id_number',
+                'contact_information_extended.alternative_email',
+                'contact_information_extended.alternative_phone',
+                'contact_information_extended.preferred_contact_method',
+                'contact_information_extended.language_preference',
+                'contact_information_extended.notes as extended_notes',
             ])
             ->get();
     }
@@ -702,9 +714,10 @@ class ActorService
                 DB::table('object')->whereIn('id', $relationIds)->delete();
             }
 
-            // 3. Delete contact information
+            // 3. Delete contact information (including extended data)
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();
             if (!empty($contactIds)) {
+                DB::table('contact_information_extended')->whereIn('contact_information_id', $contactIds)->delete();
                 DB::table('contact_information_i18n')->whereIn('id', $contactIds)->delete();
                 DB::table('contact_information')->whereIn('id', $contactIds)->delete();
             }
@@ -778,6 +791,9 @@ class ActorService
                 'region' => $contactData['region'] ?? null,
                 'note' => $contactData['note'] ?? null,
             ]);
+
+            // Save extended contact data if any extended fields are present
+            $this->saveExtendedContactData($contactId, $contactData);
         }
     }
 
@@ -789,6 +805,7 @@ class ActorService
         foreach ($contacts as $contactData) {
             // Handle deletion
             if (!empty($contactData['delete']) && !empty($contactData['id'])) {
+                $this->deleteExtendedContactData($contactData['id']);
                 DB::table('contact_information_i18n')->where('id', $contactData['id'])->delete();
                 DB::table('contact_information')->where('id', $contactData['id'])->delete();
                 continue;
@@ -842,6 +859,9 @@ class ActorService
                         $i18n
                     ));
                 }
+
+                // Save extended contact data
+                $this->saveExtendedContactData($contactData['id'], $contactData);
             } else {
                 // Create new contact
                 $this->saveContacts($actorId, [$contactData]);
@@ -944,6 +964,10 @@ class ActorService
             'contact_person', 'street_address', 'website', 'email',
             'telephone', 'fax', 'city', 'region', 'postal_code',
             'country_code', 'contact_type', 'note', 'contact_note',
+            // Extended fields
+            'title', 'role', 'department', 'cell', 'id_number',
+            'alternative_email', 'alternative_phone', 'preferred_contact_method',
+            'language_preference', 'extended_notes',
         ];
 
         foreach ($fields as $field) {
@@ -955,11 +979,363 @@ class ActorService
         return true;
     }
 
+    // ── Extended contact data (contact_information_extended table) ──────
+
+    private const EXTENDED_CONTACT_FIELDS = [
+        'title', 'role', 'department', 'cell', 'id_number',
+        'alternative_email', 'alternative_phone', 'preferred_contact_method',
+        'language_preference', 'notes',
+    ];
+
+    /**
+     * Get extended contact data for a given contact_information row.
+     */
+    public function getExtendedContactData(int $contactId): array
+    {
+        $row = DB::table('contact_information_extended')
+            ->where('contact_information_id', $contactId)
+            ->first();
+
+        if (!$row) {
+            return [];
+        }
+
+        return (array) $row;
+    }
+
+    /**
+     * Save (insert or update) extended contact data for a contact_information row.
+     */
+    public function saveExtendedContactData(int $contactId, array $data): void
+    {
+        $values = [];
+        foreach (self::EXTENDED_CONTACT_FIELDS as $field) {
+            if (array_key_exists($field, $data)) {
+                $value = $data[$field];
+                if ($value === '' || $value === null) {
+                    $value = null;
+                }
+                $values[$field] = $value;
+            }
+        }
+
+        // Map the form field 'extended_notes' to the DB column 'notes'
+        if (array_key_exists('extended_notes', $data)) {
+            $value = $data['extended_notes'];
+            $values['notes'] = ($value === '' || $value === null) ? null : $value;
+        }
+
+        if (empty($values)) {
+            return;
+        }
+
+        $exists = DB::table('contact_information_extended')
+            ->where('contact_information_id', $contactId)
+            ->exists();
+
+        if ($exists) {
+            $values['updated_at'] = now();
+            DB::table('contact_information_extended')
+                ->where('contact_information_id', $contactId)
+                ->update($values);
+        } else {
+            $values['contact_information_id'] = $contactId;
+            $values['created_at'] = now();
+            $values['updated_at'] = now();
+            DB::table('contact_information_extended')->insert($values);
+        }
+    }
+
+    /**
+     * Delete extended contact data for a contact_information row.
+     */
+    public function deleteExtendedContactData(int $contactId): void
+    {
+        DB::table('contact_information_extended')
+            ->where('contact_information_id', $contactId)
+            ->delete();
+    }
+
     /**
      * Get the slug for an actor ID.
      */
     public function getSlug(int $id): ?string
     {
         return DB::table('slug')->where('object_id', $id)->value('slug');
+    }
+
+    // ─── AHG Actor Completeness / Identifiers / Occupations ─────────
+
+    /**
+     * Known authority source URI patterns (for auto-URI construction).
+     */
+    public const IDENTIFIER_URI_PATTERNS = [
+        'wikidata' => 'https://www.wikidata.org/wiki/%s',
+        'viaf'     => 'https://viaf.org/viaf/%s',
+        'ulan'     => 'https://vocab.getty.edu/ulan/%s',
+        'lcnaf'    => 'https://id.loc.gov/authorities/names/%s',
+        'isni'     => 'https://isni.org/isni/%s',
+        'orcid'    => 'https://orcid.org/%s',
+        'gnd'      => 'https://d-nb.info/gnd/%s',
+    ];
+
+    /**
+     * ISAAR(CPF) field weights for completeness score calculation.
+     */
+    public const COMPLETENESS_WEIGHTS = [
+        'authorized_name'   => 15,
+        'entity_type'       => 5,
+        'dates_existence'   => 10,
+        'history'           => 10,
+        'places'            => 5,
+        'legal_status'      => 3,
+        'functions'         => 5,
+        'mandates'          => 3,
+        'internal_struct'   => 3,
+        'general_context'   => 3,
+        'description_id'    => 3,
+        'sources'           => 3,
+        'maintenance_notes' => 2,
+        'external_ids'      => 10,
+        'relations'         => 10,
+        'resources'         => 5,
+        'contacts'          => 5,
+    ];
+
+    /**
+     * Completeness level thresholds.
+     */
+    public const COMPLETENESS_LEVELS = [
+        'stub'    => [0, 24],
+        'minimal' => [25, 49],
+        'partial' => [50, 74],
+        'full'    => [75, 100],
+    ];
+
+    /**
+     * Get completeness record for an actor.
+     */
+    public function getActorCompleteness(int $actorId): ?object
+    {
+        return DB::table('ahg_actor_completeness')
+            ->where('actor_id', $actorId)
+            ->first();
+    }
+
+    /**
+     * Get all external identifiers for an actor.
+     */
+    public function getActorIdentifiers(int $actorId): \Illuminate\Support\Collection
+    {
+        return DB::table('ahg_actor_identifier')
+            ->where('actor_id', $actorId)
+            ->orderBy('identifier_type')
+            ->get();
+    }
+
+    /**
+     * Get structured occupations for an actor (from ahg_actor_occupation table).
+     */
+    public function getActorOccupations(int $actorId): \Illuminate\Support\Collection
+    {
+        return DB::table('ahg_actor_occupation as o')
+            ->leftJoin('term_i18n as ti', function ($j) {
+                $j->on('o.term_id', '=', 'ti.id')
+                    ->where('ti.culture', '=', $this->culture);
+            })
+            ->where('o.actor_id', $actorId)
+            ->select('o.*', 'ti.name as term_name')
+            ->orderBy('o.sort_order')
+            ->orderBy('o.date_from')
+            ->get();
+    }
+
+    /**
+     * Calculate and save completeness score for an actor.
+     */
+    public function saveActorCompleteness(int $actorId, array $data = []): void
+    {
+        $fieldScores = [];
+        $totalWeight = array_sum(self::COMPLETENESS_WEIGHTS);
+        $earnedWeight = 0;
+
+        // Fetch actor_i18n data
+        $actorI18n = DB::table('actor_i18n')
+            ->where('id', $actorId)
+            ->where('culture', $this->culture)
+            ->first();
+
+        // Check basic ISAAR fields
+        $fieldScores['authorized_name'] = (!empty($actorI18n->authorized_form_of_name)) ? 1 : 0;
+        $fieldScores['history'] = (!empty($actorI18n->history)) ? 1 : 0;
+        $fieldScores['places'] = (!empty($actorI18n->places)) ? 1 : 0;
+        $fieldScores['legal_status'] = (!empty($actorI18n->legal_status)) ? 1 : 0;
+        $fieldScores['functions'] = (!empty($actorI18n->functions)) ? 1 : 0;
+        $fieldScores['mandates'] = (!empty($actorI18n->mandates)) ? 1 : 0;
+        $fieldScores['internal_struct'] = (!empty($actorI18n->internal_structures)) ? 1 : 0;
+        $fieldScores['general_context'] = (!empty($actorI18n->general_context)) ? 1 : 0;
+        $fieldScores['description_id'] = (!empty($actorI18n->description_identifier)) ? 1 : 0;
+        $fieldScores['sources'] = (!empty($actorI18n->sources)) ? 1 : 0;
+        $fieldScores['maintenance_notes'] = (!empty($actorI18n->revision_history)) ? 1 : 0;
+        $fieldScores['dates_existence'] = (!empty($actorI18n->dates_of_existence)) ? 1 : 0;
+
+        // Check actor entity type
+        $actor = DB::table('actor')->where('id', $actorId)->first();
+        $fieldScores['entity_type'] = ($actor && !empty($actor->entity_type_id)) ? 1 : 0;
+
+        // Check external identifiers
+        $hasIds = DB::table('ahg_actor_identifier')
+            ->where('actor_id', $actorId)
+            ->exists();
+        $fieldScores['external_ids'] = $hasIds ? 1 : 0;
+
+        // Check relations
+        $hasRelations = DB::table('relation')
+            ->where(function ($q) use ($actorId) {
+                $q->where('subject_id', $actorId)
+                    ->orWhere('object_id', $actorId);
+            })
+            ->exists();
+        $fieldScores['relations'] = $hasRelations ? 1 : 0;
+
+        // Check linked resources
+        $hasResources = DB::table('event')
+            ->where('actor_id', $actorId)
+            ->exists();
+        $fieldScores['resources'] = $hasResources ? 1 : 0;
+
+        // Check contacts
+        $hasContacts = DB::table('contact_information')
+            ->where('actor_id', $actorId)
+            ->exists();
+        $fieldScores['contacts'] = $hasContacts ? 1 : 0;
+
+        // Calculate weighted score
+        foreach ($fieldScores as $field => $score) {
+            if ($score && isset(self::COMPLETENESS_WEIGHTS[$field])) {
+                $earnedWeight += self::COMPLETENESS_WEIGHTS[$field];
+            }
+        }
+
+        $percentage = $totalWeight > 0 ? (int) round(($earnedWeight / $totalWeight) * 100) : 0;
+        $level = $this->determineCompletenessLevel($percentage);
+
+        $record = [
+            'completeness_level' => $level,
+            'completeness_score' => $percentage,
+            'field_scores'       => json_encode($fieldScores),
+            'has_external_ids'   => $fieldScores['external_ids'],
+            'has_relations'      => $fieldScores['relations'],
+            'has_resources'      => $fieldScores['resources'],
+            'has_contacts'       => $fieldScores['contacts'],
+            'scored_at'          => now(),
+            'updated_at'         => now(),
+        ];
+
+        // Allow manual override fields from data
+        if (!empty($data['manual_override'])) {
+            $record['manual_override'] = 1;
+        }
+        if (!empty($data['assigned_to'])) {
+            $record['assigned_to'] = $data['assigned_to'];
+            $record['assigned_at'] = now();
+        }
+
+        $existing = DB::table('ahg_actor_completeness')
+            ->where('actor_id', $actorId)
+            ->first();
+
+        if ($existing) {
+            // Preserve manual override level if set
+            if ($existing->manual_override && empty($data['manual_override'])) {
+                $record['completeness_level'] = $existing->completeness_level;
+            }
+            DB::table('ahg_actor_completeness')
+                ->where('id', $existing->id)
+                ->update($record);
+        } else {
+            $record['actor_id'] = $actorId;
+            $record['created_at'] = now();
+            DB::table('ahg_actor_completeness')->insert($record);
+        }
+    }
+
+    /**
+     * Determine completeness level from percentage score.
+     */
+    protected function determineCompletenessLevel(int $score): string
+    {
+        foreach (self::COMPLETENESS_LEVELS as $level => $range) {
+            if ($score >= $range[0] && $score <= $range[1]) {
+                return $level;
+            }
+        }
+
+        return 'stub';
+    }
+
+    /**
+     * Save external identifiers for an actor (sync: delete all then re-insert).
+     */
+    public function saveActorIdentifiers(int $actorId, array $identifiers): void
+    {
+        // Delete all existing identifiers then re-insert
+        DB::table('ahg_actor_identifier')
+            ->where('actor_id', $actorId)
+            ->delete();
+
+        foreach ($identifiers as $idData) {
+            if (empty($idData['identifier_type']) || empty($idData['identifier_value'])) {
+                continue;
+            }
+
+            $type  = $idData['identifier_type'];
+            $value = trim($idData['identifier_value']);
+
+            // Auto-construct URI if not provided
+            $uri = $idData['uri'] ?? null;
+            if (empty($uri) && isset(self::IDENTIFIER_URI_PATTERNS[$type]) && !empty($value)) {
+                $uri = sprintf(self::IDENTIFIER_URI_PATTERNS[$type], $value);
+            }
+
+            DB::table('ahg_actor_identifier')->insert([
+                'actor_id'         => $actorId,
+                'identifier_type'  => $type,
+                'identifier_value' => $value,
+                'uri'              => $uri,
+                'label'            => $idData['label'] ?? null,
+                'source'           => $idData['source'] ?? 'manual',
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Save structured occupations for an actor (sync: delete all then re-insert).
+     */
+    public function saveActorOccupations(int $actorId, array $occupations): void
+    {
+        // Delete all existing occupations then re-insert
+        DB::table('ahg_actor_occupation')
+            ->where('actor_id', $actorId)
+            ->delete();
+
+        foreach ($occupations as $idx => $occData) {
+            if (empty($occData['occupation_text']) && empty($occData['term_id'])) {
+                continue;
+            }
+
+            DB::table('ahg_actor_occupation')->insert([
+                'actor_id'        => $actorId,
+                'term_id'         => !empty($occData['term_id']) ? (int) $occData['term_id'] : null,
+                'occupation_text' => $occData['occupation_text'] ?? null,
+                'date_from'       => $occData['date_from'] ?? null,
+                'date_to'         => $occData['date_to'] ?? null,
+                'notes'           => $occData['notes'] ?? null,
+                'sort_order'      => (int) ($occData['sort_order'] ?? $idx),
+                'created_at'      => now(),
+            ]);
+        }
     }
 }

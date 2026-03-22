@@ -379,15 +379,26 @@ class ResearchController extends Controller
     public function researchers(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
+        $filter = $request->input('filter', 'all');
+        $query = $request->input('q');
+
+        $statusFilter = ($filter !== 'all') ? $filter : null;
         $researchers = $this->service->getResearchers([
-            'status' => $request->input('status'),
-            'search' => $request->input('q'),
+            'status' => $statusFilter,
+            'search' => $query,
         ]);
-        $currentStatus = $request->input('status');
+
+        $counts = [
+            'all' => DB::table('research_researcher')->count(),
+            'pending' => DB::table('research_researcher')->where('status', 'pending')->count(),
+            'approved' => DB::table('research_researcher')->where('status', 'approved')->count(),
+            'suspended' => DB::table('research_researcher')->where('status', 'suspended')->count(),
+            'expired' => DB::table('research_researcher')->where('status', 'expired')->count(),
+        ];
 
         return view('research::research.researchers', array_merge(
             $this->getSidebarData('researchers'),
-            compact('researchers', 'currentStatus')
+            compact('researchers', 'filter', 'counts', 'query')
         ));
     }
 
@@ -482,13 +493,13 @@ class ResearchController extends Controller
             ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
             ->join('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
             ->where('b.status', 'pending')
-            ->select('b.*', 'r.first_name', 'r.last_name', 'r.email', 'rm.name as room_name')
+            ->select('b.*', 'b.booking_date as date', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"), 'r.email', 'rm.name as room_name')
             ->orderBy('b.booking_date')->get()->toArray();
         $upcomingBookings = DB::table('research_booking as b')
             ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
             ->join('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
             ->where('b.status', 'confirmed')->where('b.booking_date', '>=', date('Y-m-d'))
-            ->select('b.*', 'r.first_name', 'r.last_name', 'rm.name as room_name')
+            ->select('b.*', 'b.booking_date as date', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"), 'rm.name as room_name')
             ->orderBy('b.booking_date')->limit(20)->get()->toArray();
 
         return view('research::research.bookings', array_merge(
@@ -2282,7 +2293,7 @@ class ResearchController extends Controller
 
         $workspaces = $collaborationService->getWorkspaces($researcher->id);
 
-        return view('ahg-research::research.workspaces', array_merge(
+        return view('research::research.workspaces', array_merge(
             $this->getSidebarData('workspaces'),
             compact('workspaces')
         ));
@@ -2312,7 +2323,7 @@ class ResearchController extends Controller
         $stats = $vqService->getQueueStats();
         $pendingCount = $vqService->getPendingCount();
 
-        return view('ahg-research::research.validation-queue', array_merge(
+        return view('research::research.validation-queue', array_merge(
             $this->getSidebarData('validationQueue'),
             compact('queue', 'stats', 'pendingCount')
         ));
@@ -2397,7 +2408,7 @@ class ResearchController extends Controller
         $page = max(1, (int) $request->input('page', 1));
         $proposals = $erService->getProposals($filters, $page);
 
-        return view('ahg-research::research.entity-resolution', array_merge(
+        return view('research::research.entity-resolution', array_merge(
             $this->getSidebarData('entityResolution'),
             compact('proposals')
         ));
@@ -2473,7 +2484,7 @@ class ResearchController extends Controller
         $page = max(1, (int) $request->input('page', 1));
         $policies = $odrlService->getAllPolicies($filters, 25, ($page - 1) * 25);
 
-        return view('ahg-research::research.odrl-policies', array_merge(
+        return view('research::research.odrl-policies', array_merge(
             $this->getSidebarData('odrlPolicies'),
             compact('policies')
         ));
@@ -2523,7 +2534,7 @@ class ResearchController extends Controller
             ->get()
             ->toArray();
 
-        return view('ahg-research::research.document-templates', array_merge(
+        return view('research::research.document-templates', array_merge(
             $this->getSidebarData('documentTemplates'),
             compact('templates')
         ));

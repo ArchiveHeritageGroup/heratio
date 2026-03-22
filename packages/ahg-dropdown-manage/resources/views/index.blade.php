@@ -44,9 +44,11 @@
         @php
           $totalTaxonomies = 0; $totalTerms = 0;
           foreach ($taxonomyGroups as $items) { $totalTaxonomies += count($items); foreach ($items as $item) { $totalTerms += $item->term_count; } }
+          $mappedColumns = \Illuminate\Support\Facades\DB::table('ahg_dropdown_column_map')->count();
         @endphp
         <div><strong>{{ $totalTaxonomies }}</strong> taxonomies</div>
         <div><strong>{{ $totalTerms }}</strong> total terms</div>
+        <div><strong>{{ $mappedColumns }}</strong> column mappings</div>
       </div>
     </div>
   </div>

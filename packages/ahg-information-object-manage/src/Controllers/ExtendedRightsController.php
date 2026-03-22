@@ -77,6 +77,66 @@ class ExtendedRightsController extends Controller
     }
 
     /**
+     * Store (create or update) extended rights for this IO.
+     */
+    public function store(Request $request, string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $request->validate([
+            'rights_statement_id' => 'nullable|integer',
+            'cc_license_id'       => 'nullable|integer',
+            'rights_holder_id'    => 'nullable|integer',
+            'tk_label_ids'        => 'nullable|array',
+            'tk_label_ids.*'      => 'integer',
+            'rights_note'         => 'nullable|string|max:10000',
+            'usage_conditions'    => 'nullable|string|max:10000',
+            'copyright_notice'    => 'nullable|string|max:10000',
+            'rights_date'         => 'nullable|date',
+            'expiry_date'         => 'nullable|date',
+            'rights_holder'       => 'nullable|string|max:255',
+            'rights_holder_uri'   => 'nullable|string|max:255',
+        ]);
+
+        $data = [
+            'rights_statement_id'         => $request->input('rights_statement_id') ?: null,
+            'creative_commons_license_id' => $request->input('cc_license_id') ?: null,
+            'rights_date'                 => $request->input('rights_date'),
+            'expiry_date'                 => $request->input('expiry_date'),
+            'rights_holder'               => $request->input('rights_holder'),
+            'rights_holder_uri'           => $request->input('rights_holder_uri'),
+            'is_primary'                  => 1,
+            'rights_note'                 => $request->input('rights_note'),
+            'usage_conditions'            => $request->input('usage_conditions'),
+            'copyright_notice'            => $request->input('copyright_notice'),
+            'tk_label_ids'                => $request->input('tk_label_ids', []),
+        ];
+
+        // Check if a primary extended right already exists for this object
+        $existing = DB::table('extended_rights')
+            ->where('object_id', $io->id)
+            ->where('is_primary', 1)
+            ->first();
+
+        $userId = auth()->id();
+
+        if ($existing) {
+            $this->service->updateExtendedRight($existing->id, $data, $userId);
+            $message = 'Extended rights updated successfully.';
+        } else {
+            $this->service->saveExtendedRight($io->id, $data, $userId);
+            $message = 'Extended rights created successfully.';
+        }
+
+        return redirect()
+            ->route('io.rights.extended', $slug)
+            ->with('notice', $message);
+    }
+
+    /**
      * Show embargo status + form to create/lift.
      */
     public function embargo(string $slug)

@@ -57,6 +57,89 @@
         </div>
       </div>
 
+      {{-- Heritage Asset Stats --}}
+      @if(($totalAssets ?? 0) > 0)
+      <div class="row mb-4">
+        <div class="col-sm-6 col-lg-3 mb-3">
+          <div class="card shadow-sm border-dark h-100">
+            <div class="card-body text-center">
+              <div class="mb-2"><i class="fas fa-landmark fa-2x text-dark"></i></div>
+              <h3 class="mb-1">{{ number_format($totalAssets) }}</h3>
+              <small class="text-muted">Heritage Assets</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+          <div class="card shadow-sm border-success h-100">
+            <div class="card-body text-center">
+              <div class="mb-2"><i class="fas fa-check-circle fa-2x text-success"></i></div>
+              <h3 class="mb-1">{{ number_format($recognisedAssets) }}</h3>
+              <small class="text-muted">Recognised</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+          <div class="card shadow-sm border-warning h-100">
+            <div class="card-body text-center">
+              <div class="mb-2"><i class="fas fa-hourglass-half fa-2x text-warning"></i></div>
+              <h3 class="mb-1">{{ number_format($pendingAssets) }}</h3>
+              <small class="text-muted">Pending</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+          <div class="card shadow-sm border-info h-100">
+            <div class="card-body text-center">
+              <div class="mb-2"><i class="fas fa-coins fa-2x text-info"></i></div>
+              <h3 class="mb-1">R{{ number_format($totalAssetValue, 2) }}</h3>
+              <small class="text-muted">Total Carrying Value</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
+
+      {{-- Tenants --}}
+      @if(isset($tenants) && $tenants->count() > 0)
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
+          <h5 class="mb-0"><i class="fas fa-building"></i> Tenants</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
+                <th>Name</th>
+                <th>Code</th>
+                <th>Status</th>
+                <th>Contact</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($tenants as $tenant)
+              <tr>
+                <td>{{ $tenant->name }}</td>
+                <td><code>{{ $tenant->code }}</code></td>
+                <td>
+                  @php
+                    $statusColor = match($tenant->status) {
+                      'active' => 'success',
+                      'trial' => 'info',
+                      'suspended' => 'danger',
+                      default => 'secondary',
+                    };
+                  @endphp
+                  <span class="badge bg-{{ $statusColor }}">{{ ucfirst($tenant->status) }}</span>
+                </td>
+                <td>{{ $tenant->contact_email ?? '-' }}</td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+      </div>
+      @endif
+
       {{-- Quick Links --}}
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">

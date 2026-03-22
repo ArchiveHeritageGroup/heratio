@@ -81,27 +81,58 @@
     <section class="heritage-explore-by" id="heritage-explore">
         <div class="heritage-section-label">Explore By</div>
         <div class="heritage-explore-buttons">
-            <a href="{{ url('/heritage/timeline') }}" class="heritage-explore-btn">
-                <i class="fas fa-clock"></i> Time
-            </a>
-            <a href="{{ url('/heritage/explore') }}?category=place" class="heritage-explore-btn">
-                <i class="fas fa-map-marker-alt"></i> Place
-            </a>
-            <a href="{{ url('/heritage/creators') }}" class="heritage-explore-btn">
-                <i class="fas fa-users"></i> People
-            </a>
-            <a href="{{ url('/heritage/explore') }}?category=theme" class="heritage-explore-btn">
-                <i class="fas fa-tag"></i> Theme
-            </a>
-            <a href="{{ url('/heritage/explore') }}?category=format" class="heritage-explore-btn">
-                <i class="fas fa-layer-group"></i> Format
-            </a>
-            <a href="{{ url('/heritage/trending') }}" class="heritage-explore-btn">
-                <i class="fas fa-chart-line"></i> Trending
-            </a>
-            <a href="{{ url('/heritage/graph') }}" class="heritage-explore-btn">
-                <i class="fas fa-project-diagram"></i> Knowledge Graph
-            </a>
+            @if(isset($exploreCategories) && $exploreCategories->count() > 0)
+                @foreach($exploreCategories as $cat)
+                @php
+                    // Map category codes to routes
+                    $catUrl = match($cat->code) {
+                        'time'     => url('/heritage/timeline'),
+                        'place'    => url('/heritage/explore') . '?category=place',
+                        'people'   => url('/heritage/creators'),
+                        'theme'    => url('/heritage/explore') . '?category=theme',
+                        'format'   => url('/heritage/explore') . '?category=format',
+                        'trending' => url('/heritage/trending'),
+                        'graph'    => url('/heritage/graph'),
+                        default    => url('/heritage/explore') . '?category=' . $cat->code,
+                    };
+                    // Map Bootstrap Icons (bi-*) to Font Awesome equivalents
+                    $catIcon = match($cat->icon) {
+                        'bi-clock-history' => 'fas fa-clock',
+                        'bi-geo-alt'       => 'fas fa-map-marker-alt',
+                        'bi-people'        => 'fas fa-users',
+                        'bi-tag'           => 'fas fa-tag',
+                        'bi-collection'    => 'fas fa-layer-group',
+                        'bi-graph-up'      => 'fas fa-chart-line',
+                        'bi-diagram-3'     => 'fas fa-project-diagram',
+                        'bi-grid'          => 'fas fa-th',
+                        default            => 'fas fa-folder',
+                    };
+                @endphp
+                <a href="{{ $catUrl }}" class="heritage-explore-btn">
+                    <i class="{{ $catIcon }}"></i> {{ $cat->name }}
+                </a>
+                @endforeach
+            @else
+                {{-- Fallback if no categories in DB --}}
+                <a href="{{ url('/heritage/timeline') }}" class="heritage-explore-btn">
+                    <i class="fas fa-clock"></i> Time
+                </a>
+                <a href="{{ url('/heritage/explore') }}?category=place" class="heritage-explore-btn">
+                    <i class="fas fa-map-marker-alt"></i> Place
+                </a>
+                <a href="{{ url('/heritage/creators') }}" class="heritage-explore-btn">
+                    <i class="fas fa-users"></i> People
+                </a>
+                <a href="{{ url('/heritage/explore') }}?category=theme" class="heritage-explore-btn">
+                    <i class="fas fa-tag"></i> Theme
+                </a>
+                <a href="{{ url('/heritage/explore') }}?category=format" class="heritage-explore-btn">
+                    <i class="fas fa-layer-group"></i> Format
+                </a>
+                <a href="{{ url('/heritage/trending') }}" class="heritage-explore-btn">
+                    <i class="fas fa-chart-line"></i> Trending
+                </a>
+            @endif
         </div>
     </section>
 

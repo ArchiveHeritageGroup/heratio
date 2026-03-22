@@ -102,6 +102,27 @@
         </div>
       </div>
 
+      {{-- Heritage Daily Metrics --}}
+      @if(isset($metricTotals) && !empty($metricTotals))
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="fas fa-calendar-day"></i> Daily Tracked Metrics</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            @foreach($metricTotals as $metricType => $metricTotal)
+            <div class="col-md-3 mb-3">
+              <div class="border rounded p-3">
+                <h4 class="mb-1 text-primary">{{ number_format($metricTotal, 0) }}</h4>
+                <small class="text-muted">{{ ucwords(str_replace('_', ' ', $metricType)) }}</small>
+              </div>
+            </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+      @endif
+
       {{-- Access Control --}}
       <div class="card shadow-sm">
         <div class="card-header bg-white">

@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
 
     // Extended Rights
     Route::get('/rights/extended/{slug}', [ExtendedRightsController::class, 'add'])->name('io.rights.extended');
+    Route::post('/rights/extended/{slug}/store', [ExtendedRightsController::class, 'store'])->name('io.rights.extended.store');
     Route::get('/rights/embargo/{slug}', [ExtendedRightsController::class, 'embargo'])->name('io.rights.embargo');
     Route::post('/rights/embargo/{slug}/store', [ExtendedRightsController::class, 'storeEmbargo'])->name('io.rights.embargo.store');
     Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->where('id', '[0-9]+');

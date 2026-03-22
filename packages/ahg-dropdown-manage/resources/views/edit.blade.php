@@ -49,6 +49,36 @@
       </div>
     </div>
 
+    @if(isset($columnMappings) && $columnMappings->isNotEmpty())
+    <div class="card mt-3">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h6 class="mb-0"><i class="fas fa-link me-2"></i>Column Mappings</h6>
+      </div>
+      <div class="card-body small p-2">
+        <table class="table table-sm table-borderless mb-0">
+          <thead>
+            <tr><th>Table</th><th>Column</th><th class="text-center">Strict</th></tr>
+          </thead>
+          <tbody>
+            @foreach($columnMappings as $map)
+              <tr>
+                <td><code>{{ $map->table_name }}</code></td>
+                <td><code>{{ $map->column_name }}</code></td>
+                <td class="text-center">
+                  @if($map->is_strict)
+                    <i class="fas fa-lock text-danger" title="Strict: only dropdown values allowed"></i>
+                  @else
+                    <i class="fas fa-lock-open text-success" title="Non-strict: freetext allowed"></i>
+                  @endif
+                </td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </div>
+    @endif
+
   </div>
 
   {{-- Main content --}}

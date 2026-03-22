@@ -131,6 +131,11 @@ class ActorController extends Controller
             // function_object table may not exist
         }
 
+        // AHG extended: completeness, external identifiers, structured occupations
+        $completeness = $this->service->getActorCompleteness($actor->id);
+        $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
+        $structuredOccupations = $this->service->getActorOccupations($actor->id);
+
         return view('ahg-actor-manage::show', [
             'actor' => $actor,
             'entityTypeName' => $entityTypeName,
@@ -153,6 +158,9 @@ class ActorController extends Controller
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,
+            'completeness' => $completeness,
+            'externalIdentifiers' => $externalIdentifiers,
+            'structuredOccupations' => $structuredOccupations,
         ]);
     }
 
@@ -196,6 +204,11 @@ class ActorController extends Controller
             $relatedFunctions = $this->service->getRelatedFunctions($actor->id);
         } catch (\Exception $e) {}
 
+        // AHG extended: completeness, external identifiers, structured occupations
+        $completeness = $this->service->getActorCompleteness($actor->id);
+        $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
+        $structuredOccupations = $this->service->getActorOccupations($actor->id);
+
         return view('ahg-actor-manage::print', [
             'actor' => $actor,
             'entityTypeName' => $entityTypeName,
@@ -217,6 +230,9 @@ class ActorController extends Controller
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,
+            'completeness' => $completeness,
+            'externalIdentifiers' => $externalIdentifiers,
+            'structuredOccupations' => $structuredOccupations,
         ]);
     }
 
@@ -230,6 +246,8 @@ class ActorController extends Controller
             'otherNames' => collect(),
             'maintenanceNotes' => null,
             'formChoices' => $formChoices,
+            'externalIdentifiers' => collect(),
+            'structuredOccupations' => collect(),
         ]);
     }
 
@@ -244,6 +262,8 @@ class ActorController extends Controller
         $otherNames = $this->service->getOtherNames($actor->id);
         $maintenanceNotes = $this->service->getMaintenanceNotes($actor->id);
         $formChoices = $this->service->getFormChoices();
+        $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
+        $structuredOccupations = $this->service->getActorOccupations($actor->id);
 
         return view('ahg-actor-manage::edit', [
             'actor' => $actor,
@@ -251,6 +271,8 @@ class ActorController extends Controller
             'otherNames' => $otherNames,
             'maintenanceNotes' => $maintenanceNotes,
             'formChoices' => $formChoices,
+            'externalIdentifiers' => $externalIdentifiers,
+            'structuredOccupations' => $structuredOccupations,
         ]);
     }
 
@@ -282,6 +304,17 @@ class ActorController extends Controller
             'contacts.*.email' => 'nullable|email|max:255',
             'contacts.*.telephone' => 'nullable|string|max:255',
             'contacts.*.website' => 'nullable|url|max:1024',
+            // Extended contact fields
+            'contacts.*.title' => 'nullable|string|max:100',
+            'contacts.*.role' => 'nullable|string|max:255',
+            'contacts.*.department' => 'nullable|string|max:255',
+            'contacts.*.cell' => 'nullable|string|max:255',
+            'contacts.*.id_number' => 'nullable|string|max:50',
+            'contacts.*.alternative_email' => 'nullable|email|max:255',
+            'contacts.*.alternative_phone' => 'nullable|string|max:255',
+            'contacts.*.preferred_contact_method' => 'nullable|string|max:35',
+            'contacts.*.language_preference' => 'nullable|string|max:16',
+            'contacts.*.extended_notes' => 'nullable|string',
             'other_names' => 'nullable|array',
             'other_names.*.name' => 'nullable|string|max:1024',
             'other_names.*.type_id' => 'nullable|integer',
@@ -298,6 +331,20 @@ class ActorController extends Controller
         ]);
 
         $id = $this->service->create($data);
+
+        // Save external identifiers if provided
+        if ($request->has('external_identifiers')) {
+            $this->service->saveActorIdentifiers($id, $request->input('external_identifiers', []));
+        }
+
+        // Save structured occupations if provided
+        if ($request->has('structured_occupations')) {
+            $this->service->saveActorOccupations($id, $request->input('structured_occupations', []));
+        }
+
+        // Calculate and store completeness score
+        $this->service->saveActorCompleteness($id);
+
         $slug = $this->service->getSlug($id);
 
         return redirect()
@@ -338,6 +385,17 @@ class ActorController extends Controller
             'contacts.*.email' => 'nullable|email|max:255',
             'contacts.*.telephone' => 'nullable|string|max:255',
             'contacts.*.website' => 'nullable|url|max:1024',
+            // Extended contact fields
+            'contacts.*.title' => 'nullable|string|max:100',
+            'contacts.*.role' => 'nullable|string|max:255',
+            'contacts.*.department' => 'nullable|string|max:255',
+            'contacts.*.cell' => 'nullable|string|max:255',
+            'contacts.*.id_number' => 'nullable|string|max:50',
+            'contacts.*.alternative_email' => 'nullable|email|max:255',
+            'contacts.*.alternative_phone' => 'nullable|string|max:255',
+            'contacts.*.preferred_contact_method' => 'nullable|string|max:35',
+            'contacts.*.language_preference' => 'nullable|string|max:16',
+            'contacts.*.extended_notes' => 'nullable|string',
             'other_names' => 'nullable|array',
             'other_names.*.name' => 'nullable|string|max:1024',
             'other_names.*.type_id' => 'nullable|integer',
@@ -354,6 +412,19 @@ class ActorController extends Controller
         ]);
 
         $this->service->update($actor->id, $data);
+
+        // Save external identifiers if provided
+        if ($request->has('external_identifiers')) {
+            $this->service->saveActorIdentifiers($actor->id, $request->input('external_identifiers', []));
+        }
+
+        // Save structured occupations if provided
+        if ($request->has('structured_occupations')) {
+            $this->service->saveActorOccupations($actor->id, $request->input('structured_occupations', []));
+        }
+
+        // Recalculate completeness score
+        $this->service->saveActorCompleteness($actor->id);
 
         return redirect()
             ->route('actor.show', $slug)

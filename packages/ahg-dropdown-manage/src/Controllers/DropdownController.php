@@ -125,11 +125,19 @@ class DropdownController extends Controller
         $taxonomyLabel   = $terms->first()->taxonomy_label;
         $taxonomySection = $terms->first()->taxonomy_section;
 
+        // Get column mappings for this taxonomy from ahg_dropdown_column_map
+        $columnMappings = DB::table('ahg_dropdown_column_map')
+            ->where('taxonomy', $taxonomy)
+            ->orderBy('table_name')
+            ->orderBy('column_name')
+            ->get();
+
         return view('ahg-dropdown-manage::edit', [
             'taxonomy'        => $taxonomy,
             'taxonomyLabel'   => $taxonomyLabel,
             'taxonomySection' => $taxonomySection,
             'terms'           => $terms,
+            'columnMappings'  => $columnMappings,
             'sectionLabels'   => $this->sectionLabels,
             'sectionIcons'    => $this->sectionIcons,
         ]);

@@ -92,6 +92,132 @@ class RightsHolderService
         return DB::table('term_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
     }
 
+    // ── Extended Rights (extended_rights + extended_rights_i18n + extended_rights_tk_label) ──
+
+    /**
+     * Get all extended rights for an object (rights holder is linked to IOs via extended_rights.rights_holder).
+     * For a rights holder show page, we look for extended_rights rows where rights_holder matches the RH name.
+     */
+    public function getExtendedRightsForHolder(int $rhId): \Illuminate\Support\Collection
+    {
+        // Get the rights holder name
+        $rhName = DB::table('actor_i18n')
+            ->where('id', $rhId)
+            ->where('culture', $this->culture)
+            ->value('authorized_form_of_name');
+
+        if (!$rhName) {
+            return collect();
+        }
+
+        try {
+            return DB::table('extended_rights as er')
+                ->leftJoin('extended_rights_i18n as eri', function ($j) {
+                    $j->on('eri.extended_rights_id', '=', 'er.id')
+                        ->where('eri.culture', '=', $this->culture);
+                })
+                ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
+                ->leftJoin('rights_statement_i18n as rs_i18n', function ($j) {
+                    $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
+                        ->where('rs_i18n.culture', '=', $this->culture);
+                })
+                ->leftJoin('rights_cc_license as cc', 'er.creative_commons_license_id', '=', 'cc.id')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('ioi.id', '=', 'er.object_id')
+                        ->where('ioi.culture', '=', $this->culture);
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'er.object_id')
+                ->where('er.rights_holder', $rhName)
+                ->select([
+                    'er.*',
+                    'eri.rights_note',
+                    'eri.usage_conditions',
+                    'eri.copyright_notice',
+                    'rs.code as rights_statement_code',
+                    'rs.uri as rights_statement_uri',
+                    'rs_i18n.name as rights_statement_name',
+                    'cc.code as cc_license_code',
+                    'cc.uri as cc_license_uri',
+                    'ioi.title as object_title',
+                    's.slug as object_slug',
+                ])
+                ->orderByDesc('er.created_at')
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Get TK labels for a specific extended_rights record.
+     */
+    public function getTkLabelsForRights(int $extendedRightsId): \Illuminate\Support\Collection
+    {
+        try {
+            return DB::table('extended_rights_tk_label as ertl')
+                ->join('rights_tk_label as tkl', 'ertl.tk_label_id', '=', 'tkl.id')
+                ->where('ertl.extended_rights_id', $extendedRightsId)
+                ->select(['tkl.*'])
+                ->get();
+        } catch (\Illuminate\Database\QueryException $e) {
+            return collect();
+        }
+    }
+
+    /**
+     * Save an extended right linked to this rights holder.
+     */
+    public function saveExtendedRight(int $objectId, array $data, ?int $userId = null): int
+    {
+        $now = date('Y-m-d H:i:s');
+
+        // If is_primary, unset any existing primary for this object
+        if (!empty($data['is_primary'])) {
+            DB::table('extended_rights')
+                ->where('object_id', $objectId)
+                ->where('is_primary', 1)
+                ->update(['is_primary' => 0, 'updated_at' => $now]);
+        }
+
+        $id = DB::table('extended_rights')->insertGetId([
+            'object_id'                   => $objectId,
+            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
+            'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
+            'rights_date'                 => $data['rights_date'] ?? null,
+            'expiry_date'                 => $data['expiry_date'] ?? null,
+            'rights_holder'               => $data['rights_holder'] ?? null,
+            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
+            'is_primary'                  => $data['is_primary'] ?? 1,
+            'created_by'                  => $userId,
+            'updated_by'                  => $userId,
+            'created_at'                  => $now,
+            'updated_at'                  => $now,
+        ]);
+
+        // Insert i18n row
+        DB::table('extended_rights_i18n')->insert([
+            'extended_rights_id' => $id,
+            'culture'            => $this->culture,
+            'rights_note'        => $data['rights_note'] ?? null,
+            'usage_conditions'   => $data['usage_conditions'] ?? null,
+            'copyright_notice'   => $data['copyright_notice'] ?? null,
+        ]);
+
+        // Insert TK labels
+        if (!empty($data['tk_label_ids'])) {
+            foreach ($data['tk_label_ids'] as $tkLabelId) {
+                DB::table('extended_rights_tk_label')->insert([
+                    'extended_rights_id' => $id,
+                    'tk_label_id'        => (int) $tkLabelId,
+                    'created_at'         => $now,
+                    'updated_at'         => $now,
+                ]);
+            }
+        }
+
+        return $id;
+    }
+
     public function create(array $data): int
     {
         return DB::transaction(function () use ($data) {

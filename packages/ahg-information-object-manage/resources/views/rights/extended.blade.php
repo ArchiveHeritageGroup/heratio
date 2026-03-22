@@ -23,7 +23,7 @@
   <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<form method="post">
+<form method="post" action="{{ route('io.rights.extended.store', $io->slug) }}">
   @csrf
   <div class="row">
     <div class="col-md-6">
@@ -81,6 +81,31 @@
             @endif
           </select>
           <small class="text-muted">Select the donor who holds the rights to this material.</small>
+        </div>
+      </div>
+
+      <!-- I18n fields: copyright_notice, usage_conditions, rights_note -->
+      <div class="card mb-4">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Details</strong></div>
+        <div class="card-body">
+          @php
+            $primaryExtended = isset($extendedRights) ? $extendedRights->firstWhere('is_primary', 1) : null;
+          @endphp
+
+          <div class="mb-3">
+            <label for="copyright_notice" class="form-label">Copyright Notice <span class="badge bg-secondary ms-1">Optional</span></label>
+            <textarea name="copyright_notice" id="copyright_notice" class="form-control" rows="2">{{ old('copyright_notice', $primaryExtended->copyright_notice ?? '') }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="usage_conditions" class="form-label">Usage Conditions <span class="badge bg-secondary ms-1">Optional</span></label>
+            <textarea name="usage_conditions" id="usage_conditions" class="form-control" rows="2">{{ old('usage_conditions', $primaryExtended->usage_conditions ?? '') }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="rights_note" class="form-label">Rights Note <span class="badge bg-secondary ms-1">Optional</span></label>
+            <textarea name="rights_note" id="rights_note" class="form-control" rows="3">{{ old('rights_note', $primaryExtended->rights_note ?? '') }}</textarea>
+          </div>
         </div>
       </div>
     </div>

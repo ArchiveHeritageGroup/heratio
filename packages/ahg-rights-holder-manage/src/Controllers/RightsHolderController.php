@@ -50,11 +50,20 @@ class RightsHolderController extends Controller
         $basisIds = $rights->pluck('basis_id')->filter()->unique()->values()->toArray();
         $contacts = $this->service->getContacts($rh->id);
 
+        // Extended rights linked to this rights holder
+        $extendedRights = $this->service->getExtendedRightsForHolder($rh->id);
+        $extendedRightsTkLabels = [];
+        foreach ($extendedRights as $er) {
+            $extendedRightsTkLabels[$er->id] = $this->service->getTkLabelsForRights($er->id);
+        }
+
         return view('ahg-rights-holder-manage::show', [
             'rightsHolder' => $rh,
             'rights' => $rights,
             'basisNames' => $this->service->getTermNames($basisIds),
             'contacts' => $contacts,
+            'extendedRights' => $extendedRights,
+            'extendedRightsTkLabels' => $extendedRightsTkLabels,
         ]);
     }
 

@@ -728,6 +728,104 @@ class MuseumService
     }
 
     /**
+     * All museum_metadata columns that are user-editable (excludes id, object_id, created_at, updated_at).
+     */
+    private const MUSEUM_METADATA_FIELDS = [
+        'work_type', 'object_type', 'classification', 'materials', 'techniques',
+        'measurements', 'dimensions', 'creation_date_earliest', 'creation_date_latest',
+        'inscription', 'inscriptions', 'condition_notes', 'provenance', 'style_period',
+        'cultural_context', 'current_location', 'edition_description', 'state_description',
+        'state_identification', 'facture_description', 'technique_cco', 'technique_qualifier',
+        'orientation', 'physical_appearance', 'color', 'shape', 'condition_term',
+        'condition_date', 'condition_description', 'condition_agent', 'treatment_type',
+        'treatment_date', 'treatment_agent', 'treatment_description',
+        'inscription_transcription', 'inscription_type', 'inscription_location',
+        'inscription_language', 'inscription_translation', 'mark_type', 'mark_description',
+        'mark_location', 'related_work_type', 'related_work_relationship',
+        'related_work_label', 'related_work_id', 'current_location_repository',
+        'current_location_geography', 'current_location_coordinates',
+        'current_location_ref_number', 'creation_place', 'creation_place_type',
+        'discovery_place', 'discovery_place_type', 'provenance_text', 'ownership_history',
+        'legal_status', 'rights_type', 'rights_holder', 'rights_date', 'rights_remarks',
+        'cataloger_name', 'cataloging_date', 'cataloging_institution', 'cataloging_remarks',
+        'record_type', 'record_level', 'creator_identity', 'creator_role', 'creator_extent',
+        'creator_qualifier', 'creator_attribution', 'creation_date_display',
+        'creation_date_qualifier', 'style', 'period', 'cultural_group', 'movement',
+        'school', 'dynasty', 'subject_indexing_type', 'subject_display', 'subject_extent',
+        'historical_context', 'architectural_context', 'archaeological_context',
+        'object_class', 'object_category', 'object_sub_category', 'edition_number',
+        'edition_size',
+    ];
+
+    /**
+     * Date columns that need empty-string → null coercion.
+     */
+    private const MUSEUM_METADATA_DATE_FIELDS = [
+        'creation_date_earliest', 'creation_date_latest', 'condition_date',
+        'treatment_date', 'cataloging_date',
+    ];
+
+    /**
+     * Get museum_metadata for a given information_object ID.
+     * Returns an associative array of all CCO fields, or empty array if no row exists.
+     */
+    public function getMuseumMetadata(int $objectId): array
+    {
+        $row = DB::table('museum_metadata')
+            ->where('object_id', $objectId)
+            ->first();
+
+        if (!$row) {
+            return [];
+        }
+
+        return (array) $row;
+    }
+
+    /**
+     * Save (insert or update) museum_metadata for a given information_object ID.
+     * Follows the StorageService::saveExtendedData() pattern: upsert with field whitelist.
+     */
+    public function saveMuseumMetadata(int $objectId, array $data): void
+    {
+        $values = [];
+        foreach (self::MUSEUM_METADATA_FIELDS as $field) {
+            if (array_key_exists($field, $data)) {
+                $value = $data[$field];
+                // Convert empty strings to null
+                if ($value === '' || $value === null) {
+                    $value = null;
+                }
+                // Date fields: coerce empty to null
+                if (in_array($field, self::MUSEUM_METADATA_DATE_FIELDS, true) && $value === '') {
+                    $value = null;
+                }
+                $values[$field] = $value;
+            }
+        }
+
+        if (empty($values)) {
+            return;
+        }
+
+        $exists = DB::table('museum_metadata')
+            ->where('object_id', $objectId)
+            ->exists();
+
+        if ($exists) {
+            $values['updated_at'] = now();
+            DB::table('museum_metadata')
+                ->where('object_id', $objectId)
+                ->update($values);
+        } else {
+            $values['object_id'] = $objectId;
+            $values['created_at'] = now();
+            $values['updated_at'] = now();
+            DB::table('museum_metadata')->insert($values);
+        }
+    }
+
+    /**
      * Get extra data needed for edit form: physical location, watermark settings, admin area.
      */
     public function getEditExtras(?int $objectId, string $culture): array

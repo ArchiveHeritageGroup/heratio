@@ -123,4 +123,108 @@
       @endforeach
     </section>
   @endif
+
+  {{-- Extended rights --}}
+  @if(isset($extendedRights) && $extendedRights->isNotEmpty())
+    <section class="mb-4">
+      <h2 class="fs-5 border-bottom pb-2">Extended rights</h2>
+
+      @foreach($extendedRights as $er)
+        <div class="card mb-2">
+          <div class="card-body">
+            @if($er->object_title)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Related object</div>
+                <div class="col-md-9">
+                  @if($er->object_slug)
+                    <a href="{{ route('informationobject.show', $er->object_slug) }}">{{ $er->object_title }}</a>
+                  @else
+                    {{ $er->object_title }}
+                  @endif
+                </div>
+              </div>
+            @endif
+
+            @if($er->rights_statement_name || $er->rights_statement_code)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Rights statement</div>
+                <div class="col-md-9">
+                  @if($er->rights_statement_uri)
+                    <a href="{{ $er->rights_statement_uri }}" target="_blank">{{ $er->rights_statement_name ?? $er->rights_statement_code }}</a>
+                  @else
+                    {{ $er->rights_statement_name ?? $er->rights_statement_code }}
+                  @endif
+                </div>
+              </div>
+            @endif
+
+            @if($er->cc_license_code)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Creative Commons</div>
+                <div class="col-md-9">
+                  @if($er->cc_license_uri)
+                    <a href="{{ $er->cc_license_uri }}" target="_blank">CC {{ strtoupper($er->cc_license_code) }}</a>
+                  @else
+                    CC {{ strtoupper($er->cc_license_code) }}
+                  @endif
+                </div>
+              </div>
+            @endif
+
+            @if($er->rights_holder)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Rights holder</div>
+                <div class="col-md-9">
+                  @if($er->rights_holder_uri)
+                    <a href="{{ $er->rights_holder_uri }}" target="_blank">{{ $er->rights_holder }}</a>
+                  @else
+                    {{ $er->rights_holder }}
+                  @endif
+                </div>
+              </div>
+            @endif
+
+            @if($er->copyright_notice)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Copyright notice</div>
+                <div class="col-md-9">{!! nl2br(e($er->copyright_notice)) !!}</div>
+              </div>
+            @endif
+
+            @if($er->usage_conditions)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Usage conditions</div>
+                <div class="col-md-9">{!! nl2br(e($er->usage_conditions)) !!}</div>
+              </div>
+            @endif
+
+            @if($er->rights_note)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Rights note</div>
+                <div class="col-md-9">{!! nl2br(e($er->rights_note)) !!}</div>
+              </div>
+            @endif
+
+            @if($er->rights_date)
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">Rights date</div>
+                <div class="col-md-9">{{ $er->rights_date }}@if($er->expiry_date) &ndash; {{ $er->expiry_date }}@endif</div>
+              </div>
+            @endif
+
+            @if(isset($extendedRightsTkLabels[$er->id]) && $extendedRightsTkLabels[$er->id]->isNotEmpty())
+              <div class="row mb-1">
+                <div class="col-md-3 fw-bold">TK Labels</div>
+                <div class="col-md-9">
+                  @foreach($extendedRightsTkLabels[$er->id] as $tkl)
+                    <span class="badge bg-secondary me-1">{{ $tkl->code ?? $tkl->id }}</span>
+                  @endforeach
+                </div>
+              </div>
+            @endif
+          </div>
+        </div>
+      @endforeach
+    </section>
+  @endif
 @endsection

@@ -380,6 +380,8 @@ class InformationObjectController extends Controller
 
         // Rights (authenticated users only, linked via relation table)
         $rights = collect();
+        $extendedRights = collect();
+        $extendedRightsTkLabels = [];
         if (auth()->check()) {
             try {
                 $rights = DB::table('relation')
@@ -392,6 +394,17 @@ class InformationObjectController extends Controller
                     ->get();
             } catch (\Exception $e) {
                 // rights table structure may vary
+            }
+
+            // Extended rights (from extended_rights + extended_rights_i18n tables)
+            try {
+                $erService = new \AhgInformationObjectManage\Services\ExtendedRightsService($culture);
+                $extendedRights = $erService->getExtendedRights($io->id);
+                foreach ($extendedRights as $er) {
+                    $extendedRightsTkLabels[$er->id] = $erService->getTkLabelsForRights($er->id);
+                }
+            } catch (\Exception $e) {
+                // extended_rights tables may not exist in all installs
             }
         }
 
@@ -549,6 +562,19 @@ class InformationObjectController extends Controller
             ->get();
         $relatedMaterialDescriptions = $relatedBySubject->merge($relatedByObject)->unique('id');
 
+        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row
+        $museumMetadata = [];
+        try {
+            $mmRow = DB::table('museum_metadata')
+                ->where('object_id', $io->id)
+                ->first();
+            if ($mmRow) {
+                $museumMetadata = (array) $mmRow;
+            }
+        } catch (\Exception $e) {
+            // museum_metadata table may not exist in all installs
+        }
+
         // Previous sibling
         $prevSibling = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -596,6 +622,8 @@ class InformationObjectController extends Controller
             'physicalObjects' => $physicalObjects,
             'physicalObjectTypeNames' => $physicalObjectTypeNames,
             'rights' => $rights,
+            'extendedRights' => $extendedRights,
+            'extendedRightsTkLabels' => $extendedRightsTkLabels,
             'accessions' => $accessions,
             'descriptionStatusName' => $descriptionStatusName,
             'descriptionDetailName' => $descriptionDetailName,
@@ -607,6 +635,7 @@ class InformationObjectController extends Controller
             'nextSibling' => $nextSibling,
             'findingAid' => $findingAid,
             'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
+            'museumMetadata' => $museumMetadata,
         ]);
     }
 
@@ -1004,8 +1033,21 @@ class InformationObjectController extends Controller
 
         $dropdowns = $this->getFormDropdowns($culture);
 
+        // Museum metadata (CCO fields) — present when this IO has a museum_metadata row
+        $museumMetadata = [];
+        try {
+            $mmRow = DB::table('museum_metadata')
+                ->where('object_id', $io->id)
+                ->first();
+            if ($mmRow) {
+                $museumMetadata = (array) $mmRow;
+            }
+        } catch (\Exception $e) {
+            // museum_metadata table may not exist in all installs
+        }
+
         return view('ahg-io-manage::edit', array_merge(
-            ['io' => $io],
+            ['io' => $io, 'museumMetadata' => $museumMetadata],
             $dropdowns
         ));
     }
@@ -1103,6 +1145,42 @@ class InformationObjectController extends Controller
                 'sources' => $request->input('sources'),
                 'revision_history' => $request->input('revision_history'),
             ]);
+
+        // Save museum_metadata if this IO has CCO fields submitted
+        try {
+            $museumFields = $request->only([
+                'work_type', 'object_type', 'classification', 'materials', 'techniques',
+                'measurements', 'dimensions', 'creation_date_earliest', 'creation_date_latest',
+                'inscription', 'inscriptions', 'condition_notes', 'provenance', 'style_period',
+                'cultural_context', 'current_location', 'edition_description', 'state_description',
+                'state_identification', 'facture_description', 'technique_cco', 'technique_qualifier',
+                'orientation', 'physical_appearance', 'color', 'shape', 'condition_term',
+                'condition_date', 'condition_description', 'condition_agent', 'treatment_type',
+                'treatment_date', 'treatment_agent', 'treatment_description',
+                'inscription_transcription', 'inscription_type', 'inscription_location',
+                'inscription_language', 'inscription_translation', 'mark_type', 'mark_description',
+                'mark_location', 'related_work_type', 'related_work_relationship',
+                'related_work_label', 'related_work_id', 'current_location_repository',
+                'current_location_geography', 'current_location_coordinates',
+                'current_location_ref_number', 'creation_place', 'creation_place_type',
+                'discovery_place', 'discovery_place_type', 'provenance_text', 'ownership_history',
+                'legal_status', 'rights_type', 'rights_holder', 'rights_date', 'rights_remarks',
+                'cataloger_name', 'cataloging_date', 'cataloging_institution', 'cataloging_remarks',
+                'record_type', 'record_level', 'creator_identity', 'creator_role', 'creator_extent',
+                'creator_qualifier', 'creator_attribution', 'creation_date_display',
+                'creation_date_qualifier', 'style', 'period', 'cultural_group', 'movement',
+                'school', 'dynasty', 'subject_indexing_type', 'subject_display', 'subject_extent',
+                'historical_context', 'architectural_context', 'archaeological_context',
+                'object_class', 'object_category', 'object_sub_category', 'edition_number',
+                'edition_size',
+            ]);
+            if (!empty($museumFields)) {
+                $museumService = new \AhgMuseum\Services\MuseumService($culture);
+                $museumService->saveMuseumMetadata($ioId, $museumFields);
+            }
+        } catch (\Exception $e) {
+            // museum_metadata table may not exist in all installs
+        }
 
         // Update object.updated_at
         DB::table('object')
