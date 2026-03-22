@@ -58,7 +58,7 @@ $hasLookup = in_array($sector, ['library']);
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-md-4">
-                <label class="form-label">@php echo __('Identifier Type') @endphp</label>
+                <label class="form-label">@php echo __('Identifier Type') @endphp <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select identifier-type-select"
                         id="identifierType@php echo $objectId @endphp">
                     @php foreach ($types as $key => $config): @endphp
@@ -72,7 +72,7 @@ $hasLookup = in_array($sector, ['library']);
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">@php echo __('Value') @endphp</label>
+                <label class="form-label">@php echo __('Value') @endphp <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="input-group">
                     <span class="input-group-text identifier-icon">
                         <i class="fa-solid fa-barcode"></i>
@@ -89,7 +89,7 @@ $hasLookup = in_array($sector, ['library']);
                     </button>
                     @if($hasLookup)
                     <button type="button"
-                            class="btn btn-primary lookup-btn"
+                            class="btn atom-btn-white lookup-btn"
                             title="@php echo __('Lookup metadata') @endphp">
                         <i class="fa-solid fa-search"></i>
                         <span class="d-none d-md-inline ms-1">@php echo __('Lookup') @endphp</span>
@@ -100,7 +100,7 @@ $hasLookup = in_array($sector, ['library']);
             </div>
 
             <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
+                <label class="form-label">&nbsp; <span class="badge bg-secondary ms-1">Optional</span></label>
                 <button type="button" class="btn btn-outline-primary w-100 generate-barcode-btn">
                     <i class="fa-solid fa-qrcode me-1"></i>@php echo __('Generate') @endphp
                 </button>

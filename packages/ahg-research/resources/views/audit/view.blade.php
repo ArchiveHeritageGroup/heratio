@@ -64,5 +64,5 @@
     @endif
   </div>
 </div>
-<a href="{{ route('audit.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Audit Log</a>
+<a href="{{ route('audit.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Audit Log</a>
 @endsection

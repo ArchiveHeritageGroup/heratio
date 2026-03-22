@@ -181,14 +181,14 @@
       <div class="card-body">
         <form method="get" action="{{ route('doi.report') }}" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Format</label>
+            <label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="format" class="form-select">
               <option value="csv">CSV</option>
               <option value="json">JSON</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Status</label>
+            <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="status" class="form-select">
               <option value="">All Statuses</option>
               <option value="findable">Findable</option>
@@ -198,11 +198,11 @@
             </select>
           </div>
           <div class="col-md-2">
-            <label class="form-label">From Date</label>
+            <label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="from_date" class="form-control">
           </div>
           <div class="col-md-2">
-            <label class="form-label">To Date</label>
+            <label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="to_date" class="form-control">
           </div>
           <div class="col-md-2 d-flex align-items-end">

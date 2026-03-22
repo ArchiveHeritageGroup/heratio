@@ -8,16 +8,16 @@
 <div class="card"><div class="card-body">
     <form method="POST">@csrf
         <div class="row mb-3">
-            <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" required></div>
-            <div class="col-md-4"><label class="form-label">Template</label><select name="template_type" class="form-select">
+            <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="title" class="form-control" required></div>
+            <div class="col-md-4"><label class="form-label">Template <span class="badge bg-secondary ms-1">Optional</span></label><select name="template_type" class="form-select">
                 <option value="custom">Custom</option><option value="research_summary">Research Summary</option><option value="genealogical">Genealogical Report</option><option value="historical">Historical Analysis</option><option value="source_analysis">Source Analysis</option><option value="finding_aid">Finding Aid</option>
             </select></div>
         </div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-        <div class="mb-3"><label class="form-label">Project</label><select name="project_id" class="form-select"><option value="">-- No project --</option>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">Optional</span></label><select name="project_id" class="form-select"><option value="">-- No project --</option>
             @foreach($projects ?? [] as $p)<option value="{{ $p->id }}">{{ e($p->title ?? '') }}</option>@endforeach
         </select></div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>Create Report</button>
         <a href="{{ route('research.reports') }}" class="btn atom-btn-white">Cancel</a>
     </form>
 </div></div>

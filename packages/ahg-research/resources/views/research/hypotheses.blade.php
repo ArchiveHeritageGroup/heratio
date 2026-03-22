@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li><li class="breadcrumb-item active">Hypotheses</li></ol></nav>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-lightbulb text-primary me-2"></i>Hypotheses</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHypothesisModal"><i class="fas fa-plus me-1"></i>New Hypothesis</button>
+    <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#addHypothesisModal"><i class="fas fa-plus me-1"></i>New Hypothesis</button>
 </div>
 @if(!empty($hypotheses))
 <div class="row">
@@ -34,10 +34,10 @@
 <div class="modal fade" id="addHypothesisModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST">@csrf <input type="hidden" name="project_id" value="{{ $project->id ?? 0 }}">
     <div class="modal-header"><h5 class="modal-title">New Hypothesis</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-        <div class="mb-3"><label class="form-label">Status</label><select name="status" class="form-select"><option value="proposed">Proposed</option><option value="testing">Testing</option></select></div>
+        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="title" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label><select name="status" class="form-select"><option value="proposed">Proposed</option><option value="testing">Testing</option></select></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Create</button></div>
+    <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-white">Create</button></div>
 </form></div></div></div>
 @endsection

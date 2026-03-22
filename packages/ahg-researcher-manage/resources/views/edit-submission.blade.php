@@ -29,17 +29,17 @@
           <form method="post">
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="title" class="form-control" required value="@php echo htmlspecialchars($submission->title) @endphp">
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Description</label>
+              <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" class="form-control" rows="3">@php echo htmlspecialchars($submission->description ?? '') @endphp</textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Target Repository</label>
+              <label class="form-label fw-bold">Target Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="repository_id" class="form-select">
                 <option value="">-- Select repository --</option>
                 @php foreach ($repositories as $repo): @endphp
@@ -52,7 +52,7 @@
 
             @if(!empty($projects))
             <div class="mb-3">
-              <label class="form-label fw-bold">Linked Research Project</label>
+              <label class="form-label fw-bold">Linked Research Project <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="project_id" class="form-select">
                 <option value="">-- None --</option>
                 @php foreach ($projects as $proj): @endphp
@@ -66,7 +66,7 @@
             @endif
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Parent Record (optional)</label>
+              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="@php echo $submission->parent_object_id ?? '' @endphp">
               <input type="text" class="form-control" id="parentSearch" placeholder="Type to search for a parent record..." autocomplete="off"
                      value="@php echo htmlspecialchars($parentTitle) @endphp">
@@ -80,7 +80,7 @@
               <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Cancel
               </a>
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn atom-btn-white">
                 <i class="bi bi-check-lg me-1"></i>Save Changes
               </button>
             </div>

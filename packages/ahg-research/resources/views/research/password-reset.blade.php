@@ -8,9 +8,9 @@
     @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
     <form method="POST">@csrf
         <input type="hidden" name="token" value="{{ $token ?? '' }}">
-        <div class="mb-3"><label class="form-label">New Password <span class="text-danger">*</span></label><input type="password" name="password" class="form-control" required minlength="8"></div>
-        <div class="mb-3"><label class="form-label">Confirm Password <span class="text-danger">*</span></label><input type="password" name="password_confirmation" class="form-control" required></div>
-        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save me-1"></i>Reset Password</button>
+        <div class="mb-3"><label class="form-label">New Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="password" name="password" class="form-control" required minlength="8"></div>
+        <div class="mb-3"><label class="form-label">Confirm Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="password" name="password_confirmation" class="form-control" required></div>
+        <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-save me-1"></i>Reset Password</button>
     </form>
 </div></div>
 </div></div>

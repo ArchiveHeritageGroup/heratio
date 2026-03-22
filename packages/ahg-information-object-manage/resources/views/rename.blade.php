@@ -48,7 +48,7 @@
                   </label>
                 </div>
                 <div class="mb-3">
-                  <label for="title" class="form-label">Title</label>
+                  <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" class="form-control" id="title" name="title" value="{{ $io->title }}">
                   <div class="form-text">Editing the description title will automatically update the slug field if the "Update slug" checkbox is selected - you can still edit it after.</div>
                 </div>
@@ -65,7 +65,7 @@
                   </label>
                 </div>
                 <div class="mb-3">
-                  <label for="slug" class="form-label">Slug</label>
+                  <label for="slug" class="form-label">Slug <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" class="form-control" id="slug" name="slug" value="{{ $io->slug }}">
                   <div class="form-text">Do not use any special characters or spaces in the slug - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the slug will not automatically update the other fields.</div>
                 </div>
@@ -80,7 +80,7 @@
                     </label>
                   </div>
                   <div class="mb-3">
-                    <label for="filename" class="form-label">Filename</label>
+                    <label for="filename" class="form-label">Filename <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" class="form-control" id="filename" name="filename" value="{{ $digitalObject->name }}">
                     <div class="form-text">Do not use any special characters or spaces in the filename - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the filename will not automatically update the other fields.</div>
                   </div>

@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-camera text-primary me-2"></i>Collection Snapshots</h1>
     <form method="POST" class="d-inline">@csrf <input type="hidden" name="collection_id" value="{{ $collection->id ?? 0 }}">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-camera me-1"></i>Take Snapshot</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-camera me-1"></i>Take Snapshot</button>
     </form>
 </div>
 @if(!empty($snapshots))

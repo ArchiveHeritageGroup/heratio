@@ -53,7 +53,7 @@
     </div>
     <div class="card-body">
       <div class="mb-3">
-        <label class="form-label">Search and select objects</label>
+        <label class="form-label">Search and select objects <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="object_ids[]" id="object_select" multiple class="form-select">
           @foreach($topLevelRecords ?? [] as $record)
             <option value="{{ $record->id }}">
@@ -79,7 +79,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="rights_statement_id" class="form-label">Rights Statement</label>
+          <label for="rights_statement_id" class="form-label">Rights Statement <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="rights_statement_id" id="rights_statement_id" class="form-select">
             <option value="">-- Select --</option>
             @foreach($rightsStatements ?? [] as $rs)
@@ -88,7 +88,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label for="creative_commons_id" class="form-label">Creative Commons License</label>
+          <label for="creative_commons_id" class="form-label">Creative Commons License <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="creative_commons_id" id="creative_commons_id" class="form-select">
             <option value="">-- Select --</option>
             @foreach($ccLicenses ?? [] as $cc)
@@ -99,7 +99,7 @@
       </div>
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="rights_holder_id" class="form-label">Rights Holder</label>
+          <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select">
             <option value="">-- Select --</option>
             @foreach($donors ?? [] as $donor)
@@ -108,14 +108,14 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label for="copyright_notice" class="form-label">Copyright Notice</label>
+          <label for="copyright_notice" class="form-label">Copyright Notice <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="copyright_notice" id="copyright_notice" class="form-control" placeholder="&copy; {{ date('Y') }} ...">
         </div>
       </div>
 
       {{-- TK Labels --}}
       <div class="mb-3">
-        <label class="form-label">Traditional Knowledge Labels</label>
+        <label class="form-label">Traditional Knowledge Labels <span class="badge bg-secondary ms-1">Optional</span></label>
         <div class="row">
           @foreach($tkLabels ?? [] as $tk)
           <div class="col-md-4 mb-2">
@@ -138,7 +138,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="embargo_type" class="form-label">Embargo Type</label>
+          <label for="embargo_type" class="form-label">Embargo Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select">
             <option value="full">Full (no access)</option>
             <option value="metadata_only">Metadata only</option>
@@ -146,7 +146,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label for="embargo_end_date" class="form-label">End Date (optional)</label>
+          <label for="embargo_end_date" class="form-label">End Date (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="embargo_end_date" id="embargo_end_date" class="form-control">
         </div>
       </div>

@@ -89,7 +89,7 @@ $allModes = [
                                 <div class="row g-3">
                                     <!-- Display Mode -->
                                     <div class="col-md-6">
-                                        <label class="form-label">{{ __('Display Mode') }}</label>
+                                        <label class="form-label">{{ __('Display Mode') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                                         <div class="btn-group d-flex" role="group">
                                             @php foreach ($availableModes as $mode => $meta): @endphp
                                                 <input type="radio" class="btn-check" 
@@ -109,7 +109,7 @@ $allModes = [
                                     
                                     <!-- Items Per Page -->
                                     <div class="col-md-3">
-                                        <label class="form-label">{{ __('Items Per Page') }}</label>
+                                        <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                                         <select name="items_per_page" class="form-select">
                                             @php foreach ([10, 20, 30, 50, 100] as $count): @endphp
                                                 <option value="@php echo $count; @endphp"
@@ -122,7 +122,7 @@ $allModes = [
                                     
                                     <!-- Card Size -->
                                     <div class="col-md-3">
-                                        <label class="form-label">{{ __('Card Size') }}</label>
+                                        <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                                         <select name="card_size" class="form-select">
                                             <option value="small" @php echo ($settings['card_size'] ?? 'medium') === 'small' ? 'selected' : ''; @endphp>Small</option>
                                             <option value="medium" @php echo ($settings['card_size'] ?? 'medium') === 'medium' ? 'selected' : ''; @endphp>Medium</option>
@@ -164,7 +164,7 @@ $allModes = [
                                             <span></span>
                                         @endif
                                         
-                                        <button type="submit" class="btn btn-primary btn-sm">
+                                        <button type="submit" class="btn atom-btn-white btn-sm">
                                             <i class="bi bi-save me-1"></i>
                                             Save Preference
                                         </button>
@@ -207,13 +207,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (result.success) {
                     submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Saved!';
-                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.remove('atom-btn-white');
                     submitBtn.classList.add('btn-success');
                     
                     setTimeout(() => {
                         submitBtn.innerHTML = originalText;
                         submitBtn.classList.remove('btn-success');
-                        submitBtn.classList.add('btn-primary');
+                        submitBtn.classList.add('atom-btn-white');
                         submitBtn.disabled = false;
                     }, 2000);
                 } else {

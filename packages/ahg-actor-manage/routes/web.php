@@ -19,3 +19,9 @@ Route::middleware('admin')->group(function () {
 
 Route::get('/actor/{slug}/print', [ActorController::class, 'print'])->name('actor.print');
 Route::get('/actor/{slug}', [ActorController::class, 'show'])->name('actor.show');
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/informationobject/autocomplete', function() { return view('actormanage::autocomplete'); })->name('informationobject.autocomplete');
+});

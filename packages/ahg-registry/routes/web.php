@@ -188,4 +188,50 @@ Route::prefix('registry/admin')->name('registry.admin.')->middleware('admin')->g
     Route::get('/erd',                 [RegistryController::class, 'adminErd'])->name('erd');
     Route::get('/erd/{id}/edit',       [RegistryController::class, 'adminErdEdit'])->name('erdEdit');
     Route::get('/extension/{id}/edit', [RegistryController::class, 'adminExtensionEdit'])->name('extensionEdit');
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/index', function() { return view('registry::index'); })->name('registry.index');
+Route::match(['get','post'], '/institution-browse', function() { return view('registry::institution-browse'); })->name('registry.institutionBrowse');
+Route::match(['get','post'], '/vendor-browse', function() { return view('registry::vendor-browse'); })->name('registry.vendorBrowse');
+Route::match(['get','post'], '/setup-guide-browse', function() { return view('registry::setup-guide-browse'); })->name('registry.setupGuideBrowse');
+Route::match(['get','post'], '/newsletter-browse', function() { return view('registry::newsletter-browse'); })->name('registry.newsletterBrowse');
+Route::match(['get','post'], '/erd-browse', function() { return view('registry::erd-browse'); })->name('registry.erdBrowse');
+Route::match(['get','post'], '/search', function() { return view('registry::search'); })->name('registry.search');
+Route::match(['get','post'], '/software-browse', function() { return view('registry::software-browse'); })->name('registry.softwareBrowse');
+Route::match(['get','post'], '/standard-browse', function() { return view('registry::standard-browse'); })->name('registry.standardBrowse');
+Route::match(['get','post'], '/group-browse', function() { return view('registry::group-browse'); })->name('registry.groupBrowse');
+Route::match(['get','post'], '/my-favorites', function() { return view('registry::my-favorites'); })->name('registry.myFavorites');
+Route::match(['get','post'], '/blog-view', function() { return view('registry::blog-view'); })->name('registry.blogView');
+Route::match(['get','post'], '/blog-list', function() { return view('registry::blog-list'); })->name('registry.blogList');
+Route::match(['get','post'], '/community', function() { return view('registry::community'); })->name('registry.community');
+Route::match(['get','post'], '/institution-register', function() { return view('registry::institution-register'); })->name('registry.institutionRegister');
+Route::match(['get','post'], '/vendor-register', function() { return view('registry::vendor-register'); })->name('registry.vendorRegister');
+Route::match(['get','post'], '/newsletter-subscribe', function() { return view('registry::newsletter-subscribe'); })->name('registry.newsletterSubscribe');
+Route::match(['get','post'], '/admin/dashboard', function() { return view('registry::dashboard'); })->name('registry.admin.dashboard');
+Route::match(['get','post'], '/group-create', function() { return view('registry::group-create'); })->name('registry.groupCreate');
+Route::match(['get','post'], '/discussion-list', function() { return view('registry::discussion-list'); })->name('registry.discussionList');
+});
+
+// Registry routes
+Route::middleware(['web'])->prefix('registry')->group(function () {
+    Route::get('/', fn() => view('registry::index'))->name('registry.index');
+    Route::get('/search', fn() => view('registry::search'))->name('registry.search');
+    Route::get('/institutions', fn() => view('registry::institution-browse'))->name('registry.institutionBrowse');
+    Route::get('/vendors', fn() => view('registry::vendor-browse'))->name('registry.vendorBrowse');
+    Route::get('/software', fn() => view('registry::software-browse'))->name('registry.softwareBrowse');
+    Route::get('/standards', fn() => view('registry::standard-browse'))->name('registry.standardBrowse');
+    Route::get('/setup-guides', fn() => view('registry::setup-guide-browse'))->name('registry.setupGuideBrowse');
+    Route::get('/newsletters', fn() => view('registry::newsletter-browse'))->name('registry.newsletterBrowse');
+    Route::get('/erd', fn() => view('registry::erd-browse'))->name('registry.erdBrowse');
+    Route::get('/groups', fn() => view('registry::group-browse'))->name('registry.groupBrowse');
+    Route::get('/groups/create', fn() => view('registry::group-create'))->name('registry.groupCreate');
+    Route::get('/blog', fn() => view('registry::blog-list'))->name('registry.blogList');
+    Route::get('/blog/{id}', fn($id) => view('registry::blog-view', ['id' => $id]))->name('registry.blogView');
+    Route::get('/community', fn() => view('registry::community'))->name('registry.community');
+    Route::get('/discussions', fn() => view('registry::discussion-list'))->name('registry.discussionList');
+    Route::get('/favorites', fn() => view('registry::my-favorites'))->name('registry.myFavorites');
+    Route::get('/institutions/register', fn() => view('registry::institution-register'))->name('registry.institutionRegister');
+    Route::get('/vendors/register', fn() => view('registry::vendor-register'))->name('registry.vendorRegister');
+    Route::post('/newsletters/subscribe', fn() => redirect()->back())->name('registry.newsletterSubscribe');
+    Route::get('/admin/dashboard', fn() => view('registry::admin-dashboard'))->name('registry.admin.dashboard');
 });

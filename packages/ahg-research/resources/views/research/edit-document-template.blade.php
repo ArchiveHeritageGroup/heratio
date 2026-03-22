@@ -10,8 +10,8 @@
         <form method="POST">
             @csrf
             <div class="row mb-3">
-                <div class="col-md-8"><label class="form-label">Template Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" required value="{{ e($template->name ?? '') }}"></div>
-                <div class="col-md-4"><label class="form-label">Category</label>
+                <div class="col-md-8"><label class="form-label">Template Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" required value="{{ e($template->name ?? '') }}"></div>
+                <div class="col-md-4"><label class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="category" class="form-select">
                         <option value="letter" {{ ($template->category ?? '') === 'letter' ? 'selected' : '' }}>Letter</option>
                         <option value="report" {{ ($template->category ?? '') === 'report' ? 'selected' : '' }}>Report</option>
@@ -21,12 +21,12 @@
                     </select>
                 </div>
             </div>
-            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2">{{ e($template->description ?? '') }}</textarea></div>
-            <div class="mb-3"><label class="form-label">Template Content <span class="text-danger">*</span></label><textarea name="content" class="form-control font-monospace" rows="15" required>{{ e($template->content ?? '') }}</textarea>
+            <div class="mb-3"><label class="form-label">Description <span class="badge bg-danger ms-1">Required</span></label><textarea name="description" class="form-control" rows="2">{{ e($template->description ?? '') }}</textarea></div>
+            <div class="mb-3"><label class="form-label">Template Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><textarea name="content" class="form-control font-monospace" rows="15" required>{{ e($template->content ?? '') }}</textarea>
                 <small class="text-muted">Use placeholders: {researcher_name}, {date}, {institution}, {reference_number}</small>
             </div>
             <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($template->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active</label></div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Template</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save Template</button>
             <a href="{{ route('research.documentTemplates') }}" class="btn atom-btn-white">Cancel</a>
         </form>
     </div>

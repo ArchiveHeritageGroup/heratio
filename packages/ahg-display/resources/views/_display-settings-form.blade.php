@@ -139,7 +139,7 @@ $moduleLabels = [
                     <div class="row g-3">
                         <!-- Default Display Mode -->
                         <div class="col-md-6">
-                            <label class="form-label">{{ __('Default Display Mode') }}</label>
+                            <label class="form-label">{{ __('Default Display Mode') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <div class="btn-group-vertical w-100" id="editModeGroup">
                                 @php foreach ($allModes as $mode => $info): @endphp
                                     <input type="radio" class="btn-check" name="display_mode" 
@@ -155,7 +155,7 @@ $moduleLabels = [
                         
                         <!-- Available Modes -->
                         <div class="col-md-6">
-                            <label class="form-label">{{ __('Available Modes') }}</label>
+                            <label class="form-label">{{ __('Available Modes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <p class="text-muted small">Select which modes users can choose from</p>
                             
                             @php foreach ($allModes as $mode => $info): @endphp
@@ -173,7 +173,7 @@ $moduleLabels = [
                         
                         <!-- Items Per Page -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Items Per Page') }}</label>
+                            <label class="form-label">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="items_per_page" id="editItemsPerPage" class="form-select">
                                 <option value="10">10</option>
                                 <option value="20">20</option>
@@ -185,7 +185,7 @@ $moduleLabels = [
                         
                         <!-- Card Size -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Card Size') }}</label>
+                            <label class="form-label">{{ __('Card Size') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="card_size" id="editCardSize" class="form-select">
                                 <option value="small">Small</option>
                                 <option value="medium">Medium</option>
@@ -195,7 +195,7 @@ $moduleLabels = [
                         
                         <!-- Sort Default -->
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Default Sort') }}</label>
+                            <label class="form-label">{{ __('Default Sort') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="sort_field" id="editSortField" class="form-select">
                                 <option value="updated_at">Last Updated</option>
                                 <option value="created_at">Date Created</option>
@@ -247,8 +247,8 @@ $moduleLabels = [
                 <button type="button" class="btn btn-outline-warning" id="resetModuleBtn">
                     <i class="bi bi-arrow-counterclockwise me-1"></i> Reset to Default
                 </button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveDisplaySettings">
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn atom-btn-white" id="saveDisplaySettings">
                     <i class="bi bi-save me-1"></i> Save Settings
                 </button>
             </div>

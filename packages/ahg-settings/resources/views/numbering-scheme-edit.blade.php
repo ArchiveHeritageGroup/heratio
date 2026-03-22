@@ -51,7 +51,7 @@
                 <div class="form-text">Use tokens below to build your pattern</div>
               </div>
               <div class="mb-3">
-                <label class="form-label">Insert Token</label>
+                <label class="form-label">Insert Token <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="d-flex flex-wrap gap-1">
                   @foreach(['{SEQ:4}', '{SEQ:5}', '{SEQ:6}', '{YEAR}', '{YY}', '{MONTH}', '{PREFIX}', '{REPO}', '{FONDS}', '{TYPE}', '{UUID}'] as $token)
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('pattern-field').value += '{{ $token }}'">{{ str_replace(['{','}'], '', $token) }}</button>
@@ -67,13 +67,13 @@
               <div class="row">
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label class="form-label">Counter start</label>
+                    <label class="form-label">Counter start <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="number" name="counter_start" class="form-control" value="{{ $scheme->counter_start ?? 1 }}" min="0">
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label class="form-label">Reset period</label>
+                    <label class="form-label">Reset period <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="reset_period" class="form-select">
                       <option value="never" {{ ($scheme->reset_period ?? 'never') === 'never' ? 'selected' : '' }}>Never</option>
                       <option value="yearly" {{ ($scheme->reset_period ?? '') === 'yearly' ? 'selected' : '' }}>Yearly</option>

@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Timeline Builder</li></ol></nav>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-stream text-primary me-2"></i>Timeline Builder</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="fas fa-plus me-1"></i>Add Event</button>
+    <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#addEventModal"><i class="fas fa-plus me-1"></i>Add Event</button>
 </div>
 <div class="card mb-4"><div class="card-body">
     @if(!empty($events))
@@ -39,11 +39,11 @@
 <div class="modal fade" id="addEventModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form method="POST">@csrf
     <div class="modal-header"><h5 class="modal-title">Add Timeline Event</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label">Date <span class="text-danger">*</span></label><input type="date" name="event_date" class="form-control" required></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
-        <div class="mb-3"><label class="form-label">Category</label><select name="category" class="form-select"><option value="event">Event</option><option value="milestone">Milestone</option><option value="discovery">Discovery</option><option value="document">Document</option></select></div>
+        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="title" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="date" name="event_date" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label><select name="category" class="form-select"><option value="event">Event</option><option value="milestone">Milestone</option><option value="discovery">Discovery</option><option value="document">Document</option></select></div>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Add Event</button></div>
+    <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-white">Add Event</button></div>
 </form></div></div></div>
 @endsection

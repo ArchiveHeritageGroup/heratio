@@ -13,7 +13,7 @@
       <div class="card-body">
         <form method="get" action="{{ route('reports.select') }}">
           <div class="mb-3">
-            <label class="form-label">Type</label>
+            <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="objectType" class="form-select">
               <option value="accession">Accession</option>
               <option value="informationObject">Archival Description</option>

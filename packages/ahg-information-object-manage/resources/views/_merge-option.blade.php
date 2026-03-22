@@ -17,7 +17,7 @@ $io = $resource ?? $informationObject ?? null; @endphp
             Need to create a multi-page PDF from multiple TIFF or image files?
         </p>
         <a href="@php echo url_for(['module' => 'tiffpdfmerge', 'action' => 'index', 'informationObject' => $io->slug]); @endphp" 
-           class="btn btn-info">
+           class="btn atom-btn-white">
             <i class="fas fa-file-pdf me-1"></i>
             Merge Images to PDF
         </a>

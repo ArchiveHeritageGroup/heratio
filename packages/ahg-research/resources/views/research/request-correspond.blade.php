@@ -24,7 +24,7 @@
     <div class="card-footer">
         <form method="POST" class="d-flex gap-2">@csrf <input type="hidden" name="request_id" value="{{ $request_id ?? 0 }}">
             <input type="text" name="message" class="form-control" placeholder="Type a message..." required>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane"></i></button>
         </form>
     </div>
 </div>

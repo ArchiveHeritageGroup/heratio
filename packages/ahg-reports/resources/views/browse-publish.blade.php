@@ -58,7 +58,7 @@
           @if(!empty($items) && count($items) > 0)
           <div class="card-footer">
             <a href="{{ route('informationobject.browse') }}" class="btn atom-btn-white">Return</a>
-            <button type="submit" class="btn btn-primary ms-2">Continue</button>
+            <button type="submit" class="btn atom-btn-white ms-2">Continue</button>
           </div>
           @endif
         </form>

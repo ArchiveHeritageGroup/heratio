@@ -82,7 +82,7 @@
                             <form method="post" action="{{ route('accessRequest.addApprover') }}">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="user_id" class="form-label">Select User</label>
+                                    <label for="user_id" class="form-label">Select User <span class="badge bg-danger ms-1">Required</span></label>
                                     <select class="form-select" id="user_id" name="user_id" required>
                                         <option value="">-- Select user --</option>
                                     </select>

@@ -172,7 +172,7 @@ $moduleLabels = [
                     Reset All to Defaults
                 </button>
                 
-                <button type="submit" class="btn btn-primary" id="saveAllBtn">
+                <button type="submit" class="btn atom-btn-white" id="saveAllBtn">
                     <i class="bi bi-save me-1"></i>
                     Save All Settings
                 </button>

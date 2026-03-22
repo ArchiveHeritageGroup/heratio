@@ -23,15 +23,15 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Date Start</label>
+            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End</label>
+            <label class="form-label">Date End <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Per Page</label>
+            <label class="form-label">Per Page <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="limit" class="form-select form-select-sm">
               <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
               <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
@@ -39,7 +39,7 @@
             </select>
           </div>
           <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search me-1"></i>Search</button>
+            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>Search</button>
           </div>
         </form>
       </div>

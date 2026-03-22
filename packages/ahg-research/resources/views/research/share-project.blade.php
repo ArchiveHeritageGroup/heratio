@@ -8,17 +8,17 @@
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Sharing Settings</div><div class="card-body">
     <form method="POST">@csrf
-        <div class="mb-3"><label class="form-label">Visibility</label><select name="visibility" class="form-select">
+        <div class="mb-3"><label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label><select name="visibility" class="form-select">
             <option value="private" {{ ($project->visibility ?? 'private') === 'private' ? 'selected' : '' }}>Private (only you)</option>
             <option value="team" {{ ($project->visibility ?? '') === 'team' ? 'selected' : '' }}>Team (collaborators only)</option>
             <option value="public" {{ ($project->visibility ?? '') === 'public' ? 'selected' : '' }}>Public (anyone with link)</option>
         </select></div>
-        <div class="mb-3"><label class="form-label">Share Link</label>
+        <div class="mb-3"><label class="form-label">Share Link <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="input-group"><input type="text" class="form-control" id="shareLink" value="{{ url('/research/shared/' . ($project->share_token ?? '')) }}" readonly>
                 <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('shareLink').value)"><i class="fas fa-copy"></i></button>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Update Sharing</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Update Sharing</button>
         <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn atom-btn-white">Cancel</a>
     </form>
 </div></div>

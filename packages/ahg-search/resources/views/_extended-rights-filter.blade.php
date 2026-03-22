@@ -36,7 +36,7 @@ $embargoFilter = $sf_request->getParameter('embargo_status', ''); @endphp
   
   <div class="row">
     <div class="col-md-4 mb-2">
-      <label for="rights_statement_filter" class="form-label small">{{ __('Rights Statement') }}</label>
+      <label for="rights_statement_filter" class="form-label small">{{ __('Rights Statement') }} <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="rights_statement_id" id="rights_statement_filter" class="form-select form-select-sm">
         <option value="">{{ __('Any') }}</option>
         <option value="none" @php echo $selectedRs === 'none' ? 'selected' : ''; @endphp>{{ __('No rights statement') }}</option>
@@ -49,7 +49,7 @@ $embargoFilter = $sf_request->getParameter('embargo_status', ''); @endphp
     </div>
     
     <div class="col-md-4 mb-2">
-      <label for="cc_license_filter" class="form-label small">{{ __('CC License') }}</label>
+      <label for="cc_license_filter" class="form-label small">{{ __('CC License') }} <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="cc_license_id" id="cc_license_filter" class="form-select form-select-sm">
         <option value="">{{ __('Any') }}</option>
         <option value="none" @php echo $selectedCc === 'none' ? 'selected' : ''; @endphp>{{ __('No CC license') }}</option>
@@ -62,7 +62,7 @@ $embargoFilter = $sf_request->getParameter('embargo_status', ''); @endphp
     </div>
     
     <div class="col-md-4 mb-2">
-      <label for="embargo_status_filter" class="form-label small">{{ __('Embargo Status') }}</label>
+      <label for="embargo_status_filter" class="form-label small">{{ __('Embargo Status') }} <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="embargo_status" id="embargo_status_filter" class="form-select form-select-sm">
         <option value="">{{ __('Any') }}</option>
         <option value="active" @php echo $embargoFilter === 'active' ? 'selected' : ''; @endphp>{{ __('Under embargo') }}</option>

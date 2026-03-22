@@ -18,19 +18,19 @@
             <thead><tr><th>Name</th><th>Value</th></tr></thead>
             <tbody>
               <tr>
-                <td><label class="form-label">Bulk data directory</label></td>
+                <td><label class="form-label">Bulk data directory <span class="badge bg-secondary ms-1">Optional</span></label></td>
                 <td><input type="text" name="settings[bulk]" class="form-control" value="{{ $settings['bulk'] ?? '' }}"></td>
               </tr>
               <tr>
-                <td><label class="form-label">Bulk index directory</label></td>
+                <td><label class="form-label">Bulk index directory <span class="badge bg-secondary ms-1">Optional</span></label></td>
                 <td><input type="text" name="settings[bulk_index]" class="form-control" value="{{ $settings['bulk_index'] ?? '' }}"></td>
               </tr>
               <tr>
-                <td><label class="form-label">Bulk optimize index directory</label></td>
+                <td><label class="form-label">Bulk optimize index directory <span class="badge bg-secondary ms-1">Optional</span></label></td>
                 <td><input type="text" name="settings[bulk_optimize_index]" class="form-control" value="{{ $settings['bulk_optimize_index'] ?? '' }}"></td>
               </tr>
               <tr>
-                <td><label class="form-label">Bulk rename directory</label></td>
+                <td><label class="form-label">Bulk rename directory <span class="badge bg-secondary ms-1">Optional</span></label></td>
                 <td><input type="text" name="settings[bulk_rename]" class="form-control" value="{{ $settings['bulk_rename'] ?? '' }}"></td>
               </tr>
             </tbody>

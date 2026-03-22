@@ -59,13 +59,13 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Identifier mask</label>
+                  <label class="form-label">Identifier mask <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="sector_{{ $code }}__identifier_mask" class="form-control" value="{{ $sectorSettings[$code]['identifier_mask'] ?? '' }}" placeholder="{{ $sectorDefaults[$code] ?? '' }}">
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Counter</label>
+                  <label class="form-label">Counter <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="number" name="sector_{{ $code }}__identifier_counter" class="form-control" value="{{ $sectorSettings[$code]['identifier_counter'] ?? '0' }}" min="0">
                 </div>
               </div>

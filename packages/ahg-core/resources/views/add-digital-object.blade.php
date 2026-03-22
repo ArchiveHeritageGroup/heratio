@@ -111,11 +111,11 @@
 
               <div class="row g-3 mb-3">
                 <div class="col-md-4">
-                  <label for="tpmJobName" class="form-label">{{ __('Document Name') }}</label>
+                  <label for="tpmJobName" class="form-label">{{ __('Document Name') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" class="form-control" id="tpmJobName" value="{{ $resource->identifier ? $resource->identifier . ' - Merged' : 'Merged Document ' . date('Y-m-d') }}">
                 </div>
                 <div class="col-md-3">
-                  <label for="tpmPdfStandard" class="form-label">{{ __('PDF Standard') }}</label>
+                  <label for="tpmPdfStandard" class="form-label">{{ __('PDF Standard') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="tpmPdfStandard" class="form-select">
                     <option value="pdfa-2b" selected>PDF/A-2b</option>
                     <option value="pdfa-1b">PDF/A-1b</option>
@@ -124,7 +124,7 @@
                   </select>
                 </div>
                 <div class="col-md-2">
-                  <label for="tpmDpi" class="form-label">{{ __('DPI') }}</label>
+                  <label for="tpmDpi" class="form-label">{{ __('DPI') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="tpmDpi" class="form-select">
                     <option value="150">150</option>
                     <option value="300" selected>300</option>
@@ -133,7 +133,7 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label for="tpmQuality" class="form-label">{{ __('Quality') }}</label>
+                  <label for="tpmQuality" class="form-label">{{ __('Quality') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="tpmQuality" class="form-select">
                     <option value="70">70%</option>
                     <option value="85" selected>85%</option>
@@ -172,7 +172,7 @@
                 <button type="button" class="btn btn-outline-danger btn-sm" id="tpmClearBtn" style="display: none;">
                   <i class="fas fa-trash me-1"></i>{{ __('Clear') }}
                 </button>
-                <button type="button" class="btn btn-primary" id="tpmCreateBtn" disabled>
+                <button type="button" class="btn atom-btn-white" id="tpmCreateBtn" disabled>
                   <i class="fas fa-file-pdf me-1"></i>{{ __('Create & Link PDF') }}
                 </button>
               </div>

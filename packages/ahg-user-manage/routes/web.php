@@ -24,3 +24,12 @@ Route::middleware('admin')->group(function () {
     Route::match(['get','post'], '/user/register', [UserController::class, 'register'])->name('user.register');
     Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');
     Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view');
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/add', function() { return view('usermanage::add'); })->name('user.add');
+Route::match(['get','post'], '/extended-rights/batch', function() { return view('usermanage::batch'); })->name('extendedRights.batch');
+Route::match(['get','post'], '/extended-rights/export', function() { return view('usermanage::export'); })->name('extendedRights.export');
+Route::match(['get','post'], '/list', function() { return view('usermanage::list'); })->name('user.list');
+});

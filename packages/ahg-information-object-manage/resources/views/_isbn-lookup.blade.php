@@ -25,7 +25,7 @@ $resourceId = isset($resource) && $resource->id ? $resource->id : '';
             <div class="col-md-8">
                 <label for="isbnLookupInput" class="form-label">
                     {{ __('ISBN-10 or ISBN-13') }}
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" 
                        id="isbnLookupInput" 
                        class="form-control" 
@@ -39,7 +39,7 @@ $resourceId = isset($resource) && $resource->id ? $resource->id : '';
             <div class="col-md-4">
                 <button type="button" 
                         id="isbnLookupBtn" 
-                        class="btn btn-primary w-100"
+                        class="btn atom-btn-white w-100"
                         onclick="IsbnLookup.lookup(document.getElementById('isbnLookupInput').value)">
                     <i class="fas fa-search me-1"></i>{{ __('Lookup ISBN') }}
                 </button>

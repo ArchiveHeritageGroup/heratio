@@ -20,7 +20,7 @@
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
                 <div class="col-auto">
-                    <label for="peer_id" class="form-label">Filter by Peer</label>
+                    <label for="peer_id" class="form-label">Filter by Peer <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select class="form-select" id="peer_id" name="peer_id">
                         <option value="">All peers</option>
                         @foreach($peers as $peer)

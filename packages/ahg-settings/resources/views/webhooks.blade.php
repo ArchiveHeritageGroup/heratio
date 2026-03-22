@@ -13,7 +13,7 @@
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-broadcast-tower me-2"></i>Webhook Management</h5>
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createWebhookModal">
+        <button type="button" class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#createWebhookModal">
           <i class="fas fa-plus me-1"></i>Create Webhook
         </button>
       </div>
@@ -78,7 +78,7 @@
             <input type="url" name="url" class="form-control" required placeholder="https://example.com/webhook">
           </div>
           <div class="mb-3">
-            <label class="form-label">Events</label>
+            <label class="form-label">Events <span class="badge bg-secondary ms-1">Optional</span></label>
             @foreach(['item.created', 'item.updated', 'item.deleted', 'item.published'] as $ev)
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="events[]" value="{{ $ev }}" id="ev-{{ $ev }}">

@@ -77,7 +77,7 @@ $viewerId = 'viewer-' . uniqid(); @endphp
         </script>
       @endif
       
-      <button onclick="open3DFullscreen('@php echo esc_entities($fullPath); @endphp', '@php echo $ext; @endphp')" class="btn btn-sm btn-primary position-absolute" style="bottom: 10px; right: 10px; z-index: 10;">
+      <button onclick="open3DFullscreen('@php echo esc_entities($fullPath); @endphp', '@php echo $ext; @endphp')" class="btn btn-sm atom-btn-white position-absolute" style="bottom: 10px; right: 10px; z-index: 10;">
         <i class="fas fa-expand me-1"></i>{{ __('Fullscreen') }}
       </button>
     </div>

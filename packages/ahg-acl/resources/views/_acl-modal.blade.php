@@ -21,7 +21,7 @@
           <div>
             <label for="acl-autocomplete-@php echo $entityType; @endphp" class="form-label">
               {{ __('%1% name', ['%1%' => $label]) }}
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
             <select
               name="acl-autocomplete-@php echo $entityType; @endphp"
               id="acl-autocomplete-@php echo $entityType; @endphp"
@@ -36,7 +36,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
           {{ __('Cancel') }}
         </button>
         <button type="button" class="btn btn-success">

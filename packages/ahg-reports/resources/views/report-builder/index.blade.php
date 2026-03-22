@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-wrench me-2"></i>Report Builder</h1>
       <div>
-        <a href="{{ route('reports.builder.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Create New Report</a>
+        <a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>Create New Report</a>
         <a href="{{ route('reports.builder.templates') }}" class="btn atom-btn-white btn-sm ms-1"><i class="fas fa-copy me-1"></i>From Template</a>
       </div>
     </div>
@@ -77,7 +77,7 @@
     @empty
     <div class="card"><div class="card-body text-center text-muted py-5">
       <i class="fas fa-inbox fa-3x mb-3 d-block"></i>No custom reports yet.
-      <br><a href="{{ route('reports.builder.create') }}" class="btn btn-primary mt-3"><i class="fas fa-plus me-1"></i>Create Your First Report</a>
+      <br><a href="{{ route('reports.builder.create') }}" class="btn atom-btn-white mt-3"><i class="fas fa-plus me-1"></i>Create Your First Report</a>
     </div></div>
     @endforelse
   </div>

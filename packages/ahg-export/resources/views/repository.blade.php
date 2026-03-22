@@ -25,7 +25,7 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Export Format</label>
+                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="format" class="form-select">
                                     <option value="csv">CSV</option>
                                 </select>
@@ -33,7 +33,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Limit</label>
+                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">No limit (all records)</option>
                                     <option value="50">50 records</option>

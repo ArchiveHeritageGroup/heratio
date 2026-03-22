@@ -20,7 +20,7 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">Schedule Details</div>
         <div class="card-body">
           <div class="row">
-            <div class="col-md-6 mb-3"><label class="form-label">Task Type</label>
+            <div class="col-md-6 mb-3"><label class="form-label">Task Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="task_type" class="form-select">
                 <option value="fixity" {{ old('task_type', $schedule->task_type ?? '') == 'fixity' ? 'selected' : '' }}>Fixity Check</option>
                 <option value="virus_scan" {{ old('task_type', $schedule->task_type ?? '') == 'virus_scan' ? 'selected' : '' }}>Virus Scan</option>
@@ -28,17 +28,17 @@
                 <option value="identification" {{ old('task_type', $schedule->task_type ?? '') == 'identification' ? 'selected' : '' }}>Format Identification</option>
               </select>
             </div>
-            <div class="col-md-6 mb-3"><label class="form-label">Frequency</label>
+            <div class="col-md-6 mb-3"><label class="form-label">Frequency <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="frequency" class="form-select">
                 <option value="daily" {{ old('frequency', $schedule->frequency ?? '') == 'daily' ? 'selected' : '' }}>Daily</option>
                 <option value="weekly" {{ old('frequency', $schedule->frequency ?? '') == 'weekly' ? 'selected' : '' }}>Weekly</option>
                 <option value="monthly" {{ old('frequency', $schedule->frequency ?? '') == 'monthly' ? 'selected' : '' }}>Monthly</option>
               </select>
             </div>
-            <div class="col-md-6 mb-3"><label class="form-label">Time</label>
+            <div class="col-md-6 mb-3"><label class="form-label">Time <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="time" name="run_time" class="form-control" value="{{ old('run_time', $schedule->run_time ?? '02:00') }}">
             </div>
-            <div class="col-md-6 mb-3"><label class="form-label">Enabled</label>
+            <div class="col-md-6 mb-3"><label class="form-label">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="is_enabled" class="form-select">
                 <option value="1" {{ old('is_enabled', $schedule->is_enabled ?? 1) == 1 ? 'selected' : '' }}>Yes</option>
                 <option value="0" {{ old('is_enabled', $schedule->is_enabled ?? 1) == 0 ? 'selected' : '' }}>No</option>
@@ -48,7 +48,7 @@
         </div>
       </div>
       <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button>
         <a href="{{ route('preservation.scheduler') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>

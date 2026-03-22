@@ -38,12 +38,12 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="summary" class="form-label">Summary</label>
+                            <label for="summary" class="form-label">Summary <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea class="form-control" id="summary" name="summary" rows="4">{{ $record->summary ?? '' }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="acquisition_method" class="form-label">Acquisition Method</label>
+                            <label for="acquisition_method" class="form-label">Acquisition Method <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="acquisition_method" name="acquisition_method">
                                 <option value="">-- Select --</option>
                                 <option value="purchase" {{ ($record->acquisition_method ?? '') === 'purchase' ? 'selected' : '' }}>Purchase</option>
@@ -57,11 +57,11 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="acquisition_date" class="form-label">Acquisition Date</label>
+                                <label for="acquisition_date" class="form-label">Acquisition Date <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="date" class="form-control" id="acquisition_date" name="acquisition_date" value="{{ $record->acquisition_date ?? '' }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="source" class="form-label">Source</label>
+                                <label for="source" class="form-label">Source <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="text" class="form-control" id="source" name="source" value="{{ $record->source ?? '' }}">
                             </div>
                         </div>
@@ -97,7 +97,7 @@
                         <h6>Add Event</h6>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Event Type</label>
+                                <label class="form-label">Event Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select class="form-select" name="new_event_type">
                                     <option value="">-- Select --</option>
                                     <option value="creation">Creation</option>
@@ -109,16 +109,16 @@
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Date</label>
+                                <label class="form-label">Date <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="date" class="form-control" name="new_event_date">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Agent</label>
+                                <label class="form-label">Agent <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="text" class="form-control" name="new_event_agent">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea class="form-control" name="new_event_description" rows="2"></textarea>
                         </div>
                     </div>
@@ -132,7 +132,7 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Internal Notes</label>
+                            <label for="notes" class="form-label">Internal Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea class="form-control" id="notes" name="notes" rows="4">{{ $record->notes ?? '' }}</textarea>
                         </div>
                     </div>

@@ -24,18 +24,18 @@
           <form method="post">
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="title" class="form-control" required placeholder="e.g., Smith Family Papers 1950-1975">
               <small class="text-muted">A descriptive title for this submission package.</small>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Description</label>
+              <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" class="form-control" rows="3" placeholder="Brief description of the collection being submitted..."></textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Target Repository</label>
+              <label class="form-label fw-bold">Target Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="repository_id" class="form-select">
                 <option value="">-- Select repository --</option>
                 @php foreach ($repositories as $repo): @endphp
@@ -47,7 +47,7 @@
 
             @if(!empty($projects))
             <div class="mb-3">
-              <label class="form-label fw-bold">Linked Research Project</label>
+              <label class="form-label fw-bold">Linked Research Project <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="project_id" class="form-select">
                 <option value="">-- None --</option>
                 @php foreach ($projects as $proj): @endphp
@@ -59,7 +59,7 @@
             @endif
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Parent Record (optional)</label>
+              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="">
               <input type="text" class="form-control" id="parentSearch" placeholder="Type to search for a parent record..." autocomplete="off">
               <small class="text-muted">Place this submission under an existing archival record. Leave blank for root level.</small>

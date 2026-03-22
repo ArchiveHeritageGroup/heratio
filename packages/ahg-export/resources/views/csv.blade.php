@@ -21,7 +21,7 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Repository</label>
+                    <label class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="repository_id" class="form-select">
                         <option value="">All repositories</option>
                         @foreach($repositories as $repo)
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Parent Record Slug (Optional)</label>
+                    <label class="form-label">Parent Record Slug (Optional) <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" name="parent_slug" class="form-control" placeholder="e.g. my-fonds-123">
                     <small class="text-muted">Export only descendants of this record.</small>
                 </div>

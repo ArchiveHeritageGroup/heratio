@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li><li class="breadcrumb-item active">Reproducibility Pack</li></ol></nav>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Reproducibility Pack</h1>
-    <button id="downloadPack" class="btn btn-primary"><i class="fas fa-download me-1"></i>Download Pack (JSON)</button>
+    <button id="downloadPack" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Download Pack (JSON)</button>
 </div>
 <div class="card mb-4"><div class="card-header"><h5 class="mb-0">Project Metadata</h5></div><div class="card-body">
     <dl class="row mb-0">

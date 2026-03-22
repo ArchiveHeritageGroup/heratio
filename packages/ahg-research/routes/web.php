@@ -163,4 +163,19 @@ Route::prefix('audit')->name('audit.')->middleware('auth')->group(function () {
     Route::get('/view/{id}', [AuditController::class, 'view'])->name('view')->where('id', '[0-9]+');
     Route::get('/record/{tableName}/{recordId}', [AuditController::class, 'record'])->name('record')->where('recordId', '[0-9]+');
     Route::get('/user/{userId}', [AuditController::class, 'user'])->name('user')->where('userId', '[0-9]+');
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/settings/ahg-settings', function() { return view('research::ahg-settings'); })->name('settings.ahgSettings');
+Route::match(['get','post'], '/saved-searches/run', function() { return view('research::run'); })->name('research.savedSearches.run');
+Route::match(['get','post'], '/saved-searches/destroy', function() { return view('research::destroy'); })->name('research.savedSearches.destroy');
+Route::match(['get','post'], '/researchers/approve', function() { return view('research::approve'); })->name('research.researchers.approve');
+Route::match(['get','post'], '/researchers/suspend', function() { return view('research::suspend'); })->name('research.researchers.suspend');
+Route::match(['get','post'], '/researchers/reject', function() { return view('research::reject'); })->name('research.researchers.reject');
+Route::match(['get','post'], '/login', function() { return view('research::login'); })->name('login');
+Route::match(['get','post'], '/collections/remove-item', function() { return view('research::remove-item'); })->name('research.collections.removeItem');
+Route::match(['get','post'], '/collections/add-item', function() { return view('research::add-item'); })->name('research.collections.addItem');
+Route::match(['get','post'], '/bookings/check-out', function() { return view('research::check-out'); })->name('research.bookings.checkOut');
 });
+
+// Settings alias
+Route::get('/admin/ahg-settings', fn() => redirect()->route('settings.index'))->name('settings.ahgSettings');

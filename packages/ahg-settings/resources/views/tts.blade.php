@@ -25,7 +25,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="tts_rate">Speech Rate: <span id="tts_rate_val">{{ $settings['all']['default_rate'] ?? '1.0' }}</span></label>
+            <label class="form-label" for="tts_rate">Speech Rate: <span id="tts_rate_val">{{ $settings['all']['default_rate'] ?? '1.0' }}</span> <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="range" class="form-range" id="tts_rate" name="tts[all][default_rate]" min="0.5" max="2.0" step="0.1" value="{{ $settings['all']['default_rate'] ?? '1.0' }}" oninput="document.getElementById('tts_rate_val').textContent=this.value">
             <div class="form-text">Playback speed (0.5 = slow, 2.0 = fast).</div>
           </div>
@@ -53,7 +53,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label" for="tts_pitch">Pitch: <span id="tts_pitch_val">{{ $settings['all']['default_pitch'] ?? '1.0' }}</span></label>
+            <label class="form-label" for="tts_pitch">Pitch: <span id="tts_pitch_val">{{ $settings['all']['default_pitch'] ?? '1.0' }}</span> <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="range" class="form-range" id="tts_pitch" name="tts[all][default_pitch]" min="0.5" max="2.0" step="0.1" value="{{ $settings['all']['default_pitch'] ?? '1.0' }}" oninput="document.getElementById('tts_pitch_val').textContent=this.value">
           </div>
         </div>

@@ -34,7 +34,7 @@
   <div class="card-body">
     <form method="get" class="row g-3">
       <div class="col-md-2">
-        <label class="form-label">Table</label>
+        <label class="form-label">Table <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="table" class="form-select form-select-sm">
           <option value="">All Tables</option>
           @foreach($tables ?? [] as $table)
@@ -43,7 +43,7 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">Action</label>
+        <label class="form-label">Action <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="form_action" class="form-select form-select-sm">
           <option value="">All Actions</option>
           <option value="create" {{ request('form_action') === 'create' ? 'selected' : '' }}>Create</option>
@@ -52,19 +52,19 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">From Date</label>
+        <label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="date" name="from_date" class="form-control form-control-sm" value="{{ request('from_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">To Date</label>
+        <label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="date" name="to_date" class="form-control form-control-sm" value="{{ request('to_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">Search</label>
+        <label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="Search...">
       </div>
       <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary btn-sm me-2"><i class="fas fa-search"></i> Filter</button>
+        <button type="submit" class="btn atom-btn-white btn-sm me-2"><i class="fas fa-search"></i> Filter</button>
         <a href="{{ route('audit.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
       </div>
     </form>
@@ -136,6 +136,6 @@
 </div>
 
 <div class="mt-3">
-  <a href="{{ route('settings.ahgSettings') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
+  <a href="{{ route('settings.ahgSettings') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Settings</a>
 </div>
 @endsection

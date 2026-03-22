@@ -40,7 +40,7 @@
 
             @if('csv' == $type)
               <div class="mb-3">
-                <label class="form-label" for="object-type-select">{{ __('Type') }}</label>
+                <label class="form-label" for="object-type-select">{{ __('Type') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="informationObject">@php echo sfConfig::get('app_ui_label_informationobject'); @endphp</option>
                   <option value="accession">@php echo sfConfig::get('app_ui_label_accession', __('Accession')); @endphp</option>
@@ -55,7 +55,7 @@
             @if('csv' != $type)
               <p class="alert alert-info text-center">{{ __('If you are importing a SKOS file to a taxonomy other than subjects, please go to the %1%', ['%1%' => link_to(__('SKOS import page'), ['module' => 'sfSkosPlugin', 'action' => 'import'], ['class' => 'alert-link'])]) }}</p>
               <div class="mb-3">
-                <label for="object-type-select" class="form-label">{{ __('Type') }}</label>
+                <label for="object-type-select" class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="ead">{{ __('EAD 2002') }}</option>
                   <option value="eac-cpf">{{ __('EAC CPF') }}</option>
@@ -69,7 +69,7 @@
 
               @if('csv' == $type)
                 <div class="mb-3">
-                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }}</label>
+                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and create new records on import') }}</option>
                     <option value="match-and-update">{{ __('Update matches ignoring blank fields in CSV') }}</option>
@@ -80,7 +80,7 @@
 
               @if('csv' != $type)
                 <div class="mb-3">
-                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }}</label>
+                  <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and import as new') }}</option>
                     <option value="delete-and-replace">{{ __('Delete matches and replace with imports') }}</option>
@@ -158,7 +158,7 @@
         <div id="file-collapse" class="accordion-collapse collapse show" aria-labelledby="file-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="import-file" class="form-label">{{ __('Select a file to import') }}</label>
+              <label for="import-file" class="form-label">{{ __('Select a file to import') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <input class="form-control" type="file" id="import-file" name="file">
             </div>
           </div>

@@ -6,7 +6,7 @@
 <div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">Test Media Processing</h5></div>
 <div class="card-body">
   <form method="post" action="{{ route('iiif.media-settings.test') }}">@csrf
-    <div class="mb-3"><label for="object_id" class="form-label">Object ID</label><input type="number" name="object_id" id="object_id" class="form-control" placeholder="Enter object ID to test"></div>
+    <div class="mb-3"><label for="object_id" class="form-label">Object ID <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="object_id" id="object_id" class="form-control" placeholder="Enter object ID to test"></div>
     <button type="submit" class="btn atom-btn-white"><i class="fas fa-play me-1"></i>Run Test</button>
   </form>
   @if(isset($result))

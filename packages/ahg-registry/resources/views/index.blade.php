@@ -14,7 +14,7 @@
       <form method="get" action="{{ route('registry.search') }}">
         <div class="input-group input-group-sm" style="max-width:500px;">
           <input type="text" class="form-control" name="q" placeholder="{{ __('Search institutions, vendors, software...') }}">
-          <button type="submit" class="btn btn-light"><i class="fas fa-search"></i></button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
         </div>
       </form>
     </div>

@@ -19,25 +19,25 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Output Format</label>
+              <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="output_format" class="form-select">
                 <option value="pdf">PDF</option>
                 <option value="tiff">Multi-page TIFF</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Output Filename</label>
+              <label class="form-label">Output Filename <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="output_filename" class="form-control" placeholder="merged-output">
             </div>
             <div class="col-12 mb-3">
-              <label class="form-label">Source Files</label>
+              <label class="form-label">Source Files <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="file" name="files[]" class="form-control" multiple accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
               <div class="form-text">Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.</div>
             </div>
           </div>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-cogs me-1"></i>Start Merge</button>
+      <button type="submit" class="btn atom-btn-white"><i class="fas fa-cogs me-1"></i>Start Merge</button>
     </form>
   </div>
 </div>

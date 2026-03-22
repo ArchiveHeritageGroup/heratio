@@ -9,10 +9,10 @@
 <div class="card"><div class="card-body">
     <form method="POST">@csrf
         <input type="hidden" name="project_id" value="{{ $project->id ?? 0 }}">
-        <div class="mb-3"><label class="form-label">Email Address <span class="text-danger">*</span></label><input type="email" name="email" class="form-control" required placeholder="researcher@example.com"></div>
-        <div class="mb-3"><label class="form-label">Role</label><select name="role" class="form-select"><option value="viewer">Viewer</option><option value="contributor">Contributor</option><option value="editor">Editor</option><option value="admin">Admin</option></select></div>
-        <div class="mb-3"><label class="form-label">Message (optional)</label><textarea name="message" class="form-control" rows="3" placeholder="Personal message to include in the invitation..."></textarea></div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i>Send Invitation</button>
+        <div class="mb-3"><label class="form-label">Email Address <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="email" name="email" class="form-control" required placeholder="researcher@example.com"></div>
+        <div class="mb-3"><label class="form-label">Role <span class="badge bg-secondary ms-1">Optional</span></label><select name="role" class="form-select"><option value="viewer">Viewer</option><option value="contributor">Contributor</option><option value="editor">Editor</option><option value="admin">Admin</option></select></div>
+        <div class="mb-3"><label class="form-label">Message (optional) <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="message" class="form-control" rows="3" placeholder="Personal message to include in the invitation..."></textarea></div>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane me-1"></i>Send Invitation</button>
         <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn atom-btn-white">Cancel</a>
     </form>
 </div></div>

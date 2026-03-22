@@ -24,7 +24,7 @@
       <div class="card-body">
         <form method="get" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Culture</label>
+            <label class="form-label">Culture <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="culture" class="form-select form-select-sm">
               <option value="en" {{ request('culture','en')=='en'?'selected':'' }}>English</option>
               <option value="af" {{ request('culture')=='af'?'selected':'' }}>Afrikaans</option>
@@ -32,15 +32,15 @@
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date Start</label>
+            <label class="form-label">Date Start <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="dateStart" class="form-control form-control-sm" value="{{ request('dateStart') }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Date End</label>
+            <label class="form-label">Date End <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="dateEnd" class="form-control form-control-sm" value="{{ request('dateEnd') }}">
           </div>
           <div class="col-md-3 d-flex align-items-end gap-2">
-            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search me-1"></i>Search</button>
+            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-search me-1"></i>Search</button>
           </div>
         </form>
       </div>

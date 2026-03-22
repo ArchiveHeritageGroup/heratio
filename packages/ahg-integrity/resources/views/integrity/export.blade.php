@@ -13,9 +13,9 @@
   <div class="card-body">
     <form method="get" action="{{ route('integrity.export') }}">
       <div class="row">
-        <div class="col-md-4 mb-3"><label class="form-label">Format</label><select name="format" class="form-select"><option value="csv">CSV</option><option value="json">JSON</option></select></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Date From</label><input type="date" name="from" class="form-control"></div>
-        <div class="col-md-4 mb-3"><label class="form-label">Date To</label><input type="date" name="to" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="csv">CSV</option><option value="json">JSON</option></select></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Date From <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="from" class="form-control"></div>
+        <div class="col-md-4 mb-3"><label class="form-label">Date To <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="to" class="form-control"></div>
       </div>
       <button type="submit" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Export</button>
     </form>

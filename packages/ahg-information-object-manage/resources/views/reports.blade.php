@@ -53,7 +53,7 @@
                 <form action="{{ route('informationobject.reports', $io->slug) }}" method="POST">
                   @csrf
                   <div class="mb-3">
-                    <label for="report" class="form-label">Select new report to generate:</label>
+                    <label for="report" class="form-label">Select new report to generate: <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="report" id="report" class="form-select">
                       @foreach($reportTypes as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>

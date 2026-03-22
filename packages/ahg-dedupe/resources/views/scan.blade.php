@@ -29,7 +29,7 @@
           <form method="post" action="{{ route('dedupe.scan.start') }}">
             @csrf
             <div class="mb-4">
-              <label class="form-label fw-bold">Scan Scope</label>
+              <label class="form-label fw-bold">Scan Scope <span class="badge bg-secondary ms-1">Optional</span></label>
               <div class="form-check mb-2">
                 <input class="form-check-input" type="radio" name="scope" id="scopeAll" value="all" checked>
                 <label class="form-check-label" for="scopeAll">

@@ -32,3 +32,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/glam/reindex', [DisplayController::class, 'reindex'])->name('glam.reindex');
     Route::get('/glam/search', [DisplayController::class, 'glamSearch'])->name('glam.search');
     Route::get('/glam/treeview', [DisplayController::class, 'treeviewPage'])->name('glam.treeview');
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/home', function() { return view('display::home'); })->name('home');
+});

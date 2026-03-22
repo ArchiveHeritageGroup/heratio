@@ -278,7 +278,7 @@
 
           @if($submission->status === 'approved' && $isAdmin)
             <a href="@php echo url_for(['module' => 'researcher', 'action' => 'publish', 'id' => $submission->id]) @endphp"
-               class="btn btn-primary">
+               class="btn atom-btn-white">
               <i class="bi bi-globe me-1"></i>Publish to AtoM
             </a>
           @endif

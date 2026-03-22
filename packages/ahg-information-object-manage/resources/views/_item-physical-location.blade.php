@@ -51,7 +51,7 @@ foreach ($poResult as $po) {
     <!-- Container Link -->
     <div class="row mb-3">
       <div class="col-md-6">
-        <label class="form-label">{{ __('Storage container') }}</label>
+        <label class="form-label">{{ __('Storage container') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="item_physical_object_id" class="form-select">
           <option value="">{{ __('-- Select container --') }}</option>
           @php foreach ($physicalObjects as $id => $name): @endphp
@@ -63,7 +63,7 @@ foreach ($poResult as $po) {
         <small class="form-text text-muted">{{ __('Link to a physical storage container') }}</small>
       </div>
       <div class="col-md-6">
-        <label class="form-label">{{ __('Item barcode') }}</label>
+        <label class="form-label">{{ __('Item barcode') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_barcode" class="form-control" value="@php echo esc_entities($itemLocation['barcode'] ?? ''); @endphp">
       </div>
     </div>
@@ -72,27 +72,27 @@ foreach ($poResult as $po) {
     <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>{{ __('Location within container') }}</h6>
     <div class="row mb-3">
       <div class="col-md-2">
-        <label class="form-label">{{ __('Box') }}</label>
+        <label class="form-label">{{ __('Box') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_box_number" class="form-control" value="@php echo esc_entities($itemLocation['box_number'] ?? ''); @endphp">
       </div>
       <div class="col-md-2">
-        <label class="form-label">{{ __('Folder') }}</label>
+        <label class="form-label">{{ __('Folder') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_folder_number" class="form-control" value="@php echo esc_entities($itemLocation['folder_number'] ?? ''); @endphp">
       </div>
       <div class="col-md-2">
-        <label class="form-label">{{ __('Shelf') }}</label>
+        <label class="form-label">{{ __('Shelf') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_shelf" class="form-control" value="@php echo esc_entities($itemLocation['shelf'] ?? ''); @endphp">
       </div>
       <div class="col-md-2">
-        <label class="form-label">{{ __('Row') }}</label>
+        <label class="form-label">{{ __('Row') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_row" class="form-control" value="@php echo esc_entities($itemLocation['row'] ?? ''); @endphp">
       </div>
       <div class="col-md-2">
-        <label class="form-label">{{ __('Position') }}</label>
+        <label class="form-label">{{ __('Position') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_position" class="form-control" value="@php echo esc_entities($itemLocation['position'] ?? ''); @endphp">
       </div>
       <div class="col-md-2">
-        <label class="form-label">{{ __('Item #') }}</label>
+        <label class="form-label">{{ __('Item #') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_item_number" class="form-control" value="@php echo esc_entities($itemLocation['item_number'] ?? ''); @endphp">
       </div>
     </div>
@@ -100,11 +100,11 @@ foreach ($poResult as $po) {
     <!-- Extent -->
     <div class="row mb-3">
       <div class="col-md-3">
-        <label class="form-label">{{ __('Extent value') }}</label>
+        <label class="form-label">{{ __('Extent value') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="number" step="0.01" name="item_extent_value" class="form-control" value="@php echo esc_entities($itemLocation['extent_value'] ?? ''); @endphp">
       </div>
       <div class="col-md-3">
-        <label class="form-label">{{ __('Extent unit') }}</label>
+        <label class="form-label">{{ __('Extent unit') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="item_extent_unit" class="form-select">
           <option value="">{{ __('-- Select --') }}</option>
           @php $units = ['items' => __('Items'), 'pages' => __('Pages'), 'folders' => __('Folders'), 'boxes' => __('Boxes'), 'cm' => __('cm'), 'm' => __('metres'), 'cubic_m' => __('cubic metres')];
@@ -119,7 +119,7 @@ foreach ($poResult as $po) {
     <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition & Status') }}</h6>
     <div class="row mb-3">
       <div class="col-md-3">
-        <label class="form-label">{{ __('Condition') }}</label>
+        <label class="form-label">{{ __('Condition') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="item_condition_status" class="form-select">
           <option value="">{{ __('-- Select --') }}</option>
           @php $conditions = ['excellent' => __('Excellent'), 'good' => __('Good'), 'fair' => __('Fair'), 'poor' => __('Poor'), 'critical' => __('Critical')];
@@ -129,7 +129,7 @@ foreach ($poResult as $po) {
         </select>
       </div>
       <div class="col-md-3">
-        <label class="form-label">{{ __('Access status') }}</label>
+        <label class="form-label">{{ __('Access status') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="item_access_status" class="form-select">
           @php $statuses = ['available' => __('Available'), 'in_use' => __('In Use'), 'restricted' => __('Restricted'), 'offsite' => __('Offsite'), 'missing' => __('Missing')];
           foreach ($statuses as $val => $label): @endphp
@@ -138,7 +138,7 @@ foreach ($poResult as $po) {
         </select>
       </div>
       <div class="col-md-6">
-        <label class="form-label">{{ __('Condition notes') }}</label>
+        <label class="form-label">{{ __('Condition notes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="item_condition_notes" class="form-control" value="@php echo esc_entities($itemLocation['condition_notes'] ?? ''); @endphp">
       </div>
     </div>
@@ -146,7 +146,7 @@ foreach ($poResult as $po) {
     <!-- Notes -->
     <div class="row mb-3">
       <div class="col-md-12">
-        <label class="form-label">{{ __('Location notes') }}</label>
+        <label class="form-label">{{ __('Location notes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea name="item_location_notes" class="form-control" rows="2">@php echo esc_entities($itemLocation['notes'] ?? ''); @endphp</textarea>
       </div>
     </div>

@@ -30,12 +30,12 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                            <label for="subject" class="form-label">Subject <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <input type="text" class="form-control" id="subject" name="subject" required value="{{ old('subject') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label for="request_type" class="form-label">Request Type <span class="text-danger">*</span></label>
+                            <label for="request_type" class="form-label">Request Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <select class="form-select" id="request_type" name="request_type" required>
                                 <option value="">-- Select type --</option>
                                 <option value="view">View restricted material</option>
@@ -47,13 +47,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
                             <div class="form-text">Describe the materials you need access to and the purpose of your request.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="justification" class="form-label">Justification</label>
+                            <label for="justification" class="form-label">Justification <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea class="form-control" id="justification" name="justification" rows="3">{{ old('justification') }}</textarea>
                         </div>
 

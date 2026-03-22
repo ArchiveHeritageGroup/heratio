@@ -37,5 +37,5 @@
         </div>
     </div>
 </div>
-<a href="{{ url()->previous() }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+<a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
 @endsection

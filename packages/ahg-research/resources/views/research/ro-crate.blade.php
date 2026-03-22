@@ -26,7 +26,7 @@
     </ul>
 </div>
 <div class="d-flex gap-2">
-    <button class="btn btn-primary" id="downloadRoCrate"><i class="fas fa-download me-1"></i>Download RO-Crate (ZIP)</button>
+    <button class="btn atom-btn-white" id="downloadRoCrate"><i class="fas fa-download me-1"></i>Download RO-Crate (ZIP)</button>
     <button class="btn btn-outline-secondary" id="previewJson"><i class="fas fa-code me-1"></i>Preview JSON-LD</button>
     <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn atom-btn-white">Back to Project</a>
 </div>

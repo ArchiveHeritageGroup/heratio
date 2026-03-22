@@ -17,7 +17,7 @@
       <div class="card-body">
         <form method="get" action="{{ route('extended-rights.export') }}">
           <div class="mb-3">
-            <label for="single_id" class="form-label">Search and select object</label>
+            <label for="single_id" class="form-label">Search and select object <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="id" id="single_id" class="form-select">
               <option value="">-- Select an object --</option>
               @foreach($topLevelRecords ?? [] as $record)
@@ -26,7 +26,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Format</label>
+            <label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="format" id="format_csv" value="csv" checked>
               <label class="form-check-label" for="format_csv">CSV</label>
@@ -50,7 +50,7 @@
         <form method="get" action="{{ route('extended-rights.export') }}">
           <input type="hidden" name="format" value="csv">
           <div class="mb-3">
-            <label for="bulk_select" class="form-label">Search and select multiple objects</label>
+            <label for="bulk_select" class="form-label">Search and select multiple objects <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="ids[]" id="bulk_select" multiple class="form-select">
               @foreach($topLevelRecords ?? [] as $record)
                 <option value="{{ $record->id }}">{{ $record->title ?? 'Untitled' }}@if(!empty($record->identifier)) [{{ $record->identifier }}]@endif</option>

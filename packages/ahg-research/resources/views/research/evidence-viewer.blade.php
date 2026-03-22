@@ -41,7 +41,7 @@
             <div class="card-body">
                 <form method="POST">@csrf
                     <textarea name="notes" class="form-control mb-2" rows="4">{{ e($notes ?? '') }}</textarea>
-                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>Save Notes</button>
+                    <button type="submit" class="btn btn-sm atom-btn-white"><i class="fas fa-save me-1"></i>Save Notes</button>
                 </form>
             </div>
         </div>

@@ -18,5 +18,5 @@
 @if(!empty($activity->metadata))
 <div class="card mb-4"><div class="card-header">Metadata</div><div class="card-body"><pre class="mb-0"><code>{{ json_encode(json_decode($activity->metadata ?? '{}'), JSON_PRETTY_PRINT) }}</code></pre></div></div>
 @endif
-<a href="{{ route('research.activities') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Activities</a>
+<a href="{{ route('research.activities') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Activities</a>
 @endsection

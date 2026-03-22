@@ -36,7 +36,7 @@
                 @csrf
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="peer_id" class="form-label">Select Peer <span class="text-danger">*</span></label>
+                        <label for="peer_id" class="form-label">Select Peer <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                         <select class="form-select" id="peer_id" name="peer_id" required>
                             <option value="">-- Select peer --</option>
                             <option value="all">All active peers</option>
@@ -49,12 +49,12 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <label for="from_date" class="form-label">From Date (optional)</label>
+                        <label for="from_date" class="form-label">From Date (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="date" class="form-control" id="from_date" name="from_date">
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <label for="until_date" class="form-label">Until Date (optional)</label>
+                        <label for="until_date" class="form-label">Until Date (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="date" class="form-control" id="until_date" name="until_date">
                     </div>
                 </div>

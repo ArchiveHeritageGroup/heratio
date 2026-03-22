@@ -42,7 +42,7 @@
             </div>
             @endif
             <div class="d-grid gap-2">
-              <button class="btn btn-primary" onclick="if(confirm('Generate checksums?')){window.location='{{ route('preservation.api.checksum.generate', $digitalObject->id ?? 0) }}'}">
+              <button class="btn atom-btn-white" onclick="if(confirm('Generate checksums?')){window.location='{{ route('preservation.api.checksum.generate', $digitalObject->id ?? 0) }}'}">
                 <i class="fas fa-sync me-1"></i>Regenerate Checksums
               </button>
               <button class="btn btn-outline-primary" onclick="if(confirm('Verify fixity?')){window.location='{{ route('preservation.api.fixity.verify', $digitalObject->id ?? 0) }}'}">

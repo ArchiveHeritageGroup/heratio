@@ -16,15 +16,15 @@
 </div></div>
 <div class="card mb-4"><div class="card-header"><h5 class="mb-0">Project Metadata for DOI</h5></div><div class="card-body">
     <form method="POST" id="doiForm">@csrf <input type="hidden" name="project_id" value="{{ $project->id ?? 0 }}">
-        <div class="mb-3"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="{{ e($project->title ?? '') }}"></div>
-        <div class="mb-3"><label class="form-label">Creator(s)</label><input type="text" name="creators" class="form-control" value="{{ e($creators ?? '') }}" placeholder="Comma-separated names"></div>
+        <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="title" class="form-control" value="{{ e($project->title ?? '') }}"></div>
+        <div class="mb-3"><label class="form-label">Creator(s) <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="creators" class="form-control" value="{{ e($creators ?? '') }}" placeholder="Comma-separated names"></div>
         <div class="row mb-3">
-            <div class="col-md-6"><label class="form-label">Publisher</label><input type="text" name="publisher" class="form-control" value="{{ e($publisher ?? '') }}"></div>
-            <div class="col-md-3"><label class="form-label">Year</label><input type="text" name="year" class="form-control" value="{{ date('Y') }}"></div>
-            <div class="col-md-3"><label class="form-label">Type</label><select name="resource_type" class="form-select"><option value="Dataset">Dataset</option><option value="Collection">Collection</option><option value="Text">Text</option><option value="Other">Other</option></select></div>
+            <div class="col-md-6"><label class="form-label">Publisher <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="publisher" class="form-control" value="{{ e($publisher ?? '') }}"></div>
+            <div class="col-md-3"><label class="form-label">Year <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="year" class="form-control" value="{{ date('Y') }}"></div>
+            <div class="col-md-3"><label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label><select name="resource_type" class="form-select"><option value="Dataset">Dataset</option><option value="Collection">Collection</option><option value="Text">Text</option><option value="Other">Other</option></select></div>
         </div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ e($project->description ?? '') }}</textarea></div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-stamp me-1"></i>Mint DOI</button>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="3">{{ e($project->description ?? '') }}</textarea></div>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-stamp me-1"></i>Mint DOI</button>
         <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn atom-btn-white">Cancel</a>
     </form>
 </div></div>

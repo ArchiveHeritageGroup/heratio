@@ -34,7 +34,7 @@
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-list-ol me-2"></i>Values</span>
-          <button type="button" class="btn btn-sm btn-primary" id="add-value-btn"><i class="fas fa-plus me-1"></i>Add Value</button>
+          <button type="button" class="btn btn-sm atom-btn-white" id="add-value-btn"><i class="fas fa-plus me-1"></i>Add Value</button>
         </div>
         <div class="card-body">
           <div id="dropdown-values">

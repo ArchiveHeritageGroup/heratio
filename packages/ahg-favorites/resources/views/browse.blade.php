@@ -111,7 +111,7 @@
                   </button>
                 </form>
               @else
-                <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#shareInfoModal">
+                <button type="button" class="btn btn-sm atom-btn-white text-white" data-bs-toggle="modal" data-bs-target="#shareInfoModal">
                   <i class="fas fa-share-alt"></i> Shared
                 </button>
               @endif
@@ -408,7 +408,7 @@
       <div class="modal-header"><h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>Folder is Shared</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Share Link</label>
+          <label class="form-label">Share Link <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="input-group">
             <input type="text" class="form-control" readonly value="{{ url('/favorites/shared/' . $activeFolder->share_token) }}">
             <button type="button" class="btn atom-btn-white" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.innerHTML='<i class=\'fas fa-check\'></i>';">
@@ -437,7 +437,7 @@
 
 {{-- Column Config Dropdown --}}
 <div class="dropdown position-fixed" style="bottom: 20px; right: 20px; z-index: 1050;">
-  <button class="btn btn-sm btn-secondary rounded-circle shadow" type="button" data-bs-toggle="dropdown" title="Column Settings" style="width:36px;height:36px;">
+  <button class="btn btn-sm atom-btn-white rounded-circle shadow" type="button" data-bs-toggle="dropdown" title="Column Settings" style="width:36px;height:36px;">
     <i class="fas fa-columns"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">

@@ -33,7 +33,7 @@
         </table>
 
         @if(($job->status ?? '') === 'completed' && ($job->output_path ?? null))
-        <a href="{{ $job->output_path }}" class="btn btn-primary"><i class="fas fa-download me-1"></i>Download Output</a>
+        <a href="{{ $job->output_path }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Download Output</a>
         @endif
       </div>
     </div>

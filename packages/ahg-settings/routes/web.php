@@ -73,3 +73,10 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/{section}', [SettingsController::class, 'section'])->name('settings.section');
     Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');
 });
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/', function() { return view('settings::'); })->name('settings.');
+Route::match(['get','post'], '/analytics', function() { return view('settings::analytics'); })->name('settings.analytics');
+});

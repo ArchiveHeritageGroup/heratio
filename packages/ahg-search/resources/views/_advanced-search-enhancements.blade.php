@@ -90,7 +90,7 @@ try {
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Name') }} *</label>
+          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="save-search-name" class="form-control" required>
         </div>
         <div class="form-check mb-2">
@@ -113,8 +113,8 @@ try {
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="saveCurrentSearch()">{{ __('Save') }}</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-white" onclick="saveCurrentSearch()">{{ __('Save') }}</button>
       </div>
     </div>
   </div>

@@ -42,7 +42,7 @@
                     @csrf
                     <input type="hidden" name="booking_id" value="{{ $booking->id ?? 0 }}">
                     <div class="mb-3">
-                        <label class="form-label">Select Seat</label>
+                        <label class="form-label">Select Seat <span class="badge bg-danger ms-1">Required</span></label>
                         <select name="seat_id" class="form-select" required>
                             <option value="">-- Choose a seat --</option>
                             @foreach($availableSeats ?? [] as $seat)
@@ -51,10 +51,10 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Notes</label>
+                        <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="notes" class="form-control" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Assign Seat</button>
+                    <button type="submit" class="btn atom-btn-white"><i class="fas fa-check me-1"></i>Assign Seat</button>
                     <a href="{{ route('research.seats') }}" class="btn atom-btn-white">Cancel</a>
                 </form>
             </div>

@@ -275,7 +275,7 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
           </p>
           
           <div class="mb-3">
-            <label for="classification_id" class="form-label">{{ __('Classification Level') }} <span class="text-danger">*</span></label>
+            <label for="classification_id" class="form-label">{{ __('Classification Level') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select name="classification_id" id="classification_id" class="form-select" required>
               <option value="">{{ __('Select level...') }}</option>
               @php // Get classification levels from database
@@ -300,7 +300,7 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
           </div>
           
           <div class="mb-3">
-            <label for="expires_at" class="form-label">{{ __('Expiration Date') }}</label>
+            <label for="expires_at" class="form-label">{{ __('Expiration Date') }} <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" name="expires_at" id="expires_at" class="form-control" 
                    value="@php echo ($userClearance && isset($userClearance->expires_at)) ? date('Y-m-d', strtotime($userClearance->expires_at)) : ''; @endphp"
                    min="@php echo date('Y-m-d'); @endphp">
@@ -308,17 +308,17 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
           </div>
           
           <div class="mb-3">
-            <label for="notes" class="form-label">{{ __('Notes') }}</label>
+            <label for="notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="notes" id="notes" class="form-control" rows="3" 
                       placeholder="{{ __('Reason for granting clearance, special conditions, etc.') }}">@php echo ($userClearance && isset($userClearance->notes)) ? htmlspecialchars($userClearance->notes) : ''; @endphp</textarea>
           </div>
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
             {{ __('Cancel') }}
           </button>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn atom-btn-white">
             <i class="fas fa-save me-1"></i>
             @php echo $userClearance ? __('Update Clearance') : __('Grant Clearance'); @endphp
           </button>

@@ -43,7 +43,7 @@
             </table>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-box-open me-1"></i>Checkout Selected</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-box-open me-1"></i>Checkout Selected</button>
             <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">Cancel</a>
         </div>
     </div>

@@ -26,7 +26,7 @@
                     <form method="post" action="{{ route('export.accessionCsv.post') }}">
                         @csrf
                         <div class="mb-3">
-                            <label for="repository_id" class="form-label">Repository (optional)</label>
+                            <label for="repository_id" class="form-label">Repository (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="repository_id" name="repository_id">
                                 <option value="">-- All repositories --</option>
                                 @foreach($repositories as $repo)
@@ -37,11 +37,11 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="date_from" class="form-label">Acquisition Date From</label>
+                                <label for="date_from" class="form-label">Acquisition Date From <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="date" class="form-control" id="date_from" name="date_from">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="date_to" class="form-label">Acquisition Date To</label>
+                                <label for="date_to" class="form-label">Acquisition Date To <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <input type="date" class="form-control" id="date_to" name="date_to">
                             </div>
                         </div>

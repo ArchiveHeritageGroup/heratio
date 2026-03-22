@@ -51,7 +51,7 @@
       <p class="card-text text-muted">
         {{ __('Register for an account to access archival materials and services.') }}
       </p>
-      <a href="@php echo url_for('@user_register'); @endphp" class="btn btn-primary">
+      <a href="@php echo url_for('@user_register'); @endphp" class="btn atom-btn-white">
         <i class="fas fa-user-plus me-2"></i>{{ __('Register') }}
       </a>
     </div>

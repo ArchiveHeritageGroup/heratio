@@ -6,7 +6,7 @@
     <form action="{{ route('heritage.search') }}" method="get" class="d-flex justify-content-center">
       <div class="input-group" style="max-width:600px">
         <input type="text" name="q" class="form-control form-control-lg" placeholder="{{ $searchPlaceholder ?? 'Search collections...' }}">
-        <button class="btn btn-light btn-lg" type="submit"><i class="fas fa-search"></i></button>
+        <button class="btn atom-btn-white btn-lg" type="submit"><i class="fas fa-search"></i></button>
       </div>
     </form>
   </div>

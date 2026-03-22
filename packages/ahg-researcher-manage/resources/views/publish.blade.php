@@ -40,7 +40,7 @@
                    class="btn btn-outline-secondary">
                   <i class="bi bi-arrow-left me-1"></i>Cancel
                 </a>
-                <button type="submit" class="btn btn-primary" onclick="return confirm('Publish this submission? Records will be created in AtoM.')">
+                <button type="submit" class="btn atom-btn-white" onclick="return confirm('Publish this submission? Records will be created in AtoM.')">
                   <i class="bi bi-globe me-1"></i>Publish Now
                 </button>
               </div>
@@ -162,7 +162,7 @@
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
               </a>
               <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp"
-                 class="btn btn-primary">
+                 class="btn atom-btn-white">
                 <i class="bi bi-eye me-1"></i>View Submission
               </a>
             </div>

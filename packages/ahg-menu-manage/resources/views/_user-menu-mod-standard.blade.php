@@ -88,7 +88,7 @@ if ($isAuthenticated && $hasSpectrum) {
     <hr class="my-3">
     <div class="text-center">
       @if($hasRegistration)
-      <a href="@php echo url_for('@user_register'); @endphp" class="btn btn-sm btn-primary w-100 mb-2">
+      <a href="@php echo url_for('@user_register'); @endphp" class="btn btn-sm atom-btn-white w-100 mb-2">
         <i class="fas fa-user-plus me-1"></i>{{ __('Register') }}
       </a>
       @endif

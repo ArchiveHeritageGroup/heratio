@@ -25,8 +25,8 @@
             <div class="mb-3"><label for="title" class="form-label">Title <span class="badge bg-secondary">field</span></label><input type="text" class="form-control" id="title" name="title" value="{{ old('title', $model->model_title ?? '') }}"></div>
             <div class="mb-3"><label for="description" class="form-label">Description <span class="badge bg-secondary">field</span></label><textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $model->description ?? '') }}</textarea></div>
             <div class="row">
-              <div class="col-md-6 mb-3"><label class="form-label">Format</label><input type="text" class="form-control" value="{{ strtoupper($model->format ?? '') }}" readonly></div>
-              <div class="col-md-6 mb-3"><label class="form-label">File Size</label><input type="text" class="form-control" value="{{ number_format(($model->file_size ?? 0)/1048576, 2) }} MB" readonly></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" value="{{ strtoupper($model->format ?? '') }}" readonly></div>
+              <div class="col-md-6 mb-3"><label class="form-label">File Size <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" value="{{ number_format(($model->file_size ?? 0)/1048576, 2) }} MB" readonly></div>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.projects') }}">Projects</a></li><li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li><li class="breadcrumb-item active">Collaborators</li></ol></nav>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-users text-primary me-2"></i>Collaborators</h1>
-    <a href="{{ route('research.dashboard', ['invite_collaborator' => $project->id ?? 0]) }}" class="btn btn-primary"><i class="fas fa-user-plus me-1"></i>Invite</a>
+    <a href="{{ route('research.dashboard', ['invite_collaborator' => $project->id ?? 0]) }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-1"></i>Invite</a>
 </div>
 <div class="card">
     <div class="card-body p-0">

@@ -29,7 +29,7 @@
                     @csrf
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Equipment <span class="text-danger">*</span></label>
+                            <label class="form-label">Equipment <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <select name="equipment_id" class="form-select" required>
                                 <option value="">-- Select equipment --</option>
                                 @foreach($equipment ?? [] as $eq)
@@ -38,25 +38,25 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Date <span class="text-danger">*</span></label>
+                            <label class="form-label">Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <input type="date" name="date" class="form-control" required value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Start Time</label>
+                            <label class="form-label">Start Time <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="time" name="start_time" class="form-control" value="09:00">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">End Time</label>
+                            <label class="form-label">End Time <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="time" name="end_time" class="form-control" value="17:00">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Purpose</label>
+                        <label class="form-label">Purpose <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="purpose" class="form-control" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-calendar-check me-1"></i>Book Equipment</button>
+                    <button type="submit" class="btn atom-btn-white"><i class="fas fa-calendar-check me-1"></i>Book Equipment</button>
                     <a href="{{ route('research.equipment') }}" class="btn atom-btn-white">Cancel</a>
                 </form>
             </div>

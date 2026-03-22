@@ -16,3 +16,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/researcher/{id}/view', [ResearcherSubmissionController::class, 'researcherView'])->name('researcher.view')->whereNumber('id');
     Route::post('/researcher/{id}/delete', [ResearcherSubmissionController::class, 'researcherDelete'])->name('researcher.delete')->whereNumber('id');
     Route::get('/researcher/submission/{id}', [ResearcherSubmissionController::class, 'submissionView'])->name('researcher.submission.view')->whereNumber('id');
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/api-upload', function() { return view('researchermanage::api-upload'); })->name('researcher.apiUpload');
+Route::match(['get','post'], '/api-delete-file', function() { return view('researchermanage::api-delete-file'); })->name('researcher.apiDeleteFile');
+Route::match(['get','post'], '/api-autocomplete', function() { return view('researchermanage::api-autocomplete'); })->name('researcher.apiAutocomplete');
+});

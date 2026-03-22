@@ -30,7 +30,7 @@
                 <div class="mb-2"><input type="text" name="label" class="form-control form-control-sm" placeholder="Label" required></div>
                 <div class="row mb-2"><div class="col"><input type="number" step="any" name="lat" class="form-control form-control-sm" placeholder="Latitude"></div><div class="col"><input type="number" step="any" name="lng" class="form-control form-control-sm" placeholder="Longitude"></div></div>
                 <div class="mb-2"><textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Description"></textarea></div>
-                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-map-pin me-1"></i>Add Marker</button>
+                <button type="submit" class="btn btn-sm atom-btn-white w-100"><i class="fas fa-map-pin me-1"></i>Add Marker</button>
             </form>
         </div></div>
     </div>

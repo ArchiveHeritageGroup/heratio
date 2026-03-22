@@ -20,7 +20,7 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff;"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>General Settings</h5></div>
         <div class="card-body">
           <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Processing Mode</label>
+            <label class="col-sm-3 col-form-label">Processing Mode <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="col-sm-9">
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="processing_mode" id="mode_hybrid" value="hybrid" {{ ($settings['processing_mode'] ?? 'job') === 'hybrid' ? 'checked' : '' }}>
@@ -33,7 +33,7 @@
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">API Endpoint</label>
+            <label class="col-sm-3 col-form-label">API Endpoint <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="api_url" value="{{ $settings['api_url'] ?? '' }}">
               <small class="text-muted">URL of the AI service (e.g., http://localhost:5004/ai/v1)</small>

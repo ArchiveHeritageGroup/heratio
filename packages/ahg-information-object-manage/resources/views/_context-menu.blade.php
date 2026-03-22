@@ -165,7 +165,7 @@ if (isset($resource)) {
       <div class="modal-footer">
         <span id="nerProcessingTime" class="text-muted small me-auto"></span>
         <a href="/ner/review" class="btn btn-success ctx-hidden" id="nerReviewBtn">Review & Link</a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -182,7 +182,7 @@ if (isset($resource)) {
       <div class="modal-body" id="htrModalBody"></div>
       <div class="modal-footer">
         <span id="htrProcessingTime" class="text-muted small me-auto"></span>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

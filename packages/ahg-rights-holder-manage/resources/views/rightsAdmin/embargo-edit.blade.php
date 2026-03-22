@@ -22,7 +22,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="embargo_type" class="form-label">Embargo Type</label>
+          <label for="embargo_type" class="form-label">Embargo Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select">
             @foreach(['full' => 'Full', 'metadata_only' => 'Metadata Only', 'digital_object' => 'Digital Object', 'custom' => 'Custom'] as $val => $label)
               <option value="{{ $val }}" {{ ($embargo->embargo_type ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -30,16 +30,16 @@
           </select>
         </div>
         <div class="col-md-3 mb-3">
-          <label for="start_date" class="form-label">Start Date</label>
+          <label for="start_date" class="form-label">Start Date <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $embargo->start_date ?? '' }}">
         </div>
         <div class="col-md-3 mb-3">
-          <label for="end_date" class="form-label">End Date</label>
+          <label for="end_date" class="form-label">End Date <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $embargo->end_date ?? '' }}">
         </div>
       </div>
       <div class="mb-3">
-        <label for="reason" class="form-label">Reason</label>
+        <label for="reason" class="form-label">Reason <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="reason" id="reason" class="form-control" value="{{ $embargo->reason ?? '' }}">
       </div>
       <div class="form-check mb-3">

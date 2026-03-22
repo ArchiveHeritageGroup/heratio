@@ -20,5 +20,5 @@
     </tbody></table>
 </div></div>
 @endif
-<div class="mt-3"><a href="{{ url()->previous() }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a></div>
+<div class="mt-3"><a href="{{ url()->previous() }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a></div>
 @endsection

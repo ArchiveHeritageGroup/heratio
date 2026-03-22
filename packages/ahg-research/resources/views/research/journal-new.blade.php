@@ -9,16 +9,16 @@
 <div class="card-body">
     <form method="POST" id="entryForm">@csrf <input type="hidden" name="content" id="entryContentHidden" value="">
         <div class="row mb-3">
-            <div class="col-md-8"><label class="form-label">Title</label><input type="text" name="title" class="form-control" placeholder="Entry title..." required></div>
-            <div class="col-md-4"><label class="form-label">Date</label><input type="date" name="entry_date" class="form-control" value="{{ date('Y-m-d') }}"></div>
+            <div class="col-md-8"><label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="title" class="form-control" placeholder="Entry title..." required></div>
+            <div class="col-md-4"><label class="form-label">Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="entry_date" class="form-control" value="{{ date('Y-m-d') }}"></div>
         </div>
-        <div class="mb-3"><label class="form-label">Project</label><select name="project_id" class="form-select"><option value="">-- No project --</option>
+        <div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">Optional</span></label><select name="project_id" class="form-select"><option value="">-- No project --</option>
             @foreach($projects ?? [] as $p)<option value="{{ $p->id }}">{{ e($p->title ?? '') }}</option>@endforeach
         </select></div>
-        <div class="mb-3"><label class="form-label">Entry Type</label><select name="entry_type" class="form-select"><option value="note">Note</option><option value="observation">Observation</option><option value="analysis">Analysis</option><option value="methodology">Methodology</option><option value="finding">Finding</option><option value="question">Question</option></select></div>
-        <div class="mb-3"><label class="form-label">Content</label><div id="tiptapEditor" style="min-height:200px;border:1px solid #dee2e6;border-radius:0.375rem;padding:12px;"></div></div>
-        <div class="mb-3"><label class="form-label">Tags</label><input type="text" name="tags" class="form-control" placeholder="comma-separated tags"></div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Entry</button>
+        <div class="mb-3"><label class="form-label">Entry Type <span class="badge bg-secondary ms-1">Optional</span></label><select name="entry_type" class="form-select"><option value="note">Note</option><option value="observation">Observation</option><option value="analysis">Analysis</option><option value="methodology">Methodology</option><option value="finding">Finding</option><option value="question">Question</option></select></div>
+        <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label><div id="tiptapEditor" style="min-height:200px;border:1px solid #dee2e6;border-radius:0.375rem;padding:12px;"></div></div>
+        <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="tags" class="form-control" placeholder="comma-separated tags"></div>
+        <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save Entry</button>
         <a href="{{ route('research.journal') }}" class="btn atom-btn-white">Cancel</a>
     </form>
 </div></div>

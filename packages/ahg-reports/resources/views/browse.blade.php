@@ -14,7 +14,7 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label">Strong Rooms</label>
+            <label class="form-label">Strong Rooms <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="strongroom" id="strongroomSelect" class="form-select form-select-sm">
               <option value="">Select</option>
               @foreach($strongrooms ?? [] as $room)
@@ -23,7 +23,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Location</label>
+            <label class="form-label">Location <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="location" id="locationSelect" class="form-select form-select-sm">
               <option value="">Select</option>
               @foreach($locations ?? [] as $loc)

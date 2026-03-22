@@ -17,4 +17,24 @@ Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::get('/export/csv', [ClipboardController::class, 'exportCsv'])->name('export.csv');
     Route::get('/count',      [ClipboardController::class, 'count'])->name('count');
     Route::post('/exportCheck', [ClipboardController::class, 'exportCheck'])->name('exportCheck');
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/tiffpdfmerge/create', function() { return view('core::create'); })->name('tiffpdfmerge.create');
+Route::match(['get','post'], '/tiffpdfmerge/upload', function() { return view('core::upload'); })->name('tiffpdfmerge.upload');
+Route::match(['get','post'], '/tiffpdfmerge/reorder', function() { return view('core::reorder'); })->name('tiffpdfmerge.reorder');
+Route::match(['get','post'], '/tiffpdfmerge/remove-file', function() { return view('core::remove-file'); })->name('tiffpdfmerge.removeFile');
+Route::match(['get','post'], '/tiffpdfmerge/process', function() { return view('core::process'); })->name('tiffpdfmerge.process');
+Route::match(['get','post'], '/tiffpdfmerge/delete', function() { return view('core::delete'); })->name('tiffpdfmerge.delete');
+Route::match(['get','post'], '/object/import-select', function() { return view('core::import-select'); })->name('object.importSelect');
+});
+
+// Object import select
+Route::middleware(['web'])->group(function () {
+    Route::get('/object/{slug}/import-select', fn($slug) => view('ahg-core::object-import-select', ['slug' => $slug]))->name('object.importSelect');
+    Route::get('/tiffpdfmerge/create', fn() => view('ahg-core::tiffpdfmerge-create'))->name('tiffpdfmerge.create');
+    Route::post('/tiffpdfmerge/upload', fn() => redirect()->back())->name('tiffpdfmerge.upload');
+    Route::post('/tiffpdfmerge/process', fn() => redirect()->back())->name('tiffpdfmerge.process');
+    Route::post('/tiffpdfmerge/reorder', fn() => redirect()->back())->name('tiffpdfmerge.reorder');
+    Route::delete('/tiffpdfmerge/{id}/file', fn($id) => redirect()->back())->name('tiffpdfmerge.removeFile');
+    Route::delete('/tiffpdfmerge/{id}', fn($id) => redirect()->back())->name('tiffpdfmerge.delete');
 });

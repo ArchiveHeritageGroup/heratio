@@ -26,8 +26,7 @@
                 <div class="row mb-3">
                   <label class="col-11 col-form-label">
                     {{ $lang->name ?? $lang->value ?? '?' }}
-                    <code class="ms-1">{{ $lang->name }}</code>
-                  </label>
+                    <code class="ms-1">{{ $lang->name }}</code> <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div class="col-1 px-2 text-end">
                     @if(isset($lang->deleteable) && $lang->deleteable)
                       <button type="submit" name="action" value="delete" class="btn atom-btn-white btn-sm" onclick="document.getElementById('delete_id').value='{{ $lang->id }}'">

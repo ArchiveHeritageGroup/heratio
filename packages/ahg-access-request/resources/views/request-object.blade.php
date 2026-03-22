@@ -32,12 +32,12 @@
                         <input type="hidden" name="object_slug" value="{{ $slug }}">
 
                         <div class="mb-3">
-                            <label for="reason" class="form-label">Reason for Access <span class="text-danger">*</span></label>
+                            <label for="reason" class="form-label">Reason for Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                             <textarea class="form-control" id="reason" name="reason" rows="4" required>{{ old('reason') }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="access_type" class="form-label">Access Type</label>
+                            <label for="access_type" class="form-label">Access Type <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select class="form-select" id="access_type" name="access_type">
                                 <option value="view">View only</option>
                                 <option value="download">Download</option>

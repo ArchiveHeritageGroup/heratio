@@ -55,7 +55,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <!-- Settings Row -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <label for="tpmPdfStandard" class="form-label">PDF Standard</label>
+                        <label for="tpmPdfStandard" class="form-label">PDF Standard <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select id="tpmPdfStandard" class="form-select form-select-sm">
                             <option value="pdfa-2b" selected>PDF/A-2b (Recommended)</option>
                             <option value="pdfa-1b">PDF/A-1b</option>
@@ -64,7 +64,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmDpi" class="form-label">Resolution (DPI)</label>
+                        <label for="tpmDpi" class="form-label">Resolution (DPI) <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select id="tpmDpi" class="form-select form-select-sm">
                             <option value="150">150 DPI (Screen)</option>
                             <option value="300" selected>300 DPI (Print)</option>
@@ -73,7 +73,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmQuality" class="form-label">Quality</label>
+                        <label for="tpmQuality" class="form-label">Quality <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select id="tpmQuality" class="form-select form-select-sm">
                             <option value="70">70% (Smaller file)</option>
                             <option value="85" selected>85% (Balanced)</option>
@@ -133,10 +133,10 @@ $resourceSlug = $resource->slug ?? null; @endphp
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i> Cancel
                 </button>
-                <button type="button" class="btn btn-primary" id="tpmCreateBtn" disabled>
+                <button type="button" class="btn atom-btn-white" id="tpmCreateBtn" disabled>
                     <i class="fas fa-file-pdf me-1"></i> Create PDF
                 </button>
             </div>

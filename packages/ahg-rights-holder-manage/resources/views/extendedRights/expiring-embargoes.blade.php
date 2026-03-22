@@ -14,9 +14,9 @@
   <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
     <h4 class="mb-0">Embargoes Expiring Within {{ $days }} Days</h4>
     <div class="btn-group btn-group-sm">
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 7]) }}" class="btn {{ $days == 7 ? 'btn-dark' : 'btn-outline-dark' }}">7 days</a>
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 30]) }}" class="btn {{ $days == 30 ? 'btn-dark' : 'btn-outline-dark' }}">30 days</a>
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 90]) }}" class="btn {{ $days == 90 ? 'btn-dark' : 'btn-outline-dark' }}">90 days</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 7]) }}" class="btn {{ $days == 7 ? 'atom-btn-white' : 'btn-outline-dark' }}">7 days</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 30]) }}" class="btn {{ $days == 30 ? 'atom-btn-white' : 'btn-outline-dark' }}">30 days</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 90]) }}" class="btn {{ $days == 90 ? 'atom-btn-white' : 'btn-outline-dark' }}">90 days</a>
     </div>
   </div>
   <div class="card-body p-0">

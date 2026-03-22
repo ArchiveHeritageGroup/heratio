@@ -18,11 +18,11 @@
     <form method="post">
       @csrf
       <div class="mb-3">
-        <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
+        <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
         <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">{{ __('Description') }}</label>
+        <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
       </div>
       <div class="d-flex gap-2">

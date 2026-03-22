@@ -21,7 +21,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="embargo_type" class="form-label">Embargo Type <span class="text-danger">*</span></label>
+          <label for="embargo_type" class="form-label">Embargo Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select" required>
             <option value="full">Full - Hide completely</option>
             <option value="metadata_only">Metadata Only - Hide digital objects</option>
@@ -33,11 +33,11 @@
 
       <div class="row">
         <div class="col-md-4 mb-3">
-          <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+          <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="date" name="start_date" id="start_date" class="form-control" required value="{{ date('Y-m-d') }}">
         </div>
         <div class="col-md-4 mb-3">
-          <label for="end_date" class="form-label">End Date</label>
+          <label for="end_date" class="form-label">End Date <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="end_date" id="end_date" class="form-control">
           <small class="text-muted">Leave blank for perpetual embargo</small>
         </div>
@@ -50,17 +50,17 @@
       </div>
 
       <div class="mb-3">
-        <label for="reason" class="form-label">Reason</label>
+        <label for="reason" class="form-label">Reason <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="reason" id="reason" class="form-control" placeholder="e.g., Donor restriction, Privacy concerns, Legal hold">
       </div>
 
       <div class="mb-3">
-        <label for="public_message" class="form-label">Public Message</label>
+        <label for="public_message" class="form-label">Public Message <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea name="public_message" id="public_message" class="form-control" rows="2" placeholder="Message displayed to users when they encounter this embargo"></textarea>
       </div>
 
       <div class="mb-3">
-        <label for="notes" class="form-label">Internal Notes</label>
+        <label for="notes" class="form-label">Internal Notes <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
       </div>
     </div>
@@ -102,7 +102,7 @@
       </div>
       <div class="row">
         <div class="col-md-4">
-          <label for="notify_days_before" class="form-label">Notify days before expiry</label>
+          <label for="notify_days_before" class="form-label">Notify days before expiry <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="number" name="notify_days_before" id="notify_days_before" class="form-control" value="30" min="1" max="365">
         </div>
       </div>

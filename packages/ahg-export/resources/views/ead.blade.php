@@ -21,7 +21,7 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Select Record to Export</label>
+                    <label class="form-label">Select Record to Export <span class="badge bg-danger ms-1">Required</span></label>
                     <select name="object_id" class="form-select" required>
                         <option value="">-- Select a fonds or collection --</option>
                     </select>

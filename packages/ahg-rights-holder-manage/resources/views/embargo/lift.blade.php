@@ -39,7 +39,7 @@
       @endif
       <hr>
       <div class="mb-3">
-        <label for="lift_reason" class="form-label">Reason for lifting (optional)</label>
+        <label for="lift_reason" class="form-label">Reason for lifting (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea name="lift_reason" id="lift_reason" class="form-control" rows="3" placeholder="e.g., Embargo period completed, Permission granted, Error correction"></textarea>
       </div>
     </div>

@@ -9,8 +9,8 @@
     @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
     <p>Enter your email address and we will send you a link to reset your password.</p>
     <form method="POST">@csrf
-        <div class="mb-3"><label class="form-label">Email Address <span class="text-danger">*</span></label><input type="email" name="email" class="form-control" required></div>
-        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-paper-plane me-1"></i>Send Reset Link</button>
+        <div class="mb-3"><label class="form-label">Email Address <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="email" name="email" class="form-control" required></div>
+        <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-paper-plane me-1"></i>Send Reset Link</button>
     </form>
     <div class="text-center mt-3"><a href="{{ route('login') }}">Back to Login</a></div>
 </div></div>

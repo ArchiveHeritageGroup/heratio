@@ -18,3 +18,9 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::get('/function/{slug}', [FunctionController::class, 'show'])->name('function.show');
+
+Route::middleware(['web'])->group(function () {
+
+// Auto-registered stub routes
+Route::match(['get','post'], '/autocomplete', function() { return view('functionmanage::autocomplete'); })->name('function.autocomplete');
+});

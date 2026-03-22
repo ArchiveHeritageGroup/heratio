@@ -62,7 +62,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-sticky-note me-2"></i>Annotations ({{ count($annotations ?? []) }})</span>
-                <button class="btn btn-sm btn-primary" id="addAnnotationBtn"><i class="fas fa-plus me-1"></i>Add Annotation</button>
+                <button class="btn btn-sm atom-btn-white" id="addAnnotationBtn"><i class="fas fa-plus me-1"></i>Add Annotation</button>
             </div>
             <div class="card-body p-0">
                 @if(!empty($annotations))
@@ -118,11 +118,11 @@
                     <input type="hidden" name="object_id" value="{{ $objectId ?? 0 }}">
                     <input type="hidden" name="target_selector" id="targetSelector" value="">
                     <div class="mb-3">
-                        <label class="form-label">Title</label>
+                        <label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
                         <input type="text" name="title" class="form-control form-control-sm" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Type</label>
+                        <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="annotation_type" class="form-select form-select-sm">
                             <option value="comment">Comment</option>
                             <option value="transcription">Transcription</option>
@@ -133,16 +133,16 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Content</label>
+                        <label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="content" class="form-control form-control-sm" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tags</label>
+                        <label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="text" name="tags" class="form-control form-control-sm" placeholder="comma-separated">
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save me-1"></i>Save</button>
-                        <button type="button" class="btn btn-secondary btn-sm" id="cancelAnnotation">Cancel</button>
+                        <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-save me-1"></i>Save</button>
+                        <button type="button" class="btn atom-btn-white btn-sm" id="cancelAnnotation">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -186,13 +186,13 @@
             <div class="modal-header"><h5 class="modal-title">Import IIIF Annotations</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">IIIF Annotation List URL or JSON</label>
+                    <label class="form-label">IIIF Annotation List URL or JSON <span class="badge bg-secondary ms-1">Optional</span></label>
                     <textarea id="iiifImportData" class="form-control" rows="6" placeholder="Paste IIIF annotation list JSON or URL..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="importIiifBtn"><i class="fas fa-file-import me-1"></i>Import</button>
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn atom-btn-white" id="importIiifBtn"><i class="fas fa-file-import me-1"></i>Import</button>
             </div>
         </div>
     </div>

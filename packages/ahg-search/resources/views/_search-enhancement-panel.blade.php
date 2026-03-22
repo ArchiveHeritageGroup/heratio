@@ -28,7 +28,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <!-- Quick Search Templates -->
   @if(!empty($templates))
   <div class="mb-3">
-    <label class="form-label small text-muted">{{ __('Quick Searches') }}</label>
+    <label class="form-label small text-muted">{{ __('Quick Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
     <div class="d-flex flex-wrap gap-2">
       @php foreach ($templates as $template): @endphp
       <a href="@php echo url_for(['module' => 'searchEnhancement', 'action' => 'runTemplate', 'id' => $template->id]); @endphp" 
@@ -97,7 +97,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <!-- Popular Searches -->
   @if(!empty($popular))
   <div class="mb-3">
-    <label class="form-label small text-muted">{{ __('Popular Searches') }}</label>
+    <label class="form-label small text-muted">{{ __('Popular Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
     <div class="d-flex flex-wrap gap-1">
       @php foreach ($popular as $p): @endphp
       <a href="@php echo url_for(['module' => $entityType, 'action' => 'browse']) . '?' . http_build_query(json_decode($p->search_params, true)); @endphp" 
@@ -122,15 +122,15 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Name') }} *</label>
+          <label class="form-label">{{ __('Name') }} * <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="save-search-name" class="form-control" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Description') }}</label>
+          <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea id="save-search-description" class="form-control" rows="2"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Tags') }}</label>
+          <label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" id="save-search-tags" class="form-control" placeholder="{{ __('comma-separated') }}">
         </div>
         <div class="form-check mb-2">
@@ -160,7 +160,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
           </label>
         </div>
         <div class="mb-3" id="notify-frequency-group" style="display:none;">
-          <label class="form-label">{{ __('Notification frequency') }}</label>
+          <label class="form-label">{{ __('Notification frequency') }} <span class="badge bg-secondary ms-1">Optional</span></label>
           <select id="save-search-frequency" class="form-select">
             <option value="daily">{{ __('Daily') }}</option>
             <option value="weekly" selected>{{ __('Weekly') }}</option>
@@ -169,8 +169,8 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="saveCurrentSearch()">
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn atom-btn-white" onclick="saveCurrentSearch()">
           <i class="fa fa-save me-1"></i>{{ __('Save Search') }}
         </button>
       </div>
