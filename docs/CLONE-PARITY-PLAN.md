@@ -2,7 +2,30 @@
 
 ## Context
 
-Heratio has 361 blade views with 12,291 controls. AtoM has ~2,183 templates across 227 plugin directories. The audit script only maps 43/361 views due to wrong AtoM paths. Field badges and button classes are done. Storage-manage is the reference pattern for extended data wiring. ~350 custom DB tables exist; only `physical_object_extended` is wired. The goal is pixel-perfect parity with AtoM on every page.
+Heratio has 361 blade views with 12,291 controls. AtoM has ~2,183 templates across 227 plugin directories. Audit script now maps 194/361 views (Phase 1 done). Field badges and button classes are done. Storage-manage is the reference pattern for extended data wiring. ~350 custom DB tables exist; only `physical_object_extended` is wired. The goal is pixel-perfect parity with AtoM on every page.
+
+---
+
+## THE 12 RULES (mandatory checklist for EVERY page fix)
+
+Every page fix/clone operation MUST follow ALL 12 rules. No exceptions.
+
+| # | Rule | What to check |
+|---|------|---------------|
+| 1 | **Read CSS/theme rule** | Apply central theme: `var(--ahg-primary)`, `atom-btn-*` classes, card headers |
+| 2 | **Count controls, report in table** | AtoM count vs Heratio count vs delta, per type (buttons, links, fields, headings, labels, badges, icons, text) |
+| 3 | **Clone exactly** | Same number of controls, same look/feel, same text, same buttons, same CSS |
+| 4 | **No asking permission** | Just fix it |
+| 5 | **No "future enhancements"** | Everything gets done now, in one pass |
+| 6 | **Text = controls** | Headings, labels, static text, help text, section titles all count |
+| 7 | **All field badges** | Required (bg-danger), Recommended (bg-warning), Optional (bg-secondary) on every form label |
+| 8 | **Report again after fixes** | Regenerate comparison table to confirm 0 deltas |
+| 9 | **Layout template** | 1col vs 2col vs 3col — must match AtoM |
+| 10 | **Sidebar** | Right or left — must match AtoM |
+| 11 | **Page width/structure** | container vs container-fluid, column ratios — must match AtoM |
+| 12 | **Button/link URLs** | Every href must route to correct Heratio equivalent of AtoM URL |
+
+**Workflow per page:** BEFORE (read AtoM + Heratio, generate table) → FIX (clone all 12 dimensions) → AFTER (regenerate table, confirm 0 delta)
 
 ---
 
