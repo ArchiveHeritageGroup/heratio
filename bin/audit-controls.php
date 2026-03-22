@@ -53,10 +53,10 @@ function countControls(string $content): array {
         }
     }
 
-    // Extract button classes
+    // Extract button classes (exclude atom-btn-* prefixed classes)
     if (preg_match_all('/<(?:button|a)\s[^>]*class\s*=\s*["\']([^"\']*btn[^"\']*?)["\']/i', $content, $m)) {
         foreach ($m[1] as $cls) {
-            if (preg_match_all('/\b(btn[-\w]*)\b/', $cls, $bm)) {
+            if (preg_match_all('/(?<![a-z-])(btn[-\w]*)\b/', $cls, $bm)) {
                 foreach ($bm[1] as $b) $c['btn_classes'][] = $b;
             }
         }
@@ -519,7 +519,9 @@ $badBtnFiles = [];
 foreach ($allResults as $r) {
     foreach ($r['h_btn_cls'] as $cls => $count) {
         // Flag non-atom-btn classes that should probably be atom-btn-*
-        if (preg_match('/^btn-(primary|secondary|success|danger|warning|info|dark|light)$/', $cls)) {
+        // Exclude btn-primary/btn-success in user-menu (AtoM uses these for Register buttons)
+        if (preg_match('/^btn-(primary|secondary|success|danger|warning|info|dark|light)$/', $cls)
+            && !($r['view'] === 'user-menu' && in_array($cls, ['btn-primary', 'btn-success']))) {
             $badBtnFiles[] = [
                 'package' => $r['package'],
                 'view' => $r['view'],
