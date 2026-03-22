@@ -59,7 +59,7 @@
             <h4><i class="fas fa-exclamation-circle me-2"></i>Registration Expired</h4>
             <p class="mb-0">Your researcher registration has expired. Please request a renewal to continue.</p>
           </div>
-          <a href="{{ route('research.renewal') }}" class="btn atom-btn-outline-danger"><i class="fas fa-sync-alt me-1"></i>Request Renewal</a>
+          <a href="{{ route('research.renewal') }}" class="btn atom-atom-btn-outline-danger"><i class="fas fa-sync-alt me-1"></i>Request Renewal</a>
         </div>
       </div>
     @elseif(($researcher->status ?? '') === 'rejected')
@@ -74,7 +74,7 @@
               @endif
             </p>
           </div>
-          <a href="{{ route('researcher.register') }}" class="btn atom-btn-outline-success"><i class="fas fa-redo me-1"></i>Re-apply</a>
+          <a href="{{ route('researcher.register') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-redo me-1"></i>Re-apply</a>
         </div>
       </div>
     @elseif(($researcher->status ?? '') === 'approved')
@@ -103,7 +103,7 @@
         <div class="col">
           <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('research.book') }}" class="btn atom-btn-white"><i class="fas fa-calendar-plus me-1"></i>Book Visit</a>
-            <a href="{{ route('research.journal.create') }}" class="btn atom-btn-outline-success"><i class="fas fa-pen-fancy me-1"></i>New Journal Entry</a>
+            <a href="{{ route('research.journal.create') }}" class="btn atom-atom-btn-outline-success"><i class="fas fa-pen-fancy me-1"></i>New Journal Entry</a>
             <a href="{{ route('research.reports') }}" class="btn atom-btn-white"><i class="fas fa-file-alt me-1"></i>New Report</a>
             <a href="{{ route('research.annotations') }}" class="btn atom-btn-white"><i class="fas fa-sticky-note me-1"></i>My Notes</a>
           </div>
@@ -128,7 +128,7 @@
               </a>
             </div>
             <div class="col-md-3 col-6">
-              <a href="{{ route('research.validationQueue') }}" class="btn atom-btn-outline-success w-100 py-2 text-start">
+              <a href="{{ route('research.validationQueue') }}" class="btn atom-atom-btn-outline-success w-100 py-2 text-start">
                 <i class="fas fa-check-double me-1"></i> Validation Queue
               </a>
             </div>

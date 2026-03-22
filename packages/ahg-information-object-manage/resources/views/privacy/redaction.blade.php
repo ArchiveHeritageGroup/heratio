@@ -152,7 +152,7 @@
       </nav>
     </div>
     <div class="btn-group">
-      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white btn-sm">
+      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-outline-light btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
     </div>
@@ -206,7 +206,7 @@
           <button type="button" class="btn btn-outline-light btn-sm active" id="tool-select" data-tool="select" title="Select tool">
             <i class="fas fa-mouse-pointer me-1"></i> Select
           </button>
-          <button type="button" class="btn atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="Draw redaction rectangle">
+          <button type="button" class="btn atom-atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="Draw redaction rectangle">
             <i class="fas fa-vector-square me-1"></i> Draw
           </button>
         </div>
@@ -226,10 +226,10 @@
           </div>
 
           <div class="btn-group">
-            <button type="button" class="btn atom-btn-outline-success btn-sm" id="save-redactions" title="Save redactions">
+            <button type="button" class="btn atom-atom-btn-outline-success btn-sm" id="save-redactions" title="Save redactions">
               <i class="fas fa-save me-1"></i> Save
             </button>
-            <button type="button" class="btn atom-btn-white btn-sm" id="apply-redactions" title="Apply redactions permanently">
+            <button type="button" class="btn atom-btn-outline-light btn-sm" id="apply-redactions" title="Apply redactions permanently">
               <i class="fas fa-stamp me-1"></i> Apply
             </button>
           </div>
@@ -294,7 +294,7 @@
           @endif
         </div>
         <div class="card-footer border-0 p-2" style="background: #16213e;">
-          <button class="btn atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="Remove all regions">
+          <button class="btn atom-atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="Remove all regions">
             <i class="fas fa-trash me-1"></i> Clear All
           </button>
         </div>
@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '<div class="region-coords">x:' + region.left + ' y:' + region.top + ' w:' + region.width + ' h:' + region.height +
             (CONFIG.isPdf ? ' p:' + region.page : '') + '</div>' +
           '</div>' +
-          '<button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-region" data-region-id="' + region.id + '" title="Delete region">' +
+          '<button type="button" class="btn btn-sm atom-atom-btn-outline-danger btn-delete-region" data-region-id="' + region.id + '" title="Delete region">' +
             '<i class="fas fa-trash-alt"></i>' +
           '</button>' +
         '</div>' +
