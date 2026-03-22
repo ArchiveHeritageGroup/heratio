@@ -35,8 +35,7 @@
           <div class="col-md-6 mb-3">
             <label for="title" class="form-label">
               Title
-              <span class="form-required" title="This is a mandatory element.">*</span>
-            </label>
+              <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                    value="{{ old('title', $asset->title ?? '') }}">
             @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -45,8 +44,7 @@
           <div class="col-md-6 mb-3">
             <label for="identifier" class="form-label">
               Identifier / Reference code
-              <span class="form-required" title="This is a mandatory element.">*</span>
-            </label>
+              <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                    value="{{ old('identifier', $asset->identifier ?? '') }}" placeholder="e.g., DAM-2024-001">
             @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror

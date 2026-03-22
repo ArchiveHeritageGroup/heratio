@@ -249,8 +249,7 @@
                 REST API access key
                 @if($restApiKey)
                   <code class="ms-2">{{ $restApiKey }}</code>
-                @endif
-              </label>
+                @endif <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="restApiKey" id="restApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>
@@ -266,8 +265,7 @@
                 OAI-PMH API access key
                 @if($oaiApiKey)
                   <code class="ms-2">{{ $oaiApiKey }}</code>
-                @endif
-              </label>
+                @endif <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="oaiApiKey" id="oaiApiKey" class="form-select">
                 <option value="">-- Select action --</option>
                 <option value="generate">(Re)generate API key</option>

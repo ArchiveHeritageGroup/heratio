@@ -108,7 +108,7 @@
         @if(count($mappings) > 0)
           <div class="card-footer text-end">
             <label for="importMappingFile" class="atom-btn-white mb-0" style="cursor:pointer">
-              <i class="fas fa-file-import"></i> Import Mapping File
+              <i class="fas fa-file-import"></i> Import Mapping File <span class="badge bg-secondary ms-1">Optional</span>
             </label>
             <form method="POST" action="{{ route('data-migration.import-mapping') }}"
                   enctype="multipart/form-data" class="d-inline">

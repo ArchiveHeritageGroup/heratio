@@ -45,8 +45,7 @@
             <div class="mb-3">
               <label for="type_id" class="form-label">
                 Type
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="type_id" id="type_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['functionTypes'] as $type)
@@ -61,8 +60,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $function->authorized_form_of_name ?? '') }}">
               <div class="form-text text-muted small">"Record the authorised name of the function being described. In cases where the name is not enough, add qualifiers to make it unique such as the territorial or administrative scope, or the name of the institution which performs it. This element is to be used in conjunction with the Function description identifier element (5.4.1)." (ISDF 5.1.2)</div>
@@ -143,8 +141,7 @@
             <div class="mb-3">
               <label for="description_identifier" class="form-label">
                 Description identifier
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $function->description_identifier ?? '') }}">
               <div class="form-text text-muted small">"Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code." (ISDF 5.4.1)</div>

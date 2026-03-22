@@ -47,8 +47,7 @@
       <div class="card-body">
         <div class="mb-3">
           <label for="label" class="form-label">
-            Label <span class="form-required text-danger" title="This is a mandatory element.">*</span>
-          </label>
+            Label <span class="form-required text-danger" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" name="label" id="label" class="form-control" required
                  value="{{ old('label', $menu->label ?? '') }}">
           <div class="form-text">The display label for this menu item.</div>

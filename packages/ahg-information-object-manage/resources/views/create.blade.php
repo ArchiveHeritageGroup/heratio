@@ -61,8 +61,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
@@ -75,8 +74,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">
                 Title
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text text-muted small">Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)</div>
@@ -85,8 +83,7 @@
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">
                 Level of description
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -99,8 +96,7 @@
             <div class="mb-3">
               <label for="extent_and_medium" class="form-label">
                 Extent and medium
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <div class="form-text text-muted small">Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)</div>
             </div>
@@ -121,8 +117,7 @@
             <div class="mb-3">
               <label for="creators" class="form-label">
                 Name of creator(s)
-                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span>
-              </label>
+                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators') }}" placeholder="Type to search creators..." autocomplete="off">
               <div class="form-text text-muted small">Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)</div>
             </div>

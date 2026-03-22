@@ -45,8 +45,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="identifier" id="identifier" class="form-control"
                      value="{{ old('identifier', $repository->identifier ?? '') }}">
               <div class="form-text text-muted small">"Record the numeric or alpha-numeric code identifying the institution in accordance with the relevant international and national standards." (ISDIAH 5.1.1)</div>
@@ -55,8 +54,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $repository->authorized_form_of_name ?? '') }}">
               <div class="form-text text-muted small">"Record the standardised form of name of the institution, adding appropriate qualifiers (for instance dates, place, etc.), if necessary. Specify separately in the Rules and/or conventions used element (5.6.3) which set of rules has been applied for this element." (ISDIAH 5.1.2)</div>

@@ -99,8 +99,7 @@
             <div class="mb-3">
               <label for="date" class="form-label">
                 Acquisition date
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror"
                      value="{{ old('date', $accession->date ?? '') }}">
               @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -110,8 +109,7 @@
             <div class="mb-3">
               <label for="source_of_acquisition" class="form-label">
                 Immediate source of acquisition
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="source_of_acquisition" id="source_of_acquisition" class="form-control" rows="3">{{ old('source_of_acquisition', $accession->source_of_acquisition ?? '') }}</textarea>
               <div class="form-text text-muted small">Identify immediate source of acquisition or transfer, and date and method of acquisition IF the information is NOT confidential.</div>
             </div>
@@ -119,8 +117,7 @@
             <div class="mb-3">
               <label for="location_information" class="form-label">
                 Location information
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="location_information" id="location_information" class="form-control" rows="3">{{ old('location_information', $accession->location_information ?? '') }}</textarea>
               <div class="form-text text-muted small">A description of the physical location in the repository where the accession can be found.</div>
             </div>

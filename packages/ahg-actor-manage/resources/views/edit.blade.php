@@ -44,8 +44,7 @@
             <div class="mb-3">
               <label for="entity_type_id" class="form-label">
                 Type of entity
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="entity_type_id" id="entity_type_id" class="form-select" required>
                 <option value="">-- Select --</option>
                 @foreach($formChoices['entityTypes'] as $type)
@@ -60,8 +59,7 @@
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
                 Authorized form of name
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $actor->authorized_form_of_name ?? '') }}">
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names." (ISAAR 5.1.2)</div>
@@ -110,8 +108,7 @@
             <div class="mb-3">
               <label for="dates_of_existence" class="form-label">
                 Dates of existence
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="dates_of_existence" id="dates_of_existence" class="form-control"
                      value="{{ old('dates_of_existence', $actor->dates_of_existence ?? '') }}">
               <div class="form-text text-muted small">"Record the dates of existence of the entity being described. For corporate bodies include the date of establishment/foundation/enabling legislation and dissolution. For persons include the dates or approximate dates of birth and death or, when these dates are not known, floruit dates. Where parallel systems of dating are used, equivalences may be recorded according to relevant conventions or rules. Specify in the Rules and/or conventions element (5.4.3) the system(s) of dating used, e.g. ISO 8601." (ISAAR 5.2.1)</div>
@@ -347,8 +344,7 @@
             <div class="mb-3">
               <label for="description_identifier" class="form-label">
                 Authority record identifier
-                <span class="form-required" title="This is a mandatory element.">*</span>
-              </label>
+                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $actor->description_identifier ?? '') }}">
               <div class="form-text text-muted small">"Record a unique authority record identifier in accordance with local and/or national conventions. If the authority record is to be used internationally, record the country code of the country in which the authority record was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the authority record is an international organization, give the organizational identifier in place of the country code." (ISAAR 5.4.1)</div>

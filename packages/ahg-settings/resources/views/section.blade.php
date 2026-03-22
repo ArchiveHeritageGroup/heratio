@@ -44,13 +44,13 @@
                 </div>
               @elseif($isNumeric)
                 <div class="mb-3">
-                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }}</label>
+                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="number" class="form-control" name="settings[{{ $setting->id }}]"
                          id="setting-{{ $setting->id }}" value="{{ e($val) }}" style="max-width: 300px;">
                 </div>
               @else
                 <div class="mb-3">
-                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }}</label>
+                  <label for="setting-{{ $setting->id }}" class="form-label fw-semibold">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" class="form-control" name="settings[{{ $setting->id }}]"
                          id="setting-{{ $setting->id }}" value="{{ e($val) }}">
                 </div>

@@ -136,7 +136,7 @@
                             <div class="modal-body text-start">
                               <p>Approve access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes (optional)</label>
+                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <textarea name="notes" id="approve_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
@@ -163,7 +163,7 @@
                             <div class="modal-body text-start">
                               <p>Deny access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial</label>
+                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">Required</span></label>
                                 <textarea name="notes" id="deny_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>

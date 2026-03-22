@@ -1,27 +1,27 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 08:34:17
+# Generated: 2026-03-22 08:45:07
 # Total Heratio views: 361
 # Views with AtoM equivalent: 43
 # Views without AtoM equivalent: 318
-# Total Heratio controls: 12257
+# Total Heratio controls: 12289
 # Total AtoM controls (matched): 194
-# Total delta: -787
+# Total delta: -790
 
 ## SUMMARY BY PACKAGE
 
 Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sidebar   AtoM? 
 ───────────────────────────────────────────────────────────────────────────────────────────
 ahg-3d-model                       1     29      —     ?       1col      none      0/1   
-ahg-accession-manage               4     186     —     ?       1col      none,right0/4   
-ahg-acl                            9     234     —     ?       1col      none      0/9   
-ahg-actor-manage                   7     464     6       -458    2col,1col,unknown,print,3colleft,none,detected2/7   
+ahg-accession-manage               4     189     —     ?       1col      none,right0/4   
+ahg-acl                            9     238     —     ?       1col      none      0/9   
+ahg-actor-manage                   7     468     6       -462    2col,1col,unknown,print,3colleft,none,detected2/7   
 ahg-ai-services                    2     212     —     ?       1col      none      0/2   
 ahg-audit-trail                    4     83      —     ?       1col      none      0/4   
 ahg-backup                         3     124     —     ?       1col      none      0/3   
 ahg-cart                           7     122     —     ?       1col      none      0/7   
 ahg-core                           7     61      —     ?       unknown,1colnone      0/7   
-ahg-dam                            4     348     —     ?       1col,3col none,detected0/4   
-ahg-data-migration                 11    245     —     ?       1col      none      0/11  
+ahg-dam                            4     350     —     ?       1col,3col none,detected0/4   
+ahg-data-migration                 11    246     —     ?       1col      none      0/11  
 ahg-dedupe                         6     89      —     ?       1col      none,detected0/6   
 ahg-display                        11    459     —     ?       unknown,masternone,detected,left0/11  
 ahg-doi-manage                     6     105     —     ?       1col      none      0/6   
@@ -30,37 +30,37 @@ ahg-dropdown-manage                2     97      —     ?       1col      detec
 ahg-favorites                      2     71      —     ?       1col      left,none 0/2   
 ahg-feedback                       3     107     —     ?       1col      left,none 0/3   
 ahg-ftp-upload                     1     51      —     ?       1col      none      0/1   
-ahg-function-manage                4     103     5       -98     1col      none,right2/4   
+ahg-function-manage                4     106     5       -101    1col      none,right2/4   
 ahg-gallery                        6     727     —     ?       1col,2col,3colnone,detected0/6   
 ahg-help                           5     69      —     ?       unknown,1coldetected  0/5   
 ahg-heritage-manage                6     216     —     ?       1col,unknown,2colleft,none,detected0/6   
 ahg-iiif-collection                5     181     —     ?       2col      detected  0/5   
-ahg-information-object-manage      34    1267    15      -1252   1col,unknown,2col,print,3colnone,detected,right2/34  
+ahg-information-object-manage      34    1272    15      -1257   1col,unknown,2col,print,3colnone,detected,right2/34  
 ahg-integrity                      1     37      —     ?       1col      none      0/1   
 ahg-jobs-manage                    2     16      8       -8      1col      none      1/2   
 ahg-library                        3     338     —     ?       1col,3col none,detected0/3   
 ahg-loan                           4     291     —     ?       1col      none      0/4   
-ahg-media-processing               2     94      —     ?       1col      none,detected0/2   
-ahg-menu-manage                    5     44      8       -36     1col,unknownnone      3/5   
+ahg-media-processing               2     95      —     ?       1col      none,detected0/2   
+ahg-menu-manage                    5     45      8       -37     1col,unknownnone      3/5   
 ahg-metadata-extraction            3     81      —     ?       1col      none      0/3   
-ahg-museum                         3     582     —     ?       1col,2col,3colnone,detected0/3   
+ahg-museum                         3     583     —     ?       1col,2col,3colnone,detected0/3   
 ahg-pdf-tools                      3     85      —     ?       1col      none      0/3   
 ahg-portable-export                1     57      —     ?       1col      none      0/1   
 ahg-preservation                   12    176     —     ?       unknown,1colnone,left 0/12  
 ahg-reports                        14    574     —     ?       unknown,1colnone,right,left0/14  
-ahg-repository-manage              5     265     8       -257    2col,1col,printdetected,none,right2/5   
+ahg-repository-manage              5     267     8       -259    2col,1col,printdetected,none,right2/5   
 ahg-request-publish                2     99      —     ?       1col      none      0/2   
-ahg-research                       44    1503    —     ?       unknown,2coldetected  0/44  
+ahg-research                       44    1504    —     ?       unknown,2coldetected  0/44  
 ahg-researcher-manage              3     68      —     ?       1col      none      0/3   
 ahg-ric                            6     103     —     ?       1col      none      0/6   
 ahg-rights-holder-manage           4     31      15      -16     1col      none,right4/4   
 ahg-search                         5     124     —     ?       1col,unknownnone,left,detected0/5   
-ahg-settings                       37    854     86      -768    unknown,1colnone,left,right,detected12/37 
+ahg-settings                       37    856     86      -770    unknown,1colnone,left,right,detected12/37 
 ahg-static-page                    3     23      8       -15     2col,1col detected,none3/3   
 ahg-storage-manage                 4     161     13      -148    1col      none      4/4   
 ahg-term-taxonomy                  5     170     20      -150    2col,1col detected,none,right4/5   
 ahg-theme-b5                       19    316     —     ?       master,unknownnone,left,detected0/19  
-ahg-user-manage                    4     96      2       -94     1col      none,right4/4   
+ahg-user-manage                    4     98      2       -96     1col      none,right4/4   
 ahg-workflow                       13    386     —     ?       1col      none,detected0/13  
 
 
@@ -89,9 +89,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    25    2     54    11    32    29    166    —   —   —   —    ?      
+edit                          1col    none    25    2     54    11    32    32    169    —   —   —   —    ?      
   BTN classes: btn(20), btn-white(17), btn-close(1), btn-outline-success(1), btn-outline-light(2)
-  Field badges: Req=1 Rec=2 Opt=26
+  Field badges: Req=4 Rec=2 Opt=26
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -105,8 +105,9 @@ show                          1col    right   0     4     0     6     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-access-requests               1col    none    8     7     2     3     2     3     35     —   —   —   —    ?      
+access-requests               1col    none    8     7     2     3     2     5     37     —   —   —   —    ?      
   BTN classes: btn(7), btn-white(3), btn-outline-success(2), btn-outline-danger(2), btn-close(2), btn-close-white(2)
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -148,8 +149,9 @@ my-requests                   1col    none    1     2     0     3     0     8   
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-pending-requests              1col    none    9     1     2     7     2     3     31     —   —   —   —    ?      
+pending-requests              1col    none    9     1     2     7     2     5     33     —   —   —   —    ?      
   BTN classes: btn-close(3), btn(6), btn-outline-success(2), btn-outline-danger(2), btn-close-white(2), btn-white(2)
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -168,9 +170,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/actor/templates/deleteSuccess.php
 
-edit                          1col    none    17    2     45    11    27    23    134    —   —   —   —    ?      
+edit                          1col    none    17    2     45    11    27    27    138    —   —   —   —    ?      
   BTN classes: btn(10), btn-white(9), btn-outline-light(1)
-  Field badges: Req=1 Rec=8 Opt=14
+  Field badges: Req=5 Rec=8 Opt=14
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -352,9 +354,9 @@ dashboard                     1col    none    0     7     0     5     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    5     1     65    1     59    57    214    —   —   —   —    ?      
+edit                          1col    none    5     1     65    1     59    59    216    —   —   —   —    ?      
   BTN classes: btn(5), btn-outline-danger(3), btn-sm(4), btn-white(1), btn-outline-success(1), btn-lg(1)
-  Field badges: Req=1 Rec=0 Opt=56
+  Field badges: Req=3 Rec=0 Opt=56
   URLs: {{ $asset ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -385,8 +387,9 @@ import-results                1col    none    0     5     0     3     0     4   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    3     10    1     3     1     4     37     —   —   —   —    ?      
+index                         1col    none    3     10    1     3     1     5     38     —   —   —   —    ?      
   BTN classes: btn-close(2), btn-white(7), btn-outline-light(2), btn-sm(2)
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -667,9 +670,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/function/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     29    4     19    16    81     —   —   —   —    ?      
+edit                          1col    none    8     2     29    4     19    19    84     —   —   —   —    ?      
   BTN classes: btn(4), btn-outline-light(1), btn-white(3)
-  Field badges: Req=1 Rec=4 Opt=11
+  Field badges: Req=4 Rec=4 Opt=11
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -840,9 +843,9 @@ index                         1col    none    0     6     0     3     0     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-create                        unknown detected13    3     38    12    38    33    138    —   —   —   —    ?      
+create                        unknown detected13    3     38    12    38    38    143    —   —   —   —    ?      
   BTN classes: btn(3), btn-white(1), btn-outline-light(2)
-  Field badges: Req=1 Rec=12 Opt=20
+  Field badges: Req=6 Rec=12 Opt=20
   URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1051,9 +1054,9 @@ index                         1col    none    6     3     0     4     0     3   
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-watermark-settings            1col    detected4     1     11    6     11    18    61     —   —   —   —    ?      
+watermark-settings            1col    detected4     1     11    6     11    19    62     —   —   —   —    ?      
   BTN classes: btn(4), btn-white(1), btn-close(1), btn-outline-success(2), btn-sm(1), btn-outline-danger(1)
-  Field badges: Req=2 Rec=0 Opt=4
+  Field badges: Req=2 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1071,9 +1074,9 @@ delete                        1col    none    1     2     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/menu/templates/deleteSuccess.php
 
-edit                          1col    none    2     2     5     1     5     4     20     2     0     0     5      -15    
+edit                          1col    none    2     2     5     1     5     5     21     2     0     0     5      -16    
   BTN classes: btn(1), btn-white(1)
-  Field badges: Req=0 Rec=0 Opt=4
+  Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: apps/qubit/modules/menu/templates/editSuccess.php
 
@@ -1117,9 +1120,9 @@ browse                        1col    none    2     6     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          2col    detected53    8     58    24    61    182   442    —   —   —   —    ?      
+edit                          2col    detected53    8     58    24    61    183   443    —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(1), btn-cco-guide(1), btn-help(33), btn-white(1), btn-outline-light(1)
-  Field badges: Req=13 Rec=18 Opt=21
+  Field badges: Req=13 Rec=18 Opt=22
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1293,9 +1296,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/repository/templates/deleteSuccess.php
 
-edit                          1col    none    18    2     46    11    46    44    170    —   —   —   —    ?      
+edit                          1col    none    18    2     46    11    46    46    172    —   —   —   —    ?      
   BTN classes: btn(9), btn-white(7), btn-close(1), btn-outline-success(1), btn-outline-light(1)
-  Field badges: Req=1 Rec=6 Opt=37
+  Field badges: Req=3 Rec=6 Opt=37
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1374,8 +1377,9 @@ bookings                      2col    detected3     4     0     1     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-cite                          2col    detected1     0     1     3     1     0     13     —   —   —   —    ?      
+cite                          2col    detected1     0     1     3     1     1     14     —   —   —   —    ?      
   BTN classes: btn(1), btn-white(1)
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 collections                   2col    detected6     2     2     3     2     3     25     —   —   —   —    ?      
@@ -1807,9 +1811,9 @@ privacy-notification          1col    left    2     0     3     2     4     2   
   Field badges: Req=0 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-section                       1col    left    1     1     3     1     3     0     10     —   —   —   —    ?      
+section                       1col    left    1     1     3     1     3     2     12     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -2028,9 +2032,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/user/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     19    7     19    17    72     0     0     0     0      -72    
+edit                          1col    none    8     2     19    7     19    19    74     0     0     0     0      -74    
   BTN classes: btn(1), btn-white(1)
-  Field badges: Req=3 Rec=1 Opt=13
+  Field badges: Req=3 Rec=1 Opt=15
   URLs: {{ route(
   AtoM: apps/qubit/modules/user/templates/editSuccess.php
 
@@ -2119,28 +2123,23 @@ view-task                     1col    detected4     5     1     10    1     18  
 
 Package                            View                          Labels  Req  Rec  Opt  Status         
 ───────────────────────────────────────────────────────────────────────────────────────────────────────
-ahg-accession-manage               edit                          32      1    2    26   PARTIAL        
 ahg-acl                            approvers                     4       3    0    0    PARTIAL        
-ahg-actor-manage                   edit                          27      1    8    14   PARTIAL        
 ahg-actor-manage                   _contact-area                 48      0    0    46   PARTIAL        
 ahg-ai-services                    config                        47      4    0    39   PARTIAL        
 ahg-audit-trail                    settings                      9       0    0    0    MISSING        
 ahg-backup                         index                         4       1    0    0    PARTIAL        
 ahg-backup                         restore                       5       0    0    1    PARTIAL        
 ahg-cart                           settings                      10      0    0    8    PARTIAL        
-ahg-dam                            edit                          59      1    0    56   PARTIAL        
 ahg-display                        _advanced-search              27      1    2    19   PARTIAL        
 ahg-display                        browse-settings               7       0    0    4    PARTIAL        
 ahg-display                        browse                        3       0    0    2    PARTIAL        
 ahg-display                        bulk-set-type                 3       1    0    1    PARTIAL        
 ahg-dropdown-manage                edit                          5       2    0    2    PARTIAL        
-ahg-function-manage                edit                          19      1    4    11   PARTIAL        
 ahg-gallery                        artist-create                 25      1    0    23   PARTIAL        
 ahg-gallery                        edit                          67      13   18   18   PARTIAL        
 ahg-iiif-collection                add-items                     5       0    0    4    PARTIAL        
 ahg-iiif-collection                create                        6       1    0    4    PARTIAL        
 ahg-iiif-collection                edit                          6       1    0    4    PARTIAL        
-ahg-information-object-manage      create                        38      1    12   20   PARTIAL        
 ahg-information-object-manage      edit                          44      1    13   29   PARTIAL        
 ahg-information-object-manage      select                        9       0    0    6    PARTIAL        
 ahg-information-object-manage      index                         46      0    0    42   PARTIAL        
@@ -2148,13 +2147,11 @@ ahg-information-object-manage      embargo                       10      2    0 
 ahg-information-object-manage      extended                      5       0    0    4    PARTIAL        
 ahg-library                        edit                          54      0    1    51   PARTIAL        
 ahg-loan                           index                         5       0    1    3    PARTIAL        
-ahg-media-processing               watermark-settings            11      2    0    4    PARTIAL        
-ahg-menu-manage                    edit                          5       0    0    4    PARTIAL        
-ahg-museum                         edit                          61      13   18   21   PARTIAL        
+ahg-media-processing               watermark-settings            11      2    0    5    PARTIAL        
+ahg-museum                         edit                          61      13   18   22   PARTIAL        
 ahg-pdf-tools                      merge                         10      1    0    6    PARTIAL        
 ahg-portable-export                index                         17      0    0    9    PARTIAL        
 ahg-reports                        report-spatial                8       0    0    6    PARTIAL        
-ahg-repository-manage              edit                          46      1    6    37   PARTIAL        
 ahg-research                       api-keys                      6       1    0    2    PARTIAL        
 ahg-research                       book                          6       4    0    1    PARTIAL        
 ahg-research                       edit-room                     15      1    0    13   PARTIAL        
@@ -2175,7 +2172,7 @@ ahg-settings                       identifier                    10      0    0 
 ahg-settings                       markdown                      3       0    0    1    PARTIAL        
 ahg-settings                       permissions                   14      0    0    8    PARTIAL        
 ahg-settings                       privacy-notification          4       0    0    2    PARTIAL        
-ahg-settings                       section                       3       0    0    0    MISSING        
+ahg-settings                       section                       3       0    0    2    PARTIAL        
 ahg-settings                       storage-service               7       0    0    5    PARTIAL        
 ahg-settings                       themes                        39      0    0    37   PARTIAL        
 ahg-settings                       treeview                      8       0    0    5    PARTIAL        
@@ -2184,7 +2181,6 @@ ahg-storage-manage                 edit                          31      1    0 
 ahg-term-taxonomy                  browse                        3       0    0    0    MISSING        
 ahg-term-taxonomy                  edit                          10      1    0    8    PARTIAL        
 ahg-term-taxonomy                  show                          3       0    0    0    MISSING        
-ahg-user-manage                    edit                          19      3    1    13   PARTIAL        
 ahg-workflow                       create-workflow               12      4    0    3    PARTIAL        
 ahg-workflow                       edit-workflow                 22      7    0    8    PARTIAL        
 ahg-workflow                       gate-edit                     12      4    0    7    PARTIAL        

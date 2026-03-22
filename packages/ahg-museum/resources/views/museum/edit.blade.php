@@ -1351,8 +1351,7 @@
                   <div class="col-md-6">
                     @php $wmOpacity = old('new_watermark_opacity', round(($watermarkSetting->opacity ?? 0.4) * 100)); @endphp
                     <label for="new_watermark_opacity" class="form-label">
-                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span>
-                    </label>
+                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span> <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="range" class="form-range" id="new_watermark_opacity"
                            name="new_watermark_opacity" min="10" max="100" step="5"
                            value="{{ $wmOpacity }}">

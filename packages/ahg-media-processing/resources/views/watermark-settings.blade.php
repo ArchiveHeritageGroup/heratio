@@ -193,8 +193,7 @@
 
             <div class="mb-3">
               <label for="custom_watermark_opacity" class="form-label">
-                Opacity: <span id="opacity_value">40</span>%
-              </label>
+                Opacity: <span id="opacity_value">40</span>% <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="range" class="form-range" id="custom_watermark_opacity"
                 name="custom_watermark_opacity" min="0" max="1" step="0.05" value="0.40"
                 oninput="document.getElementById('opacity_value').textContent = Math.round(this.value * 100)">
