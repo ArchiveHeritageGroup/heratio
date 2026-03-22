@@ -1,206 +1,414 @@
 @extends('theme::layouts.1col')
 
-@section('title', $accession->title ?? 'Accession record')
+@section('title', 'View accession record')
 @section('body-class', 'view accession')
+
+@section('title-block')
+  <div class="multiline-header d-flex flex-column mb-3">
+    <h1 class="mb-0" aria-describedby="heading-label">View accession record</h1>
+    <span class="small" id="heading-label">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</span>
+  </div>
+@endsection
 
 @section('content')
 
-  <div class="d-flex justify-content-between align-items-start mb-3">
-    <h1 class="mb-0">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</h1>
+  {{-- ===== Basic info ===== --}}
+  <section class="section border-bottom" id="basicInfo">
+    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#basic-collapse">Basic info</a>
+      @auth
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="basic-collapse">
 
-    @auth
-      <div class="d-flex gap-2">
-        <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">Add new</a>
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
-        @if(auth()->user()->is_admin ?? false)
-          <a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
-        @endif
-      </div>
-    @endauth
-  </div>
-
-  {{-- Accession area --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Accession area</h2>
-
-    @if($accession->title)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Title</div>
-        <div class="col-md-9">{{ $accession->title }}</div>
-      </div>
-    @endif
-
-    @if($accession->identifier)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Accession number</div>
-        <div class="col-md-9">{{ $accession->identifier }}</div>
-      </div>
-    @endif
-
-    @if($accession->date)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Acquisition date</div>
-        <div class="col-md-9">{{ \Carbon\Carbon::parse($accession->date)->format('Y-m-d') }}</div>
-      </div>
-    @endif
-
-    @if($accession->acquisition_type_id && isset($termNames[$accession->acquisition_type_id]))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Acquisition type</div>
-        <div class="col-md-9">{{ $termNames[$accession->acquisition_type_id] }}</div>
-      </div>
-    @endif
-
-    @if($accession->resource_type_id && isset($termNames[$accession->resource_type_id]))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Resource type</div>
-        <div class="col-md-9">{{ $termNames[$accession->resource_type_id] }}</div>
-      </div>
-    @endif
-
-    @if($accession->source_of_acquisition)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Source of acquisition</div>
-        <div class="col-md-9">{!! nl2br(e($accession->source_of_acquisition)) !!}</div>
-      </div>
-    @endif
-
-    @if($accession->location_information)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Location information</div>
-        <div class="col-md-9">{!! nl2br(e($accession->location_information)) !!}</div>
-      </div>
-    @endif
-  </section>
-
-  {{-- Donor area --}}
-  @if($donor)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Donor</h2>
-
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Donor name</div>
-        <div class="col-md-9">
-          <a href="{{ route('actor.show', $donor->slug) }}">{{ $donor->name }}</a>
+      @if($accession->identifier)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accession number</h3>
+          <div class="col-9 p-2">{{ $accession->identifier }}</div>
         </div>
-      </div>
-    </section>
-  @endif
+      @endif
 
-  {{-- Content and structure area --}}
-  @if($accession->scope_and_content || $accession->appraisal || $accession->archival_history || $accession->received_extent_units || $accession->physical_characteristics)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Content and structure area</h2>
-
-      @foreach([
-        'scope_and_content' => 'Scope and content',
-        'appraisal' => 'Appraisal, destruction and scheduling',
-        'archival_history' => 'Archival history',
-        'received_extent_units' => 'Received extent units',
-        'physical_characteristics' => 'Physical characteristics',
-      ] as $field => $label)
-        @if($accession->$field)
-          <div class="row mb-2">
-            <div class="col-md-3 fw-bold">{{ $label }}</div>
-            <div class="col-md-9">{!! nl2br(e($accession->$field)) !!}</div>
-          </div>
-        @endif
-      @endforeach
-    </section>
-  @endif
-
-  {{-- Administrative area --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Administration area</h2>
-
-    @if($accession->processing_status_id && isset($termNames[$accession->processing_status_id]))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Processing status</div>
-        <div class="col-md-9">{{ $termNames[$accession->processing_status_id] }}</div>
-      </div>
-    @endif
-
-    @if($accession->processing_priority_id && isset($termNames[$accession->processing_priority_id]))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Processing priority</div>
-        <div class="col-md-9">{{ $termNames[$accession->processing_priority_id] }}</div>
-      </div>
-    @endif
-
-    @if($accession->processing_notes)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Processing notes</div>
-        <div class="col-md-9">{!! nl2br(e($accession->processing_notes)) !!}</div>
-      </div>
-    @endif
-
-    @if($accession->created_at)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Created</div>
-        <div class="col-md-9">{{ \Carbon\Carbon::parse($accession->created_at)->format('Y-m-d H:i') }}</div>
-      </div>
-    @endif
-
-    @if($accession->updated_at)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Updated</div>
-        <div class="col-md-9">{{ \Carbon\Carbon::parse($accession->updated_at)->format('Y-m-d H:i') }}</div>
-      </div>
-    @endif
-  </section>
-
-  {{-- Deaccessions --}}
-  @if($deaccessions->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Deaccessions</h2>
-
-      @foreach($deaccessions as $deaccession)
-        <div class="card mb-2">
-          <div class="card-body">
-            @if($deaccession->identifier)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Identifier</div>
-                <div class="col-md-9">{{ $deaccession->identifier }}</div>
-              </div>
-            @endif
-
-            @if($deaccession->date)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Date</div>
-                <div class="col-md-9">{{ \Carbon\Carbon::parse($deaccession->date)->format('Y-m-d') }}</div>
-              </div>
-            @endif
-
-            @if($deaccession->scope_id && isset($scopeNames[$deaccession->scope_id]))
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Scope</div>
-                <div class="col-md-9">{{ $scopeNames[$deaccession->scope_id] }}</div>
-              </div>
-            @endif
-
-            @if($deaccession->description)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Description</div>
-                <div class="col-md-9">{!! nl2br(e($deaccession->description)) !!}</div>
-              </div>
-            @endif
-
-            @if($deaccession->extent)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Extent</div>
-                <div class="col-md-9">{!! nl2br(e($deaccession->extent)) !!}</div>
-              </div>
-            @endif
-
-            @if($deaccession->reason)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Reason</div>
-                <div class="col-md-9">{!! nl2br(e($deaccession->reason)) !!}</div>
-              </div>
-            @endif
+      {{-- Alternative identifiers --}}
+      @if(isset($alternativeIdentifiers) && $alternativeIdentifiers->isNotEmpty())
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Alternative identifier(s)</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($alternativeIdentifiers as $altId)
+                <li>{{ $altId->label ?? '' }}: {{ $altId->identifier ?? '' }}</li>
+              @endforeach
+            </ul>
           </div>
         </div>
-      @endforeach
-    </section>
-  @endif
+      @endif
+
+      @if($accession->date)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition date</h3>
+          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->date)->format('Y-m-d') }}</div>
+        </div>
+      @endif
+
+      @if($accession->source_of_acquisition)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->source_of_acquisition)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->location_information)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location information</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->location_information)) !!}</div>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
+  {{-- ===== Donor/Transferring body area ===== --}}
+  <section class="section border-bottom" id="donorArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#donor-collapse">Donor/Transferring body area</a>
+      @auth
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="donor-collapse">
+
+      @if(isset($donors) && count($donors) > 0)
+        @foreach($donors as $donorItem)
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related donor</h3>
+            <div class="col-9 p-2">
+              <a href="{{ route('donor.show', $donorItem->slug) }}">{{ $donorItem->name }}</a>
+            </div>
+          </div>
+          @if(isset($donorItem->contacts) && count($donorItem->contacts) > 0)
+            @foreach($donorItem->contacts as $contactItem)
+              <div class="ms-4 mb-2 ps-3 border-start">
+                @if($contactItem->contact_person)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Contact person</h3>
+                    <div class="col-9 p-2">{{ $contactItem->contact_person }}</div>
+                  </div>
+                @endif
+                @if($contactItem->street_address)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Street address</h3>
+                    <div class="col-9 p-2">{{ $contactItem->street_address }}</div>
+                  </div>
+                @endif
+                @if($contactItem->city)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">City</h3>
+                    <div class="col-9 p-2">{{ $contactItem->city }}</div>
+                  </div>
+                @endif
+                @if($contactItem->region)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Region/province</h3>
+                    <div class="col-9 p-2">{{ $contactItem->region }}</div>
+                  </div>
+                @endif
+                @if($contactItem->postal_code)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Postal code</h3>
+                    <div class="col-9 p-2">{{ $contactItem->postal_code }}</div>
+                  </div>
+                @endif
+                @if($contactItem->country_code)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Country</h3>
+                    <div class="col-9 p-2">{{ $contactItem->country_code }}</div>
+                  </div>
+                @endif
+                @if($contactItem->telephone)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+                    <div class="col-9 p-2">{{ $contactItem->telephone }}</div>
+                  </div>
+                @endif
+                @if($contactItem->fax)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+                    <div class="col-9 p-2">{{ $contactItem->fax }}</div>
+                  </div>
+                @endif
+                @if($contactItem->email)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+                    <div class="col-9 p-2">{{ $contactItem->email }}</div>
+                  </div>
+                @endif
+                @if($contactItem->website)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Website</h3>
+                    <div class="col-9 p-2"><a href="{{ $contactItem->website }}" target="_blank">{{ $contactItem->website }}</a></div>
+                  </div>
+                @endif
+              </div>
+            @endforeach
+          @endif
+        @endforeach
+      @elseif(isset($donor) && $donor)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related donor</h3>
+          <div class="col-9 p-2">
+            <a href="{{ route('donor.show', $donor->slug) }}">{{ $donor->name }}</a>
+          </div>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
+  {{-- ===== Administrative area ===== --}}
+  <section class="section border-bottom" id="administrativeArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#admin-collapse">Administrative area</a>
+      @auth
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="admin-collapse">
+
+      @if($accession->acquisition_type_id && isset($termNames[$accession->acquisition_type_id]))
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition type</h3>
+          <div class="col-9 p-2">{{ $termNames[$accession->acquisition_type_id] }}</div>
+        </div>
+      @endif
+
+      @if($accession->resource_type_id && isset($termNames[$accession->resource_type_id]))
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Resource type</h3>
+          <div class="col-9 p-2">{{ $termNames[$accession->resource_type_id] }}</div>
+        </div>
+      @endif
+
+      @if($accession->title)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
+          <div class="col-9 p-2">{{ $accession->title }}</div>
+        </div>
+      @endif
+
+      @if(isset($creators) && count($creators) > 0)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creators</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($creators as $creator)
+                <li><a href="{{ route('actor.show', $creator->slug) }}">{{ $creator->name ?? '[Untitled]' }}</a></li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
+      @endif
+
+      @if(isset($dates) && count($dates) > 0)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($dates as $dateItem)
+                <li>{{ $dateItem->date_display ?? '' }} ({{ $dateItem->type_name ?? '' }})</li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
+      @endif
+
+      @if(isset($accessionEvents) && count($accessionEvents) > 0)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Event(s)</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($accessionEvents as $event)
+                <li>
+                  {{ $event->date ?? '' }} ({{ $event->type_name ?? '' }}): {{ $event->agent ?? '' }}
+                  @if($event->note ?? null)
+                    <p class="mb-0 mt-1">{{ $event->note }}</p>
+                  @endif
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
+      @endif
+
+      @if($accession->archival_history)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival/Custodial history</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->archival_history)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->scope_and_content)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->scope_and_content)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->appraisal)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->appraisal)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->physical_characteristics)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical condition</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->physical_characteristics)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->received_extent_units)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Received extent units</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->received_extent_units)) !!}</div>
+        </div>
+      @endif
+
+      @if($accession->processing_status_id && isset($termNames[$accession->processing_status_id]))
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing status</h3>
+          <div class="col-9 p-2">{{ $termNames[$accession->processing_status_id] }}</div>
+        </div>
+      @endif
+
+      @if($accession->processing_priority_id && isset($termNames[$accession->processing_priority_id]))
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing priority</h3>
+          <div class="col-9 p-2">{{ $termNames[$accession->processing_priority_id] }}</div>
+        </div>
+      @endif
+
+      @if($accession->processing_notes)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing notes</h3>
+          <div class="col-9 p-2">{!! nl2br(e($accession->processing_notes)) !!}</div>
+        </div>
+      @endif
+
+      @if(isset($accruals) && count($accruals) > 0)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accruals</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($accruals as $accrual)
+                <li><a href="{{ route('accession.show', $accrual->slug) }}">{{ $accrual->title ?: $accrual->identifier ?: '[Untitled]' }}</a></li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
+      @endif
+
+      @if(isset($accrualTo) && $accrualTo)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accrual to</h3>
+          <div class="col-9 p-2">
+            <a href="{{ route('accession.show', $accrualTo->slug) }}">{{ $accrualTo->title ?: $accrualTo->identifier ?: '[Untitled]' }}</a>
+          </div>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
+  {{-- ===== Rights area ===== --}}
+  <section class="section border-bottom" id="rightsArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      Rights area
+    </h2>
+    <div>
+      @if(isset($rights) && count($rights) > 0)
+        @foreach($rights as $right)
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights</h3>
+            <div class="col-9 p-2">
+              @if($right->basis_name ?? null) <div>Basis: {{ $right->basis_name }}</div> @endif
+              @if($right->start_date || $right->end_date) <div>{{ $right->start_date ?? '?' }} - {{ $right->end_date ?? '?' }}</div> @endif
+              @if($right->rights_note ?? null) <div>{!! nl2br(e($right->rights_note)) !!}</div> @endif
+            </div>
+          </div>
+        @endforeach
+      @endif
+    </div>
+  </section>
+
+  {{-- ===== Information object area ===== --}}
+  <section class="section border-bottom" id="informationObjectArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#io-collapse">Archival description area</a>
+      @auth
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="io-collapse">
+      @if(isset($informationObjects) && count($informationObjects) > 0)
+        @foreach($informationObjects as $io)
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival description</h3>
+            <div class="col-9 p-2">
+              <a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?: '[Untitled]' }}</a>
+            </div>
+          </div>
+        @endforeach
+      @endif
+    </div>
+  </section>
+
+  {{-- ===== Deaccession area ===== --}}
+  <section class="section border-bottom" id="deaccessionArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      Deaccession area
+    </h2>
+    <div>
+      @if(isset($deaccessions) && $deaccessions->isNotEmpty())
+        @foreach($deaccessions as $deaccession)
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Deaccession</h3>
+            <div class="col-9 p-2">
+              {{ $deaccession->identifier ?: $deaccession->description ?: '[Untitled]' }}
+            </div>
+          </div>
+        @endforeach
+      @endif
+    </div>
+  </section>
+
+@endsection
+
+@section('after-content')
+  @auth
+    <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+      <li><a href="{{ route('accession.edit', $accession->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+
+      <li><a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+
+      <li><a href="{{ url('/deaccession/add?accession=' . $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
+
+      @if(!isset($accrualTo) || !$accrualTo)
+        <li><a href="{{ route('accession.create', ['accession' => $accession->slug]) }}" class="btn atom-btn-outline-light">Add accrual</a></li>
+      @endif
+
+      <li>
+        <div class="dropup">
+          <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            More
+          </button>
+          <ul class="dropdown-menu mb-2">
+            <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create archival description</a></li>
+            <li><a href="{{ url('/right/add?slug=' . $accession->slug) }}" class="dropdown-item">Create new rights</a></li>
+            <li><a href="{{ url('/physicalobject/link?slug=' . $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  @endauth
 @endsection

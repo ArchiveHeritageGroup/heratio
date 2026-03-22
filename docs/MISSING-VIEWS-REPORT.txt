@@ -1,0 +1,1675 @@
+# MISSING VIEWS: AtoM templates without Heratio equivalent
+# Generated: 2026-03-22 10:20:23
+# Total AtoM templates scanned: 2058
+# Matched to Heratio: 174
+# Missing in Heratio: 1272
+# No Heratio package: 612
+
+## MISSING VIEWS BY PACKAGE
+
+### ahg-3d-model (10 missing)
+  - model3d/_model3dViewer.php
+  - model3d/_multiAngleGallery.php
+  - model3d/_splatViewer.php
+  - model3d/editSuccess.php
+  - model3d/embedSuccess.php
+  - model3d/indexSuccess.php
+  - model3d/uploadSuccess.php
+  - model3d/viewSuccess.php
+  - model3dSettings/indexSuccess.php
+  - model3dSettings/triposrSuccess.php
+
+### ahg-accession-manage (28 missing)
+  - accessionAppraisal/appraisal.blade.php
+  - accessionAppraisal/appraisalSuccess.php
+  - accessionAppraisal/appraisalTemplates.blade.php
+  - accessionAppraisal/appraisalTemplatesSuccess.php
+  - accessionAppraisal/valuation.blade.php
+  - accessionAppraisal/valuationReport.blade.php
+  - accessionAppraisal/valuationReportSuccess.php
+  - accessionAppraisal/valuationSuccess.php
+  - accessionContainer/containers.blade.php
+  - accessionContainer/containersSuccess.php
+  - accessionContainer/rights.blade.php
+  - accessionContainer/rightsSuccess.php
+  - accessionIntake/attachments.blade.php
+  - accessionIntake/attachmentsSuccess.php
+  - accessionIntake/checklist.blade.php
+  - accessionIntake/checklistSuccess.php
+  - accessionIntake/config.blade.php
+  - accessionIntake/configSuccess.php
+  - accessionIntake/numbering.blade.php
+  - accessionIntake/numberingSuccess.php
+  - accessionIntake/queue.blade.php
+  - accessionIntake/queueDetail.blade.php
+  - accessionIntake/queueDetailSuccess.php
+  - accessionIntake/queueSuccess.php
+  - accessionIntake/timeline.blade.php
+  - accessionIntake/timelineSuccess.php
+  - accessionManage/dashboard.blade.php
+  - accessionManage/dashboardSuccess.php
+
+### ahg-acl (38 missing)
+  - accessFilter/_accessBadge.php
+  - accessFilter/_classificationBadge.php
+  - accessFilter/_donorRestrictions.php
+  - accessFilter/_searchResultBadge.php
+  - accessFilter/deniedSuccess.php
+  - security/accessRequestsSuccess.php
+  - securityAudit/dashboardSuccess.php
+  - securityAudit/indexSuccess.php
+  - securityAudit/objectAccessSuccess.php
+  - securityClearance/_badge.php
+  - securityClearance/_securityBadge.php
+  - securityClearance/_securityFieldset.php
+  - securityClearance/_userBadge.php
+  - securityClearance/_warningBanner.php
+  - securityClearance/_watermarkSelect.php
+  - securityClearance/accessRequestSuccess.php
+  - securityClearance/auditSuccess.php
+  - securityClearance/classifySuccess.php
+  - securityClearance/compartmentAccessSuccess.php
+  - securityClearance/compartmentsSuccess.php
+  - securityClearance/dashboardSuccess.php
+  - securityClearance/declassificationSuccess.php
+  - securityClearance/deniedSuccess.php
+  - securityClearance/indexSuccess.php
+  - securityClearance/myRequestsSuccess.php
+  - securityClearance/objectSuccess.php
+  - securityClearance/pendingRequestsSuccess.php
+  - securityClearance/reportSuccess.php
+  - securityClearance/reviewRequestSuccess.php
+  - securityClearance/securityComplianceSuccess.php
+  - securityClearance/setupTwoFactorSuccess.php
+  - securityClearance/traceWatermarkSuccess.php
+  - securityClearance/twoFactorSuccess.php
+  - securityClearance/userClearanceSuccess.php
+  - securityClearance/userSuccess.php
+  - securityClearance/viewSuccess.php
+  - securityClearance/watermarkSettingsSuccess.php
+  - sfIsadPlugin/editSuccess.php
+
+### ahg-actor-manage (1 missing)
+  - actorManage/_actorSearchResult.php
+
+### ahg-ai-services (19 missing)
+  - ai/_aiTools.php
+  - ai/_extractButton.php
+  - ai/_suggestButton.php
+  - ai/_summarizeButton.php
+  - ai/batchSuccess.php
+  - ai/batchViewSuccess.php
+  - ai/pdfOverlaySuccess.php
+  - ai/reviewSuccess.php
+  - ai/suggestReviewSuccess.php
+  - aiCondition/assessSuccess.php
+  - aiCondition/browseSuccess.php
+  - aiCondition/bulkSuccess.php
+  - aiCondition/clientsSuccess.php
+  - aiCondition/dashboardSuccess.php
+  - aiCondition/historySuccess.php
+  - aiCondition/manualAssessSuccess.php
+  - aiCondition/settingsSuccess.php
+  - aiCondition/trainingSuccess.php
+  - aiCondition/viewSuccess.php
+
+### ahg-audit-trail (7 missing)
+  - auditTrail/_compareModal.php
+  - auditTrail/authenticationSuccess.php
+  - auditTrail/entityHistorySuccess.php
+  - auditTrail/exportSuccess.php
+  - auditTrail/securityAccessSuccess.php
+  - auditTrail/userActivitySuccess.php
+  - auditTrail/viewSuccess.php
+
+### ahg-backup (2 missing)
+  - backup/restoreUploadSuccess.php
+  - backup/uploadSuccess.php
+
+### ahg-cart (5 missing)
+  - cart/adminOrdersSuccess.php
+  - cart/adminSettingsSuccess.php
+  - cart/orderConfirmationSuccess.php
+  - cart/paymentSuccess.php
+  - cart/thankYouSuccess.php
+
+### ahg-core (132 missing)
+  - aclGroup/_aclTable.php
+  - aclGroup/_tabs.php
+  - aclGroup/_termAclForm.php
+  - actor/autocompleteSuccess.php
+  - admin/challengeSuccess.php
+  - clipboard/_button.php
+  - contactinformation/_contactInformation.php
+  - contactinformation/_edit.php
+  - default/_bs2DeprecationMessage.php
+  - default/_googleAnalytics.php
+  - default/_popular.php
+  - default/_printPreviewBar.php
+  - default/_privacyMessage.php
+  - default/_sortPickers.php
+  - default/_sortableTableHeader.php
+  - default/_tagManager.php
+  - default/_translationLinks.php
+  - default/_updateCheck.php
+  - digitalobject/_editRepresentation.php
+  - digitalobject/_editSubtitles.php
+  - digitalobject/_rights.php
+  - digitalobject/_showCompound.php
+  - digitalobject/_showImage.php
+  - digitalobject/_showText.php
+  - digitalobject/viewCopyrightStatementSuccess.php
+  - informationobject/_accessions.php
+  - informationobject/_actionIcons.php
+  - informationobject/_advancedSearch.php
+  - informationobject/_alternativeIdentifiers.php
+  - informationobject/_alternativeIdentifiersIndex.php
+  - informationobject/_calculateDatesLink.php
+  - informationobject/_cardViewResults.php
+  - informationobject/_childLevels.php
+  - informationobject/_creator.php
+  - informationobject/_creatorDetail.php
+  - informationobject/_dates.php
+  - informationobject/_descriptionHeader.php
+  - informationobject/_editActions.php
+  - informationobject/_event.php
+  - informationobject/_findingAid.php
+  - informationobject/_findingAidLink.php
+  - informationobject/_genreAccessPoints.php
+  - informationobject/_identifierOptions.php
+  - informationobject/_relatedEvents.php
+  - informationobject/_stylesheet.php
+  - informationobject/_tableViewResults.php
+  - informationobject/_treeView.php
+  - informationobject/autocompleteSuccess.php
+  - informationobject/boxLabelCriteria.php
+  - informationobject/boxLabelSuccess.php
+  - informationobject/browseSuccess.php
+  - informationobject/calculateDatesError.php
+  - informationobject/calculateDatesSuccess.php
+  - informationobject/deleteFindingAidSuccess.php
+  - informationobject/deleteSuccess.php
+  - informationobject/inventorySuccess.php
+  - informationobject/itemOrFileListCriteria.php
+  - informationobject/itemOrFileListError.php
+  - informationobject/itemOrFileListSuccess.php
+  - informationobject/modificationsSuccess.php
+  - informationobject/multiFileUpdateSuccess.php
+  - informationobject/multiFileUploadSuccess.php
+  - informationobject/physicalObjectsSuccess.php
+  - informationobject/renameSuccess.php
+  - informationobject/reportsSuccess.php
+  - informationobject/storageLocationsCriteria.php
+  - informationobject/storageLocationsError.php
+  - informationobject/storageLocationsSuccess.php
+  - informationobject/treeViewSuccess.php
+  - informationobject/updatePublicationStatusSuccess.php
+  - informationobject/uploadFindingAidSuccess.php
+  - object/_gaInstitutionsDimension.php
+  - object/_notes.php
+  - object/editPhysicalObjectsSuccess.php
+  - object/importResultsSuccess.php
+  - object/importSelectSuccess.php
+  - object/validateCsvSuccess.php
+  - physicalobject/_contextMenu.php
+  - physicalobject/autocompleteSuccess.php
+  - physicalobject/boxListSuccess.php
+  - physicalobject/browseSuccess.php
+  - physicalobject/deleteSuccess.php
+  - physicalobject/holdingsReportExportSuccess.php
+  - repository/_contextMenu.php
+  - repository/_stylesheet.php
+  - repository/autocompleteSuccess.php
+  - repository/editUploadLimitSuccess.php
+  - right/_relatedRights.php
+  - right/_right.php
+  - right/deleteSuccess.php
+  - right/editSuccess.php
+  - right/manageSuccess.php
+  - search/_filterTags.php
+  - search/errorSuccess.php
+  - search/globalReplaceSuccess.php
+  - settings/_i18n_form_field.php
+  - settings/_menu.php
+  - settings/analyticsSuccess.php
+  - settings/clipboardSuccess.php
+  - settings/csvValidatorSuccess.php
+  - settings/diacriticsSuccess.php
+  - settings/digitalObjectDerivativesSuccess.php
+  - settings/dipUploadSuccess.php
+  - settings/findingAidSuccess.php
+  - settings/globalSuccess.php
+  - settings/headerSuccess.php
+  - settings/identifierSuccess.php
+  - settings/interfaceLabelSuccess.php
+  - settings/inventorySuccess.php
+  - settings/languageSuccess.php
+  - settings/ldapSuccess.php
+  - settings/markdownSuccess.php
+  - settings/oaiSuccess.php
+  - settings/pageElementsSuccess.php
+  - settings/permissionsSuccess.php
+  - settings/privacyNotificationSuccess.php
+  - settings/securitySuccess.php
+  - settings/siteInformationSuccess.php
+  - settings/templateSuccess.php
+  - settings/treeviewSuccess.php
+  - settings/uploadsSuccess.php
+  - settings/visibleElementsSuccess.php
+  - taxonomy/_contextMenu.php
+  - taxonomy/autocompleteSuccess.php
+  - term/_contextMenu.php
+  - term/autocompleteSuccess.php
+  - term/treeViewSuccess.php
+  - user/indexActorAclSuccess.php
+  - user/indexInformationObjectAclSuccess.php
+  - user/indexRepositoryAclSuccess.php
+  - user/indexTermAclSuccess.php
+  - user/readOnlySuccess.php
+
+### ahg-dam (10 missing)
+  - dam/_itemPhysicalLocationCard.php
+  - dam/bulkCreateSuccess.php
+  - dam/createSuccess.php
+  - dam/editIptcSuccess.php
+  - dam/indexSuccess.php
+  - damReports/assetsSuccess.php
+  - damReports/indexSuccess.php
+  - damReports/iptcSuccess.php
+  - damReports/metadataSuccess.php
+  - damReports/storageSuccess.php
+
+### ahg-data-migration (11 missing)
+  - dataMigration/_digitalObjectHelp.php
+  - dataMigration/ahgImportResultsSuccess.php
+  - dataMigration/batchExportSuccess.php
+  - dataMigration/executeAhgImportSuccess.php
+  - dataMigration/executeSuccess.php
+  - dataMigration/jobStatusSuccess.php
+  - dataMigration/previewDataSuccess.php
+  - dataMigration/sectorExportSuccess.php
+  - dataMigration/validateSuccess.php
+  - preservica/preservicaExportSuccess.php
+  - preservica/preservicaImportSuccess.php
+
+### ahg-dedupe (19 missing)
+  - authority/_completenessBadge.php
+  - authority/_completenessPanel.php
+  - authority/_identifierPanel.php
+  - authority/_relationGraphPanel.php
+  - authority/configSuccess.php
+  - authority/contactSuccess.php
+  - authority/dashboardSuccess.php
+  - authority/functionBrowseSuccess.php
+  - authority/functionsSuccess.php
+  - authority/identifiersSuccess.php
+  - authority/mergeSuccess.php
+  - authority/occupationsSuccess.php
+  - authority/splitSuccess.php
+  - authority/workqueueSuccess.php
+  - authorityDedup/scanSuccess.php
+  - dedupe/mergeSuccess.php
+  - dedupe/ruleCreateSuccess.php
+  - dedupe/ruleEditSuccess.php
+  - dedupe/scanSuccess.php
+
+### ahg-display (11 missing)
+  - digitalobject/_imageflow.php
+  - digitalobject/_metadata.php
+  - display/browseEmbeddedSuccess.php
+  - display/browseSettingsSuccess.php
+  - display/bulkSetTypeSuccess.php
+  - displaySearch/_glamAdvancedSearch.php
+  - displaySearch/_glamAdvancedSearchEnhancements.php
+  - displaySearch/reindexSuccess.php
+  - displaySearch/searchSuccess.php
+  - treeview/_view.php
+  - treeview/viewSuccess.php
+
+### ahg-doi-manage (5 missing)
+  - doi/_recordBadge.php
+  - doi/batchMintSuccess.php
+  - doi/deactivateSuccess.php
+  - doi/mintSuccess.php
+  - doi/syncSuccess.php
+
+### ahg-donor-manage (7 missing)
+  - donorAgreement/_form.php
+  - donorAgreement/addSuccess.php
+  - donorAgreement/dashboardSuccess.php
+  - donorAgreement/remindersSuccess.php
+  - donorAgreement/viewSuccess.php
+  - donor/indexSuccess.php
+  - donorManage/viewSuccess.php
+
+### ahg-favorites (2 missing)
+  - favorites/_favoriteButton.php
+  - favorites/sharedViewSuccess.php
+
+### ahg-feedback (3 missing)
+  - feedback/deleteSuccess.php
+  - feedback/submitSuccess.php
+  - feedback/viewSuccess.php
+
+### ahg-function-manage (1 missing)
+  - functionManage/viewSuccess.php
+
+### ahg-gallery (20 missing)
+  - gallery/addSuccess.php
+  - gallery/createArtistSuccess.php
+  - gallery/createLoanSuccess.php
+  - gallery/createValuationSuccess.php
+  - gallery/createVenueSuccess.php
+  - gallery/dashboardSuccess.php
+  - gallery/facilityReportSuccess.php
+  - gallery/indexSuccess.php
+  - gallery/loansSuccess.php
+  - gallery/valuationsSuccess.php
+  - gallery/venuesSuccess.php
+  - gallery/viewArtistSuccess.php
+  - gallery/viewLoanSuccess.php
+  - gallery/viewVenueSuccess.php
+  - galleryReports/exhibitionsSuccess.php
+  - galleryReports/facilityReportsSuccess.php
+  - galleryReports/indexSuccess.php
+  - galleryReports/loansSuccess.php
+  - galleryReports/spacesSuccess.php
+  - galleryReports/valuationsSuccess.php
+
+### ahg-help (2 missing)
+  - help/_helpOffcanvas.php
+  - help/_helpSidebar.php
+
+### ahg-heritage-manage (151 missing)
+  - grapCompliance/batchCheckSuccess.blade.php
+  - grapCompliance/batchCheckSuccess.php
+  - grapCompliance/checkSuccess.blade.php
+  - grapCompliance/checkSuccess.php
+  - grapCompliance/dashboardSuccess.blade.php
+  - grapCompliance/dashboardSuccess.php
+  - grapCompliance/nationalTreasuryReportSuccess.blade.php
+  - grapCompliance/nationalTreasuryReportSuccess.php
+  - heritageAccounting/addImpairmentSuccess.blade.php
+  - heritageAccounting/addImpairmentSuccess.php
+  - heritageAccounting/addJournalSuccess.blade.php
+  - heritageAccounting/addJournalSuccess.php
+  - heritageAccounting/addMovementSuccess.blade.php
+  - heritageAccounting/addMovementSuccess.php
+  - heritageAccounting/addSuccess.blade.php
+  - heritageAccounting/addSuccess.php
+  - heritageAccounting/addValuationSuccess.blade.php
+  - heritageAccounting/addValuationSuccess.php
+  - heritageAccounting/browseSuccess.blade.php
+  - heritageAccounting/browseSuccess.php
+  - heritageAccounting/dashboardSuccess.blade.php
+  - heritageAccounting/dashboardSuccess.php
+  - heritageAccounting/editSuccess.blade.php
+  - heritageAccounting/editSuccess.php
+  - heritageAccounting/settingsSuccess.blade.php
+  - heritageAccounting/settingsSuccess.php
+  - heritageAccounting/viewByObjectSuccess.blade.php
+  - heritageAccounting/viewByObjectSuccess.php
+  - heritageAccounting/viewSuccess.blade.php
+  - heritageAccounting/viewSuccess.php
+  - heritageAdmin/indexSuccess.blade.php
+  - heritageAdmin/indexSuccess.php
+  - heritageAdmin/regionInfoSuccess.blade.php
+  - heritageAdmin/regionInfoSuccess.php
+  - heritageAdmin/regionsSuccess.blade.php
+  - heritageAdmin/regionsSuccess.php
+  - heritageAdmin/ruleAddSuccess.blade.php
+  - heritageAdmin/ruleAddSuccess.php
+  - heritageAdmin/ruleEditSuccess.blade.php
+  - heritageAdmin/ruleEditSuccess.php
+  - heritageAdmin/ruleListSuccess.blade.php
+  - heritageAdmin/ruleListSuccess.php
+  - heritageAdmin/standardAddSuccess.blade.php
+  - heritageAdmin/standardAddSuccess.php
+  - heritageAdmin/standardEditSuccess.blade.php
+  - heritageAdmin/standardEditSuccess.php
+  - heritageAdmin/standardListSuccess.blade.php
+  - heritageAdmin/standardListSuccess.php
+  - heritageReport/assetRegisterSuccess.blade.php
+  - heritageReport/assetRegisterSuccess.php
+  - heritageReport/indexSuccess.blade.php
+  - heritageReport/indexSuccess.php
+  - heritageReport/movementSuccess.blade.php
+  - heritageReport/movementSuccess.php
+  - heritageReport/valuationSuccess.blade.php
+  - heritageReport/valuationSuccess.php
+  - heritage/_activitySection.blade.php
+  - heritage/_activitySection.php
+  - heritage/_adminSidebar.blade.php
+  - heritage/_adminSidebar.php
+  - heritage/_contributeButton.blade.php
+  - heritage/_contributeButton.php
+  - heritage/_entityPanel.blade.php
+  - heritage/_entityPanel.php
+  - heritage/_filterCards.blade.php
+  - heritage/_filterCards.php
+  - heritage/_heroSection.blade.php
+  - heritage/_heroSection.php
+  - heritage/_recentAdditions.blade.php
+  - heritage/_recentAdditions.php
+  - heritage/_statsSection.blade.php
+  - heritage/_statsSection.php
+  - heritage/_storiesSection.blade.php
+  - heritage/_storiesSection.php
+  - heritage/adminAccessRequestsSuccess.blade.php
+  - heritage/adminAccessRequestsSuccess.php
+  - heritage/adminBrandingSuccess.blade.php
+  - heritage/adminBrandingSuccess.php
+  - heritage/adminConfigSuccess.blade.php
+  - heritage/adminConfigSuccess.php
+  - heritage/adminDashboardSuccess.blade.php
+  - heritage/adminDashboardSuccess.php
+  - heritage/adminEmbargoesSuccess.blade.php
+  - heritage/adminEmbargoesSuccess.php
+  - heritage/adminFeaturedCollectionsSuccess.blade.php
+  - heritage/adminFeaturedCollectionsSuccess.php
+  - heritage/adminFeaturesSuccess.blade.php
+  - heritage/adminFeaturesSuccess.php
+  - heritage/adminHeroSlidesSuccess.blade.php
+  - heritage/adminHeroSlidesSuccess.php
+  - heritage/adminPopiaSuccess.blade.php
+  - heritage/adminPopiaSuccess.php
+  - heritage/adminUsersSuccess.blade.php
+  - heritage/adminUsersSuccess.php
+  - heritage/analyticsAlertsSuccess.blade.php
+  - heritage/analyticsAlertsSuccess.php
+  - heritage/analyticsContentSuccess.blade.php
+  - heritage/analyticsContentSuccess.php
+  - heritage/analyticsDashboardSuccess.blade.php
+  - heritage/analyticsDashboardSuccess.php
+  - heritage/analyticsSearchSuccess.blade.php
+  - heritage/analyticsSearchSuccess.php
+  - heritage/collectionsSuccess.blade.php
+  - heritage/collectionsSuccess.php
+  - heritage/contributeSuccess.blade.php
+  - heritage/contributeSuccess.php
+  - heritage/contributorLoginSuccess.blade.php
+  - heritage/contributorLoginSuccess.php
+  - heritage/contributorProfileSuccess.blade.php
+  - heritage/contributorProfileSuccess.php
+  - heritage/contributorRegisterSuccess.blade.php
+  - heritage/contributorRegisterSuccess.php
+  - heritage/contributorVerifySuccess.blade.php
+  - heritage/contributorVerifySuccess.php
+  - heritage/creatorsSuccess.blade.php
+  - heritage/creatorsSuccess.php
+  - heritage/custodianBatchSuccess.blade.php
+  - heritage/custodianBatchSuccess.php
+  - heritage/custodianDashboardSuccess.blade.php
+  - heritage/custodianDashboardSuccess.php
+  - heritage/custodianHistorySuccess.blade.php
+  - heritage/custodianHistorySuccess.php
+  - heritage/custodianItemSuccess.blade.php
+  - heritage/custodianItemSuccess.php
+  - heritage/entitySuccess.blade.php
+  - heritage/entitySuccess.php
+  - heritage/exploreSuccess.blade.php
+  - heritage/exploreSuccess.php
+  - heritage/graphSuccess.blade.php
+  - heritage/graphSuccess.php
+  - heritage/landingError.blade.php
+  - heritage/landingError.php
+  - heritage/landingSuccess.blade.php
+  - heritage/leaderboardSuccess.blade.php
+  - heritage/leaderboardSuccess.php
+  - heritage/myAccessRequestsSuccess.blade.php
+  - heritage/myAccessRequestsSuccess.php
+  - heritage/myContributionsSuccess.blade.php
+  - heritage/myContributionsSuccess.php
+  - heritage/requestAccessSuccess.blade.php
+  - heritage/requestAccessSuccess.php
+  - heritage/reviewContributionSuccess.blade.php
+  - heritage/reviewContributionSuccess.php
+  - heritage/reviewQueueSuccess.blade.php
+  - heritage/reviewQueueSuccess.php
+  - heritage/searchError.php
+  - heritage/searchSuccess.blade.php
+  - heritage/timelineSuccess.blade.php
+  - heritage/timelineSuccess.php
+  - heritage/trendingSuccess.blade.php
+  - heritage/trendingSuccess.php
+
+### ahg-iiif-collection (20 missing)
+  - iiif/_featuredCollection.php
+  - iiif/compareSuccess.php
+  - iiif/settingsSuccess.php
+  - iiif/validationDashboardSuccess.php
+  - iiif/viewerSuccess.php
+  - iiifAuth/accessServiceCloseSuccess.php
+  - iiifAuth/accessTokenIframeSuccess.php
+  - iiifAuth/authFailedSuccess.php
+  - iiifAuth/authSuccessSuccess.php
+  - iiifAuth/clickthroughSuccess.php
+  - iiifAuth/logoutSuccessSuccess.php
+  - iiifCollection/addItemsSuccess.php
+  - iiifCollection/newSuccess.php
+  - mediaSettings/queueSuccess.php
+  - mediaSettings/testSuccess.php
+  - threeDReports/digitalObjectsSuccess.php
+  - threeDReports/hotspotsSuccess.php
+  - threeDReports/modelsSuccess.php
+  - threeDReports/settingsSuccess.php
+  - threeDReports/thumbnailsSuccess.php
+
+### ahg-information-object-manage (3 missing)
+  - ioManage/doDeleteSuccess.php
+  - ioManage/doEditSuccess.php
+  - ioManage/doUploadSuccess.php
+
+### ahg-integrity (27 missing)
+  - integrity/alertsSuccess.blade.php
+  - integrity/alertsSuccess.php
+  - integrity/deadLetterSuccess.blade.php
+  - integrity/deadLetterSuccess.php
+  - integrity/dispositionSuccess.blade.php
+  - integrity/dispositionSuccess.php
+  - integrity/exportSuccess.blade.php
+  - integrity/exportSuccess.php
+  - integrity/holdsSuccess.blade.php
+  - integrity/holdsSuccess.php
+  - integrity/indexSuccess.blade.php
+  - integrity/ledgerSuccess.blade.php
+  - integrity/ledgerSuccess.php
+  - integrity/policiesSuccess.blade.php
+  - integrity/policiesSuccess.php
+  - integrity/policyEditSuccess.blade.php
+  - integrity/policyEditSuccess.php
+  - integrity/reportSuccess.blade.php
+  - integrity/reportSuccess.php
+  - integrity/runDetailSuccess.blade.php
+  - integrity/runDetailSuccess.php
+  - integrity/runsSuccess.blade.php
+  - integrity/runsSuccess.php
+  - integrity/scheduleEditSuccess.blade.php
+  - integrity/scheduleEditSuccess.php
+  - integrity/schedulesSuccess.blade.php
+  - integrity/schedulesSuccess.php
+
+### ahg-jobs-manage (5 missing)
+  - jobsManage/deleteSuccess.php
+  - jobsManage/queueBatchesSuccess.php
+  - jobsManage/queueBrowseSuccess.php
+  - jobsManage/queueDetailSuccess.php
+  - jobsManage/reportSuccess.php
+
+### ahg-library (31 missing)
+  - acquisition/batchCaptureSuccess.php
+  - acquisition/budgetsSuccess.php
+  - acquisition/indexSuccess.php
+  - acquisition/orderEditSuccess.php
+  - acquisition/orderSuccess.php
+  - circulation/indexSuccess.php
+  - circulation/loanRulesSuccess.php
+  - circulation/overdueSuccess.php
+  - ill/indexSuccess.php
+  - ill/viewSuccess.php
+  - isbn/lookupSuccess.php
+  - library/_librarySidebar.php
+  - library/addSuccess.php
+  - library/indexSuccess.php
+  - library/isbnProviderEditSuccess.php
+  - library/isbnProvidersSuccess.php
+  - library/renameSuccess.php
+  - libraryReports/callNumbersSuccess.php
+  - libraryReports/catalogueSuccess.php
+  - libraryReports/creatorsSuccess.php
+  - libraryReports/indexSuccess.php
+  - libraryReports/publishersSuccess.php
+  - libraryReports/subjectsSuccess.php
+  - opac/accountSuccess.php
+  - opac/holdSuccess.php
+  - opac/indexSuccess.php
+  - opac/viewSuccess.php
+  - patron/indexSuccess.php
+  - patron/viewSuccess.php
+  - serial/indexSuccess.php
+  - serial/viewSuccess.php
+
+### ahg-loan (2 missing)
+  - loan/addSuccess.php
+  - loan/dashboardSuccess.php
+
+### ahg-menu-manage (1 missing)
+  - menuManage/listSuccess.php
+
+### ahg-museum (40 missing)
+  - authority/_linkedAuthorities.php
+  - authority/linkSuccess.php
+  - cco/_actions.php
+  - cco/_adminInfo.php
+  - cco/_alternativeIdentifiers.php
+  - cco/_childLevels.php
+  - cco/_identifierOptions.php
+  - cco/conditionReportSuccess.php
+  - cco/gettyLinksSuccess.php
+  - cco/grapDashboardSuccess.php
+  - cco/indexSuccess.php
+  - cco/loanDashboardSuccess.php
+  - cco/multiFileUploadSuccess.php
+  - cco/objectComparisonSuccess.php
+  - cco/provenanceSuccess.php
+  - cidoc/exportSuccess.php
+  - dashboard/indexSuccess.php
+  - dashboard/missingFieldSuccess.php
+  - museum/_adminInfo.php
+  - museum/_alternativeIdentifiers.php
+  - museum/_childLevels.php
+  - museum/_identifierOptions.php
+  - museum/_watermarkSettings.php
+  - museum/addSuccess.php
+  - museum/conditionReportSuccess.php
+  - museum/dashboardSuccess.php
+  - museum/gettyLinksSuccess.php
+  - museum/grapDashboardSuccess.php
+  - museum/indexSuccess.php
+  - museum/loanDashboardSuccess.php
+  - museum/multiFileUploadSuccess.php
+  - museum/objectComparisonSuccess.php
+  - museum/provenanceSuccess.php
+  - museumReports/conditionReportSuccess.php
+  - museumReports/creatorsSuccess.php
+  - museumReports/indexSuccess.php
+  - museumReports/materialsSuccess.php
+  - museumReports/objectsSuccess.php
+  - museumReports/provenanceSuccess.php
+  - museumReports/stylePeriodSuccess.php
+
+### ahg-portable-export (1 missing)
+  - portableExport/importSuccess.php
+
+### ahg-preservation (35 missing)
+  - preservation/_tiffPdfMergeJobs.blade.php
+  - preservation/_tiffPdfMergeJobs.php
+  - preservation/backupSuccess.blade.php
+  - preservation/conversionSuccess.blade.php
+  - preservation/conversionSuccess.php
+  - preservation/eventsSuccess.blade.php
+  - preservation/fixityLogSuccess.blade.php
+  - preservation/fixityLogSuccess.php
+  - preservation/formatsSuccess.blade.php
+  - preservation/identificationSuccess.blade.php
+  - preservation/identificationSuccess.php
+  - preservation/indexSuccess.blade.php
+  - preservation/objectSuccess.blade.php
+  - preservation/objectSuccess.php
+  - preservation/packageEditSuccess.blade.php
+  - preservation/packageEditSuccess.php
+  - preservation/packageViewSuccess.blade.php
+  - preservation/packageViewSuccess.php
+  - preservation/packagesSuccess.blade.php
+  - preservation/policiesSuccess.blade.php
+  - preservation/reportsSuccess.blade.php
+  - preservation/scheduleEditSuccess.blade.php
+  - preservation/scheduleEditSuccess.php
+  - preservation/schedulerSuccess.blade.php
+  - preservation/virusScanSuccess.blade.php
+  - preservation/virusScanSuccess.php
+  - tiffpdfmerge/_tiffPdfMergeButton.blade.php
+  - tiffpdfmerge/_tiffPdfMergeButton.php
+  - tiffpdfmerge/_tiffPdfMergeModal.blade.php
+  - tiffpdfmerge/_tiffPdfMergeModal.php
+  - tiffpdfmerge/browseSuccess.blade.php
+  - tiffpdfmerge/browseSuccess.php
+  - tiffpdfmerge/indexSuccess.blade.php
+  - tiffpdfmerge/viewSuccess.blade.php
+  - tiffpdfmerge/viewSuccess.php
+
+### ahg-reports (63 missing)
+  - reportBuilder/archiveSuccess.php
+  - reportBuilder/createSuccess.php
+  - reportBuilder/deleteTemplateSuccess.php
+  - reportBuilder/editSuccess.php
+  - reportBuilder/editTemplateSuccess.php
+  - reportBuilder/historySuccess.php
+  - reportBuilder/indexSuccess.php
+  - reportBuilder/previewSuccess.php
+  - reportBuilder/previewTemplateSuccess.php
+  - reportBuilder/querySuccess.php
+  - reportBuilder/scheduleSuccess.php
+  - reportBuilder/shareSuccess.php
+  - reportBuilder/templatesSuccess.php
+  - reportBuilder/viewSuccess.php
+  - reportBuilder/widgetSuccess.php
+  - reports/_reportsMenu.blade.php
+  - reports/_reportsMenu.php
+  - reports/auditActorSuccess.blade.php
+  - reports/auditActorSuccess.php
+  - reports/auditArchivalDescriptionSuccess.blade.php
+  - reports/auditArchivalDescriptionSuccess.php
+  - reports/auditDonorSuccess.blade.php
+  - reports/auditDonorSuccess.php
+  - reports/auditPermissionsSuccess.blade.php
+  - reports/auditPermissionsSuccess.php
+  - reports/auditPhysicalStorageSuccess.blade.php
+  - reports/auditPhysicalStorageSuccess.php
+  - reports/auditRepositorySuccess.blade.php
+  - reports/auditRepositorySuccess.php
+  - reports/auditTaxonomySuccess.blade.php
+  - reports/auditTaxonomySuccess.php
+  - reports/browsePublishSuccess.blade.php
+  - reports/browsePublishSuccess.php
+  - reports/browseSuccess.blade.php
+  - reports/browseSuccess.php
+  - reports/indexSuccess.blade.php
+  - reports/indexSuccess.php
+  - reports/reportAccessSuccess.blade.php
+  - reports/reportAccessSuccess.php
+  - reports/reportAccessionSuccess.blade.php
+  - reports/reportAccessionSuccess.php
+  - reports/reportAuthorityRecordSuccess.blade.php
+  - reports/reportAuthorityRecordSuccess.php
+  - reports/reportDonorSuccess.blade.php
+  - reports/reportDonorSuccess.php
+  - reports/reportInformationObjectSuccess.blade.php
+  - reports/reportInformationObjectSuccess.php
+  - reports/reportPhysicalStorageSuccess.blade.php
+  - reports/reportPhysicalStorageSuccess.php
+  - reports/reportRepositorySuccess.blade.php
+  - reports/reportRepositorySuccess.php
+  - reports/reportSelectSuccess.blade.php
+  - reports/reportSelectSuccess.php
+  - reports/reportSpatialAnalysisSuccess.blade.php
+  - reports/reportSpatialAnalysisSuccess.php
+  - reports/reportSuccess.blade.php
+  - reports/reportSuccess.php
+  - reports/reportTaxonomySuccess.blade.php
+  - reports/reportTaxonomySuccess.php
+  - reports/reportUpdatesSuccess.blade.php
+  - reports/reportUpdatesSuccess.php
+  - reports/reportUserSuccess.blade.php
+  - reports/reportUserSuccess.php
+
+### ahg-repository-manage (3 missing)
+  - repositoryManage/_advancedFilters.php
+  - repositoryManage/_browseCardView.php
+  - repositoryManage/_browseTableView.php
+
+### ahg-request-publish (3 missing)
+  - requestToPublish/deleteSuccess.php
+  - requestToPublish/submitSuccess.php
+  - requesttopublish/editRequestToPublishSuccess.php
+
+### ahg-research (82 missing)
+  - audit/indexSuccess.php
+  - audit/recordSuccess.php
+  - audit/userSuccess.php
+  - audit/viewSuccess.php
+  - research/_accessibilityHelpers.php
+  - research/_addToCollectionButton.php
+  - research/_favoriteResearchButton.php
+  - research/_requestButton.php
+  - research/_researchSidebar.php
+  - research/_tiptapScripts.php
+  - research/adminStatisticsSuccess.php
+  - research/adminTypesSuccess.php
+  - research/annotationStudioSuccess.php
+  - research/apiKeysSuccess.php
+  - research/assertionBatchReviewSuccess.php
+  - research/assertionsSuccess.php
+  - research/assignSeatSuccess.php
+  - research/batchCheckoutSuccess.php
+  - research/batchReturnSuccess.php
+  - research/bookEquipmentSuccess.php
+  - research/compareSnapshotsSuccess.php
+  - research/complianceDashboardSuccess.php
+  - research/custodyChainSuccess.php
+  - research/custodyCheckoutSuccess.php
+  - research/custodyReturnVerifySuccess.php
+  - research/documentTemplatesSuccess.php
+  - research/editDocumentTemplateSuccess.php
+  - research/editInstitutionSuccess.php
+  - research/editProjectSuccess.php
+  - research/editResearcherTypeSuccess.php
+  - research/editRoomSuccess.php
+  - research/entityResolutionSuccess.php
+  - research/ethicsMilestonesSuccess.php
+  - research/evidenceViewerSuccess.php
+  - research/externalAccessSuccess.php
+  - research/extractionJobsSuccess.php
+  - research/generateFindingAidSuccess.php
+  - research/hypothesesSuccess.php
+  - research/inviteCollaboratorSuccess.php
+  - research/journalEntrySuccess.php
+  - research/journalNewSuccess.php
+  - research/knowledgeGraphSuccess.php
+  - research/mapBuilderSuccess.php
+  - research/mintDoiSuccess.php
+  - research/networkGraphSuccess.php
+  - research/newReportSuccess.php
+  - research/newReproductionSuccess.php
+  - research/odrlPoliciesSuccess.php
+  - research/passwordResetRequestSuccess.php
+  - research/passwordResetSuccess.php
+  - research/printCallSlipsSuccess.php
+  - research/projectCollaboratorsSuccess.php
+  - research/publicRegisterSuccess.php
+  - research/registrationCompleteSuccess.php
+  - research/reproducibilityPackSuccess.php
+  - research/requestCorrespondSuccess.php
+  - research/requestTriageSuccess.php
+  - research/requestsDashboardSuccess.php
+  - research/retrievalQueueSuccess.php
+  - research/roCrateSuccess.php
+  - research/savedSearchesSuccess.php
+  - research/shareProjectSuccess.php
+  - research/snapshotsSuccess.php
+  - research/sourceAssessmentSuccess.php
+  - research/timelineBuilderSuccess.php
+  - research/trustScoreSuccess.php
+  - research/validationQueueSuccess.php
+  - research/viewActivitySuccess.php
+  - research/viewAssertionSuccess.php
+  - research/viewBibliographySuccess.php
+  - research/viewBookingSuccess.php
+  - research/viewCollectionSuccess.php
+  - research/viewExtractionJobSuccess.php
+  - research/viewHypothesisSuccess.php
+  - research/viewProjectSuccess.php
+  - research/viewReportSuccess.php
+  - research/viewReproductionSuccess.php
+  - research/viewResearcherSuccess.php
+  - research/viewRoomSuccess.php
+  - research/viewSnapshotSuccess.php
+  - research/viewWorkspaceSuccess.php
+  - research/walkInSuccess.php
+
+### ahg-researcher-manage (7 missing)
+  - researcher/addItemSuccess.php
+  - researcher/editItemSuccess.php
+  - researcher/editSubmissionSuccess.php
+  - researcher/importExchangeSuccess.php
+  - researcher/newSubmissionSuccess.php
+  - researcher/publishSuccess.php
+  - researcher/viewSubmissionSuccess.php
+
+### ahg-ric (6 missing)
+  - ricDashboard/_externalLinks.php
+  - ricDashboard/configSuccess.php
+  - ricDashboard/syncStatusSuccess.php
+  - ricExplorer/_ricPanel.php
+  - ricSemanticSearch/_searchWidget.php
+  - ricSemanticSearch/_semanticSearch.php
+
+### ahg-rights-holder-manage (51 missing)
+  - embargo/addSuccess.blade.php
+  - embargo/addSuccess.php
+  - embargo/editSuccess.blade.php
+  - embargo/indexSuccess.blade.php
+  - embargo/indexSuccess.php
+  - embargo/liftSuccess.blade.php
+  - embargo/liftSuccess.php
+  - embargo/viewSuccess.blade.php
+  - embargo/viewSuccess.php
+  - extendedRights/_embargoBlock.blade.php
+  - extendedRights/_embargoBlock.php
+  - extendedRights/_embargoStatus.blade.php
+  - extendedRights/_embargoStatus.php
+  - extendedRights/_provenanceDisplay.blade.php
+  - extendedRights/_provenanceDisplay.php
+  - extendedRights/_rightsDisplay.blade.php
+  - extendedRights/_rightsDisplay.php
+  - extendedRights/batchSuccess.blade.php
+  - extendedRights/batchSuccess.php
+  - extendedRights/browseSuccess.blade.php
+  - extendedRights/clearSuccess.blade.php
+  - extendedRights/clearSuccess.php
+  - extendedRights/dashboardSuccess.blade.php
+  - extendedRights/dashboardSuccess.php
+  - extendedRights/editSuccess.blade.php
+  - extendedRights/embargoBlockedSuccess.blade.php
+  - extendedRights/embargoBlockedSuccess.php
+  - extendedRights/embargoStatusSuccess.blade.php
+  - extendedRights/embargoStatusSuccess.php
+  - extendedRights/embargoesSuccess.blade.php
+  - extendedRights/embargoesSuccess.php
+  - extendedRights/expiringEmbargoesSuccess.blade.php
+  - extendedRights/expiringEmbargoesSuccess.php
+  - extendedRights/exportSuccess.blade.php
+  - extendedRights/exportSuccess.php
+  - extendedRights/indexSuccess.blade.php
+  - extendedRights/indexSuccess.php
+  - extendedRights/viewSuccess.blade.php
+  - extendedRights/viewSuccess.php
+  - rightsHolderManage/viewSuccess.php
+  - rights/_rightsPanel.php
+  - rights/indexSuccess.php
+  - rightsAdmin/_sidebar.php
+  - rightsAdmin/embargoEditSuccess.php
+  - rightsAdmin/embargoesSuccess.php
+  - rightsAdmin/indexSuccess.php
+  - rightsAdmin/orphanWorkEditSuccess.php
+  - rightsAdmin/orphanWorksSuccess.php
+  - rightsAdmin/reportSuccess.php
+  - rightsAdmin/statementsSuccess.php
+  - rightsAdmin/tkLabelsSuccess.php
+
+### ahg-search (4 missing)
+  - ahgSearch/_updatesSearch.php
+  - ahgSearch/autocompleteSuccess.php
+  - ahgSearch/descriptionUpdatesSuccess.php
+  - ahgSearch/globalReplaceSuccess.php
+
+### ahg-settings (97 missing)
+  - ahgDropdown/edit.blade.php
+  - ahgDropdown/editSuccess.php
+  - ahgDropdown/index.blade.php
+  - ahgSettings/_ahgSettingsLanding.blade.php
+  - ahgSettings/_ahgSettingsLanding.php
+  - ahgSettings/_dynamicStyles.blade.php
+  - ahgSettings/_dynamicStyles.php
+  - ahgSettings/_glamDamSection.blade.php
+  - ahgSettings/_glamDamSection.php
+  - ahgSettings/_glamDamTiffPdfMerge.blade.php
+  - ahgSettings/_glamDamTiffPdfMerge.php
+  - ahgSettings/_i18n_form_field.blade.php
+  - ahgSettings/_i18n_form_field.php
+  - ahgSettings/_landingPageWidget.blade.php
+  - ahgSettings/_landingPageWidget.php
+  - ahgSettings/_menu.blade.php
+  - ahgSettings/_menu.php
+  - ahgSettings/_metadataSettings.blade.php
+  - ahgSettings/_metadataSettings.php
+  - ahgSettings/_multiTenantSettings.blade.php
+  - ahgSettings/_multiTenantSettings.php
+  - ahgSettings/_tiffPdfMergeDashboard.blade.php
+  - ahgSettings/_tiffPdfMergeDashboard.php
+  - ahgSettings/_tiffPdfMergeSettings.blade.php
+  - ahgSettings/_tiffPdfMergeSettings.php
+  - ahgSettings/ahgImportSettings.blade.php
+  - ahgSettings/ahgImportSettingsSuccess.php
+  - ahgSettings/ahgIntegration.blade.php
+  - ahgSettings/ahgIntegrationSuccess.php
+  - ahgSettings/ahgSettings.blade.php
+  - ahgSettings/ahgSettingsSuccess.php
+  - ahgSettings/aiServices.blade.php
+  - ahgSettings/aiServicesSuccess.php
+  - ahgSettings/clipboard.blade.php
+  - ahgSettings/cronJobs.blade.php
+  - ahgSettings/cronJobsSuccess.php
+  - ahgSettings/csvValidator.blade.php
+  - ahgSettings/csvValidatorSuccess.php
+  - ahgSettings/damTools.blade.php
+  - ahgSettings/damToolsSuccess.php
+  - ahgSettings/diacritics.blade.php
+  - ahgSettings/digitalObjectDerivatives.blade.php
+  - ahgSettings/digitalObjectDerivativesSuccess.php
+  - ahgSettings/dipUpload.blade.php
+  - ahgSettings/dipUploadSuccess.php
+  - ahgSettings/email.blade.php
+  - ahgSettings/errorLog.blade.php
+  - ahgSettings/findingAid.blade.php
+  - ahgSettings/findingAidSuccess.php
+  - ahgSettings/global.blade.php
+  - ahgSettings/icipSettings.blade.php
+  - ahgSettings/icipSettingsSuccess.php
+  - ahgSettings/identifier.blade.php
+  - ahgSettings/index.blade.php
+  - ahgSettings/interfaceLabel.blade.php
+  - ahgSettings/interfaceLabelSuccess.php
+  - ahgSettings/inventory.blade.php
+  - ahgSettings/language.blade.php
+  - ahgSettings/languageSuccess.php
+  - ahgSettings/ldap.blade.php
+  - ahgSettings/ldapSuccess.php
+  - ahgSettings/levels.blade.php
+  - ahgSettings/levelsSuccess.php
+  - ahgSettings/markdown.blade.php
+  - ahgSettings/numberingSchemeEdit.blade.php
+  - ahgSettings/numberingSchemeEditSuccess.php
+  - ahgSettings/numberingSchemes.blade.php
+  - ahgSettings/numberingSchemesSuccess.php
+  - ahgSettings/oai.blade.php
+  - ahgSettings/pageElements.blade.php
+  - ahgSettings/pageElementsSuccess.php
+  - ahgSettings/paths.blade.php
+  - ahgSettings/pathsSuccess.php
+  - ahgSettings/permissions.blade.php
+  - ahgSettings/plugins.blade.php
+  - ahgSettings/preservation.blade.php
+  - ahgSettings/preservationSuccess.php
+  - ahgSettings/privacyNotification.blade.php
+  - ahgSettings/privacyNotificationSuccess.php
+  - ahgSettings/section.blade.php
+  - ahgSettings/sectorNumbering.blade.php
+  - ahgSettings/sectorNumberingSuccess.php
+  - ahgSettings/security.blade.php
+  - ahgSettings/services.blade.php
+  - ahgSettings/siteInformation.blade.php
+  - ahgSettings/siteInformationSuccess.php
+  - ahgSettings/systemInfo.blade.php
+  - ahgSettings/systemInfoSuccess.php
+  - ahgSettings/template.blade.php
+  - ahgSettings/templateSuccess.php
+  - ahgSettings/treeview.blade.php
+  - ahgSettings/ttsSuccess.php
+  - ahgSettings/uploads.blade.php
+  - ahgSettings/visibleElements.blade.php
+  - ahgSettings/visibleElementsSuccess.php
+  - ahgSettings/webhooks.blade.php
+  - ahgSettings/webhooksSuccess.php
+
+### ahg-static-page (2 missing)
+  - staticPageManage/deleteSuccess.php
+  - staticPageManage/listSuccess.php
+
+### ahg-storage-manage (3 missing)
+  - storageManage/autocompleteSuccess.php
+  - storageManage/boxListSuccess.php
+  - storageManage/holdingsReportExportSuccess.php
+
+### ahg-term-taxonomy (2 missing)
+  - termTaxonomy/indexSuccess.php
+  - termTaxonomy/taxonomyIndexSuccess.php
+
+### ahg-theme-b5 (280 missing)
+  - accession/_alternativeIdentifiers.php
+  - accession/_alternativeIdentifiersIndex.php
+  - accession/_events.php
+  - accession/_relatedDonor.php
+  - accession/browseSuccess.php
+  - accession/deleteSuccess.php
+  - accession/editSuccess.php
+  - accession/indexSuccess.php
+  - aclGroup/_aclActor.php
+  - aclGroup/_aclInformationObject.php
+  - aclGroup/_aclModal.php
+  - aclGroup/_aclRepository.php
+  - aclGroup/_aclTable.php
+  - aclGroup/_showActions.php
+  - aclGroup/_tabs.php
+  - aclGroup/_termAclForm.php
+  - aclGroup/deleteSuccess.php
+  - aclGroup/editActorAclSuccess.php
+  - aclGroup/editInformationObjectAclSuccess.php
+  - aclGroup/editRepositoryAclSuccess.php
+  - aclGroup/editSuccess.php
+  - aclGroup/editTermAclSuccess.php
+  - aclGroup/indexSuccess.php
+  - aclGroup/listSuccess.php
+  - actor/_actions.php
+  - actor/_advancedSearch.php
+  - actor/_contextMenu.php
+  - actor/_occupations.php
+  - actor/_searchResult.php
+  - actor/browseSuccess.php
+  - actor/deleteSuccess.php
+  - actor/renameSuccess.php
+  - admin/error401Success.php
+  - admin/error404Success.php
+  - admin/error500Success.php
+  - admin/secureSuccess.php
+  - admin/termPermissionSuccess.php
+  - admin/translatePermissionSuccess.php
+  - arDacsPlugin/editSuccess.php
+  - arDacsPlugin/indexSuccess.php
+  - arStorageService/_aipDownload.php
+  - arStorageServiceSettings/settingsSuccess.php
+  - browse/hierarchySuccess.php
+  - clipboard/_button.php
+  - clipboard/exportSuccess.php
+  - clipboard/loadSuccess.php
+  - clipboard/viewSuccess.php
+  - contactinformation/_contactInformation.php
+  - contactinformation/_edit.php
+  - deaccession/deleteSuccess.php
+  - deaccession/editSuccess.php
+  - deaccession/indexSuccess.php
+  - default/_breadcrumb.php
+  - default/_genericPicker.php
+  - default/_pager.php
+  - default/_popular.php
+  - default/_printPreviewButton.php
+  - default/_privacyMessage.php
+  - default/_sidebarPager.php
+  - default/_translationLinks.php
+  - default/_updateCheck.php
+  - default/_viewPicker.php
+  - default/moveSuccess.php
+  - digitalobject/_3dFullscreenModal.php
+  - digitalobject/_mergeOption.php
+  - digitalobject/_rightsBadge.php
+  - digitalobject/_show.php
+  - digitalobject/_show3D.php
+  - digitalobject/_showAudio.php
+  - digitalobject/_showDownload.php
+  - digitalobject/_showGenericIcon.php
+  - digitalobject/_showVideo.php
+  - digitalobject/deleteSuccess.php
+  - digitalobject/editSuccess.php
+  - extendedRights/indexSuccess.php
+  - function/browseSuccess.php
+  - function/deleteSuccess.php
+  - function/listSuccess.php
+  - heritage.bak/_activitySection.php
+  - heritage.bak/_adminSidebar.php
+  - heritage.bak/_contributeButton.php
+  - heritage.bak/_filterCards.php
+  - heritage.bak/_heroSection.php
+  - heritage.bak/_recentAdditions.php
+  - heritage.bak/_statsSection.php
+  - heritage.bak/_storiesSection.php
+  - heritage.bak/adminAccessRequestsSuccess.php
+  - heritage.bak/adminBrandingSuccess.php
+  - heritage.bak/adminConfigSuccess.php
+  - heritage.bak/adminDashboardSuccess.php
+  - heritage.bak/adminEmbargoesSuccess.php
+  - heritage.bak/adminFeaturesSuccess.php
+  - heritage.bak/adminPopiaSuccess.php
+  - heritage.bak/adminUsersSuccess.php
+  - heritage.bak/analyticsAlertsSuccess.php
+  - heritage.bak/analyticsContentSuccess.php
+  - heritage.bak/analyticsDashboardSuccess.php
+  - heritage.bak/analyticsSearchSuccess.php
+  - heritage.bak/contributeSuccess.php
+  - heritage.bak/contributorLoginSuccess.php
+  - heritage.bak/contributorProfileSuccess.php
+  - heritage.bak/contributorRegisterSuccess.php
+  - heritage.bak/contributorVerifySuccess.php
+  - heritage.bak/custodianBatchSuccess.php
+  - heritage.bak/custodianDashboardSuccess.php
+  - heritage.bak/custodianHistorySuccess.php
+  - heritage.bak/custodianItemSuccess.php
+  - heritage.bak/landingSuccess.php
+  - heritage.bak/leaderboardSuccess.php
+  - heritage.bak/myAccessRequestsSuccess.php
+  - heritage.bak/myContributionsSuccess.php
+  - heritage.bak/requestAccessSuccess.php
+  - heritage.bak/reviewContributionSuccess.php
+  - heritage.bak/reviewQueueSuccess.php
+  - heritage.bak/searchSuccess.php
+  - informationobject/_actions.php
+  - informationobject/_adminInfo.php
+  - informationobject/_bookCoverExample.php
+  - informationobject/_contextMenu.php
+  - informationobject/_digitalObjectActions.php
+  - informationobject/_digitalObjectMetadataHeader.php
+  - informationobject/_extendedRightsArea.php
+  - informationobject/_extendedRightsContextMenu.php
+  - informationobject/_identifierGenerator.php
+  - informationobject/_identifierSelector.php
+  - informationobject/_isbnLookup.php
+  - informationobject/_itemPhysicalLocation.php
+  - informationobject/_itemPhysicalLocationView.php
+  - informationobject/_nameAccessPoints.php
+  - informationobject/_relatedMaterialDescriptions.php
+  - informationobject/_researchToolsContextMenu.php
+  - informationobject/_ttsControls.php
+  - informationobject/addCartSuccess.php
+  - informationobject/addFavoritesSuccess.php
+  - informationobject/editFeedbackSuccess.php
+  - informationobject/editRequestToPublishSuccess.php
+  - informationobject/removeCartSuccess.php
+  - jobs/browseSuccess.php
+  - jobs/reportSuccess.php
+  - menu/_browseMenu.php
+  - menu/_browseMenuInstitution.php
+  - menu/_changeLanguageMenu.php
+  - menu/_clipboardMenu.php
+  - menu/_donorDashboardLink.php
+  - menu/_mainMenu.php
+  - menu/_quickLinksMenu.php
+  - menu/_staticPagesMenu.php
+  - menu/_userMenu.mod_cas.php
+  - menu/_userMenu.mod_ext_auth.php
+  - menu/_userMenu.mod_standard.php
+  - menu/_userMenu.php
+  - menu/deleteSuccess.php
+  - menu/editSuccess.php
+  - menu/listSuccess.php
+  - object/_actionIcons.php
+  - object/_nameAccessPoints.php
+  - object/_placeAccessPoints.php
+  - object/_subjectAccessPoints.php
+  - object/addDigitalObjectSuccess.php
+  - physicalobject/editSuccess.php
+  - physicalobject/indexSuccess.php
+  - repository/_advancedFilters.php
+  - repository/_browseCardView.php
+  - repository/_browseTableView.php
+  - repository/_holdings.php
+  - repository/_holdingsInstitution.php
+  - repository/_holdingsList.php
+  - repository/_logo.php
+  - repository/_maintainedActors.php
+  - repository/_uploadLimit.php
+  - repository/browseSuccess.php
+  - repository/deleteSuccess.php
+  - repository/editThemeSuccess.php
+  - repository/uploadLimitExceededSuccess.php
+  - rightsholder/browseSuccess.php
+  - rightsholder/deleteSuccess.php
+  - rightsholder/editSuccess.php
+  - rightsholder/indexSuccess.php
+  - rightsholder/listSuccess.php
+  - search/_advancedSearchEnhancements.php
+  - search/_aggregation.php
+  - search/_box.php
+  - search/_enhancedSearchToggle.php
+  - search/_extendedRightsFilter.php
+  - search/_filterTag.php
+  - search/_inlineSearch.php
+  - search/_rightsIndicator.php
+  - search/_searchEnhancementPanel.php
+  - search/_searchResult.php
+  - search/_searchResults.php
+  - search/_semanticExpansion.php
+  - search/_simpleSearchOptions.php
+  - search/_updatesSearch.php
+  - search/autocompleteSuccess.php
+  - search/descriptionUpdatesSuccess.php
+  - sfAHGPlugin/_displaySettingsForm.php
+  - sfAHGPlugin/_displaySettingsSection.php
+  - sfAHGPlugin/_userDisplayPreferences.php
+  - sfAHGPlugin/displaySettingsSuccess.php
+  - sfDcPlugin/_dcDates.php
+  - sfDcPlugin/_dcNames.php
+  - sfDcPlugin/editSuccess.php
+  - sfDcPlugin/indexSuccess.php
+  - sfIsaarPlugin/_contactArea.php
+  - sfIsaarPlugin/_contactView.php
+  - sfIsaarPlugin/_event.php
+  - sfIsaarPlugin/_relatedAuthorityRecord.php
+  - sfIsaarPlugin/editSuccess.php
+  - sfIsaarPlugin/indexSuccess.php
+  - sfIsadPlugin/_accessHeader.php
+  - sfIsadPlugin/_event.php
+  - sfIsadPlugin/editSuccess.php
+  - sfIsadPlugin/indexSuccess.php
+  - sfIsdfPlugin/_relatedAuthorityRecord.php
+  - sfIsdfPlugin/_relatedFunction.php
+  - sfIsdfPlugin/_relatedResource.php
+  - sfIsdfPlugin/editSuccess.php
+  - sfIsdfPlugin/indexSuccess.php
+  - sfIsdiahPlugin/editSuccess.php
+  - sfIsdiahPlugin/indexSuccess.php
+  - sfModsPlugin/editSuccess.php
+  - sfModsPlugin/indexSuccess.php
+  - sfPluginAdminPlugin/pluginsSuccess.php
+  - sfPluginAdminPlugin/themesSuccess.php
+  - sfRadPlugin/editSuccess.php
+  - sfRadPlugin/indexSuccess.php
+  - sfSkosPlugin/importSuccess.php
+  - sfTranslatePlugin/_translate.php
+  - staticpage/deleteSuccess.php
+  - staticpage/editSuccess.php
+  - staticpage/homeSuccess.php
+  - staticpage/indexSuccess.php
+  - staticpage/listSuccess.php
+  - taxonomy/indexSuccess.php
+  - taxonomy/listSuccess.php
+  - term/_actions.php
+  - term/_directTerms.php
+  - term/_errors.php
+  - term/_fields.php
+  - term/_format.php
+  - term/_navigateRelated.php
+  - term/_rightContextMenu.php
+  - term/_sidebar.php
+  - term/_treeView.php
+  - term/deleteSuccess.php
+  - term/editSuccess.php
+  - term/indexSuccess.php
+  - term/relatedAuthoritiesSuccess.php
+  - user/_aclMenu.php
+  - user/_clipboardExtendedRights.php
+  - user/_showActions.mod_cas.php
+  - user/_showActions.mod_ext_auth.php
+  - user/_showActions.mod_standard.php
+  - user/_showActions.php
+  - user/deleteSuccess.php
+  - user/editActorAclSuccess.php
+  - user/editInformationObjectAclSuccess.php
+  - user/editRepositoryAclSuccess.php
+  - user/editResearcherAclSuccess.php
+  - user/editSuccess.mod_cas.php
+  - user/editSuccess.mod_ext_auth.php
+  - user/editSuccess.mod_standard.php
+  - user/editSuccess.php
+  - user/editTermAclSuccess.php
+  - user/indexSuccess.mod_cas.php
+  - user/indexSuccess.mod_ext_auth.php
+  - user/indexSuccess.mod_standard.php
+  - user/indexSuccess.php
+  - user/listSuccess.mod_cas.php
+  - user/listSuccess.mod_ext_auth.php
+  - user/listSuccess.mod_standard.php
+  - user/listSuccess.php
+  - user/loginSuccess.mod_cas.php
+  - user/loginSuccess.mod_ext_auth.php
+  - user/loginSuccess.mod_standard.php
+  - user/loginSuccess.php
+  - user/passwordEditSuccess.php
+  - user/passwordResetConfirmSuccess.php
+  - user/passwordResetSuccess.php
+  - user/registerSuccess.php
+
+### ahg-user-manage (4 missing)
+  - userManage/viewSuccess.php
+  - userRegistration/pendingSuccess.php
+  - userRegistration/registerSuccess.php
+  - userRegistration/verifySuccess.php
+
+### ahg-workflow (16 missing)
+  - workflow/_accessibilityHelpers.php
+  - workflow/_inlineGateValidation.php
+  - workflow/addStepSuccess.php
+  - workflow/bulkPreviewSuccess.php
+  - workflow/createWorkflowSuccess.php
+  - workflow/editStepSuccess.php
+  - workflow/editWorkflowSuccess.php
+  - workflow/gateAdminSuccess.php
+  - workflow/gateRuleEditSuccess.php
+  - workflow/myTasksSuccess.php
+  - workflow/myWorkSuccess.php
+  - workflow/publishReadinessSuccess.php
+  - workflow/publishSimulateSuccess.php
+  - workflow/teamWorkSuccess.php
+  - workflow/timelineSuccess.php
+  - workflow/viewTaskSuccess.php
+
+
+## AtoM PLUGINS WITHOUT HERATIO PACKAGE
+
+### ahgAPIPlugin (1 templates)
+  - api/searchInformationObjectsSuccess
+
+### ahgAccessRequestPlugin (7 templates)
+  - accessRequest/_requestAccessButton
+  - accessRequest/approversSuccess
+  - accessRequest/myRequestsSuccess
+  - accessRequest/newSuccess
+  - accessRequest/pendingSuccess
+  - accessRequest/requestObjectSuccess
+  - accessRequest/viewSuccess
+
+### ahgCDPAPlugin (20 templates)
+  - cdpa/breachCreateSuccess
+  - cdpa/breachViewSuccess
+  - cdpa/breachesSuccess
+  - cdpa/configSuccess
+  - cdpa/consentSuccess
+  - cdpa/dpiaCreateSuccess
+  - cdpa/dpiaSuccess
+  - cdpa/dpiaViewSuccess
+  - cdpa/dpoEditSuccess
+  - cdpa/dpoSuccess
+  ... and 10 more
+
+### ahgConditionPlugin (10 templates)
+  - condition/_conditionTemplateForm
+  - condition/adminSuccess
+  - condition/annotateSuccess
+  - condition/conditionCheckSuccess
+  - condition/exportReportSuccess
+  - condition/listSuccess
+  - condition/photosSuccess
+  - condition/templateListSuccess
+  - condition/templateViewSuccess
+  - condition/viewSuccess
+
+### ahgCustomFieldsPlugin (5 templates)
+  - customField/_editFields
+  - customField/_viewFields
+  - customFieldAdmin/_fieldForm
+  - customFieldAdmin/editSuccess
+  - customFieldAdmin/indexSuccess
+
+### ahgDacsManagePlugin (1 templates)
+  - dacsManage/editSuccess
+
+### ahgDcManagePlugin (1 templates)
+  - dcManage/editSuccess
+
+### ahgDiscoveryPlugin (1 templates)
+  - discovery/indexSuccess
+
+### ahgExhibitionPlugin (13 templates)
+  - exhibition/_objectListCsv
+  - exhibition/addSuccess
+  - exhibition/checklistsSuccess
+  - exhibition/dashboardSuccess
+  - exhibition/editSuccess
+  - exhibition/eventsSuccess
+  - exhibition/indexSuccess
+  - exhibition/objectListSuccess
+  - exhibition/objectsSuccess
+  - exhibition/sectionsSuccess
+  ... and 3 more
+
+### ahgExportPlugin (7 templates)
+  - export/accessionCsvSuccess
+  - export/archivalSuccess
+  - export/authoritySuccess
+  - export/csvSuccess
+  - export/eadSuccess
+  - export/indexSuccess
+  - export/repositorySuccess
+
+### ahgFederationPlugin (6 templates)
+  - federation/_heritageMetadata.xml
+  - federation/editPeerSuccess
+  - federation/harvestSuccess
+  - federation/indexSuccess
+  - federation/logSuccess
+  - federation/peersSuccess
+
+### ahgFormsPlugin (9 templates)
+  - forms/assignmentCreateSuccess
+  - forms/assignmentsSuccess
+  - forms/browseSuccess
+  - forms/builderSuccess
+  - forms/indexSuccess
+  - forms/librarySuccess
+  - forms/previewSuccess
+  - forms/templateCreateSuccess
+  - forms/templatesSuccess
+
+### ahgGISPlugin (3 templates)
+  - gis/bboxSuccess
+  - gis/geojsonSuccess
+  - gis/radiusSuccess
+
+### ahgGraphQLPlugin (1 templates)
+  - graphql/playgroundSuccess
+
+### ahgICIPPlugin (48 templates)
+  - icip/communitiesSuccess.blade
+  - icip/communitiesSuccess
+  - icip/communityEditSuccess.blade
+  - icip/communityEditSuccess
+  - icip/communityViewSuccess.blade
+  - icip/communityViewSuccess
+  - icip/consentEditSuccess.blade
+  - icip/consentEditSuccess
+  - icip/consentListSuccess.blade
+  - icip/consentListSuccess
+  ... and 38 more
+
+### ahgIPSASPlugin (12 templates)
+  - ipsas/assetCreateSuccess
+  - ipsas/assetEditSuccess
+  - ipsas/assetViewSuccess
+  - ipsas/assetsSuccess
+  - ipsas/configSuccess
+  - ipsas/financialYearSuccess
+  - ipsas/impairmentsSuccess
+  - ipsas/indexSuccess
+  - ipsas/insuranceSuccess
+  - ipsas/reportsSuccess
+  ... and 2 more
+
+### ahgIngestPlugin (7 templates)
+  - ingest/commitSuccess
+  - ingest/configureSuccess
+  - ingest/indexSuccess
+  - ingest/mapSuccess
+  - ingest/previewSuccess
+  - ingest/uploadSuccess
+  - ingest/validateSuccess
+
+### ahgLabelPlugin (1 templates)
+  - label/indexSuccess
+
+### ahgLandingPagePlugin (9 templates)
+  - landingPageBuilder/_blockCard
+  - landingPageBuilder/_nestedBlock
+  - landingPageBuilder/createSuccess
+  - landingPageBuilder/editSuccess
+  - landingPageBuilder/indexSuccess
+  - landingPageBuilder/listSuccess
+  - landingPageBuilder/myDashboardCreateSuccess
+  - landingPageBuilder/myDashboardListSuccess
+  - landingPageBuilder/myDashboardSuccess
+
+### ahgMarketplacePlugin (56 templates)
+  - marketplace/_auctionTimer
+  - marketplace/_bidForm
+  - marketplace/_breadcrumb
+  - marketplace/_filterSidebar
+  - marketplace/_imageGallery
+  - marketplace/_listingCard
+  - marketplace/_offerForm
+  - marketplace/_priceDisplay
+  - marketplace/_sellerBadge
+  - marketplace/_shippingInfo
+  ... and 46 more
+
+### ahgMetadataExportPlugin (3 templates)
+  - metadataExport/bulkSuccess
+  - metadataExport/indexSuccess
+  - metadataExport/previewSuccess
+
+### ahgModsManagePlugin (1 templates)
+  - modsManage/editSuccess
+
+### ahgMultiTenantPlugin (9 templates)
+  - tenantAdmin/createSuccess
+  - tenantAdmin/editTenantSuccess
+  - tenantAdmin/indexSuccess
+  - tenantAdmin/superUsersSuccess
+  - tenantBranding/indexSuccess
+  - tenantError/unknownDomainSuccess
+  - tenantError/unknownTenantSuccess
+  - tenantSwitcher/_switcher
+  - tenantUsers/indexSuccess
+
+### ahgNAZPlugin (19 templates)
+  - naz/closureCreateSuccess
+  - naz/closureEditSuccess
+  - naz/closuresSuccess
+  - naz/configSuccess
+  - naz/indexSuccess
+  - naz/permitCreateSuccess
+  - naz/permitViewSuccess
+  - naz/permitsSuccess
+  - naz/protectedRecordsSuccess
+  - naz/reportsSuccess
+  ... and 9 more
+
+### ahgNMMZPlugin (17 templates)
+  - nmmz/antiquitiesSuccess
+  - nmmz/antiquityCreateSuccess
+  - nmmz/antiquityViewSuccess
+  - nmmz/configSuccess
+  - nmmz/hiaCreateSuccess
+  - nmmz/hiaSuccess
+  - nmmz/indexSuccess
+  - nmmz/monumentCreateSuccess
+  - nmmz/monumentViewSuccess
+  - nmmz/monumentsSuccess
+  ... and 7 more
+
+### ahgPrivacyPlugin (91 templates)
+  - informationobject/_privacyPiiSection.blade
+  - informationobject/_privacyPiiSection
+  - privacy/complaintConfirmationSuccess.blade
+  - privacy/complaintConfirmationSuccess
+  - privacy/complaintSuccess.blade
+  - privacy/complaintSuccess
+  - privacy/dashboardSuccess.blade
+  - privacy/dashboardSuccess
+  - privacy/dsarConfirmationSuccess.blade
+  - privacy/dsarConfirmationSuccess
+  ... and 81 more
+
+### ahgProvenancePlugin (5 templates)
+  - provenance/_provenanceDisplay
+  - provenance/editSuccess
+  - provenance/indexSuccess
+  - provenance/timelineSuccess
+  - provenance/viewSuccess
+
+### ahgRadManagePlugin (1 templates)
+  - radManage/editSuccess
+
+### ahgRegistryPlugin (137 templates)
+  - registry/_attachmentList
+  - registry/_attachmentUpload
+  - registry/_blogCard
+  - registry/_breadcrumb
+  - registry/_contactList
+  - registry/_discussionRow
+  - registry/_filterSidebar
+  - registry/_groupCard
+  - registry/_instanceList
+  - registry/_institutionCard
+  ... and 127 more
+
+### ahgSemanticSearchPlugin (11 templates)
+  - searchEnhancement/adminTemplateEditSuccess
+  - searchEnhancement/adminTemplatesSuccess
+  - searchEnhancement/historySuccess
+  - searchEnhancement/savedSearchesSuccess
+  - semanticSearchAdmin/configSuccess
+  - semanticSearchAdmin/indexSuccess
+  - semanticSearchAdmin/searchLogsSuccess
+  - semanticSearchAdmin/syncLogsSuccess
+  - semanticSearchAdmin/termAddSuccess
+  - semanticSearchAdmin/termViewSuccess
+  ... and 1 more
+
+### ahgSpectrumPlugin (60 templates)
+  - spectrum/_workflowTimeline.blade
+  - spectrum/_workflowTimeline
+  - spectrum/conditionAdminSuccess.blade
+  - spectrum/conditionAdminSuccess
+  - spectrum/conditionPhotosSuccess.blade
+  - spectrum/conditionPhotosSuccess
+  - spectrum/conditionRiskSuccess.blade
+  - spectrum/conditionRiskSuccess
+  - spectrum/dashboardSuccess.blade
+  - spectrum/dashboardSuccess
+  ... and 50 more
+
+### ahgStatisticsPlugin (9 templates)
+  - statistics/adminSuccess
+  - statistics/botsSuccess
+  - statistics/dashboardSuccess
+  - statistics/downloadsSuccess
+  - statistics/geographicSuccess
+  - statistics/itemSuccess
+  - statistics/repositorySuccess
+  - statistics/topItemsSuccess
+  - statistics/viewsSuccess
+
+### ahgTranslationPlugin (2 templates)
+  - translation/_translateModal
+  - translation/settingsSuccess
+
+### ahgVendorPlugin (29 templates)
+  - contract/_form
+  - contract/addSuccess
+  - contract/browseSuccess
+  - contract/editSuccess
+  - contract/viewSuccess
+  - vendor/_addItemModal.blade
+  - vendor/_addItemModal
+  - vendor/_statusBadge.blade
+  - vendor/_statusBadge
+  - vendor/add.blade
+  ... and 19 more
+

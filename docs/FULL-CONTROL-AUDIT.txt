@@ -1,43 +1,43 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 09:58:59
+# Generated: 2026-03-22 10:20:23
 # Total Heratio views: 361
 # Views with AtoM equivalent: 194
 # Views without AtoM equivalent: 167
-# Total Heratio controls: 12381
+# Total Heratio controls: 12712
 # Total AtoM controls (matched): 9647
-# Total delta: 1800
+# Total delta: 1469
 
 ## SUMMARY BY PACKAGE
 
 Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sidebar   AtoM? 
 ───────────────────────────────────────────────────────────────────────────────────────────
 ahg-3d-model                       1     29      107     78      1col      none      1/1   
-ahg-accession-manage               4     189     36      -153    1col      none,right4/4   
+ahg-accession-manage               4     255     36      -219    1col      none      4/4   
 ahg-acl                            9     238     35      -203    1col      none      1/9   
-ahg-actor-manage                   7     487     55      -432    2col,1col,unknown,print,3colleft,none,detected4/7   
+ahg-actor-manage                   7     500     55      -445    2col,1col,unknown,print,3colleft,none,detected4/7   
 ahg-ai-services                    2     212     93      -119    1col      none      1/2   
 ahg-audit-trail                    4     83      70      -13     1col      none      4/4   
 ahg-backup                         3     124     215     91      1col      none      3/3   
 ahg-cart                           7     122     125     3       1col      none      4/7   
 ahg-core                           7     61      9       -52     unknown,1colnone      2/7   
-ahg-dam                            4     350     525     175     1col,3col none,detected4/4   
+ahg-dam                            4     480     525     45      1col,3col none,detected4/4   
 ahg-data-migration                 11    246     243     -3      1col      none      4/11  
 ahg-dedupe                         6     89      214     125     1col      none,detected5/6   
 ahg-display                        11    459     275     -184    unknown,masternone,detected,left6/11  
 ahg-doi-manage                     6     105     224     119     1col      none      6/6   
-ahg-donor-manage                   4     33      151     118     1col      none,right4/4   
+ahg-donor-manage                   4     49      151     102     1col      none      4/4   
 ahg-dropdown-manage                2     101     92      -9      1col      detected  2/2   
 ahg-favorites                      2     71      195     124     1col      left,none 1/2   
 ahg-feedback                       3     107     87      -20     1col      left,none 3/3   
 ahg-ftp-upload                     1     51      48      -3      1col      none      1/1   
-ahg-function-manage                4     106     70      -36     1col      none,right4/4   
-ahg-gallery                        6     727     440     -287    1col,2col,3colnone,detected4/6   
+ahg-function-manage                4     154     70      -84     1col      none      4/4   
+ahg-gallery                        6     728     440     -288    1col,2col,3colnone,detected4/6   
 ahg-help                           5     69      58      -11     unknown,1coldetected  4/5   
 ahg-heritage-manage                6     229     100     -129    1col,unknown,2colleft,right,none,detected2/6   
 ahg-iiif-collection                5     181     164     -17     2col      detected  4/5   
-ahg-information-object-manage      34    1320    375     -945    1col,unknown,2col,print,3colnone,detected,right9/34  
+ahg-information-object-manage      34    1323    375     -948    1col,unknown,2col,print,3colnone,detected,right9/34  
 ahg-integrity                      1     37      42      5       1col      none      1/1   
-ahg-jobs-manage                    2     16      39      23      1col      none      1/2   
+ahg-jobs-manage                    2     30      39      9       1col      none      1/2   
 ahg-library                        3     338     1119    781     1col,3col none,detected3/3   
 ahg-loan                           4     291     228     -63     1col      none      4/4   
 ahg-media-processing               2     95      49      -46     1col      none,detected1/2   
@@ -48,19 +48,19 @@ ahg-pdf-tools                      3     85      50      -35     1col      none 
 ahg-portable-export                1     57      155     98      1col      none      1/1   
 ahg-preservation                   12    176     263     87      unknown,1colnone,left 8/12  
 ahg-reports                        14    574     —     ?       unknown,1colnone,right,left0/14  
-ahg-repository-manage              5     267     56      -211    2col,1col,printdetected,none,right4/5   
+ahg-repository-manage              5     276     56      -220    2col,1col,print,3coldetected,none,right4/5   
 ahg-request-publish                2     99      110     11      1col      none      2/2   
 ahg-research                       44    1504    876     -628    unknown,2coldetected  23/44 
 ahg-researcher-manage              3     68      56      -12     1col      none      2/3   
 ahg-ric                            6     103     130     27      1col      none      4/6   
-ahg-rights-holder-manage           4     37      551     514     1col      none,right4/4   
+ahg-rights-holder-manage           4     48      551     503     1col      none      4/4   
 ahg-search                         5     124     —     ?       1col,unknownnone,left,detected0/5   
 ahg-settings                       37    856     1048    192     unknown,1colnone,left,right,detected18/37 
 ahg-static-page                    3     23      31      8       2col,1col detected,none3/3   
 ahg-storage-manage                 4     161     184     23      1col      none      4/4   
 ahg-term-taxonomy                  5     170     55      -115    2col,1col detected,none,right4/5   
 ahg-theme-b5                       19    318     —     ?       master,unknownnone,left,detected0/19  
-ahg-user-manage                    4     98      70      -28     1col      none,right4/4   
+ahg-user-manage                    4     118     70      -48     1col      none      4/4   
 ahg-workflow                       13    386     115     -271    1col      none,detected6/13  
 
 
@@ -80,8 +80,8 @@ browse                        1col    none    4     6     0     5     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    1     5     0     1     0     0     7      1     3     0     13     6      
-  BTN classes: btn(2), btn-sm(1)
+browse                        1col    none    1     8     0     1     0     0     13     1     3     0     13     0      
+  BTN classes: btn(5), btn-sm(4), btn-outline-primary(1), btn-outline-secondary(2)
   URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
   AtoM: atom-ahg-plugins/ahgAccessionManagePlugin/modules/accessionManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/indexSuccess.php
 
@@ -95,9 +95,9 @@ edit                          1col    none    25    2     54    11    32    32  
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/editSuccess.php
 
-show                          1col    right   0     4     0     6     0     0     10     1     0     0     3      -7     
-  BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route(
+show                          1col    none    1     22    0     43    0     0     70     1     0     0     3      -67    
+  BTN classes: btn(1)
+  URLs: #basic-collapse | {{ route( | #donor-collapse | {{ $contactItem->website }} | #admin-collapse | #io-collapse | {{ url(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/indexSuccess.php
 
 
@@ -160,7 +160,7 @@ pending-requests              1col    none    9     1     2     7     2     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    left    11    25    12    14    6     7     79     3     6     0     28     -51    
+browse                        2col    left    12    27    12    15    6     7     83     3     6     0     28     -55    
   BTN classes: btn(5), btn-lg(1), btn-sm(1)
   Field badges: Req=0 Rec=1 Opt=5
   URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
@@ -189,9 +189,9 @@ _other-names                  unknown none    3     0     6     0     6     6   
 print                         print   none    0     0     0     9     0     0     9      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          3col    detected1     14    0     51    0     7     78     0     1     0     5      -73    
-  BTN classes: btn(7), btn-sm(2)
-  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }} | {{ $eid->uri }}
+show                          3col    detected0     17    0     56    0     9     87     0     1     0     5      -82    
+  BTN classes: btn(6), btn-sm(1)
+  URLs: {{ route( | {{ url( | mailto:{{ $contact->email }} | {{ $contact->website }} | {{ $eid->uri }}
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/indexSuccess.php
 
 
@@ -354,9 +354,9 @@ dashboard                     1col    none    0     7     0     5     0     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/dashboardSuccess.php
 
-edit                          1col    none    5     1     65    1     59    59    216    13    0     109   272    56     
-  BTN classes: btn(5), btn-sm(4), btn-lg(1)
-  Field badges: Req=3 Rec=0 Opt=56
+edit                          1col    none    14    1     118   1     114   60    346    13    0     109   272    -74    
+  BTN classes: btn(14), btn-sm(13), btn-outline-danger(6), btn-remove-version(2), btn-remove-holding(2), btn-remove-link(2), btn-lg(1)
+  Field badges: Req=3 Rec=0 Opt=57
   URLs: {{ $asset ? route(
   AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/editSuccess.php
 
@@ -569,9 +569,9 @@ view                          1col    none    0     2     0     2     0     4   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     0     1     0     0     8      1     7     4     27     19     
-  BTN classes: btn(3), btn-sm(2)
-  URLs: {{ request()->fullUrlWithQuery([ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
+browse                        1col    none    1     4     0     1     0     0     6      1     7     4     27     21     
+  BTN classes: btn(2), btn-sm(1)
+  URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
   AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/browseSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/indexSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/browseSuccess.php
 
 delete                        1col    none    1     1     0     1     0     0     3      2     0     0     4      1      
@@ -584,9 +584,9 @@ edit                          1col    none    4     2     1     3     1     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/editSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/editSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/editSuccess.php
 
-show                          1col    right   0     5     0     5     0     0     10     0     8     0     58     48     
-  BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route( | {{ $contact->website }}
+show                          1col    none    0     9     0     17    0     0     28     0     8     0     58     30     
+  BTN classes: btn(1)
+  URLs: #identity-collapse | {{ route( | #contact-collapse | {{ $contactItem->website }}
   AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/viewSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/indexSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/viewSuccess.php
 
 
@@ -659,9 +659,9 @@ index                         1col    none    7     2     1     5     0     9   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     0     1     0     0     8      0     0     0     8      0      
-  BTN classes: btn(3), btn-sm(2)
-  URLs: {{ request()->fullUrlWithQuery([ | {{ route(
+browse                        1col    none    1     4     0     1     0     0     7      0     0     0     8      1      
+  BTN classes: btn(2), btn-sm(1)
+  URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
   AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/function/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/function/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/indexSuccess.php, apps/qubit/modules/function/templates/browseSuccess.php, apps/qubit/modules/function/templates/listSuccess.php
 
 delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
@@ -674,9 +674,9 @@ edit                          1col    none    8     2     29    4     19    19  
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/editSuccess.php
 
-show                          1col    right   0     5     0     5     0     1     11     0     0     0     6      -5     
-  BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route(
+show                          1col    none    0     15    0     41    0     0     60     0     0     0     6      -54    
+  BTN classes: btn(1)
+  URLs: {{ route( | #identity-collapse | #context-collapse | #relationships-collapse | #control-collapse
   AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/indexSuccess.php
 
 
@@ -704,8 +704,8 @@ browse                        1col    none    1     5     0     2     0     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/browseSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/indexSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/galleryReports/templates/indexSuccess.php
 
-edit                          2col    detected67    9     65    23    67    218   524    5     5     0     52     -472   
-  BTN classes: btn(4), btn-sm(3), btn-cco-guide(2), btn-help(49)
+edit                          2col    detected68    9     65    23    67    218   525    5     5     0     52     -473   
+  BTN classes: btn(5), btn-sm(4), btn-cco-guide(2), btn-warning(1), btn-help(49)
   Field badges: Req=13 Rec=18 Opt=18
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | https://www.getty.edu/research/publications/electronic_publications/cdwa/ | {{ route(
   AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/editSuccess.php
@@ -831,9 +831,9 @@ translate                     1col    none    1     0     1     0     1     1   
   Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse                        1col    none    1     2     0     1     0     0     5      4     18    0     47     42     
-  BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route(
+browse                        1col    none    2     4     0     1     0     0     8      4     18    0     47     39     
+  BTN classes: btn(2), btn-sm(2)
+  URLs: {{ route( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/informationobject/templates/browseSuccess.php, apps/qubit/modules/informationobject/templates/browseSuccess.php
 
 index                         1col    none    0     6     0     3     0     2     19     2     8     0     21     2      
@@ -982,9 +982,9 @@ index                         1col    none    0     8     1     5     1     8   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     5     0     1     0     0     6      1     21    0     39     33     
-  BTN classes: btn(1)
-  URLs: {{ route(
+browse                        1col    none    1     10    0     1     0     3     20     1     21    0     39     19     
+  BTN classes: btn-close(1), btn(4), btn-outline-secondary(1), btn-sm(4), btn-outline-danger(2), btn-outline-primary(1)
+  URLs: {{ route( | {{ url(
   AtoM: atom-ahg-plugins/ahgJobsManagePlugin/modules/jobsManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/jobs/templates/browseSuccess.php, apps/qubit/modules/jobs/templates/browseSuccess.php
 
 show                          1col    none    0     2     0     2     0     3     10     —   —   —   —    ?      
@@ -1303,9 +1303,9 @@ edit                          1col    none    18    2     46    11    46    46  
 print                         print   none    0     0     0     8     0     0     8      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          2col    right   1     8     0     10    0     5     27     0     2     0     5      -22    
-  BTN classes: btn(2), btn-sm(1)
-  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
+show                          3col    right   1     16    0     11    0     5     36     0     2     0     5      -31    
+  BTN classes: btn(9), btn-sm(1)
+  URLs: {{ route( | {{ str_starts_with($primaryContact->website, | mailto:{{ $primaryContact->email }} | mailto:{{ $contact->email }} | {{ $contact->website }}
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/indexSuccess.php
 
 
@@ -1641,9 +1641,9 @@ edit                          1col    none    4     2     1     3     1     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/editSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/editSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/right/templates/editSuccess.php, apps/qubit/modules/rightsholder/templates/editSuccess.php, apps/qubit/modules/right/templates/editSuccess.php
 
-show                          1col    right   0     8     0     5     0     1     14     8     53    8     204    190    
-  BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route( | {{ $contact->website }} | {{ $er->rights_statement_uri }} | {{ $er->cc_license_uri }} | {{ $er->rights_holder_uri }}
+show                          1col    none    0     8     0     15    0     0     25     8     53    8     204    179    
+  BTN classes: btn(1)
+  URLs: #identity-collapse | {{ route( | #contact-collapse | {{ $contactItem->website }}
   AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rightsAdmin/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/viewSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/extendedRights/templates/indexSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
 
 
@@ -2036,9 +2036,9 @@ edit                          1col    none    8     2     19    7     19    19  
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/editSuccess.php, apps/qubit/modules/user/templates/editSuccess.php
 
-show                          1col    right   0     3     0     5     0     4     12     0     1     0     10     -2     
-  BTN classes: btn(1)
-  URLs: {{ route(
+show                          1col    none    0     8     0     11    0     8     32     0     1     0     10     -22    
+  BTN classes: btn(3), btn-sm(1), btn-outline-primary(1)
+  URLs: #user-details-collapse | {{ route( | {{ url(
   AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/indexSuccess.php, apps/qubit/modules/user/templates/indexSuccess.php
 
 
@@ -2128,6 +2128,7 @@ ahg-audit-trail                    settings                      9       0    0 
 ahg-backup                         index                         4       1    0    0    PARTIAL        
 ahg-backup                         restore                       5       0    0    1    PARTIAL        
 ahg-cart                           settings                      10      0    0    8    PARTIAL        
+ahg-dam                            edit                          114     3    0    57   PARTIAL        
 ahg-display                        _advanced-search              27      1    2    19   PARTIAL        
 ahg-display                        browse-settings               7       0    0    4    PARTIAL        
 ahg-display                        browse                        3       0    0    2    PARTIAL        
@@ -2187,7 +2188,9 @@ ahg-workflow                       gate-edit                     12      4    0 
 
 ## BUTTON CLASS AUDIT (non-theme classes)
 
-All button classes use atom-btn-* theme. ✓
+Package                            View                          Bad Class           Count 
+───────────────────────────────────────────────────────────────────────────────────────────
+ahg-gallery                        edit                          btn-warning         1     
 
 
 # END OF AUDIT

@@ -3,9 +3,23 @@
 @section('title', 'Browse functions')
 @section('body-class', 'functionManage browse')
 
-@section('content')
-  <h1>Browse functions</h1>
+@section('title-block')
+  <div class="multiline-header d-flex align-items-center mb-3">
+    <i class="fas fa-3x fa-tools me-3" aria-hidden="true"></i>
+    <div class="d-flex flex-column">
+      <h1 class="mb-0" aria-describedby="heading-label">
+        @if($pager->getNbResults())
+          Showing {{ number_format($pager->getNbResults()) }} results
+        @else
+          No results found
+        @endif
+      </h1>
+      <span class="small" id="heading-label">Function</span>
+    </div>
+  </div>
+@endsection
 
+@section('before-content')
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search functions',
@@ -13,40 +27,41 @@
     ])
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      {{-- Sort by dropdown --}}
-      @php $activeSort = request('sort', 'alphabetic'); @endphp
-      <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Sort by: {{ ['alphabetic' => 'Name', 'lastUpdated' => 'Date modified', 'identifier' => 'Identifier'][$activeSort] ?? 'Name' }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
-          @foreach(['alphabetic' => 'Name', 'lastUpdated' => 'Date modified', 'identifier' => 'Identifier'] as $key => $label)
-            <li><a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => 1]) }}">{{ $label }}</a></li>
-          @endforeach
-        </ul>
-      </div>
-      {{-- Direction dropdown --}}
-      @php $activeDir = request('sortDir', 'asc'); @endphp
+      @include('ahg-core::components.sort-pickers', [
+          'options' => ['lastUpdated' => 'Date modified', 'alphabetic' => 'Name', 'identifier' => 'Identifier'],
+          'default' => 'alphabetic',
+      ])
+
+      @php
+        $activeSort = request('sort', 'alphabetic');
+        $activeDir = request('sortDir', ($activeSort === 'lastUpdated' ? 'desc' : 'asc'));
+        $dirQuery = request()->except(['sortDir', 'page']);
+      @endphp
       <div class="dropdown d-inline-block">
         <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
           Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-          <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}">Ascending</a></li>
-          <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}">Descending</a></li>
+          <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}">Ascending</a></li>
+          <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}">Descending</a></li>
         </ul>
       </div>
     </div>
   </div>
+@endsection
 
+@section('content')
   @if($pager->getNbResults())
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
           <tr style="background:var(--ahg-primary);color:#fff">
             <th>Name</th>
-            <th>Type</th>
-            <th>Updated</th>
+            @if(request('sort', 'alphabetic') === 'alphabetic')
+              <th>Type</th>
+            @else
+              <th>Updated</th>
+            @endif
           </tr>
         </thead>
         <tbody>
@@ -57,20 +72,25 @@
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
-              <td>{{ $doc['type_name'] ?? '' }}</td>
-              <td>{{ !empty($doc['updated_at']) ? \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') : '' }}</td>
+              @if(request('sort', 'alphabetic') === 'alphabetic')
+                <td>{{ $doc['type_name'] ?? '' }}</td>
+              @else
+                <td>{{ !empty($doc['updated_at']) ? \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') : '' }}</td>
+              @endif
             </tr>
           @endforeach
         </tbody>
       </table>
     </div>
   @endif
+@endsection
 
+@section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   @auth
-    <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
+    <section class="actions mb-3">
       <a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a>
-    </div>
+    </section>
   @endauth
 @endsection

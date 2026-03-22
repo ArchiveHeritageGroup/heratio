@@ -54,6 +54,7 @@ class DamService
                 'io.source_culture',
                 'i18n.title',
                 'i18n.scope_and_content',
+                'i18n.extent_and_medium',
                 'slug.slug',
                 'o.created_at',
                 'o.updated_at',
@@ -243,6 +244,7 @@ class DamService
                 'culture' => $this->culture,
                 'title' => $data['title'] ?? null,
                 'scope_and_content' => $data['scope_and_content'] ?? null,
+                'extent_and_medium' => $data['extent_and_medium'] ?? null,
             ]);
 
             // 4. Generate and insert slug
@@ -361,7 +363,7 @@ class DamService
 
             // 2. Update information_object_i18n
             $i18nUpdate = [];
-            foreach (['title', 'scope_and_content'] as $field) {
+            foreach (['title', 'scope_and_content', 'extent_and_medium'] as $field) {
                 if (array_key_exists($field, $data)) {
                     $i18nUpdate[$field] = $data[$field];
                 }
@@ -656,5 +658,217 @@ class DamService
             ->orderBy('i18n.title')
             ->limit(20)
             ->get();
+    }
+
+    /**
+     * Get version links for a DAM asset.
+     */
+    public function getVersionLinks(int $objectId): \Illuminate\Support\Collection
+    {
+        return DB::table('dam_version_links')
+            ->where('object_id', $objectId)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Get format holdings for a DAM asset.
+     */
+    public function getFormatHoldings(int $objectId): \Illuminate\Support\Collection
+    {
+        return DB::table('dam_format_holdings')
+            ->where('object_id', $objectId)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Get external links for a DAM asset.
+     */
+    public function getExternalLinks(int $objectId): \Illuminate\Support\Collection
+    {
+        return DB::table('dam_external_links')
+            ->where('object_id', $objectId)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Save version links (delete + re-insert approach for simplicity with multi-row forms).
+     */
+    public function saveVersionLinks(int $objectId, array $data): void
+    {
+        $titles = $data['version_title'] ?? [];
+        $types = $data['version_type'] ?? [];
+        $languages = $data['version_language'] ?? [];
+        $languageCodes = $data['version_language_code'] ?? [];
+        $years = $data['version_year'] ?? [];
+        $notes = $data['version_notes'] ?? [];
+        $ids = $data['version_id'] ?? [];
+
+        // Collect IDs that should be kept
+        $keepIds = array_filter($ids, fn($v) => $v !== '' && $v !== null);
+
+        // Delete rows not in the submitted set
+        $query = DB::table('dam_version_links')->where('object_id', $objectId);
+        if (!empty($keepIds)) {
+            $query->whereNotIn('id', $keepIds);
+        }
+        $query->delete();
+
+        // Upsert each row
+        foreach ($titles as $i => $title) {
+            $title = trim($title ?? '');
+            if ($title === '') {
+                continue;
+            }
+            $row = [
+                'object_id' => $objectId,
+                'title' => $title,
+                'version_type' => $types[$i] ?? 'language',
+                'language_name' => $languages[$i] ?? null,
+                'language_code' => $languageCodes[$i] ?? null,
+                'year' => $years[$i] ?? null,
+                'notes' => $notes[$i] ?? null,
+                'updated_at' => now(),
+            ];
+
+            $existingId = $ids[$i] ?? '';
+            if ($existingId !== '' && $existingId !== null) {
+                DB::table('dam_version_links')->where('id', $existingId)->update($row);
+            } else {
+                $row['created_at'] = now();
+                DB::table('dam_version_links')->insert($row);
+            }
+        }
+    }
+
+    /**
+     * Save format holdings (delete + re-insert approach for multi-row forms).
+     */
+    public function saveFormatHoldings(int $objectId, array $data): void
+    {
+        $formats = $data['holding_format'] ?? [];
+        $formatDetails = $data['holding_format_details'] ?? [];
+        $institutions = $data['holding_institution'] ?? [];
+        $locations = $data['holding_location'] ?? [];
+        $accessions = $data['holding_accession'] ?? [];
+        $conditions = $data['holding_condition'] ?? [];
+        $accesses = $data['holding_access'] ?? [];
+        $urls = $data['holding_url'] ?? [];
+        $verifieds = $data['holding_verified'] ?? [];
+        $primaries = $data['holding_primary'] ?? [];
+        $accessNotes = $data['holding_access_notes'] ?? [];
+        $notes = $data['holding_notes'] ?? [];
+        $ids = $data['holding_id'] ?? [];
+
+        // Collect IDs that should be kept
+        $keepIds = array_filter($ids, fn($v) => $v !== '' && $v !== null);
+
+        // Delete rows not in the submitted set
+        $query = DB::table('dam_format_holdings')->where('object_id', $objectId);
+        if (!empty($keepIds)) {
+            $query->whereNotIn('id', $keepIds);
+        }
+        $query->delete();
+
+        // Primary IDs come as values in checkbox array
+        $primaryIds = is_array($primaries) ? $primaries : [];
+
+        // Upsert each row
+        foreach ($formats as $i => $format) {
+            $format = trim($format ?? '');
+            $institution = trim($institutions[$i] ?? '');
+            if ($format === '' && $institution === '') {
+                continue;
+            }
+            $existingId = $ids[$i] ?? '';
+            $isPrimary = in_array($existingId, $primaryIds) || in_array('new', $primaryIds);
+
+            $row = [
+                'object_id' => $objectId,
+                'format_type' => $format ?: 'Other',
+                'format_details' => $formatDetails[$i] ?? null,
+                'holding_institution' => $institution ?: 'Unknown',
+                'holding_location' => $locations[$i] ?? null,
+                'accession_number' => $accessions[$i] ?? null,
+                'condition_status' => $conditions[$i] ?? 'unknown',
+                'access_status' => $accesses[$i] ?? 'unknown',
+                'access_url' => $urls[$i] ?? null,
+                'verified_date' => !empty($verifieds[$i]) ? $verifieds[$i] : null,
+                'is_primary' => $isPrimary ? 1 : 0,
+                'access_notes' => $accessNotes[$i] ?? null,
+                'notes' => $notes[$i] ?? null,
+                'updated_at' => now(),
+            ];
+
+            if ($existingId !== '' && $existingId !== null) {
+                // Fix primary: use the actual ID for existing rows
+                $row['is_primary'] = in_array($existingId, $primaryIds) ? 1 : 0;
+                DB::table('dam_format_holdings')->where('id', $existingId)->update($row);
+            } else {
+                $row['created_at'] = now();
+                DB::table('dam_format_holdings')->insert($row);
+            }
+        }
+    }
+
+    /**
+     * Save external links (delete + re-insert approach for multi-row forms).
+     */
+    public function saveExternalLinks(int $objectId, array $data): void
+    {
+        $types = $data['link_type'] ?? [];
+        $urls = $data['link_url'] ?? [];
+        $titles = $data['link_title'] ?? [];
+        $verifieds = $data['link_verified'] ?? [];
+        $primaries = $data['link_primary'] ?? [];
+        $persons = $data['link_person'] ?? [];
+        $roles = $data['link_role'] ?? [];
+        $descriptions = $data['link_description'] ?? [];
+        $ids = $data['link_id'] ?? [];
+
+        // Collect IDs that should be kept
+        $keepIds = array_filter($ids, fn($v) => $v !== '' && $v !== null);
+
+        // Delete rows not in the submitted set
+        $query = DB::table('dam_external_links')->where('object_id', $objectId);
+        if (!empty($keepIds)) {
+            $query->whereNotIn('id', $keepIds);
+        }
+        $query->delete();
+
+        // Primary IDs come as values in checkbox array
+        $primaryIds = is_array($primaries) ? $primaries : [];
+
+        // Upsert each row
+        foreach ($urls as $i => $url) {
+            $url = trim($url ?? '');
+            if ($url === '') {
+                continue;
+            }
+            $existingId = $ids[$i] ?? '';
+            $isPrimary = in_array($existingId, $primaryIds);
+
+            $row = [
+                'object_id' => $objectId,
+                'link_type' => $types[$i] ?? 'Other',
+                'url' => $url,
+                'title' => $titles[$i] ?? null,
+                'verified_date' => !empty($verifieds[$i]) ? $verifieds[$i] : null,
+                'is_primary' => $isPrimary ? 1 : 0,
+                'person_name' => $persons[$i] ?? null,
+                'person_role' => $roles[$i] ?? null,
+                'description' => $descriptions[$i] ?? null,
+                'updated_at' => now(),
+            ];
+
+            if ($existingId !== '' && $existingId !== null) {
+                DB::table('dam_external_links')->where('id', $existingId)->update($row);
+            } else {
+                $row['created_at'] = now();
+                DB::table('dam_external_links')->insert($row);
+            }
+        }
     }
 }

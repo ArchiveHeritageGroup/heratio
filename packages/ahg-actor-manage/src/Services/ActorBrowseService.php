@@ -72,6 +72,36 @@ class ActorBrowseService extends BrowseService
     }
 
     /**
+     * Get language facets for sidebar.
+     * Returns array of [lang_code => ['name' => ..., 'count' => ...]]
+     */
+    public function getLanguageFacets(): array
+    {
+        $rows = DB::table('actor_i18n')
+            ->join('actor', 'actor_i18n.id', '=', 'actor.id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->where('object.class_name', 'QubitActor')
+            ->where('actor.id', '!=', 3)
+            ->where('actor.id', '!=', 4)
+            ->whereNotNull('actor_i18n.authorized_form_of_name')
+            ->where('actor_i18n.authorized_form_of_name', '!=', '')
+            ->select('actor_i18n.culture', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('actor_i18n.culture')
+            ->orderBy('actor_i18n.culture')
+            ->get();
+
+        $facets = [];
+        foreach ($rows as $r) {
+            $langName = locale_get_display_language($r->culture, 'en') ?: $r->culture;
+            $facets[$r->culture] = [
+                'name' => ucfirst($langName),
+                'count' => $r->cnt,
+            ];
+        }
+        return $facets;
+    }
+
+    /**
      * Get entity type facet counts for sidebar.
      * Returns array of [term_id => ['name' => ..., 'count' => ...]]
      */

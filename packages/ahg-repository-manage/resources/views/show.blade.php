@@ -1,4 +1,4 @@
-@extends('theme::layouts.2col')
+@extends('theme::layouts.3col')
 
 @section('title', $repository->authorized_form_of_name ?? 'Archival institution')
 @section('body-class', 'view repository')
@@ -22,9 +22,53 @@
   @endif
 @endsection
 
+@section('right')
+  <nav>
+    {{-- Clipboard --}}
+    <h4 class="h5 mb-2">Clipboard</h4>
+    <ul class="list-unstyled mb-3">
+      <li>
+        @include('ahg-core::clipboard._button', ['slug' => $repository->slug, 'type' => 'repository', 'wide' => true])
+      </li>
+    </ul>
+
+    {{-- Primary contact in right sidebar (matching AtoM) --}}
+    @if($contacts->isNotEmpty())
+      @php $primaryContact = $contacts->first(); @endphp
+      <section id="primary-contact" class="mb-3">
+        <h4 class="h5 mb-2">Primary contact</h4>
+        <div class="mb-2">
+          @if($primaryContact->street_address)<div>{{ $primaryContact->street_address }}</div>@endif
+          @if($primaryContact->city || $primaryContact->region || $primaryContact->postal_code)
+            <div>{{ $primaryContact->city ?? '' }}{{ $primaryContact->region ? ', ' . $primaryContact->region : '' }} {{ $primaryContact->postal_code ?? '' }}</div>
+          @endif
+          @if($primaryContact->country_code)<div>{{ $primaryContact->country_code }}</div>@endif
+          @if($primaryContact->telephone)<div>{{ $primaryContact->telephone }}</div>@endif
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          @if($primaryContact->website)
+            <a class="btn atom-btn-white" href="{{ str_starts_with($primaryContact->website, 'http') ? $primaryContact->website : 'http://' . $primaryContact->website }}" target="_blank" rel="noopener">Website</a>
+          @endif
+          @if($primaryContact->email)
+            <a class="btn atom-btn-white" href="mailto:{{ $primaryContact->email }}">Email</a>
+          @endif
+        </div>
+      </section>
+    @endif
+  </nav>
+@endsection
+
 @section('content')
 
   <h1>{{ $repository->authorized_form_of_name }}</h1>
+
+  {{-- Breadcrumb (matching AtoM) --}}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ route('repository.browse') }}">Archival institution</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ $repository->authorized_form_of_name }}</li>
+    </ol>
+  </nav>
 
   <div class="mb-3">
     @auth
@@ -45,17 +89,17 @@
   <section class="mb-4">
     <h2 class="fs-5 border-bottom pb-2">Identity area</h2>
 
-    @if($repository->authorized_form_of_name)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Authorized form of name</div>
-        <div class="col-md-9">{{ $repository->authorized_form_of_name }}</div>
-      </div>
-    @endif
-
     @if($repository->identifier)
       <div class="row mb-2">
         <div class="col-md-3 fw-bold">Identifier</div>
         <div class="col-md-9">{{ $repository->identifier }}</div>
+      </div>
+    @endif
+
+    @if($repository->authorized_form_of_name)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Authorized form of name</div>
+        <div class="col-md-9">{{ $repository->authorized_form_of_name }}</div>
       </div>
     @endif
 
@@ -87,7 +131,7 @@
 
     @if($repositoryTypes->isNotEmpty())
       <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Repository type</div>
+        <div class="col-md-3 fw-bold">Type</div>
         <div class="col-md-9">
           @foreach($repositoryTypes as $type)
             <span class="badge bg-light text-dark me-1">{{ $type->name }}</span>
@@ -135,48 +179,27 @@
   @endif
 
   {{-- Description area (ISDIAH 5.3) — from actor_i18n --}}
-  @if($repository->history || $repository->geocultural_context || $repository->mandates || $repository->internal_structures || $repository->collecting_policies || $repository->buildings)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Description area</h2>
+  <section class="mb-4">
+    <h2 class="fs-5 border-bottom pb-2">Description area</h2>
 
-      @foreach([
-        'history' => 'History',
-        'geocultural_context' => 'Geographical and cultural context',
-        'mandates' => 'Mandates/Sources of authority',
-        'internal_structures' => 'Administrative structure',
-        'collecting_policies' => 'Collecting policies',
-        'buildings' => 'Buildings',
-      ] as $field => $label)
-        @if($repository->$field)
-          <div class="row mb-2">
-            <div class="col-md-3 fw-bold">{{ $label }}</div>
-            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-          </div>
-        @endif
-      @endforeach
-    </section>
-  @endif
-
-  {{-- Holdings and finding aids --}}
-  @if($repository->holdings || $repository->finding_aids)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Holdings and finding aids</h2>
-
-      @if($repository->holdings)
+    @foreach([
+      'history' => 'History',
+      'geocultural_context' => 'Geographical and cultural context',
+      'mandates' => 'Mandates/Sources of authority',
+      'internal_structures' => 'Administrative structure',
+      'collecting_policies' => 'Records management and collecting policies',
+      'buildings' => 'Buildings',
+      'holdings' => 'Holdings',
+      'finding_aids' => 'Finding aids, guides and publications',
+    ] as $field => $label)
+      @if($repository->$field)
         <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Archival and other holdings</div>
-          <div class="col-md-9">{!! nl2br(e($repository->holdings)) !!}</div>
+          <div class="col-md-3 fw-bold">{{ $label }}</div>
+          <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
         </div>
       @endif
-
-      @if($repository->finding_aids)
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Finding aids</div>
-          <div class="col-md-9">{!! nl2br(e($repository->finding_aids)) !!}</div>
-        </div>
-      @endif
-    </section>
-  @endif
+    @endforeach
+  </section>
 
   {{-- Access area (ISDIAH 5.4) --}}
   @if($repository->opening_times || $repository->access_conditions || $repository->disabled_access)
@@ -185,7 +208,7 @@
 
       @foreach([
         'opening_times' => 'Opening times',
-        'access_conditions' => 'Conditions and requirements',
+        'access_conditions' => 'Access conditions and requirements',
         'disabled_access' => 'Accessibility',
       ] as $field => $label)
         @if($repository->$field)
@@ -222,11 +245,18 @@
   <section class="mb-4">
     <h2 class="fs-5 border-bottom pb-2">Control area</h2>
 
+    @if($repository->desc_identifier ?? null)
+      <div class="row mb-2">
+        <div class="col-md-3 fw-bold">Description identifier</div>
+        <div class="col-md-9">{{ $repository->desc_identifier }}</div>
+      </div>
+    @endif
+
     @foreach([
-      'desc_institution_identifier' => 'Description identifier',
-      'desc_rules' => 'Rules and/or conventions',
+      'desc_institution_identifier' => 'Institution identifier',
+      'desc_rules' => 'Rules and/or conventions used',
       'desc_sources' => 'Sources',
-      'desc_revision_history' => 'Revision history',
+      'desc_revision_history' => 'Dates of creation, revision and deletion',
     ] as $field => $label)
       @if($repository->$field)
         <div class="row mb-2">
@@ -279,12 +309,6 @@
       </div>
     @endif
 
-    @if($repository->updated_at)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Last updated</div>
-        <div class="col-md-9">{{ $repository->updated_at }}</div>
-      </div>
-    @endif
   </section>
 
   {{-- Access points --}}
@@ -315,4 +339,15 @@
       @endif
     </section>
   @endif
+
+  {{-- Action buttons (bottom bar, matching AtoM) --}}
+  @auth
+  <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
+    <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
+  </ul>
+  @endauth
 @endsection

@@ -13,6 +13,39 @@
   </h2>
 
   <div class="collapse" id="collapse-aggregations">
+    {{-- Language facet --}}
+    @if(!empty($languageFacets))
+    <div class="accordion mb-3">
+      <div class="accordion-item aggregation">
+        <h2 class="accordion-header" id="heading-languages">
+          <button class="accordion-button collapsed" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-languages"
+                  aria-expanded="false" aria-controls="collapse-languages">
+            Language
+          </button>
+        </h2>
+        <div id="collapse-languages" class="accordion-collapse collapse list-group list-group-flush"
+             aria-labelledby="heading-languages">
+          @php
+            $currentLang = request('languages', '');
+            $langParams = request()->except(['languages', 'page']);
+          @endphp
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $currentLang === '' ? 'active text-decoration-underline' : '' }}"
+             href="{{ url('/actor/browse') }}?{{ http_build_query($langParams) }}" title="All">All</a>
+          @foreach($languageFacets as $langCode => $facet)
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
+               href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($langParams, ['languages' => $langCode])) }}"
+               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+              {{ $facet['name'] }}
+              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    @endif
+
     {{-- Entity Type facet --}}
     <div class="accordion mb-3">
       <div class="accordion-item aggregation">
@@ -439,13 +472,13 @@
     @endphp
     <div class="btn-group" role="group" aria-label="Display mode">
       <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-white' : 'atom-btn-white' }}"
+         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
          title="Thumbnail grid with cards">
         <i class="fas fa-th" aria-hidden="true"></i>
         <span class="visually-hidden">Grid</span>
       </a>
       <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-white' : 'atom-btn-white' }}"
+         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
          title="Compact table/list view">
         <i class="fas fa-list" aria-hidden="true"></i>
         <span class="visually-hidden">List</span>

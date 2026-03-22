@@ -22,6 +22,7 @@
 
   <form method="POST" action="{{ route('loan.store') }}" id="loanForm">
     @csrf
+    <input type="hidden" name="object_id" value="{{ old('object_id', request('object_id', '')) }}">
 
     <div class="accordion mb-3" id="loanAccordion">
 

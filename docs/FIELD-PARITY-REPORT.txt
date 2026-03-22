@@ -1,0 +1,97 @@
+# FIELD PARITY: Edit/Create Forms (AtoM vs Heratio)
+# Generated: 2026-03-22 10:20:23
+# Forms compared: 24
+# Total missing fields: 260
+
+Package                            View                H-Fld  A-Fld  Miss  Extra 
+─────────────────────────────────────────────────────────────────────────────────
+ahg-accession-manage               edit                42     14     11    39     ✗
+  MISSING: sourceOfAcquisition, locationInformation, acquisitionType, resourceType, archivalHistory, scopeAndContent, physicalCharacteristics, receivedExtentUnits, processingStatus, processingPriority, processingNotes
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/editSuccess.php
+
+ahg-actor-manage                   edit                42     22     16    36     ✗
+  MISSING: entityType, authorizedFormOfName, parallelName, standardizedName, otherName, corporateBodyIdentifiers, datesOfExistence, legalStatus, internalStructures, generalContext, descriptionIdentifier, institutionResponsibleIdentifier, descriptionStatus, descriptionDetail, revisionHistory, maintenanceNotes
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/editSuccess.php
+
+ahg-dam                            dam/edit            91     87     2     6      ✗
+  MISSING: extentAndMedium, scopeAndContent
+  AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/editSuccess.php
+
+ahg-donor-manage                   edit                1      12     12    1      ✗
+  MISSING: authorizedFormOfName, contact_person, street_address, city, region, postal_code, country_code, telephone, fax, email, website, note
+  AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/editSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/editSuccess.php
+
+ahg-dropdown-manage                edit                2      1      0     1      ✓
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgDropdown/templates/editSuccess.php
+
+ahg-feedback                       edit                3      0      0     3      ✓
+  AtoM: atom-ahg-plugins/ahgFeedbackPlugin/modules/feedback/templates/editSuccess.php
+
+ahg-function-manage                edit                22     21     14    15     ✗
+  MISSING: typeId, authorizedFormOfName, descriptionIdentifier, institutionIdentifier, descriptionStatusId, descriptionDetailId, revisionHistory, sourceStandard, type, parallelName, otherName, descriptionStatus, descriptionDetail, maintenanceNotes
+  AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/editSuccess.php
+
+ahg-gallery                        gallery/edit        70     6      0     64     ✓
+  AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/editSuccess.php
+
+ahg-iiif-collection                iiif-collection/edit6      7      1     0      ✗
+  MISSING: id
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/editSuccess.php
+
+ahg-iiif-collection                iiif-collection/create6      7      1     0      ✗
+  MISSING: id
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/newSuccess.php, atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/editSuccess.php
+
+ahg-information-object-manage      edit                66     66     43    43     ✗
+  MISSING: parentId, altIds[<?php echo $aiIdx; ?>][label], altIds[<?php echo $aiIdx; ?>][value], events[<?php echo $idx; ?>][typeId], events[<?php echo $idx; ?>][date], events[<?php echo $idx; ?>][startDate], events[<?php echo $idx; ?>][endDate], events[<?php echo $idx; ?>][actorName], events[<?php echo $idx; ?>][actorId], levelOfDescriptionId, extentAndMedium, creators[<?php echo $cIdx; ?>][actorId], creators[<?php echo $cIdx; ?>][actorName], repositoryName, repositoryId, archivalHistory, scopeAndContent, accessConditions, reproductionConditions, languageNotes, physicalCharacteristics, findingAids, locationOfOriginals, locationOfCopies, relatedUnitsOfDescription, publicationNotes[<?php echo $pnIdx; ?>][content], notes[<?php echo $nIdx; ?>][typeId], notes[<?php echo $nIdx; ?>][content], nameAccessPoints[<?php echo $nIdx; ?>][actorId], nameAccessPoints[<?php echo $nIdx; ?>][actorName], descriptionIdentifier, institutionResponsibleIdentifier, descriptionStatusId, descriptionDetailId, revisionHistory, archivistNotes[<?php echo $anIdx; ?>][content], publicationStatusId, displayStandardId, nameAccessPoints[, creators[, levelOfDescription, descriptionStatus, descriptionDetail
+  AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/editSuccess.php
+
+ahg-information-object-manage      create              43     66     45    22     ✗
+  MISSING: parentId, altIds[<?php echo $aiIdx; ?>][label], altIds[<?php echo $aiIdx; ?>][value], events[<?php echo $idx; ?>][typeId], events[<?php echo $idx; ?>][date], events[<?php echo $idx; ?>][startDate], events[<?php echo $idx; ?>][endDate], events[<?php echo $idx; ?>][actorName], events[<?php echo $idx; ?>][actorId], levelOfDescriptionId, extentAndMedium, creators[<?php echo $cIdx; ?>][actorId], creators[<?php echo $cIdx; ?>][actorName], repositoryName, repositoryId, archivalHistory, scopeAndContent, accessConditions, reproductionConditions, languageNotes, physicalCharacteristics, findingAids, locationOfOriginals, locationOfCopies, relatedUnitsOfDescription, publicationNotes[<?php echo $pnIdx; ?>][content], notes[<?php echo $nIdx; ?>][typeId], notes[<?php echo $nIdx; ?>][content], nameAccessPoints[<?php echo $nIdx; ?>][actorId], nameAccessPoints[<?php echo $nIdx; ?>][actorName], descriptionIdentifier, institutionResponsibleIdentifier, descriptionStatusId, descriptionDetailId, revisionHistory, archivistNotes[<?php echo $anIdx; ?>][content], publicationStatusId, displayStandardId, updateDescendants, childLevels[, nameAccessPoints[, creators[, levelOfDescription, descriptionStatus, descriptionDetail
+  AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/editSuccess.php
+
+ahg-library                        library/edit        61     47     4     18     ✗
+  MISSING: creators[<?php echo $i; ?>][name], creators[<?php echo $i; ?>][role], creators[<?php echo $i; ?>][authority_uri], subjects[<?php echo $i; ?>][heading]
+  AtoM: atom-ahg-plugins/ahgLibraryPlugin/modules/library/templates/editSuccess.php
+
+ahg-loan                           loan/edit           22     16     0     6      ✓
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/editSuccess.php
+
+ahg-loan                           loan/create         23     18     0     5      ✓
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/addSuccess.php, atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/editSuccess.php
+
+ahg-menu-manage                    edit                5      6      1     0      ✗
+  MISSING: parentId
+  AtoM: atom-ahg-plugins/ahgMenuManagePlugin/modules/menuManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/menu/templates/editSuccess.php
+
+ahg-museum                         museum/edit         58     69     68    57     ✗
+  MISSING: saveAnyway, template, parent, id, switch_template, creators[], identifier, extentAndMedium, museum_work_type, museum_creation_date_earliest, museum_creation_date_latest, museum_object_type, museum_classification, museum_dimensions, museum_current_location, museum_measurements, museum_creator_identity, museum_creator_role, museum_creator_extent, museum_creator_qualifier, museum_creator_attribution, museum_creation_date_display, museum_creation_date_qualifier, museum_style, museum_period, museum_cultural_group, museum_movement, museum_school, museum_dynasty, museum_subject_indexing_type, museum_subject_display, museum_subject_extent, museum_historical_context, museum_cultural_context, museum_architectural_context, museum_archaeological_context, museum_object_class, museum_object_category, museum_object_sub_category, museum_edition_number, museum_edition_size, museum_edition_description, museum_state_description, museum_state_identification, museum_facture_description, museum_technique_cco, museum_technique_qualifier, museum_physical_appearance, museum_color, museum_shape, museum_orientation, museum_inscription, museum_condition_notes, museum_provenance, museum_style_period, archivalHistory, acquisition, scopeAndContent, accruals, arrangement, accessConditions, reproductionConditions, languageNotes, physicalCharacteristics, findingAids, locationOfOriginals, locationOfCopies, relatedUnitsOfDescription
+  AtoM: atom-ahg-plugins/ahgMuseumPlugin/modules/museum/templates/editSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/cco/templates/editSuccess.php
+
+ahg-repository-manage              edit                46     26     21    41     ✗
+  MISSING: authorizedFormOfName, parallelName, otherName, geoculturalContext, internalStructures, collectingPolicies, findingAids, openingTimes, accessConditions, disabledAccess, researchServices, reproductionServices, publicFacilities, descIdentifier, descInstitutionIdentifier, descRules, descStatus, descDetail, descRevisionHistory, descSources, maintenanceNotes
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/editSuccess.php
+
+ahg-request-publish                edit                2      2      1     1      ✗
+  MISSING: action_type
+  AtoM: atom-ahg-plugins/ahgRequestToPublishPlugin/modules/requestToPublish/templates/editSuccess.php
+
+ahg-rights-holder-manage           edit                1      12     12    1      ✗
+  MISSING: authorizedFormOfName, contact_person, street_address, city, region, postal_code, country_code, telephone, fax, email, website, note
+  AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/editSuccess.php
+
+ahg-static-page                    edit                3      3      0     0      ✓
+  AtoM: atom-ahg-plugins/ahgStaticPagePlugin/modules/staticPageManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/staticpage/templates/editSuccess.php
+
+ahg-storage-manage                 edit                30     30     1     1      ✗
+  MISSING: type
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/physicalobject/templates/editSuccess.php
+
+ahg-term-taxonomy                  edit                11     5      3     9      ✗
+  MISSING: useFor, selfReciprocal, narrowTerms
+  AtoM: atom-ahg-plugins/ahgTermTaxonomyPlugin/modules/termTaxonomy/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/term/templates/editSuccess.php
+
+ahg-user-manage                    edit                19     19     4     4      ✗
+  MISSING: acct_name, acct_email, new_pw, confirm_pw
+  AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/editSuccess.php
+

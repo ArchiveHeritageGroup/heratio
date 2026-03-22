@@ -58,6 +58,9 @@
           <li>{{ $error }}</li>
         @endforeach
       </ul>
+      <p class="mt-2">
+        <button type="submit" name="saveAnyway" value="1" form="editForm" class="btn btn-sm btn-warning">Save anyway</button>
+      </p>
     </div>
   @endif
 
@@ -66,6 +69,15 @@
     @csrf
     @if(!$isNew)
       @method('PUT')
+    @endif
+
+    {{-- Hidden metadata fields (match AtoM: template, parent, id, saveAnyway, switch_template) --}}
+    <input type="hidden" name="template" value="{{ old('template', $artwork->template ?? 'painting') }}">
+    @if(request('parent'))
+      <input type="hidden" name="parent" value="{{ request('parent') }}">
+    @endif
+    @if(!$isNew && isset($artwork))
+      <input type="hidden" name="id" value="{{ $artwork->id }}">
     @endif
 
     <div class="accordion" id="galleryAccordion">
@@ -1704,6 +1716,32 @@
       form.addEventListener('input', function() { setTimeout(updateCompleteness, 100); });
       form.addEventListener('change', function() { setTimeout(updateCompleteness, 100); });
     }
+
+    // Template switching (sets hidden template field + switch_template flag)
+    document.querySelectorAll('.template-option').forEach(function(opt) {
+      opt.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tpl = this.getAttribute('data-template');
+        var form = document.getElementById('editForm');
+        if (!form) return;
+        // Update active class
+        document.querySelectorAll('.template-option').forEach(function(o) { o.classList.remove('active'); });
+        this.classList.add('active');
+        // Update hidden template field
+        var templateInput = form.querySelector('input[name="template"]');
+        if (templateInput) templateInput.value = tpl;
+        // Add switch_template flag and submit to reload with new template
+        var switchFlag = form.querySelector('input[name="switch_template"]');
+        if (!switchFlag) {
+          switchFlag = document.createElement('input');
+          switchFlag.type = 'hidden';
+          switchFlag.name = 'switch_template';
+          form.appendChild(switchFlag);
+        }
+        switchFlag.value = tpl;
+        form.submit();
+      });
+    });
 
     // Help toggle buttons
     document.querySelectorAll('.btn-help').forEach(function(btn) {

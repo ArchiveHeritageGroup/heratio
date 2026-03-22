@@ -84,10 +84,17 @@
           </div>
         </div>
 
-        <div class="mb-3">
-          <label for="scope_content" class="form-label">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label>
-          <textarea name="scope_content" id="scope_content" class="form-control" rows="3">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
-          <div class="form-text text-muted small">A description of the intellectual content and document types represented in this asset.</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="extent_and_medium" class="form-label">Extent and medium <span class="badge bg-secondary ms-1">Optional</span></label>
+            <textarea name="extent_and_medium" id="extent_and_medium" class="form-control" rows="2">{{ old('extent_and_medium', $asset->extent_and_medium ?? '') }}</textarea>
+            <div class="form-text text-muted small">File format, size, dimensions.</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label>
+            <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="2">{{ old('scope_and_content', $asset->scope_and_content ?? '') }}</textarea>
+            <div class="form-text text-muted small">A description of the intellectual content and document types represented in this asset.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -157,52 +164,67 @@
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-6 mb-3">
+          <div class="col-md-3 mb-3">
+            <label for="duration_minutes" class="form-label">Running Time <span class="badge bg-secondary ms-1">Optional</span></label>
+            <div class="input-group">
+              <input type="number" name="duration_minutes" id="duration_minutes" class="form-control" min="1"
+                     value="{{ old('duration_minutes', $asset->duration_minutes ?? '') }}">
+              <span class="input-group-text">min</span>
+            </div>
+          </div>
+          <div class="col-md-5 mb-3">
             <label for="production_company" class="form-label">Production company <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="production_company" id="production_company" class="form-control"
-                   value="{{ old('production_company', $asset->production_company ?? '') }}">
-            <div class="form-text text-muted small">The company or organisation that produced the content.</div>
+                   value="{{ old('production_company', $asset->production_company ?? '') }}" placeholder="e.g., African Film Productions">
           </div>
-          <div class="col-md-6 mb-3">
+          <div class="col-md-4 mb-3">
             <label for="distributor" class="form-label">Distributor / Broadcaster <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="distributor" id="distributor" class="form-control"
                    value="{{ old('distributor', $asset->distributor ?? '') }}">
-            <div class="form-text text-muted small">The entity responsible for distributing or broadcasting the content.</div>
           </div>
         </div>
 
         <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="broadcast_date" class="form-label">Broadcast date <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="date" name="broadcast_date" id="broadcast_date" class="form-control"
-                   value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}">
-            <div class="form-text text-muted small">The original broadcast or release date.</div>
+          <div class="col-md-3 mb-3">
+            <label for="broadcast_date" class="form-label">Broadcast / Release Date <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="broadcast_date" id="broadcast_date" class="form-control"
+                   value="{{ old('broadcast_date', $asset->broadcast_date ?? '') }}" placeholder="e.g., 1954">
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="series_title" id="series_title" class="form-control"
-                   value="{{ old('series_title', $asset->series_title ?? '') }}">
-            <div class="form-text text-muted small">The title of the series this asset belongs to.</div>
+          <div class="col-md-3 mb-3">
+            <label for="production_country" class="form-label">Production Country <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="production_country" id="production_country" class="form-control"
+                   value="{{ old('production_country', $asset->production_country ?? '') }}" placeholder="e.g., South Africa">
           </div>
           <div class="col-md-2 mb-3">
-            <label for="season_number" class="form-label">Season number <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="season_number" id="season_number" class="form-control"
+            <label for="production_country_code" class="form-label">Country Code <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="production_country_code" id="production_country_code" class="form-control" maxlength="3"
+                   value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="ZAF">
+          </div>
+          <div class="col-md-2 mb-3">
+            <label for="season_number" class="form-label">Season <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="number" name="season_number" id="season_number" class="form-control"
                    value="{{ old('season_number', $asset->season_number ?? '') }}">
-            <div class="form-text text-muted small">Season number within the series.</div>
           </div>
           <div class="col-md-2 mb-3">
-            <label for="episode_number" class="form-label">Episode number <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" name="episode_number" id="episode_number" class="form-control"
+            <label for="episode_number" class="form-label">Episode <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="number" name="episode_number" id="episode_number" class="form-control"
                    value="{{ old('episode_number', $asset->episode_number ?? '') }}">
-            <div class="form-text text-muted small">Episode number within the season.</div>
           </div>
         </div>
 
-        <div class="mb-3">
-          <label for="awards" class="form-label">Awards <span class="badge bg-secondary ms-1">Optional</span></label>
-          <textarea name="awards" id="awards" class="form-control" rows="2">{{ old('awards', $asset->awards ?? '') }}</textarea>
-          <div class="form-text text-muted small">Awards or recognitions received by this production.</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="series_title" class="form-label">Series title <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="series_title" id="series_title" class="form-control"
+                   value="{{ old('series_title', $asset->series_title ?? '') }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="awards" class="form-label">Awards / Recognition <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="text" name="awards" id="awards_input" class="form-control"
+                   value="{{ old('awards', $asset->awards ?? '') }}" placeholder="e.g., Nominated for Golden Calf Award">
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -347,15 +369,7 @@
             <div class="form-text text-muted small">A brief synopsis or summary of the content.</div>
           </div>
 
-          <div class="mb-3 field-video field-audio" style="display:none;">
-            <label for="iptc_duration_minutes" class="form-label">Running time <span class="badge bg-secondary ms-1">Optional</span></label>
-            <div class="input-group" style="max-width: 200px;">
-              <input type="number" name="iptc_duration_minutes" id="iptc_duration_minutes" class="form-control"
-                     value="{{ old('duration_minutes', $asset->duration_minutes ?? '') }}" min="0">
-              <span class="input-group-text">min</span>
-            </div>
-            <div class="form-text text-muted small">Running time in minutes (round to nearest minute).</div>
-          </div>
+
 
           <div class="mb-3">
             <label for="iptc_caption" class="form-label">Caption / Description <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -446,20 +460,6 @@
             </div>
           </div>
 
-          <div class="row field-video" style="display:none;">
-            <div class="col-md-6 mb-3">
-              <label for="iptc_production_country" class="form-label">Production country <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="iptc_production_country" id="iptc_production_country" class="form-control"
-                     value="{{ old('production_country', $asset->production_country ?? '') }}">
-              <div class="form-text text-muted small">Country where the content was produced (may differ from filming location).</div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="iptc_production_country_code" class="form-label">Production country code <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="iptc_production_country_code" id="iptc_production_country_code" class="form-control" maxlength="10"
-                     value="{{ old('production_country_code', $asset->production_country_code ?? '') }}" placeholder="e.g., NLD, ZAF">
-              <div class="form-text text-muted small">ISO 3166-1 country code for the production country.</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -678,6 +678,281 @@
       </div>
     </div>
 
+    {{-- ===== 13. Alternative Versions ===== --}}
+    <div class="card mb-3">
+      <div class="card-header" style="background:#17a2b8;color:#fff">
+        <i class="fas fa-language me-1"></i> Alternative Versions
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">Other language versions, formats, or edits of this work</p>
+        <div id="versions-container">
+          @foreach($versionLinks as $v)
+          <div class="version-row border rounded p-2 mb-2 bg-light">
+            <input type="hidden" name="version_id[]" value="{{ $v->id }}">
+            <div class="row mb-2">
+              <div class="col-md-4">
+                <label class="form-label small">Title</label>
+                <input type="text" class="form-control form-control-sm" name="version_title[]" value="{{ $v->title }}" placeholder="e.g., Kuddes van die veld">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Type</label>
+                <select class="form-select form-select-sm" name="version_type[]">
+                  <option value="language" @selected($v->version_type === 'language')>Language</option>
+                  <option value="format" @selected($v->version_type === 'format')>Format</option>
+                  <option value="restoration" @selected($v->version_type === 'restoration')>Restoration</option>
+                  <option value="directors_cut" @selected($v->version_type === 'directors_cut')>Director's Cut</option>
+                  <option value="censored" @selected($v->version_type === 'censored')>Censored</option>
+                  <option value="other" @selected($v->version_type === 'other')>Other</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Language</label>
+                <input type="text" class="form-control form-control-sm" name="version_language[]" value="{{ $v->language_name }}" placeholder="Afrikaans">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">ISO Code</label>
+                <input type="text" class="form-control form-control-sm" name="version_language_code[]" value="{{ $v->language_code }}" maxlength="3" placeholder="afr">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Year</label>
+                <input type="text" class="form-control form-control-sm" name="version_year[]" value="{{ $v->year }}" placeholder="1954">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-11">
+                <label class="form-label small">Notes</label>
+                <input type="text" class="form-control form-control-sm" name="version_notes[]" value="{{ $v->notes }}" placeholder="Additional information about this version">
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-version w-100"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+          @endforeach
+        </div>
+        <button type="button" class="btn btn-sm atom-btn-white" id="addVersionBtn">
+          <i class="fas fa-plus"></i> Add Version
+        </button>
+      </div>
+    </div>
+
+    {{-- ===== 14. Format Holdings & Access ===== --}}
+    <div class="card mb-3">
+      <div class="card-header" style="background:#6c757d;color:#fff">
+        <i class="fas fa-archive me-1"></i> Format Holdings &amp; Access
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">Physical formats held at institutions</p>
+        <div id="holdings-container">
+          @foreach($formatHoldings as $h)
+          <div class="holding-row border rounded p-2 mb-2 bg-light">
+            <input type="hidden" name="holding_id[]" value="{{ $h->id }}">
+            <div class="row mb-2">
+              <div class="col-md-2">
+                <label class="form-label small">Format</label>
+                <select class="form-select form-select-sm" name="holding_format[]">
+                  <optgroup label="Film">
+                    <option value="35mm" @selected($h->format_type === '35mm')>35mm</option>
+                    <option value="16mm" @selected($h->format_type === '16mm')>16mm</option>
+                    <option value="8mm" @selected($h->format_type === '8mm')>8mm</option>
+                    <option value="Super8" @selected($h->format_type === 'Super8')>Super 8</option>
+                    <option value="Nitrate" @selected($h->format_type === 'Nitrate')>Nitrate</option>
+                    <option value="Safety" @selected($h->format_type === 'Safety')>Safety</option>
+                    <option value="Polyester" @selected($h->format_type === 'Polyester')>Polyester</option>
+                  </optgroup>
+                  <optgroup label="Video">
+                    <option value="VHS" @selected($h->format_type === 'VHS')>VHS</option>
+                    <option value="Betacam" @selected($h->format_type === 'Betacam')>Betacam</option>
+                    <option value="U-matic" @selected($h->format_type === 'U-matic')>U-matic</option>
+                    <option value="DV" @selected($h->format_type === 'DV')>DV</option>
+                  </optgroup>
+                  <optgroup label="Digital">
+                    <option value="DVD" @selected($h->format_type === 'DVD')>DVD</option>
+                    <option value="Blu-ray" @selected($h->format_type === 'Blu-ray')>Blu-ray</option>
+                    <option value="LaserDisc" @selected($h->format_type === 'LaserDisc')>LaserDisc</option>
+                    <option value="Digital_File" @selected($h->format_type === 'Digital_File')>Digital File</option>
+                    <option value="DCP" @selected($h->format_type === 'DCP')>DCP</option>
+                    <option value="ProRes" @selected($h->format_type === 'ProRes')>ProRes</option>
+                  </optgroup>
+                  <optgroup label="Audio">
+                    <option value="Audio_Reel" @selected($h->format_type === 'Audio_Reel')>Audio Reel</option>
+                    <option value="Audio_Cassette" @selected($h->format_type === 'Audio_Cassette')>Audio Cassette</option>
+                    <option value="Vinyl" @selected($h->format_type === 'Vinyl')>Vinyl</option>
+                    <option value="CD" @selected($h->format_type === 'CD')>CD</option>
+                  </optgroup>
+                  <option value="Other" @selected($h->format_type === 'Other')>Other</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Format Details</label>
+                <input type="text" class="form-control form-control-sm" name="holding_format_details[]" value="{{ $h->format_details }}" placeholder="Color, sound, ratio">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small">Institution</label>
+                <input type="text" class="form-control form-control-sm" name="holding_institution[]" value="{{ $h->holding_institution }}" placeholder="e.g., NFVSA, WCPLS">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small">Location</label>
+                <input type="text" class="form-control form-control-sm" name="holding_location[]" value="{{ $h->holding_location }}" placeholder="Department/vault">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Accession #</label>
+                <input type="text" class="form-control form-control-sm" name="holding_accession[]" value="{{ $h->accession_number }}" placeholder="Ref number">
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-2">
+                <label class="form-label small">Condition</label>
+                <select class="form-select form-select-sm" name="holding_condition[]">
+                  <option value="unknown" @selected($h->condition_status === 'unknown')>Unknown</option>
+                  <option value="excellent" @selected($h->condition_status === 'excellent')>Excellent</option>
+                  <option value="good" @selected($h->condition_status === 'good')>Good</option>
+                  <option value="fair" @selected($h->condition_status === 'fair')>Fair</option>
+                  <option value="poor" @selected($h->condition_status === 'poor')>Poor</option>
+                  <option value="deteriorating" @selected($h->condition_status === 'deteriorating')>Deteriorating</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Access</label>
+                <select class="form-select form-select-sm" name="holding_access[]">
+                  <option value="unknown" @selected($h->access_status === 'unknown')>Unknown</option>
+                  <option value="available" @selected($h->access_status === 'available')>Available</option>
+                  <option value="restricted" @selected($h->access_status === 'restricted')>Restricted</option>
+                  <option value="preservation_only" @selected($h->access_status === 'preservation_only')>Preservation Only</option>
+                  <option value="digitized_available" @selected($h->access_status === 'digitized_available')>Digitized</option>
+                  <option value="on_request" @selected($h->access_status === 'on_request')>On Request</option>
+                  <option value="staff_only" @selected($h->access_status === 'staff_only')>Staff Only</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small">Access URL</label>
+                <input type="url" class="form-control form-control-sm" name="holding_url[]" value="{{ $h->access_url }}" placeholder="Streaming/download URL">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Verified Date</label>
+                <input type="date" class="form-control form-control-sm" name="holding_verified[]" value="{{ $h->verified_date }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Primary</label>
+                <div class="form-check mt-1">
+                  <input type="checkbox" class="form-check-input" name="holding_primary[]" value="{{ $h->id }}" @checked($h->is_primary)>
+                  <label class="form-check-label small">Primary copy</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label small">Access Notes</label>
+                <input type="text" class="form-control form-control-sm" name="holding_access_notes[]" value="{{ $h->access_notes }}" placeholder="How to request, viewing conditions">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small">Notes</label>
+                <input type="text" class="form-control form-control-sm" name="holding_notes[]" value="{{ $h->notes }}" placeholder="Additional notes">
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-holding w-100"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+          @endforeach
+        </div>
+        <button type="button" class="btn btn-sm atom-btn-white" id="addHoldingBtn">
+          <i class="fas fa-plus"></i> Add Holding
+        </button>
+      </div>
+    </div>
+
+    {{-- ===== 15. External References ===== --}}
+    <div class="card mb-3">
+      <div class="card-header" style="background:#28a745;color:#fff">
+        <i class="fas fa-external-link-alt me-1"></i> External References
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">Links to ESAT, IMDb, Wikipedia, and other databases</p>
+        <div id="links-container">
+          @foreach($externalLinks as $l)
+          <div class="link-row border rounded p-2 mb-2 bg-light">
+            <input type="hidden" name="link_id[]" value="{{ $l->id }}">
+            <div class="row mb-2">
+              <div class="col-md-2">
+                <label class="form-label small">Type</label>
+                <select class="form-select form-select-sm" name="link_type[]">
+                  <optgroup label="South African">
+                    <option value="ESAT" @selected($l->link_type === 'ESAT')>ESAT</option>
+                    <option value="SAFILM" @selected($l->link_type === 'SAFILM')>SA Film</option>
+                    <option value="NFVSA" @selected($l->link_type === 'NFVSA')>NFVSA</option>
+                  </optgroup>
+                  <optgroup label="Film Databases">
+                    <option value="IMDb" @selected($l->link_type === 'IMDb')>IMDb</option>
+                    <option value="BFI" @selected($l->link_type === 'BFI')>BFI</option>
+                    <option value="AFI" @selected($l->link_type === 'AFI')>AFI</option>
+                    <option value="Letterboxd" @selected($l->link_type === 'Letterboxd')>Letterboxd</option>
+                    <option value="MUBI" @selected($l->link_type === 'MUBI')>MUBI</option>
+                    <option value="Filmography" @selected($l->link_type === 'Filmography')>Filmography</option>
+                  </optgroup>
+                  <optgroup label="Knowledge Bases">
+                    <option value="Wikipedia" @selected($l->link_type === 'Wikipedia')>Wikipedia</option>
+                    <option value="Wikidata" @selected($l->link_type === 'Wikidata')>Wikidata</option>
+                    <option value="VIAF" @selected($l->link_type === 'VIAF')>VIAF</option>
+                  </optgroup>
+                  <optgroup label="Media Platforms">
+                    <option value="YouTube" @selected($l->link_type === 'YouTube')>YouTube</option>
+                    <option value="Vimeo" @selected($l->link_type === 'Vimeo')>Vimeo</option>
+                    <option value="Archive_org" @selected($l->link_type === 'Archive_org')>Archive.org</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Review" @selected($l->link_type === 'Review')>Review</option>
+                    <option value="Academic" @selected($l->link_type === 'Academic')>Academic</option>
+                    <option value="Press" @selected($l->link_type === 'Press')>Press</option>
+                    <option value="Other" @selected($l->link_type === 'Other')>Other</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small">URL</label>
+                <input type="url" class="form-control form-control-sm" name="link_url[]" value="{{ $l->url }}" placeholder="https://...">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small">Title</label>
+                <input type="text" class="form-control form-control-sm" name="link_title[]" value="{{ $l->title }}" placeholder="Link display text">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Verified</label>
+                <input type="date" class="form-control form-control-sm" name="link_verified[]" value="{{ $l->verified_date }}">
+              </div>
+              <div class="col-md-1">
+                <label class="form-label small">Primary</label>
+                <div class="form-check mt-1">
+                  <input type="checkbox" class="form-check-input" name="link_primary[]" value="{{ $l->id }}" @checked($l->is_primary)>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-2">
+                <label class="form-label small">Person</label>
+                <input type="text" class="form-control form-control-sm" name="link_person[]" value="{{ $l->person_name }}" placeholder="e.g., Donald Swanson">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small">Role</label>
+                <input type="text" class="form-control form-control-sm" name="link_role[]" value="{{ $l->person_role }}" placeholder="Director, Actor">
+              </div>
+              <div class="col-md-7">
+                <label class="form-label small">Description</label>
+                <input type="text" class="form-control form-control-sm" name="link_description[]" value="{{ $l->description }}" placeholder="What this link provides">
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-link w-100"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+          @endforeach
+        </div>
+        <button type="button" class="btn btn-sm atom-btn-white" id="addLinkBtn">
+          <i class="fas fa-plus"></i> Add Link
+        </button>
+      </div>
+    </div>
+
     <div class="d-flex gap-2 mt-4">
       <button type="submit" class="btn atom-btn-outline-success btn-lg"><i class="fas fa-save"></i> {{ $asset ? 'Save Asset' : 'Create Asset' }}</button>
       <a href="{{ $asset ? route('dam.show', $asset->slug) : route('dam.dashboard') }}" class="btn atom-btn-white btn-lg">Cancel</a>
@@ -757,7 +1032,108 @@ document.addEventListener('DOMContentLoaded', function () {
         row.querySelectorAll('input').forEach(function (input) { input.value = ''; });
       }
     }
+    if (e.target.closest('.btn-remove-version')) {
+      e.target.closest('.version-row').remove();
+    }
+    if (e.target.closest('.btn-remove-holding')) {
+      e.target.closest('.holding-row').remove();
+    }
+    if (e.target.closest('.btn-remove-link')) {
+      e.target.closest('.link-row').remove();
+    }
   });
+
+  // Add Version row
+  var addVersionBtn = document.getElementById('addVersionBtn');
+  if (addVersionBtn) {
+    addVersionBtn.addEventListener('click', function () {
+      var container = document.getElementById('versions-container');
+      var row = document.createElement('div');
+      row.className = 'version-row border rounded p-2 mb-2 bg-light';
+      row.innerHTML = '<input type="hidden" name="version_id[]" value="">' +
+        '<div class="row mb-2">' +
+        '<div class="col-md-4"><label class="form-label small">Title</label><input type="text" class="form-control form-control-sm" name="version_title[]" placeholder="e.g., Kuddes van die veld"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Type</label><select class="form-select form-select-sm" name="version_type[]"><option value="language">Language</option><option value="format">Format</option><option value="restoration">Restoration</option><option value="directors_cut">Director\'s Cut</option><option value="censored">Censored</option><option value="other">Other</option></select></div>' +
+        '<div class="col-md-2"><label class="form-label small">Language</label><input type="text" class="form-control form-control-sm" name="version_language[]" placeholder="Afrikaans"></div>' +
+        '<div class="col-md-2"><label class="form-label small">ISO Code</label><input type="text" class="form-control form-control-sm" name="version_language_code[]" maxlength="3" placeholder="afr"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Year</label><input type="text" class="form-control form-control-sm" name="version_year[]" placeholder="1954"></div>' +
+        '</div>' +
+        '<div class="row">' +
+        '<div class="col-md-11"><label class="form-label small">Notes</label><input type="text" class="form-control form-control-sm" name="version_notes[]" placeholder="Additional information"></div>' +
+        '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-version w-100"><i class="fas fa-times"></i></button></div>' +
+        '</div>';
+      container.appendChild(row);
+    });
+  }
+
+  // Add Holding row
+  var addHoldingBtn = document.getElementById('addHoldingBtn');
+  if (addHoldingBtn) {
+    addHoldingBtn.addEventListener('click', function () {
+      var container = document.getElementById('holdings-container');
+      var row = document.createElement('div');
+      row.className = 'holding-row border rounded p-2 mb-2 bg-light';
+      row.innerHTML = '<input type="hidden" name="holding_id[]" value="">' +
+        '<div class="row mb-2">' +
+        '<div class="col-md-2"><label class="form-label small">Format</label>' +
+        '<select class="form-select form-select-sm" name="holding_format[]">' +
+        '<optgroup label="Film"><option value="35mm">35mm</option><option value="16mm">16mm</option><option value="8mm">8mm</option><option value="Super8">Super 8</option><option value="Nitrate">Nitrate</option><option value="Safety">Safety</option><option value="Polyester">Polyester</option></optgroup>' +
+        '<optgroup label="Video"><option value="VHS">VHS</option><option value="Betacam">Betacam</option><option value="U-matic">U-matic</option><option value="DV">DV</option></optgroup>' +
+        '<optgroup label="Digital"><option value="DVD">DVD</option><option value="Blu-ray">Blu-ray</option><option value="LaserDisc">LaserDisc</option><option value="Digital_File">Digital File</option><option value="DCP">DCP</option><option value="ProRes">ProRes</option></optgroup>' +
+        '<optgroup label="Audio"><option value="Audio_Reel">Audio Reel</option><option value="Audio_Cassette">Audio Cassette</option><option value="Vinyl">Vinyl</option><option value="CD">CD</option></optgroup>' +
+        '<option value="Other">Other</option></select></div>' +
+        '<div class="col-md-2"><label class="form-label small">Format Details</label><input type="text" class="form-control form-control-sm" name="holding_format_details[]" placeholder="Color, sound"></div>' +
+        '<div class="col-md-3"><label class="form-label small">Institution</label><input type="text" class="form-control form-control-sm" name="holding_institution[]" placeholder="e.g., NFVSA"></div>' +
+        '<div class="col-md-3"><label class="form-label small">Location</label><input type="text" class="form-control form-control-sm" name="holding_location[]" placeholder="Department/vault"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Accession #</label><input type="text" class="form-control form-control-sm" name="holding_accession[]" placeholder="Ref number"></div>' +
+        '</div>' +
+        '<div class="row mb-2">' +
+        '<div class="col-md-2"><label class="form-label small">Condition</label><select class="form-select form-select-sm" name="holding_condition[]"><option value="unknown">Unknown</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="poor">Poor</option><option value="deteriorating">Deteriorating</option></select></div>' +
+        '<div class="col-md-2"><label class="form-label small">Access</label><select class="form-select form-select-sm" name="holding_access[]"><option value="unknown">Unknown</option><option value="available">Available</option><option value="restricted">Restricted</option><option value="preservation_only">Preservation Only</option><option value="digitized_available">Digitized</option><option value="on_request">On Request</option><option value="staff_only">Staff Only</option></select></div>' +
+        '<div class="col-md-3"><label class="form-label small">Access URL</label><input type="url" class="form-control form-control-sm" name="holding_url[]" placeholder="Streaming URL"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Verified Date</label><input type="date" class="form-control form-control-sm" name="holding_verified[]"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Primary</label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="holding_primary[]" value="new"><label class="form-check-label small">Primary copy</label></div></div>' +
+        '</div>' +
+        '<div class="row">' +
+        '<div class="col-md-6"><label class="form-label small">Access Notes</label><input type="text" class="form-control form-control-sm" name="holding_access_notes[]" placeholder="How to request, viewing conditions"></div>' +
+        '<div class="col-md-5"><label class="form-label small">Notes</label><input type="text" class="form-control form-control-sm" name="holding_notes[]" placeholder="Additional notes"></div>' +
+        '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-holding w-100"><i class="fas fa-times"></i></button></div>' +
+        '</div>';
+      container.appendChild(row);
+    });
+  }
+
+  // Add External Link row
+  var addLinkBtn = document.getElementById('addLinkBtn');
+  if (addLinkBtn) {
+    addLinkBtn.addEventListener('click', function () {
+      var container = document.getElementById('links-container');
+      var row = document.createElement('div');
+      row.className = 'link-row border rounded p-2 mb-2 bg-light';
+      row.innerHTML = '<input type="hidden" name="link_id[]" value="">' +
+        '<div class="row mb-2">' +
+        '<div class="col-md-2"><label class="form-label small">Type</label>' +
+        '<select class="form-select form-select-sm" name="link_type[]">' +
+        '<optgroup label="South African"><option value="ESAT">ESAT</option><option value="SAFILM">SA Film</option><option value="NFVSA">NFVSA</option></optgroup>' +
+        '<optgroup label="Film Databases"><option value="IMDb">IMDb</option><option value="BFI">BFI</option><option value="AFI">AFI</option><option value="Letterboxd">Letterboxd</option><option value="MUBI">MUBI</option><option value="Filmography">Filmography</option></optgroup>' +
+        '<optgroup label="Knowledge Bases"><option value="Wikipedia">Wikipedia</option><option value="Wikidata">Wikidata</option><option value="VIAF">VIAF</option></optgroup>' +
+        '<optgroup label="Media Platforms"><option value="YouTube">YouTube</option><option value="Vimeo">Vimeo</option><option value="Archive_org">Archive.org</option></optgroup>' +
+        '<optgroup label="Other"><option value="Review">Review</option><option value="Academic">Academic</option><option value="Press">Press</option><option value="Other">Other</option></optgroup>' +
+        '</select></div>' +
+        '<div class="col-md-4"><label class="form-label small">URL</label><input type="url" class="form-control form-control-sm" name="link_url[]" placeholder="https://..."></div>' +
+        '<div class="col-md-3"><label class="form-label small">Title</label><input type="text" class="form-control form-control-sm" name="link_title[]" placeholder="Link display text"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Verified</label><input type="date" class="form-control form-control-sm" name="link_verified[]"></div>' +
+        '<div class="col-md-1"><label class="form-label small">Primary</label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="link_primary[]" value="new"></div></div>' +
+        '</div>' +
+        '<div class="row">' +
+        '<div class="col-md-2"><label class="form-label small">Person</label><input type="text" class="form-control form-control-sm" name="link_person[]" placeholder="e.g., Donald Swanson"></div>' +
+        '<div class="col-md-2"><label class="form-label small">Role</label><input type="text" class="form-control form-control-sm" name="link_role[]" placeholder="Director, Actor"></div>' +
+        '<div class="col-md-7"><label class="form-label small">Description</label><input type="text" class="form-control form-control-sm" name="link_description[]" placeholder="What this link provides"></div>' +
+        '<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-link w-100"><i class="fas fa-times"></i></button></div>' +
+        '</div>';
+      container.appendChild(row);
+    });
+  }
 });
 </script>
 @endpush

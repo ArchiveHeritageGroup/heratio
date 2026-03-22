@@ -50,9 +50,13 @@ class InformationObjectController extends Controller
             'repositories' => $repositories,
             'selectedRepository' => $repositoryId,
             'sortOptions' => [
-                'alphabetic' => 'Title',
                 'lastUpdated' => 'Date modified',
+                'alphabetic' => 'Title',
+                'relevance' => 'Relevance',
                 'identifier' => 'Identifier',
+                'referenceCode' => 'Reference code',
+                'startDate' => 'Start date',
+                'endDate' => 'End date',
             ],
         ]);
     }

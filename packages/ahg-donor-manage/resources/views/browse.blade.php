@@ -3,9 +3,11 @@
 @section('title', 'Donors')
 @section('body-class', 'browse donor')
 
-@section('content')
+@section('title-block')
   <h1>Browse donors</h1>
+@endsection
 
+@section('before-content')
   <div class="d-flex flex-wrap gap-2 mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search donors',
@@ -13,26 +15,13 @@
     ])
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      {{-- Sort by --}}
+      @include('ahg-core::components.sort-pickers', [
+          'options' => $sortOptions,
+          'default' => 'alphabetic',
+      ])
+
       @php
         $activeSort = request('sort', 'alphabetic');
-      @endphp
-      <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
-          @foreach($sortOptions as $key => $label)
-            <li>
-              <a href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => null]) }}"
-                 class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}">{{ $label }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-
-      {{-- Sort direction --}}
-      @php
         $currentDir = request('sortDir', ($activeSort === 'lastUpdated' ? 'desc' : 'asc'));
         $dirQuery = request()->except(['sortDir', 'page']);
       @endphp
@@ -47,13 +36,17 @@
       </div>
     </div>
   </div>
+@endsection
 
+@section('content')
   <div class="table-responsive mb-3">
     <table class="table table-bordered mb-0">
       <thead>
         <tr style="background:var(--ahg-primary);color:#fff">
           <th>Name</th>
-          <th>Updated</th>
+          @if(request('sort', 'alphabetic') !== 'alphabetic')
+            <th>Updated</th>
+          @endif
         </tr>
       </thead>
       <tbody>
@@ -64,17 +57,21 @@
                 {{ $doc['name'] ?: '[Untitled]' }}
               </a>
             </td>
-            <td>
-              @if(!empty($doc['updated_at']))
-                {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
-              @endif
-            </td>
+            @if(request('sort', 'alphabetic') !== 'alphabetic')
+              <td>
+                @if(!empty($doc['updated_at']))
+                  {{ \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') }}
+                @endif
+              </td>
+            @endif
           </tr>
         @endforeach
       </tbody>
     </table>
   </div>
+@endsection
 
+@section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   @auth

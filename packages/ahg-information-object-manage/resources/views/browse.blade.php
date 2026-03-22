@@ -3,28 +3,34 @@
 @section('title', 'Archival descriptions')
 @section('body-class', 'browse informationobject')
 
-@section('content')
+@section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-file-alt me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">
+      <h1 class="mb-0" aria-describedby="heading-label">
         @if($pager->getNbResults())
           Showing {{ number_format($pager->getNbResults()) }} results
         @else
           No results found
         @endif
       </h1>
-      <span class="small text-muted">Archival descriptions</span>
+      <span class="small" id="heading-label">Archival description</span>
     </div>
   </div>
+@endsection
 
-  <div class="d-flex flex-wrap gap-2 mb-3">
+@section('before-content')
+  <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search archival descriptions',
         'landmarkLabel' => 'Archival description',
     ])
+  </div>
+@endsection
 
-    <div class="d-flex flex-wrap gap-2 ms-auto">
+@section('content')
+  @if($pager->getNbResults())
+    <div class="d-flex flex-wrap gap-2 mb-3">
       @if($repositories->isNotEmpty())
         <div class="dropdown">
           <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -49,16 +55,37 @@
         </div>
       @endif
 
-      @include('ahg-core::components.sort-pickers', [
-          'options' => $sortOptions,
-          'default' => 'alphabetic',
-      ])
-    </div>
-  </div>
+      <div class="d-flex flex-wrap gap-2 ms-auto">
+        @include('ahg-core::components.sort-pickers', [
+            'options' => $sortOptions,
+            'default' => 'alphabetic',
+        ])
 
-  @if($pager->getNbResults())
+        @php
+          $currentSort = request('sort', 'alphabetic');
+          $currentDir = request('sortDir', ($currentSort === 'lastUpdated' ? 'desc' : 'asc'));
+          $dirQuery = request()->except(['sortDir', 'page']);
+        @endphp
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
+            Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
+            <li>
+              <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}"
+                 class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a>
+            </li>
+            <li>
+              <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}"
+                 class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
+      <table class="table table-bordered mb-0">
         <thead>
           <tr style="background:var(--ahg-primary);color:#fff">
             <th>Title</th>
@@ -98,6 +125,8 @@
       </table>
     </div>
   @endif
+@endsection
 
+@section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
 @endsection

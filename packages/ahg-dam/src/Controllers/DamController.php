@@ -76,6 +76,9 @@ class DamController extends Controller
         return view('ahg-dam::dam.edit', [
             'asset' => null,
             'formChoices' => $formChoices,
+            'versionLinks' => collect(),
+            'formatHoldings' => collect(),
+            'externalLinks' => collect(),
         ]);
     }
 
@@ -91,6 +94,9 @@ class DamController extends Controller
         return view('ahg-dam::dam.edit', [
             'asset' => $asset,
             'formChoices' => $formChoices,
+            'versionLinks' => $this->service->getVersionLinks($asset->id),
+            'formatHoldings' => $this->service->getFormatHoldings($asset->id),
+            'externalLinks' => $this->service->getExternalLinks($asset->id),
         ]);
     }
 
@@ -102,6 +108,7 @@ class DamController extends Controller
             'repository_id' => 'nullable|integer',
             'level_of_description_id' => 'nullable|integer',
             'scope_and_content' => 'nullable|string',
+            'extent_and_medium' => 'nullable|string',
             'asset_type' => 'nullable|string|max:50',
             'genre' => 'nullable|string|max:255',
             'color_type' => 'nullable|string|max:50',
@@ -159,7 +166,7 @@ class DamController extends Controller
 
         $data = $request->only([
             'identifier', 'title', 'repository_id', 'level_of_description_id',
-            'scope_and_content', 'asset_type', 'genre', 'color_type',
+            'scope_and_content', 'extent_and_medium', 'asset_type', 'genre', 'color_type',
             'production_company', 'distributor', 'broadcast_date', 'series_title',
             'season_number', 'episode_number', 'awards', 'audio_language', 'subtitle_language',
             'creator', 'creator_job_title', 'creator_email', 'creator_phone',
@@ -178,6 +185,21 @@ class DamController extends Controller
         ]);
 
         $id = $this->service->create($data);
+
+        // Save multi-row tables
+        $multiRowData = $request->only([
+            'version_id', 'version_title', 'version_type', 'version_language',
+            'version_language_code', 'version_year', 'version_notes',
+            'holding_id', 'holding_format', 'holding_format_details', 'holding_institution',
+            'holding_location', 'holding_accession', 'holding_condition', 'holding_access',
+            'holding_url', 'holding_verified', 'holding_primary', 'holding_access_notes', 'holding_notes',
+            'link_id', 'link_type', 'link_url', 'link_title', 'link_verified',
+            'link_primary', 'link_person', 'link_role', 'link_description',
+        ]);
+        $this->service->saveVersionLinks($id, $multiRowData);
+        $this->service->saveFormatHoldings($id, $multiRowData);
+        $this->service->saveExternalLinks($id, $multiRowData);
+
         $slug = $this->service->getSlug($id);
 
         return redirect()
@@ -198,6 +220,7 @@ class DamController extends Controller
             'repository_id' => 'nullable|integer',
             'level_of_description_id' => 'nullable|integer',
             'scope_and_content' => 'nullable|string',
+            'extent_and_medium' => 'nullable|string',
             'asset_type' => 'nullable|string|max:50',
             'genre' => 'nullable|string|max:255',
             'color_type' => 'nullable|string|max:50',
@@ -255,7 +278,7 @@ class DamController extends Controller
 
         $data = $request->only([
             'identifier', 'title', 'repository_id', 'level_of_description_id',
-            'scope_and_content', 'asset_type', 'genre', 'color_type',
+            'scope_and_content', 'extent_and_medium', 'asset_type', 'genre', 'color_type',
             'production_company', 'distributor', 'broadcast_date', 'series_title',
             'season_number', 'episode_number', 'awards', 'audio_language', 'subtitle_language',
             'creator', 'creator_job_title', 'creator_email', 'creator_phone',
@@ -274,6 +297,20 @@ class DamController extends Controller
         ]);
 
         $this->service->update($slug, $data);
+
+        // Save multi-row tables
+        $multiRowData = $request->only([
+            'version_id', 'version_title', 'version_type', 'version_language',
+            'version_language_code', 'version_year', 'version_notes',
+            'holding_id', 'holding_format', 'holding_format_details', 'holding_institution',
+            'holding_location', 'holding_accession', 'holding_condition', 'holding_access',
+            'holding_url', 'holding_verified', 'holding_primary', 'holding_access_notes', 'holding_notes',
+            'link_id', 'link_type', 'link_url', 'link_title', 'link_verified',
+            'link_primary', 'link_person', 'link_role', 'link_description',
+        ]);
+        $this->service->saveVersionLinks($asset->id, $multiRowData);
+        $this->service->saveFormatHoldings($asset->id, $multiRowData);
+        $this->service->saveExternalLinks($asset->id, $multiRowData);
 
         return redirect()
             ->route('dam.show', $slug)

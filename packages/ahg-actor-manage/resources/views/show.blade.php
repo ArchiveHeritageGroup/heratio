@@ -83,15 +83,50 @@
 @section('right')
   @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
+  <nav>
+    {{-- Clipboard --}}
+    <h4 class="h5 mb-2">Clipboard</h4>
+    <ul class="list-unstyled mb-3">
+      <li>
+        @include('ahg-core::clipboard._button', ['slug' => $actor->slug, 'type' => 'actor', 'wide' => true])
+      </li>
+    </ul>
+
+    {{-- Export (matching AtoM) --}}
+    <h4 class="h5 mb-2">Export</h4>
+    <ul class="list-unstyled mb-3">
+      <li>
+        <a class="atom-icon-link" href="{{ url('/' . $actor->slug . '/eac') }}">
+          <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>EAC
+        </a>
+      </li>
+    </ul>
+
+    {{-- Subject access points in sidebar (matching AtoM) --}}
+    @if(isset($subjects) && count($subjects) > 0)
+      <h4 class="h5 mb-2">Subject access points</h4>
+      <ul class="list-unstyled mb-3">
+        @foreach($subjects as $subject)
+          <li><span class="badge bg-light text-dark me-1">{{ $subject->name }}</span></li>
+        @endforeach
+      </ul>
+    @endif
+
+    {{-- Place access points in sidebar (matching AtoM) --}}
+    @if(isset($places) && count($places) > 0)
+      <h4 class="h5 mb-2">Place access points</h4>
+      <ul class="list-unstyled mb-3">
+        @foreach($places as $place)
+          <li><span class="badge bg-light text-dark me-1">{{ $place->name }}</span></li>
+        @endforeach
+      </ul>
+    @endif
+  </nav>
+
   <div class="d-flex gap-1 mb-3">
     <a class="btn btn-sm atom-btn-white" href="{{ route('actor.print', $actor->slug) }}" target="_blank" title="Print">
       <i class="fas fa-print"></i>
     </a>
-    <button class="btn btn-sm atom-btn-white active-primary clipboard"
-            data-clipboard-slug="{{ $actor->slug ?? '' }}" data-clipboard-type="actor"
-            data-title="Add" data-alt-title="Remove" title="Add to clipboard">
-      <i class="fas fa-paperclip"></i>
-    </button>
   </div>
 @endsection
 
@@ -107,6 +142,14 @@
       <span class="badge bg-{{ $color }} ms-2" title="Completeness: {{ $completeness->completeness_score }}%">{{ $completeness->completeness_score }}%</span>
     @endif
   </h1>
+
+  {{-- Breadcrumb (matching AtoM) --}}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ route('actor.browse') }}">Authority record</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ $actor->authorized_form_of_name }}</li>
+    </ol>
+  </nav>
 
   {{-- Identity area --}}
   <section id="identityArea" class="border-bottom">
@@ -151,6 +194,16 @@
           @elseif(!empty($related->start_date) || !empty($related->end_date))
             <br><small class="text-muted">Dates: {{ $related->start_date ?? '?' }} - {{ $related->end_date ?? '?' }}</small>
           @endif
+        </div>
+      </div>
+    @endforeach
+
+    {{-- Related functions (matching AtoM) --}}
+    @foreach($relatedFunctions ?? [] as $fn)
+      <div class="field text-break row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related function</h3>
+        <div class="col-9 p-2">
+          <a href="{{ route('function.show', $fn->slug) }}">{{ $fn->name ?: '[Untitled]' }}</a>
         </div>
       </div>
     @endforeach
@@ -315,15 +368,13 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
   </section>
 
-  {{-- Action buttons (bottom bar) --}}
+  {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
-  <section class="actions mb-3">
-    <ul class="actions mb-1 nav gap-2">
-      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
-      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
-    </ul>
-  </section>
+  <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
+    <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
+  </ul>
   @endauth
 @endsection

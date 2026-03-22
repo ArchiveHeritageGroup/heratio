@@ -63,6 +63,7 @@ class ActorController extends Controller
         $placeFacets = $browseService->getPlaceFacets();
         $subjectFacets = $browseService->getSubjectFacets();
         $mediaTypeFacets = $browseService->getMediaTypeFacets();
+        $languageFacets = $browseService->getLanguageFacets();
 
         return view('ahg-actor-manage::browse', [
             'pager' => $pager,
@@ -75,10 +76,11 @@ class ActorController extends Controller
             'placeFacets' => $placeFacets,
             'subjectFacets' => $subjectFacets,
             'mediaTypeFacets' => $mediaTypeFacets,
+            'languageFacets' => $languageFacets,
             'params' => $params,
             'sortOptions' => [
-                'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',
+                'alphabetic' => 'Name',
                 'identifier' => 'Identifier',
             ],
         ]);

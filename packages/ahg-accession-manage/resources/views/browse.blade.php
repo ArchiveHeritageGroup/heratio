@@ -35,6 +35,24 @@
       </div>
     </div>
   </div>
+
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    @if(Route::has('accession.intake-queue'))
+      <a href="{{ route('accession.intake-queue') }}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-inbox"></i> Intake Queue
+      </a>
+    @endif
+    @if(Route::has('accession.dashboard'))
+      <a href="{{ route('accession.dashboard') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+    @endif
+    @if(Route::has('accession.valuation-report'))
+      <a href="{{ route('accession.valuation-report') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-chart-bar"></i> Valuation Report
+      </a>
+    @endif
+  </div>
 @endsection
 
 @section('content')
@@ -67,7 +85,7 @@
       <tbody>
         @foreach($pager->getResults() as $doc)
           <tr>
-            <td class="w-20">
+            <td class="w-15">
               <a href="{{ route('accession.show', $doc['slug']) }}">
                 {{ $doc['identifier'] ?: '—' }}
               </a>
@@ -77,17 +95,17 @@
                 {{ $doc['name'] ?: '[Untitled]' }}
               </a>
             </td>
-            <td class="w-20">
+            <td class="w-15">
               {{ $doc['accession_date'] ? \Carbon\Carbon::parse($doc['accession_date'])->format('Y-m-d') : '' }}
             </td>
-            <td>
+            <td class="w-10">
               {{ $doc['processing_status'] ?? '' }}
             </td>
-            <td>
+            <td class="w-10">
               {{ $doc['processing_priority'] ?? '' }}
             </td>
             @if(request('sort') === 'lastUpdated')
-              <td class="w-20">
+              <td class="w-15">
                 {{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d H:i') : '' }}
               </td>
             @endif

@@ -1,230 +1,131 @@
 @extends('theme::layouts.1col')
 
-@section('title', $rightsHolder->authorized_form_of_name ?? 'Rights holder')
+@section('title', 'View rights holder')
 @section('body-class', 'view rightsholder')
 
+@section('title-block')
+  <div class="multiline-header d-flex flex-column mb-3">
+    <h1 class="mb-0" aria-describedby="heading-label">View rights holder</h1>
+    <span class="small" id="heading-label">{{ $rightsHolder->authorized_form_of_name ?: '[Untitled]' }}</span>
+  </div>
+@endsection
+
 @section('content')
-  <h1>{{ $rightsHolder->authorized_form_of_name }}</h1>
 
-  @auth
-    <div class="mb-3">
-      <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
-      <a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
-      <a href="{{ route('rightsholder.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a>
+  {{-- ===== Identity area ===== --}}
+  <section class="section border-bottom" id="identityArea">
+    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#identity-collapse">Identity area</a>
+      @auth
+        <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="identity-collapse">
+
+      @if($rightsHolder->authorized_form_of_name)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3>
+          <div class="col-9 p-2">{{ $rightsHolder->authorized_form_of_name }}</div>
+        </div>
+      @endif
+
     </div>
-  @endauth
-
-  {{-- Identity area --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Identity area</h2>
-
-    @if($rightsHolder->authorized_form_of_name)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Authorized form of name</div>
-        <div class="col-md-9">{{ $rightsHolder->authorized_form_of_name }}</div>
-      </div>
-    @endif
   </section>
 
-  {{-- Contact information --}}
-  @if(isset($contacts) && $contacts->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Contact information</h2>
-      @foreach($contacts as $contact)
-        <div class="card mb-2">
-          <div class="card-body">
-            @if($contact->contact_person) <div><strong>Contact:</strong> {{ $contact->contact_person }}</div> @endif
-            @if($contact->street_address) <div>{{ $contact->street_address }}</div> @endif
-            @if($contact->city || $contact->region || $contact->postal_code)
-              <div>{{ $contact->city ?? '' }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
-            @endif
-            @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
-            @if($contact->telephone) <div><strong>Tel:</strong> {{ $contact->telephone }}</div> @endif
-            @if($contact->email) <div><strong>Email:</strong> {{ $contact->email }}</div> @endif
-            @if($contact->website) <div><strong>Web:</strong> <a href="{{ $contact->website }}" target="_blank">{{ $contact->website }}</a></div> @endif
-          </div>
-        </div>
-      @endforeach
-    </section>
-  @endif
+  {{-- ===== Contact area ===== --}}
+  <section class="section border-bottom" id="contactArea">
+    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+      <a class="text-decoration-none text-white" href="#contact-collapse">Contact area</a>
+      @auth
+        <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+      @endauth
+    </h2>
+    <div id="contact-collapse">
 
-  {{-- Related rights --}}
-  @if($rights->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Related rights</h2>
-
-      @foreach($rights as $right)
-        <div class="card mb-2">
-          <div class="card-body">
-            @if($right->basis_id && isset($basisNames[$right->basis_id]))
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Basis</div>
-                <div class="col-md-9">{{ $basisNames[$right->basis_id] }}</div>
+      @if(isset($contacts) && $contacts->isNotEmpty())
+        @foreach($contacts as $contactItem)
+          <div class="mb-3">
+            @if($contactItem->contact_person)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Contact person</h3>
+                <div class="col-9 p-2">{{ $contactItem->contact_person }}</div>
               </div>
             @endif
-
-            @if($right->start_date || $right->end_date)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Dates</div>
-                <div class="col-md-9">{{ $right->start_date ?? '?' }} - {{ $right->end_date ?? '?' }}</div>
+            @if($contactItem->street_address)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Street address</h3>
+                <div class="col-9 p-2">{{ $contactItem->street_address }}</div>
               </div>
             @endif
-
-            @if($right->copyright_jurisdiction)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Copyright jurisdiction</div>
-                <div class="col-md-9">{{ $right->copyright_jurisdiction }}</div>
+            @if($contactItem->city)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">City</h3>
+                <div class="col-9 p-2">{{ $contactItem->city }}</div>
               </div>
             @endif
-
-            @if($right->rights_note)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Rights note</div>
-                <div class="col-md-9">{!! nl2br(e($right->rights_note)) !!}</div>
+            @if($contactItem->region)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Region/province</h3>
+                <div class="col-9 p-2">{{ $contactItem->region }}</div>
               </div>
             @endif
-
-            @if($right->copyright_note)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Copyright note</div>
-                <div class="col-md-9">{!! nl2br(e($right->copyright_note)) !!}</div>
+            @if($contactItem->postal_code)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Postal code</h3>
+                <div class="col-9 p-2">{{ $contactItem->postal_code }}</div>
               </div>
             @endif
-
-            @if($right->license_terms)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">License terms</div>
-                <div class="col-md-9">{!! nl2br(e($right->license_terms)) !!}</div>
+            @if($contactItem->country_code)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Country</h3>
+                <div class="col-9 p-2">{{ $contactItem->country_code }}</div>
               </div>
             @endif
-
-            @if($right->license_note)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">License note</div>
-                <div class="col-md-9">{!! nl2br(e($right->license_note)) !!}</div>
+            @if($contactItem->telephone)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+                <div class="col-9 p-2">{{ $contactItem->telephone }}</div>
               </div>
             @endif
-
-            @if($right->statute_jurisdiction)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Statute jurisdiction</div>
-                <div class="col-md-9">{{ $right->statute_jurisdiction }}</div>
+            @if($contactItem->fax)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+                <div class="col-9 p-2">{{ $contactItem->fax }}</div>
               </div>
             @endif
-
-            @if($right->statute_note)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Statute note</div>
-                <div class="col-md-9">{!! nl2br(e($right->statute_note)) !!}</div>
+            @if($contactItem->email)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+                <div class="col-9 p-2">{{ $contactItem->email }}</div>
+              </div>
+            @endif
+            @if($contactItem->website)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Website</h3>
+                <div class="col-9 p-2"><a href="{{ $contactItem->website }}" target="_blank">{{ $contactItem->website }}</a></div>
+              </div>
+            @endif
+            @if($contactItem->note ?? null)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
+                <div class="col-9 p-2">{{ $contactItem->note }}</div>
               </div>
             @endif
           </div>
-        </div>
-      @endforeach
-    </section>
-  @endif
+        @endforeach
+      @endif
 
-  {{-- Extended rights --}}
-  @if(isset($extendedRights) && $extendedRights->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Extended rights</h2>
+    </div>
+  </section>
 
-      @foreach($extendedRights as $er)
-        <div class="card mb-2">
-          <div class="card-body">
-            @if($er->object_title)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Related object</div>
-                <div class="col-md-9">
-                  @if($er->object_slug)
-                    <a href="{{ route('informationobject.show', $er->object_slug) }}">{{ $er->object_title }}</a>
-                  @else
-                    {{ $er->object_title }}
-                  @endif
-                </div>
-              </div>
-            @endif
+@endsection
 
-            @if($er->rights_statement_name || $er->rights_statement_code)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Rights statement</div>
-                <div class="col-md-9">
-                  @if($er->rights_statement_uri)
-                    <a href="{{ $er->rights_statement_uri }}" target="_blank">{{ $er->rights_statement_name ?? $er->rights_statement_code }}</a>
-                  @else
-                    {{ $er->rights_statement_name ?? $er->rights_statement_code }}
-                  @endif
-                </div>
-              </div>
-            @endif
-
-            @if($er->cc_license_code)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Creative Commons</div>
-                <div class="col-md-9">
-                  @if($er->cc_license_uri)
-                    <a href="{{ $er->cc_license_uri }}" target="_blank">CC {{ strtoupper($er->cc_license_code) }}</a>
-                  @else
-                    CC {{ strtoupper($er->cc_license_code) }}
-                  @endif
-                </div>
-              </div>
-            @endif
-
-            @if($er->rights_holder)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Rights holder</div>
-                <div class="col-md-9">
-                  @if($er->rights_holder_uri)
-                    <a href="{{ $er->rights_holder_uri }}" target="_blank">{{ $er->rights_holder }}</a>
-                  @else
-                    {{ $er->rights_holder }}
-                  @endif
-                </div>
-              </div>
-            @endif
-
-            @if($er->copyright_notice)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Copyright notice</div>
-                <div class="col-md-9">{!! nl2br(e($er->copyright_notice)) !!}</div>
-              </div>
-            @endif
-
-            @if($er->usage_conditions)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Usage conditions</div>
-                <div class="col-md-9">{!! nl2br(e($er->usage_conditions)) !!}</div>
-              </div>
-            @endif
-
-            @if($er->rights_note)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Rights note</div>
-                <div class="col-md-9">{!! nl2br(e($er->rights_note)) !!}</div>
-              </div>
-            @endif
-
-            @if($er->rights_date)
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">Rights date</div>
-                <div class="col-md-9">{{ $er->rights_date }}@if($er->expiry_date) &ndash; {{ $er->expiry_date }}@endif</div>
-              </div>
-            @endif
-
-            @if(isset($extendedRightsTkLabels[$er->id]) && $extendedRightsTkLabels[$er->id]->isNotEmpty())
-              <div class="row mb-1">
-                <div class="col-md-3 fw-bold">TK Labels</div>
-                <div class="col-md-9">
-                  @foreach($extendedRightsTkLabels[$er->id] as $tkl)
-                    <span class="badge bg-secondary me-1">{{ $tkl->code ?? $tkl->id }}</span>
-                  @endforeach
-                </div>
-              </div>
-            @endif
-          </div>
-        </div>
-      @endforeach
-    </section>
-  @endif
+@section('after-content')
+  @auth
+    <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+      <li><a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      <li><a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      <li><a href="{{ route('rightsholder.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+    </ul>
+  @endauth
 @endsection
