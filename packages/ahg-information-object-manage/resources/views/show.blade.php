@@ -1726,14 +1726,19 @@
         <i class="fas fa-cogs me-1"></i> Explore
       </div>
       <div class="list-group list-group-flush">
-        <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-chart-pie me-1"></i> Reports
+        <a href="{{ route('informationobject.reports', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-print me-1"></i> Reports
         </a>
-        <a href="{{ route('informationobject.browse') }}" class="list-group-item list-group-item-action small">
+        @if(isset($hasChildren) && $hasChildren)
+          <a href="{{ route('informationobject.inventory', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-list-alt me-1"></i> Inventory
+          </a>
+        @endif
+        <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0]) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-list me-1"></i> Browse as list
         </a>
         @if(isset($digitalObjects) && $digitalObjects['master'])
-          <a href="{{ route('informationobject.browse', ['digital' => 1]) }}" class="list-group-item list-group-item-action small">
+          <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0, 'view' => 'card', 'onlyMedia' => 1]) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-image me-1"></i> Browse digital objects
           </a>
         @endif
@@ -1796,11 +1801,14 @@
           <i class="fas fa-tasks me-1"></i> Tasks
         </div>
         <div class="list-group list-group-flush">
-          <span class="list-group-item list-group-item-action small text-muted" title="Feature coming soon">
-            <i class="fas fa-calculator me-1"></i> Calculate dates
-          </span>
+          <form action="{{ route('informationobject.calculateDates', $io->slug) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100" title="Click 'Calculate dates' to recalculate the start and end dates of a parent-level description. A job runs in the background, accounting for the earliest and most recent dates across all the child descriptions. The results display in the Start and End fields of the edit page.">
+              <i class="fas fa-calendar me-1"></i> Calculate dates
+            </button>
+          </form>
           <span class="list-group-item small text-muted">
-            <i class="fas fa-clock me-1"></i> Last run: Never
+            <i class="fas fa-clock me-1"></i> Last run: {{ $io->updated_at ? \Carbon\Carbon::parse($io->updated_at)->diffForHumans() : 'Never' }}
           </span>
         </div>
       </div>
@@ -1938,7 +1946,7 @@
         </button>
         <ul class="dropdown-menu mb-2">
           <li>
-            <a class="dropdown-item" href="{{ route('informationobject.edit', $io->slug) }}">
+            <a class="dropdown-item" href="{{ route('informationobject.rename', $io->slug) }}">
               <i class="fas fa-i-cursor me-2"></i>Rename
             </a>
           </li>

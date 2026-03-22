@@ -640,6 +640,8 @@ class InformationObjectController extends Controller
             'findingAid' => $findingAid,
             'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
             'museumMetadata' => $museumMetadata,
+            'collectionRootId' => $collectionRootId,
+            'hasChildren' => ($io->rgt - $io->lft) > 1,
         ]);
     }
 
@@ -1608,5 +1610,371 @@ class InformationObjectController extends Controller
         return redirect()
             ->route('informationobject.browse')
             ->with('success', 'Archival description deleted successfully.');
+    }
+
+    /**
+     * Reports page for an information object.
+     *
+     * Shows per-record report options (box labels, file lists, item lists, storage locations).
+     * Migrated from AtoM informationobject/reportsSuccess.php.
+     */
+    public function reports(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Check for existing reports (job-generated report files)
+        $existingReports = [];
+        $reportsDir = storage_path('app/reports/' . $io->id);
+        if (is_dir($reportsDir)) {
+            foreach (glob($reportsDir . '/*') as $file) {
+                $basename = basename($file);
+                $parts = explode('.', $basename);
+                $format = end($parts);
+                $type = str_replace('_', ' ', pathinfo($basename, PATHINFO_FILENAME));
+                $existingReports[] = [
+                    'type' => ucfirst($type),
+                    'format' => strtoupper($format),
+                    'path' => route('informationobject.show', $slug) . '/reports/download/' . $basename,
+                ];
+            }
+        }
+
+        // Report types available for this record
+        $reportTypes = [
+            'fileList' => 'File list',
+            'itemList' => 'Item list',
+            'storageLocations' => 'Physical storage locations',
+            'boxLabel' => 'Box label',
+        ];
+
+        return view('ahg-io-manage::reports', [
+            'io' => $io,
+            'existingReports' => $existingReports,
+            'reportTypes' => $reportTypes,
+            'reportsAvailable' => !empty($reportTypes),
+        ]);
+    }
+
+    /**
+     * Rename form for an information object.
+     *
+     * Shows fields to update title, slug, and optionally digital object filename.
+     * Migrated from AtoM informationobject/renameSuccess.php.
+     */
+    public function rename(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Check for digital object
+        $digitalObject = DB::table('digital_object')
+            ->where('object_id', $io->id)
+            ->select('id', 'name')
+            ->first();
+
+        return view('ahg-io-manage::rename', [
+            'io' => $io,
+            'digitalObject' => $digitalObject,
+        ]);
+    }
+
+    /**
+     * Process the rename form submission.
+     */
+    public function renameUpdate(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $ioRow = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'slug.slug')
+            ->first();
+
+        if (!$ioRow) {
+            abort(404);
+        }
+
+        $newTitle = $request->input('title');
+        $newSlug = $request->input('slug');
+
+        DB::transaction(function () use ($ioRow, $newTitle, $newSlug, $culture) {
+            // Update title
+            if ($newTitle !== null) {
+                DB::table('information_object_i18n')
+                    ->where('id', $ioRow->id)
+                    ->where('culture', $culture)
+                    ->update(['title' => $newTitle]);
+            }
+
+            // Update slug
+            if ($newSlug !== null && $newSlug !== $ioRow->slug) {
+                $cleanSlug = \Illuminate\Support\Str::slug($newSlug);
+                if (empty($cleanSlug)) {
+                    $cleanSlug = 'untitled';
+                }
+                // Ensure uniqueness
+                $baseSlug = $cleanSlug;
+                $counter = 1;
+                while (DB::table('slug')->where('slug', $cleanSlug)->where('object_id', '!=', $ioRow->id)->exists()) {
+                    $cleanSlug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                DB::table('slug')
+                    ->where('object_id', $ioRow->id)
+                    ->update(['slug' => $cleanSlug]);
+
+                $newSlug = $cleanSlug;
+            } else {
+                $newSlug = $ioRow->slug;
+            }
+
+            // Touch the object
+            DB::table('object')->where('id', $ioRow->id)->update(['updated_at' => now()]);
+        });
+
+        return redirect()
+            ->route('informationobject.show', $newSlug ?? $slug)
+            ->with('success', 'Record renamed successfully.');
+    }
+
+    /**
+     * Inventory list for an information object.
+     *
+     * Lists children of the IO at specific levels of description.
+     * Migrated from AtoM informationobject/inventorySuccess.php.
+     */
+    public function inventory(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Get inventory levels from settings (default: Item level = term_id for "Item")
+        $inventoryLevelIds = DB::table('setting')
+            ->join('setting_i18n', 'setting.id', '=', 'setting_i18n.id')
+            ->where('setting.name', 'inventory_levels')
+            ->where('setting_i18n.culture', $culture)
+            ->value('setting_i18n.value');
+
+        $levelIds = [];
+        if ($inventoryLevelIds) {
+            $decoded = @unserialize($inventoryLevelIds);
+            if (is_array($decoded)) {
+                $levelIds = $decoded;
+            }
+        }
+
+        // Build inventory query: descendants at specified levels
+        $query = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('information_object.lft', '>', $io->lft)
+            ->where('information_object.rgt', '<', $io->rgt)
+            ->where('information_object_i18n.culture', $culture);
+
+        if (!empty($levelIds)) {
+            $query->whereIn('information_object.level_of_description_id', $levelIds);
+        }
+
+        $perPage = 30;
+        $page = max(1, (int) request('page', 1));
+        $total = (clone $query)->count();
+
+        $sortField = request('sort', 'identifier');
+        $sortMap = [
+            'identifier' => 'information_object.identifier',
+            'title' => 'information_object_i18n.title',
+            'level' => 'information_object.level_of_description_id',
+            'lft' => 'information_object.lft',
+        ];
+        $orderBy = $sortMap[$sortField] ?? 'information_object.lft';
+
+        $items = $query->orderBy($orderBy)
+            ->select(
+                'information_object.id',
+                'information_object.identifier',
+                'information_object.level_of_description_id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get();
+
+        // Resolve level names
+        $levelIds = $items->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
+        $levelNames = [];
+        if (!empty($levelIds)) {
+            $levelNames = DB::table('term_i18n')
+                ->whereIn('id', $levelIds)
+                ->where('culture', $culture)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        // Check for digital objects
+        $itemIds = $items->pluck('id')->toArray();
+        $hasDigitalObject = [];
+        if (!empty($itemIds)) {
+            $hasDigitalObject = DB::table('digital_object')
+                ->whereIn('object_id', $itemIds)
+                ->pluck('object_id')
+                ->flip()
+                ->toArray();
+        }
+
+        // Get dates for items
+        $itemDates = [];
+        if (!empty($itemIds)) {
+            $dates = DB::table('event')
+                ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+                ->whereIn('event.object_id', $itemIds)
+                ->where('event_i18n.culture', $culture)
+                ->select('event.object_id', 'event_i18n.date as date_display', 'event.start_date', 'event.end_date')
+                ->get();
+            foreach ($dates as $d) {
+                $itemDates[$d->object_id] = $d->date_display ?: trim(($d->start_date ?? '') . ' - ' . ($d->end_date ?? ''), ' -');
+            }
+        }
+
+        // Build breadcrumbs
+        $breadcrumbs = [];
+        $parentId = $io->parent_id;
+        while ($parentId && $parentId != 1) {
+            $parent = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $parentId)
+                ->where('information_object_i18n.culture', $culture)
+                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->first();
+            if (!$parent) {
+                break;
+            }
+            array_unshift($breadcrumbs, $parent);
+            $parentId = $parent->parent_id;
+        }
+
+        return view('ahg-io-manage::inventory', [
+            'io' => $io,
+            'items' => $items,
+            'levelNames' => $levelNames,
+            'hasDigitalObject' => $hasDigitalObject,
+            'itemDates' => $itemDates,
+            'breadcrumbs' => $breadcrumbs,
+            'total' => $total,
+            'perPage' => $perPage,
+            'page' => $page,
+        ]);
+    }
+
+    /**
+     * Calculate dates for an information object.
+     *
+     * Walks descendant records to find the earliest start_date and latest end_date,
+     * then updates the parent creation event.
+     * Migrated from AtoM informationobject/calculateDatesAction.
+     */
+    public function calculateDates(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Get all descendant IDs
+        $descendantIds = DB::table('information_object')
+            ->where('lft', '>', $io->lft)
+            ->where('rgt', '<', $io->rgt)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($descendantIds)) {
+            return redirect()
+                ->route('informationobject.show', $slug)
+                ->with('info', 'No child descriptions found to calculate dates from.');
+        }
+
+        // Find earliest start_date and latest end_date across all descendants
+        $dateRange = DB::table('event')
+            ->whereIn('object_id', $descendantIds)
+            ->selectRaw('MIN(start_date) as earliest_start, MAX(end_date) as latest_end')
+            ->first();
+
+        if (!$dateRange || (!$dateRange->earliest_start && !$dateRange->latest_end)) {
+            return redirect()
+                ->route('informationobject.show', $slug)
+                ->with('info', 'No date information found in child descriptions.');
+        }
+
+        // Update or create the creation event for this IO
+        $event = DB::table('event')
+            ->where('object_id', $io->id)
+            ->where('type_id', 111) // Creation event
+            ->first();
+
+        if ($event) {
+            DB::table('event')
+                ->where('id', $event->id)
+                ->update([
+                    'start_date' => $dateRange->earliest_start,
+                    'end_date' => $dateRange->latest_end,
+                ]);
+
+            // Update the event_i18n date display
+            $displayDate = trim(($dateRange->earliest_start ?? '') . ' - ' . ($dateRange->latest_end ?? ''), ' -');
+            DB::table('event_i18n')
+                ->where('id', $event->id)
+                ->where('culture', $culture)
+                ->update(['date' => $displayDate]);
+        }
+
+        // Touch the object
+        DB::table('object')->where('id', $io->id)->update(['updated_at' => now()]);
+
+        return redirect()
+            ->route('informationobject.show', $slug)
+            ->with('success', 'Dates calculated successfully from child descriptions.');
     }
 }

@@ -28,6 +28,10 @@ Route::get('/informationobject/browse', [InformationObjectController::class, 'br
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
 Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
 Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
+Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
+Route::get('/informationobject/{slug}/rename', [InformationObjectController::class, 'rename'])->name('informationobject.rename');
+Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate');
+Route::get('/informationobject/{slug}/inventory', [InformationObjectController::class, 'inventory'])->name('informationobject.inventory');
 Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
 Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
 Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
@@ -46,6 +50,9 @@ Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ea
 Route::middleware('auth')->group(function () {
     // Publication status update
     Route::post('/informationobject/{slug}/update-status', [InformationObjectController::class, 'updateStatus'])->name('io.updateStatus');
+
+    // Calculate dates
+    Route::post('/informationobject/{slug}/calculate-dates', [InformationObjectController::class, 'calculateDates'])->name('informationobject.calculateDates');
 
     // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
