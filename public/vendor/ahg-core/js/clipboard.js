@@ -50,9 +50,10 @@
 
   function updateMenuBadge(items) {
     var count = totalCount(items);
-    var menuBtn = document.getElementById('clipboard-nav');
+    var menuBtn = document.getElementById('clipboard-menu');
     if (!menuBtn) return;
 
+    // Badge on the clipboard icon (matching AtoM)
     var badge = menuBtn.querySelector('.clipboard-count');
     if (count > 0) {
       if (!badge) {
@@ -60,7 +61,7 @@
         badge.className = 'clipboard-count position-absolute top-0 start-0 badge rounded-pill bg-primary';
         var sr = document.createElement('span');
         sr.className = 'visually-hidden';
-        sr.textContent = 'items in clipboard';
+        sr.textContent = menuBtn.getAttribute('data-total-count-label') || 'items in clipboard';
         badge.appendChild(sr);
         menuBtn.style.position = 'relative';
         menuBtn.appendChild(badge);
@@ -71,6 +72,21 @@
         : badge.insertBefore(document.createTextNode(count), badge.firstChild);
     } else if (badge) {
       badge.remove();
+    }
+
+    // Update counts-block in dropdown (matching AtoM)
+    var countsBlock = document.getElementById('counts-block');
+    if (countsBlock) {
+      var ioLabel = countsBlock.getAttribute('data-information-object-label') || 'Archival description';
+      var actorLabel = countsBlock.getAttribute('data-actor-object-label') || 'Authority record';
+      var repoLabel = countsBlock.getAttribute('data-repository-object-label') || 'Archival institution';
+      var ioCount = items.informationObject ? items.informationObject.length : 0;
+      var actorCount = items.actor ? items.actor.length : 0;
+      var repoCount = items.repository ? items.repository.length : 0;
+      countsBlock.innerHTML =
+        ioLabel + ' ' + ioCount + '<br>' +
+        actorLabel + ' ' + actorCount + '<br>' +
+        repoLabel + ' ' + repoCount;
     }
   }
 

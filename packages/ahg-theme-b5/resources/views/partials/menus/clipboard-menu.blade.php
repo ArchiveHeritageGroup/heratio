@@ -15,7 +15,7 @@
     <span class="d-lg-none mx-1" aria-hidden="true">Clipboard</span>
     <span class="visually-hidden">Clipboard</span>
   </a>
-  <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="clipboard-nav">
+  <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="clipboard-menu">
     <li><h6 class="dropdown-header">Clipboard</h6></li>
     <li class="text-muted text-nowrap px-3 pb-2">
       <span id="counts-block"
