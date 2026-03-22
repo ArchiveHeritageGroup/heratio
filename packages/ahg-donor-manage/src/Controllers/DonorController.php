@@ -57,7 +57,7 @@ class DonorController extends Controller
     {
         return view('ahg-donor-manage::edit', [
             'donor' => null,
-            'contacts' => collect(),
+            'contacts' => collect([$this->emptyContact()]),
         ]);
     }
 
@@ -66,9 +66,14 @@ class DonorController extends Controller
         $donor = $this->service->getBySlug($slug);
         if (!$donor) abort(404);
 
+        $contacts = $this->service->getContacts($donor->id);
+        if ($contacts->isEmpty()) {
+            $contacts = collect([$this->emptyContact()]);
+        }
+
         return view('ahg-donor-manage::edit', [
             'donor' => $donor,
-            'contacts' => $this->service->getContacts($donor->id),
+            'contacts' => $contacts,
         ]);
     }
 
@@ -101,6 +106,19 @@ class DonorController extends Controller
         if (!$donor) abort(404);
         $this->service->delete($donor->id);
         return redirect()->route('donor.browse')->with('success', 'Donor deleted successfully.');
+    }
+
+    private function emptyContact(): object
+    {
+        return (object) [
+            'id' => null, 'primary_contact' => 1, 'contact_person' => '', 'street_address' => '',
+            'website' => '', 'email' => '', 'telephone' => '', 'fax' => '', 'postal_code' => '',
+            'country_code' => '', 'longitude' => '', 'latitude' => '', 'contact_note' => '',
+            'contact_type' => '', 'city' => '', 'region' => '', 'note' => '',
+            'title' => '', 'role' => '', 'department' => '', 'id_number' => '',
+            'preferred_contact_method' => '', 'language_preference' => '', 'cell' => '',
+            'alternative_email' => '', 'alternative_phone' => '',
+        ];
     }
 
     private function fields(): array

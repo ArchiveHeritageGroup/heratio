@@ -489,6 +489,14 @@ class TermController extends Controller
             'taxonomyName' => $taxonomyName,
             'selectedTaxonomyId' => $selectedTaxonomyId,
             'termsForAutocomplete' => $termsForAutocomplete,
+            'useFor' => '',
+            'scopeNote' => null,
+            'sourceNote' => null,
+            'displayNote' => null,
+            'parentTerm' => null,
+            'converseTerm' => null,
+            'relatedTerms' => '',
+            'narrowerTerms' => '',
         ]);
     }
 
@@ -568,6 +576,42 @@ class TermController extends Controller
             ->where('term_i18n.culture', $culture)->whereNotNull('term_i18n.name')
             ->select('term.id', 'term_i18n.name')->orderBy('term_i18n.name')->get();
 
+        // Converse term (relation type 177)
+        $converseTerm = null;
+        $converseRel = DB::table('relation')
+            ->where(function ($q) use ($term) {
+                $q->where('subject_id', $term->id)->orWhere('object_id', $term->id);
+            })
+            ->where('type_id', 177)->first();
+        if ($converseRel) {
+            $converseId = $converseRel->subject_id == $term->id ? $converseRel->object_id : $converseRel->subject_id;
+            $converseTerm = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.id', $converseId)->where('term_i18n.culture', $culture)
+                ->select('term.id', 'term_i18n.name')->first();
+        }
+
+        // Related terms (relation type 157)
+        $relatedTerms = DB::table('relation')
+            ->where(function ($q) use ($term) {
+                $q->where('subject_id', $term->id)->orWhere('object_id', $term->id);
+            })
+            ->where('type_id', 157)->get()
+            ->map(function ($rel) use ($term, $culture) {
+                $otherId = $rel->subject_id == $term->id ? $rel->object_id : $rel->subject_id;
+                return DB::table('term')
+                    ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                    ->where('term.id', $otherId)->where('term_i18n.culture', $culture)
+                    ->value('term_i18n.name');
+            })->filter()->implode(', ');
+
+        // Narrower terms (children) — for display only, not pre-populated in the "add new" field
+        $narrowerTerms = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.parent_id', $term->id)
+            ->where('term_i18n.culture', $culture)
+            ->pluck('term_i18n.name')->implode(', ');
+
         return view('ahg-term-taxonomy::edit', [
             'term' => $term,
             'taxonomies' => $taxonomies,
@@ -579,6 +623,9 @@ class TermController extends Controller
             'sourceNote' => $sourceNote,
             'displayNote' => $displayNote,
             'parentTerm' => $parentTerm,
+            'converseTerm' => $converseTerm,
+            'relatedTerms' => $relatedTerms,
+            'narrowerTerms' => $narrowerTerms,
         ]);
     }
 
@@ -603,6 +650,15 @@ class TermController extends Controller
         $this->termService->update($term->id, [
             'name' => $request->input('name'),
             'code' => $request->input('code'),
+            'parent_id' => $request->input('parent_id'),
+            'use_for' => $request->input('use_for'),
+            'related_terms' => $request->input('related_terms'),
+            'converse_term' => $request->input('converse_term'),
+            'self_reciprocal' => $request->input('self_reciprocal'),
+            'narrow_terms' => $request->input('narrow_terms'),
+            'scopeNotes' => $request->input('scopeNotes', []),
+            'sourceNotes' => $request->input('sourceNotes', []),
+            'displayNotes' => $request->input('displayNotes', []),
         ], $culture);
 
         return redirect()

@@ -48,7 +48,7 @@
 
     <div class="accordion mb-3">
 
-      {{-- ===== Identity area ===== --}}
+      {{-- ===== 1. Identity area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="identity-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#identity-collapse" aria-expanded="false" aria-controls="identity-collapse">
@@ -61,7 +61,7 @@
             <div class="mb-3">
               <label for="identifier" class="form-label">
                 Identifier
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
@@ -71,19 +71,55 @@
               <div class="form-text text-muted small">Provide a specific local reference code, control number, or other unique identifier. The country and repository code will be automatically added from the linked repository record to form a full reference code. (ISAD 3.1.1)</div>
             </div>
 
+            {{-- Alternative identifiers multi-row --}}
+            <div class="mb-3">
+              <label class="form-label">Alternative identifier(s)</label>
+              <table class="table table-sm" id="altids-table">
+                <thead>
+                  <tr>
+                    <th>Label</th>
+                    <th>Value</th>
+                    <th style="width:80px"></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-altid-row">Add alternative identifier</button>
+            </div>
+
             <div class="mb-3">
               <label for="title" class="form-label">
                 Title
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
               <div class="form-text text-muted small">Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)</div>
             </div>
 
+            {{-- Events (dates) multi-row --}}
+            <div class="mb-3">
+              <label class="form-label">Date(s)</label>
+              <table class="table table-sm" id="events-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Actor</th>
+                    <th style="width:80px"></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-event-row">Add date</button>
+              <div class="form-text text-muted small">Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable.</div>
+            </div>
+
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">
                 Level of description
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span></label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -96,7 +132,7 @@
             <div class="mb-3">
               <label for="extent_and_medium" class="form-label">
                 Extent and medium
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="form-required" title="This is a mandatory element.">*</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <div class="form-text text-muted small">Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)</div>
             </div>
@@ -104,7 +140,7 @@
         </div>
       </div>
 
-      {{-- ===== Context area ===== --}}
+      {{-- ===== 2. Context area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="context-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#context-collapse" aria-expanded="false" aria-controls="context-collapse">
@@ -114,16 +150,21 @@
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
           <div class="accordion-body">
 
+            {{-- Name of creator(s) multi-row --}}
+            <input type="hidden" name="_creatorsIncluded" value="1">
             <div class="mb-3">
-              <label for="creators" class="form-label">
+              <label class="form-label">
                 Name of creator(s)
-                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators') }}" placeholder="Type to search creators..." autocomplete="off">
+                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span></label>
+              <div id="creator-list"></div>
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="Type to add creator..." autocomplete="off">
+              </div>
               <div class="form-text text-muted small">Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="repository_id" class="form-label">Repository</label>
               <select class="form-select" id="repository_id" name="repository_id">
                 <option value="">-- Select --</option>
                 @foreach($repositories as $repo)
@@ -134,13 +175,13 @@
             </div>
 
             <div class="mb-3">
-              <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="archival_history" class="form-label">Archival history</label>
               <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history') }}</textarea>
               <div class="form-text text-muted small">Record the successive transfers of ownership, responsibility and/or custody of the unit of description and indicate those actions, such as history of the arrangement, production of contemporary finding aids, re-use of the records for other purposes or software migrations, that have contributed to its present structure and arrangement. Give the dates of these actions, insofar as they can be ascertained. If the archival history is unknown, record that information. (ISAD 3.2.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer</label>
               <textarea class="form-control" id="acquisition" name="acquisition" rows="3">{{ old('acquisition') }}</textarea>
               <div class="form-text text-muted small">Record the source from which the unit of description was acquired and the date and/or method of acquisition if any or all of this information is not confidential. If the source is unknown, record that information. Optionally, add accession numbers or codes. (ISAD 3.2.4)</div>
             </div>
@@ -148,7 +189,7 @@
         </div>
       </div>
 
-      {{-- ===== Content and structure area ===== --}}
+      {{-- ===== 3. Content and structure area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="content-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-collapse" aria-expanded="false" aria-controls="content-collapse">
@@ -158,25 +199,25 @@
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="scope_and_content" class="form-label">Scope and content</label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="4">{{ old('scope_and_content') }}</textarea>
               <div class="form-text text-muted small">Give a summary of the scope (such as, time periods, geography) and content, (such as documentary forms, subject matter, administrative processes) of the unit of description, appropriate to the level of description. (ISAD 3.3.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling</label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal') }}</textarea>
               <div class="form-text text-muted small">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material. (ISAD 3.3.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="accruals" class="form-label">Accruals <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="accruals" class="form-label">Accruals</label>
               <textarea class="form-control" id="accruals" name="accruals" rows="3">{{ old('accruals') }}</textarea>
               <div class="form-text text-muted small">Indicate if accruals are expected. Where appropriate, give an estimate of their quantity and frequency. (ISAD 3.3.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="arrangement" class="form-label">System of arrangement <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="arrangement" class="form-label">System of arrangement</label>
               <textarea class="form-control" id="arrangement" name="arrangement" rows="3">{{ old('arrangement') }}</textarea>
               <div class="form-text text-muted small">Specify the internal structure, order and/or the system of classification of the unit of description. Note how these have been treated by the archivist. For electronic records, record or reference information on system design. (ISAD 3.3.4)</div>
             </div>
@@ -184,7 +225,7 @@
         </div>
       </div>
 
-      {{-- ===== Conditions of access and use area ===== --}}
+      {{-- ===== 4. Conditions of access and use area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="conditions-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#conditions-collapse" aria-expanded="false" aria-controls="conditions-collapse">
@@ -194,43 +235,47 @@
         <div id="conditions-collapse" class="accordion-collapse collapse" aria-labelledby="conditions-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="access_conditions" class="form-label">Conditions governing access <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="access_conditions" class="form-label">Conditions governing access</label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions') }}</textarea>
               <div class="form-text text-muted small">Specify the law or legal status, contract, regulation or policy that affects access to the unit of description. Indicate the extent of the period of closure and the date at which the material will open when appropriate. (ISAD 3.4.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction</label>
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions') }}</textarea>
               <div class="form-text text-muted small">Give information about conditions, such as copyright, governing the reproduction of the unit of description after access has been provided. If the existence of such conditions is unknown, record this. If there are no conditions, no statement is necessary. (ISAD 3.4.2)</div>
             </div>
 
+            {{-- Language(s) of material - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Languages of the material <span class="badge bg-warning ms-1">Recommended</span></label>
-              <input type="text" class="form-control" name="language_of_material" value="{{ old('language_of_material') }}" placeholder="e.g. English, Afrikaans">
+              <label class="form-label">Language(s) of material</label>
+              <div id="languages-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="languages-list" data-name="languages[]">Add language</button>
               <div class="form-text text-muted small">Record the language(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
             </div>
 
+            {{-- Script(s) of material - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Scripts of the material <span class="badge bg-warning ms-1">Recommended</span></label>
-              <input type="text" class="form-control" name="script_of_material" value="{{ old('script_of_material') }}" placeholder="e.g. Latin">
+              <label class="form-label">Script(s) of material</label>
+              <div id="scripts-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-list" data-name="scripts[]">Add script</button>
               <div class="form-text text-muted small">Record the script(s) of the materials comprising the unit of description. (ISAD 3.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="language_notes" class="form-label">Language and script notes <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="language_notes" class="form-label">Language and script notes</label>
               <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes') }}</textarea>
               <div class="form-text text-muted small">Note any distinctive alphabets, scripts, symbol systems or abbreviations employed. (ISAD 3.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements</label>
               <textarea class="form-control" id="physical_characteristics" name="physical_characteristics" rows="3">{{ old('physical_characteristics') }}</textarea>
               <div class="form-text text-muted small">Indicate any important physical conditions, such as preservation requirements, that affect the use of the unit of description. Note any software and/or hardware required to access the unit of description.</div>
             </div>
 
             <div class="mb-3">
-              <label for="finding_aids" class="form-label">Finding aids <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="finding_aids" class="form-label">Finding aids</label>
               <textarea class="form-control" id="finding_aids" name="finding_aids" rows="3">{{ old('finding_aids') }}</textarea>
               <div class="form-text text-muted small">Give information about any finding aids that the repository or records creator may have that provide information relating to the context and contents of the unit of description. If appropriate, include information on where to obtain a copy. (ISAD 3.4.5)</div>
             </div>
@@ -238,7 +283,7 @@
         </div>
       </div>
 
-      {{-- ===== Allied materials area ===== --}}
+      {{-- ===== 5. Allied materials area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="allied-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#allied-collapse" aria-expanded="false" aria-controls="allied-collapse">
@@ -248,28 +293,35 @@
         <div id="allied-collapse" class="accordion-collapse collapse" aria-labelledby="allied-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="location_of_originals" class="form-label">Existence and location of originals <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="location_of_originals" class="form-label">Existence and location of originals</label>
               <textarea class="form-control" id="location_of_originals" name="location_of_originals" rows="3">{{ old('location_of_originals') }}</textarea>
               <div class="form-text text-muted small">If the original of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. If the originals no longer exist, or their location is unknown, give that information. (ISAD 3.5.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="location_of_copies" class="form-label">Existence and location of copies <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="location_of_copies" class="form-label">Existence and location of copies</label>
               <textarea class="form-control" id="location_of_copies" name="location_of_copies" rows="3">{{ old('location_of_copies') }}</textarea>
               <div class="form-text text-muted small">If the copy of the unit of description is available (either in the institution or elsewhere) record its location, together with any significant control numbers. (ISAD 3.5.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="related_units_of_description" class="form-label">Related units of description <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="related_units_of_description" class="form-label">Related units of description</label>
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description') }}</textarea>
               <div class="form-text text-muted small">Record information about units of description in the same repository or elsewhere that are related by provenance or other association(s). Use appropriate introductory wording and explain the nature of the relationship. If the related unit of description is a finding aid, use the finding aids element of description (3.4.5) to make the reference to it. (ISAD 3.5.3)</div>
+            </div>
+
+            {{-- Publication notes multi-row --}}
+            <div class="mb-3">
+              <label class="form-label">Publication notes</label>
+              <div id="pubnotes-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-pubnote-row">Add publication note</button>
             </div>
 
           </div>
         </div>
       </div>
 
-      {{-- ===== Notes area ===== --}}
+      {{-- ===== 6. Notes area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="notes-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#notes-collapse" aria-expanded="false" aria-controls="notes-collapse">
@@ -278,22 +330,22 @@
         </h2>
         <div id="notes-collapse" class="accordion-collapse collapse" aria-labelledby="notes-heading">
           <div class="accordion-body">
-            <div class="table-responsive">
-              <table class="table table-bordered mb-0">
-                <thead>
-                  <tr style="background:var(--ahg-primary);color:#fff">
-                    <th>Type</th>
-                    <th>Content</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+            <table class="table table-sm" id="notes-table">
+              <thead>
+                <tr>
+                  <th style="width:30%">Type</th>
+                  <th>Content</th>
+                  <th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-note-row">Add note</button>
           </div>
         </div>
       </div>
 
-      {{-- ===== Access points ===== --}}
+      {{-- ===== 7. Access points ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
@@ -302,26 +354,48 @@
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
+
+            {{-- Subject access points --}}
             <div class="mb-3">
-              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects..." autocomplete="off">
+              <label class="form-label">Subject access points</label>
+              <div id="subject-ap-list"></div>
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="Type to add subject..." autocomplete="off">
+              </div>
             </div>
 
+            {{-- Place access points --}}
             <div class="mb-3">
-              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places..." autocomplete="off">
+              <label class="form-label">Place access points</label>
+              <div id="place-ap-list"></div>
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="Type to add place..." autocomplete="off">
+              </div>
             </div>
 
+            {{-- Genre access points --}}
             <div class="mb-3">
-              <label class="form-label">Genre access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" name="genre_access_points" value="{{ old('genre_access_points') }}" placeholder="Type to search genres..." autocomplete="off">
+              <label class="form-label">Genre access points</label>
+              <div id="genre-ap-list"></div>
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="Type to add genre..." autocomplete="off">
+              </div>
+            </div>
+
+            {{-- Name access points (subjects) --}}
+            <div class="mb-3">
+              <label class="form-label">Name access points (subjects)</label>
+              <div id="name-ap-list"></div>
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control" data-target="name-ap-list" placeholder="Type to add name..." autocomplete="off">
+              </div>
             </div>
 
           </div>
         </div>
       </div>
 
-      {{-- ===== Description control area ===== --}}
+      {{-- ===== 8. Description control area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="description-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
@@ -331,25 +405,25 @@
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="description_identifier" class="form-label">Description identifier <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="description_identifier" class="form-label">Description identifier</label>
               <input type="text" class="form-control" id="description_identifier" name="description_identifier" value="{{ old('description_identifier') }}">
               <div class="form-text text-muted small">Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 - Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code.</div>
             </div>
 
             <div class="mb-3">
-              <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="institution_responsible_identifier" class="form-label">Institution identifier</label>
               <input type="text" class="form-control" id="institution_responsible_identifier" name="institution_responsible_identifier" value="{{ old('institution_responsible_identifier') }}">
               <div class="form-text text-muted small">Record the full authorised form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the description or, alternatively, record a code for the agency in accordance with the national or international agency code standard.</div>
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules or conventions <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="rules" class="form-label">Rules or conventions</label>
               <textarea class="form-control" id="rules" name="rules" rows="3">{{ old('rules') }}</textarea>
               <div class="form-text text-muted small">Record the international, national and/or local rules or conventions followed in preparing the description. (ISAD 3.7.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="description_status_id" class="form-label">Status</label>
               <select class="form-select" id="description_status_id" name="description_status_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionStatuses as $status)
@@ -360,7 +434,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="description_detail_id" class="form-label">Level of detail</label>
               <select class="form-select" id="description_detail_id" name="description_detail_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionDetails as $detail)
@@ -371,41 +445,52 @@
             </div>
 
             <div class="mb-3">
-              <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
               <textarea class="form-control" id="revision_history" name="revision_history" rows="3">{{ old('revision_history') }}</textarea>
               <div class="form-text text-muted small">Record the date(s) the entry was prepared and/or revised.</div>
             </div>
 
+            {{-- Language(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Language(s) <span class="badge bg-warning ms-1">Recommended</span></label>
-              <input type="text" class="form-control" name="language_of_description" value="{{ old('language_of_description') }}" placeholder="e.g. English">
+              <label class="form-label">Language(s) of description</label>
+              <div id="langs-of-desc-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-lang-row" data-target="langs-of-desc-list" data-name="languagesOfDescription[]">Add language</button>
               <div class="form-text text-muted small">Indicate the language(s) used to create the description of the archival material.</div>
             </div>
 
+            {{-- Script(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Script(s) <span class="badge bg-warning ms-1">Recommended</span></label>
-              <input type="text" class="form-control" name="script_of_description" value="{{ old('script_of_description') }}" placeholder="e.g. Latin">
+              <label class="form-label">Script(s) of description</label>
+              <div id="scripts-of-desc-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary btn-add-script-row" data-target="scripts-of-desc-list" data-name="scriptsOfDescription[]">Add script</button>
               <div class="form-text text-muted small">Indicate the script(s) used to create the description of the archival material.</div>
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
+              <label for="sources" class="form-label">Sources</label>
               <textarea class="form-control" id="sources" name="sources" rows="3">{{ old('sources') }}</textarea>
               <div class="form-text text-muted small">Record citations for any external sources used in the archival description (such as the Scope and Content, Archival History, or Notes fields).</div>
             </div>
 
+            {{-- Archivist's notes multi-row --}}
             <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label">Archivist's notes</label>
+              <div id="archnotes-list"></div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="add-archnote-row">Add archivist's note</button>
+            </div>
+
+            <div class="mb-3">
+              <label for="publication_status_id" class="form-label">Publication status</label>
               <select class="form-select" id="publication_status_id" name="publication_status_id">
-                <option value="159">Draft</option>
+                <option value="159" selected>Draft</option>
                 <option value="160">Published</option>
               </select>
             </div>
 
             <div class="mb-3">
-              <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="display_standard_id" class="form-label">Display standard</label>
               <select class="form-select" id="display_standard_id" name="display_standard_id">
-                <option value="">-- Select --</option>
+                <option value="">- Use global default -</option>
                 @foreach($displayStandards as $std)
                   <option value="{{ $std->id }}" @selected(old('display_standard_id') == $std->id)>{{ $std->name }}</option>
                 @endforeach
@@ -429,7 +514,7 @@
         <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="security_classification_id" class="form-label">Classification level <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="security_classification_id" class="form-label">Classification level</label>
               <select name="security_classification_id" id="security_classification_id" class="form-select">
                 <option value="">-- None --</option>
               </select>
@@ -462,7 +547,7 @@
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="publication_status_id" class="form-label">Publication status</label>
               <select name="publication_status_id" id="publication_status_id" class="form-select">
                 <option value="159" selected>Draft</option>
                 <option value="160">Published</option>
@@ -510,6 +595,8 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  'use strict';
+
   // Generate identifier button
   var genBtn = document.getElementById('generate-identifier');
   if (genBtn) {
@@ -522,6 +609,107 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // Generic remove row handler
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-remove-row')) {
+      e.target.closest('tr').remove();
+    }
+    if (e.target.classList.contains('btn-remove-ap')) {
+      e.target.closest('.input-group, .mb-1').remove();
+    }
+  });
+
+  // Add event row
+  var addEventBtn = document.getElementById('add-event-row');
+  if (addEventBtn) {
+    addEventBtn.addEventListener('click', function() {
+      var tbody = document.querySelector('#events-table tbody');
+      var idx = tbody.querySelectorAll('tr').length;
+      var eventTypeOptions = '<option value="">- Select -</option>';
+      @foreach($eventTypes as $et)
+        eventTypeOptions += '<option value="{{ $et->id }}">{{ addslashes($et->name) }}</option>';
+      @endforeach
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><select class="form-select form-select-sm" name="events[' + idx + '][typeId]">' + eventTypeOptions + '</select></td>'
+        + '<td><input type="text" class="form-control form-control-sm" name="events[' + idx + '][date]" placeholder="e.g. ca. 1900"></td>'
+        + '<td><input type="date" class="form-control form-control-sm" name="events[' + idx + '][startDate]"></td>'
+        + '<td><input type="date" class="form-control form-control-sm" name="events[' + idx + '][endDate]"></td>'
+        + '<td><input type="text" class="form-control form-control-sm" name="events[' + idx + '][actorName]" placeholder="Actor name"><input type="hidden" name="events[' + idx + '][actorId]" value="0"></td>'
+        + '<td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Add alternative identifier row
+  var addAltIdBtn = document.getElementById('add-altid-row');
+  if (addAltIdBtn) {
+    addAltIdBtn.addEventListener('click', function() {
+      var tbody = document.querySelector('#altids-table tbody');
+      var idx = tbody.querySelectorAll('tr').length;
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><input type="text" class="form-control form-control-sm" name="altIds[' + idx + '][label]" placeholder="e.g. Former reference"></td>'
+        + '<td><input type="text" class="form-control form-control-sm" name="altIds[' + idx + '][value]"></td>'
+        + '<td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Add note row
+  var addNoteBtn = document.getElementById('add-note-row');
+  if (addNoteBtn) {
+    addNoteBtn.addEventListener('click', function() {
+      var tbody = document.querySelector('#notes-table tbody');
+      var idx = tbody.querySelectorAll('tr').length;
+      var noteTypeOptions = '<option value="">- Select -</option>';
+      @foreach($noteTypes as $nt)
+        noteTypeOptions += '<option value="{{ $nt->id }}">{{ addslashes($nt->name) }}</option>';
+      @endforeach
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><select class="form-select form-select-sm" name="notes[' + idx + '][typeId]">' + noteTypeOptions + '</select></td>'
+        + '<td><textarea class="form-control form-control-sm" name="notes[' + idx + '][content]" rows="2"></textarea></td>'
+        + '<td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">Remove</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Add publication note row
+  var addPubNoteBtn = document.getElementById('add-pubnote-row');
+  if (addPubNoteBtn) {
+    addPubNoteBtn.addEventListener('click', function() {
+      var list = document.getElementById('pubnotes-list');
+      var idx = list.querySelectorAll('.mb-1').length;
+      var div = document.createElement('div');
+      div.className = 'mb-1';
+      div.innerHTML = '<div class="input-group input-group-sm"><textarea class="form-control form-control-sm" name="publicationNotes[' + idx + '][content]" rows="2"></textarea><button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button></div>';
+      list.appendChild(div);
+    });
+  }
+
+  // Add archivist note row
+  var addArchNoteBtn = document.getElementById('add-archnote-row');
+  if (addArchNoteBtn) {
+    addArchNoteBtn.addEventListener('click', function() {
+      var list = document.getElementById('archnotes-list');
+      var idx = list.querySelectorAll('.mb-1').length;
+      var div = document.createElement('div');
+      div.className = 'mb-1';
+      div.innerHTML = '<div class="input-group input-group-sm"><textarea class="form-control form-control-sm" name="archivistNotes[' + idx + '][content]" rows="2"></textarea><button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button></div>';
+      list.appendChild(div);
+    });
+  }
+
+  // Add language/script row (generic)
+  document.querySelectorAll('.btn-add-lang-row, .btn-add-script-row').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = document.getElementById(this.getAttribute('data-target'));
+      var name = this.getAttribute('data-name');
+      var div = document.createElement('div');
+      div.className = 'input-group input-group-sm mb-1';
+      div.innerHTML = '<input type="text" class="form-control form-control-sm" name="' + name + '" placeholder="e.g. en / Latn"><button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>';
+      target.appendChild(div);
+    });
+  });
 });
 </script>
 @endpush

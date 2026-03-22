@@ -31,7 +31,7 @@
       </div>
 
       <div class="accordion-item">
-        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse">Contact information</button></h2>
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contact-collapse">Contact area</button></h2>
         <div id="contact-collapse" class="accordion-collapse collapse">
           <div class="accordion-body">
             @include('ahg-actor-manage::partials._contact-area', ['contacts' => $contacts])

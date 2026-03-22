@@ -65,24 +65,33 @@
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names." (ISAAR 5.1.2)</div>
             </div>
 
+            @php
+              $parallelNames = ($otherNames ?? collect())->where('type_id', 148);
+              $standardizedNames = ($otherNames ?? collect())->where('type_id', 165);
+              $otherFormNames = ($otherNames ?? collect())->where('type_id', 149);
+            @endphp
+
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="text" name="parallel_name" id="parallel_name" class="form-control"
-                     value="{{ old('parallel_name', $actor->parallel_name ?? '') }}">
+              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="hidden" name="other_names[parallel][type_id]" value="148">
+              <input type="text" name="other_names[parallel][name]" id="parallel_name" class="form-control"
+                     value="{{ old('other_names.parallel.name', $parallelNames->first()->name ?? '') }}">
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules." (ISAAR 5.1.3)</div>
             </div>
 
             <div class="mb-3">
               <label for="standardized_name" class="form-label">Standardized form(s) of name according to other rules <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="standardized_name" id="standardized_name" class="form-control"
-                     value="{{ old('standardized_name', $actor->standardized_name ?? '') }}">
+              <input type="hidden" name="other_names[standardized][type_id]" value="165">
+              <input type="text" name="other_names[standardized][name]" id="standardized_name" class="form-control"
+                     value="{{ old('other_names.standardized.name', $standardizedNames->first()->name ?? '') }}">
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed." (ISAAR 5.1.4)</div>
             </div>
 
             <div class="mb-3">
               <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="other_name" id="other_name" class="form-control"
-                     value="{{ old('other_name', $actor->other_name ?? '') }}">
+              <input type="hidden" name="other_names[other][type_id]" value="149">
+              <input type="text" name="other_names[other][name]" id="other_name" class="form-control"
+                     value="{{ old('other_names.other.name', $otherFormNames->first()->name ?? '') }}">
               <div class="form-text text-muted small">The purpose of this field is to "indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area." Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)</div>
             </div>
 

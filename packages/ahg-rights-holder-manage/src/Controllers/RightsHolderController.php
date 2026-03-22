@@ -71,7 +71,7 @@ class RightsHolderController extends Controller
     {
         return view('ahg-rights-holder-manage::edit', [
             'rightsHolder' => null,
-            'contacts' => collect(),
+            'contacts' => collect([$this->emptyContact()]),
         ]);
     }
 
@@ -80,9 +80,14 @@ class RightsHolderController extends Controller
         $rh = $this->service->getBySlug($slug);
         if (!$rh) abort(404);
 
+        $contacts = $this->service->getContacts($rh->id);
+        if ($contacts->isEmpty()) {
+            $contacts = collect([$this->emptyContact()]);
+        }
+
         return view('ahg-rights-holder-manage::edit', [
             'rightsHolder' => $rh,
-            'contacts' => $this->service->getContacts($rh->id),
+            'contacts' => $contacts,
         ]);
     }
 
@@ -115,6 +120,19 @@ class RightsHolderController extends Controller
         if (!$rh) abort(404);
         $this->service->delete($rh->id);
         return redirect()->route('rightsholder.browse')->with('success', 'Rights holder deleted successfully.');
+    }
+
+    private function emptyContact(): object
+    {
+        return (object) [
+            'id' => null, 'primary_contact' => 1, 'contact_person' => '', 'street_address' => '',
+            'website' => '', 'email' => '', 'telephone' => '', 'fax' => '', 'postal_code' => '',
+            'country_code' => '', 'longitude' => '', 'latitude' => '', 'contact_note' => '',
+            'contact_type' => '', 'city' => '', 'region' => '', 'note' => '',
+            'title' => '', 'role' => '', 'department' => '', 'id_number' => '',
+            'preferred_contact_method' => '', 'language_preference' => '', 'cell' => '',
+            'alternative_email' => '', 'alternative_phone' => '',
+        ];
     }
 
     private function fields(): array

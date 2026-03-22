@@ -236,7 +236,7 @@ class TermService
     }
 
     /**
-     * Update a term (term + term_i18n + touch object).
+     * Update a term (term + term_i18n + notes + use-for + relationships + touch object).
      */
     public function update(int $termId, array $data, string $culture): void
     {
@@ -260,6 +260,156 @@ class TermService
                     ->update([
                         'name' => $data['name'],
                     ]);
+            }
+
+            // Update use-for (other_name / other_name_i18n)
+            if (array_key_exists('use_for', $data)) {
+                // Delete existing use-for entries
+                $existingOtherNameIds = DB::table('other_name')
+                    ->where('object_id', $termId)
+                    ->pluck('id')->toArray();
+                if (!empty($existingOtherNameIds)) {
+                    DB::table('other_name_i18n')->whereIn('id', $existingOtherNameIds)->delete();
+                    DB::table('other_name')->whereIn('id', $existingOtherNameIds)->delete();
+                }
+
+                // Insert new use-for entries (comma-separated)
+                $useForValue = trim($data['use_for'] ?? '');
+                if ($useForValue !== '') {
+                    $labels = array_map('trim', explode(',', $useForValue));
+                    foreach ($labels as $label) {
+                        if ($label === '') {
+                            continue;
+                        }
+                        $otherNameId = DB::table('other_name')->insertGetId([
+                            'object_id' => $termId,
+                            'type_id' => null,
+                            'source_culture' => $culture,
+                        ]);
+                        DB::table('other_name_i18n')->insert([
+                            'id' => $otherNameId,
+                            'culture' => $culture,
+                            'name' => $label,
+                        ]);
+                    }
+                }
+            }
+
+            // Update notes (scope=122, source=121, display=123)
+            $noteTypeMap = [
+                'scopeNotes' => 122,
+                'sourceNotes' => 121,
+                'displayNotes' => 123,
+            ];
+            foreach ($noteTypeMap as $key => $typeId) {
+                if (array_key_exists($key, $data)) {
+                    // Delete existing notes of this type
+                    $existingNoteIds = DB::table('note')
+                        ->where('object_id', $termId)
+                        ->where('type_id', $typeId)
+                        ->pluck('id')->toArray();
+                    if (!empty($existingNoteIds)) {
+                        DB::table('note_i18n')->whereIn('id', $existingNoteIds)->delete();
+                        DB::table('note')->whereIn('id', $existingNoteIds)->delete();
+                    }
+
+                    // Insert new notes
+                    $notes = $data[$key] ?? [];
+                    foreach ($notes as $note) {
+                        $content = trim($note['content'] ?? '');
+                        if ($content === '') {
+                            continue;
+                        }
+                        $noteObjId = DB::table('object')->insertGetId([
+                            'class_name' => 'QubitNote',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'serial_number' => 0,
+                        ]);
+                        DB::table('note')->insert([
+                            'id' => $noteObjId,
+                            'object_id' => $termId,
+                            'type_id' => $typeId,
+                            'scope' => null,
+                            'user_id' => null,
+                            'source_culture' => $culture,
+                        ]);
+                        DB::table('note_i18n')->insert([
+                            'id' => $noteObjId,
+                            'culture' => $culture,
+                            'content' => $content,
+                        ]);
+                    }
+                }
+            }
+
+            // Update narrow terms (create new child terms from newline/comma-separated text)
+            if (!empty($data['narrow_terms'])) {
+                $narrowText = trim($data['narrow_terms']);
+                if ($narrowText !== '') {
+                    // Split on newlines or commas
+                    $narrowNames = preg_split('/[\r\n,]+/', $narrowText);
+                    $taxonomyId = DB::table('term')->where('id', $termId)->value('taxonomy_id');
+
+                    foreach ($narrowNames as $narrowName) {
+                        $narrowName = trim($narrowName);
+                        if ($narrowName === '') {
+                            continue;
+                        }
+
+                        // Get parent's rgt to place new child
+                        $parentRgt = DB::table('term')->where('id', $termId)->value('rgt');
+
+                        // Shift nested set to make room
+                        DB::table('term')
+                            ->where('taxonomy_id', $taxonomyId)
+                            ->where('rgt', '>=', $parentRgt)
+                            ->increment('rgt', 2);
+                        DB::table('term')
+                            ->where('taxonomy_id', $taxonomyId)
+                            ->where('lft', '>', $parentRgt)
+                            ->increment('lft', 2);
+
+                        $newLft = $parentRgt;
+                        $newRgt = $parentRgt + 1;
+
+                        $childObjId = DB::table('object')->insertGetId([
+                            'class_name' => 'QubitTerm',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'serial_number' => 0,
+                        ]);
+
+                        DB::table('term')->insert([
+                            'id' => $childObjId,
+                            'taxonomy_id' => $taxonomyId,
+                            'code' => null,
+                            'parent_id' => $termId,
+                            'lft' => $newLft,
+                            'rgt' => $newRgt,
+                            'source_culture' => $culture,
+                        ]);
+
+                        DB::table('term_i18n')->insert([
+                            'id' => $childObjId,
+                            'culture' => $culture,
+                            'name' => $narrowName,
+                        ]);
+
+                        $baseSlug = Str::slug($narrowName ?: 'untitled');
+                        $slug = $baseSlug;
+                        $counter = 1;
+                        while (DB::table('slug')->where('slug', $slug)->exists()) {
+                            $slug = $baseSlug . '-' . $counter;
+                            $counter++;
+                        }
+                        DB::table('slug')->insert([
+                            'object_id' => $childObjId,
+                            'slug' => $slug,
+                            'serial_number' => 0,
+                        ]);
+                    }
+                }
             }
 
             // Touch object.updated_at

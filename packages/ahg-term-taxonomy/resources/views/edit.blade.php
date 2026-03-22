@@ -201,7 +201,7 @@
             <div class="mb-3">
               <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="related_terms" id="related_terms" class="form-control"
-                     value="{{ old('related_terms') }}" placeholder="Type to search terms..." autocomplete="off">
+                     value="{{ old('related_terms', $relatedTerms ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
             </div>
 
             {{-- Converse term + Self-reciprocal --}}
@@ -210,14 +210,14 @@
                 <div class="mb-3">
                   <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="converse_term" id="converse_term" class="form-control"
-                         value="{{ old('converse_term') }}" placeholder="Type to search terms..." autocomplete="off">
+                         value="{{ old('converse_term', $converseTerm->name ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
                 </div>
               </div>
               <div class="col-md-3 pb-md-2 d-flex align-items-end">
                 <div class="mb-3">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="self_reciprocal" id="self_reciprocal" value="1"
-                           @checked(old('self_reciprocal'))>
+                           @checked(old('self_reciprocal', ($converseTerm && $term && $converseTerm->id == $term->id) ? 1 : 0))>
                     <label class="form-check-label" for="self_reciprocal">Self-reciprocal</label>
                   </div>
                 </div>

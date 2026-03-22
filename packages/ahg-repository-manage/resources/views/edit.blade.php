@@ -61,16 +61,16 @@
             </div>
 
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="parallel_name" id="parallel_name" class="form-control"
-                     value="{{ old('parallel_name', $repository->parallel_name ?? '') }}">
+                     value="{{ old('parallel_name', $parallelNames->first()->name ?? '') }}">
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the authorised form of name of an institution occurs in other languages or script form(s). Rule: Record the parallel form(s) of name of the institution in accordance with any relevant national or international conventions or rules applied by the agency that created the description, including any necessary sub elements and/or qualifiers required by those conventions or rules. Specify in the Rules and/or conventions used element (5.6.3) which rules have been applied." (ISDIAH 5.1.3)</div>
             </div>
 
             <div class="mb-3">
               <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="other_name" id="other_name" class="form-control"
-                     value="{{ old('other_name', $repository->other_name ?? '') }}">
+                     value="{{ old('other_name', $otherNames->first()->name ?? '') }}">
               <div class="form-text text-muted small">"Record any other name(s) by which the institution may be known. This could include other forms of the same name, acronyms, other institutional names, or changes of name over time, including, if possible, relevant dates." (ISDIAH 5.1.4)</div>
             </div>
 

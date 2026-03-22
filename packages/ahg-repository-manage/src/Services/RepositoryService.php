@@ -410,7 +410,22 @@ class RepositoryService
                 'desc_revision_history' => $data['desc_revision_history'] ?? null,
             ]);
 
-            // 7. Save contacts if provided
+            // 7. Save parallel name(s) (other_name table, type_id 148)
+            if (!empty($data['parallel_name'])) {
+                $this->saveOtherName($id, $data['parallel_name'], 148);
+            }
+
+            // 8. Save other name(s) (other_name table, type_id 149)
+            if (!empty($data['other_name'])) {
+                $this->saveOtherName($id, $data['other_name'], 149);
+            }
+
+            // 9. Save maintenance notes (note table, type_id 174)
+            if (!empty($data['maintenance_notes'])) {
+                $this->saveMaintenanceNotes($id, $data['maintenance_notes']);
+            }
+
+            // 10. Save contacts if provided
             if (!empty($data['contacts'])) {
                 $this->saveContacts($id, $data['contacts']);
             }
@@ -470,7 +485,22 @@ class RepositoryService
                 $this->upsertI18n('repository_i18n', $id, $repoI18n);
             }
 
-            // 4. Sync contacts if provided
+            // 4. Sync parallel name(s) (other_name table, type_id 148)
+            if (array_key_exists('parallel_name', $data)) {
+                $this->syncOtherName($id, $data['parallel_name'], 148);
+            }
+
+            // 5. Sync other name(s) (other_name table, type_id 149)
+            if (array_key_exists('other_name', $data)) {
+                $this->syncOtherName($id, $data['other_name'], 149);
+            }
+
+            // 6. Sync maintenance notes (note table, type_id 174)
+            if (array_key_exists('maintenance_notes', $data)) {
+                $this->syncMaintenanceNotes($id, $data['maintenance_notes']);
+            }
+
+            // 7. Sync contacts if provided
             if (array_key_exists('contacts', $data)) {
                 $this->syncContacts($id, $data['contacts']);
             }
@@ -507,7 +537,14 @@ class RepositoryService
                 DB::table('object')->whereIn('id', $relationIds)->delete();
             }
 
-            // 3. Delete notes
+            // 3. Delete other names (parallel, other forms)
+            $otherNameIds = DB::table('other_name')->where('object_id', $id)->pluck('id')->toArray();
+            if (!empty($otherNameIds)) {
+                DB::table('other_name_i18n')->whereIn('id', $otherNameIds)->delete();
+                DB::table('other_name')->whereIn('id', $otherNameIds)->delete();
+            }
+
+            // 4. Delete notes
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
             if (!empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
@@ -645,6 +682,148 @@ class RepositoryService
             } else {
                 $this->saveContacts($repoId, [$contactData]);
             }
+        }
+    }
+
+    /**
+     * Save an other_name record (parallel or other form of name).
+     */
+    protected function saveOtherName(int $objectId, string $name, int $typeId): void
+    {
+        if (trim($name) === '') {
+            return;
+        }
+
+        $otherNameId = DB::table('other_name')->insertGetId([
+            'object_id' => $objectId,
+            'type_id' => $typeId,
+            'source_culture' => $this->culture,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('other_name_i18n')->insert([
+            'id' => $otherNameId,
+            'culture' => $this->culture,
+            'name' => trim($name),
+        ]);
+    }
+
+    /**
+     * Sync an other_name record (upsert first, delete if empty).
+     */
+    protected function syncOtherName(int $objectId, ?string $name, int $typeId): void
+    {
+        // Find existing record of this type
+        $existing = DB::table('other_name')
+            ->where('object_id', $objectId)
+            ->where('type_id', $typeId)
+            ->first();
+
+        if (empty(trim($name ?? ''))) {
+            // Remove existing if name cleared
+            if ($existing) {
+                DB::table('other_name_i18n')->where('id', $existing->id)->delete();
+                DB::table('other_name')->where('id', $existing->id)->delete();
+            }
+            return;
+        }
+
+        if ($existing) {
+            // Upsert i18n
+            $exists = DB::table('other_name_i18n')
+                ->where('id', $existing->id)
+                ->where('culture', $this->culture)
+                ->exists();
+            if ($exists) {
+                DB::table('other_name_i18n')
+                    ->where('id', $existing->id)
+                    ->where('culture', $this->culture)
+                    ->update(['name' => trim($name)]);
+            } else {
+                DB::table('other_name_i18n')->insert([
+                    'id' => $existing->id,
+                    'culture' => $this->culture,
+                    'name' => trim($name),
+                ]);
+            }
+        } else {
+            $this->saveOtherName($objectId, $name, $typeId);
+        }
+    }
+
+    /**
+     * Save maintenance notes (note table, type_id 174).
+     */
+    protected function saveMaintenanceNotes(int $objectId, string $content): void
+    {
+        if (trim($content) === '') {
+            return;
+        }
+
+        // Notes need their own object record in AtoM's schema
+        $noteObjId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitNote',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'serial_number' => 0,
+        ]);
+
+        DB::table('note')->insert([
+            'object_id' => $objectId,
+            'type_id' => 174,
+            'scope' => null,
+            'user_id' => null,
+            'id' => $noteObjId,
+            'source_culture' => $this->culture,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('note_i18n')->insert([
+            'id' => $noteObjId,
+            'culture' => $this->culture,
+            'content' => trim($content),
+        ]);
+    }
+
+    /**
+     * Sync maintenance notes (upsert or delete).
+     */
+    protected function syncMaintenanceNotes(int $objectId, ?string $content): void
+    {
+        $existing = DB::table('note')
+            ->where('object_id', $objectId)
+            ->where('type_id', 174)
+            ->first();
+
+        if (empty(trim($content ?? ''))) {
+            // Remove if cleared
+            if ($existing) {
+                DB::table('note_i18n')->where('id', $existing->id)->delete();
+                DB::table('note')->where('id', $existing->id)->delete();
+                DB::table('object')->where('id', $existing->id)->delete();
+            }
+            return;
+        }
+
+        if ($existing) {
+            $exists = DB::table('note_i18n')
+                ->where('id', $existing->id)
+                ->where('culture', $this->culture)
+                ->exists();
+            if ($exists) {
+                DB::table('note_i18n')
+                    ->where('id', $existing->id)
+                    ->where('culture', $this->culture)
+                    ->update(['content' => trim($content)]);
+            } else {
+                DB::table('note_i18n')->insert([
+                    'id' => $existing->id,
+                    'culture' => $this->culture,
+                    'content' => trim($content),
+                ]);
+            }
+        } else {
+            $this->saveMaintenanceNotes($objectId, $content);
         }
     }
 

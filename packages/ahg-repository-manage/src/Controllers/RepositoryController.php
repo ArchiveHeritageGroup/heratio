@@ -174,6 +174,9 @@ class RepositoryController extends Controller
             'repository' => null,
             'contacts' => collect(),
             'formChoices' => $formChoices,
+            'maintenanceNotes' => null,
+            'parallelNames' => collect(),
+            'otherNames' => collect(),
         ]);
     }
 
@@ -186,11 +189,19 @@ class RepositoryController extends Controller
 
         $contacts = $this->service->getContacts($repository->id);
         $formChoices = $this->service->getFormChoices();
+        $maintenanceNotes = $this->service->getMaintenanceNotes($repository->id);
+        $otherNamesAll = $this->service->getOtherNames($repository->id);
+        // type_id 148 = Parallel form, type_id 149 = Other form
+        $parallelNames = $otherNamesAll->where('type_id', 148);
+        $otherNames = $otherNamesAll->where('type_id', 149);
 
         return view('ahg-repository-manage::edit', [
             'repository' => $repository,
             'contacts' => $contacts,
             'formChoices' => $formChoices,
+            'maintenanceNotes' => $maintenanceNotes,
+            'parallelNames' => $parallelNames,
+            'otherNames' => $otherNames,
         ]);
     }
 
@@ -279,6 +290,8 @@ class RepositoryController extends Controller
             'finding_aids', 'opening_times', 'access_conditions', 'disabled_access',
             'research_services', 'reproduction_services', 'public_facilities',
             'desc_institution_identifier', 'desc_rules', 'desc_sources', 'desc_revision_history',
+            // Special fields (stored in other_name / note tables)
+            'parallel_name', 'other_name', 'maintenance_notes',
             // Contacts
             'contacts',
         ];

@@ -1,11 +1,11 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 09:12:39
+# Generated: 2026-03-22 09:58:59
 # Total Heratio views: 361
 # Views with AtoM equivalent: 194
 # Views without AtoM equivalent: 167
-# Total Heratio controls: 12291
+# Total Heratio controls: 12381
 # Total AtoM controls (matched): 9647
-# Total delta: 1876
+# Total delta: 1800
 
 ## SUMMARY BY PACKAGE
 
@@ -14,7 +14,7 @@ Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sideb
 ahg-3d-model                       1     29      107     78      1col      none      1/1   
 ahg-accession-manage               4     189     36      -153    1col      none,right4/4   
 ahg-acl                            9     238     35      -203    1col      none      1/9   
-ahg-actor-manage                   7     468     55      -413    2col,1col,unknown,print,3colleft,none,detected4/7   
+ahg-actor-manage                   7     487     55      -432    2col,1col,unknown,print,3colleft,none,detected4/7   
 ahg-ai-services                    2     212     93      -119    1col      none      1/2   
 ahg-audit-trail                    4     83      70      -13     1col      none      4/4   
 ahg-backup                         3     124     215     91      1col      none      3/3   
@@ -26,16 +26,16 @@ ahg-dedupe                         6     89      214     125     1col      none,
 ahg-display                        11    459     275     -184    unknown,masternone,detected,left6/11  
 ahg-doi-manage                     6     105     224     119     1col      none      6/6   
 ahg-donor-manage                   4     33      151     118     1col      none,right4/4   
-ahg-dropdown-manage                2     97      92      -5      1col      detected  2/2   
+ahg-dropdown-manage                2     101     92      -9      1col      detected  2/2   
 ahg-favorites                      2     71      195     124     1col      left,none 1/2   
 ahg-feedback                       3     107     87      -20     1col      left,none 3/3   
 ahg-ftp-upload                     1     51      48      -3      1col      none      1/1   
 ahg-function-manage                4     106     70      -36     1col      none,right4/4   
 ahg-gallery                        6     727     440     -287    1col,2col,3colnone,detected4/6   
 ahg-help                           5     69      58      -11     unknown,1coldetected  4/5   
-ahg-heritage-manage                6     216     100     -116    1col,unknown,2colleft,none,detected2/6   
+ahg-heritage-manage                6     229     100     -129    1col,unknown,2colleft,right,none,detected2/6   
 ahg-iiif-collection                5     181     164     -17     2col      detected  4/5   
-ahg-information-object-manage      34    1272    375     -897    1col,unknown,2col,print,3colnone,detected,right9/34  
+ahg-information-object-manage      34    1320    375     -945    1col,unknown,2col,print,3colnone,detected,right9/34  
 ahg-integrity                      1     37      42      5       1col      none      1/1   
 ahg-jobs-manage                    2     16      39      23      1col      none      1/2   
 ahg-library                        3     338     1119    781     1col,3col none,detected3/3   
@@ -53,7 +53,7 @@ ahg-request-publish                2     99      110     11      1col      none 
 ahg-research                       44    1504    876     -628    unknown,2coldetected  23/44 
 ahg-researcher-manage              3     68      56      -12     1col      none      2/3   
 ahg-ric                            6     103     130     27      1col      none      4/6   
-ahg-rights-holder-manage           4     31      551     520     1col      none,right4/4   
+ahg-rights-holder-manage           4     37      551     514     1col      none,right4/4   
 ahg-search                         5     124     —     ?       1col,unknownnone,left,detected0/5   
 ahg-settings                       37    856     1048    192     unknown,1colnone,left,right,detected18/37 
 ahg-static-page                    3     23      31      8       2col,1col detected,none3/3   
@@ -172,7 +172,7 @@ delete                        1col    none    1     1     0     1     0     0   
 
 edit                          1col    none    17    2     45    11    27    27    138    8     0     0     16     -122   
   BTN classes: btn(10)
-  Field badges: Req=5 Rec=8 Opt=14
+  Field badges: Req=4 Rec=8 Opt=15
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/editSuccess.php
 
@@ -189,9 +189,9 @@ _other-names                  unknown none    3     0     6     0     6     6   
 print                         print   none    0     0     0     9     0     0     9      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          3col    detected1     13    0     37    0     4     59     0     1     0     5      -54    
+show                          3col    detected1     14    0     51    0     7     78     0     1     0     5      -73    
   BTN classes: btn(7), btn-sm(2)
-  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
+  URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }} | {{ $eid->uri }}
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/indexSuccess.php
 
 
@@ -594,7 +594,7 @@ show                          1col    right   0     5     0     5     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-edit                          1col    detected5     4     9     4     5     4     40     6     2     9     36     -4     
+edit                          1col    detected5     4     9     5     5     4     44     6     2     9     36     -8     
   BTN classes: btn(5), btn-sm(1), btn-delete-term(1), btn-close(1)
   Field badges: Req=2 Rec=0 Opt=2
   URLs: {{ url( | {{ route(
@@ -670,7 +670,7 @@ delete                        1col    none    1     1     0     1     0     0   
 
 edit                          1col    none    8     2     29    4     19    19    84     11    0     15    50     -34    
   BTN classes: btn(4)
-  Field badges: Req=4 Rec=4 Opt=11
+  Field badges: Req=3 Rec=4 Opt=12
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/editSuccess.php
 
@@ -748,12 +748,12 @@ search                        1col    detected1     3     1     4     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-admin-dashboard               1col    left    0     3     0     7     0     2     22     —   —   —   —    ?      
+admin-dashboard               1col    left    0     3     0     12    0     3     33     —   —   —   —    ?      
   BTN classes: btn(3)
   URLs: {{ route( | /
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-analytics-dashboard           1col    left    0     3     0     13    0     0     23     —   —   —   —    ?      
+analytics-dashboard           1col    right   0     3     0     15    0     0     26     —   —   —   —    ?      
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -762,8 +762,8 @@ custodian-dashboard           1col    left    0     3     0     8     0     8   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-landing                       1col    none    3     24    1     12    0     1     62     3     24    1     62     0      
-  URLs: {{ url( | #heritage-explore | {{ route( | {{ $collectionUrl }}
+landing                       1col    none    3     24    1     12    0     1     61     3     24    1     62     1      
+  URLs: {{ url( | #heritage-explore | {{ $catUrl }} | {{ route( | {{ $collectionUrl }}
   AtoM: atom-ahg-plugins/ahgHeritagePlugin/modules/heritage/templates/landingSuccess.php
 
 _admin-sidebar                unknown detected0     17    0     0     0     0     39     —   —   —   —    ?      
@@ -840,9 +840,9 @@ index                         1col    none    0     6     0     3     0     2   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
-create                        unknown detected13    3     38    12    38    38    143    —   —   —   —    ?      
-  BTN classes: btn(3)
-  Field badges: Req=6 Rec=12 Opt=20
+create                        unknown detected28    3     47    12    43    0     134    —   —   —   —    ?      
+  BTN classes: btn(18), btn-sm(12), btn-outline-secondary(9), btn-add-lang-row(2), btn-add-script-row(2), btn-outline-danger(6), btn-remove-row(3), btn-remove-ap(3)
+  ⚠ NO FIELD BADGES on 43 labels
   URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -855,8 +855,9 @@ show                          1col    none    0     2     0     2     0     0   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
-edit                          2col    detected12    2     44    12    44    43    157    55    1     73    196    39     
-  Field badges: Req=1 Rec=13 Opt=29
+edit                          2col    detected45    3     77    12    53    0     191    55    1     73    196    5      
+  BTN classes: btn(33), btn-sm(17), btn-outline-danger(22), btn-remove-row(7), btn-outline-secondary(10), btn-remove-ap(15), btn-add-lang-row(2), btn-add-script-row(2)
+  ⚠ NO FIELD BADGES on 53 labels
   URLs: {{ url( | {{ route(
   AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/editSuccess.php
 
@@ -948,15 +949,15 @@ embargo                       1col    none    1     1     10    4     10    8   
   URLs: {{ isset($io->slug) ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-extended                      1col    none    1     2     4     1     5     4     18     —   —   —   —    ?      
+extended                      1col    none    1     2     7     1     8     7     27     —   —   —   —    ?      
   BTN classes: btn(1)
-  Field badges: Req=0 Rec=0 Opt=4
+  Field badges: Req=0 Rec=0 Opt=7
   URLs: {{ route( | {{ isset($io->slug) ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          3col    detected23    91    7     76    0     11    318    2     8     0     21     -297   
+show                          3col    detected23    94    7     85    0     12    332    2     8     0     21     -311   
   BTN classes: btn(29), btn-sm(9)
-  URLs: {{ route( | {{ $masterUrl }} | {{ $imgSrc }} | /media/transcription/{{ $doId }}/vtt | /media/transcription/{{ $doId }}/srt | {{ url( | #identity-collapse | #context-collapse | #content-collapse | #conditions-collapse ... +10 more
+  URLs: {{ route( | {{ $masterUrl }} | {{ $imgSrc }} | /media/transcription/{{ $doId }}/vtt | /media/transcription/{{ $doId }}/srt | {{ url( | #identity-collapse | #context-collapse | #content-collapse | #conditions-collapse ... +13 more
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 heritage                      1col    none    0     0     0     0     0     0     1      —   —   —   —    ?      
@@ -1295,7 +1296,7 @@ delete                        1col    none    1     1     0     1     0     0   
 
 edit                          1col    none    18    2     46    11    46    46    172    9     0     0     18     -154   
   BTN classes: btn(9), btn-close(1)
-  Field badges: Req=3 Rec=6 Opt=37
+  Field badges: Req=2 Rec=6 Opt=38
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/editSuccess.php
 
@@ -1640,9 +1641,9 @@ edit                          1col    none    4     2     1     3     1     1   
   URLs: {{ route(
   AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/editSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/editSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/right/templates/editSuccess.php, apps/qubit/modules/rightsholder/templates/editSuccess.php, apps/qubit/modules/right/templates/editSuccess.php
 
-show                          1col    right   0     4     0     4     0     0     8      8     53    8     204    196    
+show                          1col    right   0     8     0     5     0     1     14     8     53    8     204    190    
   BTN classes: btn(1), btn-sm(1)
-  URLs: {{ route( | {{ $contact->website }}
+  URLs: {{ route( | {{ $contact->website }} | {{ $er->rights_statement_uri }} | {{ $er->cc_license_uri }} | {{ $er->rights_holder_uri }}
   AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rightsAdmin/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/viewSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/extendedRights/templates/indexSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
 
 
@@ -2137,11 +2138,12 @@ ahg-gallery                        edit                          67      13   18
 ahg-iiif-collection                add-items                     5       0    0    4    PARTIAL        
 ahg-iiif-collection                create                        6       1    0    4    PARTIAL        
 ahg-iiif-collection                edit                          6       1    0    4    PARTIAL        
-ahg-information-object-manage      edit                          44      1    13   29   PARTIAL        
+ahg-information-object-manage      create                        43      0    0    0    MISSING        
+ahg-information-object-manage      edit                          53      0    0    0    MISSING        
 ahg-information-object-manage      select                        9       0    0    6    PARTIAL        
 ahg-information-object-manage      index                         46      0    0    42   PARTIAL        
 ahg-information-object-manage      embargo                       10      2    0    5    PARTIAL        
-ahg-information-object-manage      extended                      5       0    0    4    PARTIAL        
+ahg-information-object-manage      extended                      8       0    0    7    PARTIAL        
 ahg-library                        edit                          54      0    1    51   PARTIAL        
 ahg-loan                           index                         5       0    1    3    PARTIAL        
 ahg-media-processing               watermark-settings            11      2    0    5    PARTIAL        

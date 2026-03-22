@@ -119,6 +119,9 @@ class FunctionController extends Controller
             'revision_history' => 'nullable|string',
             'sources' => 'nullable|string',
             'source_standard' => 'nullable|string|max:1024',
+            'parallel_name' => 'nullable|string|max:1024',
+            'other_name' => 'nullable|string|max:1024',
+            'maintenance_notes' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -126,6 +129,7 @@ class FunctionController extends Controller
             'description', 'history', 'legislation', 'description_identifier',
             'institution_identifier', 'rules', 'description_status_id',
             'description_detail_id', 'revision_history', 'sources', 'source_standard',
+            'parallel_name', 'other_name', 'maintenance_notes',
         ]);
 
         $id = $this->service->create($data);
@@ -159,6 +163,9 @@ class FunctionController extends Controller
             'revision_history' => 'nullable|string',
             'sources' => 'nullable|string',
             'source_standard' => 'nullable|string|max:1024',
+            'parallel_name' => 'nullable|string|max:1024',
+            'other_name' => 'nullable|string|max:1024',
+            'maintenance_notes' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -166,6 +173,7 @@ class FunctionController extends Controller
             'description', 'history', 'legislation', 'description_identifier',
             'institution_identifier', 'rules', 'description_status_id',
             'description_detail_id', 'revision_history', 'sources', 'source_standard',
+            'parallel_name', 'other_name', 'maintenance_notes',
         ]);
 
         $this->service->update($function->id, $data);

@@ -27,12 +27,18 @@ class FunctionService
         return $this->getById($objectId);
     }
 
+    // AtoM term IDs for other_name types
+    protected const PARALLEL_FORM_OF_NAME_ID = 148;
+    protected const OTHER_FORM_OF_NAME_ID = 149;
+    // AtoM term ID for maintenance note
+    protected const MAINTENANCE_NOTE_ID = 127;
+
     /**
      * Get a function by ID with all ISDF fields.
      */
     public function getById(int $id): ?object
     {
-        return DB::table('function_object')
+        $row = DB::table('function_object')
             ->join('object', 'function_object.id', '=', 'object.id')
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
             ->leftJoin('function_object_i18n', function ($j) {
@@ -64,6 +70,51 @@ class FunctionService
                 'slug.slug',
             ])
             ->first();
+
+        if (!$row) {
+            return null;
+        }
+
+        // Fetch parallel_name from other_name table (type_id = 148)
+        $row->parallel_name = $this->getOtherNameValue($id, self::PARALLEL_FORM_OF_NAME_ID);
+
+        // Fetch other_name from other_name table (type_id = 149)
+        $row->other_name = $this->getOtherNameValue($id, self::OTHER_FORM_OF_NAME_ID);
+
+        // Fetch maintenance_notes from note table (type_id = 127)
+        $row->maintenance_notes = $this->getMaintenanceNote($id);
+
+        return $row;
+    }
+
+    /**
+     * Get a single other_name value for a function by type.
+     */
+    protected function getOtherNameValue(int $objectId, int $typeId): ?string
+    {
+        return DB::table('other_name')
+            ->leftJoin('other_name_i18n', function ($j) {
+                $j->on('other_name.id', '=', 'other_name_i18n.id')
+                    ->where('other_name_i18n.culture', '=', $this->culture);
+            })
+            ->where('other_name.object_id', $objectId)
+            ->where('other_name.type_id', $typeId)
+            ->value('other_name_i18n.name');
+    }
+
+    /**
+     * Get the maintenance note content for a function.
+     */
+    protected function getMaintenanceNote(int $objectId): ?string
+    {
+        return DB::table('note')
+            ->leftJoin('note_i18n', function ($j) {
+                $j->on('note.id', '=', 'note_i18n.id')
+                    ->where('note_i18n.culture', '=', $this->culture);
+            })
+            ->where('note.object_id', $objectId)
+            ->where('note.type_id', self::MAINTENANCE_NOTE_ID)
+            ->value('note_i18n.content');
     }
 
     /**
@@ -210,7 +261,22 @@ class FunctionService
                 'sources' => $data['sources'] ?? null,
             ]);
 
-            // 4. Generate slug
+            // 4. Save parallel_name to other_name table
+            if (!empty($data['parallel_name'])) {
+                $this->saveOtherName($id, self::PARALLEL_FORM_OF_NAME_ID, $data['parallel_name']);
+            }
+
+            // 5. Save other_name to other_name table
+            if (!empty($data['other_name'])) {
+                $this->saveOtherName($id, self::OTHER_FORM_OF_NAME_ID, $data['other_name']);
+            }
+
+            // 6. Save maintenance_notes to note table
+            if (!empty($data['maintenance_notes'])) {
+                $this->saveMaintenanceNote($id, $data['maintenance_notes']);
+            }
+
+            // 7. Generate slug
             $baseSlug = Str::slug($data['authorized_form_of_name'] ?? 'untitled');
             $slug = $baseSlug;
             $counter = 1;
@@ -279,7 +345,22 @@ class FunctionService
                 }
             }
 
-            // 3. Touch the object record
+            // 3. Save parallel_name to other_name table
+            if (array_key_exists('parallel_name', $data)) {
+                $this->upsertOtherName($id, self::PARALLEL_FORM_OF_NAME_ID, $data['parallel_name']);
+            }
+
+            // 4. Save other_name to other_name table
+            if (array_key_exists('other_name', $data)) {
+                $this->upsertOtherName($id, self::OTHER_FORM_OF_NAME_ID, $data['other_name']);
+            }
+
+            // 5. Save maintenance_notes to note table
+            if (array_key_exists('maintenance_notes', $data)) {
+                $this->upsertMaintenanceNote($id, $data['maintenance_notes']);
+            }
+
+            // 6. Touch the object record
             DB::table('object')->where('id', $id)->update([
                 'updated_at' => now(),
                 'serial_number' => DB::raw('serial_number + 1'),
@@ -335,5 +416,122 @@ class FunctionService
     public function getSlug(int $id): ?string
     {
         return DB::table('slug')->where('object_id', $id)->value('slug');
+    }
+
+    /**
+     * Save a new other_name record (for create).
+     */
+    protected function saveOtherName(int $objectId, int $typeId, string $name): void
+    {
+        $onId = DB::table('other_name')->insertGetId([
+            'object_id' => $objectId,
+            'type_id' => $typeId,
+            'source_culture' => $this->culture,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('other_name_i18n')->insert([
+            'id' => $onId,
+            'culture' => $this->culture,
+            'name' => $name,
+        ]);
+    }
+
+    /**
+     * Upsert an other_name record (for update).
+     */
+    protected function upsertOtherName(int $objectId, int $typeId, ?string $name): void
+    {
+        $existing = DB::table('other_name')
+            ->where('object_id', $objectId)
+            ->where('type_id', $typeId)
+            ->first();
+
+        if ($existing) {
+            if (!empty($name)) {
+                // Update existing
+                $i18nExists = DB::table('other_name_i18n')
+                    ->where('id', $existing->id)
+                    ->where('culture', $this->culture)
+                    ->exists();
+
+                if ($i18nExists) {
+                    DB::table('other_name_i18n')
+                        ->where('id', $existing->id)
+                        ->where('culture', $this->culture)
+                        ->update(['name' => $name]);
+                } else {
+                    DB::table('other_name_i18n')->insert([
+                        'id' => $existing->id,
+                        'culture' => $this->culture,
+                        'name' => $name,
+                    ]);
+                }
+            } else {
+                // Delete if cleared
+                DB::table('other_name_i18n')->where('id', $existing->id)->delete();
+                DB::table('other_name')->where('id', $existing->id)->delete();
+            }
+        } elseif (!empty($name)) {
+            $this->saveOtherName($objectId, $typeId, $name);
+        }
+    }
+
+    /**
+     * Save a new maintenance note (for create).
+     */
+    protected function saveMaintenanceNote(int $objectId, string $content): void
+    {
+        $noteId = DB::table('note')->insertGetId([
+            'object_id' => $objectId,
+            'type_id' => self::MAINTENANCE_NOTE_ID,
+            'source_culture' => $this->culture,
+            'serial_number' => 0,
+        ]);
+
+        DB::table('note_i18n')->insert([
+            'id' => $noteId,
+            'culture' => $this->culture,
+            'content' => $content,
+        ]);
+    }
+
+    /**
+     * Upsert a maintenance note (for update).
+     */
+    protected function upsertMaintenanceNote(int $objectId, ?string $content): void
+    {
+        $existing = DB::table('note')
+            ->where('object_id', $objectId)
+            ->where('type_id', self::MAINTENANCE_NOTE_ID)
+            ->first();
+
+        if ($existing) {
+            if (!empty($content)) {
+                $i18nExists = DB::table('note_i18n')
+                    ->where('id', $existing->id)
+                    ->where('culture', $this->culture)
+                    ->exists();
+
+                if ($i18nExists) {
+                    DB::table('note_i18n')
+                        ->where('id', $existing->id)
+                        ->where('culture', $this->culture)
+                        ->update(['content' => $content]);
+                } else {
+                    DB::table('note_i18n')->insert([
+                        'id' => $existing->id,
+                        'culture' => $this->culture,
+                        'content' => $content,
+                    ]);
+                }
+            } else {
+                // Delete if cleared
+                DB::table('note_i18n')->where('id', $existing->id)->delete();
+                DB::table('note')->where('id', $existing->id)->delete();
+            }
+        } elseif (!empty($content)) {
+            $this->saveMaintenanceNote($objectId, $content);
+        }
     }
 }
