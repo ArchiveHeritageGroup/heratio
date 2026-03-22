@@ -56,7 +56,7 @@
                 <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="is_active" value="1" id="isActive" {{ ($room->is_active ?? 1) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="isActive">Active</label>
+                    <label class="form-check-label" for="isActive">Active <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
             </div>
 

@@ -97,9 +97,9 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Permissions <span class="badge bg-secondary ms-1">Optional</span></label>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">Read (collections, annotations, bibliographies)</label></div>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">Write (create/update collections, annotations)</label></div>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">Search (query the catalogue)</label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">Read (collections, annotations, bibliographies) <span class="badge bg-secondary ms-1">Optional</span></label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">Write (create/update collections, annotations) <span class="badge bg-secondary ms-1">Optional</span></label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">Search (query the catalogue) <span class="badge bg-secondary ms-1">Optional</span></label></div>
         </div>
         <div class="mb-3">
             <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">Optional</span></label>

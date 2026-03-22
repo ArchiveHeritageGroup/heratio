@@ -82,7 +82,7 @@
             @foreach(['item.created', 'item.updated', 'item.deleted', 'item.published'] as $ev)
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="events[]" value="{{ $ev }}" id="ev-{{ $ev }}">
-                <label class="form-check-label" for="ev-{{ $ev }}">{{ $ev }}</label>
+                <label class="form-check-label" for="ev-{{ $ev }}">{{ $ev }} <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             @endforeach
           </div>

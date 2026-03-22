@@ -471,13 +471,13 @@
       <label class="dropdown-item">
         <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-dates" checked>
         Dates
-      </label>
+       <span class="badge bg-secondary ms-1">Optional</span></label>
     </li>
     <li>
       <label class="dropdown-item">
         <input type="checkbox" class="form-check-input me-2 col-toggle" data-col="col-repository" checked>
         Repository
-      </label>
+       <span class="badge bg-secondary ms-1">Optional</span></label>
     </li>
   </ul>
 </div>

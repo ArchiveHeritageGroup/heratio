@@ -181,7 +181,7 @@
                                'name="include_children[]" value="' + item.id + '" id="children-' + item.id + '">' +
                         '<label class="form-check-label small" for="children-' + item.id + '">' +
                             '<i class="fas fa-sitemap me-1"></i>Include all children (' + item.childCount + ' items)' +
-                        '</label>' +
+                        ' <span class="badge bg-secondary ms-1">Optional</span></label>' +
                     '</div>'
                 : '') +
                 '<input type="hidden" name="object_ids[]" value="' + item.id + '">' +

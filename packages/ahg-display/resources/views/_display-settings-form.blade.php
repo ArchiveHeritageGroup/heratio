@@ -148,7 +148,7 @@ $moduleLabels = [
                                            for="edit_mode_@php echo $mode; @endphp">
                                         <i class="bi @php echo $info['icon']; @endphp me-2"></i>
                                         @php echo $info['name']; @endphp
-                                    </label>
+                                     <span class="badge bg-secondary ms-1">Required</span></label>
                                 @php endforeach; @endphp
                             </div>
                         </div>

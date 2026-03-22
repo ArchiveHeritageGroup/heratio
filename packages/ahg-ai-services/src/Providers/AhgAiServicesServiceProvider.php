@@ -12,6 +12,7 @@ class AhgAiServicesServiceProvider extends ServiceProvider
     {
         $this->app->singleton(LlmService::class);
         $this->app->singleton(NerService::class);
+        $this->app->singleton(\AhgAiServices\Services\HtrService::class);
     }
 
     public function boot(): void

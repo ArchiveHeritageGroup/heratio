@@ -23,7 +23,7 @@
             <input class="form-check-input" type="radio" name="batch_action" id="action_assign" value="assign" checked>
             <label class="form-check-label" for="action_assign">
               <strong>Assign Rights</strong><br><small class="text-muted">Apply rights to selected objects</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
         <div class="col-md-4">
@@ -31,7 +31,7 @@
             <input class="form-check-input" type="radio" name="batch_action" id="action_embargo" value="embargo">
             <label class="form-check-label" for="action_embargo">
               <strong>Apply Embargo</strong><br><small class="text-muted">Restrict access to selected objects</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
         <div class="col-md-4">
@@ -39,7 +39,7 @@
             <input class="form-check-input" type="radio" name="batch_action" id="action_clear" value="clear">
             <label class="form-check-label" for="action_clear">
               <strong>Clear Rights</strong><br><small class="text-muted">Remove rights from selected objects</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
       </div>
       <div class="form-check">
         <input type="checkbox" name="overwrite" id="overwrite" value="1" class="form-check-input">
-        <label class="form-check-label" for="overwrite">Overwrite existing rights</label>
+        <label class="form-check-label" for="overwrite">Overwrite existing rights <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
     </div>
   </div>
@@ -121,7 +121,7 @@
           <div class="col-md-4 mb-2">
             <div class="form-check">
               <input type="checkbox" name="tk_label_ids[]" value="{{ $tk->id }}" class="form-check-input" id="tk_{{ $tk->id }}">
-              <label class="form-check-label" for="tk_{{ $tk->id }}">{{ $tk->name ?? $tk->code }}</label>
+              <label class="form-check-label" for="tk_{{ $tk->id }}">{{ $tk->name ?? $tk->code }} <span class="badge bg-secondary ms-1">Required</span></label>
             </div>
           </div>
           @endforeach

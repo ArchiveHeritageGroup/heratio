@@ -72,7 +72,7 @@
                 value="@php echo \AtomExtensions\Services\AclService::GRANT; @endphp">
               <label class="form-check-label" for="acl_grant_[@php echo $key; @endphp_{objectId}]">
                 {{ __('Grant') }}
-              </label>
+               <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input
@@ -83,7 +83,7 @@
                 value="@php echo \AtomExtensions\Services\AclService::DENY; @endphp">
               <label class="form-check-label" for="acl_deny_[@php echo $key; @endphp_{objectId}]">
                 {{ __('Deny') }}
-              </label>
+               <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input
@@ -95,7 +95,7 @@
                 value="@php echo \AtomExtensions\Services\AclService::INHERIT; @endphp">
               <label class="form-check-label" for="acl_inherit_[@php echo $key; @endphp_{objectId}]">
                 {{ __('Inherit') }}
-              </label>
+               <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </td>
         </tr>

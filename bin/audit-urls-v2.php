@@ -207,6 +207,23 @@ foreach ($packages as $pkgPath) {
         if (!in_array($viewName, ['show', 'browse', 'edit', 'create', 'delete'])) continue;
 
         $hContent = file_get_contents($f->getPathname());
+        // Resolve @include directives to inline partial content
+        if (preg_match_all('/@include\s*\(\s*[\'"]([^\'"]+)[\'"]/m', $hContent, $incMatches)) {
+            foreach ($incMatches[1] as $incView) {
+                // Convert view namespace notation to file path
+                // e.g., 'ahg-information-object-manage::_context-menu' → packages/ahg-information-object-manage/resources/views/_context-menu.blade.php
+                if (str_contains($incView, '::')) {
+                    [$incPkg, $incName] = explode('::', $incView, 2);
+                    $incPath = "$heratioBase/$incPkg/resources/views/" . str_replace('.', '/', $incName) . ".blade.php";
+                } else {
+                    // Same package
+                    $incPath = dirname($f->getPathname()) . '/' . str_replace('.', '/', $incView) . ".blade.php";
+                }
+                if (file_exists($incPath)) {
+                    $hContent .= "\n" . file_get_contents($incPath);
+                }
+            }
+        }
         $hLinks = extractLinks($hContent, false);
 
         $atomFiles = findAtomTemplates($pkg, $viewName);

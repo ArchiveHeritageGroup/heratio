@@ -87,7 +87,7 @@
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="skipUnmatched" id="skip-unmatched-input" type="checkbox">
-              <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records</label>
+              <label class="form-check-label" for="skip-unmatched-input">Skip unmatched records <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
 
             <div class="mb-3">
@@ -102,12 +102,12 @@
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox">
-              <label class="form-check-label" for="skip-matched-input">Skip matched records</label>
+              <label class="form-check-label" for="skip-matched-input">Skip matched records <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
 
             <div class="mb-3 form-check">
               <input class="form-check-input" name="noIndex" id="no-index-input" type="checkbox">
-              <label class="form-check-label" for="no-index-input">Do not index imported items</label>
+              <label class="form-check-label" for="no-index-input">Do not index imported items <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
 
           </div>

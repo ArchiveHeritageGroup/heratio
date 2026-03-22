@@ -102,7 +102,7 @@ $allModes = [
                                                        title="@php echo $meta['description']; @endphp">
                                                     <i class="bi @php echo $meta['icon']; @endphp"></i>
                                                     <span class="d-none d-lg-inline ms-1">@php echo $meta['name']; @endphp</span>
-                                                </label>
+                                                 <span class="badge bg-secondary ms-1">Required</span></label>
                                             @php endforeach; @endphp
                                         </div>
                                     </div>

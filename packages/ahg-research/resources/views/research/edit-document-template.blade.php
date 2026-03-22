@@ -25,7 +25,7 @@
             <div class="mb-3"><label class="form-label">Template Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><textarea name="content" class="form-control font-monospace" rows="15" required>{{ e($template->content ?? '') }}</textarea>
                 <small class="text-muted">Use placeholders: {researcher_name}, {date}, {institution}, {reference_number}</small>
             </div>
-            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($template->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active</label></div>
+            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($template->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active <span class="badge bg-secondary ms-1">Optional</span></label></div>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save Template</button>
             <a href="{{ route('research.documentTemplates') }}" class="btn atom-btn-white">Cancel</a>
         </form>

@@ -42,7 +42,7 @@
             <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual">
             <label class="form-check-label" for="is_perpetual">
               Perpetual (no end date)
-            </label>
+             <span class="badge bg-secondary ms-1">Recommended</span></label>
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@
         <input class="form-check-input" type="checkbox" name="notify_on_expiry" value="1" id="notify_on_expiry" checked>
         <label class="form-check-label" for="notify_on_expiry">
           Send notification before expiry
-        </label>
+         <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
 
       <div class="row">

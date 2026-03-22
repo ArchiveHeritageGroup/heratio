@@ -129,7 +129,7 @@
                      @if(in_array($tk->id, $selectedTkLabels)) checked @endif>
               <label class="form-check-label" for="tk_{{ $tk->id }}">
                 {{ $tk->name ?? $tk->code }}
-              </label>
+               <span class="badge bg-secondary ms-1">Required</span></label>
             </div>
           @endforeach
         </div>

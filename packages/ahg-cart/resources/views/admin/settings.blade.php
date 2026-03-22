@@ -14,7 +14,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="is_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="is_enabled" value="1" id="is_enabled" {{ ($settings->is_enabled ?? 0) ? 'checked' : '' }}>
-            <label class="form-check-label" for="is_enabled">Enable e-commerce</label>
+            <label class="form-check-label" for="is_enabled">Enable e-commerce <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="mb-3">
             <label class="form-label">Currency <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -58,7 +58,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="payfast_sandbox" value="0">
             <input class="form-check-input" type="checkbox" name="payfast_sandbox" value="1" id="sandbox" {{ ($settings->payfast_sandbox ?? 1) ? 'checked' : '' }}>
-            <label class="form-check-label" for="sandbox">Sandbox mode</label>
+            <label class="form-check-label" for="sandbox">Sandbox mode <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
       </div>

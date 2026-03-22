@@ -89,7 +89,7 @@
                         <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" {{ $collection->is_public ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_public">
                             Public
-                        </label>
+                         <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
                 </div>
             </div>

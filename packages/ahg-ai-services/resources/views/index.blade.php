@@ -154,6 +154,23 @@
     </div>
   </div>
 
+  {{-- HTR & Specialist Services --}}
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+          <strong><i class="fas fa-file-alt"></i> Vital Records HTR</strong>
+        </div>
+        <div class="card-body">
+          <p class="small">Handwritten Text Recognition for SA vital records — death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
+        </div>
+        <div class="card-footer">
+          <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>Open HTR Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{-- Quick Test Section --}}
   <div class="card shadow-sm mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">

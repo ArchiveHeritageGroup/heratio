@@ -15,7 +15,7 @@
         <div class="card mb-4"><div class="card-header"><h6 class="mb-0">Filters</h6></div><div class="card-body">
             <div class="mb-3"><label class="form-label">Entity Types <span class="badge bg-secondary ms-1">Optional</span></label>
                 @foreach(['person','place','event','document','concept'] as $t)
-                <div class="form-check"><input type="checkbox" class="form-check-input graph-filter" id="filter_{{ $t }}" value="{{ $t }}" checked><label class="form-check-label" for="filter_{{ $t }}">{{ ucfirst($t) }}s</label></div>
+                <div class="form-check"><input type="checkbox" class="form-check-input graph-filter" id="filter_{{ $t }}" value="{{ $t }}" checked><label class="form-check-label" for="filter_{{ $t }}">{{ ucfirst($t) }}s <span class="badge bg-secondary ms-1">Optional</span></label></div>
                 @endforeach
             </div>
             <div class="mb-3"><label class="form-label">Depth <span class="badge bg-secondary ms-1">Optional</span></label><input type="range" class="form-range" id="graphDepth" min="1" max="5" value="2"><small class="text-muted">Levels: <span id="depthLabel">2</span></small></div>

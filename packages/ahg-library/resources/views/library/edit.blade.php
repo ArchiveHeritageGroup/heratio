@@ -1019,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         '<div class="mb-3">' +
                             '<div class="form-check">' +
                                 '<input class="form-check-input" type="checkbox" id="select-all-suggestions">' +
-                                '<label class="form-check-label" for="select-all-suggestions"><strong>Select All</strong></label>' +
+                                '<label class="form-check-label" for="select-all-suggestions"><strong>Select All</strong> <span class="badge bg-secondary ms-1">Optional</span></label>' +
                             '</div>' +
                         '</div>' +
                         '<div class="suggestions-list" style="max-height: 400px; overflow-y: auto;">' +

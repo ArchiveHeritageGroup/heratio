@@ -275,7 +275,7 @@
             <div class="mb-3 form-check">
               <input type="checkbox" name="climate_controlled" value="1" class="form-check-input" id="climate_controlled"
                      @checked(!empty(old('climate_controlled', $extendedData['climate_controlled'] ?? '')))>
-              <label class="form-check-label" for="climate_controlled">Climate Controlled</label>
+              <label class="form-check-label" for="climate_controlled">Climate Controlled <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="row">
               <div class="col-6">

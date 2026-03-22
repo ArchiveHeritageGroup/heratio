@@ -25,11 +25,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[privacy_notification_enabled]" id="privacy_no" value="0" {{ $settings['privacy_notification_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="privacy_no">No</label>
+                    <label class="form-check-label" for="privacy_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[privacy_notification_enabled]" id="privacy_yes" value="1" {{ $settings['privacy_notification_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="privacy_yes">Yes</label>
+                    <label class="form-check-label" for="privacy_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

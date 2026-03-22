@@ -18,9 +18,9 @@
                         <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label><select name="format" class="form-select"><option value="ead">EAD (XML)</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
                         <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">Optional</span></label><select name="depth" class="form-select"><option value="full">Full (all levels)</option><option value="series">Series level</option><option value="file">File level</option></select></div>
                     </div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links</label></div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points</label></div>
-                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">Include archival notes</label></div>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links <span class="badge bg-secondary ms-1">Optional</span></label></div>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points <span class="badge bg-secondary ms-1">Optional</span></label></div>
+                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">Include archival notes <span class="badge bg-secondary ms-1">Optional</span></label></div>
                     <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-export me-1"></i>Generate</button>
                     <a href="{{ route('research.reports') }}" class="btn atom-btn-white">Cancel</a>
                 </form>

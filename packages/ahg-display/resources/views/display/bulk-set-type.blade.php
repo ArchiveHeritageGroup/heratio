@@ -105,7 +105,7 @@
                           @if(!empty($type->description))
                             <small class="d-block text-muted mt-1">{{ $type->description }}</small>
                           @endif
-                        </label>
+                         <span class="badge bg-secondary ms-1">Required</span></label>
                       </div>
                     </div>
                   @endforeach

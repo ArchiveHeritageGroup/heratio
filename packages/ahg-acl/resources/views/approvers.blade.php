@@ -148,7 +148,7 @@
             <div class="mb-3 form-check">
               <input type="hidden" name="email_notifications" value="0">
               <input type="checkbox" class="form-check-input" name="email_notifications" id="email_notifications" value="1" checked>
-              <label class="form-check-label" for="email_notifications">Email Notifications</label>
+              <label class="form-check-label" for="email_notifications">Email Notifications <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
 
             <button type="submit" class="btn atom-btn-outline-success w-100">

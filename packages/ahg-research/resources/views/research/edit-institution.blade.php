@@ -20,7 +20,7 @@
             <div class="mb-3"><label class="form-label">Address <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="address" class="form-control" rows="2">{{ e($institution->address ?? '') }}</textarea></div>
             <div class="mb-3"><label class="form-label">Website <span class="badge bg-secondary ms-1">Optional</span></label><input type="url" name="website" class="form-control" value="{{ e($institution->website ?? '') }}"></div>
             <div class="mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="notes" class="form-control" rows="3">{{ e($institution->notes ?? '') }}</textarea></div>
-            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($institution->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active</label></div>
+            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($institution->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active <span class="badge bg-secondary ms-1">Optional</span></label></div>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button>
             <a href="{{ route('research.institutions') }}" class="btn atom-btn-white">Cancel</a>
         </form>

@@ -147,11 +147,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementEnabled" id="copyright_enabled_no" value="0" {{ $copyrightStatementEnabled != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_enabled_no">No</label>
+                    <label class="form-check-label" for="copyright_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementEnabled" id="copyright_enabled_yes" value="1" {{ $copyrightStatementEnabled == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_enabled_yes">Yes</label>
+                    <label class="form-check-label" for="copyright_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>
@@ -169,11 +169,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementApplyGlobally" id="copyright_global_no" value="0" {{ $copyrightStatementApplyGlobally != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_global_no">No</label>
+                    <label class="form-check-label" for="copyright_global_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="copyrightStatementApplyGlobally" id="copyright_global_yes" value="1" {{ $copyrightStatementApplyGlobally == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="copyright_global_yes">Yes</label>
+                    <label class="form-check-label" for="copyright_global_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
                 <small class="text-muted">When enabled, the copyright pop-up will be applied to every digital object, regardless of whether there is an accompanying Rights statement.</small>
@@ -196,11 +196,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="preservationStatementEnabled" id="pres_enabled_no" value="0" {{ $preservationEnabled != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="pres_enabled_no">No</label>
+                    <label class="form-check-label" for="pres_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="preservationStatementEnabled" id="pres_enabled_yes" value="1" {{ $preservationEnabled == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="pres_enabled_yes">Yes</label>
+                    <label class="form-check-label" for="pres_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

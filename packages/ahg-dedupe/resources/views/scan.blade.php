@@ -35,14 +35,14 @@
                 <label class="form-check-label" for="scopeAll">
                   <strong>Entire System</strong>
                   <br><small class="text-muted">Scan all records across all repositories</small>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="scope" id="scopeRepo" value="repository">
                 <label class="form-check-label" for="scopeRepo">
                   <strong>Specific Repository</strong>
                   <br><small class="text-muted">Scan records within a single repository</small>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
 

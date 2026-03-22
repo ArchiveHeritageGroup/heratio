@@ -45,11 +45,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_enabled]" id="send_enabled_no" value="0" {{ $settings['clipboard_send_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="send_enabled_no">No</label>
+                    <label class="form-check-label" for="send_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_enabled]" id="send_enabled_yes" value="1" {{ $settings['clipboard_send_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="send_enabled_yes">Yes</label>
+                    <label class="form-check-label" for="send_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>
@@ -74,11 +74,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_http_method]" id="method_post" value="POST" {{ $settings['clipboard_send_http_method'] != 'GET' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="method_post">POST</label>
+                    <label class="form-check-label" for="method_post">POST <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_http_method]" id="method_get" value="GET" {{ $settings['clipboard_send_http_method'] == 'GET' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="method_get">GET</label>
+                    <label class="form-check-label" for="method_get">GET <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>
@@ -100,11 +100,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_export_digitalobjects_enabled]" id="export_no" value="0" {{ $settings['clipboard_export_digitalobjects_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="export_no">No</label>
+                    <label class="form-check-label" for="export_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_export_digitalobjects_enabled]" id="export_yes" value="1" {{ $settings['clipboard_export_digitalobjects_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="export_yes">Yes</label>
+                    <label class="form-check-label" for="export_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

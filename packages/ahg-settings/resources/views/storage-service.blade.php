@@ -25,11 +25,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[storage_service_enabled]" id="ss_enabled_no" value="0" {{ ($settings['storage_service_enabled'] ?? '') != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="ss_enabled_no">No</label>
+                    <label class="form-check-label" for="ss_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[storage_service_enabled]" id="ss_enabled_yes" value="1" {{ ($settings['storage_service_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="ss_enabled_yes">Yes</label>
+                    <label class="form-check-label" for="ss_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

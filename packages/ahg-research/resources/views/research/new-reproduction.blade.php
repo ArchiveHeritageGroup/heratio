@@ -17,7 +17,7 @@
         </div>
         <div class="mb-3"><label class="form-label">Purpose <span class="badge bg-danger ms-1">Required</span></label><select name="purpose" class="form-select"><option value="personal_research">Personal Research</option><option value="publication">Publication</option><option value="exhibition">Exhibition</option><option value="legal">Legal</option><option value="other">Other</option></select></div>
         <div class="mb-3"><label class="form-label">Special Instructions <span class="badge bg-danger ms-1">Required</span></label><textarea name="notes" class="form-control" rows="3" placeholder="Page ranges, specific sections, quality requirements..."></textarea></div>
-        <div class="form-check mb-3"><input type="checkbox" name="agree_terms" class="form-check-input" id="agreeTerms" required><label class="form-check-label" for="agreeTerms">I agree to the reproduction terms and copyright conditions</label></div>
+        <div class="form-check mb-3"><input type="checkbox" name="agree_terms" class="form-check-input" id="agreeTerms" required><label class="form-check-label" for="agreeTerms">I agree to the reproduction terms and copyright conditions <span class="badge bg-secondary ms-1">Optional</span></label></div>
         <button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane me-1"></i>Submit Request</button>
         <a href="{{ route('research.reproductions') }}" class="btn atom-btn-white">Cancel</a>
     </form>

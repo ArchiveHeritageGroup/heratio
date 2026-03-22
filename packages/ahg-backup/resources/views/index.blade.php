@@ -255,21 +255,21 @@
             <input class="form-check-input" type="checkbox" id="comp-uploads" value="uploads">
             <label class="form-check-label" for="comp-uploads">
               <i class="fas fa-upload text-info me-1"></i> Uploads
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-text">Digital object files and uploads</div>
           </div>
           <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" id="comp-plugins" value="plugins">
             <label class="form-check-label" for="comp-plugins">
               <i class="fas fa-puzzle-piece text-warning me-1"></i> Plugins
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-text">All packages in the packages/ directory</div>
           </div>
           <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" id="comp-framework" value="framework">
             <label class="form-check-label" for="comp-framework">
               <i class="fas fa-code text-secondary me-1"></i> Framework
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-text">Application framework files (excludes vendor, node_modules)</div>
           </div>
         </div>

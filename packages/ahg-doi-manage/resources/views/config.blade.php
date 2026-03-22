@@ -131,7 +131,7 @@
                          {{ (old('auto_mint', $settings['auto_mint'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="auto_mint">
                     Auto-mint DOIs when records are published
-                  </label>
+                   <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
             </div>
@@ -150,7 +150,7 @@
                            {{ in_array($level, $autoMintLevels) ? 'checked' : '' }}>
                     <label class="form-check-label" for="level_{{ strtolower($level) }}">
                       {{ $level }}
-                    </label>
+                     <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 @endforeach
                 <div class="form-text">Only auto-mint for these levels of description</div>
@@ -164,7 +164,7 @@
                          {{ (old('require_digital_object', $settings['require_digital_object'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="require_digital_object">
                     Only auto-mint if record has a digital object
-                  </label>
+                   <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
             </div>

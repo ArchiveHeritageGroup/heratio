@@ -111,7 +111,7 @@
                 <label for="work_type">
                   Work type
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Required</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">2.1</span>
@@ -137,7 +137,7 @@
                 <label for="object_number">
                   Object number
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">2.3</span>
@@ -184,7 +184,7 @@
                 <label for="title">
                   Title
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Required</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">3.1</span>
@@ -213,7 +213,7 @@
                 <label for="title_type">
                   Title type
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Required</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">3.1.1</span>
@@ -264,7 +264,7 @@
                 <label for="creator_display">
                   Creator (Display)
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1</span>
@@ -290,7 +290,7 @@
                 <label for="creator">
                   Creator (Authority)
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1</span>
@@ -321,7 +321,7 @@
                 <label for="creator_role">
                   Creator role
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1.1</span>
@@ -345,7 +345,7 @@
             {{-- attribution_qualifier: optional, CCO 4.1.2, vocab CCO_ATTRIBUTION --}}
             <div class="cco-field level-recommended" data-field="attribution_qualifier">
               <div class="field-header">
-                <label for="attribution_qualifier">Attribution qualifier</label>
+                <label for="attribution_qualifier">Attribution qualifier <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1.2</span>
@@ -382,7 +382,7 @@
                 <label for="creation_date_display">
                   Creation date (display)
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Recommended</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.2</span>
@@ -407,7 +407,7 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_earliest">
                   <div class="field-header">
-                    <label for="creation_date_earliest">Creation date (earliest)</label>
+                    <label for="creation_date_earliest">Creation date (earliest) <span class="badge bg-secondary ms-1">Recommended</span></label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.1</span>
@@ -430,7 +430,7 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_latest">
                   <div class="field-header">
-                    <label for="creation_date_latest">Creation date (latest)</label>
+                    <label for="creation_date_latest">Creation date (latest) <span class="badge bg-secondary ms-1">Recommended</span></label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.2</span>
@@ -455,7 +455,7 @@
             {{-- creation_place: optional, CCO 4.3, vocab TGN --}}
             <div class="cco-field level-recommended" data-field="creation_place">
               <div class="field-header">
-                <label for="creation_place">Place of creation</label>
+                <label for="creation_place">Place of creation <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.3</span>
@@ -479,7 +479,7 @@
             {{-- culture: optional, CCO 4.4, vocab AAT_CULTURES --}}
             <div class="cco-field level-optional" data-field="culture">
               <div class="field-header">
-                <label for="culture">Culture/People</label>
+                <label for="culture">Culture/People <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">4.4</span>
@@ -519,7 +519,7 @@
             {{-- style: optional, CCO 5.1, vocab AAT_STYLES --}}
             <div class="cco-field level-recommended" data-field="style">
               <div class="field-header">
-                <label for="style">Style</label>
+                <label for="style">Style <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">5.1</span>
@@ -543,7 +543,7 @@
             {{-- period: optional, CCO 5.2, vocab AAT_PERIODS --}}
             <div class="cco-field level-optional" data-field="period">
               <div class="field-header">
-                <label for="period">Period</label>
+                <label for="period">Period <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">5.2</span>
@@ -586,7 +586,7 @@
                 <label for="dimensions_display">
                   Dimensions (Display)
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">6.1</span>
@@ -611,7 +611,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="height_value">
                   <div class="field-header">
-                    <label for="height_value">Height</label>
+                    <label for="height_value">Height <span class="badge bg-secondary ms-1">Optional</span></label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -634,7 +634,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="width_value">
                   <div class="field-header">
-                    <label for="width_value">Width</label>
+                    <label for="width_value">Width <span class="badge bg-secondary ms-1">Optional</span></label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -657,7 +657,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-optional" data-field="depth_value">
                   <div class="field-header">
-                    <label for="depth_value">Depth</label>
+                    <label for="depth_value">Depth <span class="badge bg-secondary ms-1">Optional</span></label>
                     <span class="field-badges">
                       <span class="badge badge-optional">Optional</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -701,7 +701,7 @@
                 <label for="materials_display">
                   Medium (Display)
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">7.1</span>
@@ -724,7 +724,7 @@
             {{-- materials: optional, CCO 7.1.1, vocab AAT_MATERIALS --}}
             <div class="cco-field level-recommended" data-field="materials">
               <div class="field-header">
-                <label for="materials">Materials (Indexed)</label>
+                <label for="materials">Materials (Indexed) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.1.1</span>
@@ -747,7 +747,7 @@
             {{-- techniques: optional, CCO 7.2, vocab AAT_TECHNIQUES --}}
             <div class="cco-field level-recommended" data-field="techniques">
               <div class="field-header">
-                <label for="techniques">Techniques</label>
+                <label for="techniques">Techniques <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.2</span>
@@ -773,7 +773,7 @@
                 <label for="support">
                   Support
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">7.3</span>
@@ -813,7 +813,7 @@
             {{-- subject_display: optional, CCO 8.1 --}}
             <div class="cco-field level-recommended" data-field="subject_display">
               <div class="field-header">
-                <label for="subject_display">Subject (Display)</label>
+                <label for="subject_display">Subject (Display) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.1</span>
@@ -835,7 +835,7 @@
             {{-- subjects_depicted: optional, CCO 8.2, vocab AAT_SUBJECTS --}}
             <div class="cco-field level-recommended" data-field="subjects_depicted">
               <div class="field-header">
-                <label for="subjects_depicted">Subjects depicted</label>
+                <label for="subjects_depicted">Subjects depicted <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.2</span>
@@ -875,7 +875,7 @@
             {{-- inscriptions: optional, CCO 9.1 --}}
             <div class="cco-field level-optional" data-field="inscriptions">
               <div class="field-header">
-                <label for="inscriptions">Inscriptions</label>
+                <label for="inscriptions">Inscriptions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">9.1</span>
@@ -897,7 +897,7 @@
             {{-- signature: optional, CCO 9.2 --}}
             <div class="cco-field level-recommended" data-field="signature">
               <div class="field-header">
-                <label for="signature">Signature</label>
+                <label for="signature">Signature <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">9.2</span>
@@ -935,7 +935,7 @@
             {{-- description: optional, CCO 11.1 --}}
             <div class="cco-field level-recommended" data-field="description">
               <div class="field-header">
-                <label for="description">Description</label>
+                <label for="description">Description <span class="badge bg-secondary ms-1">Recommended</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">11.1</span>
@@ -973,7 +973,7 @@
             {{-- condition_summary: optional, CCO 12.1 --}}
             <div class="cco-field level-recommended" data-field="condition_summary">
               <div class="field-header">
-                <label for="condition_summary">Condition summary</label>
+                <label for="condition_summary">Condition summary <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">12.1</span>
@@ -1019,7 +1019,7 @@
                 <label for="repository">
                   Repository
                   <span class="required">*</span>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">13.1</span>
@@ -1046,7 +1046,7 @@
             {{-- location_within_repository: optional, CCO 13.2 --}}
             <div class="cco-field level-recommended" data-field="location_within_repository">
               <div class="field-header">
-                <label for="location_within_repository">Location</label>
+                <label for="location_within_repository">Location <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.2</span>
@@ -1069,7 +1069,7 @@
             {{-- credit_line: optional, CCO 13.3 --}}
             <div class="cco-field level-recommended" data-field="credit_line">
               <div class="field-header">
-                <label for="credit_line">Credit line</label>
+                <label for="credit_line">Credit line <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.3</span>
@@ -1123,7 +1123,7 @@
             {{-- rights_statement: optional, CCO 15.1 --}}
             <div class="cco-field level-recommended" data-field="rights_statement">
               <div class="field-header">
-                <label for="rights_statement">Rights statement</label>
+                <label for="rights_statement">Rights statement <span class="badge bg-secondary ms-1">Optional</span></label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">15.1</span>
@@ -1284,7 +1284,7 @@
                        style="width: 3em; height: 1.5em;">
                 <label class="form-check-label" for="watermark_enabled" style="margin-left: 10px;">
                   <strong>Enable watermark for this object</strong>
-                </label>
+                 <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
 
@@ -1292,7 +1292,7 @@
 
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="watermark_type_id">System Watermark</label>
+                  <label for="watermark_type_id">System Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
@@ -1308,7 +1308,7 @@
               @if(($customWatermarks ?? collect())->count() > 0)
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="custom_watermark_id">Or use Custom Watermark</label>
+                  <label for="custom_watermark_id">Or use Custom Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
@@ -1326,7 +1326,7 @@
 
               <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
                 <div class="field-header">
-                  <label>Upload NEW Custom Watermark</label>
+                  <label>Upload NEW Custom Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <p class="text-muted small">Leave empty to keep existing selection above</p>
@@ -1370,7 +1370,7 @@
                          name="new_watermark_global" value="1">
                   <label class="form-check-label" for="new_watermark_global">
                     Make available globally (for all records)
-                  </label>
+                   <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
 
@@ -1380,7 +1380,7 @@
                          name="regenerate_watermark" value="1">
                   <label class="form-check-label" for="regenerate_watermark">
                     <strong>Regenerate derivatives with new watermark</strong>
-                  </label>
+                   <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div class="form-text">Check this to apply the new watermark to existing images. This may take a moment.</div>
                 </div>
               </div>
@@ -1436,7 +1436,7 @@
                            name="displayStandardUpdateDescendants" value="1">
                     <label class="form-check-label" for="displayStandardUpdateDescendants">
                       Make this selection the new default for existing children
-                    </label>
+                     <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

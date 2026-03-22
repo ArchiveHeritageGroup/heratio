@@ -225,7 +225,7 @@
             </div>
             <div class="form-check mb-3">
               <input type="checkbox" name="has_gaps" class="form-check-input" id="hasGaps" value="1" @checked(old('has_gaps', $io->has_gaps ?? 0))>
-              <label class="form-check-label" for="hasGaps">There are gaps in the provenance chain</label>
+              <label class="form-check-label" for="hasGaps">There are gaps in the provenance chain <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="mb-0" id="gapDescriptionGroup" style="{{ old('has_gaps', $io->has_gaps ?? 0) ? '' : 'display:none' }}">
               <label class="form-label">Gap Description <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -313,11 +313,11 @@
             </div>
             <div class="form-check mb-2">
               <input type="checkbox" name="is_complete" class="form-check-input" id="isComplete" value="1" @checked(old('is_complete', $io->is_complete ?? 0))>
-              <label class="form-check-label" for="isComplete">Provenance research is complete</label>
+              <label class="form-check-label" for="isComplete">Provenance research is complete <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check">
               <input type="checkbox" name="is_public" class="form-check-input" id="isPublic" value="1" @checked(old('is_public', $io->is_public ?? 1))>
-              <label class="form-check-label" for="isPublic">Display provenance publicly</label>
+              <label class="form-check-label" for="isPublic">Display provenance publicly <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
         </div>
@@ -352,7 +352,7 @@
           <div class="card-body">
             <div class="form-check mb-3">
               <input type="checkbox" name="nazi_era_provenance_checked" class="form-check-input" id="naziEraChecked" value="1" @checked(old('nazi_era_provenance_checked', $io->nazi_era_provenance_checked ?? 0))>
-              <label class="form-check-label" for="naziEraChecked">Nazi-era provenance has been checked</label>
+              <label class="form-check-label" for="naziEraChecked">Nazi-era provenance has been checked <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div id="naziEraClearGroup" style="{{ old('nazi_era_provenance_checked', $io->nazi_era_provenance_checked ?? 0) ? '' : 'display:none' }}">
               <div class="mb-3">

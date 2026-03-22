@@ -75,12 +75,12 @@
                 <div class="form-check mt-2">
                   <input type="hidden" name="is_active" value="0">
                   <input type="checkbox" name="is_active" value="1" class="form-check-input" id="newIsActive" checked>
-                  <label class="form-check-label" for="newIsActive">Active</label>
+                  <label class="form-check-label" for="newIsActive">Active <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
                 <div class="form-check">
                   <input type="hidden" name="is_default" value="0">
                   <input type="checkbox" name="is_default" value="1" class="form-check-input" id="newIsDefault">
-                  <label class="form-check-label" for="newIsDefault">Default</label>
+                  <label class="form-check-label" for="newIsDefault">Default <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
             </div>
@@ -164,12 +164,12 @@
                   <div class="form-check mt-2">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" class="form-check-input" {{ $cfg->is_active ? 'checked' : '' }}>
-                    <label class="form-check-label">Active</label>
+                    <label class="form-check-label">Active <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check">
                     <input type="hidden" name="is_default" value="0">
                     <input type="checkbox" name="is_default" value="1" class="form-check-input" {{ $cfg->is_default ? 'checked' : '' }}>
-                    <label class="form-check-label">Default</label>
+                    <label class="form-check-label">Default <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

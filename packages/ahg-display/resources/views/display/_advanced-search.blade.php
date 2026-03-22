@@ -179,11 +179,11 @@
                 <div class="col-12">
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-all" value="0" {{ ($params['topLevel'] ?? '0') === '0' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-all">All descriptions</label>
+                    <label class="form-check-label" for="topLevel-all">All descriptions <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="topLevel" id="topLevel-top" value="1" {{ ($params['topLevel'] ?? '') === '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="topLevel-top">Top-level only</label>
+                    <label class="form-check-label" for="topLevel-top">Top-level only <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>
@@ -251,15 +251,15 @@
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="glam-save-search-public">
-          <label class="form-check-label" for="glam-save-search-public"><i class="fas fa-link me-1"></i>Make public (shareable link)</label>
+          <label class="form-check-label" for="glam-save-search-public"><i class="fas fa-link me-1"></i>Make public (shareable link) <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="glam-save-search-global">
-          <label class="form-check-label" for="glam-save-search-global"><i class="fas fa-globe me-1"></i>Global (visible to all users)</label>
+          <label class="form-check-label" for="glam-save-search-global"><i class="fas fa-globe me-1"></i>Global (visible to all users) <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="glam-save-search-notify">
-          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results</label>
+          <label class="form-check-label" for="glam-save-search-notify">Notify me of new results <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
       <div class="modal-footer">

@@ -25,11 +25,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[finding_aids_enabled]" id="fa_enabled_no" value="0" {{ $settings['finding_aids_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="fa_enabled_no">No</label>
+                    <label class="form-check-label" for="fa_enabled_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[finding_aids_enabled]" id="fa_enabled_yes" value="1" {{ $settings['finding_aids_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="fa_enabled_yes">Yes</label>
+                    <label class="form-check-label" for="fa_enabled_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>
@@ -55,11 +55,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[public_finding_aid]" id="public_fa_no" value="0" {{ $settings['public_finding_aid'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="public_fa_no">No</label>
+                    <label class="form-check-label" for="public_fa_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[public_finding_aid]" id="public_fa_yes" value="1" {{ $settings['public_finding_aid'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="public_fa_yes">Yes</label>
+                    <label class="form-check-label" for="public_fa_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

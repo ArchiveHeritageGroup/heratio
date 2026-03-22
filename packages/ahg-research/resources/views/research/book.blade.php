@@ -65,7 +65,7 @@
                            class="form-check-input" {{ old('room_id') == $room->id ? 'checked' : '' }} required>
                     <label for="room_{{ $room->id }}" class="form-check-label">
                       <strong>{{ e($room->name) }}</strong>
-                    </label>
+                     <span class="badge bg-secondary ms-1">Required</span></label>
                   </div>
                   @if($room->description ?? false)
                     <small class="text-muted d-block mt-1">{{ e($room->description) }}</small>

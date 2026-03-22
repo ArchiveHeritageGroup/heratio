@@ -33,13 +33,13 @@
           <div class="col-md-3 mb-3">
             <div class="form-check form-switch mt-4">
               <input class="form-check-input" type="checkbox" name="ahg_theme_enabled" value="true" {{ ($settings['ahg_theme_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label">Theme Enabled</label>
+              <label class="form-check-label">Theme Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-check form-switch mt-4">
               <input class="form-check-input" type="checkbox" name="ahg_show_branding" value="true" {{ ($settings['ahg_show_branding'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label">Show Branding</label>
+              <label class="form-check-label">Show Branding <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
         </div>

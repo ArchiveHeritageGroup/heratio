@@ -44,7 +44,7 @@
         <div class="col-md-4 mb-3 d-flex align-items-end">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual">
-            <label class="form-check-label" for="is_perpetual">Perpetual (no end date)</label>
+            <label class="form-check-label" for="is_perpetual">Perpetual (no end date) <span class="badge bg-secondary ms-1">Recommended</span></label>
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@
     <div class="card-body">
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" name="notify_on_expiry" value="1" id="notify_on_expiry" checked>
-        <label class="form-check-label" for="notify_on_expiry">Send notification before expiry</label>
+        <label class="form-check-label" for="notify_on_expiry">Send notification before expiry <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
       <div class="row">
         <div class="col-md-4">

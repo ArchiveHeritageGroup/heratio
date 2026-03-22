@@ -97,7 +97,7 @@
           <div class="form-check">
             <input type="checkbox" name="overdue" value="1" id="filter-overdue" class="form-check-input"
                    {{ !empty($params['overdue']) ? 'checked' : '' }}>
-            <label for="filter-overdue" class="form-check-label small">Overdue</label>
+            <label for="filter-overdue" class="form-check-label small">Overdue <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
         <div class="col-md-2 d-flex gap-1">

@@ -74,28 +74,28 @@
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-database" value="database">
           <label class="form-check-label" for="restore-comp-database">
             <i class="fas fa-database text-primary me-1"></i> Database
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-text">Restore the MySQL database from the backup dump.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-uploads-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-uploads" value="uploads">
           <label class="form-check-label" for="restore-comp-uploads">
             <i class="fas fa-upload text-info me-1"></i> Uploads
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-text">Restore uploaded digital objects and files.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-plugins-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-plugins" value="plugins">
           <label class="form-check-label" for="restore-comp-plugins">
             <i class="fas fa-puzzle-piece text-warning me-1"></i> Plugins
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-text">Restore all packages from the backup.</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-framework-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-framework" value="framework">
           <label class="form-check-label" for="restore-comp-framework">
             <i class="fas fa-code text-secondary me-1"></i> Framework
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-text">Restore application framework files.</div>
         </div>
       </div>

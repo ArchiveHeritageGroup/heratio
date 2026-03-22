@@ -31,11 +31,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enable_repository_quotas]" id="repo_quota_disabled" value="0" {{ $settings['enable_repository_quotas'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="repo_quota_disabled">Disabled</label>
+                    <label class="form-check-label" for="repo_quota_disabled">Disabled <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enable_repository_quotas]" id="repo_quota_enabled" value="1" {{ $settings['enable_repository_quotas'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="repo_quota_enabled">Enabled</label>
+                    <label class="form-check-label" for="repo_quota_enabled">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
                 <small class="text-muted">When enabled, an "Upload limit" meter is displayed for authenticated users on the repository view page, and administrators can limit the disk space each repository is allowed for digital object uploads</small>
@@ -52,11 +52,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[explode_multipage_files]" id="explode_no" value="0" {{ $settings['explode_multipage_files'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="explode_no">No</label>
+                    <label class="form-check-label" for="explode_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[explode_multipage_files]" id="explode_yes" value="1" {{ $settings['explode_multipage_files'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="explode_yes">Yes</label>
+                    <label class="form-check-label" for="explode_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

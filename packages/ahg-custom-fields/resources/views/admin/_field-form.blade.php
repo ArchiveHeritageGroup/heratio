@@ -75,19 +75,19 @@
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-required" name="is_required" value="1"
                                {{ ($def->is_required ?? false) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-required">Required</label>
+                        <label class="form-check-label" for="cf-required">Required <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
 
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-active" name="is_active" value="1"
                                {{ ($def->is_active ?? true) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-active">Active</label>
+                        <label class="form-check-label" for="cf-active">Active <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
 
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-searchable" name="is_searchable" value="1"
                                {{ ($def->is_searchable ?? false) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-searchable">Searchable</label>
+                        <label class="form-check-label" for="cf-searchable">Searchable <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
 
                     <div class="mb-3">

@@ -97,19 +97,19 @@ try {
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
             <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }}
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         @if($isAdmin)
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-global">
           <label class="form-check-label" for="save-search-global">
             <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }}
-          </label>
+           <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         @endif
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="save-search-notify">
-          <label class="form-check-label" for="save-search-notify">{{ __('Notify me of new results') }}</label>
+          <label class="form-check-label" for="save-search-notify">{{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
       <div class="modal-footer">

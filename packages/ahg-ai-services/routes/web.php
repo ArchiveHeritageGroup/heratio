@@ -44,3 +44,16 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::match(['get','post'], '/admin/ai/condition/manual', [AiController::class, 'conditionManualAssess'])->name('admin.ai.condition.manual');
     Route::match(['get','post'], '/admin/ai/condition/training', [AiController::class, 'conditionTraining'])->name('admin.ai.condition.training');
     Route::get('/admin/ai/condition/{id}', [AiController::class, 'conditionView'])->name('admin.ai.condition.view')->whereNumber('id');
+
+    // HTR routes
+    Route::get('/admin/ai/htr', [AiController::class, 'htrDashboard'])->name('admin.ai.htr.dashboard');
+    Route::get('/admin/ai/htr/extract', [AiController::class, 'htrExtract'])->name('admin.ai.htr.extract');
+    Route::post('/admin/ai/htr/extract', [AiController::class, 'htrDoExtract'])->name('admin.ai.htr.doExtract');
+    Route::get('/admin/ai/htr/results/{jobId}', [AiController::class, 'htrResults'])->name('admin.ai.htr.results');
+    Route::get('/admin/ai/htr/download/{jobId}/{fmt}', [AiController::class, 'htrDownload'])->name('admin.ai.htr.download');
+    Route::get('/admin/ai/htr/batch', [AiController::class, 'htrBatch'])->name('admin.ai.htr.batch');
+    Route::post('/admin/ai/htr/batch', [AiController::class, 'htrDoBatch'])->name('admin.ai.htr.doBatch');
+    Route::get('/admin/ai/htr/annotate', [AiController::class, 'htrAnnotate'])->name('admin.ai.htr.annotate');
+    Route::post('/admin/ai/htr/annotate', [AiController::class, 'htrSaveAnnotation'])->name('admin.ai.htr.saveAnnotation');
+    Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
+    Route::post('/admin/ai/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');

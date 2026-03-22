@@ -44,11 +44,11 @@
       </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual" {{ ($embargo->is_perpetual ?? false) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_perpetual">Perpetual</label>
+        <label class="form-check-label" for="is_perpetual">Perpetual <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" {{ ($embargo->is_active ?? true) ? 'checked' : '' }}>
-        <label class="form-check-label" for="is_active">Active</label>
+        <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
     </div>
   </div>

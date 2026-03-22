@@ -41,7 +41,7 @@
             <label class="form-check-label" for="glam_browse_enabled">
               <strong>Enable GLAM Browse</strong>
               <small class="d-block text-muted">Use the enhanced GLAM browse interface instead of the standard browse</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
 
@@ -131,7 +131,7 @@
             <label class="form-check-label" for="show_facets">
               <strong>Show facets</strong>
               <small class="d-block text-muted">Display filter facets in the sidebar when browsing</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="remember_filters" name="remember_filters"
@@ -139,7 +139,7 @@
             <label class="form-check-label" for="remember_filters">
               <strong>Remember filters</strong>
               <small class="d-block text-muted">Persist selected filters across browse sessions</small>
-            </label>
+             <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
 

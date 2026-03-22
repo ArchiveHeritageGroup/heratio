@@ -2,11 +2,13 @@
 
 namespace AhgAiServices\Controllers;
 
+use AhgAiServices\Services\HtrService;
 use AhgAiServices\Services\LlmService;
 use AhgAiServices\Services\NerService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * AI Services Controller
@@ -20,11 +22,13 @@ class AiController extends Controller
 {
     private LlmService $llmService;
     private NerService $nerService;
+    private HtrService $htrService;
 
-    public function __construct(LlmService $llmService, NerService $nerService)
+    public function __construct(LlmService $llmService, NerService $nerService, HtrService $htrService)
     {
         $this->llmService = $llmService;
         $this->nerService = $nerService;
+        $this->htrService = $htrService;
     }
 
     /**
@@ -437,4 +441,155 @@ class AiController extends Controller
     public function conditionTraining(Request $request) { return view('ahg-ai-services::condition-training'); }
 
     public function conditionView(int $id) { return view('ahg-ai-services::condition-view', ['record' => (object)['id'=>$id]]); }
+
+    /* ------------------------------------------------------------------ */
+    /*  HTR — Vital Records Handwritten Text Recognition                  */
+    /* ------------------------------------------------------------------ */
+
+    public function htrDashboard()
+    {
+        $health = $this->htrService->health();
+        return view('ahg-ai-services::htr.dashboard', compact('health'));
+    }
+
+    public function htrExtract()
+    {
+        return view('ahg-ai-services::htr.extract');
+    }
+
+    public function htrDoExtract(Request $request)
+    {
+        $request->validate([
+            'file'     => 'required|file|mimes:jpg,jpeg,png,tiff,tif,pdf|max:20480',
+            'doc_type' => 'nullable|string|in:auto,type_a,type_b,type_c',
+            'formats'  => 'nullable|array',
+        ]);
+
+        $file    = $request->file('file');
+        $tmpPath = $file->store('htr-uploads', 'local');
+        $fullPath = storage_path('app/' . $tmpPath);
+
+        $docType = $request->input('doc_type', 'auto');
+        $format  = $request->input('formats') ? implode(',', $request->input('formats')) : 'all';
+
+        $results = $this->htrService->extract($fullPath, $docType, $format);
+
+        @unlink($fullPath);
+
+        if (!$results) {
+            return redirect()->route('admin.ai.htr.extract')
+                ->with('error', 'HTR extraction failed. The service may be offline.');
+        }
+
+        $jobId = $results['job_id'] ?? Str::uuid()->toString();
+        session()->put("htr_results_{$jobId}", $results);
+
+        return redirect()->route('admin.ai.htr.results', $jobId);
+    }
+
+    public function htrResults(string $jobId)
+    {
+        $results = session("htr_results_{$jobId}", []);
+        return view('ahg-ai-services::htr.results', compact('results', 'jobId'));
+    }
+
+    public function htrDownload(string $jobId, string $fmt)
+    {
+        $response = $this->htrService->downloadOutput($jobId, $fmt);
+
+        if (!$response || !$response->successful()) {
+            return redirect()->route('admin.ai.htr.results', $jobId)
+                ->with('error', 'Download failed.');
+        }
+
+        $contentType = $response->header('Content-Type') ?? 'application/octet-stream';
+        $filename    = "htr-{$jobId}.{$fmt}";
+
+        return response($response->body(), 200)
+            ->header('Content-Type', $contentType)
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
+    public function htrBatch()
+    {
+        return view('ahg-ai-services::htr.batch');
+    }
+
+    public function htrDoBatch(Request $request)
+    {
+        $request->validate([
+            'files'  => 'required|array|min:1',
+            'files.*' => 'file|mimes:jpg,jpeg,png,tiff,tif,pdf|max:20480',
+            'format' => 'nullable|string|in:csv,json,gedcom',
+        ]);
+
+        $paths = [];
+        foreach ($request->file('files') as $file) {
+            $tmpPath = $file->store('htr-uploads', 'local');
+            $paths[] = storage_path('app/' . $tmpPath);
+        }
+
+        $format = $request->input('format', 'csv');
+        $batchResults = $this->htrService->batch($paths, $format);
+
+        foreach ($paths as $p) {
+            @unlink($p);
+        }
+
+        if (!$batchResults) {
+            return redirect()->route('admin.ai.htr.batch')
+                ->with('error', 'Batch processing failed. The service may be offline.');
+        }
+
+        return view('ahg-ai-services::htr.batch', compact('batchResults'));
+    }
+
+    public function htrAnnotate()
+    {
+        return view('ahg-ai-services::htr.annotate');
+    }
+
+    public function htrSaveAnnotation(Request $request)
+    {
+        $request->validate([
+            'image'       => 'required|file|mimes:jpg,jpeg,png,tiff,tif|max:20480',
+            'type'        => 'required|string|in:type_a,type_b,type_c',
+            'annotations' => 'required|string',
+        ]);
+
+        $file    = $request->file('image');
+        $tmpPath = $file->store('htr-annotations', 'local');
+        $fullPath = storage_path('app/' . $tmpPath);
+
+        $annotations = json_decode($request->input('annotations'), true) ?? [];
+
+        $result = $this->htrService->saveAnnotation($fullPath, $request->input('type'), $annotations);
+
+        @unlink($fullPath);
+
+        return response()->json([
+            'success' => $result !== null,
+            'data'    => $result,
+            'error'   => $result === null ? 'Annotation save failed.' : null,
+        ]);
+    }
+
+    public function htrTraining()
+    {
+        $status = $this->htrService->trainingStatus() ?? ['counts' => [], 'training_active' => false];
+        return view('ahg-ai-services::htr.training', compact('status'));
+    }
+
+    public function htrStartTraining()
+    {
+        $result = $this->htrService->triggerTraining();
+
+        if ($result) {
+            return redirect()->route('admin.ai.htr.training')
+                ->with('success', 'Fine-tuning started successfully.');
+        }
+
+        return redirect()->route('admin.ai.htr.training')
+            ->with('error', 'Failed to start training. The service may be offline.');
+    }
 }

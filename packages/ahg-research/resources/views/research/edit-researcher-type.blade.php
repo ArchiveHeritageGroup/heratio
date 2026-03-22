@@ -21,8 +21,8 @@
                 <div class="col-md-4"><label class="form-label">Max Hours per Day <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="max_hours_per_day" class="form-control" value="{{ $type->max_hours_per_day ?? 8 }}"></div>
                 <div class="col-md-4"><label class="form-label">Max Materials <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" name="max_materials" class="form-control" value="{{ $type->max_materials ?? 5 }}"></div>
             </div>
-            <div class="form-check mb-3"><input type="checkbox" name="auto_approve" class="form-check-input" id="autoApprove" {{ ($type->auto_approve ?? false) ? 'checked' : '' }}><label class="form-check-label" for="autoApprove">Auto-approve registrations of this type</label></div>
-            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($type->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active</label></div>
+            <div class="form-check mb-3"><input type="checkbox" name="auto_approve" class="form-check-input" id="autoApprove" {{ ($type->auto_approve ?? false) ? 'checked' : '' }}><label class="form-check-label" for="autoApprove">Auto-approve registrations of this type <span class="badge bg-secondary ms-1">Optional</span></label></div>
+            <div class="form-check mb-3"><input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ ($type->is_active ?? true) ? 'checked' : '' }}><label class="form-check-label" for="isActive">Active <span class="badge bg-secondary ms-1">Optional</span></label></div>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-save me-1"></i>Save</button>
             <a href="{{ route('research.adminTypes') }}" class="btn atom-btn-white">Cancel</a>
         </form>

@@ -29,11 +29,11 @@
             <label class="form-label">Format <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="format" id="format_csv" value="csv" checked>
-              <label class="form-check-label" for="format_csv">CSV</label>
+              <label class="form-check-label" for="format_csv">CSV <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="format" id="format_jsonld" value="json-ld">
-              <label class="form-check-label" for="format_jsonld">JSON-LD</label>
+              <label class="form-check-label" for="format_jsonld">JSON-LD <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
           <button type="submit" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Export</button>

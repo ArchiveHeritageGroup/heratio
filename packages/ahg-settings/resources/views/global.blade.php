@@ -26,7 +26,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[check_for_updates]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[check_for_updates]" value="1" id="check_for_updates" {{ ($settings['check_for_updates'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="check_for_updates">Check for updates</label>
+                <label class="form-check-label" for="check_for_updates">Check for updates <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[escape_queries]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[escape_queries]" value="1" id="escape_queries" {{ ($settings['escape_queries'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="escape_queries">Escape special characters in search queries</label>
+                <label class="form-check-label" for="escape_queries">Escape special characters in search queries <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>
@@ -90,12 +90,12 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[show_tooltips]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[show_tooltips]" value="1" id="show_tooltips" {{ ($settings['show_tooltips'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="show_tooltips">Show tooltips</label>
+                <label class="form-check-label" for="show_tooltips">Show tooltips <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[draft_notification_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[draft_notification_enabled]" value="1" id="draft_notification_enabled" {{ ($settings['draft_notification_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="draft_notification_enabled">Show draft record notification</label>
+                <label class="form-check-label" for="draft_notification_enabled">Show draft record notification <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>
@@ -109,12 +109,12 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[multi_repository]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[multi_repository]" value="1" id="multi_repository" {{ ($settings['multi_repository'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="multi_repository">Enable multi-repository</label>
+                <label class="form-check-label" for="multi_repository">Enable multi-repository <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_institutional_scoping]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_institutional_scoping]" value="1" id="enable_institutional_scoping" {{ ($settings['enable_institutional_scoping'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_institutional_scoping">Enable institutional scoping</label>
+                <label class="form-check-label" for="enable_institutional_scoping">Enable institutional scoping <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[permissive_slug_creation]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[permissive_slug_creation]" value="1" id="permissive_slug_creation" {{ ($settings['permissive_slug_creation'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="permissive_slug_creation">Permissive slug creation (allow non-ASCII characters)</label>
+                <label class="form-check-label" for="permissive_slug_creation">Permissive slug creation (allow non-ASCII characters) <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>
@@ -150,17 +150,17 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[audit_log_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[audit_log_enabled]" value="1" id="audit_log_enabled" {{ ($settings['audit_log_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="audit_log_enabled">Enable audit logging</label>
+                <label class="form-check-label" for="audit_log_enabled">Enable audit logging <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[generate_reports_as_pub_user]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[generate_reports_as_pub_user]" value="1" id="generate_reports_as_pub_user" {{ ($settings['generate_reports_as_pub_user'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="generate_reports_as_pub_user">Generate reports as public user</label>
+                <label class="form-check-label" for="generate_reports_as_pub_user">Generate reports as public user <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[cache_xml_on_save]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[cache_xml_on_save]" value="1" id="cache_xml_on_save" {{ ($settings['cache_xml_on_save'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="cache_xml_on_save">Cache XML on save</label>
+                <label class="form-check-label" for="cache_xml_on_save">Cache XML on save <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="mb-3">
                 <label class="form-label">Default publication status <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -198,22 +198,22 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_enhanced_search]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_enhanced_search]" value="1" id="enable_enhanced_search" {{ ($settings['enable_enhanced_search'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_enhanced_search">Enable enhanced search</label>
+                <label class="form-check-label" for="enable_enhanced_search">Enable enhanced search <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_fulltext_search]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_fulltext_search]" value="1" id="enable_fulltext_search" {{ ($settings['enable_fulltext_search'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_fulltext_search">Enable full-text search</label>
+                <label class="form-check-label" for="enable_fulltext_search">Enable full-text search <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_batch_editing]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_batch_editing]" value="1" id="enable_batch_editing" {{ ($settings['enable_batch_editing'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_batch_editing">Enable batch editing</label>
+                <label class="form-check-label" for="enable_batch_editing">Enable batch editing <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_advanced_filters]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_advanced_filters]" value="1" id="enable_advanced_filters" {{ ($settings['enable_advanced_filters'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_advanced_filters">Enable advanced filters</label>
+                <label class="form-check-label" for="enable_advanced_filters">Enable advanced filters <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>

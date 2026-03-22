@@ -49,11 +49,11 @@
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="dateOf" id="dateOfCreated" value="created" {{ $dateOf === 'created' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfCreated">Created</label>
+              <label class="form-check-label" for="dateOfCreated">Created <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="dateOf" id="dateOfUpdated" value="updated" {{ $dateOf === 'updated' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfUpdated">Updated</label>
+              <label class="form-check-label" for="dateOfUpdated">Updated <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
         </div>
@@ -64,15 +64,15 @@
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubAll">All</label>
+              <label class="form-check-label" for="pubAll">All <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubPublished" value="published" {{ $publicationStatus === 'published' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubPublished">Published</label>
+              <label class="form-check-label" for="pubPublished">Published <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubDraft" value="draft" {{ $publicationStatus === 'draft' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubDraft">Draft</label>
+              <label class="form-check-label" for="pubDraft">Draft <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
         </div>

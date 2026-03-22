@@ -264,7 +264,7 @@
         <input type="hidden" name="is_active" value="0">
         <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1"
                @checked(old('is_active', 1))>
-        <label class="form-check-label" for="is_active">Active</label>
+        <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">Optional</span></label>
         <div class="form-text text-muted small">Uncheck to mark this artist as inactive. Inactive artists will not appear in public browse listings.</div>
       </div>
     </fieldset>

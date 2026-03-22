@@ -25,15 +25,15 @@
                 <div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="settings[csv_validator_default_import_behaviour]" id="validator_off" value="0" {{ $settings['csv_validator_default_import_behaviour'] == '0' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="validator_off">Off - validation is not run before CSV imports</label>
+                    <label class="form-check-label" for="validator_off">Off - validation is not run before CSV imports <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="settings[csv_validator_default_import_behaviour]" id="validator_permissive" value="1" {{ $settings['csv_validator_default_import_behaviour'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="validator_permissive">Permissive - validation is run; warnings are ignored</label>
+                    <label class="form-check-label" for="validator_permissive">Permissive - validation is run; warnings are ignored <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="settings[csv_validator_default_import_behaviour]" id="validator_strict" value="2" {{ $settings['csv_validator_default_import_behaviour'] == '2' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="validator_strict">Strict - validation is run; warnings will halt import from running</label>
+                    <label class="form-check-label" for="validator_strict">Strict - validation is run; warnings will halt import from running <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

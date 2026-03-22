@@ -30,11 +30,11 @@
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enabled]" id="md_no" value="0" {{ $settings['enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="md_no">No</label>
+                    <label class="form-check-label" for="md_no">No <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enabled]" id="md_yes" value="1" {{ $settings['enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="md_yes">Yes</label>
+                    <label class="form-check-label" for="md_yes">Yes <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

@@ -24,11 +24,11 @@
             <div class="col-sm-9">
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="processing_mode" id="mode_hybrid" value="hybrid" {{ ($settings['processing_mode'] ?? 'job') === 'hybrid' ? 'checked' : '' }}>
-                <label class="form-check-label" for="mode_hybrid"><strong>Hybrid</strong> - Interactive for small docs, background for large</label>
+                <label class="form-check-label" for="mode_hybrid"><strong>Hybrid</strong> - Interactive for small docs, background for large <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="processing_mode" id="mode_job" value="job" {{ ($settings['processing_mode'] ?? 'job') === 'job' ? 'checked' : '' }}>
-                <label class="form-check-label" for="mode_job"><strong>Background Job</strong> - Always queue (recommended for production)</label>
+                <label class="form-check-label" for="mode_job"><strong>Background Job</strong> - Always queue (recommended for production) <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>

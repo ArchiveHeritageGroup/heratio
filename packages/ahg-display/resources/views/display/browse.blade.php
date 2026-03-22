@@ -375,7 +375,7 @@
                      {{ !empty($fp['semantic']) ? 'checked' : '' }}>
               <label class="form-check-label" for="semantic-toggle">
                 <i class="fas fa-brain me-1"></i> Enable AI-powered semantic expansion
-              </label>
+               <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <small class="text-muted d-block mt-1">
               Semantic search uses AI to understand meaning, expanding your query with synonyms, related terms, and named entities.

@@ -137,7 +137,7 @@
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" name="rules_acknowledged" id="rulesAck" value="1" required>
-                        <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules</label>
+                        <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
                     <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-user-check me-1"></i>Register Visitor</button>
                 </form>
