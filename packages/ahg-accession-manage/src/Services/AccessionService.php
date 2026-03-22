@@ -338,6 +338,256 @@ class AccessionService
     }
 
     /**
+     * Get accruals for an accession (accessions related to this one via ACCRUAL_ID = 173).
+     */
+    public function getAccruals(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('accession', 'relation.subject_id', '=', 'accession.id')
+            ->leftJoin('accession_i18n', function ($j) {
+                $j->on('accession.id', '=', 'accession_i18n.id')
+                    ->where('accession_i18n.culture', '=', $this->culture);
+            })
+            ->join('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $accessionId)
+            ->where('relation.type_id', 173)
+            ->select([
+                'accession.id',
+                'accession.identifier',
+                'accession_i18n.title',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get the accession this one is an accrual to.
+     */
+    public function getAccrualTo(int $accessionId): ?object
+    {
+        return DB::table('relation')
+            ->join('accession', 'relation.object_id', '=', 'accession.id')
+            ->leftJoin('accession_i18n', function ($j) {
+                $j->on('accession.id', '=', 'accession_i18n.id')
+                    ->where('accession_i18n.culture', '=', $this->culture);
+            })
+            ->join('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $accessionId)
+            ->where('relation.type_id', 173)
+            ->select([
+                'accession.id',
+                'accession.identifier',
+                'accession_i18n.title',
+                'slug.slug',
+            ])
+            ->first();
+    }
+
+    /**
+     * Get creators linked to an accession via relation table (type_id = 168 CREATION_ID).
+     */
+    public function getCreators(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('actor_i18n', 'relation.subject_id', '=', 'actor_i18n.id')
+            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
+            ->where('relation.object_id', $accessionId)
+            ->where('relation.type_id', 168)
+            ->where('actor_i18n.culture', $this->culture)
+            ->select([
+                'relation.subject_id as id',
+                'actor_i18n.authorized_form_of_name as name',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get dates for an accession from the event table.
+     */
+    public function getDates(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('event')
+            ->leftJoin('event_i18n', function ($j) {
+                $j->on('event.id', '=', 'event_i18n.id')
+                    ->where('event_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('event.type_id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('event.object_id', $accessionId)
+            ->select([
+                'event.id',
+                'event.start_date',
+                'event.end_date',
+                'event_i18n.date as date_display',
+                'term_i18n.name as type_name',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get accession events.
+     */
+    public function getAccessionEvents(int $accessionId): \Illuminate\Support\Collection
+    {
+        $events = DB::table('accession_event')
+            ->leftJoin('accession_event_i18n', function ($j) {
+                $j->on('accession_event.id', '=', 'accession_event_i18n.id')
+                    ->where('accession_event_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('accession_event.type_id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('accession_event.accession_id', $accessionId)
+            ->select([
+                'accession_event.id',
+                'accession_event.date',
+                'term_i18n.name as type_name',
+                'accession_event_i18n.agent',
+            ])
+            ->get();
+
+        // Get notes from the note table for each event
+        foreach ($events as $event) {
+            $event->note = DB::table('note')
+                ->leftJoin('note_i18n', function ($j) {
+                    $j->on('note.id', '=', 'note_i18n.id')
+                        ->where('note_i18n.culture', '=', $this->culture);
+                })
+                ->where('note.object_id', $event->id)
+                ->value('note_i18n.content');
+        }
+
+        return $events;
+    }
+
+    /**
+     * Get alternative identifiers for an accession (from other_name table).
+     */
+    public function getAlternativeIdentifiers(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('other_name')
+            ->leftJoin('other_name_i18n', function ($j) {
+                $j->on('other_name.id', '=', 'other_name_i18n.id')
+                    ->where('other_name_i18n.culture', '=', $this->culture);
+            })
+            ->where('other_name.object_id', $accessionId)
+            ->select([
+                'other_name.id',
+                'other_name.type_id',
+                'other_name_i18n.name as identifier',
+                DB::raw("(SELECT ti.name FROM term_i18n ti WHERE ti.id = other_name.type_id AND ti.culture = '{$this->culture}' LIMIT 1) as label"),
+            ])
+            ->get();
+    }
+
+    /**
+     * Get information objects linked to an accession via relation (type_id = 174 ACCESSION_ID).
+     */
+    public function getInformationObjects(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('information_object_i18n', function ($j) {
+                $j->on('relation.subject_id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
+            ->where('relation.object_id', $accessionId)
+            ->where('relation.type_id', 174)
+            ->select([
+                'relation.subject_id as id',
+                'information_object_i18n.title',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get rights records for an accession.
+     */
+    public function getRights(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('rights', 'relation.object_id', '=', 'rights.id')
+            ->leftJoin('rights_i18n', function ($j) {
+                $j->on('rights.id', '=', 'rights_i18n.id')
+                    ->where('rights_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('rights.basis_id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->where('relation.subject_id', $accessionId)
+            ->where('relation.type_id', 168)
+            ->select([
+                'rights.id',
+                'rights.start_date',
+                'rights.end_date',
+                'term_i18n.name as basis_name',
+                'rights_i18n.rights_note',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get physical objects linked to an accession via relation (type_id = 179 HAS_PHYSICAL_OBJECT_ID).
+     */
+    public function getPhysicalObjects(int $accessionId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
+            ->leftJoin('physical_object_i18n', function ($j) {
+                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
+                    ->where('physical_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('term_i18n', function ($j) {
+                $j->on('physical_object.type_id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->join('slug', 'physical_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $accessionId)
+            ->where('relation.type_id', 179)
+            ->select([
+                'physical_object.id',
+                'physical_object_i18n.name',
+                'physical_object_i18n.location',
+                'term_i18n.name as type_name',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
+    /**
+     * Get contact information for a donor.
+     */
+    public function getDonorContacts(int $actorId): \Illuminate\Support\Collection
+    {
+        return DB::table('contact_information')
+            ->leftJoin('contact_information_i18n', function ($j) {
+                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
+                    ->where('contact_information_i18n.culture', '=', $this->culture);
+            })
+            ->where('contact_information.actor_id', $actorId)
+            ->select([
+                'contact_information.id',
+                'contact_information_i18n.contact_person',
+                'contact_information_i18n.street_address',
+                'contact_information_i18n.city',
+                'contact_information_i18n.region',
+                'contact_information_i18n.postal_code',
+                'contact_information_i18n.country_code',
+                'contact_information.telephone',
+                'contact_information.fax',
+                'contact_information.email',
+                'contact_information.website',
+            ])
+            ->get();
+    }
+
+    /**
      * Get the slug for an accession ID.
      */
     public function getSlug(int $id): ?string

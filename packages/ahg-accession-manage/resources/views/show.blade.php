@@ -1,4 +1,4 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.3col')
 
 @section('title', 'View accession record')
 @section('body-class', 'view accession')
@@ -8,6 +8,14 @@
     <h1 class="mb-0" aria-describedby="heading-label">View accession record</h1>
     <span class="small" id="heading-label">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</span>
   </div>
+@endsection
+
+@section('right')
+  @if(config('atom.app_element_visibility_physical_storage', true))
+    <nav>
+      @include('ahg-accession-manage::partials._physical-storage-context-menu', ['resource' => $accession])
+    </nav>
+  @endif
 @endsection
 
 @section('content')
@@ -374,7 +382,7 @@
           <div class="field row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Deaccession</h3>
             <div class="col-9 p-2">
-              {{ $deaccession->identifier ?: $deaccession->description ?: '[Untitled]' }}
+              <a href="{{ url('/deaccession/' . $deaccession->slug) }}">{{ $deaccession->identifier ?: $deaccession->description ?: '[Untitled]' }}</a>
             </div>
           </div>
         @endforeach

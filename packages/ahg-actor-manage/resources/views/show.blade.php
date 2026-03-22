@@ -215,6 +215,9 @@
   <section id="contactArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact information</div></h2>
     @foreach($contacts ?? [] as $contact)
+      @if(!$loop->first)
+        <hr class="my-3">
+      @endif
       <div class="p-2">
         @if($contact->primary_contact) <span class="badge bg-success mb-1">Primary</span> @endif
         @if($contact->contact_person) <div>{{ $contact->contact_person }}</div> @endif
@@ -223,10 +226,10 @@
           <div>{{ $contact->city ?? '' }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
         @endif
         @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
-        @if($contact->telephone) <div>{{ $contact->telephone }}</div> @endif
+        @if($contact->telephone) <div><a href="tel:{{ $contact->telephone }}">{{ $contact->telephone }}</a></div> @endif
         @if($contact->fax) <div>Fax: {{ $contact->fax }}</div> @endif
         @if($contact->email) <div><a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a></div> @endif
-        @if($contact->website) <div><a href="{{ $contact->website }}" target="_blank">{{ $contact->website }}</a></div> @endif
+        @if($contact->website) <div><a href="{{ $contact->website }}" target="_blank">{{ $contact->website }} <i class="fas fa-external-link-alt"></i></a></div> @endif
         @if($contact->note) <div class="text-muted mt-1">{{ $contact->note }}</div> @endif
       </div>
     @endforeach
@@ -377,6 +380,20 @@
     <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
+    <li>
+      <div class="dropup">
+        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          More
+        </button>
+        <ul class="dropdown-menu mb-2">
+          @if(isset($digitalObject) && $digitalObject)
+            <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
+          @else
+            <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
+          @endif
+        </ul>
+      </div>
+    </li>
   </ul>
   @endauth
 @endsection

@@ -231,22 +231,61 @@ class AccessionController extends Controller
         ]);
         $termNames = $this->service->getTermNames($termIds);
 
-        // Get donor via relation table
-        $donor = $this->service->getDonor($accession->id);
+        // Get donors (plural) via relation table with contacts
+        $donors = $this->service->getDonors($accession->id);
+        foreach ($donors as $donorItem) {
+            $donorItem->contacts = $this->service->getDonorContacts($donorItem->id);
+        }
+        $donor = $donors->first();
 
         // Get deaccessions
         $deaccessions = $this->service->getDeaccessions($accession->id);
+        // Add slugs to deaccessions
+        foreach ($deaccessions as $d) {
+            $d->slug = $this->service->getSlug($d->id) ?? $d->id;
+        }
 
         // Resolve deaccession scope term names
         $scopeIds = $deaccessions->pluck('scope_id')->filter()->unique()->values()->toArray();
         $scopeNames = $this->service->getTermNames($scopeIds);
 
+        // Get accruals and accrual-to
+        $accruals = $this->service->getAccruals($accession->id);
+        $accrualTo = $this->service->getAccrualTo($accession->id);
+
+        // Get creators, dates, events
+        $creators = $this->service->getCreators($accession->id);
+        $dates = $this->service->getDates($accession->id);
+        $accessionEvents = $this->service->getAccessionEvents($accession->id);
+
+        // Get alternative identifiers
+        $alternativeIdentifiers = $this->service->getAlternativeIdentifiers($accession->id);
+
+        // Get linked information objects
+        $informationObjects = $this->service->getInformationObjects($accession->id);
+
+        // Get rights records
+        $rights = $this->service->getRights($accession->id);
+
+        // Get physical objects for context menu
+        $physicalObjects = $this->service->getPhysicalObjects($accession->id);
+
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
             'termNames' => $termNames,
             'donor' => $donor,
+            'donors' => $donors,
             'deaccessions' => $deaccessions,
             'scopeNames' => $scopeNames,
+            'accruals' => $accruals,
+            'accrualTo' => $accrualTo,
+            'creators' => $creators,
+            'dates' => $dates,
+            'accessionEvents' => $accessionEvents,
+            'alternativeIdentifiers' => $alternativeIdentifiers,
+            'informationObjects' => $informationObjects,
+            'rights' => $rights,
+            'physicalObjects' => $physicalObjects,
         ]);
     }
 
@@ -376,8 +415,16 @@ class AccessionController extends Controller
             abort(404);
         }
 
+        $deaccessions = $this->service->getDeaccessions($accession->id);
+        foreach ($deaccessions as $d) {
+            $d->slug = $this->service->getSlug($d->id) ?? $d->id;
+        }
+        $accruals = $this->service->getAccruals($accession->id);
+
         return view('ahg-accession-manage::delete', [
             'accession' => $accession,
+            'deaccessions' => $deaccessions,
+            'accruals' => $accruals,
         ]);
     }
 

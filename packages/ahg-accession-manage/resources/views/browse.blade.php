@@ -19,39 +19,7 @@
           'options' => $sortOptions,
           'default' => 'lastUpdated',
       ])
-
-      @php
-        $currentDir = request('sortDir', (request('sort', 'lastUpdated') === 'lastUpdated' ? 'desc' : 'asc'));
-        $dirQuery = request()->except(['sortDir', 'page']);
-      @endphp
-      <div class="dropdown">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
-          <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
-        </ul>
-      </div>
     </div>
-  </div>
-
-  <div class="d-flex flex-wrap gap-2 mb-3">
-    @if(Route::has('accession.intake-queue'))
-      <a href="{{ route('accession.intake-queue') }}" class="btn btn-sm btn-outline-primary">
-        <i class="fas fa-inbox"></i> Intake Queue
-      </a>
-    @endif
-    @if(Route::has('accession.dashboard'))
-      <a href="{{ route('accession.dashboard') }}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-tachometer-alt"></i> Dashboard
-      </a>
-    @endif
-    @if(Route::has('accession.valuation-report'))
-      <a href="{{ route('accession.valuation-report') }}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-chart-bar"></i> Valuation Report
-      </a>
-    @endif
   </div>
 @endsection
 
@@ -59,33 +27,19 @@
   <div class="table-responsive mb-3">
     <table class="table table-bordered mb-0">
       <thead>
-        <tr style="background:var(--ahg-primary);color:#fff">
-          <th>
-            Accession number
-          </th>
-          <th>
-            Title
-          </th>
-          <th>
-            Acquisition date
-          </th>
-          <th>
-            Status
-          </th>
-          <th>
-            Priority
-          </th>
+        <tr>
+          <th>Accession number</th>
+          <th>Title</th>
+          <th>Acquisition date</th>
           @if(request('sort') === 'lastUpdated')
-            <th>
-              Updated
-            </th>
+            <th>Updated</th>
           @endif
         </tr>
       </thead>
       <tbody>
         @foreach($pager->getResults() as $doc)
           <tr>
-            <td class="w-15">
+            <td class="w-20">
               <a href="{{ route('accession.show', $doc['slug']) }}">
                 {{ $doc['identifier'] ?: '—' }}
               </a>
@@ -95,17 +49,11 @@
                 {{ $doc['name'] ?: '[Untitled]' }}
               </a>
             </td>
-            <td class="w-15">
+            <td class="w-20">
               {{ $doc['accession_date'] ? \Carbon\Carbon::parse($doc['accession_date'])->format('Y-m-d') : '' }}
             </td>
-            <td class="w-10">
-              {{ $doc['processing_status'] ?? '' }}
-            </td>
-            <td class="w-10">
-              {{ $doc['processing_priority'] ?? '' }}
-            </td>
             @if(request('sort') === 'lastUpdated')
-              <td class="w-15">
+              <td class="w-20">
                 {{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d H:i') : '' }}
               </td>
             @endif
@@ -120,8 +68,11 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   <section class="actions mb-3">
-    <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">
-      Add new
-    </a>
+    <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">Add new</a>
+    @auth
+      @if(Route::has('accession.export-csv'))
+        <a href="{{ route('accession.export-csv', request()->query()) }}" class="btn atom-btn-outline-light">Export CSV</a>
+      @endif
+    @endauth
   </section>
 @endsection
