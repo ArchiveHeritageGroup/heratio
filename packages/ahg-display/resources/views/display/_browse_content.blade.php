@@ -37,7 +37,7 @@
     </h1>
     <span class="small text-muted">GLAM Browser</span>
   </div>
-  <button type="button" class="btn btn-primary ms-3" id="openSemanticSearchBtn" data-bs-toggle="modal" data-bs-target="#semanticSearchModal">
+  <button type="button" class="btn atom-btn-white ms-3" id="openSemanticSearchBtn" data-bs-toggle="modal" data-bs-target="#semanticSearchModal">
     <i class="fas fa-brain me-1"></i>
     <span class="d-none d-md-inline">Semantic Search</span>
     <span class="d-md-none">Search</span>
@@ -230,36 +230,36 @@
 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
   {{-- Print --}}
-  <a href="{{ route('glam.print', array_filter($fp)) }}" target="_blank" class="btn btn-success btn-sm">
+  <a href="{{ route('glam.print', array_filter($fp)) }}" target="_blank" class="btn atom-btn-outline-success btn-sm">
     <i class="fas fa-print"></i> Print
   </a>
 
   {{-- CSV Export --}}
-  <a href="{{ route('glam.export.csv', array_filter($fp)) }}" class="btn btn-success btn-sm">
+  <a href="{{ route('glam.export.csv', array_filter($fp)) }}" class="btn atom-btn-outline-success btn-sm">
     <i class="fas fa-download"></i> CSV
   </a>
 
   {{-- View mode buttons --}}
   <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'btn-success' : 'btn-outline-success' }}" title="Card view" aria-label="Card view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Card view" aria-label="Card view">
     <i class="fas fa-th-large"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'grid']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'btn-success' : 'btn-outline-success' }}" title="Grid view" aria-label="Grid view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Grid view" aria-label="Grid view">
     <i class="fas fa-th"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'table']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'btn-success' : 'btn-outline-success' }}" title="Table view" aria-label="Table view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Table view" aria-label="Table view">
     <i class="fas fa-list"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'full']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'btn-success' : 'btn-outline-success' }}" title="Full width" aria-label="Full width">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Full width" aria-label="Full width">
     <i class="fas fa-bars"></i>
   </a>
 
   {{-- Limit dropdown --}}
   <div class="dropdown">
-    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>
     <ul class="dropdown-menu">
       @foreach([10, 30, 50, 100] as $lim)
         <li><a class="dropdown-item {{ ($limit ?? 30) == $lim ? 'active' : '' }}" href="{{ glamBrowseUrl($fp, ['limit' => $lim]) }}">{{ $lim }}</a></li>
@@ -269,7 +269,7 @@
 
   {{-- Sort dropdown --}}
   <div class="dropdown ms-auto">
-    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'title'] ?? 'Title' }}</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'title'] ?? 'Title' }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       @foreach($sortLabels as $sKey => $sLabel)
         <li>
@@ -284,7 +284,7 @@
 
   {{-- Sort direction dropdown --}}
   <div class="dropdown">
-    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ ($sortDir ?? 'asc') === 'asc' ? 'Asc' : 'Desc' }}</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ ($sortDir ?? 'asc') === 'asc' ? 'Asc' : 'Desc' }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'asc' ? 'active' : '' }}"
@@ -309,11 +309,11 @@
       <i class="fas fa-image me-1"></i> {{ number_format($digitalObjectCount) }} with digital objects
     </span>
     @if(empty($hasDigital))
-      <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn btn-outline-success btn-sm">
+      <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn atom-btn-outline-success btn-sm">
         <i class="fas fa-image"></i> With digital objects
       </a>
     @else
-      <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="btn btn-success btn-sm">
+      <a href="{{ glamBrowseUrl($fp, [], ['hasDigital']) }}" class="btn atom-btn-outline-success btn-sm">
         <i class="fas fa-times me-1"></i> Showing digital only
       </a>
     @endif
@@ -334,8 +334,8 @@
   @if(($viewMode ?? 'card') === 'table')
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped table-hover mb-0 browse-table" id="glam-browse-table">
-        <thead class="table-light">
-          <tr>
+        <thead>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th class="col-thumb">
               <span class="d-none d-md-inline">Image</span>
               <div class="resize-handle"></div>
@@ -414,7 +414,7 @@
               </td>
               {{-- Actions --}}
               <td class="col-actions text-center">
-                <a href="{{ $objUrl }}" class="btn btn-sm btn-outline-primary" title="View">
+                <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
                   <i class="fas fa-eye"></i>
                 </a>
               </td>
@@ -509,7 +509,7 @@
                       <span class="badge bg-light text-dark border">{{ e($objLevel) }}</span>
                     @endif
                   </div>
-                  <a href="{{ $objUrl }}" class="btn btn-sm btn-outline-primary" title="View">
+                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
                     <i class="fas fa-eye me-1"></i> View
                   </a>
                 </div>
@@ -601,8 +601,8 @@
               </div>
             </div>
             <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">
-              <a href="{{ $objUrl }}" class="btn btn-outline-success btn-sm" aria-label="View"><i class="fas fa-eye"></i></a>
-              <button class="btn btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
+              <a href="{{ $objUrl }}" class="btn atom-btn-outline-success btn-sm" aria-label="View"><i class="fas fa-eye"></i></a>
+              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
             </div>
           </div>
           {{-- Discovery metadata footer --}}

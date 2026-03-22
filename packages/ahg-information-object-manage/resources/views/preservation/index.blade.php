@@ -3,7 +3,7 @@
 @section('title', 'Preservation Packages — ' . ($io->title ?? 'Untitled'))
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   {{-- Breadcrumb --}}
   <nav aria-label="breadcrumb">
@@ -76,39 +76,39 @@
   {{-- Actions bar --}}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-outline-secondary me-2">
+      <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-white me-2">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
       @auth
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPackageModal">
+        <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createPackageModal">
           <i class="fas fa-plus me-1"></i> Create Package
         </button>
       @endauth
     </div>
     <div class="d-flex gap-2">
       <div class="dropdown">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="typeFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn atom-btn-white dropdown-toggle" type="button" id="typeFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="fas fa-filter me-1"></i> Type
         </button>
         <ul class="dropdown-menu" aria-labelledby="typeFilterDropdown">
-          <li><a class="dropdown-item" href="#">All Types</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="all">All Types</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#">SIP</a></li>
-          <li><a class="dropdown-item" href="#">AIP</a></li>
-          <li><a class="dropdown-item" href="#">DIP</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="SIP">SIP</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="AIP">AIP</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-type="DIP">DIP</a></li>
         </ul>
       </div>
       <div class="dropdown">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn atom-btn-white dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="fas fa-tasks me-1"></i> Status
         </button>
         <ul class="dropdown-menu" aria-labelledby="statusFilterDropdown">
-          <li><a class="dropdown-item" href="#">All Statuses</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="all">All Statuses</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#">Pending</a></li>
-          <li><a class="dropdown-item" href="#">Processing</a></li>
-          <li><a class="dropdown-item" href="#">Stored</a></li>
-          <li><a class="dropdown-item" href="#">Failed</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Pending">Pending</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Processing">Processing</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Stored">Stored</a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" data-filter-status="Failed">Failed</a></li>
         </ul>
       </div>
     </div>
@@ -117,14 +117,14 @@
   {{-- Packages table --}}
   @if($aips->isNotEmpty() || $premisObjects->isNotEmpty())
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Packages</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-striped table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-striped table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Package Name / UUID</th>
                 <th>Type</th>
                 <th>Status</th>
@@ -179,15 +179,15 @@
                   <td>{{ $aip->created_at ?? '—' }}</td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn btn-outline-primary" title="View package">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?view={{ $aip->id }}" class="btn atom-btn-white" title="View package">
                         <i class="fas fa-eye"></i>
                       </a>
                       @auth
-                        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?edit={{ $aip->id }}" class="btn btn-outline-secondary" title="Edit package">
+                        <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?edit={{ $aip->id }}" class="btn atom-btn-white" title="Edit package">
                           <i class="fas fa-pencil-alt"></i>
                         </a>
                       @endauth
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?download={{ $aip->id }}" class="btn btn-outline-success" title="Download package">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?download={{ $aip->id }}" class="btn atom-btn-outline-success" title="Download package">
                         <i class="fas fa-download"></i>
                       </a>
                     </div>
@@ -203,14 +203,14 @@
     {{-- PREMIS Objects --}}
     @if($premisObjects->isNotEmpty())
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-cube me-2"></i> PREMIS Objects</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>PUID</th>
                   <th>MIME Type</th>
                   <th>Size</th>
@@ -226,7 +226,7 @@
                     <td>{{ isset($po->size) ? formatBytes($po->size) : '—' }}</td>
                     <td>{{ $po->date_ingested ?? '—' }}</td>
                     <td class="text-end">
-                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm btn-outline-primary" title="View PREMIS events">
+                      <a href="{{ route('io.preservation', ['slug' => $io->slug ?? $io->id]) }}?premis={{ $po->id ?? '' }}" class="btn btn-sm atom-btn-white" title="View PREMIS events">
                         <i class="fas fa-eye"></i>
                       </a>
                     </td>
@@ -251,7 +251,7 @@
         No preservation packages have been created for this resource yet.
       </p>
       @auth
-        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#createPackageModal">
+        <button type="button" class="btn atom-btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#createPackageModal">
           <i class="fas fa-plus me-1"></i> Create Package
         </button>
       @endauth
@@ -286,8 +286,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-plus me-1"></i> Create Package
           </button>
         </div>

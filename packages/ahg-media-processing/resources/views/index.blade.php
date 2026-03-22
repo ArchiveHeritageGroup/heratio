@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-photo-video"></i> Media Processing</h1>
     <div>
-      <a href="{{ route('media-processing.watermark-settings') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('media-processing.watermark-settings') }}" class="btn atom-btn-white">
         <i class="fas fa-stamp"></i> Watermark Settings
       </a>
     </div>
@@ -106,7 +106,7 @@
 
   {{-- Action Buttons --}}
   <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
+    <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-tools"></i> Batch Operations</h5>
     </div>
     <div class="card-body">
@@ -116,7 +116,7 @@
             @csrf
             <input type="hidden" name="type" value="all">
             <input type="hidden" name="limit" value="100">
-            <button type="submit" class="btn btn-primary w-100"
+            <button type="submit" class="btn atom-btn-outline-success w-100"
               {{ $stats['missing_thumbnails'] == 0 && $stats['missing_references'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing derivatives for up to 100 objects? This may take a while.')">
               <i class="fas fa-sync-alt"></i> Regenerate All Missing
@@ -129,7 +129,7 @@
             @csrf
             <input type="hidden" name="type" value="thumbnail">
             <input type="hidden" name="limit" value="100">
-            <button type="submit" class="btn btn-success w-100"
+            <button type="submit" class="btn atom-btn-outline-success w-100"
               {{ $stats['missing_thumbnails'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing thumbnails for up to 100 objects?')">
               <i class="fas fa-th-large"></i> Regenerate Thumbnails
@@ -142,7 +142,7 @@
             @csrf
             <input type="hidden" name="type" value="reference">
             <input type="hidden" name="limit" value="100">
-            <button type="submit" class="btn btn-info w-100 text-white"
+            <button type="submit" class="btn atom-btn-white w-100 text-white"
               {{ $stats['missing_references'] == 0 ? 'disabled' : '' }}
               onclick="return confirm('Regenerate missing reference images for up to 100 objects?')">
               <i class="fas fa-expand"></i> Regenerate References
@@ -157,15 +157,15 @@
   {{-- Missing Derivatives Table --}}
   @if($missingDerivatives->isNotEmpty())
   <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-exclamation-circle text-warning"></i> Masters Missing Derivatives</h5>
       <span class="badge bg-warning text-dark">{{ $missingDerivatives->count() }} shown</span>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-sm table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>ID</th>
               <th>Object Title</th>
               <th>Filename</th>
@@ -209,7 +209,7 @@
               <td class="text-end">
                 <form method="POST" action="{{ route('media-processing.regenerate', $master->id) }}" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-outline-primary" title="Regenerate derivatives">
+                  <button type="submit" class="btn btn-sm atom-btn-white" title="Regenerate derivatives">
                     <i class="fas fa-sync-alt"></i>
                   </button>
                 </form>
@@ -225,15 +225,15 @@
 
   {{-- Recent Derivatives Table --}}
   <div class="card shadow-sm">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history"></i> Recent Derivatives</h5>
       <span class="badge bg-secondary">{{ $recentDerivatives->count() }} shown</span>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-sm table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>ID</th>
               <th>Object Title</th>
               <th>Master</th>

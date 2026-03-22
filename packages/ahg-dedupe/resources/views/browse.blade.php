@@ -17,7 +17,7 @@
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
         <i class="fas fa-tachometer-alt me-1"></i> Dashboard
       </a>
     </div>
@@ -53,10 +53,10 @@
       </select>
     </div>
     <div class="col-auto">
-      <button type="submit" class="btn btn-sm btn-primary">
+      <button type="submit" class="btn atom-btn-outline-light btn-sm">
         <i class="fas fa-filter me-1"></i> Filter
       </button>
-      <a href="{{ route('dedupe.browse') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      <a href="{{ route('dedupe.browse') }}" class="btn btn-sm atom-btn-white">Reset</a>
     </div>
   </form>
 
@@ -64,7 +64,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th style="width: 70px;">Score</th>
             <th>Record A</th>
             <th>Record B</th>
@@ -109,11 +109,11 @@
               <td>{{ $dup['detected_at'] ? \Carbon\Carbon::parse($dup['detected_at'])->format('Y-m-d') : '' }}</td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn btn-outline-primary" title="Compare">
+                  <a href="{{ route('dedupe.compare', $dup['id']) }}" class="btn atom-btn-white" title="Compare">
                     <i class="fas fa-columns"></i>
                   </a>
                   @if($dup['status'] === 'pending')
-                    <button type="button" class="btn btn-outline-secondary btn-dismiss" data-id="{{ $dup['id'] }}" title="Dismiss">
+                    <button type="button" class="btn atom-btn-white btn-dismiss" data-id="{{ $dup['id'] }}" title="Dismiss">
                       <i class="fas fa-times"></i>
                     </button>
                   @endif

@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-university me-2"></i>Affiliated Institutions</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Institutions</h5>
         <span class="badge bg-primary">{{ count($institutions) }} institution(s)</span>
     </div>
@@ -20,15 +20,15 @@
                 </select>
             </div>
             <div class="col-md-1">
-                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-filter"></i></button>
+                <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button>
             </div>
         </form>
 
         @if(count($institutions) > 0)
         <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Name</th>
                         <th>Location</th>
                         <th>Researcher Count</th>

@@ -3,16 +3,16 @@
 @section('title-block')<h1><i class="fas fa-user-tag me-2"></i>Researcher Types</h1>@endsection
 @section('content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Manage Researcher Types</h5>
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTypeModal"><i class="fas fa-plus me-1"></i>Add Type</button>
+        <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTypeModal"><i class="fas fa-plus me-1"></i>Add Type</button>
     </div>
     <div class="card-body p-0">
         @if(count($types) > 0)
         <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Name</th>
                         <th>Description</th>
                         <th>Privileges</th>
@@ -36,12 +36,12 @@
                         </td>
                         <td>{{ $type->max_bookings ?? 'Unlimited' }}</td>
                         <td>
-                            <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editTypeModal{{ $type->id }}" title="Edit"><i class="fas fa-edit"></i></a>
+                            <a href="#" class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#editTypeModal{{ $type->id }}" title="Edit"><i class="fas fa-edit"></i></a>
                             <form method="POST" class="d-inline" onsubmit="return confirm('Delete this researcher type?')">
                                 @csrf
                                 <input type="hidden" name="form_action" value="delete">
                                 <input type="hidden" name="type_id" value="{{ $type->id }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -56,7 +56,7 @@
                             <div class="mb-3"><label class="form-label">Privileges</label><input type="text" class="form-control" name="privileges" value="{{ e($type->privileges ?? '') }}" placeholder="Comma-separated"></div>
                             <div class="mb-3"><label class="form-label">Max Bookings</label><input type="number" class="form-control" name="max_bookings" value="{{ $type->max_bookings ?? '' }}" placeholder="Leave empty for unlimited"></div>
                         </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Update</button></div>
+                        <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Update</button></div>
                         </form>
                     </div></div></div>
                     @endforeach
@@ -82,7 +82,7 @@
         <div class="mb-3"><label class="form-label">Privileges</label><input type="text" class="form-control" name="privileges" placeholder="Comma-separated (e.g. booking,collections,api)"></div>
         <div class="mb-3"><label class="form-label">Max Bookings</label><input type="number" class="form-control" name="max_bookings" placeholder="Leave empty for unlimited"></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add Type</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Type</button></div>
     </form>
 </div></div></div>
 @endsection

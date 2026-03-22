@@ -38,7 +38,7 @@
 
   {{-- Status Tabs --}}
   <div class="card shadow-sm mb-4">
-    <div class="card-header bg-white p-0">
+    <div class="card-header bg-white p-0" style="background:var(--ahg-primary);color:#fff">
       <ul class="nav nav-tabs card-header-tabs" role="tablist">
         <li class="nav-item">
           <a class="nav-link {{ $status === 'all' ? 'active' : '' }}"
@@ -75,21 +75,21 @@
     <div class="card-body border-bottom py-2">
       <div class="d-flex flex-wrap gap-2 justify-content-end">
         <div class="btn-group btn-group-sm" role="group" aria-label="Sort options">
-          <span class="btn btn-outline-secondary disabled">Sort by:</span>
+          <span class="btn atom-btn-white disabled">Sort by:</span>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'nameUp' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameDown'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'nameDown' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'nameDown' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-down"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'instUp'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'instUp' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'instUp' ? 'active' : '' }}">
             Institution <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'instDown'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'instDown' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'instDown' ? 'active' : '' }}">
             Institution <i class="fas fa-arrow-down"></i>
           </a>
         </div>
@@ -99,9 +99,9 @@
     <div class="card-body p-0">
       @if($pager->getNbResults())
         <div class="table-responsive">
-          <table class="table table-hover table-striped mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover table-striped mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th style="width: 100px;">Status</th>
                 <th>Archival Item</th>
                 <th>Requester</th>
@@ -171,7 +171,7 @@
                   </td>
                   <td class="text-center">
                     <a href="{{ route('request-publish.edit', $row['id']) }}"
-                       class="btn btn-sm btn-outline-primary" title="Review">
+                       class="btn btn-sm atom-btn-white" title="Review">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>
@@ -229,14 +229,4 @@
       @endif
     </div>
   </div>
-
-@push('css')
-<style>
-.table thead th {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
-}
-</style>
-@endpush
 @endsection

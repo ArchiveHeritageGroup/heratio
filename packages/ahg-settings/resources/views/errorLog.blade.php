@@ -53,20 +53,20 @@
   <div class="d-flex gap-2 mb-3">
     <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
       @csrf
-      <button type="submit" name="mark_read" value="1" class="btn btn-sm btn-outline-primary">
+      <button type="submit" name="mark_read" value="1" class="btn btn-sm atom-btn-white">
         <i class="fas fa-check-double me-1"></i> Mark All Read
       </button>
     </form>
     <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
       @csrf
-      <button type="submit" name="resolve_all" value="1" class="btn btn-sm btn-outline-success">
+      <button type="submit" name="resolve_all" value="1" class="btn btn-sm atom-btn-outline-success">
         <i class="fas fa-check-circle me-1"></i> Resolve All
       </button>
     </form>
     <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
       @csrf
       <input type="hidden" name="clear_days" value="30">
-      <button type="submit" name="clear_old" value="1" class="btn btn-sm btn-outline-danger">
+      <button type="submit" name="clear_old" value="1" class="btn btn-sm atom-btn-outline-danger">
         <i class="fas fa-trash me-1"></i> Clear Older Than 30 Days
       </button>
     </form>
@@ -99,7 +99,7 @@
                  value="{{ $filters['search'] }}" placeholder="Message, URL, or file...">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-sm btn-primary w-100">
+          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100">
             <i class="fas fa-filter me-1"></i> Filter
           </button>
         </div>
@@ -112,7 +112,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th style="width:140px">Date</th>
             <th style="width:80px">Level</th>
             <th style="width:60px">Code</th>
@@ -158,7 +158,7 @@
                     <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                       @csrf
                       <input type="hidden" name="reopen_id" value="{{ $entry->id }}">
-                      <button type="submit" class="btn btn-sm btn-outline-warning" title="Reopen">
+                      <button type="submit" class="btn btn-sm atom-btn-white" title="Reopen">
                         <i class="fas fa-undo"></i>
                       </button>
                     </form>
@@ -166,7 +166,7 @@
                     <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                       @csrf
                       <input type="hidden" name="resolve_id" value="{{ $entry->id }}">
-                      <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Resolve">
                         <i class="fas fa-check"></i>
                       </button>
                     </form>
@@ -174,7 +174,7 @@
                   <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                     @csrf
                     <input type="hidden" name="delete_id" value="{{ $entry->id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"
+                    <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete"
                             onclick="return confirm('Delete this error entry?')">
                       <i class="fas fa-trash"></i>
                     </button>
@@ -215,7 +215,7 @@
     <div class="alert alert-info">No error log entries found.</div>
   @endif
 
-  <a href="{{ route('settings.index') }}" class="btn btn-secondary">
+  <a href="{{ route('settings.index') }}" class="btn atom-btn-white">
     <i class="fas fa-arrow-left me-1"></i> Back to Settings
   </a>
 @endsection

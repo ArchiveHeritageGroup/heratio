@@ -22,7 +22,7 @@
 
         {{-- ===== Basic Information ===== --}}
         <section class="card mb-4">
-          <div class="card-header bg-primary text-white">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-book me-2"></i>Basic Information</h5>
           </div>
           <div class="card-body">
@@ -94,7 +94,7 @@
 
         {{-- ===== Creators / Authors ===== --}}
         <section class="card mb-4">
-          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-users me-2"></i>Creators / Authors</h5>
             <button type="button" class="btn btn-sm btn-light" id="add-creator-btn">
               <i class="fas fa-plus me-1"></i>Add
@@ -121,7 +121,7 @@
                              placeholder="Authority URI" value="{{ old("creators.{$i}.authority_uri", '') }}">
                     </div>
                     <div class="col-md-1">
-                      <button type="button" class="btn btn-sm btn-outline-danger remove-creator-btn w-100">
+                      <button type="button" class="btn btn-sm atom-btn-outline-danger remove-creator-btn w-100">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -137,7 +137,7 @@
 
         {{-- ===== Standard Identifiers ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard Identifiers</h5>
           </div>
           <div class="card-body">
@@ -148,7 +148,7 @@
                 <div class="input-group">
                   <input type="text" name="isbn" id="isbn-input" class="form-control @error('isbn') is-invalid @enderror"
                          value="{{ old('isbn', $item->isbn ?? '') }}" placeholder="978-0-123456-78-9">
-                  <button type="button" class="btn btn-primary" id="isbn-lookup" title="Lookup ISBN and auto-fill form">
+                  <button type="button" class="btn atom-btn-white" id="isbn-lookup" title="Lookup ISBN and auto-fill form">
                     <i class="fas fa-search me-1"></i>Lookup
                   </button>
                 </div>
@@ -215,7 +215,7 @@
                   <input type="text" name="openlibrary_url" id="openlibrary_url" class="form-control @error('openlibrary_url') is-invalid @enderror"
                          value="{{ old('openlibrary_url', $item->openlibrary_url ?? '') }}">
                   @if(!empty($item->openlibrary_url))
-                    <a href="{{ $item->openlibrary_url }}" target="_blank" class="btn btn-outline-secondary">
+                    <a href="{{ $item->openlibrary_url }}" target="_blank" class="btn atom-btn-white">
                       <i class="fas fa-external-link-alt"></i>
                     </a>
                   @endif
@@ -229,7 +229,7 @@
 
         {{-- ===== Classification ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Classification</h5>
           </div>
           <div class="card-body">
@@ -284,7 +284,7 @@
 
         {{-- ===== Publication Information ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publication Information</h5>
           </div>
           <div class="card-body">
@@ -345,7 +345,7 @@
 
         {{-- ===== Physical Description ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical Description</h5>
           </div>
           <div class="card-body">
@@ -376,10 +376,10 @@
 
         {{-- ===== Subjects ===== --}}
         <section class="card mb-4">
-          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
             <div class="btn-group">
-              <button type="button" class="btn btn-sm btn-warning" id="suggest-subjects-btn" title="Get AI-powered subject suggestions">
+              <button type="button" class="btn btn-sm atom-btn-white" id="suggest-subjects-btn" title="Get AI-powered subject suggestions">
                 <i class="fas fa-magic me-1"></i>Suggest
               </button>
               <button type="button" class="btn btn-sm btn-light" id="add-subject-btn">
@@ -397,7 +397,7 @@
                              placeholder="Subject heading" value="{{ old("subjects.{$i}.heading", $subject->name ?? '') }}">
                     </div>
                     <div class="col-md-1">
-                      <button type="button" class="btn btn-sm btn-outline-danger remove-subject-btn w-100">
+                      <button type="button" class="btn btn-sm atom-btn-outline-danger remove-subject-btn w-100">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -413,7 +413,7 @@
 
         {{-- ===== Content ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>Content</h5>
           </div>
           <div class="card-body">
@@ -439,7 +439,7 @@
 
         {{-- ===== Notes ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
           </div>
           <div class="card-body">
@@ -465,20 +465,20 @@
 
         {{-- ===== Actions ===== --}}
         <section class="card mb-4 sticky-top" style="top: 1rem; z-index: 100;">
-          <div class="card-header bg-success text-white">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-save me-2"></i>Actions</h5>
           </div>
           <div class="card-body">
-            <button type="submit" class="btn btn-success w-100 mb-2">
+            <button type="submit" class="btn atom-btn-outline-success w-100 mb-2">
               <i class="fas fa-save me-2"></i>{{ $item ? 'Save' : 'Create' }}
             </button>
 
             @if($item)
-              <a href="{{ route('library.show', $item->slug) }}" class="btn btn-outline-secondary w-100 mb-2">
+              <a href="{{ route('library.show', $item->slug) }}" class="btn atom-btn-white w-100 mb-2">
                 <i class="fas fa-times me-2"></i>Cancel
               </a>
             @else
-              <a href="{{ route('library.browse') }}" class="btn btn-outline-secondary w-100 mb-2">
+              <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
                 <i class="fas fa-times me-2"></i>Cancel
               </a>
             @endif
@@ -487,7 +487,7 @@
 
         {{-- ===== Cover / Digital Object ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-image me-2"></i>Cover / Digital Object</h5>
           </div>
           <div class="card-body text-center">
@@ -507,7 +507,7 @@
                 <div class="mt-1"><small class="text-success"><i class="fas fa-info-circle me-1"></i>Will be saved on save</small></div>
               @elseif($item)
                 <p class="text-muted fst-italic mb-2">Enter ISBN to preview Open Library cover</p>
-                <a href="{{ route('library.show', $item->slug) }}" class="btn btn-sm btn-success">
+                <a href="{{ route('library.show', $item->slug) }}" class="btn btn-sm atom-btn-outline-success">
                   <i class="fas fa-upload me-1"></i>Upload cover
                 </a>
               @else
@@ -522,11 +522,11 @@
 
         @if(!empty($item->ebook_preview_url ?? old('ebook_preview_url')))
           <section class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
               <h5 class="mb-0"><i class="fas fa-tablet-alt me-2"></i>E-book Access</h5>
             </div>
             <div class="card-body">
-              <a href="{{ $item->ebook_preview_url ?? old('ebook_preview_url') }}" target="_blank" class="btn btn-outline-primary w-100">
+              <a href="{{ $item->ebook_preview_url ?? old('ebook_preview_url') }}" target="_blank" class="btn atom-btn-white w-100">
                 <i class="fas fa-book-reader me-2"></i>Preview on Archive.org
               </a>
             </div>
@@ -647,15 +647,15 @@
 
         {{-- ===== Quick Links ===== --}}
         <section class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
           </div>
           <div class="card-body">
-            <a href="{{ route('library.browse') }}" class="btn btn-outline-primary w-100 mb-2">
+            <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
               <i class="fas fa-list me-2"></i>Browse library
             </a>
             @if($item)
-              <a href="{{ route('library.show', $item->slug) }}" class="btn btn-outline-primary w-100 mb-2">
+              <a href="{{ route('library.show', $item->slug) }}" class="btn atom-btn-white w-100 mb-2">
                 <i class="fas fa-upload me-2"></i>Upload digital object
               </a>
             @endif
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         '<div class="col-md-5"><input type="text" name="creators[' + i + '][name]" class="form-control form-control-sm" value="' + escapeHtml(author.name) + '"></div>' +
                                         '<div class="col-md-3"><select name="creators[' + i + '][role]" class="form-select form-select-sm">' + creatorRoleOptions + '</select></div>' +
                                         '<div class="col-md-3"><input type="text" name="creators[' + i + '][authority_uri]" class="form-control form-control-sm" value="' + escapeHtml(author.url || '') + '" placeholder="URI"></div>' +
-                                        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-creator-btn w-100"><i class="fas fa-times"></i></button></div></div>';
+                                        '<div class="col-md-1"><button type="button" class="btn btn-sm atom-btn-outline-danger remove-creator-btn w-100"><i class="fas fa-times"></i></button></div></div>';
                                     container.insertAdjacentHTML('beforeend', html);
                                 });
                                 creatorIndex = authors.length;
@@ -787,7 +787,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 subjects.forEach(function(subject, i) {
                                     var html = '<div class="row subject-row mb-2 align-items-center" data-index="' + i + '">' +
                                         '<div class="col-md-11"><input type="text" name="subjects[' + i + '][heading]" class="form-control form-control-sm" value="' + escapeHtml(subject.name) + '"></div>' +
-                                        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
+                                        '<div class="col-md-1"><button type="button" class="btn btn-sm atom-btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
                                     subContainer.insertAdjacentHTML('beforeend', html);
                                 });
                                 subjectIndex = subjects.length;
@@ -855,7 +855,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '<div class="col-md-5"><input type="text" name="creators[' + creatorIndex + '][name]" class="form-control form-control-sm" placeholder="Name"></div>' +
             '<div class="col-md-3"><select name="creators[' + creatorIndex + '][role]" class="form-select form-select-sm">' + creatorRoleOptions + '</select></div>' +
             '<div class="col-md-3"><input type="text" name="creators[' + creatorIndex + '][authority_uri]" class="form-control form-control-sm" placeholder="Authority URI"></div>' +
-            '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-creator-btn w-100"><i class="fas fa-times"></i></button></div></div>';
+            '<div class="col-md-1"><button type="button" class="btn btn-sm atom-btn-outline-danger remove-creator-btn w-100"><i class="fas fa-times"></i></button></div></div>';
         container.insertAdjacentHTML('beforeend', html);
         creatorIndex++;
         container.lastElementChild.querySelector('input').focus();
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var html = '<div class="row subject-row mb-2 align-items-center" data-index="' + subjectIndex + '">' +
             '<div class="col-md-11"><input type="text" name="subjects[' + subjectIndex + '][heading]" class="form-control form-control-sm" placeholder="Subject heading"></div>' +
-            '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
+            '<div class="col-md-1"><button type="button" class="btn btn-sm atom-btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
         container.insertAdjacentHTML('beforeend', html);
         subjectIndex++;
         container.lastElementChild.querySelector('input').focus();
@@ -999,8 +999,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         '</div>' +
                     '</div>' +
                     '<div class="modal-footer">' +
-                        '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>' +
-                        '<button type="button" class="btn btn-success" id="add-selected-subjects">' +
+                        '<button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>' +
+                        '<button type="button" class="btn atom-btn-outline-success" id="add-selected-subjects">' +
                             '<i class="fas fa-plus me-1"></i>Add Selected' +
                         '</button>' +
                     '</div>' +
@@ -1039,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!exists) {
                     var html = '<div class="row subject-row mb-2 align-items-center" data-index="' + subjectIndex + '">' +
                         '<div class="col-md-11"><input type="text" name="subjects[' + subjectIndex + '][heading]" class="form-control form-control-sm" value="' + escapeHtml(heading) + '"></div>' +
-                        '<div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
+                        '<div class="col-md-1"><button type="button" class="btn btn-sm atom-btn-outline-danger remove-subject-btn w-100"><i class="fas fa-times"></i></button></div></div>';
                     container.insertAdjacentHTML('beforeend', html);
                     subjectIndex++;
                     added++;

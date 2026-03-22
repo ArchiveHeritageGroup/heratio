@@ -20,7 +20,7 @@
       </span>
     </div>
     <div class="ms-auto d-flex gap-2">
-      <a href="{{ route('dedupe.browse') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
     </div>
@@ -30,7 +30,7 @@
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <strong>Record A</strong>
           @if($recordA)
             <a href="{{ route('informationobject.show', $recordA->id) }}" class="text-white float-end">
@@ -50,7 +50,7 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <div class="card-header bg-secondary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <strong>Record B</strong>
           @if($recordB)
             <a href="{{ route('informationobject.show', $recordB->id) }}" class="text-white float-end">
@@ -72,12 +72,12 @@
 
   {{-- Field comparison table --}}
   <div class="card mb-4">
-    <div class="card-header"><strong>Field Comparison</strong></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Field Comparison</strong></div>
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-bordered mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th style="width: 180px;">Field</th>
               <th>Record A</th>
               <th>Record B</th>
@@ -116,10 +116,10 @@
   {{-- Action buttons --}}
   @if($duplicate->status === 'pending')
     <div class="d-flex gap-2">
-      <button type="button" class="btn btn-danger" id="btn-confirm-duplicate">
+      <button type="button" class="btn atom-btn-outline-danger" id="btn-confirm-duplicate">
         <i class="fas fa-check me-1"></i> Confirm Duplicate
       </button>
-      <button type="button" class="btn btn-secondary" id="btn-dismiss-duplicate">
+      <button type="button" class="btn atom-btn-white" id="btn-dismiss-duplicate">
         <i class="fas fa-times me-1"></i> Dismiss
       </button>
     </div>

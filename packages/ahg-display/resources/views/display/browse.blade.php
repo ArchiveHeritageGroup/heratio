@@ -92,7 +92,7 @@
 
       {{-- GLAM Type facet (open by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="true" aria-controls="facetType" data-bs-toggle="collapse" data-bs-target="#facetType">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="true" aria-controls="facetType" data-bs-toggle="collapse" data-bs-target="#facetType" style="background:var(--ahg-primary);color:#fff">
           <strong>GLAM Type</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetType" class="collapse show">
@@ -125,7 +125,7 @@
 
       {{-- Creator facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetCreator" data-bs-toggle="collapse" data-bs-target="#facetCreator">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetCreator" data-bs-toggle="collapse" data-bs-target="#facetCreator" style="background:var(--ahg-primary);color:#fff">
           <strong>Creator</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetCreator" class="collapse">
@@ -152,7 +152,7 @@
 
       {{-- Place facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetPlace" data-bs-toggle="collapse" data-bs-target="#facetPlace">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetPlace" data-bs-toggle="collapse" data-bs-target="#facetPlace" style="background:var(--ahg-primary);color:#fff">
           <strong>Place</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetPlace" class="collapse">
@@ -179,7 +179,7 @@
 
       {{-- Subject facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetSubject" data-bs-toggle="collapse" data-bs-target="#facetSubject">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetSubject" data-bs-toggle="collapse" data-bs-target="#facetSubject" style="background:var(--ahg-primary);color:#fff">
           <strong>Subject</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetSubject" class="collapse">
@@ -206,7 +206,7 @@
 
       {{-- Genre facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetGenre" data-bs-toggle="collapse" data-bs-target="#facetGenre">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetGenre" data-bs-toggle="collapse" data-bs-target="#facetGenre" style="background:var(--ahg-primary);color:#fff">
           <strong>Genre</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetGenre" class="collapse">
@@ -233,7 +233,7 @@
 
       {{-- Level of description facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetLevel" data-bs-toggle="collapse" data-bs-target="#facetLevel">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetLevel" data-bs-toggle="collapse" data-bs-target="#facetLevel" style="background:var(--ahg-primary);color:#fff">
           <strong>Level of description</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetLevel" class="collapse">
@@ -265,7 +265,7 @@
         $mediaIcons = ['image' => 'fa-image', 'application' => 'fa-file-alt', 'video' => 'fa-video', 'audio' => 'fa-music', 'model' => 'fa-file', 'text' => 'fa-file'];
       @endphp
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetMedia" data-bs-toggle="collapse" data-bs-target="#facetMedia">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetMedia" data-bs-toggle="collapse" data-bs-target="#facetMedia" style="background:var(--ahg-primary);color:#fff">
           <strong>Media type</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetMedia" class="collapse">
@@ -296,7 +296,7 @@
 
       {{-- Repository facet (closed by default) --}}
       <div class="card mb-2">
-        <div class="card-header bg-light py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetRepo" data-bs-toggle="collapse" data-bs-target="#facetRepo">
+        <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetRepo" data-bs-toggle="collapse" data-bs-target="#facetRepo" style="background:var(--ahg-primary);color:#fff">
           <strong>Repository</strong> <i class="fas fa-chevron-down float-end"></i>
         </div>
         <div id="facetRepo" class="collapse">
@@ -391,8 +391,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-search me-1"></i> Search
           </button>
         </div>

@@ -114,7 +114,7 @@
 
   {{-- Recent Verification Runs --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Verification Runs</h5>
     </div>
     <div class="card-body">
@@ -126,7 +126,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Schedule</th>
                 <th>Status</th>
                 <th>Progress</th>
@@ -186,7 +186,7 @@
   {{-- Daily Verification Trend --}}
   @if(!empty($dailyTrend))
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Daily Verification Trend (30 days)</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Daily Verification Trend (30 days)</h5></div>
     <div class="card-body">
       <canvas id="trendChart" height="200"></canvas>
     </div>
@@ -211,10 +211,10 @@
   {{-- Repository Breakdown --}}
   @if(!empty($repoBreakdown))
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Repository Breakdown</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Repository Breakdown</h5></div>
     <div class="card-body p-0">
       <table class="table table-bordered mb-0">
-        <thead><tr><th>Repository</th><th>Total</th><th>Passed</th><th>Failed</th></tr></thead>
+        <thead>
         <tbody>
           @foreach($repoBreakdown as $rb)
             <tr><td>{{ $rb->name }}</td><td>{{ $rb->total }}</td><td class="text-success">{{ $rb->passed }}</td><td class="text-danger">{{ $rb->failed }}</td></tr>
@@ -228,10 +228,10 @@
   {{-- Failure Type Breakdown --}}
   @if(!empty($failureTypes))
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Failure Types</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Failure Types</h5></div>
     <div class="card-body p-0">
       <table class="table table-bordered mb-0">
-        <thead><tr><th>Reason</th><th>Count</th></tr></thead>
+        <thead>
         <tbody>
           @foreach($failureTypes as $ft)
             <tr><td>{{ $ft->reason ?? 'Unknown' }}</td><td>{{ $ft->cnt }}</td></tr>

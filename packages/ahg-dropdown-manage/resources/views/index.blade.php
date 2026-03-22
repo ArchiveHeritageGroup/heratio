@@ -8,12 +8,12 @@
   {{-- Sidebar --}}
   <div class="col-lg-3 col-md-4 mb-4">
     <div class="card mb-3">
-      <div class="card-header bg-primary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Dropdown Manager</h5>
       </div>
       <div class="card-body">
         <p class="text-muted small mb-3">Manage controlled vocabularies (dropdowns) used throughout the system.</p>
-        <button type="button" class="btn btn-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#createTaxonomyModal">
+        <button type="button" class="btn atom-btn-outline-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#createTaxonomyModal">
           <i class="fas fa-plus me-2"></i>Create Taxonomy
         </button>
         <hr>
@@ -54,10 +54,10 @@
   {{-- Main content --}}
   <div class="col-lg-9 col-md-8">
     <div class="mb-3 d-flex gap-2">
-      <button class="btn btn-sm btn-outline-secondary" id="expandAll">
+      <button class="btn btn-sm atom-btn-white" id="expandAll">
         <i class="fas fa-expand-arrows-alt me-1"></i>Expand All
       </button>
-      <button class="btn btn-sm btn-outline-secondary" id="collapseAll">
+      <button class="btn btn-sm atom-btn-white" id="collapseAll">
         <i class="fas fa-compress-arrows-alt me-1"></i>Collapse All
       </button>
       <input type="text" class="form-control form-control-sm w-auto" id="taxonomySearch" placeholder="Search taxonomies...">
@@ -80,9 +80,9 @@
             <div id="collapse-{{ $sKey }}" class="accordion-collapse collapse" data-bs-parent="#dropdownAccordion">
               <div class="accordion-body p-0">
                 <div class="table-responsive">
-                  <table class="table table-hover table-sm mb-0">
-                    <thead class="table-light">
-                      <tr>
+                  <table class="table table-bordered table-hover table-sm mb-0">
+                    <thead>
+                      <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Taxonomy</th>
                         <th style="width:120px">Code</th>
                         <th class="text-center" style="width:80px">Terms</th>
@@ -100,20 +100,20 @@
                             <span class="badge bg-info rounded-pill">{{ $item->term_count }}</span>
                           </td>
                           <td class="text-end">
-                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}" class="btn btn-sm btn-outline-primary" title="Edit Terms">
+                            <a href="{{ route('dropdown.edit', $item->taxonomy) }}" class="btn btn-sm atom-btn-white" title="Edit Terms">
                               <i class="fas fa-edit"></i>
                             </a>
-                            <button type="button" class="btn btn-sm btn-outline-warning btn-rename"
+                            <button type="button" class="btn btn-sm atom-btn-white btn-rename"
                                     data-taxonomy="{{ $item->taxonomy }}"
                                     data-label="{{ $item->taxonomy_label }}" title="Rename">
                               <i class="fas fa-pen"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-info btn-move"
+                            <button type="button" class="btn btn-sm atom-btn-white btn-move"
                                     data-taxonomy="{{ $item->taxonomy }}"
                                     data-section="{{ $sKey }}" title="Move Section">
                               <i class="fas fa-arrows-alt"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-taxonomy"
+                            <button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-taxonomy"
                                     data-taxonomy="{{ $item->taxonomy }}"
                                     data-label="{{ $item->taxonomy_label }}" title="Delete">
                               <i class="fas fa-trash"></i>
@@ -161,8 +161,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success" id="createTaxonomyBtn">Create</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-outline-success" id="createTaxonomyBtn">Create</button>
       </div>
     </div>
   </div>
@@ -184,8 +184,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-warning" id="renameTaxonomyBtn">Save</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-white" id="renameTaxonomyBtn">Save</button>
       </div>
     </div>
   </div>
@@ -211,8 +211,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="moveSectionBtn">Move</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-white" id="moveSectionBtn">Move</button>
       </div>
     </div>
   </div>

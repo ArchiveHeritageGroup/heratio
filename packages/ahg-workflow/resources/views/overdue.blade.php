@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-exclamation-triangle text-danger"></i> Overdue Tasks</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   @if(count($tasks) === 0)
@@ -19,9 +19,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Step</th>
                 <th>Workflow</th>
@@ -67,7 +67,7 @@
                     @endif
                   </td>
                   <td>
-                    <a href="{{ route('workflow.task', $task->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('workflow.task', $task->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-eye"></i></a>
                   </td>
                 </tr>
               @endforeach

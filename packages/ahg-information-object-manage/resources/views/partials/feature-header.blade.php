@@ -13,7 +13,7 @@
     @endif
   </div>
   @if(isset($io))
-    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary">
+    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
   @endif

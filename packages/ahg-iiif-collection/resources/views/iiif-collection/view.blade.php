@@ -117,28 +117,28 @@ foreach ($collection->items as $item) {
 @section('sidebar')
 <div class="sidebar-content">
     <div class="card mb-3">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
         </div>
         <div class="card-body">
-            <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn btn-info w-100 mb-2" target="_blank">
+            <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white w-100 mb-2" target="_blank">
                 <i class="fas fa-code me-2"></i>View IIIF JSON
             </a>
             @auth
-            <a href="{{ route('iiif-collection.add-items', $collection->id) }}" class="btn btn-success w-100 mb-2">
+            <a href="{{ route('iiif-collection.add-items', $collection->id) }}" class="btn atom-btn-outline-success w-100 mb-2">
                 <i class="fas fa-plus me-2"></i>Add Items
             </a>
-            <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn btn-warning w-100 mb-2">
+            <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn atom-btn-white w-100 mb-2">
                 <i class="fas fa-edit me-2"></i>Edit Collection
             </a>
-            <a href="{{ route('iiif-collection.create', ['parent_id' => $collection->id]) }}" class="btn btn-outline-success w-100 mb-2">
+            <a href="{{ route('iiif-collection.create', ['parent_id' => $collection->id]) }}" class="btn atom-btn-outline-success w-100 mb-2">
                 <i class="fas fa-folder-plus me-2"></i>Create Subcollection
             </a>
             <hr>
             <form method="POST" action="{{ route('iiif-collection.destroy', $collection->id) }}" onsubmit="return confirm('Are you sure you want to delete this collection?')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger w-100">
+                <button type="submit" class="btn atom-btn-outline-danger w-100">
                     <i class="fas fa-trash me-2"></i>Delete Collection
                 </button>
             </form>
@@ -147,7 +147,7 @@ foreach ($collection->items as $item) {
     </div>
 
     <div class="card">
-        <div class="card-header bg-light">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Details</h5>
         </div>
         <div class="card-body">
@@ -226,7 +226,7 @@ foreach ($collection->items as $item) {
 
     @if(!empty($collection->subcollections))
     <div class="card mb-4">
-        <div class="card-header bg-light">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Subcollections</h5>
         </div>
         <div class="card-body">
@@ -251,7 +251,7 @@ foreach ($collection->items as $item) {
     @endif
 
     <div class="card">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-images me-2"></i>Items ({{ count($collection->items) }})</h5>
             @auth
             @if($warningCount > 0)
@@ -273,9 +273,9 @@ foreach ($collection->items as $item) {
             </div>
             @else
             <div class="table-responsive">
-                <table class="table table-hover align-middle" id="itemsTable">
+                <table class="table table-bordered table-hover align-middle" id="itemsTable">
                     <thead>
-                        <tr>
+                        <tr style="background:var(--ahg-primary);color:#fff">
                             <th style="width: 50px;"></th>
                             <th>Title</th>
                             <th>Identifier</th>
@@ -356,13 +356,13 @@ foreach ($collection->items as $item) {
                             </td>
                             <td>
                                 @if($item->slug)
-                                <a href="{{ route('iiif-collection.object-manifest', $item->slug) }}" class="btn btn-sm btn-outline-info" target="_blank" title="View IIIF Manifest">
+                                <a href="{{ route('iiif-collection.object-manifest', $item->slug) }}" class="btn btn-sm atom-btn-white" target="_blank" title="View IIIF Manifest">
                                     <i class="fas fa-code"></i>
                                 </a>
                                 @endif
                                 @auth
                                 <a href="{{ route('iiif-collection.remove-item', ['item_id' => $item->id, 'collection_id' => $collection->id]) }}"
-                                   class="btn btn-sm btn-outline-danger"
+                                   class="btn btn-sm atom-btn-outline-danger"
                                    onclick="return confirm('Remove this item from the collection?')"
                                    title="Remove">
                                     <i class="fas fa-times"></i>

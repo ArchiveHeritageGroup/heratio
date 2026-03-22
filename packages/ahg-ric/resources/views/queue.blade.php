@@ -21,23 +21,23 @@
   {{-- Status Tabs --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{{ route('ric.queue', ['status' => 'all']) }}"
-       class="btn btn-sm {{ $tab === 'all' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+       class="btn btn-sm {{ $tab === 'all' ? 'atom-btn-white' : 'atom-btn-white' }}">
       All <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'queued']) }}"
-       class="btn btn-sm {{ $tab === 'queued' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $tab === 'queued' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Queued <span class="badge bg-light text-dark ms-1">{{ $counts['queued'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'processing']) }}"
-       class="btn btn-sm {{ $tab === 'processing' ? 'btn-info' : 'btn-outline-info' }}">
+       class="btn btn-sm {{ $tab === 'processing' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Processing <span class="badge bg-light text-dark ms-1">{{ $counts['processing'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'completed']) }}"
-       class="btn btn-sm {{ $tab === 'completed' ? 'btn-success' : 'btn-outline-success' }}">
+       class="btn btn-sm {{ $tab === 'completed' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
       Completed <span class="badge bg-light text-dark ms-1">{{ $counts['completed'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'failed']) }}"
-       class="btn btn-sm {{ $tab === 'failed' ? 'btn-danger' : 'btn-outline-danger' }}">
+       class="btn btn-sm {{ $tab === 'failed' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
       Failed <span class="badge bg-light text-dark ms-1">{{ $counts['failed'] ?? 0 }}</span>
     </a>
   </div>
@@ -46,7 +46,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Entity</th>
             <th>Operation</th>
             <th>Priority</th>
@@ -94,7 +94,7 @@
   @endif
 
   <div class="mt-3">
-    <a href="{{ route('ric.index') }}" class="btn btn-sm btn-outline-secondary">
+    <a href="{{ route('ric.index') }}" class="btn btn-sm atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
     </a>
   </div>

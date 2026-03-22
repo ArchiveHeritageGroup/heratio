@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-edit"></i> Edit Workflow: {{ $workflow->name }}</h1>
-    <a href="{{ route('workflow.admin') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Back</a>
   </div>
 
   @if($errors->any())
@@ -19,7 +19,7 @@
 
   {{-- Workflow Settings --}}
   <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Workflow Settings</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Workflow Settings</h5></div>
     <div class="card-body">
       <form action="{{ route('workflow.admin.edit', $workflow->id) }}" method="POST">
         @csrf
@@ -111,16 +111,16 @@
           <label class="form-check-label" for="notification_enabled">Enable Notifications</label>
         </div>
 
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> Save Changes</button>
       </form>
     </div>
   </div>
 
   {{-- Steps --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-list-ol"></i> Workflow Steps</h5>
-      <button type="button" class="btn btn-sm btn-success" data-bs-toggle="collapse" data-bs-target="#addStepForm">
+      <button type="button" class="btn btn-sm atom-btn-outline-success" data-bs-toggle="collapse" data-bs-target="#addStepForm">
         <i class="fas fa-plus"></i> Add Step
       </button>
     </div>
@@ -195,7 +195,7 @@
                 </div>
               </div>
             </div>
-            <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Add Step</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> Add Step</button>
           </form>
         </div>
       </div>
@@ -205,9 +205,9 @@
         <p class="text-muted">No steps defined yet. Add a step to build the workflow.</p>
       @else
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Order</th>
                 <th>Name</th>
                 <th>Type</th>
@@ -248,7 +248,7 @@
                   <td>
                     <form action="{{ route('workflow.admin.step.delete', $step->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this step?')">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
                     </form>
                   </td>
                 </tr>

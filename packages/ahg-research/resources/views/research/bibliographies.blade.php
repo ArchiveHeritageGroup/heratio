@@ -2,7 +2,7 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-book me-2"></i>Bibliographies</h1>@endsection
 @section('content')
-<div class="d-flex justify-content-between mb-3"><span></span><button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#createModal"><i class="fas fa-plus me-1"></i>New Bibliography</button></div>
+<div class="d-flex justify-content-between mb-3"><span></span><button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#createModal"><i class="fas fa-plus me-1"></i>New Bibliography</button></div>
 <div class="row">
 @forelse($bibliographies as $b)
 <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body">
@@ -22,6 +22,6 @@
     <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2"></textarea></div>
     <div class="mb-3"><label class="form-label">Citation Style</label><select name="citation_style" class="form-select"><option value="chicago">Chicago</option><option value="mla">MLA</option><option value="apa">APA</option><option value="harvard">Harvard</option><option value="turabian">Turabian</option></select></div>
 </div>
-<div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Create</button></div>
+<div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create</button></div>
 </form></div></div></div>
 @endsection

@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-history"></i> Workflow Activity Log</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   @if(count($history) === 0)
@@ -15,9 +15,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Time</th>
                 <th>Task</th>
                 <th>Action</th>

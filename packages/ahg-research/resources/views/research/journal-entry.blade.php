@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>Journal Entry</h1><h2>{{ e($entry->title ?: 'Untitled') }}</h2>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Edit Entry</h5>
         <div>
             <span class="text-muted me-3"><i class="fas fa-calendar me-1"></i>{{ $entry->entry_date ?? '' }}</span>
@@ -22,9 +22,9 @@
             </div>
             <div class="mb-3"><label class="form-label">Tags</label><input type="text" class="form-control" name="tags" value="{{ e($entry->tags ?? '') }}" placeholder="Comma-separated"></div>
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Save Changes</button>
-                <a href="{{ route('research.journal') }}" class="btn btn-outline-secondary">Back to Journal</a>
-                <button type="submit" name="form_action" value="delete" class="btn btn-outline-danger ms-auto" onclick="return confirm('Delete this entry?')"><i class="fas fa-trash me-1"></i>Delete</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button>
+                <a href="{{ route('research.journal') }}" class="btn atom-btn-white">Back to Journal</a>
+                <button type="submit" name="form_action" value="delete" class="btn atom-btn-outline-danger ms-auto" onclick="return confirm('Delete this entry?')"><i class="fas fa-trash me-1"></i>Delete</button>
             </div>
         </form>
     </div>

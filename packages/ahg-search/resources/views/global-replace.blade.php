@@ -58,10 +58,10 @@
 
         {{-- Submit --}}
         <div class="col-12">
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-search" aria-hidden="true"></i> Preview
           </button>
-          <a href="{{ route('search.globalReplace') }}" class="btn btn-outline-secondary ms-2">
+          <a href="{{ route('search.globalReplace') }}" class="btn atom-btn-white ms-2">
             <i class="fas fa-undo" aria-hidden="true"></i> Reset
           </a>
         </div>
@@ -77,9 +77,9 @@
         <strong>Warning:</strong> This will permanently modify <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
       </div>
 
-      <table class="table table-striped table-hover mb-4">
+      <table class="table table-bordered table-striped table-hover mb-4">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th style="width: 20%">Title</th>
             <th style="width: 40%">Current value</th>
             <th style="width: 40%">New value</th>
@@ -122,10 +122,10 @@
         <input type="hidden" name="caseSensitive" value="{{ $caseSensitive ? '1' : '0' }}">
         <input type="hidden" name="confirm" value="1">
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure? This will modify {{ number_format($count) }} record(s) and cannot be undone.')">
+          <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Are you sure? This will modify {{ number_format($count) }} record(s) and cannot be undone.')">
             <i class="fas fa-check" aria-hidden="true"></i> Confirm replacement ({{ number_format($count) }} records)
           </button>
-          <a href="{{ route('search.globalReplace') }}" class="btn btn-outline-secondary">
+          <a href="{{ route('search.globalReplace') }}" class="btn atom-btn-white">
             <i class="fas fa-times" aria-hidden="true"></i> Cancel
           </a>
         </div>

@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-user-check"></i> My Tasks</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
@@ -14,11 +14,11 @@
   {{-- Status Filter --}}
   <div class="mb-3">
     <div class="btn-group" role="group">
-      <a href="{{ route('workflow.my-tasks') }}" class="btn btn-outline-primary {{ !$currentStatus ? 'active' : '' }}">All Active</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'pending']) }}" class="btn btn-outline-warning {{ $currentStatus === 'pending' ? 'active' : '' }}">Pending</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}" class="btn btn-outline-info {{ $currentStatus === 'claimed' ? 'active' : '' }}">Claimed</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}" class="btn btn-outline-primary {{ $currentStatus === 'in_progress' ? 'active' : '' }}">In Progress</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'completed']) }}" class="btn btn-outline-success {{ $currentStatus === 'completed' ? 'active' : '' }}">Completed</a>
+      <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white {{ !$currentStatus ? 'active' : '' }}">All Active</a>
+      <a href="{{ route('workflow.my-tasks', ['status' => 'pending']) }}" class="btn atom-btn-white {{ $currentStatus === 'pending' ? 'active' : '' }}">Pending</a>
+      <a href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}" class="btn atom-btn-white {{ $currentStatus === 'claimed' ? 'active' : '' }}">Claimed</a>
+      <a href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}" class="btn atom-btn-white {{ $currentStatus === 'in_progress' ? 'active' : '' }}">In Progress</a>
+      <a href="{{ route('workflow.my-tasks', ['status' => 'completed']) }}" class="btn atom-btn-outline-success {{ $currentStatus === 'completed' ? 'active' : '' }}">Completed</a>
     </div>
   </div>
 
@@ -28,9 +28,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Step</th>
                 <th>Workflow</th>
@@ -93,7 +93,7 @@
                     @endif
                   </td>
                   <td>
-                    <a href="{{ route('workflow.task', $task->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('workflow.task', $task->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-eye"></i></a>
                   </td>
                 </tr>
               @endforeach

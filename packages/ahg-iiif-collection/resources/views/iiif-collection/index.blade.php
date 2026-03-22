@@ -3,13 +3,13 @@
 @section('sidebar')
 <div class="sidebar-content">
     <div class="card mb-3">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>IIIF Collections</h5>
         </div>
         <div class="card-body">
             <p class="text-muted">Organize and group related IIIF manifests into collections for easy browsing and discovery.</p>
             @auth
-            <a href="{{ route('iiif-collection.create', ['parent_id' => $parentId]) }}" class="btn btn-success w-100">
+            <a href="{{ route('iiif-collection.create', ['parent_id' => $parentId]) }}" class="btn atom-btn-outline-success w-100">
                 <i class="fas fa-plus me-2"></i>Create Collection
             </a>
             @endauth
@@ -75,11 +75,11 @@
                         <i class="fas fa-images me-1"></i>{{ $collection->item_count }} items
                     </span>
                     <div class="btn-group btn-group-sm">
-                        <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn btn-outline-info" title="IIIF Manifest" target="_blank">
+                        <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white" title="IIIF Manifest" target="_blank">
                             <i class="fas fa-code"></i>
                         </a>
                         @auth
-                        <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn btn-outline-primary" title="Edit">
+                        <a href="{{ route('iiif-collection.edit', $collection->id) }}" class="btn atom-btn-white" title="Edit">
                             <i class="fas fa-edit"></i>
                         </a>
                         @endauth

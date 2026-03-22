@@ -10,10 +10,10 @@
 
     @auth
       <div class="d-flex gap-2">
-        <a href="{{ route('accession.create') }}" class="btn btn-sm btn-outline-primary">Add new</a>
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+        <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">Add new</a>
+        <a href="{{ route('accession.edit', $accession->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
         @if(auth()->user()->is_admin ?? false)
-          <a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+          <a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
         @endif
       </div>
     @endauth

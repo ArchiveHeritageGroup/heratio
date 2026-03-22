@@ -5,12 +5,12 @@
       <div class="card-body py-2">
         <div class="row align-items-end">
           <div class="col-md-5 mb-2">
-            <label class="form-label small">Name</label>
+            <label class="form-label small">Name <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="other_names[{{ $index }}][name]" class="form-control form-control-sm"
                    value="{{ $name->name ?? '' }}">
           </div>
           <div class="col-md-4 mb-2">
-            <label class="form-label small">Type</label>
+            <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="other_names[{{ $index }}][type_id]" class="form-select form-select-sm">
               <option value="">-- Select --</option>
               @foreach($nameTypes as $type)
@@ -19,12 +19,12 @@
             </select>
           </div>
           <div class="col-md-2 mb-2">
-            <label class="form-label small">Note</label>
+            <label class="form-label small">Note <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="other_names[{{ $index }}][note]" class="form-control form-control-sm"
                    value="{{ $name->note ?? '' }}">
           </div>
           <div class="col-md-1 mb-2 text-end">
-            <button type="button" class="btn btn-sm btn-outline-danger remove-other-name"><i class="bi bi-trash"></i></button>
+            <button type="button" class="btn btn-sm atom-btn-outline-danger remove-other-name"><i class="bi bi-trash"></i></button>
           </div>
         </div>
       </div>
@@ -33,7 +33,7 @@
 </div>
 
 <div class="mb-3">
-  <button type="button" id="add-other-name" class="btn btn-sm btn-outline-primary">
+  <button type="button" id="add-other-name" class="btn btn-sm atom-btn-white">
     <i class="bi bi-plus-circle me-1"></i>Add other name
   </button>
   <div class="form-text">"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3–5.1.5)</div>
@@ -44,11 +44,11 @@
     <div class="card-body py-2">
       <div class="row align-items-end">
         <div class="col-md-5 mb-2">
-          <label class="form-label small">Name</label>
+          <label class="form-label small">Name <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" name="other_names[__INDEX__][name]" class="form-control form-control-sm">
         </div>
         <div class="col-md-4 mb-2">
-          <label class="form-label small">Type</label>
+          <label class="form-label small">Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="other_names[__INDEX__][type_id]" class="form-select form-select-sm">
             <option value="">-- Select --</option>
             @foreach($nameTypes as $type)
@@ -57,11 +57,11 @@
           </select>
         </div>
         <div class="col-md-2 mb-2">
-          <label class="form-label small">Note</label>
+          <label class="form-label small">Note <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="other_names[__INDEX__][note]" class="form-control form-control-sm">
         </div>
         <div class="col-md-1 mb-2 text-end">
-          <button type="button" class="btn btn-sm btn-outline-danger remove-other-name"><i class="bi bi-trash"></i></button>
+          <button type="button" class="btn btn-sm atom-btn-outline-danger remove-other-name"><i class="bi bi-trash"></i></button>
         </div>
       </div>
     </div>

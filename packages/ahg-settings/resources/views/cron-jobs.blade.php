@@ -12,14 +12,14 @@
       <div>
         <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-sm btn-outline-secondary" title="Add missing default entries">
+          <button type="submit" class="btn btn-sm atom-btn-white" title="Add missing default entries">
             <i class="fas fa-seedling me-1"></i>Seed Defaults
           </button>
         </form>
         <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline ms-1">
           @csrf
           <input type="hidden" name="reset" value="1">
-          <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="Overwrite all to defaults">
+          <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="Overwrite all to defaults">
             <i class="fas fa-undo me-1"></i>Reset All
           </button>
         </form>
@@ -67,9 +67,9 @@
     @php $allCategories = $categories->keys()->sort(); @endphp
     <div class="mb-3">
       <div class="btn-group btn-group-sm flex-wrap" role="group">
-        <a href="#" class="btn btn-outline-primary active category-filter" data-category="all">All</a>
+        <a href="#" class="btn atom-btn-white active category-filter" data-category="all">All</a>
         @foreach($allCategories as $cat)
-          <a href="#" class="btn btn-outline-primary category-filter" data-category="{{ Str::slug($cat) }}">{{ $cat }} <span class="badge bg-primary bg-opacity-25">{{ $categories[$cat]->count() }}</span></a>
+          <a href="#" class="btn atom-btn-white category-filter" data-category="{{ Str::slug($cat) }}">{{ $cat }} <span class="badge bg-primary bg-opacity-25">{{ $categories[$cat]->count() }}</span></a>
         @endforeach
       </div>
     </div>
@@ -77,14 +77,14 @@
     {{-- Job Categories --}}
     @foreach($categories as $category => $jobs)
       <div class="card mb-4 category-card" data-category="{{ Str::slug($category) }}">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">{{ $category }} <span class="badge bg-secondary ms-2">{{ $jobs->count() }}</span></h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0 align-middle">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-sm table-hover mb-0 align-middle">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th style="width:40px">On</th>
                   <th>Job</th>
                   <th>Schedule</th>
@@ -168,19 +168,19 @@
                     {{-- Run Now --}}
                     <form action="{{ route('settings.cron-run', $job->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-success" title="Run now" onclick="return confirm('Run {{ $job->name }} now?')">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Run now" onclick="return confirm('Run {{ $job->name }} now?')">
                         <i class="fas fa-play"></i>
                       </button>
                     </form>
 
                     {{-- Edit Modal Trigger --}}
-                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#edit-{{ $job->id }}" title="Edit">
+                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#edit-{{ $job->id }}" title="Edit">
                       <i class="fas fa-edit"></i>
                     </button>
 
                     {{-- Output Modal Trigger --}}
                     @if($job->last_run_output)
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#output-{{ $job->id }}" title="View output">
+                    <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#output-{{ $job->id }}" title="View output">
                       <i class="fas fa-terminal"></i>
                     </button>
                     @endif
@@ -227,8 +227,8 @@
                           </div>
                         </div>
                         <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-primary">Save Changes</button>
+                          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn atom-btn-outline-success">Save Changes</button>
                         </div>
                       </div>
                     </form>
@@ -261,7 +261,7 @@
 
     {{-- Cron Syntax Reference (collapsible) --}}
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <a class="text-decoration-none" data-bs-toggle="collapse" href="#cron-reference">
           <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Cron Syntax Quick Reference</h5>
         </a>
@@ -277,7 +277,7 @@
 * * * * * command</pre>
           <div class="row">
             <div class="col-md-6">
-              <table class="table table-sm mb-0">
+              <table class="table table-bordered table-sm mb-0">
                 <tbody>
                   <tr><td><code>* * * * *</code></td><td>Every minute</td></tr>
                   <tr><td><code>*/5 * * * *</code></td><td>Every 5 minutes</td></tr>
@@ -287,7 +287,7 @@
               </table>
             </div>
             <div class="col-md-6">
-              <table class="table table-sm mb-0">
+              <table class="table table-bordered table-sm mb-0">
                 <tbody>
                   <tr><td><code>0 2 * * *</code></td><td>Daily at 2:00 AM</td></tr>
                   <tr><td><code>0 3 * * 0</code></td><td>Sunday at 3:00 AM</td></tr>
@@ -303,7 +303,7 @@
 
     {{-- System crontab info --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>System Crontab</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>System Crontab</h5></div>
       <div class="card-body">
         <p class="mb-2">Only one system crontab entry is needed:</p>
         <div class="bg-dark text-light p-3 rounded">

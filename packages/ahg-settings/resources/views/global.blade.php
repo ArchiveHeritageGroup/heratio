@@ -173,8 +173,8 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
 </div>

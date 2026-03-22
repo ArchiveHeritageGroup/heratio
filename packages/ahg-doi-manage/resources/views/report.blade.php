@@ -17,7 +17,7 @@
         <span class="small text-muted">Minting Statistics</span>
       </div>
       <div class="ms-auto">
-        <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
+        <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
           <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
         </a>
       </div>
@@ -29,7 +29,7 @@
       <div class="table-responsive mb-4">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Month</th>
               <th>Minted</th>
               <th>Updated</th>
@@ -56,7 +56,7 @@
       <div class="table-responsive mb-4">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Repository</th>
               <th>DOI Count</th>
             </tr>

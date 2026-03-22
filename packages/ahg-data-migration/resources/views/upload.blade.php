@@ -37,7 +37,7 @@
   @endif
 
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-file-csv"></i> Select File and Options</h5>
     </div>
     <div class="card-body">
@@ -85,10 +85,10 @@
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-arrow-right"></i> Upload &amp; Continue
           </button>
-          <a href="{{ route('data-migration.index') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">Cancel</a>
         </div>
       </form>
     </div>

@@ -11,7 +11,7 @@
     <form method="post" action="{{ route('settings.oai') }}">
       @csrf
       <div class="card mb-4">
-        <div class="card-header">OAI-PMH settings</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">OAI-PMH settings</div>
         <div class="card-body">
           <p class="text-muted">The OAI-PMH API can be secured by requiring API requests authenticate using API keys.</p>
           <div class="mb-3">
@@ -51,8 +51,8 @@
           </div>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
 </div>

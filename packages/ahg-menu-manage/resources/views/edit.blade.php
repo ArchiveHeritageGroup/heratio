@@ -92,11 +92,11 @@
 
     <ul class="actions mb-3 nav gap-2">
       @if($menu)
-        <li><a href="{{ route('menu.show', $menu->id) }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Save"></li>
+        <li><a href="{{ route('menu.show', $menu->id) }}" class="btn atom-btn-white">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
       @else
-        <li><a href="{{ route('menu.browse') }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-success" type="submit" value="Create"></li>
+        <li><a href="{{ route('menu.browse') }}" class="btn atom-btn-white">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
       @endif
     </ul>
   </form>

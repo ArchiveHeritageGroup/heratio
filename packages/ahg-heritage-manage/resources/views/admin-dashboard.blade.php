@@ -59,23 +59,23 @@
 
       {{-- Quick Links --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-link"></i> Quick Links</h5>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-4 mb-2">
-              <a href="#" class="btn btn-outline-primary w-100">
+              <a href="{{ route('acl.access-requests') }}" class="btn atom-btn-white w-100">
                 <i class="fas fa-key me-1"></i> Review Access Requests
               </a>
             </div>
             <div class="col-md-4 mb-2">
-              <a href="#" class="btn btn-outline-warning w-100">
+              <a href="{{ route('heritage.admin') }}" class="btn atom-btn-white w-100">
                 <i class="fas fa-bell me-1"></i> View System Alerts
               </a>
             </div>
             <div class="col-md-4 mb-2">
-              <a href="/" class="btn btn-outline-info w-100" target="_blank">
+              <a href="/" class="btn atom-btn-white w-100" target="_blank">
                 <i class="fas fa-eye me-1"></i> Preview Landing Page
               </a>
             </div>
@@ -85,11 +85,11 @@
 
       {{-- System Overview --}}
       <div class="card shadow-sm">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-info-circle"></i> System Overview</h5>
         </div>
         <div class="card-body">
-          <table class="table table-sm table-borderless mb-0">
+          <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
               <td class="text-muted" style="width:200px;">Total Users</td>
               <td>{{ number_format($totalUsers) }}</td>

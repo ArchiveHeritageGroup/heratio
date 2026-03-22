@@ -16,9 +16,9 @@
   {{-- Database Info --}}
   <div class="col-md-4">
     <div class="card h-100">
-      <div class="card-header"><i class="fas fa-server me-1"></i> Database Info</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-server me-1"></i> Database Info</div>
       <div class="card-body">
-        <table class="table table-sm table-borderless mb-2">
+        <table class="table table-bordered table-sm table-borderless mb-2">
           <tr>
             <td class="text-muted" style="width:90px;">Host</td>
             <td><code>{{ $dbConfig['host'] ?? $dbConfig['unix_socket'] ?? 'localhost' }}</code></td>
@@ -42,7 +42,7 @@
             </td>
           </tr>
         </table>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-test-connection" onclick="testConnection()">
+        <button type="button" class="btn btn-sm atom-btn-white" id="btn-test-connection" onclick="testConnection()">
           <i class="fas fa-plug me-1"></i> Test Connection
         </button>
       </div>
@@ -52,9 +52,9 @@
   {{-- Storage Info --}}
   <div class="col-md-4">
     <div class="card h-100">
-      <div class="card-header"><i class="fas fa-hdd me-1"></i> Storage Info</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-hdd me-1"></i> Storage Info</div>
       <div class="card-body">
-        <table class="table table-sm table-borderless mb-0">
+        <table class="table table-bordered table-sm table-borderless mb-0">
           <tr>
             <td class="text-muted" style="width:90px;">Path</td>
             <td><code class="small">{{ $backupPath }}</code></td>
@@ -83,18 +83,18 @@
   {{-- Quick Actions --}}
   <div class="col-md-4">
     <div class="card h-100">
-      <div class="card-header"><i class="fas fa-bolt me-1"></i> Quick Actions</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Quick Actions</div>
       <div class="card-body d-flex flex-column gap-2">
-        <button type="button" class="btn btn-primary" onclick="quickBackup('database')">
+        <button type="button" class="btn atom-btn-white" onclick="quickBackup('database')">
           <i class="fas fa-database me-1"></i> Database Backup
         </button>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createBackupModal">
+        <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createBackupModal">
           <i class="fas fa-archive me-1"></i> Full Backup
         </button>
-        <a href="{{ route('backup.restore') }}" class="btn btn-warning">
+        <a href="{{ route('backup.restore') }}" class="btn atom-btn-white">
           <i class="fas fa-undo me-1"></i> Restore
         </a>
-        <a href="{{ route('backup.settings') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('backup.settings') }}" class="btn atom-btn-white">
           <i class="fas fa-cog me-1"></i> Settings
         </a>
       </div>
@@ -104,18 +104,18 @@
 
 {{-- Backups Table --}}
 <div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <span><i class="fas fa-list me-1"></i> Existing Backups</span>
-    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createBackupModal">
+    <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#createBackupModal">
       <i class="fas fa-plus me-1"></i> Create Backup
     </button>
   </div>
   <div class="card-body p-0">
     @if(count($backups) > 0)
       <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-hover table-striped mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Date</th>
               <th>Type</th>
               <th>Components</th>
@@ -172,10 +172,10 @@
                 <td>{{ $backup['size_human'] }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('backup.download', $backup['id']) }}" class="btn btn-outline-primary" title="Download">
+                    <a href="{{ route('backup.download', $backup['id']) }}" class="btn atom-btn-white" title="Download">
                       <i class="fas fa-download"></i>
                     </a>
-                    <button type="button" class="btn btn-outline-danger" title="Delete" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
+                    <button type="button" class="btn atom-btn-outline-danger" title="Delete" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -196,14 +196,14 @@
 
 {{-- Scheduled Backups --}}
 <div class="card mb-4">
-  <div class="card-header">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
     <i class="fas fa-calendar-alt me-1"></i> Scheduled Backups
   </div>
   <div class="card-body">
     @if(count($schedules) > 0)
-      <table class="table table-sm mb-0">
+      <table class="table table-bordered table-sm mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Frequency</th>
             <th>Time</th>
             <th>Components</th>
@@ -284,8 +284,8 @@
         <div id="backup-result" class="d-none"></div>
       </div>
       <div class="modal-footer" id="backup-modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="btn-start-backup" onclick="startBackup()">
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-white" id="btn-start-backup" onclick="startBackup()">
           <i class="fas fa-play me-1"></i> Start Backup
         </button>
       </div>

@@ -5,16 +5,16 @@
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Your API Keys</h5>
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#generateKeyModal"><i class="fas fa-plus me-1"></i>Generate New Key</button>
+        <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#generateKeyModal"><i class="fas fa-plus me-1"></i>Generate New Key</button>
     </div>
     <div class="card-body p-0">
         @if(count($apiKeys) > 0)
         <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Name</th>
                         <th>Key</th>
                         <th>Created</th>
@@ -65,7 +65,7 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="revoke">
                                 <input type="hidden" name="key_id" value="{{ $key->id }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Revoke"><i class="fas fa-ban me-1"></i>Revoke</button>
+                                <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="Revoke"><i class="fas fa-ban me-1"></i>Revoke</button>
                             </form>
                             @else
                             <span class="text-muted">-</span>
@@ -107,7 +107,7 @@
             <div class="form-text">Leave empty for no expiration.</div>
         </div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-key me-1"></i>Generate Key</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-key me-1"></i>Generate Key</button></div>
     </form>
 </div></div></div>
 @endsection

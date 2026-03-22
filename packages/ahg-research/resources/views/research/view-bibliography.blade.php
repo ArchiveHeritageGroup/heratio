@@ -13,12 +13,12 @@
                 <small class="text-muted"><i class="fas fa-quote-left me-1"></i>Citation Style: <strong>{{ ucfirst($bibliography->citation_style ?? 'chicago') }}</strong></small>
             </div>
             <div class="btn-group">
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEntryModal"><i class="fas fa-plus me-1"></i>Add Entry</button>
-                <a href="{{ route('research.viewBibliography', $bibliography->id) }}?export=1" class="btn btn-outline-secondary btn-sm"><i class="fas fa-file-export me-1"></i>Export</a>
+                <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addEntryModal"><i class="fas fa-plus me-1"></i>Add Entry</button>
+                <a href="{{ route('research.viewBibliography', $bibliography->id) }}?export=1" class="btn atom-btn-white btn-sm"><i class="fas fa-file-export me-1"></i>Export</a>
                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this bibliography and all its entries?')">
                     @csrf
                     <input type="hidden" name="form_action" value="delete">
-                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete</button>
+                    <button type="submit" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete</button>
                 </form>
             </div>
         </div>
@@ -26,15 +26,15 @@
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Entries ({{ count($entries) }})</h5>
     </div>
     <div class="card-body p-0">
         @if(count($entries) > 0)
         <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0">
-                <thead class="table-light">
-                    <tr>
+            <table class="table table-bordered table-hover table-striped mb-0">
+                <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Title</th>
                         <th>Authors</th>
                         <th>Year</th>
@@ -63,7 +63,7 @@
                                 @csrf
                                 <input type="hidden" name="form_action" value="remove_entry">
                                 <input type="hidden" name="entry_id" value="{{ $entry->id }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-times"></i></button>
+                                <button type="submit" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-times"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -81,7 +81,7 @@
 </div>
 
 <div class="mt-3">
-    <a href="{{ route('research.bibliographies') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to Bibliographies</a>
+    <a href="{{ route('research.bibliographies') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to Bibliographies</a>
 </div>
 
 {{-- Add Entry Modal --}}
@@ -122,7 +122,7 @@
         </div>
         <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
     </form>
 </div></div></div>
 @endsection

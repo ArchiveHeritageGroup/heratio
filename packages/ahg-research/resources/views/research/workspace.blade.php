@@ -66,18 +66,18 @@
 
   {{-- Upcoming Bookings --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-calendar-alt me-2"></i>Upcoming Bookings</span>
-      <a href="{{ route('research.book') }}" class="btn btn-sm btn-primary">
+      <a href="{{ route('research.book') }}" class="btn atom-btn-outline-light btn-sm">
         <i class="fas fa-plus me-1"></i>Book Room
       </a>
     </div>
     <div class="card-body">
       @if(count($upcomingBookings ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Time</th>
                 <th>Room</th>
@@ -97,7 +97,7 @@
                     </span>
                   </td>
                   <td>
-                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-outline-primary">
+                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm atom-btn-white">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>
@@ -114,15 +114,15 @@
 
   {{-- Past Bookings --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-history me-2"></i>Past Bookings
     </div>
     <div class="card-body">
       @if(count($pastBookings ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Time</th>
                 <th>Room</th>
@@ -140,7 +140,7 @@
                     <span class="badge bg-secondary">{{ ucfirst(e($booking->status ?? '')) }}</span>
                   </td>
                   <td>
-                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm atom-btn-white">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>
@@ -157,9 +157,9 @@
 
   {{-- Collections --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-layer-group me-2"></i>My Collections</span>
-      <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+      <button type="button" class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
         <i class="fas fa-plus me-1"></i>New Collection
       </button>
     </div>
@@ -186,16 +186,16 @@
 
   {{-- Quick Links --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-link me-2"></i>Quick Links</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-link me-2"></i>Quick Links</div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-2">
-          <a href="{{ route('research.annotations') }}" class="btn btn-outline-warning w-100">
+          <a href="{{ route('research.annotations') }}" class="btn atom-btn-white w-100">
             <i class="fas fa-highlighter me-1"></i>My Annotations
           </a>
         </div>
         <div class="col-md-6 mb-2">
-          <a href="{{ route('research.savedSearches') }}" class="btn btn-outline-info w-100">
+          <a href="{{ route('research.savedSearches') }}" class="btn atom-btn-white w-100">
             <i class="fas fa-search me-1"></i>Saved Searches
           </a>
         </div>
@@ -224,8 +224,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success">
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success">
               <i class="fas fa-plus me-1"></i>Create
             </button>
           </div>

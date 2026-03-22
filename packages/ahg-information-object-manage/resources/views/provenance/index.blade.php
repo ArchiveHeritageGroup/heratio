@@ -3,7 +3,7 @@
 @section('title', 'Edit Provenance — ' . ($io->title ?? ''))
 
 @section('content')
-<div class="container-fluid py-3">
+<div class="container py-3">
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
@@ -22,9 +22,9 @@
         <p class="text-muted mb-0">{{ $io->title ?? $io->slug }}</p>
       </div>
       <div>
-        <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-primary me-2"><i class="bi bi-arrow-left me-1"></i>Back to Record</a>
-        <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-outline-secondary me-2">Cancel</a>
-        <button type="submit" class="btn btn-success">
+        <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-white me-2"><i class="bi bi-arrow-left me-1"></i>Back to Record</a>
+        <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white me-2">Cancel</a>
+        <button type="submit" class="btn atom-btn-outline-success">
           <i class="bi bi-check-lg me-1"></i> Save Provenance
         </button>
       </div>
@@ -36,7 +36,7 @@
 
         <!-- Provenance Summary -->
         <div class="card mb-4">
-          <div class="card-header bg-primary text-white">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Provenance Summary</h6>
           </div>
           <div class="card-body">
@@ -50,7 +50,7 @@
 
         <!-- Acquisition Details -->
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-cart-check me-2"></i>Acquisition Details</h6>
           </div>
           <div class="card-body">
@@ -107,9 +107,9 @@
 
         <!-- Chain of Custody Events -->
         <div class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Chain of Custody Events</h6>
-            <button type="button" class="btn btn-sm btn-success" id="addEventBtn">
+            <button type="button" class="btn btn-sm atom-btn-outline-success" id="addEventBtn">
               <i class="bi bi-plus-lg me-1"></i> Add Event
             </button>
           </div>
@@ -192,7 +192,7 @@
                       <input type="text" name="event_notes[]" class="form-control form-control-sm" value="{{ $event->notes ?? $event->notes_i18n ?? '' }}">
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
-                      <button type="button" class="btn btn-sm btn-outline-danger remove-event-btn w-100">
+                      <button type="button" class="btn btn-sm atom-btn-outline-danger remove-event-btn w-100">
                         X
                       </button>
                     </div>
@@ -206,7 +206,7 @@
 
         <!-- Research Notes -->
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>Research Notes</h6>
           </div>
           <div class="card-body">
@@ -236,9 +236,9 @@
 
         <!-- Supporting Documents -->
         <div class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Supporting Documents</h6>
-            <button type="button" class="btn btn-sm btn-success" id="addDocumentBtn">
+            <button type="button" class="btn btn-sm atom-btn-outline-success" id="addDocumentBtn">
               <i class="bi bi-plus me-1"></i>Add Document
             </button>
           </div>
@@ -256,9 +256,9 @@
                 </div>
                 <div>
                   @if($doc->file_path)
-                  <a href="{{ $doc->file_path }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-download"></i> View</a>
+                  <a href="{{ $doc->file_path }}" class="btn btn-sm atom-btn-white" target="_blank"><i class="bi bi-download"></i> View</a>
                   @endif
-                  <button type="button" class="btn btn-sm btn-outline-danger delete-doc-btn" data-doc-id="{{ $doc->id }}"><i class="bi bi-trash"></i> Delete</button>
+                  <button type="button" class="btn btn-sm atom-btn-outline-danger delete-doc-btn" data-doc-id="{{ $doc->id }}"><i class="bi bi-trash"></i> Delete</button>
                 </div>
               </div>
               @endforeach
@@ -277,7 +277,7 @@
 
         <!-- Status -->
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-sliders me-2"></i>Status</h6>
           </div>
           <div class="card-body">
@@ -324,7 +324,7 @@
 
         <!-- Current Owner -->
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-person me-2"></i>Current Owner/Holder</h6>
           </div>
           <div class="card-body">
@@ -346,7 +346,7 @@
 
         <!-- Nazi-Era Provenance -->
         <div class="card mb-4">
-          <div class="card-header bg-warning">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Nazi-Era Provenance</h6>
           </div>
           <div class="card-body">
@@ -373,7 +373,7 @@
 
         <!-- Cultural Property -->
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h6 class="mb-0"><i class="bi bi-globe me-2"></i>Cultural Property</h6>
           </div>
           <div class="card-body">
@@ -477,7 +477,7 @@
           <input type="text" name="event_notes[]" class="form-control form-control-sm">
         </div>
         <div class="col-md-1 d-flex align-items-end">
-          <button type="button" class="btn btn-sm btn-outline-danger remove-event-btn w-100">
+          <button type="button" class="btn btn-sm atom-btn-outline-danger remove-event-btn w-100">
             X
           </button>
         </div>
@@ -525,7 +525,7 @@
         <input type="date" name="doc_date[]" class="form-control form-control-sm">
       </div>
       <div class="col-md-1 d-flex align-items-end">
-        <button type="button" class="btn btn-sm btn-outline-danger remove-doc-btn w-100">
+        <button type="button" class="btn btn-sm atom-btn-outline-danger remove-doc-btn w-100">
           X
         </button>
       </div>

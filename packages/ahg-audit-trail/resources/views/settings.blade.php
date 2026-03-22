@@ -17,7 +17,7 @@
 
     {{-- General --}}
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">General</h5>
       </div>
       <div class="card-body">
@@ -31,7 +31,7 @@
 
     {{-- What to Log --}}
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">What to Log</h5>
       </div>
       <div class="card-body">
@@ -76,7 +76,7 @@
 
     {{-- Privacy Settings --}}
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Privacy Settings</h5>
       </div>
       <div class="card-body">
@@ -94,10 +94,10 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-primary">
+      <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-save me-1"></i> Save Settings
       </button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Back to Settings
       </a>
     </div>

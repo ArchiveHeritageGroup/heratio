@@ -7,8 +7,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-shield-alt"></i> Publish Gate Rules</h1>
     <div>
-      <a href="{{ route('workflow.admin') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Workflows</a>
-      <a href="{{ route('workflow.gates.edit') }}" class="btn btn-success"><i class="fas fa-plus"></i> Create Rule</a>
+      <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Workflows</a>
+      <a href="{{ route('workflow.gates.edit') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> Create Rule</a>
     </div>
   </div>
 
@@ -20,9 +20,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Order</th>
                 <th>Name</th>
                 <th>Type</th>
@@ -56,10 +56,10 @@
                     @endif
                   </td>
                   <td>
-                    <a href="{{ route('workflow.gates.edit', $rule->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                    <a href="{{ route('workflow.gates.edit', $rule->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i></a>
                     <form action="{{ route('workflow.gates.delete', $rule->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this gate rule?')">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
                     </form>
                   </td>
                 </tr>

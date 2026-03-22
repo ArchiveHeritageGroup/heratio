@@ -17,16 +17,16 @@
         @if($digitalObjectId)
             <div class="alert alert-info">
                 <i class="fas fa-filter"></i> Filtered to digital object #{{ $digitalObjectId }}
-                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-info ms-2">Clear Filter</a>
+                <a href="{{ route('preservation.events') }}" class="btn btn-sm atom-btn-white ms-2">Clear Filter</a>
             </div>
         @endif
 
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>ID</th>
                                 <th>Date/Time</th>
                                 <th>Type</th>

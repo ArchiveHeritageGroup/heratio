@@ -11,7 +11,7 @@
       <span class="small text-muted">DataCite Integration Settings</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('doi.index') }}" class="btn btn-sm btn-outline-secondary">
+      <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
       </a>
     </div>
@@ -38,7 +38,7 @@
     @csrf
 
     <div class="card mb-4">
-      <div class="card-header fw-bold">DataCite Connection</div>
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DataCite Connection</div>
       <div class="card-body">
         <div class="row mb-3">
           <label for="datacite_prefix" class="col-sm-3 col-form-label">DataCite Prefix</label>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header fw-bold">Defaults</div>
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Defaults</div>
       <div class="card-body">
         <div class="row mb-3">
           <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs</label>
@@ -137,7 +137,7 @@
     </div>
 
     <div class="d-flex justify-content-end mb-4">
-      <button type="submit" class="btn btn-primary">
+      <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-save me-1"></i> Save Configuration
       </button>
     </div>

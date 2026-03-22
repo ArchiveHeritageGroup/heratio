@@ -11,7 +11,7 @@
 <h1>Edit Rights: {{ $io->title ?? 'Untitled' }}</h1>
 <nav aria-label="breadcrumb" class="mb-4">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">Extended Rights</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('io.rights.extended', $io->slug) }}">Extended Rights</a></li>
     <li class="breadcrumb-item active">Edit</li>
   </ol>
 </nav>
@@ -29,9 +29,10 @@
     <div class="col-md-6">
       <!-- Rights Statement -->
       <div class="card mb-4">
-        <div class="card-header"><strong>Rights Statement</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Statement</strong></div>
         <div class="card-body">
-          <select name="rights_statement_id" class="form-select">
+          <label for="rights_statement_id" class="form-label">Rights Statement <span class="badge bg-secondary ms-1">Optional</span></label>
+          <select name="rights_statement_id" id="rights_statement_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($rightsStatements ?? [] as $rs)
               <option value="{{ $rs->id }}"
@@ -45,9 +46,10 @@
 
       <!-- Creative Commons -->
       <div class="card mb-4">
-        <div class="card-header"><strong>Creative Commons License</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Creative Commons License</strong></div>
         <div class="card-body">
-          <select name="cc_license_id" class="form-select">
+          <label for="cc_license_id" class="form-label">Creative Commons License <span class="badge bg-secondary ms-1">Optional</span></label>
+          <select name="cc_license_id" id="cc_license_id" class="form-select">
             <option value="">-- None --</option>
             @foreach($ccLicenses ?? [] as $cc)
               <option value="{{ $cc->id }}"
@@ -61,8 +63,9 @@
 
       <!-- Rights Holder (Donor) -->
       <div class="card mb-4">
-        <div class="card-header"><strong>Rights Holder (Donor)</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Rights Holder (Donor)</strong></div>
         <div class="card-body">
+          <label for="rights_holder_id" class="form-label">Rights Holder <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="Type to search...">
             <option value="">-- None --</option>
             @if(isset($donors) && count($donors) > 0)
@@ -85,8 +88,9 @@
     <div class="col-md-6">
       <!-- TK Labels -->
       <div class="card mb-4">
-        <div class="card-header"><strong>TK Labels</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>TK Labels</strong></div>
         <div class="card-body">
+          <label class="form-label">TK Labels <span class="badge bg-secondary ms-1">Optional</span></label>
           @php
             $selectedTkLabels = $currentRights->tk_labels ?? [];
             if (!is_array($selectedTkLabels)) {
@@ -109,10 +113,10 @@
   </div>
 
   <div class="mb-4">
-    <button type="submit" class="btn btn-primary">
+    <button type="submit" class="btn atom-btn-outline-success">
       <i class="fas fa-save"></i> Save Rights
     </button>
-    <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-secondary">
+    <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
       Cancel
     </a>
   </div>

@@ -20,9 +20,9 @@
     <div class="card-body">
       @if(count($savedSearches ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-bordered table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Name</th>
                 <th>Query</th>
                 <th>Date Saved</th>
@@ -36,13 +36,13 @@
                   <td><code>{{ e(\Illuminate\Support\Str::limit($search->query ?? '', 60)) }}</code></td>
                   <td>{{ $search->created_at ? \Carbon\Carbon::parse($search->created_at)->format('Y-m-d') : '-' }}</td>
                   <td>
-                    <a href="{{ route('research.savedSearches.run', $search->id) }}" class="btn btn-sm btn-outline-primary" title="Run Search">
+                    <a href="{{ route('research.savedSearches.run', $search->id) }}" class="btn btn-sm atom-btn-white" title="Run Search">
                       <i class="fas fa-play"></i>
                     </a>
                     <form action="{{ route('research.savedSearches.destroy', $search->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this saved search?')">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete">
                         <i class="fas fa-trash"></i>
                       </button>
                     </form>
@@ -67,7 +67,7 @@
 
   {{-- Save New Search --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-plus me-2"></i>Save a New Search</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-plus me-2"></i>Save a New Search</div>
     <div class="card-body">
       <form action="{{ route('research.savedSearches.store') }}" method="POST">
         @csrf
@@ -81,7 +81,7 @@
             <input type="text" name="query" id="ss_query" class="form-control" required placeholder="Enter a search query or URL">
           </div>
           <div class="col-md-2 mb-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-success w-100">
+            <button type="submit" class="btn atom-btn-outline-success w-100">
               <i class="fas fa-save me-1"></i>Save
             </button>
           </div>

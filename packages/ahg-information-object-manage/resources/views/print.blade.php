@@ -471,7 +471,7 @@
     <h2 class="section-heading">Child descriptions ({{ $children->count() }})</h2>
     <table>
       <thead>
-        <tr>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th>Title</th>
           <th style="width: 150px;">Level</th>
         </tr>

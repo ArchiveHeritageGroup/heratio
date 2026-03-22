@@ -73,7 +73,7 @@
   {{-- Job details link --}}
   @if($job)
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Job Details</h5>
       </div>
       <div class="card-body">
@@ -117,14 +117,14 @@
     {{-- Error log --}}
     @if(!empty($job['error_log']) && count($job['error_log']) > 0)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Errors ({{ count($job['error_log']) }})</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
             <table class="table table-bordered table-sm table-striped mb-0">
-              <thead class="table-danger">
-                <tr>
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th style="width: 80px;">Row</th>
                   <th>Error</th>
                 </tr>
@@ -145,13 +145,13 @@
   @endif
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('data-migration.upload') }}" class="btn btn-primary">
+    <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-outline-success">
       <i class="fas fa-upload"></i> New Import
     </a>
-    <a href="{{ route('data-migration.jobs') }}" class="btn btn-outline-info">
+    <a href="{{ route('data-migration.jobs') }}" class="btn atom-btn-white">
       <i class="fas fa-tasks"></i> View All Jobs
     </a>
-    <a href="{{ route('data-migration.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Dashboard
     </a>
   </div>

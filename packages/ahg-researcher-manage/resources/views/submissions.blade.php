@@ -19,10 +19,10 @@
       </div>
     </div>
     <div class="d-flex gap-2">
-      <a href="{{ route('researcher.dashboard') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('researcher.dashboard') }}" class="btn atom-btn-white">
         <i class="fas fa-tachometer-alt me-1"></i> Dashboard
       </a>
-      <a href="{{ route('researcher.import') }}" class="btn btn-info">
+      <a href="{{ route('researcher.import') }}" class="btn atom-btn-white">
         <i class="fas fa-file-import me-1"></i> Import Exchange
       </a>
     </div>
@@ -31,35 +31,35 @@
   {{-- Status filter buttons --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{{ route('researcher.submissions') }}"
-       class="btn btn-sm {{ $currentStatus === '' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
       All
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'draft']) }}"
-       class="btn btn-sm {{ $currentStatus === 'draft' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'draft' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Draft
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'submitted']) }}"
-       class="btn btn-sm {{ $currentStatus === 'submitted' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'submitted' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
       Submitted
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'under_review']) }}"
-       class="btn btn-sm {{ $currentStatus === 'under_review' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'under_review' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Under Review
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'approved']) }}"
-       class="btn btn-sm {{ $currentStatus === 'approved' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'approved' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
       Approved
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'published']) }}"
-       class="btn btn-sm {{ $currentStatus === 'published' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'published' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
       Published
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'returned']) }}"
-       class="btn btn-sm {{ $currentStatus === 'returned' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'returned' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Returned
     </a>
     <a href="{{ route('researcher.submissions', ['status' => 'rejected']) }}"
-       class="btn btn-sm {{ $currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline-primary' }}">
+       class="btn btn-sm {{ $currentStatus === 'rejected' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Rejected
     </a>
   </div>
@@ -68,7 +68,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>ID</th>
             <th>Title</th>
             @if($isAdmin)

@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-chart-bar me-2"></i>Research Statistics</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header"><h5 class="mb-0">Date Range Filter</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Date Range Filter</h5></div>
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-3">
@@ -15,7 +15,7 @@
                 <input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo }}">
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter me-1"></i>Filter</button>
+                <button type="submit" class="btn atom-btn-outline-light btn-sm"><i class="fas fa-filter me-1"></i>Filter</button>
             </div>
         </form>
     </div>
@@ -81,7 +81,7 @@
 <div class="row">
     <div class="col-md-6 mb-3">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Visits Over Time</h5></div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Visits Over Time</h5></div>
             <div class="card-body">
                 <div id="chart-visits-over-time" class="d-flex align-items-center justify-content-center" style="min-height: 250px;">
                     <span class="text-muted"><i class="fas fa-chart-line fa-3x mb-2 d-block"></i>Chart placeholder - integrate Chart.js or similar</span>
@@ -91,7 +91,7 @@
     </div>
     <div class="col-md-6 mb-3">
         <div class="card h-100">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Researcher Types Breakdown</h5></div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Researcher Types Breakdown</h5></div>
             <div class="card-body">
                 <div id="chart-researcher-types" class="d-flex align-items-center justify-content-center" style="min-height: 250px;">
                     <span class="text-muted"><i class="fas fa-chart-pie fa-3x mb-2 d-block"></i>Chart placeholder - integrate Chart.js or similar</span>

@@ -38,13 +38,13 @@
   {{-- Load saved mapping --}}
   @if(count($savedMappings) > 0)
     <div class="card mb-3">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h6 class="mb-0"><i class="fas fa-folder-open"></i> Load Saved Mapping</h6>
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap gap-2">
           @foreach($savedMappings as $saved)
-            <button type="button" class="btn btn-sm btn-outline-primary load-mapping-btn"
+            <button type="button" class="btn btn-sm atom-btn-white load-mapping-btn"
                     data-mapping-id="{{ $saved['id'] }}"
                     data-mappings="{{ $saved['field_mappings'] }}">
               <i class="fas fa-map"></i> {{ $saved['name'] }}
@@ -57,13 +57,13 @@
 
   {{-- Mapping table --}}
   <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-columns"></i> Column Mapping</h5>
       <div class="d-flex gap-2">
-        <button type="button" class="btn btn-sm btn-outline-success" id="autoMapBtn" title="Auto-map columns by name matching">
+        <button type="button" class="btn btn-sm atom-btn-outline-success" id="autoMapBtn" title="Auto-map columns by name matching">
           <i class="fas fa-magic"></i> Auto Map
         </button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="clearMapBtn">
+        <button type="button" class="btn btn-sm atom-btn-white" id="clearMapBtn">
           <i class="fas fa-eraser"></i> Clear All
         </button>
       </div>
@@ -72,7 +72,7 @@
       <div class="table-responsive">
         <table class="table table-bordered mb-0" id="mappingTable">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th style="width: 40%;">Source Column (CSV)</th>
               <th style="width: 10%; text-align: center;"><i class="fas fa-arrow-right"></i></th>
               <th style="width: 50%;">Target Field</th>
@@ -104,14 +104,14 @@
   {{-- Source data preview --}}
   @if(count($previewRows) > 0)
     <div class="card mb-3">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h6 class="mb-0"><i class="fas fa-table"></i> Source Data Preview (first {{ count($previewRows) }} rows)</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 @foreach($sourceColumns as $col)
                   <th class="text-nowrap">{{ $col }}</th>
                 @endforeach
@@ -134,7 +134,7 @@
 
   {{-- Save mapping & action buttons --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h6 class="mb-0"><i class="fas fa-save"></i> Save Mapping &amp; Actions</h6>
     </div>
     <div class="card-body">
@@ -148,7 +148,7 @@
           <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="Category">
         </div>
         <div class="col-md-3 d-flex align-items-end">
-          <button type="button" class="btn btn-outline-primary" id="saveMappingBtn">
+          <button type="button" class="btn atom-btn-white" id="saveMappingBtn">
             <i class="fas fa-save"></i> Save Mapping
           </button>
         </div>
@@ -159,7 +159,7 @@
       <div class="d-flex flex-wrap gap-2">
         <form method="GET" action="{{ route('data-migration.preview') }}" id="previewForm" class="d-inline">
           <input type="hidden" name="mapping" id="previewMappingInput" value="{}">
-          <button type="submit" class="btn btn-info">
+          <button type="submit" class="btn atom-btn-white">
             <i class="fas fa-eye"></i> Preview Transformed Data
           </button>
         </form>
@@ -168,12 +168,12 @@
           @csrf
           <input type="hidden" name="mapping" id="executeMappingInput" value="{}">
           <input type="hidden" name="name" id="executeJobName" value="">
-          <button type="submit" class="btn btn-success">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-play"></i> Execute Import
           </button>
         </form>
 
-        <a href="{{ route('data-migration.upload') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-white">
           <i class="fas fa-arrow-left"></i> Back to Upload
         </a>
       </div>

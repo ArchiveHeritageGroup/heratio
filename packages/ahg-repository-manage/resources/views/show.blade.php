@@ -8,7 +8,7 @@
 
   @if($holdingsCount > 0)
     <div class="card mb-3">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Holdings</h5>
       </div>
       <div class="card-body">
@@ -28,12 +28,12 @@
 
   <div class="mb-3">
     @auth
-      <a href="{{ route('repository.edit', $repository->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-      <a href="{{ route('repository.confirmDelete', $repository->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
-      <a href="{{ route('repository.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+      <a href="{{ route('repository.edit', $repository->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
+      <a href="{{ route('repository.confirmDelete', $repository->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
+      <a href="{{ route('repository.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a>
       <a href="{{ route('repository.edit', $repository->slug) }}?rename=1" class="btn atom-btn-outline-light" title="Rename"><i class="fas fa-i-cursor me-1"></i>Rename</a>
     @endauth
-    <a href="{{ route('repository.print', $repository->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+    <a href="{{ route('repository.print', $repository->slug) }}" class="btn btn-sm atom-btn-white" target="_blank">
       <i class="fas fa-print me-1"></i> Print
     </a>
     <button class="btn atom-btn-white clipboard ms-2" data-clipboard-slug="{{ $repository->slug ?? '' }}" data-clipboard-type="repository" title="Add to clipboard">

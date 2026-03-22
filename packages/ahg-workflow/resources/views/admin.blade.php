@@ -7,8 +7,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-cogs"></i> Manage Workflows</h1>
     <div>
-      <a href="{{ route('workflow.gates.admin') }}" class="btn btn-outline-info"><i class="fas fa-shield-alt"></i> Publish Gates</a>
-      <a href="{{ route('workflow.admin.create') }}" class="btn btn-success"><i class="fas fa-plus"></i> Create Workflow</a>
+      <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white"><i class="fas fa-shield-alt"></i> Publish Gates</a>
+      <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> Create Workflow</a>
     </div>
   </div>
 
@@ -18,9 +18,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Name</th>
                 <th>Scope</th>
@@ -55,10 +55,10 @@
                     @endif
                   </td>
                   <td>
-                    <a href="{{ route('workflow.admin.edit', $wf->id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                    <a href="{{ route('workflow.admin.edit', $wf->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i></a>
                     <form action="{{ route('workflow.admin.delete', $wf->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this workflow and all its steps and tasks?')">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
                     </form>
                   </td>
                 </tr>

@@ -18,7 +18,7 @@
     <form method="POST" class="d-inline">
         @csrf
         <input type="hidden" name="do" value="mark_all_read">
-        <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fas fa-check-double me-1"></i>Mark All Read</button>
+        <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-check-double me-1"></i>Mark All Read</button>
     </form>
     @endif
 </div>
@@ -77,7 +77,7 @@
                     @csrf
                     <input type="hidden" name="do" value="mark_read">
                     <input type="hidden" name="id" value="{{ $notification->id }}">
-                    <button type="submit" class="btn btn-outline-primary btn-sm" title="Mark as read"><i class="fas fa-check"></i></button>
+                    <button type="submit" class="btn atom-btn-white btn-sm" title="Mark as read"><i class="fas fa-check"></i></button>
                 </form>
                 @else
                 <span class="text-muted" title="Read"><i class="fas fa-check-circle"></i></span>

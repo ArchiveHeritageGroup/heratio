@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-cog"></i> AI Configuration</h1>
-    <a href="{{ route('admin.ai.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('admin.ai.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
   </div>
@@ -16,9 +16,9 @@
 
   {{-- LLM Provider Configurations --}}
   <div class="card shadow-sm mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <strong><i class="fas fa-server"></i> LLM Provider Configurations</strong>
-      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#newConfigForm">
+      <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-toggle="collapse" data-bs-target="#newConfigForm">
         <i class="fas fa-plus"></i> Add Provider
       </button>
     </div>
@@ -86,7 +86,7 @@
             </div>
 
             <div class="mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Configuration</button>
+              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> Create Configuration</button>
             </div>
           </form>
         </div>
@@ -95,7 +95,7 @@
       {{-- Existing Configs --}}
       @forelse($configs as $cfg)
       <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <div class="card-header d-flex justify-content-between align-items-center py-2" style="background:var(--ahg-primary);color:#fff">
           <div>
             <strong>{{ $cfg->name }}</strong>
             <span class="badge bg-secondary ms-2">{{ ucfirst($cfg->provider) }}</span>
@@ -109,10 +109,10 @@
             @endif
           </div>
           <div>
-            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editConfig{{ $cfg->id }}">
+            <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="collapse" data-bs-target="#editConfig{{ $cfg->id }}">
               <i class="fas fa-edit"></i> Edit
             </button>
-            <button type="button" class="btn btn-sm btn-outline-info" onclick="testProvider({{ $cfg->id }}, this)">
+            <button type="button" class="btn btn-sm atom-btn-white" onclick="testProvider({{ $cfg->id }}, this)">
               <i class="fas fa-plug"></i> Test
             </button>
           </div>
@@ -175,8 +175,8 @@
               </div>
 
               <div class="mt-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update</button>
-                <button type="submit" name="_action" value="delete_config" class="btn btn-outline-danger"
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> Update</button>
+                <button type="submit" name="_action" value="delete_config" class="btn atom-btn-outline-danger"
                         onclick="return confirm('Delete this configuration?')">
                   <i class="fas fa-trash"></i> Delete
                 </button>
@@ -198,7 +198,7 @@
 
     {{-- General AI Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-sliders-h"></i> General AI Settings</strong>
       </div>
       <div class="card-body">
@@ -245,7 +245,7 @@
 
     {{-- NER Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-diagram-project"></i> NER Settings</strong>
       </div>
       <div class="card-body">
@@ -282,7 +282,7 @@
 
     {{-- Summarize Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-compress-alt"></i> Summarization Settings</strong>
       </div>
       <div class="card-body">
@@ -315,7 +315,7 @@
 
     {{-- Translation Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-language"></i> Translation Settings</strong>
       </div>
       <div class="card-body">
@@ -350,7 +350,7 @@
 
     {{-- Spellcheck Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-spell-check"></i> Spellcheck Settings</strong>
       </div>
       <div class="card-body">
@@ -380,7 +380,7 @@
 
     {{-- Suggest Settings --}}
     <div class="card shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong><i class="fas fa-lightbulb"></i> Description Suggestion Settings</strong>
       </div>
       <div class="card-body">
@@ -414,7 +414,7 @@
     </div>
 
     <div class="mb-4">
-      <button type="submit" class="btn btn-primary btn-lg">
+      <button type="submit" class="btn atom-btn-outline-success btn-lg">
         <i class="fas fa-save"></i> Save All Settings
       </button>
     </div>
@@ -475,21 +475,21 @@ function testProvider(configId, btn) {
         btn.innerHTML = originalHtml;
 
         if (data.status === 'ok' || data.status === 'configured') {
-            btn.classList.remove('btn-outline-info', 'btn-outline-danger');
-            btn.classList.add('btn-outline-success');
+            btn.classList.remove('atom-btn-white', 'atom-btn-outline-danger');
+            btn.classList.add('atom-btn-outline-success');
             btn.innerHTML = '<i class="fas fa-check"></i> Connected';
             setTimeout(() => {
-                btn.classList.remove('btn-outline-success');
-                btn.classList.add('btn-outline-info');
+                btn.classList.remove('atom-btn-outline-success');
+                btn.classList.add('atom-btn-white');
                 btn.innerHTML = originalHtml;
             }, 3000);
         } else {
-            btn.classList.remove('btn-outline-info');
-            btn.classList.add('btn-outline-danger');
+            btn.classList.remove('atom-btn-white');
+            btn.classList.add('atom-btn-outline-danger');
             btn.innerHTML = '<i class="fas fa-times"></i> ' + (data.error || 'Failed');
             setTimeout(() => {
-                btn.classList.remove('btn-outline-danger');
-                btn.classList.add('btn-outline-info');
+                btn.classList.remove('atom-btn-outline-danger');
+                btn.classList.add('atom-btn-white');
                 btn.innerHTML = originalHtml;
             }, 5000);
         }

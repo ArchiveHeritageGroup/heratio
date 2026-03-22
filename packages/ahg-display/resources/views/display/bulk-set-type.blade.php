@@ -46,7 +46,7 @@
         <span class="small text-muted">Assign a collection type to all objects in a collection</span>
       </div>
     </div>
-    <a href="{{ route('glam.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
   </div>
@@ -59,7 +59,7 @@
     {{-- Main form --}}
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Set Object Type</h5>
         </div>
         <div class="card-body">
@@ -122,10 +122,10 @@
 
             {{-- Submit --}}
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn atom-btn-outline-success">
                 <i class="fas fa-check me-1"></i> Apply Type
               </button>
-              <a href="{{ route('glam.index') }}" class="btn btn-outline-secondary">Cancel</a>
+              <a href="{{ route('glam.index') }}" class="btn atom-btn-white">Cancel</a>
             </div>
           </form>
         </div>
@@ -135,7 +135,7 @@
     {{-- Info sidebar --}}
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header bg-info text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Object Types</h5>
         </div>
         <div class="card-body">

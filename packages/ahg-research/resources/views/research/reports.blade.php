@@ -16,7 +16,7 @@
             </select>
         </form>
     </div>
-    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
+    <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
 </div>
 
 <div class="row">
@@ -75,7 +75,7 @@
         </div>
         <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Create Report</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Report</button></div>
     </form>
 </div></div></div>
 @endsection

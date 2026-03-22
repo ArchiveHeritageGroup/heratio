@@ -194,7 +194,7 @@
   @if($table === 'ahg_audit_log')
     @if($entry->old_values)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Old values</h5>
         </div>
         <div class="card-body p-0">
@@ -205,7 +205,7 @@
 
     @if($entry->new_values)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">New values</h5>
         </div>
         <div class="card-body p-0">
@@ -216,7 +216,7 @@
 
     @if($entry->changed_fields)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Changed fields</h5>
         </div>
         <div class="card-body p-0">
@@ -227,7 +227,7 @@
 
     @if($entry->metadata)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Metadata</h5>
         </div>
         <div class="card-body p-0">
@@ -238,7 +238,7 @@
   @else
     @if($entry->old_value)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Old value</h5>
         </div>
         <div class="card-body p-0">
@@ -249,7 +249,7 @@
 
     @if($entry->new_value)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">New value</h5>
         </div>
         <div class="card-body p-0">
@@ -260,7 +260,7 @@
 
     @if($entry->old_record)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Old record (full)</h5>
         </div>
         <div class="card-body p-0">
@@ -271,7 +271,7 @@
 
     @if($entry->new_record)
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">New record (full)</h5>
         </div>
         <div class="card-body p-0">
@@ -282,7 +282,7 @@
   @endif
 
   <div>
-    <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('audit.browse') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to audit trail
     </a>
   </div>

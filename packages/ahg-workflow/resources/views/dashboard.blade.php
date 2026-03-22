@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-project-diagram"></i> Workflow Dashboard</h1>
     <div>
-      <a href="{{ route('workflow.admin') }}" class="btn btn-outline-secondary"><i class="fas fa-cogs"></i> Manage Workflows</a>
+      <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-cogs"></i> Manage Workflows</a>
     </div>
   </div>
 
@@ -69,18 +69,18 @@
     {{-- My Tasks --}}
     <div class="col-lg-6 mb-4">
       <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-user-check"></i> My Tasks</h5>
-          <a href="{{ route('workflow.my-tasks') }}" class="btn btn-sm btn-outline-primary">View All</a>
+          <a href="{{ route('workflow.my-tasks') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
         <div class="card-body p-0">
           @if(count($myTasks) === 0)
             <p class="text-muted text-center py-4 mb-0">No tasks assigned to you.</p>
           @else
             <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
+              <table class="table table-bordered table-hover mb-0">
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Task</th>
                     <th>Workflow</th>
                     <th>Status</th>
@@ -125,18 +125,18 @@
     {{-- Pool Tasks --}}
     <div class="col-lg-6 mb-4">
       <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-inbox"></i> Pool Tasks</h5>
-          <a href="{{ route('workflow.pool') }}" class="btn btn-sm btn-outline-info">View All</a>
+          <a href="{{ route('workflow.pool') }}" class="btn btn-sm atom-btn-white">View All</a>
         </div>
         <div class="card-body p-0">
           @if(count($poolTasks) === 0)
             <p class="text-muted text-center py-4 mb-0">No tasks available in pool.</p>
           @else
             <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
+              <table class="table table-bordered table-hover mb-0">
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Task</th>
                     <th>Workflow</th>
                     <th>Priority</th>
@@ -160,7 +160,7 @@
                       <td>
                         <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST" class="d-inline">
                           @csrf
-                          <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-hand-paper"></i> Claim</button>
+                          <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-hand-paper"></i> Claim</button>
                         </form>
                       </td>
                     </tr>
@@ -176,18 +176,18 @@
 
   {{-- Recent Activity --}}
   <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
-      <a href="{{ route('workflow.history') }}" class="btn btn-sm btn-outline-secondary">Full History</a>
+      <a href="{{ route('workflow.history') }}" class="btn btn-sm atom-btn-white">Full History</a>
     </div>
     <div class="card-body p-0">
       @if(count($recentHistory) === 0)
         <p class="text-muted text-center py-4 mb-0">No recent activity.</p>
       @else
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Time</th>
                 <th>Action</th>
                 <th>Workflow</th>

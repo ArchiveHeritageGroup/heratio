@@ -42,7 +42,7 @@
     </div>
     @if($entityType !== '' || $status !== '')
       <div class="col-auto">
-        <a href="{{ route('ric.sync-status') }}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+        <a href="{{ route('ric.sync-status') }}" class="btn btn-sm atom-btn-white">Clear Filters</a>
       </div>
     @endif
   </form>
@@ -51,7 +51,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>RiC URI</th>
             <th>Entity Type</th>
             <th>Entity ID</th>
@@ -91,7 +91,7 @@
   @endif
 
   <div class="mt-3">
-    <a href="{{ route('ric.index') }}" class="btn btn-sm btn-outline-secondary">
+    <a href="{{ route('ric.index') }}" class="btn btn-sm atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
     </a>
   </div>

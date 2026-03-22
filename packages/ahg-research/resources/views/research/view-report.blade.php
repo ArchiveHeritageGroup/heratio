@@ -33,13 +33,13 @@
         </div>
 
         <div class="mt-3 d-flex flex-wrap gap-2">
-            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSectionModal"><i class="fas fa-plus me-1"></i>Add Section</button>
-            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#changeStatusModal"><i class="fas fa-exchange-alt me-1"></i>Change Status</button>
-            <a href="{{ route('research.viewReport', $report->id) }}?export=1" class="btn btn-outline-secondary btn-sm"><i class="fas fa-file-export me-1"></i>Export</a>
+            <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSectionModal"><i class="fas fa-plus me-1"></i>Add Section</button>
+            <button class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#changeStatusModal"><i class="fas fa-exchange-alt me-1"></i>Change Status</button>
+            <a href="{{ route('research.viewReport', $report->id) }}?export=1" class="btn atom-btn-white btn-sm"><i class="fas fa-file-export me-1"></i>Export</a>
             <form method="POST" class="d-inline" onsubmit="return confirm('Permanently delete this report and all its sections?')">
                 @csrf
                 <input type="hidden" name="form_action" value="delete_report">
-                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete Report</button>
+                <button type="submit" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete Report</button>
             </form>
         </div>
     </div>
@@ -50,15 +50,15 @@
 
 @forelse($report->sections as $section)
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h6 class="mb-0"><i class="fas fa-paragraph me-2"></i>{{ e($section->title ?? 'Untitled Section') }}</h6>
         <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSection{{ $section->id }}"><i class="fas fa-edit"></i></button>
+            <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#editSection{{ $section->id }}"><i class="fas fa-edit"></i></button>
             <form method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">
                 @csrf
                 <input type="hidden" name="form_action" value="delete_section">
                 <input type="hidden" name="section_id" value="{{ $section->id }}">
-                <button type="submit" class="btn btn-outline-danger"><i class="fas fa-times"></i></button>
+                <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times"></i></button>
             </form>
         </div>
     </div>
@@ -83,7 +83,7 @@
         <div class="mb-3"><label class="form-label">Title</label><input type="text" class="form-control" name="title" value="{{ e($section->title ?? '') }}"></div>
         <div class="mb-3"><label class="form-label">Content</label><textarea class="form-control" name="content" rows="10">{{ e($section->content ?? '') }}</textarea></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Section</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Section</button></div>
     </form>
 </div></div></div>
 @empty
@@ -94,7 +94,7 @@
 @endforelse
 
 <div class="mt-3">
-    <a href="{{ route('research.reports') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to Reports</a>
+    <a href="{{ route('research.reports') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to Reports</a>
 </div>
 
 {{-- Add Section Modal --}}
@@ -115,7 +115,7 @@
             </select>
         </div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Add Section</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Section</button></div>
     </form>
 </div></div></div>
 
@@ -133,7 +133,7 @@
             </select>
         </div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Update Status</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Update Status</button></div>
     </form>
 </div></div></div>
 @endsection

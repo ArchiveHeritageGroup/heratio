@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-highlighter me-2"></i>Annotation Studio</h1>
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#annotationModal">
+    <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#annotationModal">
       <i class="fas fa-plus me-1"></i>New Annotation
     </button>
   </div>
@@ -42,7 +42,7 @@
           <input type="text" name="tag" id="tag" class="form-control form-control-sm" placeholder="Filter by tag" value="{{ e($tag ?? '') }}">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-filter me-1"></i>Filter</button>
+          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100"><i class="fas fa-filter me-1"></i>Filter</button>
         </div>
       </form>
     </div>
@@ -89,13 +89,13 @@
         @endif
       </div>
       <div class="card-footer bg-transparent d-flex justify-content-end gap-1">
-        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editAnnotationModal{{ $annotation->id }}">
+        <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#editAnnotationModal{{ $annotation->id }}">
           <i class="fas fa-edit"></i>
         </button>
         <form action="{{ route('research.annotations.destroy', $annotation->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this annotation?')">
           @csrf
           @method('DELETE')
-          <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+          <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
         </form>
       </div>
     </div>
@@ -140,8 +140,8 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
             </div>
           </form>
         </div>
@@ -197,8 +197,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Create</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
           </div>
         </form>
       </div>

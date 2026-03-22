@@ -59,7 +59,7 @@
     {{-- Entity Sync Status --}}
     <div class="col-lg-8">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-sync me-1"></i> Entity Sync Status
         </div>
         <div class="card-body p-0">
@@ -67,7 +67,7 @@
             <div class="table-responsive">
               <table class="table table-bordered table-striped mb-0">
                 <thead>
-                  <tr>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Entity Type</th>
                     <th class="text-center">Synced</th>
                     <th class="text-center">Pending</th>
@@ -96,7 +96,7 @@
     {{-- Quick Actions --}}
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-bolt me-1"></i> Quick Actions
         </div>
         <div class="list-group list-group-flush">
@@ -127,16 +127,16 @@
 
   {{-- Recent Operations --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-history me-1"></i> Recent Operations</span>
-      <a href="{{ route('ric.logs') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+      <a href="{{ route('ric.logs') }}" class="btn btn-sm atom-btn-white">View All</a>
     </div>
     <div class="card-body p-0">
       @if($recentOps->count())
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Time</th>
                 <th>Operation</th>
                 <th>Entity</th>
@@ -174,7 +174,7 @@
   {{-- 7-Day Sync Trend --}}
   @if($syncTrend->count())
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-chart-bar me-1"></i> 7-Day Sync Trend
       </div>
       <div class="card-body">

@@ -319,10 +319,10 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-success">
+      <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-save me-1"></i>Create Loan
       </button>
-      <a href="{{ route('loan.index') }}" class="btn btn-outline-secondary">Cancel</a>
+      <a href="{{ route('loan.index') }}" class="btn atom-btn-white">Cancel</a>
     </div>
   </form>
 

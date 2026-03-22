@@ -26,7 +26,7 @@
   @endif
 
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Browse Preferences</h5>
     </div>
     <div class="card-body">
@@ -147,13 +147,13 @@
 
         {{-- Action buttons --}}
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-save me-1"></i> Save Settings
           </button>
-          <a href="{{ route('glam.browse') }}" class="btn btn-outline-secondary">
+          <a href="{{ route('glam.browse') }}" class="btn atom-btn-white">
             Cancel
           </a>
-          <button type="submit" formaction="{{ route('glam.reset.settings') }}" class="btn btn-outline-danger ms-auto">
+          <button type="submit" formaction="{{ route('glam.reset.settings') }}" class="btn atom-btn-outline-danger ms-auto">
             <i class="fas fa-undo me-1"></i> Reset to Defaults
           </button>
         </div>

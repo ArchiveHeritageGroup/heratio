@@ -46,15 +46,15 @@
                     <th colspan="3" scope="colgroup" class="text-center">Disallow</th>
                   </tr>
                   <tr>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Thumb</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Thumb</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Master</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Reference</span></th>
-                    <th scope="col" class="text-center"><span class="btn btn-sm btn-outline-secondary w-100">Thumb</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Master</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Reference</span></th>
+                    <th scope="col" class="text-center"><span class="btn btn-sm atom-btn-white w-100">Thumb</span></th>
                   </tr>
                   @foreach ($basis as $basisSlug => $basisName)
                     <tr>
@@ -73,8 +73,8 @@
 
               <div class="text-end">
                 <div class="btn-group" role="group" aria-label="Permission toggles">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=true)">All</button>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=false)">None</button>
+                  <button type="button" class="btn btn-sm atom-btn-white" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=true)">All</button>
+                  <button type="button" class="btn btn-sm atom-btn-white" onclick="document.querySelectorAll('#permissions-collapse input[type=radio]').forEach(r=>r.checked=false)">None</button>
                 </div>
               </div>
             </div>

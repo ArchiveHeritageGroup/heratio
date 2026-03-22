@@ -15,14 +15,14 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-layer-group me-2"></i>{{ e($collection->name ?? '') }}</h1>
-    <a href="{{ route('research.collections') }}" class="btn btn-secondary">
+    <a href="{{ route('research.collections') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i>Back
     </a>
   </div>
 
   {{-- Collection Info / Edit --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-info-circle me-2"></i>Collection Info</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Collection Info</div>
     <div class="card-body">
       <form action="{{ route('research.collections.update', $collection->id) }}" method="POST">
         @csrf
@@ -35,7 +35,7 @@
           <label for="description" class="form-label">Description</label>
           <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $collection->description ?? '') }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm">
+        <button type="submit" class="btn atom-btn-outline-light btn-sm">
           <i class="fas fa-save me-1"></i>Update
         </button>
       </form>
@@ -44,15 +44,15 @@
 
   {{-- Items --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-list me-2"></i>Items ({{ count($items ?? []) }})</span>
     </div>
     <div class="card-body">
       @if(count($items ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Title</th>
                 <th>Slug</th>
                 <th>Notes</th>
@@ -75,7 +75,7 @@
                     <form action="{{ route('research.collections.removeItem', [$collection->id, $item->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this item?')">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove">
                         <i class="fas fa-times"></i>
                       </button>
                     </form>
@@ -93,7 +93,7 @@
 
   {{-- Add Item --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-plus me-2"></i>Add Item</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-plus me-2"></i>Add Item</div>
     <div class="card-body">
       <form action="{{ route('research.collections.addItem', $collection->id) }}" method="POST">
         @csrf
@@ -108,7 +108,7 @@
           </div>
         </div>
         <input type="hidden" name="object_id" id="object_id" value="">
-        <button type="submit" class="btn btn-success btn-sm">
+        <button type="submit" class="btn atom-btn-outline-success btn-sm">
           <i class="fas fa-plus me-1"></i>Add to Collection
         </button>
       </form>

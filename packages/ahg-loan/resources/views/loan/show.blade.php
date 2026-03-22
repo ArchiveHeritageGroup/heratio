@@ -33,13 +33,13 @@
 
     @auth
       <div class="d-flex gap-2 flex-wrap justify-content-end">
-        <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-sm btn-outline-secondary">
+        <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-sm atom-btn-white">
           <i class="fas fa-edit me-1"></i>Edit
         </a>
 
         @if(count($validTransitions))
           <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
               <i class="fas fa-exchange-alt me-1"></i>Change Status
             </button>
             <ul class="dropdown-menu">
@@ -58,13 +58,13 @@
         @endif
 
         @if(in_array($loan->status, ['on_loan','dispatched','in_transit','received']))
-          <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#extendModal">
+          <button type="button" class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#extendModal">
             <i class="fas fa-calendar-plus me-1"></i>Extend
           </button>
         @endif
 
         @if($loan->status === 'return_requested')
-          <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#returnModal">
+          <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#returnModal">
             <i class="fas fa-undo me-1"></i>Record Return
           </button>
         @endif
@@ -73,7 +73,7 @@
           <form method="POST" action="{{ route('loan.delete', $loan->id) }}"
                 onsubmit="return confirm('Are you sure you want to delete this loan?');" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-sm btn-outline-danger">
+            <button type="submit" class="btn btn-sm atom-btn-outline-danger">
               <i class="fas fa-trash me-1"></i>Delete
             </button>
           </form>
@@ -95,7 +95,7 @@
 
   {{-- Loan Details --}}
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Loan Details</h5>
     </div>
     <div class="card-body">
@@ -268,7 +268,7 @@
 
   {{-- Objects --}}
   <div class="card mb-4">
-    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Loan Objects ({{ count($loan->objects) }})</h5>
     </div>
     <div class="card-body">
@@ -290,7 +290,7 @@
             <input type="text" name="special_requirements" class="form-control form-control-sm" placeholder="Special requirements">
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-sm btn-success w-100"><i class="fas fa-plus me-1"></i>Add Object</button>
+            <button type="submit" class="btn btn-sm atom-btn-outline-success w-100"><i class="fas fa-plus me-1"></i>Add Object</button>
           </div>
         </form>
       @endauth
@@ -298,8 +298,8 @@
       @if(count($loan->objects))
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Title</th>
                 <th>Identifier</th>
                 <th>Type</th>
@@ -335,7 +335,7 @@
                       <form method="POST" action="{{ route('loan.remove-object', [$loan->id, $obj->id]) }}"
                             onsubmit="return confirm('Remove this object from the loan?');" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove">
                           <i class="fas fa-times"></i>
                         </button>
                       </form>
@@ -354,7 +354,7 @@
 
   {{-- Documents --}}
   <div class="card mb-4">
-    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents ({{ count($loan->documents) }})</h5>
     </div>
     <div class="card-body">
@@ -379,7 +379,7 @@
             </select>
           </div>
           <div class="col-md-2">
-            <button type="submit" class="btn btn-sm btn-info w-100 text-white"><i class="fas fa-upload me-1"></i>Upload</button>
+            <button type="submit" class="btn btn-sm atom-btn-white w-100 text-white"><i class="fas fa-upload me-1"></i>Upload</button>
           </div>
         </form>
       @endauth
@@ -387,8 +387,8 @@
       @if(count($loan->documents))
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>File Name</th>
                 <th>Type</th>
                 <th>Size</th>
@@ -415,15 +415,15 @@
 
   {{-- Extensions --}}
   <div class="card mb-4">
-    <div class="card-header bg-warning text-dark">
+    <div class="card-header text-dark" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Extensions ({{ count($loan->extensions) }})</h5>
     </div>
     <div class="card-body">
       @if(count($loan->extensions))
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Previous End Date</th>
                 <th>New End Date</th>
                 <th>Reason</th>
@@ -453,14 +453,14 @@
   {{-- Condition Reports --}}
   @if(count($loan->condition_reports))
     <div class="card mb-4">
-      <div class="card-header bg-secondary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Condition Reports ({{ count($loan->condition_reports) }})</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Type</th>
                 <th>Examination Date</th>
                 <th>Examiner</th>
@@ -501,14 +501,14 @@
   {{-- Facility Reports --}}
   @if(count($loan->facility_reports))
     <div class="card mb-4">
-      <div class="card-header bg-dark text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-building me-2"></i>Facility Reports ({{ count($loan->facility_reports) }})</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Venue</th>
                 <th>Assessment Date</th>
                 <th>Climate Control</th>
@@ -555,7 +555,7 @@
   {{-- Shipments --}}
   @if(count($loan->shipments))
     <div class="card mb-4">
-      <div class="card-header" style="background-color: #6f42c1; color: white;">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Shipments ({{ count($loan->shipments) }})</h5>
       </div>
       <div class="card-body">
@@ -601,14 +601,14 @@
   {{-- Costs --}}
   @if(count($loan->costs))
     <div class="card mb-4">
-      <div class="card-header" style="background-color: #198754; color: white;">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Costs ({{ count($loan->costs) }})</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Type</th>
                 <th>Description</th>
                 <th>Amount</th>
@@ -655,7 +655,7 @@
 
   {{-- Status History --}}
   <div class="card mb-4">
-    <div class="card-header bg-dark text-white">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history me-2"></i>Status History</h5>
     </div>
     <div class="card-body">
@@ -715,8 +715,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Confirm Transition</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success">Confirm Transition</button>
           </div>
         </form>
       </div>
@@ -745,8 +745,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-warning">Extend Loan</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-white">Extend Loan</button>
           </div>
         </form>
       </div>
@@ -775,8 +775,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success">Record Return</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success">Record Return</button>
           </div>
         </form>
       </div>

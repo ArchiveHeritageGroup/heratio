@@ -105,7 +105,7 @@
 
     <table class="table table-bordered mb-0">
       <thead>
-        <tr>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th>Title</th>
           <th>Repository</th>
           <th>Created</th>
@@ -135,14 +135,4 @@
       No description updates found matching the current filters.
     </div>
   @endif
-
-@push('css')
-<style>
-.table thead th {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
-}
-</style>
-@endpush
 @endsection

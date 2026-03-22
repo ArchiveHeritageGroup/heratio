@@ -104,9 +104,9 @@
 
       {{-- Display Profiles by Domain --}}
       <div class="card mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Display Profiles by Domain</h5>
-          <a href="{{ route('glam.profiles') }}" class="btn btn-sm btn-outline-primary">
+          <a href="{{ route('glam.profiles') }}" class="btn btn-sm atom-btn-white">
             View all <i class="fas fa-arrow-right ms-1"></i>
           </a>
         </div>
@@ -145,7 +145,7 @@
 
       {{-- Collection Types --}}
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-folder-open me-2"></i>Collection Types</h5>
         </div>
         <div class="card-body">
@@ -177,7 +177,7 @@
 
       {{-- Quick Links --}}
       <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
         </div>
         <div class="list-group list-group-flush">
@@ -201,7 +201,7 @@
 
       {{-- By Type --}}
       <div class="card mb-4">
-        <div class="card-header bg-secondary text-white">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>By Type</h5>
         </div>
         <div class="list-group list-group-flush">

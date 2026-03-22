@@ -3,7 +3,7 @@
 @section('title', 'Edit Group — ' . ($group->name ?? 'Unnamed'))
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? 'Unnamed' }}</h2>
-    <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to Groups
     </a>
   </div>
@@ -39,14 +39,14 @@
     {{-- Members Section --}}
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-users me-2"></i> Members ({{ $group->members->count() }})</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>User</th>
                   <th>Username</th>
                   <th class="text-end">Actions</th>
@@ -60,7 +60,7 @@
                     <td class="text-end">
                       <form action="{{ route('acl.remove-member', ['groupId' => $group->id, 'userId' => $member->user_id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this member from the group?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove member">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove member">
                           <i class="fas fa-user-minus"></i>
                         </button>
                       </form>
@@ -88,7 +88,7 @@
               </select>
             </div>
             <div class="col-auto">
-              <button type="submit" class="btn btn-sm btn-success">
+              <button type="submit" class="btn btn-sm atom-btn-outline-success">
                 <i class="fas fa-user-plus me-1"></i> Add
               </button>
             </div>
@@ -100,14 +100,14 @@
     {{-- Permissions Section --}}
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-lock me-2"></i> Permissions ({{ $group->permissions->count() }})</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>Action</th>
                   <th>Object ID</th>
                   <th class="text-center">Grant / Deny</th>
@@ -131,7 +131,7 @@
                         @csrf
                         <input type="hidden" name="_action" value="delete_permission">
                         <input type="hidden" name="permission_id" value="{{ $perm->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove permission">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove permission">
                           <i class="fas fa-trash-alt"></i>
                         </button>
                       </form>
@@ -166,7 +166,7 @@
               </select>
             </div>
             <div class="col-auto">
-              <button type="submit" class="btn btn-sm btn-success">
+              <button type="submit" class="btn btn-sm atom-btn-outline-success">
                 <i class="fas fa-plus me-1"></i> Add
               </button>
             </div>

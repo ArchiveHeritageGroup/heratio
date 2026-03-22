@@ -22,7 +22,7 @@
 
   {{-- Status and Progress --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Progress</h5>
       @if($job['status'] === 'completed')
         <span class="badge bg-success fs-6">Completed</span>
@@ -90,7 +90,7 @@
 
   {{-- Job Details --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-info-circle"></i> Job Details</h5>
     </div>
     <div class="card-body">
@@ -140,14 +140,14 @@
   {{-- Error Log --}}
   @if(!empty($job['error_log']) && count($job['error_log']) > 0)
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Error Log ({{ count($job['error_log']) }} errors)</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead class="table-danger">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th style="width: 80px;">Row</th>
                 <th>Error Message</th>
               </tr>
@@ -167,10 +167,10 @@
   @endif
 
   <div class="d-flex gap-2">
-    <a href="{{ route('data-migration.jobs') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('data-migration.jobs') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Back to Jobs
     </a>
-    <a href="{{ route('data-migration.index') }}" class="btn btn-outline-primary">
+    <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
       <i class="fas fa-home"></i> Dashboard
     </a>
   </div>

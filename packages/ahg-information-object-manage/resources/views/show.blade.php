@@ -13,7 +13,7 @@
 
   {{-- Quick search within this collection --}}
   <div class="card mb-3">
-    <div class="card-header fw-bold">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-search me-1"></i> Search within
     </div>
     <div class="card-body p-2">
@@ -21,7 +21,7 @@
         <input type="hidden" name="collection" value="{{ $io->id }}">
         <div class="input-group input-group-sm">
           <input type="text" name="subquery" class="form-control" placeholder="Search...">
-          <button class="btn btn-outline-secondary" type="submit">
+          <button class="btn atom-btn-white" type="submit">
             <i class="fas fa-search"></i>
           </button>
         </div>
@@ -34,7 +34,7 @@
 
     {{-- Collections Management --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-archive me-1"></i> Collections Management
       </div>
       <div class="list-group list-group-flush">
@@ -55,7 +55,7 @@
 
     {{-- Digital Preservation (OAIS) --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
       </div>
       <div class="list-group list-group-flush">
@@ -67,7 +67,7 @@
 
     {{-- AI Tools --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-robot me-1"></i> AI Tools
       </div>
       <div class="list-group list-group-flush">
@@ -85,7 +85,7 @@
 
     {{-- Review Dashboard --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-tasks me-1"></i> Review Dashboard
       </div>
       <div class="list-group list-group-flush">
@@ -97,7 +97,7 @@
 
     {{-- Privacy & PII --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-user-shield me-1"></i> Privacy & PII
       </div>
       <div class="list-group list-group-flush">
@@ -117,7 +117,7 @@
 
     {{-- Rights --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-copyright me-1"></i> Rights
       </div>
       <div class="list-group list-group-flush">
@@ -135,7 +135,7 @@
 
     {{-- Research Tools --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-graduation-cap me-1"></i> Research Tools
       </div>
       <div class="list-group list-group-flush">
@@ -240,10 +240,10 @@
                 <i class="fas fa-file-pdf me-1"></i>PDF Document
               </span>
               <div class="btn-group btn-group-sm">
-                <a href="{{ $masterUrl }}" target="_blank" class="btn btn-outline-secondary" title="Open in new tab">
+                <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
-                <a href="{{ $masterUrl }}" download class="btn btn-outline-secondary" title="Download PDF">
+                <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF">
                   <i class="fas fa-download"></i>
                 </a>
               </div>
@@ -274,7 +274,7 @@
             @endif
           </div>
           @auth
-            <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
+            <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
               <i class="fas fa-download me-1"></i>Download video
             </a>
           @endauth
@@ -299,7 +299,7 @@
             <span class="badge bg-light text-dark">{{ $masterMime }}</span>
           </div>
           @auth
-            <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
+            <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
               <i class="fas fa-download me-1"></i>Download audio
             </a>
           @endauth
@@ -312,21 +312,21 @@
         {{-- Viewer toggle --}}
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="btn-group btn-group-sm" role="group">
-            <button id="btn-osd-{{ $viewerId }}" class="btn btn-outline-secondary active" title="OpenSeadragon Deep Zoom">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
               <i class="fas fa-search-plus me-1"></i>Deep Zoom
             </button>
-            <button id="btn-mirador-{{ $viewerId }}" class="btn btn-outline-secondary" title="Mirador IIIF Viewer">
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
               <i class="fas fa-columns me-1"></i>Mirador
             </button>
-            <button id="btn-img-{{ $viewerId }}" class="btn btn-outline-secondary" title="Simple image">
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
               <i class="fas fa-image me-1"></i>Image
             </button>
           </div>
           <div class="btn-group btn-group-sm">
-            <a href="{{ $imgSrc }}" target="_blank" class="btn btn-outline-secondary" title="Open full size">
+            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size">
               <i class="fas fa-external-link-alt"></i>
             </a>
-            <button id="btn-fs-{{ $viewerId }}" class="btn btn-outline-primary" title="Fullscreen">
+            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen">
               <i class="fas fa-expand"></i>
             </button>
           </div>
@@ -358,7 +358,7 @@
           <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
           <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
           @auth
-            <a href="{{ $masterUrl }}" download class="btn btn-outline-primary">
+            <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
               <i class="fas fa-download me-1"></i>Download file
             </a>
           @endauth
@@ -390,7 +390,7 @@
         {{-- Media Information panel --}}
         @if($mediaMetadata)
           <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#media-info-collapse" aria-expanded="false">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#media-info-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
               <span><i class="fas fa-info-circle me-2"></i>Media Information</span>
               <span class="badge bg-{{ $doMediaType === 'audio' ? 'info' : 'primary' }}">
                 {{ ucfirst($doMediaType) }}{{ $mediaMetadata->format ? ' - ' . strtoupper($mediaMetadata->format) : '' }}
@@ -401,7 +401,7 @@
               <div class="row">
                 <div class="col-md-6">
                   <h6 class="text-muted mb-2">Technical Details</h6>
-                  <table class="table table-sm table-borderless">
+                  <table class="table table-bordered table-sm table-borderless">
                     @if($mediaMetadata->duration)<tr><td class="text-muted">Duration:</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
                     @if($mediaMetadata->file_size)<tr><td class="text-muted">File Size:</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
                     @if($mediaMetadata->bitrate)<tr><td class="text-muted">Bitrate:</td><td>{{ number_format($mediaMetadata->bitrate / 1000) }} kbps</td></tr>@endif
@@ -415,7 +415,7 @@
                 </div>
                 <div class="col-md-6">
                   <h6 class="text-muted mb-2">Embedded Metadata</h6>
-                  <table class="table table-sm table-borderless">
+                  <table class="table table-bordered table-sm table-borderless">
                     @foreach(['title', 'artist', 'album', 'genre', 'year', 'copyright'] as $field)
                       @if($mediaMetadata->$field ?? null)<tr><td class="text-muted">{{ ucfirst($field) }}:</td><td>{{ e($mediaMetadata->$field) }}</td></tr>@endif
                     @endforeach
@@ -432,7 +432,7 @@
             <div class="card-body text-center py-4">
               <i class="fas fa-music fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">Media metadata has not been extracted yet.</p>
-              <button class="btn btn-primary" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>Extract Metadata</button>
+              <button class="btn atom-btn-white" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>Extract Metadata</button>
             </div>
           </div>
           @endauth
@@ -444,13 +444,13 @@
             $segments = json_decode($transcription->segments ?? '[]', true) ?: [];
           @endphp
           <div class="card mb-3" id="transcription-panel-{{ $doId }}">
-            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
               <span><i class="fas fa-file-alt me-2"></i>Transcription</span>
               <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
-                <a href="/media/transcription/{{ $doId }}/vtt" class="btn btn-outline-secondary" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
-                <a href="/media/transcription/{{ $doId }}/srt" class="btn btn-outline-secondary" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
+                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
+                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
                 @auth
-                <button class="btn btn-outline-warning" title="Re-transcribe" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
+                <button class="btn atom-btn-white" title="Re-transcribe" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
                 @endauth
               </div>
             </div>
@@ -469,7 +469,7 @@
             <div class="card-body py-2 border-bottom">
               <div class="input-group input-group-sm">
                 <input type="text" class="form-control" id="transcript-search-{{ $doId }}" placeholder="Search in transcript...">
-                <button class="btn btn-outline-secondary" type="button" id="transcript-search-btn-{{ $doId }}"><i class="fas fa-search"></i></button>
+                <button class="btn atom-btn-white" type="button" id="transcript-search-btn-{{ $doId }}"><i class="fas fa-search"></i></button>
               </div>
             </div>
             {{-- Content --}}
@@ -486,8 +486,8 @@
             {{-- View toggle --}}
             <div class="card-footer py-2">
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary active" id="btn-text-{{ $doId }}"><i class="fas fa-align-left"></i> Full Text</button>
-                <button class="btn btn-outline-secondary" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> Timed Segments</button>
+                <button class="btn atom-btn-white active" id="btn-text-{{ $doId }}"><i class="fas fa-align-left"></i> Full Text</button>
+                <button class="btn atom-btn-white" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> Timed Segments</button>
               </div>
             </div>
             </div>{{-- /collapse --}}
@@ -500,8 +500,8 @@
               <i class="fas fa-microphone fa-2x text-muted mb-3 d-block"></i>
               <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
               <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button class="btn btn-primary" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
-                <button class="btn btn-outline-primary" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">Afrikaans</button>
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">Afrikaans</button>
               </div>
             </div>
           </div>
@@ -511,7 +511,7 @@
         {{-- Snippets --}}
         @if($snippets->isNotEmpty())
           <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
               <span><i class="fas fa-cut me-2"></i>Snippets</span>
               <span class="badge bg-secondary">{{ $snippets->count() }}</span>
             </div>
@@ -523,7 +523,7 @@
                     <small class="text-muted ms-2">[{{ gmdate('i:s', (int) $snippet->start_time) }} - {{ gmdate('i:s', (int) $snippet->end_time) }}]</small>
                     @if($snippet->notes)<br><small class="text-muted">{{ e($snippet->notes) }}</small>@endif
                   </div>
-                  <button class="btn btn-sm btn-outline-primary" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="Play snippet">
+                  <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="Play snippet">
                     <i class="fas fa-play"></i>
                   </button>
                 </div>
@@ -535,7 +535,7 @@
         {{-- Create Snippet button --}}
         @auth
         <div class="mb-3">
-          <button class="btn btn-sm btn-outline-secondary" id="create-snippet-btn" onclick="document.getElementById('snippet-form').style.display=document.getElementById('snippet-form').style.display==='none'?'block':'none';">
+          <button class="btn btn-sm atom-btn-white" id="create-snippet-btn" onclick="document.getElementById('snippet-form').style.display=document.getElementById('snippet-form').style.display==='none'?'block':'none';">
             <i class="fas fa-cut me-1"></i>Create Snippet
           </button>
           <div id="snippet-form" style="display:none;" class="card mt-2">
@@ -547,13 +547,13 @@
                 <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-notes" placeholder="Notes (optional)"></div>
               </div>
               <div class="mt-2 d-flex gap-2">
-                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">
+                <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">
                   <i class="fas fa-sign-in-alt"></i> Mark IN
                 </button>
-                <button class="btn btn-sm btn-outline-info" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-end').value=p.currentTime.toFixed(1))">
+                <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-end').value=p.currentTime.toFixed(1))">
                   <i class="fas fa-sign-out-alt"></i> Mark OUT
                 </button>
-                <button class="btn btn-sm btn-primary" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>Save Snippet</button>
+                <button class="btn atom-btn-outline-light btn-sm" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>Save Snippet</button>
               </div>
             </div>
           </div>
@@ -587,13 +587,13 @@
       @if($isFavorited)
         <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
             <i class="fas fa-heart-broken"></i>
           </button>
         </form>
       @else
         <a href="{{ route('favorites.add', $io->slug) }}"
-           class="btn btn-sm btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+           class="btn btn-sm atom-btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
           <i class="fas fa-heart"></i>
         </a>
       @endif
@@ -601,33 +601,33 @@
       {{-- Cart --}}
       @if($hasDigitalObject)
         @if($inCart)
-          <a href="{{ route('cart.browse') }}" class="btn btn-sm btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
             <i class="fas fa-shopping-cart"></i>
           </a>
         @else
-          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
             <i class="fas fa-cart-plus"></i>
           </a>
         @endif
       @endif
 
       {{-- Feedback --}}
-      <a href="{{ url('/feedback/submit/' . $io->slug) }}" class="btn btn-sm btn-outline-secondary" title="Item Feedback" data-bs-toggle="tooltip">
+      <a href="{{ url('/feedback/submit/' . $io->slug) }}" class="btn btn-sm atom-btn-white" title="Item Feedback" data-bs-toggle="tooltip">
         <i class="fas fa-comment"></i>
       </a>
 
       {{-- Request to Publish --}}
       @if($hasDigitalObject)
-        <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm btn-outline-primary" title="Request to Publish" data-bs-toggle="tooltip">
+        <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
           <i class="fas fa-paper-plane"></i>
         </a>
       @endif
 
       {{-- Loan: New + Manage --}}
-      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm btn-outline-warning" title="New Loan" data-bs-toggle="tooltip">
+      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="New Loan" data-bs-toggle="tooltip">
         <i class="fas fa-hand-holding"></i>
       </a>
-      <a href="{{ route('loan.index', ['object_id' => $io->id]) }}" class="btn btn-sm btn-outline-info" title="Manage Loans" data-bs-toggle="tooltip">
+      <a href="{{ route('loan.index', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="Manage Loans" data-bs-toggle="tooltip">
         <i class="fas fa-exchange-alt"></i>
       </a>
     @endauth
@@ -1436,11 +1436,11 @@
 
     {{-- Explore --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-cogs me-1"></i> Explore
       </div>
       <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action small">
+        <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-chart-pie me-1"></i> Reports
         </a>
         <a href="{{ route('informationobject.browse') }}" class="list-group-item list-group-item-action small">
@@ -1457,7 +1457,7 @@
     {{-- Import --}}
     @auth
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-upload me-1"></i> Import
         </div>
         <div class="list-group list-group-flush">
@@ -1473,7 +1473,7 @@
 
     {{-- Export --}}
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-file-export me-1"></i> Export
       </div>
       <div class="list-group list-group-flush">
@@ -1489,7 +1489,7 @@
     {{-- Finding aid --}}
     @auth
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-book me-1"></i> Finding aid
         </div>
         <div class="list-group list-group-flush">
@@ -1506,13 +1506,13 @@
     {{-- Tasks --}}
     @auth
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-tasks me-1"></i> Tasks
         </div>
         <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small">
+          <span class="list-group-item list-group-item-action small text-muted" title="Feature coming soon">
             <i class="fas fa-calculator me-1"></i> Calculate dates
-          </a>
+          </span>
           <span class="list-group-item small text-muted">
             <i class="fas fa-clock me-1"></i> Last run: Never
           </span>
@@ -1523,7 +1523,7 @@
     {{-- Related subjects --}}
     @if(isset($subjects) && $subjects->isNotEmpty())
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-tag me-1"></i> Related subjects
         </div>
         <ul class="list-group list-group-flush">
@@ -1541,7 +1541,7 @@
     {{-- Related people and organizations --}}
     @if((isset($creators) && $creators->isNotEmpty()) || (isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty()))
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-users me-1"></i> Related people and organizations
         </div>
         <ul class="list-group list-group-flush">
@@ -1571,7 +1571,7 @@
     {{-- Related genres --}}
     @if(isset($genres) && $genres->isNotEmpty())
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-masks-theater me-1"></i> Related genres
         </div>
         <ul class="list-group list-group-flush">
@@ -1585,7 +1585,7 @@
     {{-- Related places --}}
     @if(isset($places) && $places->isNotEmpty())
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-map-marker-alt me-1"></i> Related places
         </div>
         <ul class="list-group list-group-flush">
@@ -1599,7 +1599,7 @@
     {{-- Physical storage --}}
     @if(isset($physicalObjects) && (is_countable($physicalObjects) ? count($physicalObjects) > 0 : !empty($physicalObjects)))
       <div class="card mb-3">
-        <div class="card-header fw-bold">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-box me-1"></i> Physical storage
         </div>
         <ul class="list-group list-group-flush">

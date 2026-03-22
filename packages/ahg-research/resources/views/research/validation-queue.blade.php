@@ -62,7 +62,7 @@
                 <label class="form-label form-label-sm mb-0">Min Confidence</label>
                 <input type="number" name="min_confidence" class="form-control form-control-sm" style="width:100px" min="0" max="1" step="0.01" value="{{ request('min_confidence', '') }}" placeholder="0.00">
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn atom-btn-outline-light btn-sm">Filter</button></div>
         </form>
     </div>
 </div>
@@ -71,9 +71,9 @@
     <div class="alert alert-success">No items matching your filters.</div>
 @else
 <div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
+    <table class="table table-bordered table-hover align-middle">
+        <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
                 <th><input type="checkbox" id="selectAll"></th>
                 <th>Object</th>
                 <th>Extraction</th>
@@ -120,11 +120,11 @@
                 <td><span class="badge bg-{{ match($item->status ?? '') { 'pending' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', 'modified' => 'info', default => 'secondary' } }}">{{ ucfirst($item->status ?? 'pending') }}</span></td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Preview"><i class="fas fa-eye"></i></button>
+                        <button class="btn atom-btn-white preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Preview"><i class="fas fa-eye"></i></button>
                         @if(($item->status ?? '') === 'pending')
-                        <button class="btn btn-success validate-btn" data-id="{{ (int) $item->result_id }}" data-action="accept" title="Accept"><i class="fas fa-check"></i></button>
-                        <button class="btn btn-warning modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Edit & Accept"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="Reject"><i class="fas fa-times"></i></button>
+                        <button class="btn atom-btn-outline-success validate-btn" data-id="{{ (int) $item->result_id }}" data-action="accept" title="Accept"><i class="fas fa-check"></i></button>
+                        <button class="btn atom-btn-white modify-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="Edit & Accept"><i class="fas fa-edit"></i></button>
+                        <button class="btn atom-btn-outline-danger validate-btn" data-id="{{ (int) $item->result_id }}" data-action="reject" title="Reject"><i class="fas fa-times"></i></button>
                         @endif
                     </div>
                 </td>
@@ -135,8 +135,8 @@
 </div>
 
 <div class="d-flex gap-2 mt-3">
-    <button class="btn btn-success" id="bulkAccept"><i class="fas fa-check-double me-1"></i>Bulk Accept Selected</button>
-    <button class="btn btn-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>Bulk Reject Selected</button>
+    <button class="btn atom-btn-outline-success" id="bulkAccept"><i class="fas fa-check-double me-1"></i>Bulk Accept Selected</button>
+    <button class="btn atom-btn-outline-danger" id="bulkReject"><i class="fas fa-times-circle me-1"></i>Bulk Reject Selected</button>
 </div>
 @endif
 
@@ -161,8 +161,8 @@
                 <input type="hidden" id="modifyResultId">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="modifyAcceptBtn" class="btn btn-success">Accept with Changes</button>
+                <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="modifyAcceptBtn" class="btn atom-btn-outline-success">Accept with Changes</button>
             </div>
         </div>
     </div>

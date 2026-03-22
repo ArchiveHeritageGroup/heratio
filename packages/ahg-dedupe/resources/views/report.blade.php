@@ -11,7 +11,7 @@
       <span class="small text-muted">Statistics and breakdown</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Dashboard
       </a>
     </div>
@@ -19,7 +19,7 @@
 
   {{-- Monthly Stats --}}
   <div class="card mb-4">
-    <div class="card-header"><strong>Monthly Statistics</strong></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>Monthly Statistics</strong></div>
     <div class="card-body p-0">
       @if($monthlyStats->isEmpty())
         <div class="p-3 text-muted">No data available.</div>
@@ -27,7 +27,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Month</th>
                 <th class="text-end">Total</th>
                 <th class="text-end">Pending</th>
@@ -56,7 +56,7 @@
 
   {{-- By Detection Method --}}
   <div class="card mb-4">
-    <div class="card-header"><strong>By Detection Method</strong></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>By Detection Method</strong></div>
     <div class="card-body p-0">
       @if($methodBreakdown->isEmpty())
         <div class="p-3 text-muted">No data available.</div>
@@ -64,7 +64,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Method</th>
                 <th class="text-end">Total</th>
                 <th class="text-end">Avg Score</th>

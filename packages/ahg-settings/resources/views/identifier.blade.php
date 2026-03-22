@@ -12,7 +12,7 @@
     <form method="post" action="{{ route('settings.identifier') }}">
       @csrf
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-box me-2"></i>Accession Numbering</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-box me-2"></i>Accession Numbering</div>
         <div class="card-body">
           <div class="form-check mb-3">
             <input type="hidden" name="settings[accession_mask_enabled]" value="0">
@@ -32,7 +32,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-fingerprint me-2"></i>Identifier Numbering</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-fingerprint me-2"></i>Identifier Numbering</div>
         <div class="card-body">
           <div class="form-check mb-3">
             <input type="hidden" name="settings[identifier_mask_enabled]" value="0">
@@ -51,7 +51,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-cog me-2"></i>Reference Code Options</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>Reference Code Options</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Reference code separator</label>
@@ -75,8 +75,8 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
 </div>

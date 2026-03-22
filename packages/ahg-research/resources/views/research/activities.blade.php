@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-stream me-2"></i>Activity Log</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header"><h5 class="mb-0">Filter Activities</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Filter Activities</h5></div>
     <div class="card-body">
         <form method="GET" class="row g-2">
             <div class="col-md-3">
@@ -24,14 +24,14 @@
                 <input type="date" class="form-control form-control-sm" name="date_to" value="{{ request('date_to') }}" placeholder="To">
             </div>
             <div class="col-md-1">
-                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-filter"></i></button>
+                <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button>
             </div>
         </form>
     </div>
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Activities</h5>
         <span class="badge bg-primary">{{ count($activities) }} activity/activities</span>
     </div>

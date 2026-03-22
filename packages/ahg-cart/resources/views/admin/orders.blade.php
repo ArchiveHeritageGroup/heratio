@@ -5,7 +5,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1><i class="fas fa-receipt me-2"></i>Orders</h1>
-  <a href="{{ route('cart.admin.settings') }}" class="btn btn-outline-primary"><i class="fas fa-cog me-1"></i>E-Commerce Settings</a>
+  <a href="{{ route('cart.admin.settings') }}" class="btn atom-btn-white"><i class="fas fa-cog me-1"></i>E-Commerce Settings</a>
 </div>
 
 <div class="row g-3 mb-4">
@@ -22,17 +22,17 @@
 </div>
 
 <div class="card mb-3">
-  <div class="card-header d-flex justify-content-between">
+  <div class="card-header d-flex justify-content-between" style="background:var(--ahg-primary);color:#fff">
     <span>All Orders</span>
     <div>
       @foreach(['' => 'All', 'pending' => 'Pending', 'paid' => 'Paid', 'completed' => 'Completed', 'cancelled' => 'Cancelled'] as $val => $label)
-        <a href="{{ route('cart.admin.orders', ['status' => $val]) }}" class="btn btn-sm {{ $filterStatus === $val ? 'btn-primary' : 'btn-outline-secondary' }}">{{ $label }}</a>
+        <a href="{{ route('cart.admin.orders', ['status' => $val]) }}" class="btn btn-sm {{ $filterStatus === $val ? 'atom-btn-white' : 'atom-btn-white' }}">{{ $label }}</a>
       @endforeach
     </div>
   </div>
   <div class="card-body p-0">
     <table class="table table-bordered table-striped mb-0">
-      <thead><tr><th>Order #</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
+      <thead>
       <tbody>
         @forelse($results as $order)
           <tr>

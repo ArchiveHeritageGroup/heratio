@@ -16,7 +16,7 @@
       An administrator will review your application shortly. You will receive a notification once your registration has been approved.
     </p>
     <hr class="my-4">
-    <a href="{{ route('research.dashboard') }}" class="btn btn-primary">
+    <a href="{{ route('research.dashboard') }}" class="btn atom-btn-white">
       <i class="fas fa-tachometer-alt me-1"></i>Return to Dashboard
     </a>
   </div>

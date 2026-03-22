@@ -5,7 +5,7 @@
 @section('content')
 
 <div class="card mb-4">
-  <div class="card-header">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">PDF Tools</h5>
   </div>
   <div class="card-body">
@@ -107,7 +107,7 @@
     <h6>Quick Actions</h6>
     <div class="d-flex gap-3 flex-wrap">
       @if($imageMagickAvailable)
-        <a href="{{ route('pdf-tools.merge') }}" class="btn btn-primary">
+        <a href="{{ route('pdf-tools.merge') }}" class="btn atom-btn-white">
           <i class="bi bi-files me-1"></i>Merge Files to PDF
         </a>
       @endif
@@ -115,14 +115,14 @@
       @if($pdftotextAvailable)
         <form action="{{ route('pdf-tools.batchExtractText') }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-success" onclick="return confirm('Run batch text extraction on up to 50 PDFs?')">
+          <button type="submit" class="btn atom-btn-outline-success" onclick="return confirm('Run batch text extraction on up to 50 PDFs?')">
             <i class="bi bi-lightning me-1"></i>Batch Extract Text
           </button>
         </form>
       @endif
 
       @if($pdftotextAvailable)
-        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#extractTextModal">
+        <button type="button" class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#extractTextModal">
           <i class="bi bi-file-earmark-text me-1"></i>Extract Text from PDF
         </button>
       @endif
@@ -167,8 +167,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="bi bi-file-earmark-text me-1"></i>Extract Text
           </button>
         </div>

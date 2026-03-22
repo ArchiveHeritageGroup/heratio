@@ -21,7 +21,7 @@
             <p class="card-text text-muted small">Customize appearance, colours, logo, branding, and custom CSS</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-primary"><i class="fas fa-cog"></i> Configure</span>
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
           </div>
         </div>
       </a>
@@ -49,7 +49,7 @@
             <p class="card-text text-muted small">{{ $card->description }}</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-primary"><i class="fas fa-cog"></i> Configure</span>
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
           </div>
         </div>
       </a>
@@ -156,7 +156,7 @@
             <p class="card-text text-muted small">Researcher registration and reading room settings</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-success"><i class="fas fa-cog"></i> Configure</span>
+            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
           </div>
         </div>
       </a>
@@ -172,7 +172,7 @@
             <p class="card-text text-muted small">Manage scheduled tasks — enable/disable, edit schedules, run now</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-secondary"><i class="fas fa-clock"></i> Manage Jobs</span>
+            <span class="btn atom-btn-white"><i class="fas fa-clock"></i> Manage Jobs</span>
           </div>
         </div>
       </a>
@@ -187,7 +187,7 @@
             <p class="card-text text-muted small">View and manage application error logs</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-danger"><i class="fas fa-bug"></i> View Logs</span>
+            <span class="btn atom-btn-outline-danger"><i class="fas fa-bug"></i> View Logs</span>
           </div>
         </div>
       </a>
@@ -202,7 +202,7 @@
             <p class="card-text text-muted small">Manage installed packages and plugins</p>
           </div>
           <div class="card-footer bg-white border-0 text-center pb-4">
-            <span class="btn btn-info"><i class="fas fa-plug"></i> View Plugins</span>
+            <span class="btn atom-btn-white"><i class="fas fa-plug"></i> View Plugins</span>
           </div>
         </div>
       </a>

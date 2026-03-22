@@ -19,7 +19,7 @@
         <span class="small text-muted">Manage hierarchical levels and their relationships</span>
       </div>
     </div>
-    <a href="{{ route('glam.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
   </div>
@@ -48,13 +48,13 @@
           </select>
         </div>
         <div class="col-auto">
-          <button type="submit" class="btn btn-sm btn-primary">
+          <button type="submit" class="btn atom-btn-outline-light btn-sm">
             <i class="fas fa-filter me-1"></i> Filter
           </button>
         </div>
         @if(!empty($currentDomain))
           <div class="col-auto">
-            <a href="{{ route('glam.levels') }}" class="btn btn-sm btn-outline-secondary">
+            <a href="{{ route('glam.levels') }}" class="btn btn-sm atom-btn-white">
               <i class="fas fa-times me-1"></i> Clear
             </a>
           </div>
@@ -65,7 +65,7 @@
 
   {{-- Levels table --}}
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="fas fa-list me-2"></i>
         Levels
@@ -80,8 +80,8 @@
     <div class="card-body p-0">
       @if(!empty($levels) && count($levels))
         <table class="table table-bordered table-striped mb-0">
-          <thead class="table-light">
-            <tr>
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th style="width: 40px;"></th>
               <th>Name</th>
               <th>Code</th>

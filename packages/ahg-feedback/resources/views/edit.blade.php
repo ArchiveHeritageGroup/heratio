@@ -30,7 +30,7 @@
 
         {{-- Feedback Details (readonly) --}}
         <div class="card shadow-sm mb-3">
-          <div class="card-header">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-comment-alt me-2"></i>Feedback Details
           </div>
           <div class="card-body">
@@ -67,7 +67,7 @@
 
         {{-- Contact Info (readonly) --}}
         <div class="card shadow-sm mb-3">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-address-card me-2"></i>Contact Information
           </div>
           <div class="card-body">
@@ -94,7 +94,7 @@
 
         {{-- Admin Actions --}}
         <div class="card shadow-sm mb-3">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-cog me-2"></i>Admin Actions
           </div>
           <div class="card-body">
@@ -123,10 +123,10 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
-              <a href="{{ route('feedback.browse') }}" class="btn btn-outline-secondary">
+              <a href="{{ route('feedback.browse') }}" class="btn atom-btn-white">
                 <i class="fas fa-arrow-left me-1"></i>Back
               </a>
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn atom-btn-outline-success">
                 <i class="fas fa-save me-1"></i>Save
               </button>
             </div>

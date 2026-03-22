@@ -48,7 +48,7 @@
             <tr>
               <th>Download</th>
               <td>
-                <a href="{{ $job->download_path }}" class="btn btn-sm btn-outline-primary">
+                <a href="{{ $job->download_path }}" class="btn btn-sm atom-btn-white">
                   <i class="fas fa-download me-1"></i> Download
                 </a>
               </td>
@@ -61,7 +61,7 @@
 
   @if($job->output)
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Output</h5>
       </div>
       <div class="card-body p-0">
@@ -71,7 +71,7 @@
   @endif
 
   <div>
-    <a href="{{ route('job.browse') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('job.browse') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to jobs
     </a>
   </div>

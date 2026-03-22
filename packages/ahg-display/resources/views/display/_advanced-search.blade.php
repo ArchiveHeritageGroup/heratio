@@ -45,12 +45,12 @@
           <div class="mb-4">
             <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector</label>
             <div class="d-flex flex-wrap gap-2">
-              <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'btn-secondary' : 'btn-outline-secondary' }}"><i class="fas fa-globe me-1"></i>All</a>
-              <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'btn-success' : 'btn-outline-success' }}"><i class="fas fa-archive me-1"></i>Archive</a>
-              <a href="{{ url('/glam/browse?type=library&showAdvanced=1') }}" class="btn {{ $currentType === 'library' ? 'btn-info text-white' : 'btn-outline-info' }}"><i class="fas fa-book me-1"></i>Library</a>
-              <a href="{{ url('/glam/browse?type=museum&showAdvanced=1') }}" class="btn {{ $currentType === 'museum' ? 'btn-warning' : 'btn-outline-warning' }}"><i class="fas fa-landmark me-1"></i>Museum</a>
-              <a href="{{ url('/glam/browse?type=gallery&showAdvanced=1') }}" class="btn {{ $currentType === 'gallery' ? 'btn-danger' : 'btn-outline-danger' }}"><i class="fas fa-palette me-1"></i>Gallery</a>
-              <a href="{{ url('/glam/browse?type=dam&showAdvanced=1') }}" class="btn {{ $currentType === 'dam' ? 'btn-primary' : 'btn-outline-primary' }}"><i class="fas fa-images me-1"></i>Photos</a>
+              <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-globe me-1"></i>All</a>
+              <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}"><i class="fas fa-archive me-1"></i>Archive</a>
+              <a href="{{ url('/glam/browse?type=library&showAdvanced=1') }}" class="btn {{ $currentType === 'library' ? 'atom-btn-white text-white' : 'atom-btn-white' }}"><i class="fas fa-book me-1"></i>Library</a>
+              <a href="{{ url('/glam/browse?type=museum&showAdvanced=1') }}" class="btn {{ $currentType === 'museum' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-landmark me-1"></i>Museum</a>
+              <a href="{{ url('/glam/browse?type=gallery&showAdvanced=1') }}" class="btn {{ $currentType === 'gallery' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}"><i class="fas fa-palette me-1"></i>Gallery</a>
+              <a href="{{ url('/glam/browse?type=dam&showAdvanced=1') }}" class="btn {{ $currentType === 'dam' ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-images me-1"></i>Photos</a>
             </div>
           </div>
 
@@ -133,7 +133,7 @@
                     <input type="text" name="" class="form-control" value="" placeholder="Enter search term...">
                   </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="add-field-search-btn">
+                <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-field-search-btn">
                   <i class="fas fa-plus me-1"></i>Add criterion
                 </button>
               </div>
@@ -193,8 +193,8 @@
           <input type="hidden" name="showAdvanced" value="1">
 
           <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
-            <a href="{{ url('/glam/browse') }}" class="btn btn-outline-secondary"><i class="fas fa-undo me-1"></i>Reset</a>
-            <button type="submit" class="btn btn-success"><i class="fas fa-search me-1"></i>Search</button>
+            <a href="{{ url('/glam/browse') }}" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>Reset</a>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>Search</button>
           </div>
         </form>
       </div>
@@ -207,7 +207,7 @@
 <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
   @if($savedSearches->isNotEmpty())
     <div class="dropdown">
-      <button class="btn btn-sm btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown">
+      <button class="btn btn-sm atom-btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown">
         <i class="fas fa-bookmark me-1"></i>Saved Searches ({{ $savedSearches->count() }})
       </button>
       <ul class="dropdown-menu">
@@ -218,7 +218,7 @@
     </div>
   @endif
   @if(request()->has('query') || request()->has('title') || request()->has('type'))
-    <button type="button" class="btn btn-sm btn-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveGlamSearchModal">
+    <button type="button" class="btn btn-sm atom-btn-outline-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveGlamSearchModal">
       <i class="fas fa-bookmark me-1"></i>Save Search
     </button>
   @endif
@@ -263,8 +263,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="glam-save-search-btn">Save</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-outline-success" id="glam-save-search-btn">Save</button>
       </div>
     </div>
   </div>
@@ -323,10 +323,10 @@ document.addEventListener('DOMContentLoaded', function() {
             select.selectedIndex = 0;
             input.name = '';
             input.value = '';
-            if (!newRow.querySelector('.btn-outline-danger')) {
+            if (!newRow.querySelector('.atom-btn-outline-danger')) {
                 var removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
-                removeBtn.className = 'btn btn-outline-danger';
+                removeBtn.className = 'btn atom-btn-outline-danger';
                 removeBtn.innerHTML = '<i class="fas fa-times"></i>';
                 removeBtn.onclick = function() { this.closest('.field-search-row').remove(); };
                 newRow.appendChild(removeBtn);

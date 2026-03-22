@@ -48,8 +48,8 @@
               <h3 class="fs-6 mb-2">Alternative identifier(s)</h3>
               <div class="table-responsive mb-2">
                 <table class="table table-bordered mb-0" id="altids-table">
-                  <thead class="table-light">
-                    <tr>
+                  <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                       <th id="alt-identifiers-type-head" class="w-30">Type</th>
                       <th id="alt-identifiers-identifier-head" class="w-35">Identifier</th>
                       <th id="alt-identifiers-note-head" class="w-35">Notes</th>
@@ -143,8 +143,8 @@
             <div class="atom-table-modal">
               <div class="table-responsive">
                 <table class="table table-bordered mb-0" id="donor-table">
-                  <thead class="table-light">
-                    <tr>
+                  <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                       <th class="w-100">Name</th>
                       <th><span class="visually-hidden">Actions</span></th>
                     </tr>
@@ -280,8 +280,8 @@
                     </div>
 
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="button" class="btn btn-success modal-submit" data-bs-dismiss="modal">Submit</button>
+                      <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn atom-btn-outline-success modal-submit" data-bs-dismiss="modal">Submit</button>
                     </div>
                   </div>
                 </div>
@@ -342,8 +342,8 @@
             </h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="isad-dates-table">
-                <thead class="table-light">
-                  <tr>
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th id="isad-events-type-head" class="w-25">Type</th>
                     <th id="isad-events-date-head" class="w-30">Date</th>
                     <th id="isad-events-start-head">Start</th>
@@ -397,8 +397,8 @@
             <h3 class="fs-6 mb-2">Event(s)</h3>
             <div class="table-responsive mb-2">
               <table class="table table-bordered mb-0" id="events-table">
-                <thead class="table-light">
-                  <tr>
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th id="accession-events-type-head" class="w-20">Type</th>
                     <th id="accession-events-date-head" class="w-25">Date</th>
                     <th id="accession-events-agent-head">Agent</th>

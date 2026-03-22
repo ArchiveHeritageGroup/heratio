@@ -125,7 +125,7 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   {{-- Flash Messages --}}
   @if(session('error'))
@@ -143,7 +143,7 @@
       </h4>
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
           @if(isset($io->slug))
             <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? 'Record' }}</a></li>
           @endif
@@ -152,7 +152,7 @@
       </nav>
     </div>
     <div class="btn-group">
-      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-outline-secondary btn-sm">
+      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white btn-sm">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
     </div>
@@ -206,7 +206,7 @@
           <button type="button" class="btn btn-outline-light btn-sm active" id="tool-select" data-tool="select" title="Select tool">
             <i class="fas fa-mouse-pointer me-1"></i> Select
           </button>
-          <button type="button" class="btn btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="Draw redaction rectangle">
+          <button type="button" class="btn atom-btn-outline-danger btn-sm" id="tool-draw" data-tool="draw" title="Draw redaction rectangle">
             <i class="fas fa-vector-square me-1"></i> Draw
           </button>
         </div>
@@ -226,10 +226,10 @@
           </div>
 
           <div class="btn-group">
-            <button type="button" class="btn btn-success btn-sm" id="save-redactions" title="Save redactions">
+            <button type="button" class="btn atom-btn-outline-success btn-sm" id="save-redactions" title="Save redactions">
               <i class="fas fa-save me-1"></i> Save
             </button>
-            <button type="button" class="btn btn-warning btn-sm" id="apply-redactions" title="Apply redactions permanently">
+            <button type="button" class="btn atom-btn-white btn-sm" id="apply-redactions" title="Apply redactions permanently">
               <i class="fas fa-stamp me-1"></i> Apply
             </button>
           </div>
@@ -278,7 +278,7 @@
     {{-- Right: Redaction List (3 cols) --}}
     <div class="col-md-3">
       <div class="card border-0 shadow-sm" style="background: #1a1a2e;">
-        <div class="card-header border-0" style="background: #16213e; color: #e0e0e0;">
+        <div class="card-header border-0" style="background:var(--ahg-primary);color:#fff">
           <div class="d-flex justify-content-between align-items-center">
             <span><i class="fas fa-list me-1"></i> Redaction Regions</span>
             <span class="badge bg-danger" id="region-count-badge">{{ $redactionCount }}</span>
@@ -294,7 +294,7 @@
           @endif
         </div>
         <div class="card-footer border-0 p-2" style="background: #16213e;">
-          <button class="btn btn-outline-danger btn-sm w-100" id="clear-all-regions" title="Remove all regions">
+          <button class="btn atom-btn-outline-danger btn-sm w-100" id="clear-all-regions" title="Remove all regions">
             <i class="fas fa-trash me-1"></i> Clear All
           </button>
         </div>
@@ -302,7 +302,7 @@
 
       {{-- How to Use --}}
       <div class="card help-card mt-3">
-        <div class="card-header bg-transparent fw-bold">
+        <div class="card-header bg-transparent fw-bold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-question-circle me-1"></i> How to Use
         </div>
         <div class="card-body small">
@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '<div class="region-coords">x:' + region.left + ' y:' + region.top + ' w:' + region.width + ' h:' + region.height +
             (CONFIG.isPdf ? ' p:' + region.page : '') + '</div>' +
           '</div>' +
-          '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-region" data-region-id="' + region.id + '" title="Delete region">' +
+          '<button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-region" data-region-id="' + region.id + '" title="Delete region">' +
             '<i class="fas fa-trash-alt"></i>' +
           '</button>' +
         '</div>' +

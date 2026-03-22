@@ -57,11 +57,11 @@
         autocomplete="off"
         data-autocomplete-url="{{ route('search.autocomplete') }}"
       >
-      <button class="btn btn-primary" type="submit">
+      <button class="btn atom-btn-outline-success" type="submit">
         <i class="fas fa-search" aria-hidden="true"></i>
         Search
       </button>
-      <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn btn-outline-secondary" title="Advanced search">
+      <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn atom-btn-white" title="Advanced search">
         <i class="fas fa-sliders-h" aria-hidden="true"></i>
         Advanced
       </a>
@@ -81,7 +81,7 @@
           <i class="fas fa-times ms-1" aria-hidden="true"></i>
         </a>
       @endforeach
-      <a href="{{ route('search', ['q' => $query]) }}" class="btn btn-sm btn-outline-danger">
+      <a href="{{ route('search', ['q' => $query]) }}" class="btn btn-sm atom-btn-outline-danger">
         Clear all filters
       </a>
     </div>
@@ -94,7 +94,7 @@
 
         {{-- Sort picker --}}
         <div class="card mb-3">
-          <div class="card-header py-2"><strong>Sort by</strong></div>
+          <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Sort by</strong></div>
           <div class="card-body py-2">
             @php
               $sortOptions = [
@@ -119,7 +119,7 @@
         {{-- Repository facet --}}
         @if(!empty($aggregations['repositories']))
           <div class="card mb-3">
-            <div class="card-header py-2"><strong>Repository</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Repository</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['repositories'] as $bucket)
                 @php
@@ -143,7 +143,7 @@
         {{-- Level of description facet --}}
         @if(!empty($aggregations['levels']))
           <div class="card mb-3">
-            <div class="card-header py-2"><strong>Level of description</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Level of description</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['levels'] as $bucket)
                 @php
@@ -167,7 +167,7 @@
         {{-- Media type facet --}}
         @if(!empty($aggregations['mediaTypes']))
           <div class="card mb-3">
-            <div class="card-header py-2"><strong>Media type</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Media type</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['mediaTypes'] as $bucket)
                 @php
@@ -191,7 +191,7 @@
         {{-- Digital object presence facet --}}
         @if(!empty($aggregations['hasDigitalObject']))
           <div class="card mb-3">
-            <div class="card-header py-2"><strong>Digital object</strong></div>
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Digital object</strong></div>
             <ul class="list-group list-group-flush">
               @foreach($aggregations['hasDigitalObject'] as $bucket)
                 @php

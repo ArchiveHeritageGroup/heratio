@@ -3,7 +3,7 @@
 @section('title', 'Security Audit Log')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -17,25 +17,25 @@
     <h2><i class="fas fa-clipboard-list me-2"></i> Security Audit Log</h2>
     <div>
       <div class="btn-group" role="group">
-        <a href="{{ route('acl.audit-log', ['limit' => 50]) }}" class="btn btn-outline-secondary {{ $limit == 50 ? 'active' : '' }}">50</a>
-        <a href="{{ route('acl.audit-log', ['limit' => 100]) }}" class="btn btn-outline-secondary {{ $limit == 100 ? 'active' : '' }}">100</a>
-        <a href="{{ route('acl.audit-log', ['limit' => 250]) }}" class="btn btn-outline-secondary {{ $limit == 250 ? 'active' : '' }}">250</a>
+        <a href="{{ route('acl.audit-log', ['limit' => 50]) }}" class="btn atom-btn-white {{ $limit == 50 ? 'active' : '' }}">50</a>
+        <a href="{{ route('acl.audit-log', ['limit' => 100]) }}" class="btn atom-btn-white {{ $limit == 100 ? 'active' : '' }}">100</a>
+        <a href="{{ route('acl.audit-log', ['limit' => 250]) }}" class="btn atom-btn-white {{ $limit == 250 ? 'active' : '' }}">250</a>
       </div>
-      <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary ms-2">
+      <a href="{{ route('acl.groups') }}" class="btn atom-btn-white ms-2">
         <i class="fas fa-arrow-left me-1"></i> Back to ACL
       </a>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Entries ({{ $entries->count() }})</h5>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-striped table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-striped table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Date</th>
               <th>User</th>
               <th>Action</th>

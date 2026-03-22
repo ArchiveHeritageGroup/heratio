@@ -5,7 +5,7 @@
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="card mb-3">
-    <div class="card-header"><h5 class="mb-0">Select Reading Room</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Select Reading Room</h5></div>
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-4">
@@ -18,7 +18,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-right me-1"></i>Go</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-arrow-right me-1"></i>Go</button>
             </div>
         </form>
     </div>
@@ -28,16 +28,16 @@
 <div class="row">
     <div class="col-md-7">
         <div class="card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
                 <h5 class="mb-0">Current Visitors - {{ e($currentRoom->name) }}</h5>
                 <span class="badge bg-primary">{{ count($currentWalkIns) }} visitor(s)</span>
             </div>
             <div class="card-body p-0">
                 @if(count($currentWalkIns) > 0)
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-striped table-hover mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>Name</th>
                                 <th>Organization</th>
                                 <th>Purpose</th>
@@ -58,7 +58,7 @@
                                         <input type="hidden" name="form_action" value="checkout">
                                         <input type="hidden" name="visitor_id" value="{{ $visitor->id }}">
                                         <input type="hidden" name="room_id" value="{{ $roomId }}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Check Out"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+                                        <button type="submit" class="btn atom-btn-outline-danger btn-sm" title="Check Out"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
                                     </form>
                                 </td>
                             </tr>
@@ -75,7 +75,7 @@
 
     <div class="col-md-5">
         <div class="card">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Register Walk-in Visitor</h5></div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Register Walk-in Visitor</h5></div>
             <div class="card-body">
                 <form method="POST">
                     @csrf
@@ -139,7 +139,7 @@
                         <input type="checkbox" class="form-check-input" name="rules_acknowledged" id="rulesAck" value="1" required>
                         <label class="form-check-label" for="rulesAck">Visitor acknowledges reading room rules</label>
                     </div>
-                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-user-check me-1"></i>Register Visitor</button>
+                    <button type="submit" class="btn atom-btn-outline-success w-100"><i class="fas fa-user-check me-1"></i>Register Visitor</button>
                 </form>
             </div>
         </div>

@@ -3,16 +3,16 @@
 @section('title-block')<h1><i class="fas fa-dolly me-2"></i>Material Retrieval Queue</h1>@endsection
 @section('content')
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Pending &amp; In-Transit Requests</h5>
         <span class="badge bg-primary">{{ count($requests) }} request(s)</span>
     </div>
     <div class="card-body p-0">
         @if(count($requests) > 0)
         <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                         <th>Request ID</th>
                         <th>Researcher</th>
                         <th>Item Reference</th>
@@ -51,7 +51,7 @@
                                 @csrf
                                 <input type="hidden" name="request_id" value="{{ $req->id }}">
                                 <input type="hidden" name="form_action" value="mark_in_transit">
-                                <button type="submit" class="btn btn-info btn-sm" title="Mark In Transit"><i class="fas fa-truck"></i></button>
+                                <button type="submit" class="btn atom-btn-white btn-sm" title="Mark In Transit"><i class="fas fa-truck"></i></button>
                             </form>
                             @endif
                             @if($req->status === 'in_transit')
@@ -59,7 +59,7 @@
                                 @csrf
                                 <input type="hidden" name="request_id" value="{{ $req->id }}">
                                 <input type="hidden" name="form_action" value="mark_delivered">
-                                <button type="submit" class="btn btn-success btn-sm" title="Mark Delivered"><i class="fas fa-check"></i></button>
+                                <button type="submit" class="btn atom-btn-outline-success btn-sm" title="Mark Delivered"><i class="fas fa-check"></i></button>
                             </form>
                             @endif
                             @if($req->status === 'delivered')
@@ -67,7 +67,7 @@
                                 @csrf
                                 <input type="hidden" name="request_id" value="{{ $req->id }}">
                                 <input type="hidden" name="form_action" value="mark_returned">
-                                <button type="submit" class="btn btn-secondary btn-sm" title="Mark Returned"><i class="fas fa-undo"></i></button>
+                                <button type="submit" class="btn atom-btn-outline-light btn-sm" title="Mark Returned"><i class="fas fa-undo"></i></button>
                             </form>
                             @endif
                         </td>

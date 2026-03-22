@@ -15,17 +15,17 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-project-diagram me-2"></i>My Projects</h1>
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+    <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createProjectModal">
       <i class="fas fa-plus me-1"></i>New Project
     </button>
   </div>
 
   {{-- Status Filter --}}
   <div class="btn-group mb-3" role="group">
-    <a href="{{ route('research.projects', ['status' => 'all']) }}" class="btn btn-outline-secondary {{ ($status ?? 'all') === 'all' ? 'active' : '' }}">All</a>
-    <a href="{{ route('research.projects', ['status' => 'active']) }}" class="btn btn-outline-success {{ ($status ?? '') === 'active' ? 'active' : '' }}">Active</a>
-    <a href="{{ route('research.projects', ['status' => 'completed']) }}" class="btn btn-outline-primary {{ ($status ?? '') === 'completed' ? 'active' : '' }}">Completed</a>
-    <a href="{{ route('research.projects', ['status' => 'archived']) }}" class="btn btn-outline-secondary {{ ($status ?? '') === 'archived' ? 'active' : '' }}">Archived</a>
+    <a href="{{ route('research.projects', ['status' => 'all']) }}" class="btn atom-btn-white {{ ($status ?? 'all') === 'all' ? 'active' : '' }}">All</a>
+    <a href="{{ route('research.projects', ['status' => 'active']) }}" class="btn atom-btn-outline-success {{ ($status ?? '') === 'active' ? 'active' : '' }}">Active</a>
+    <a href="{{ route('research.projects', ['status' => 'completed']) }}" class="btn atom-btn-white {{ ($status ?? '') === 'completed' ? 'active' : '' }}">Completed</a>
+    <a href="{{ route('research.projects', ['status' => 'archived']) }}" class="btn atom-btn-white {{ ($status ?? '') === 'archived' ? 'active' : '' }}">Archived</a>
   </div>
 
   {{-- Project Grid --}}
@@ -117,8 +117,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Create</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
           </div>
         </form>
       </div>

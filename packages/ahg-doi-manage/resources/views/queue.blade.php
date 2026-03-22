@@ -63,23 +63,23 @@
     {{-- Status filter tabs --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.queue') }}"
-         class="btn btn-sm {{ $currentStatus === '' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+         class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
         All
       </a>
       <a href="{{ route('doi.queue', ['status' => 'pending']) }}"
-         class="btn btn-sm {{ $currentStatus === 'pending' ? 'btn-warning' : 'btn-outline-warning' }}">
+         class="btn btn-sm {{ $currentStatus === 'pending' ? 'atom-btn-white' : 'atom-btn-white' }}">
         Pending
       </a>
       <a href="{{ route('doi.queue', ['status' => 'processing']) }}"
-         class="btn btn-sm {{ $currentStatus === 'processing' ? 'btn-primary' : 'btn-outline-primary' }}">
+         class="btn btn-sm {{ $currentStatus === 'processing' ? 'atom-btn-white' : 'atom-btn-white' }}">
         Processing
       </a>
       <a href="{{ route('doi.queue', ['status' => 'failed']) }}"
-         class="btn btn-sm {{ $currentStatus === 'failed' ? 'btn-danger' : 'btn-outline-danger' }}">
+         class="btn btn-sm {{ $currentStatus === 'failed' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
         Failed
       </a>
       <a href="{{ route('doi.queue', ['status' => 'completed']) }}"
-         class="btn btn-sm {{ $currentStatus === 'completed' ? 'btn-success' : 'btn-outline-success' }}">
+         class="btn btn-sm {{ $currentStatus === 'completed' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
         Completed
       </a>
     </div>
@@ -88,7 +88,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Record Title</th>
               <th>Action</th>
               <th>Status</th>
@@ -143,7 +143,7 @@
                 </td>
                 <td class="text-end">
                   @if($item['status'] === 'failed')
-                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm btn-outline-warning">
+                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm atom-btn-white">
                       <i class="fas fa-redo"></i> Retry
                     </a>
                   @endif

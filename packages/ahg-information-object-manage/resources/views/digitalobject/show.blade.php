@@ -78,7 +78,7 @@
 
     <div class="col-md-4">
       @if($ioSlug)
-        <a href="{{ route('informationobject.edit', $ioSlug) }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <a href="{{ route('informationobject.edit', $ioSlug) }}" class="btn atom-btn-white btn-sm mb-3">
           <i class="fas fa-arrow-left me-1"></i> Back to edit
         </a>
       @endif

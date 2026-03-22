@@ -24,10 +24,10 @@
       </p>
     </div>
     <div class="btn-group">
-      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-outline-secondary">
+      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
-      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-outline-primary">
+      <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
         <i class="fas fa-eye me-1"></i> View Record
       </a>
     </div>
@@ -149,14 +149,14 @@
       {{-- Left Column: Detected Entities Table --}}
       <div class="col-md-8">
         <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white fw-bold">
+          <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-list me-1"></i> Detected Entities
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
+              <table class="table table-bordered table-hover mb-0">
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Type</th>
                     <th>Value</th>
                     <th>Confidence</th>
@@ -213,7 +213,7 @@
 
         {{-- Save Results Card --}}
         <div class="card border-0 shadow-sm mb-3">
-          <div class="card-header bg-white fw-bold">
+          <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-save me-1"></i> Save Results
           </div>
           <div class="card-body">
@@ -221,7 +221,7 @@
             <form method="POST" action="#">
               @csrf
               <input type="hidden" name="information_object_id" value="{{ $io->id ?? '' }}">
-              <button type="submit" class="btn btn-primary w-100" id="save-scan-btn">
+              <button type="submit" class="btn atom-btn-outline-success w-100" id="save-scan-btn">
                 <i class="fas fa-save me-1"></i> Save Scan Results
               </button>
             </form>
@@ -230,13 +230,13 @@
 
         {{-- By Type Summary --}}
         <div class="card border-0 shadow-sm mb-3">
-          <div class="card-header bg-white fw-bold">
+          <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-chart-pie me-1"></i> By Type
           </div>
           <div class="card-body p-0">
-            <table class="table table-sm mb-0">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-sm mb-0">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>Type</th>
                   <th class="text-end">Count</th>
                 </tr>
@@ -257,7 +257,7 @@
 
         {{-- Fields Scanned --}}
         <div class="card border-0 shadow-sm mb-3">
-          <div class="card-header bg-white fw-bold">
+          <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-search me-1"></i> Fields Scanned
           </div>
           <div class="card-body">
@@ -278,18 +278,18 @@
 
         {{-- Quick Actions --}}
         <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white fw-bold">
+          <div class="card-header bg-white fw-bold" style="background:var(--ahg-primary);color:#fff">
             <i class="fas fa-bolt me-1"></i> Quick Actions
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">
-              <a href="#" class="btn btn-outline-secondary btn-sm">
+              <a href="{{ route('io.privacy.dashboard') }}" class="btn atom-btn-white btn-sm">
                 <i class="fas fa-clipboard-list me-1"></i> Review Queue
               </a>
-              <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) . '/privacy/redaction' : '#' }}" class="btn btn-outline-secondary btn-sm">
+              <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) . '/privacy/redaction' : '#' }}" class="btn atom-btn-white btn-sm">
                 <i class="fas fa-eraser me-1"></i> Visual Redaction
               </a>
-              <a href="#" class="btn btn-outline-secondary btn-sm">
+              <a href="{{ route('io.privacy.scan', $io->id) }}" class="btn atom-btn-white btn-sm">
                 <i class="fas fa-search-plus me-1"></i> Scan More
               </a>
             </div>
@@ -311,10 +311,10 @@
           No personally identifiable information was found in this record.
         </p>
         <div class="btn-group">
-          <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-outline-secondary">
+          <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
             <i class="fas fa-arrow-left me-1"></i> Back to Record
           </a>
-          <a href="#" class="btn btn-outline-primary">
+          <a href="{{ route('io.privacy.scan', $io->id) }}" class="btn atom-btn-white">
             <i class="fas fa-redo me-1"></i> Scan Again
           </a>
         </div>

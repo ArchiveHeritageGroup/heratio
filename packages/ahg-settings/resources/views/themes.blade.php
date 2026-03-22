@@ -18,7 +18,7 @@
 
     {{-- Branding --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-stamp me-2"></i>Branding</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-stamp me-2"></i>Branding</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -48,7 +48,7 @@
 
     {{-- Header / Navbar --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-heading me-2"></i>Header / Navbar</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-heading me-2"></i>Header / Navbar</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -71,7 +71,7 @@
 
     {{-- Site Description Bar --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Site Description Bar</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Site Description Bar</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -102,7 +102,7 @@
 
     {{-- Primary Colours --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-tint me-2"></i>Primary Colours</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-tint me-2"></i>Primary Colours</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -132,7 +132,7 @@
 
     {{-- Page Background --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-fill-drip me-2"></i>Page Background</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-fill-drip me-2"></i>Page Background</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -156,7 +156,7 @@
 
     {{-- Card Header --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-square me-2"></i>Card Headers</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-square me-2"></i>Card Headers</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -176,7 +176,7 @@
           <div class="col-md-6 mb-3">
             <label class="form-label">Preview</label>
             <div class="card">
-              <div class="card-header" id="preview-header" style="background-color: {{ $settings['ahg_card_header_bg'] ?? '#005837' }}; color: {{ $settings['ahg_card_header_text'] ?? '#ffffff' }};">
+              <div class="card-header" id="preview-header" style="background:var(--ahg-primary);color:#fff">
                 <h5 class="mb-0" style="color: inherit !important;">Sample Card Header</h5>
               </div>
               <div class="card-body"><p class="mb-0 text-muted">Card body content</p></div>
@@ -188,7 +188,7 @@
 
     {{-- Buttons --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-mouse-pointer me-2"></i>Buttons</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-mouse-pointer me-2"></i>Buttons</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -211,7 +211,7 @@
 
     {{-- Sidebar --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-columns me-2"></i>Sidebar</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-columns me-2"></i>Sidebar</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -234,7 +234,7 @@
 
     {{-- Footer --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-shoe-prints me-2"></i>Footer</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-shoe-prints me-2"></i>Footer</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -294,7 +294,7 @@
 
     {{-- Bootstrap Contextual Colours --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-swatchbook me-2"></i>Contextual Colours</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-swatchbook me-2"></i>Contextual Colours</h5></div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
@@ -359,7 +359,7 @@
 
     {{-- Custom CSS --}}
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-code me-2"></i>Custom CSS</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-code me-2"></i>Custom CSS</h5></div>
       <div class="card-body">
         <textarea class="form-control font-monospace" name="ahg_custom_css" rows="8" placeholder="/* Add custom CSS overrides here */">{{ $settings['ahg_custom_css'] ?? '' }}</textarea>
         <div class="form-text">CSS entered here will be appended to the generated theme stylesheet.</div>
@@ -368,7 +368,7 @@
 
     <div class="d-flex gap-2 mb-4">
       <input type="submit" class="btn atom-btn-outline-success" value="Save">
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Back to Settings</a>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back to Settings</a>
     </div>
   </form>
 @endsection

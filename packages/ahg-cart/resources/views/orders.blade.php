@@ -10,7 +10,7 @@
 @else
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
-      <thead><tr><th>Order #</th><th>Date</th><th>Status</th><th>Total</th><th>Actions</th></tr></thead>
+      <thead>
       <tbody>
         @foreach($orders as $order)
           <tr>
@@ -21,7 +21,7 @@
               <span class="badge {{ $badge }}">{{ ucfirst($order->status) }}</span>
             </td>
             <td>{{ $order->currency }} {{ number_format($order->total, 2) }}</td>
-            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm atom-btn-white">View</a></td>
           </tr>
         @endforeach
       </tbody>

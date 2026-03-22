@@ -11,11 +11,11 @@
       <span class="small text-muted">Menu item details</span>
     </div>
     <div class="d-flex gap-2">
-      <a href="{{ route('menu.edit', $menu->id) }}" class="btn btn-outline-primary">
+      <a href="{{ route('menu.edit', $menu->id) }}" class="btn atom-btn-white">
         <i class="fas fa-pencil-alt me-1"></i> Edit
       </a>
       @if(!$menu->isProtected)
-        <a href="{{ route('menu.confirmDelete', $menu->id) }}" class="btn btn-outline-danger">
+        <a href="{{ route('menu.confirmDelete', $menu->id) }}" class="btn atom-btn-outline-danger">
           <i class="fas fa-trash me-1"></i> Delete
         </a>
       @endif
@@ -90,13 +90,13 @@
 
   @if($children->count())
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Children ({{ $children->count() }})</h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Name</th>
               <th>Label</th>
               <th>Path</th>
@@ -123,7 +123,7 @@
   @endif
 
   <div>
-    <a href="{{ route('menu.browse') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('menu.browse') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to menus
     </a>
   </div>

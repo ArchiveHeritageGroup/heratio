@@ -10,10 +10,10 @@
     <p class="text-muted">Manage security clearances for all users.</p>
   </div>
   <div class="col-md-4 text-end">
-    <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary me-1">
+    <a href="{{ route('acl.groups') }}" class="btn atom-btn-white me-1">
       <i class="fas fa-arrow-left me-1"></i>Back to ACL
     </a>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#grantModal">
+    <button class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#grantModal">
       <i class="fas fa-plus me-1"></i>Grant New Clearance
     </button>
   </div>
@@ -30,9 +30,9 @@
 <div class="card">
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-striped table-hover mb-0">
+      <table class="table table-bordered table-striped table-hover mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>User</th>
             <th>Clearance Level</th>
             <th>Granted</th>
@@ -93,7 +93,7 @@
                   <input type="hidden" name="user_id" value="{{ $clr->user_id ?? '' }}">
                   <input type="hidden" name="classification_id" value="0">
                   <input type="hidden" name="_revoke" value="1">
-                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Revoke">
+                  <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Revoke">
                     <i class="fas fa-ban"></i>
                   </button>
                 </form>
@@ -171,8 +171,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Grant Clearance</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">Grant Clearance</button>
         </div>
       </div>
     </form>

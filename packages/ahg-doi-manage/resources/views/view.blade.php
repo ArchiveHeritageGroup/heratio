@@ -17,7 +17,7 @@
         <span class="small text-muted">DOI Details</span>
       </div>
       <div class="ms-auto">
-        <a href="{{ route('doi.browse') }}" class="btn btn-sm btn-outline-secondary">
+        <a href="{{ route('doi.browse') }}" class="btn btn-sm atom-btn-white">
           <i class="fas fa-arrow-left me-1"></i> Back to Browse
         </a>
       </div>
@@ -25,7 +25,7 @@
 
     {{-- DOI Details card --}}
     <div class="card mb-4">
-      <div class="card-header fw-bold">DOI Information</div>
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DOI Information</div>
       <div class="card-body">
         <table class="table table-bordered mb-0">
           <tbody>
@@ -80,7 +80,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Event Type</th>
               <th>Details</th>
               <th>Performed At</th>

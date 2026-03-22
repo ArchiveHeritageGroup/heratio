@@ -4,7 +4,7 @@
 @section('title', 'Pending Access Requests')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -57,7 +57,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Pending Access Requests</h5>
     </div>
     <div class="card-body p-0">
@@ -68,9 +68,9 @@
         </div>
       @else
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>User</th>
                 <th>Current &rarr; Requested</th>
                 <th>Urgency</th>
@@ -114,10 +114,10 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
+                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
                         <i class="fas fa-check"></i>
                       </button>
-                      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
+                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -141,8 +141,8 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                              <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i> Approve</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i> Approve</button>
                             </div>
                           </form>
                         </div>
@@ -168,8 +168,8 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                              <button type="submit" class="btn btn-danger"><i class="fas fa-times me-1"></i> Deny</button>
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times me-1"></i> Deny</button>
                             </div>
                           </form>
                         </div>

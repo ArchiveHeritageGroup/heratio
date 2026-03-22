@@ -65,7 +65,7 @@
               </label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
-                <button type="button" class="btn btn-outline-secondary" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
+                <button type="button" class="btn atom-btn-white" id="generate-identifier" data-url="{{ url('/informationobject/generateIdentifier') }}">
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>Generate
                 </button>
               </div>
@@ -285,8 +285,8 @@
           <div class="accordion-body">
             <div class="table-responsive">
               <table class="table table-bordered mb-0">
-                <thead class="table-light">
-                  <tr>
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Type</th>
                     <th>Content</th>
                   </tr>

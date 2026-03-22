@@ -11,7 +11,7 @@
       <span class="small text-muted">Duplicate Detection</span>
     </div>
     <div class="ms-auto">
-      <a href="{{ route('dedupe.index') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Dashboard
       </a>
     </div>
@@ -26,7 +26,7 @@
     <div class="table-responsive">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Name</th>
             <th>Type</th>
             <th style="width: 100px;">Threshold</th>

@@ -67,7 +67,7 @@
 
   @if(isset($results) && $results !== null)
     <div class="card mt-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">
           <i class="fas fa-clipboard-check me-2"></i>Validation Results
           <small class="text-muted ms-2">{{ $fileName ?? '' }}</small>
@@ -97,9 +97,9 @@
         @endif
 
         <div class="table-responsive">
-          <table class="table table-striped table-hover">
+          <table class="table table-bordered table-striped table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Column name</th>
                 <th style="width: 120px">Status</th>
                 <th>Message</th>

@@ -23,7 +23,7 @@
 
   {{-- Personal Info --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-user me-2"></i>Personal Information</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
@@ -52,7 +52,7 @@
 
   {{-- Affiliation --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-university me-2"></i>Affiliation</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
     <div class="card-body">
       <dl class="row mb-0">
         <dt class="col-sm-3">Affiliation Type</dt>
@@ -71,7 +71,7 @@
 
   {{-- Research Interests --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-microscope me-2"></i>Research Interests</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research Interests</div>
     <div class="card-body">
       <p>{{ e($researcher->research_interests ?? 'Not specified') }}</p>
       @if($researcher->current_project ?? false)
@@ -84,13 +84,13 @@
 
   {{-- Booking History --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-calendar-alt me-2"></i>Booking History</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-calendar-alt me-2"></i>Booking History</div>
     <div class="card-body">
       @if(count($bookings ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Time</th>
                 <th>Room</th>
@@ -110,7 +110,7 @@
                     </span>
                   </td>
                   <td>
-                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-outline-primary">
+                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm atom-btn-white">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>
@@ -127,19 +127,19 @@
 
   {{-- Admin Actions --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-cogs me-2"></i>Admin Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>Admin Actions</div>
     <div class="card-body d-flex flex-wrap gap-2">
       @if(($researcher->status ?? '') === 'pending')
         <form action="{{ route('research.researchers.approve', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-success">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-check me-1"></i>Approve
           </button>
         </form>
       @endif
 
       @if(in_array($researcher->status ?? '', ['approved', 'pending']))
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+        <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
           <i class="fas fa-times me-1"></i>Reject
         </button>
       @endif
@@ -147,7 +147,7 @@
       @if(($researcher->status ?? '') === 'approved')
         <form action="{{ route('research.researchers.suspend', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-warning">
+          <button type="submit" class="btn atom-btn-white">
             <i class="fas fa-ban me-1"></i>Suspend
           </button>
         </form>
@@ -156,13 +156,13 @@
       @if(in_array($researcher->status ?? '', ['suspended', 'rejected', 'expired']))
         <form action="{{ route('research.researchers.approve', $researcher->id) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-success">
+          <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-redo me-1"></i>Re-approve
           </button>
         </form>
       @endif
 
-      <a href="{{ route('research.researchers') }}" class="btn btn-secondary">
+      <a href="{{ route('research.researchers') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i>Back to List
       </a>
     </div>
@@ -185,8 +185,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger">
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-danger">
               <i class="fas fa-times me-1"></i>Reject
             </button>
           </div>

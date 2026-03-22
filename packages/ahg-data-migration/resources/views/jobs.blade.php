@@ -20,10 +20,10 @@
   </nav>
 
   <div class="d-flex gap-2 mb-3">
-    <a href="{{ route('data-migration.upload') }}" class="btn btn-primary">
+    <a href="{{ route('data-migration.upload') }}" class="btn atom-btn-outline-success">
       <i class="fas fa-upload"></i> New Import
     </a>
-    <a href="{{ route('data-migration.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('data-migration.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Dashboard
     </a>
   </div>
@@ -34,7 +34,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>ID</th>
                 <th>Name</th>
                 <th>Target</th>

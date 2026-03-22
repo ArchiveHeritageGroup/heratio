@@ -137,7 +137,7 @@
                     <div class="input-group" style="max-width: 500px;">
                       <input type="password" class="form-control" name="settings[{{ $key }}]" id="setting-{{ $key }}"
                              value="{{ e($val) }}" autocomplete="off">
-                      <button class="btn btn-outline-secondary" type="button"
+                      <button class="btn atom-btn-white" type="button"
                               onclick="var i = document.getElementById('setting-{{ $key }}'); i.type = i.type === 'password' ? 'text' : 'password';">
                         <i class="fas fa-eye"></i>
                       </button>
@@ -185,8 +185,8 @@
           </div>
 
           <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-            <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Back</a>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+            <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back</a>
           </div>
         </form>
       @endif

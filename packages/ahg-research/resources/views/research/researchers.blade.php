@@ -49,15 +49,15 @@
     <input type="hidden" name="filter" value="{{ $filter ?? 'all' }}">
     <div class="input-group">
       <input type="text" name="q" class="form-control" placeholder="Search researchers by name, email, or institution..." value="{{ e($query ?? '') }}">
-      <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search"></i></button>
+      <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
     </div>
   </form>
 
   {{-- Researchers Table --}}
   <div class="table-responsive">
-    <table class="table table-hover">
+    <table class="table table-bordered table-hover">
       <thead>
-        <tr>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th>Name</th>
           <th>Email</th>
           <th>Institution</th>
@@ -80,13 +80,13 @@
             </td>
             <td>{{ $r->created_at ? \Illuminate\Support\Carbon::parse($r->created_at)->format('Y-m-d') : '-' }}</td>
             <td>
-              <a href="{{ route('research.viewResearcher', $r->id) }}" class="btn btn-sm btn-outline-primary" title="View">
+              <a href="{{ route('research.viewResearcher', $r->id) }}" class="btn btn-sm atom-btn-white" title="View">
                 <i class="fas fa-eye"></i>
               </a>
               @if(($r->status ?? '') === 'pending')
                 <form action="{{ route('research.researchers.approve', $r->id) }}" method="POST" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+                  <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Approve">
                     <i class="fas fa-check"></i>
                   </button>
                 </form>

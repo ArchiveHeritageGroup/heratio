@@ -5,13 +5,13 @@
 @section('content')
 
 <div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">
       <i class="bi bi-file-earmark me-2"></i>
       {{ e($digitalObject->name ?: basename($digitalObject->path)) }}
     </h5>
     <div>
-      <a href="{{ route('metadata-extraction.index') }}" class="btn btn-outline-secondary btn-sm">
+      <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
         <i class="bi bi-arrow-left me-1"></i>Back to List
       </a>
     </div>
@@ -26,7 +26,7 @@
     <div class="row mb-4">
       <div class="col-md-6">
         <h6>Digital Object Details</h6>
-        <table class="table table-sm">
+        <table class="table table-bordered table-sm">
           <tr>
             <th class="w-25">ID</th>
             <td>{{ $digitalObject->id }}</td>
@@ -64,11 +64,11 @@
       <div class="col-md-6">
         <h6>Actions</h6>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="button" class="btn btn-success btn-sm" id="extractBtn">
+          <button type="button" class="btn atom-btn-outline-success btn-sm" id="extractBtn">
             <i class="bi bi-download me-1"></i>Extract Metadata
           </button>
           @if($metadata->count() > 0)
-            <button type="button" class="btn btn-danger btn-sm" id="deleteBtn">
+            <button type="button" class="btn atom-btn-outline-danger btn-sm" id="deleteBtn">
               <i class="bi bi-trash me-1"></i>Delete Metadata
             </button>
           @endif
@@ -100,9 +100,9 @@
             <div id="collapse{{ $index }}" class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}"
                  data-bs-parent="#metadataAccordion">
               <div class="accordion-body p-0">
-                <table class="table table-sm table-striped mb-0">
-                  <thead class="table-light">
-                    <tr>
+                <table class="table table-bordered table-sm table-striped mb-0">
+                  <thead>
+                    <tr style="background:var(--ahg-primary);color:#fff">
                       <th style="width: 30%">Field</th>
                       <th>Value</th>
                     </tr>

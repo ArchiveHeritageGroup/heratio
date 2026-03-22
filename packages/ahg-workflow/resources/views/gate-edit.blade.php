@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-shield-alt"></i> {{ $rule ? 'Edit' : 'Create' }} Gate Rule</h1>
-    <a href="{{ route('workflow.gates.admin') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Back</a>
   </div>
 
   @if($errors->any())
@@ -121,8 +121,8 @@
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> {{ $rule ? 'Update' : 'Create' }} Rule</button>
-          <a href="{{ route('workflow.gates.admin') }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> {{ $rule ? 'Update' : 'Create' }} Rule</button>
+          <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white">Cancel</a>
         </div>
       </form>
     </div>

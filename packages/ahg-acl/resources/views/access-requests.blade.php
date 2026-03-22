@@ -3,7 +3,7 @@
 @section('title', 'Security Access Requests')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-key me-2"></i> Security Access Requests</h2>
-    <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to ACL
     </a>
   </div>
@@ -47,9 +47,9 @@
   <div class="card">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-striped table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-striped table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>User</th>
               <th>Classification</th>
               <th>Request Type</th>
@@ -105,10 +105,10 @@
                 @if($status === 'pending')
                   <td class="text-end">
                     <div class="btn-group btn-group-sm" role="group">
-                      <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
+                      <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $req->id }}" title="Approve">
                         <i class="fas fa-check"></i>
                       </button>
-                      <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
+                      <button type="button" class="btn atom-btn-outline-danger" data-bs-toggle="modal" data-bs-target="#denyModal{{ $req->id }}" title="Deny">
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -132,8 +132,8 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                              <button type="submit" class="btn btn-success">
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="btn atom-btn-outline-success">
                                 <i class="fas fa-check me-1"></i> Approve
                               </button>
                             </div>
@@ -161,8 +161,8 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                              <button type="submit" class="btn btn-danger">
+                              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                              <button type="submit" class="btn atom-btn-outline-danger">
                                 <i class="fas fa-times me-1"></i> Deny
                               </button>
                             </div>

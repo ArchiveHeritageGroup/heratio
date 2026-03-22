@@ -5,9 +5,9 @@
 @section('content')
 
 <div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">System Status</h5>
-    <a href="{{ route('metadata-extraction.index') }}" class="btn btn-outline-secondary btn-sm">
+    <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
       <i class="bi bi-arrow-left me-1"></i>Back
     </a>
   </div>
@@ -17,7 +17,7 @@
     <div class="row mb-4">
       <div class="col-md-6">
         <h6>Tool Availability</h6>
-        <table class="table table-sm">
+        <table class="table table-bordered table-sm">
           <tr>
             <th class="w-50">ExifTool</th>
             <td>
@@ -80,7 +80,7 @@
 
       <div class="col-md-6">
         <h6>Extraction Statistics</h6>
-        <table class="table table-sm">
+        <table class="table table-bordered table-sm">
           <tr>
             <th class="w-50">Total Digital Objects</th>
             <td><strong>{{ number_format($stats['total_digital_objects']) }}</strong></td>
@@ -116,9 +116,9 @@
 
     @if($stats['mime_type_breakdown']->count() > 0)
       <div class="table-responsive">
-        <table class="table table-sm table-striped">
+        <table class="table table-bordered table-sm table-striped">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>MIME Type</th>
               <th>Count</th>
               <th>Supported</th>

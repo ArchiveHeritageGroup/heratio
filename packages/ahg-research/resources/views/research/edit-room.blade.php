@@ -67,8 +67,8 @@
             <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">{{ e($room->description ?? '') }}</textarea></div>
 
             <div class="d-flex justify-content-between">
-                <a href="{{ route('research.rooms') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Rooms</a>
-                <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>{{ $isNew ? 'Create Room' : 'Save Changes' }}</button>
+                <a href="{{ route('research.rooms') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to Rooms</a>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ $isNew ? 'Create Room' : 'Save Changes' }}</button>
             </div>
         </form>
     </div>

@@ -15,7 +15,7 @@
     {{-- Sidebar --}}
     <div class="col-md-3">
       <div class="card mb-3">
-        <div class="card-header fw-semibold">
+        <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-filter me-1"></i> Filter
         </div>
         <div class="list-group list-group-flush">
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <a href="{{ route('feedback.general') }}" class="btn btn-primary w-100">
+      <a href="{{ route('feedback.general') }}" class="btn atom-btn-white w-100">
         <i class="fas fa-plus me-1"></i> Add General Feedback
       </a>
     </div>
@@ -47,21 +47,21 @@
       {{-- Sort controls --}}
       <div class="d-flex flex-wrap gap-2 mb-3 justify-content-end">
         <div class="btn-group btn-group-sm" role="group" aria-label="Sort options">
-          <span class="btn btn-outline-secondary disabled">Sort by:</span>
+          <span class="btn atom-btn-white disabled">Sort by:</span>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'nameUp' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameDown'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'nameDown' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'nameDown' ? 'active' : '' }}">
             Name <i class="fas fa-arrow-down"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'dateUp'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'dateUp' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'dateUp' ? 'active' : '' }}">
             Date <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'dateDown'])) }}"
-             class="btn btn-outline-secondary {{ $sort === 'dateDown' ? 'active' : '' }}">
+             class="btn atom-btn-white {{ $sort === 'dateDown' ? 'active' : '' }}">
             Date <i class="fas fa-arrow-down"></i>
           </a>
         </div>
@@ -69,9 +69,9 @@
 
       @if($pager->getNbResults())
         <div class="table-responsive mb-3">
-          <table class="table table-hover mb-0">
+          <table class="table table-bordered table-hover mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th style="width:40px">#</th>
                 <th>Subject/Record</th>
                 <th>Type</th>
@@ -137,13 +137,13 @@
                   </td>
                   <td>
                     <div class="d-flex gap-1">
-                      <a href="{{ route('feedback.edit', $row['id']) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                      <a href="{{ route('feedback.edit', $row['id']) }}" class="btn btn-sm atom-btn-white" title="Edit">
                         <i class="fas fa-edit"></i>
                       </a>
                       <form method="POST" action="{{ route('feedback.destroy', $row['id']) }}"
                             onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete">
                           <i class="fas fa-trash"></i>
                         </button>
                       </form>
@@ -163,14 +163,4 @@
       @endif
     </div>
   </div>
-
-@push('css')
-<style>
-.table thead th {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
-}
-</style>
-@endpush
 @endsection

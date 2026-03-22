@@ -19,10 +19,10 @@
 
   {{-- Action buttons --}}
   <div class="no-print mb-4 d-flex gap-2">
-    <button type="button" class="btn btn-primary" onclick="window.print();">
+    <button type="button" class="btn atom-btn-white" onclick="window.print();">
       <i class="fas fa-print me-1"></i> Print
     </button>
-    <button type="button" class="btn btn-secondary" onclick="window.close();">
+    <button type="button" class="btn atom-btn-white" onclick="window.close();">
       <i class="fas fa-times me-1"></i> Close
     </button>
   </div>
@@ -42,8 +42,8 @@
   {{-- Results table --}}
   @if(!empty($objects) && count($objects))
     <table class="table table-bordered table-sm">
-      <thead class="table-light">
-        <tr>
+      <thead>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th style="width: 15%;">Identifier</th>
           <th style="width: 25%;">Title</th>
           <th style="width: 10%;">Level</th>

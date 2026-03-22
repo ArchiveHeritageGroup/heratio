@@ -90,8 +90,8 @@
 
   {{-- Admin action buttons --}}
   <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ route('user.edit', $user->slug) }}" class="btn btn-outline-primary">Edit</a></li>
-    <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn btn-outline-danger">Delete</a></li>
-    <li><a href="{{ route('user.browse') }}" class="btn btn-outline-secondary">Back to list</a></li>
+    <li><a href="{{ route('user.edit', $user->slug) }}" class="btn atom-btn-white">Edit</a></li>
+    <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+    <li><a href="{{ route('user.browse') }}" class="btn atom-btn-white">Back to list</a></li>
   </ul>
 @endsection

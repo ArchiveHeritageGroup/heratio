@@ -439,13 +439,13 @@
     @endphp
     <div class="btn-group" role="group" aria-label="Display mode">
       <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
+         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-white' : 'atom-btn-white' }}"
          title="Thumbnail grid with cards">
         <i class="fas fa-th" aria-hidden="true"></i>
         <span class="visually-hidden">Grid</span>
       </a>
       <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
+         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-white' : 'atom-btn-white' }}"
          title="Compact table/list view">
         <i class="fas fa-list" aria-hidden="true"></i>
         <span class="visually-hidden">List</span>

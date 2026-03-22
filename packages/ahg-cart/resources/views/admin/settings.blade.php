@@ -9,7 +9,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="card mb-4">
-        <div class="card-header">General</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">General</div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="is_enabled" value="0">
@@ -41,7 +41,7 @@
     </div>
     <div class="col-md-6">
       <div class="card mb-4">
-        <div class="card-header">PayFast Gateway</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">PayFast Gateway</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Merchant ID</label>
@@ -64,10 +64,10 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header">Product Pricing</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Product Pricing</div>
         <div class="card-body p-0">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr><th>Product</th><th>Price</th><th>Status</th></tr></thead>
+            <thead>
             <tbody>
               @foreach($productTypes as $pt)
                 @php $price = $pricing->firstWhere('product_type_id', $pt->id); @endphp
@@ -85,7 +85,7 @@
       </div>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-  <a href="{{ route('cart.admin.orders') }}" class="btn btn-outline-secondary ms-2">Back to Orders</a>
+  <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+  <a href="{{ route('cart.admin.orders') }}" class="btn atom-btn-white ms-2">Back to Orders</a>
 </form>
 @endsection

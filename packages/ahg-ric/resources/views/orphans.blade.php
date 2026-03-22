@@ -21,19 +21,19 @@
   {{-- Status Tabs --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{{ route('ric.orphans', ['status' => 'all']) }}"
-       class="btn btn-sm {{ $tab === 'all' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+       class="btn btn-sm {{ $tab === 'all' ? 'atom-btn-white' : 'atom-btn-white' }}">
       All <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'detected']) }}"
-       class="btn btn-sm {{ $tab === 'detected' ? 'btn-danger' : 'btn-outline-danger' }}">
+       class="btn btn-sm {{ $tab === 'detected' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
       Detected <span class="badge bg-light text-dark ms-1">{{ $counts['detected'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'reviewed']) }}"
-       class="btn btn-sm {{ $tab === 'reviewed' ? 'btn-warning' : 'btn-outline-warning' }}">
+       class="btn btn-sm {{ $tab === 'reviewed' ? 'atom-btn-white' : 'atom-btn-white' }}">
       Reviewed <span class="badge bg-light text-dark ms-1">{{ $counts['reviewed'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'cleaned']) }}"
-       class="btn btn-sm {{ $tab === 'cleaned' ? 'btn-success' : 'btn-outline-success' }}">
+       class="btn btn-sm {{ $tab === 'cleaned' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
       Cleaned <span class="badge bg-light text-dark ms-1">{{ $counts['cleaned'] ?? 0 }}</span>
     </a>
   </div>
@@ -42,7 +42,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>RiC URI</th>
             <th>Expected Entity</th>
             <th>Status</th>
@@ -80,7 +80,7 @@
   @endif
 
   <div class="mt-3">
-    <a href="{{ route('ric.index') }}" class="btn btn-sm btn-outline-secondary">
+    <a href="{{ route('ric.index') }}" class="btn btn-sm atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
     </a>
   </div>

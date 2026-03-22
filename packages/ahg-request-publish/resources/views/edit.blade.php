@@ -31,7 +31,7 @@
       <div class="col-lg-8">
         {{-- Request Information (readonly) --}}
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-info-circle me-2"></i>Request Information
             </h5>
@@ -81,7 +81,7 @@
         {{-- Requested Item --}}
         @if(!empty($record->object_title) || !empty($record->object_id))
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-file-alt me-2"></i>Requested Item
             </h5>
@@ -103,7 +103,7 @@
                 @endif
               </div>
               @if(!empty($record->object_slug))
-                <a href="/{{ $record->object_slug }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                <a href="/{{ $record->object_slug }}" class="btn btn-sm atom-btn-white" target="_blank">
                   <i class="fas fa-external-link-alt me-1"></i>View Item
                 </a>
               @endif
@@ -114,7 +114,7 @@
 
         {{-- Request Details (readonly) --}}
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-clipboard-list me-2"></i>Request Details
             </h5>
@@ -145,7 +145,7 @@
 
         {{-- Admin Response --}}
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-primary text-white">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-reply me-2"></i>Admin Response
             </h5>
@@ -163,7 +163,7 @@
       <div class="col-lg-4">
         {{-- Status Card --}}
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-flag me-2"></i>Status
             </h5>
@@ -197,17 +197,17 @@
 
         {{-- Actions --}}
         <div class="card shadow-sm mb-4">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-cogs me-2"></i>Actions
             </h5>
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn atom-btn-outline-success">
                 <i class="fas fa-save me-1"></i>Save Changes
               </button>
-              <a href="{{ route('request-publish.browse') }}" class="btn btn-outline-secondary">
+              <a href="{{ route('request-publish.browse') }}" class="btn atom-btn-white">
                 <i class="fas fa-arrow-left me-1"></i>Back to List
               </a>
             </div>
@@ -216,7 +216,7 @@
 
         {{-- Timeline --}}
         <div class="card shadow-sm">
-          <div class="card-header bg-light">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title mb-0">
               <i class="fas fa-history me-2"></i>Timeline
             </h5>

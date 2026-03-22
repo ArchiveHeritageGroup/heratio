@@ -27,19 +27,19 @@
     {{-- Status filter buttons --}}
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.browse') }}"
-         class="btn btn-sm {{ $currentStatus === '' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+         class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
         All
       </a>
       <a href="{{ route('doi.browse', ['status' => 'findable']) }}"
-         class="btn btn-sm {{ $currentStatus === 'findable' ? 'btn-success' : 'btn-outline-success' }}">
+         class="btn btn-sm {{ $currentStatus === 'findable' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
         Findable
       </a>
       <a href="{{ route('doi.browse', ['status' => 'registered']) }}"
-         class="btn btn-sm {{ $currentStatus === 'registered' ? 'btn-info' : 'btn-outline-info' }}">
+         class="btn btn-sm {{ $currentStatus === 'registered' ? 'atom-btn-white' : 'atom-btn-white' }}">
         Registered
       </a>
       <a href="{{ route('doi.browse', ['status' => 'draft']) }}"
-         class="btn btn-sm {{ $currentStatus === 'draft' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+         class="btn btn-sm {{ $currentStatus === 'draft' ? 'atom-btn-white' : 'atom-btn-white' }}">
         Draft
       </a>
     </div>
@@ -48,7 +48,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>DOI</th>
               <th>Record</th>
               <th>Status</th>
@@ -80,7 +80,7 @@
                 </td>
                 <td>{{ $doi['minted_at'] ? \Carbon\Carbon::parse($doi['minted_at'])->format('Y-m-d H:i') : '' }}</td>
                 <td class="text-end">
-                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm btn-outline-primary">
+                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm atom-btn-white">
                     <i class="fas fa-eye"></i> View
                   </a>
                 </td>

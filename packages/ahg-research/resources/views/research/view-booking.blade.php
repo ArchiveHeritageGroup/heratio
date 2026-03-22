@@ -23,7 +23,7 @@
 
   {{-- Schedule Info --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-clock me-2"></i>Schedule</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clock me-2"></i>Schedule</div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
@@ -52,7 +52,7 @@
 
   {{-- Researcher Info --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-user me-2"></i>Researcher</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Researcher</div>
     <div class="card-body">
       <dl class="row mb-0">
         <dt class="col-sm-3">Name</dt>
@@ -75,7 +75,7 @@
 
   {{-- Purpose --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-clipboard me-2"></i>Purpose</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>Purpose</div>
     <div class="card-body">
       <p>{{ e($booking->purpose ?? 'Not specified') }}</p>
       @if($booking->notes ?? false)
@@ -88,13 +88,13 @@
 
   {{-- Materials Requested --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-archive me-2"></i>Materials Requested</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Materials Requested</div>
     <div class="card-body">
       @if(count($materials ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm">
+          <table class="table table-bordered table-sm">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Description</th>
                 <th>Status</th>
@@ -123,20 +123,20 @@
 
   {{-- Action Buttons --}}
   <div class="card mb-4">
-    <div class="card-header"><i class="fas fa-cogs me-2"></i>Actions</div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cogs me-2"></i>Actions</div>
     <div class="card-body d-flex flex-wrap gap-2">
       @if($isAdmin ?? false)
         @if(($booking->status ?? '') === 'pending')
           <form action="{{ route('research.bookings.confirm', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i>Confirm</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check me-1"></i>Confirm</button>
           </form>
         @endif
 
         @if(($booking->status ?? '') === 'confirmed')
           <form action="{{ route('research.bookings.checkIn', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt me-1"></i>Check In</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-sign-in-alt me-1"></i>Check In</button>
           </form>
           <form action="{{ route('research.bookings.noShow', $booking->id) }}" method="POST" class="d-inline">
             @csrf
@@ -147,7 +147,7 @@
         @if(($booking->status ?? '') === 'checked_in')
           <form action="{{ route('research.bookings.checkOut', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-info"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-sign-out-alt me-1"></i>Check Out</button>
           </form>
         @endif
       @endif
@@ -155,13 +155,13 @@
       @if(in_array($booking->status ?? '', ['pending', 'confirmed']))
         <form action="{{ route('research.bookings.cancel', $booking->id) }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">
+          <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">
             <i class="fas fa-times me-1"></i>Cancel
           </button>
         </form>
       @endif
 
-      <a href="{{ url()->previous() }}" class="btn btn-secondary">
+      <a href="{{ url()->previous() }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i>Back
       </a>
     </div>

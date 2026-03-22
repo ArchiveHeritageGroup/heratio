@@ -12,7 +12,7 @@
 </div>
 
 <div class="mb-3">
-  <a href="{{ route('backup.index') }}" class="btn btn-sm btn-outline-secondary">
+  <a href="{{ route('backup.index') }}" class="btn btn-sm atom-btn-white">
     <i class="fas fa-arrow-left me-1"></i> Back to Backups
   </a>
 </div>
@@ -28,7 +28,7 @@
 @endif
 
 <div class="card">
-  <div class="card-header"><i class="fas fa-sliders-h me-1"></i> Settings</div>
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sliders-h me-1"></i> Settings</div>
   <div class="card-body">
     <form method="post" action="{{ route('backup.saveSettings') }}">
       @csrf

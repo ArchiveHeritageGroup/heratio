@@ -119,17 +119,17 @@
         </h2>
         <div class="collapse" id="collapse-aggregations">
           @if($term->taxonomy_id != 42)
-            <div class="card mb-2"><div class="card-header py-1 small">Places</div>
+            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Places</div>
               <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 42]) }}">Browse places</a></div>
             </div>
           @endif
           @if($term->taxonomy_id != 35)
-            <div class="card mb-2"><div class="card-header py-1 small">Subjects</div>
+            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Subjects</div>
               <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 35]) }}">Browse subjects</a></div>
             </div>
           @endif
           @if($term->taxonomy_id != 78)
-            <div class="card mb-2"><div class="card-header py-1 small">Genre</div>
+            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Genre</div>
               <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 78]) }}">Browse genres</a></div>
             </div>
           @endif
@@ -175,7 +175,7 @@
       {{-- ===== Elements area ===== --}}
       <section class="border-bottom mb-3">
         <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <a class="text-decoration-none text-white" href="#">Elements area</a>
+          Elements area
           @auth
             <a href="{{ route('term.edit', $term->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
           @endauth
@@ -280,7 +280,7 @@
       {{-- Sort options --}}
       <div class="d-flex flex-wrap gap-2 ms-auto mb-3">
         @foreach(['lastUpdated' => 'Date modified', 'alphabetic' => 'Title', 'referenceCode' => 'Reference code', 'date' => 'Start date'] as $sortKey => $sortLabel)
-          <a href="{{ request()->fullUrlWithQuery(['sort' => $sortKey, 'page' => 1]) }}" class="btn btn-sm {{ $sort === $sortKey ? 'btn-primary' : 'btn-outline-secondary' }}">{{ $sortLabel }}</a>
+          <a href="{{ request()->fullUrlWithQuery(['sort' => $sortKey, 'page' => 1]) }}" class="btn btn-sm {{ $sort === $sortKey ? 'atom-btn-white' : 'atom-btn-white' }}">{{ $sortLabel }}</a>
         @endforeach
       </div>
 

@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-brain"></i> AI Services</h1>
-    <a href="{{ route('admin.ai.config') }}" class="btn btn-primary">
+    <a href="{{ route('admin.ai.config') }}" class="btn atom-btn-white">
       <i class="fas fa-cog"></i> Configuration
     </a>
   </div>
@@ -19,7 +19,7 @@
     @forelse($providerHealth as $name => $health)
     <div class="col-lg-4 col-md-6 mb-3">
       <div class="card h-100 shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <strong>{{ $name }}</strong>
           @if(($health['status'] ?? '') === 'ok')
             <span class="badge bg-success"><i class="fas fa-check-circle"></i> Online</span>
@@ -77,7 +77,7 @@
   <div class="row mb-4">
     <div class="col-md-4">
       <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <strong><i class="fas fa-server"></i> AI API</strong>
           @if(($apiHealth['status'] ?? '') === 'ok' || ($apiHealth['status'] ?? '') === 'healthy')
             <span class="badge bg-success float-end">Online</span>
@@ -100,7 +100,7 @@
     {{-- NER Stats --}}
     <div class="col-md-4">
       <div class="card shadow-sm">
-        <div class="card-header"><strong><i class="fas fa-diagram-project"></i> NER Entities</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-diagram-project"></i> NER Entities</strong></div>
         <div class="card-body">
           <div class="row text-center small">
             <div class="col">
@@ -127,7 +127,7 @@
     {{-- Usage Stats --}}
     <div class="col-md-4">
       <div class="card shadow-sm">
-        <div class="card-header"><strong><i class="fas fa-chart-bar"></i> Usage</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-chart-bar"></i> Usage</strong></div>
         <div class="card-body">
           <div class="row text-center small">
             <div class="col">
@@ -156,7 +156,7 @@
 
   {{-- Quick Test Section --}}
   <div class="card shadow-sm mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <strong><i class="fas fa-flask"></i> Quick Test</strong>
     </div>
     <div class="card-body">
@@ -180,19 +180,19 @@
       </div>
 
       <div class="btn-group flex-wrap" role="group">
-        <button type="button" class="btn btn-outline-primary" onclick="aiTest('summarize')">
+        <button type="button" class="btn atom-btn-white" onclick="aiTest('summarize')">
           <i class="fas fa-compress-alt"></i> Summarize
         </button>
-        <button type="button" class="btn btn-outline-info" onclick="aiTest('translate')">
+        <button type="button" class="btn atom-btn-white" onclick="aiTest('translate')">
           <i class="fas fa-language"></i> Translate
         </button>
-        <button type="button" class="btn btn-outline-success" onclick="aiTest('entities')">
+        <button type="button" class="btn atom-btn-outline-success" onclick="aiTest('entities')">
           <i class="fas fa-diagram-project"></i> Extract Entities
         </button>
-        <button type="button" class="btn btn-outline-warning" onclick="aiTest('suggest')">
+        <button type="button" class="btn atom-btn-white" onclick="aiTest('suggest')">
           <i class="fas fa-lightbulb"></i> Suggest Description
         </button>
-        <button type="button" class="btn btn-outline-secondary" onclick="aiTest('spellcheck')">
+        <button type="button" class="btn atom-btn-white" onclick="aiTest('spellcheck')">
           <i class="fas fa-spell-check"></i> Spellcheck
         </button>
       </div>
@@ -200,7 +200,7 @@
       {{-- Results Area --}}
       <div id="aiTestResults" class="mt-3" style="display:none;">
         <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
             <strong id="aiResultLabel">Results</strong>
             <span id="aiResultTime" class="badge bg-secondary"></span>
           </div>
@@ -220,16 +220,16 @@
 
   {{-- LLM Configurations Table --}}
   <div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <strong><i class="fas fa-cogs"></i> LLM Configurations</strong>
-      <a href="{{ route('admin.ai.config') }}" class="btn btn-sm btn-outline-primary">
+      <a href="{{ route('admin.ai.config') }}" class="btn btn-sm atom-btn-white">
         <i class="fas fa-plus"></i> Manage
       </a>
     </div>
     <div class="card-body p-0">
-      <table class="table table-striped table-hover mb-0">
+      <table class="table table-bordered table-striped table-hover mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Name</th>
             <th>Provider</th>
             <th>Model</th>

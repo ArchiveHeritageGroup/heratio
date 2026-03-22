@@ -6,7 +6,7 @@
 
   {{-- Recent Bookings --}}
   <div class="card mb-4">
-    <div class="card-header small fw-bold">Recent Bookings</div>
+    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">Recent Bookings</div>
     <ul class="list-group list-group-flush">
       @forelse($recentBookings ?? [] as $booking)
         <li class="list-group-item small">
@@ -22,7 +22,7 @@
 
   {{-- Collections --}}
   <div class="card mb-4">
-    <div class="card-header small fw-bold">My Collections</div>
+    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">My Collections</div>
     <ul class="list-group list-group-flush">
       @forelse($recentCollections ?? [] as $collection)
         <li class="list-group-item small">
@@ -36,7 +36,7 @@
 
   {{-- Saved Searches --}}
   <div class="card mb-4">
-    <div class="card-header small fw-bold">Saved Searches</div>
+    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">Saved Searches</div>
     <ul class="list-group list-group-flush">
       @forelse($recentSavedSearches ?? [] as $search)
         <li class="list-group-item small">
@@ -79,13 +79,13 @@
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle me-2"></i>
         Your researcher registration expires in <strong>{{ $daysLeft }} days</strong> ({{ $expiresAt->format('Y-m-d') }}).
-        <a href="{{ route('research.renewal') }}" class="btn btn-sm btn-warning ms-2">Request Renewal</a>
+        <a href="{{ route('research.renewal') }}" class="btn btn-sm atom-btn-white ms-2">Request Renewal</a>
       </div>
     @elseif($daysLeft <= 0)
       <div class="alert alert-danger">
         <i class="fas fa-calendar-times me-2"></i>
         Your researcher registration has <strong>expired</strong>.
-        <a href="{{ route('research.renewal') }}" class="btn btn-sm btn-danger ms-2">Request Renewal</a>
+        <a href="{{ route('research.renewal') }}" class="btn atom-btn-outline-danger btn-sm ms-2">Request Renewal</a>
       </div>
     @endif
   @endif
@@ -106,7 +106,7 @@
 
     {{-- Personal Information --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-user me-2"></i>Personal Information</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
@@ -143,7 +143,7 @@
 
     {{-- Identification (read-only) --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-id-card me-2"></i>Identification</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>Identification</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -165,7 +165,7 @@
 
     {{-- Affiliation --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-university me-2"></i>Affiliation</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -201,7 +201,7 @@
 
     {{-- Research --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-microscope me-2"></i>Research</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="research_interests" class="form-label">Research Interests</label>
@@ -215,8 +215,8 @@
     </div>
 
     <div class="d-flex justify-content-end">
-      <a href="{{ route('research.dashboard') }}" class="btn btn-secondary me-2">Cancel</a>
-      <button type="submit" class="btn btn-primary">
+      <a href="{{ route('research.dashboard') }}" class="btn atom-btn-white me-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-save me-1"></i>Update Profile
       </button>
     </div>

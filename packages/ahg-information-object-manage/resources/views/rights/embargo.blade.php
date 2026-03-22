@@ -11,7 +11,7 @@
   @csrf
 
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h4 class="mb-0">Embargo Details</h4>
     </div>
     <div class="card-body">
@@ -66,7 +66,7 @@
 
   <!-- Propagation Options -->
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h4 class="mb-0"><i class="fas fa-sitemap me-2"></i>Apply to Hierarchy</h4>
     </div>
     <div class="card-body">
@@ -98,7 +98,7 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h4 class="mb-0">Notifications</h4>
     </div>
     <div class="card-body">
@@ -119,10 +119,10 @@
   </div>
 
   <div class="actions">
-    <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn btn-secondary">
+    <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">
       Cancel
     </a>
-    <button type="submit" class="btn btn-danger">
+    <button type="submit" class="btn atom-btn-outline-danger">
       <i class="fas fa-lock"></i> Create Embargo
     </button>
   </div>

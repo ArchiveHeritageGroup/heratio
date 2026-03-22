@@ -6,11 +6,11 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Publish Readiness</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">Object: {{ $evaluation['object']->title ?? 'Untitled' }} (#{{ $objectId }})</h5>
     </div>
     <div class="card-body">
@@ -56,9 +56,9 @@
         <p class="text-muted">No gate rules are configured.</p>
       @else
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Status</th>
                 <th>Rule</th>
                 <th>Type</th>

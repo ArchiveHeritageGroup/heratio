@@ -56,7 +56,7 @@
                  value="{{ $filters['to'] }}">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-sm btn-primary w-100">
+          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100">
             <i class="fas fa-filter me-1"></i> Filter
           </button>
         </div>
@@ -68,7 +68,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Date</th>
             <th>User</th>
             <th>Action</th>

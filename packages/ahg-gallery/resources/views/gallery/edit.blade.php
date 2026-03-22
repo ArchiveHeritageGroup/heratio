@@ -8,11 +8,11 @@
   <section id="template-selector" class="sidebar-section">
     <h4>Artwork Template</h4>
     <div class="template-list">
-      <a href="#" data-template="painting" class="template-option active"><i class="fas fa-palette"></i> <span>Painting</span></a>
-      <a href="#" data-template="sculpture" class="template-option"><i class="fas fa-monument"></i> <span>Sculpture</span></a>
-      <a href="#" data-template="photograph" class="template-option"><i class="fas fa-camera"></i> <span>Photograph</span></a>
-      <a href="#" data-template="print" class="template-option"><i class="fas fa-print"></i> <span>Print</span></a>
-      <a href="#" data-template="mixed_media" class="template-option"><i class="fas fa-layer-group"></i> <span>Mixed Media</span></a>
+      <a href="javascript:void(0)" data-template="painting" class="template-option active"><i class="fas fa-palette"></i> <span>Painting</span></a>
+      <a href="javascript:void(0)" data-template="sculpture" class="template-option"><i class="fas fa-monument"></i> <span>Sculpture</span></a>
+      <a href="javascript:void(0)" data-template="photograph" class="template-option"><i class="fas fa-camera"></i> <span>Photograph</span></a>
+      <a href="javascript:void(0)" data-template="print" class="template-option"><i class="fas fa-print"></i> <span>Print</span></a>
+      <a href="javascript:void(0)" data-template="mixed_media" class="template-option"><i class="fas fa-layer-group"></i> <span>Mixed Media</span></a>
     </div>
   </section>
   <section id="completeness-meter" class="sidebar-section">

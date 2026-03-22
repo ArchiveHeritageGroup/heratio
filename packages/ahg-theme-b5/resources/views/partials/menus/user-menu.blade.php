@@ -42,7 +42,7 @@
 @if($isAuthenticated && $user)
 {{-- Authenticated: user profile dropdown --}}
 <div class="dropdown my-2">
-  <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+  <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="fas fa-user me-1"></i>{{ $user->username }}
   </button>
   <ul class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
@@ -165,7 +165,7 @@
 @else
 {{-- Unauthenticated: login dropdown --}}
 <div class="dropdown my-2">
-  <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+  <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
     <i class="fas fa-sign-in-alt me-1"></i>Log in
   </button>
   <div class="dropdown-menu dropdown-menu-lg-end mt-2 p-3" aria-labelledby="user-menu" style="min-width: 280px;">
@@ -178,7 +178,7 @@
       <div class="mb-2">
         <input type="password" class="form-control form-control-sm" name="password" placeholder="Password" required autocomplete="off">
       </div>
-      <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">Log in</button>
+      <button class="btn btn-sm atom-btn-white w-100 mt-2" type="submit">Log in</button>
     </form>
 
     <div class="text-center mt-2">
@@ -189,10 +189,10 @@
 
     <hr class="my-3">
     <div class="text-center">
-      <a href="{{ route('register') }}" class="btn btn-sm btn-primary w-100 mb-2">
+      <a href="{{ route('register') }}" class="btn atom-btn-outline-light btn-sm w-100 mb-2">
         <i class="fas fa-user-plus me-1"></i>Register
       </a>
-      <a href="{{ route('researcher.register') }}" class="btn btn-sm btn-success w-100 mb-1">
+      <a href="{{ route('researcher.register') }}" class="btn btn-sm atom-btn-outline-success w-100 mb-1">
         <i class="fas fa-user-graduate me-1"></i>Register as Researcher
       </a>
       <a href="{{ url('/research/dashboard') }}" class="small text-muted d-block mt-1">

@@ -11,7 +11,7 @@
   <div class="table-responsive mb-3">
     <table class="table table-bordered mb-0">
       <thead>
-        <tr>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th>Group</th>
           <th>Members</th>
         </tr>
@@ -41,13 +41,3 @@
     <a class="btn atom-btn-outline-light" href="{{ url('/aclGroup/add') }}">Add new</a>
   </section>
 @endsection
-
-@push('css')
-<style>
-.table thead th {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
-}
-</style>
-@endpush

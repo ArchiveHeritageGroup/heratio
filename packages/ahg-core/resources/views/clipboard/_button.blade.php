@@ -13,7 +13,7 @@
 @endphp
 
 <button
-  class="btn btn-outline-secondary clipboard{{ $wide ? ' w-100' : '' }}"
+  class="btn atom-btn-white clipboard{{ $wide ? ' w-100' : '' }}"
   data-clipboard-slug="{{ $slug }}"
   data-clipboard-type="{{ $type }}"
   @unless($wide) data-tooltip="true" @endunless

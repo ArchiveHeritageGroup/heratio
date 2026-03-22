@@ -8,9 +8,9 @@
 
   @auth
     <div class="mb-3">
-      <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-      <a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
-      <a href="{{ route('rightsholder.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+      <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
+      <a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
+      <a href="{{ route('rightsholder.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a>
     </div>
   @endauth
 

@@ -3,7 +3,7 @@
 @section('title', 'NER Review Dashboard')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-brain me-2"></i>NER Review Dashboard</h1>
@@ -31,13 +31,13 @@
 
   {{-- Objects Table --}}
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Objects with Pending Entities</h5>
     </div>
     <div class="card-body p-0">
-      <table class="table table-hover mb-0">
-        <thead class="table-light">
-          <tr>
+      <table class="table table-bordered table-hover mb-0">
+        <thead>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Object</th>
             <th class="text-center" style="width: 120px">Pending</th>
             <th class="text-center" style="width: 120px">Approved</th>
@@ -65,12 +65,12 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <button class="btn btn-primary" onclick="reviewObject({{ $obj->id }})" title="Review pending entities">
+                    <button class="btn atom-btn-white" onclick="reviewObject({{ $obj->id }})" title="Review pending entities">
                       <i class="fas fa-eye me-1"></i>Review
                     </button>
                     @if(($obj->has_pdf ?? false) && ($obj->approved_count ?? 0) > 0)
                       <a href="{{ route('io.ai.extract', ['id' => $obj->id]) }}"
-                         class="btn btn-outline-info" title="View PDF with entity highlights">
+                         class="btn atom-btn-white" title="View PDF with entity highlights">
                         <i class="fas fa-file-pdf"></i>
                       </a>
                     @endif
@@ -103,15 +103,15 @@
       <div class="modal-body" id="reviewModalBody"></div>
       <div class="modal-footer">
         <div class="me-auto">
-          <button class="btn btn-outline-success btn-sm me-1" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='create'||s.options[i].value.indexOf('link_')===0){s.selectedIndex=i;break;} } }); alert('All set to Create/Link')">
+          <button class="btn atom-btn-outline-success btn-sm me-1" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='create'||s.options[i].value.indexOf('link_')===0){s.selectedIndex=i;break;} } }); alert('All set to Create/Link')">
             <i class="fas fa-check-double me-1"></i>Create All
           </button>
-          <button class="btn btn-outline-danger btn-sm" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='reject'){s.selectedIndex=i;break;} } }); alert('All set to Reject')">
+          <button class="btn atom-btn-outline-danger btn-sm" onclick="document.querySelectorAll('.action-select').forEach(function(s){ for(var i=0;i<s.options.length;i++){ if(s.options[i].value==='reject'){s.selectedIndex=i;break;} } }); alert('All set to Reject')">
             <i class="fas fa-times me-1"></i>Reject All
           </button>
         </div>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success" onclick="saveAllDecisions()">
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-outline-success" onclick="saveAllDecisions()">
           <i class="fas fa-save me-1"></i>Save All Decisions
         </button>
       </div>
@@ -201,7 +201,7 @@ function renderEntities(entities) {
             html += '<div class="col-md-5">';
             html += '<div class="input-group input-group-sm">';
             html += '<input type="text" class="form-control entity-value" id="value-' + entity.id + '" value="' + escapeHtml(entity.value) + '" onchange="updateEntityValue(' + entity.id + ')">';
-            html += '<button class="btn btn-outline-secondary" type="button" onclick="resetValue(' + entity.id + ', \'' + escapeHtml(entity.value) + '\')" title="Reset"><i class="fas fa-undo"></i></button>';
+            html += '<button class="btn atom-btn-white" type="button" onclick="resetValue(' + entity.id + ', \'' + escapeHtml(entity.value) + '\')" title="Reset"><i class="fas fa-undo"></i></button>';
             html += '</div>';
             if (hasExact) {
                 html += '<small class="text-success"><i class="fas fa-check-circle me-1"></i>Match: ' + entity.exact_matches[0].name + '</small>';
@@ -439,7 +439,7 @@ function processBatch(batches, batchIndex, results, total) {
                 '<h4 class="mt-3">Processing Complete</h4>' +
                 '<p class="text-muted">' + results.success + ' succeeded, ' + results.failed + ' failed</p>' +
                 (results.errors.length > 0 ? '<details class="text-start"><summary class="text-danger">Show errors</summary><pre class="small bg-light p-2 mt-2">' + results.errors.join('\n') + '</pre></details>' : '') +
-                '<button class="btn btn-primary mt-3" onclick="location.reload()">Refresh Dashboard</button>' +
+                '<button class="btn atom-btn-white mt-3" onclick="location.reload()">Refresh Dashboard</button>' +
                 '</div>';
         }, 300);
         return;

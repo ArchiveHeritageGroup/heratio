@@ -6,14 +6,14 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <span class="text-muted">{{ count($rooms) }} reading room(s)</span>
-    <a href="{{ route('research.editRoom') }}" class="btn btn-success btn-sm"><i class="fas fa-plus me-1"></i>Add Room</a>
+    <a href="{{ route('research.editRoom') }}" class="btn atom-btn-outline-success btn-sm"><i class="fas fa-plus me-1"></i>Add Room</a>
 </div>
 
 @if(count($rooms) > 0)
 <div class="table-responsive">
-    <table class="table table-hover table-striped">
-        <thead class="table-light">
-            <tr>
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Name</th>
                 <th>Location</th>
                 <th>Capacity</th>
@@ -50,7 +50,7 @@
                     @endif
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('research.editRoom', ['id' => $room->id]) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit me-1"></i>Edit</a>
+                    <a href="{{ route('research.editRoom', ['id' => $room->id]) }}" class="btn atom-btn-white btn-sm"><i class="fas fa-edit me-1"></i>Edit</a>
                 </td>
             </tr>
             @endforeach

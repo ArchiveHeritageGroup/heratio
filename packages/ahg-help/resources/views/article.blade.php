@@ -11,7 +11,7 @@
       <div class="mb-3">
         <form action="{{ route('help.search') }}" method="get" class="input-group input-group-sm">
           <input type="text" name="q" class="form-control" placeholder="Search help..." autocomplete="off">
-          <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+          <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
         </form>
       </div>
 
@@ -65,7 +65,7 @@
 
     <nav class="d-flex justify-content-between mt-5 pt-4 border-top">
       @if($prevArticle)
-        <a href="{{ route('help.article', $prevArticle['slug']) }}" class="btn btn-outline-secondary">
+        <a href="{{ route('help.article', $prevArticle['slug']) }}" class="btn atom-btn-white">
           <i class="fas fa-chevron-left me-1"></i>{{ $prevArticle['title'] }}
         </a>
       @else
@@ -73,7 +73,7 @@
       @endif
 
       @if($nextArticle)
-        <a href="{{ route('help.article', $nextArticle['slug']) }}" class="btn btn-outline-secondary">
+        <a href="{{ route('help.article', $nextArticle['slug']) }}" class="btn atom-btn-white">
           {{ $nextArticle['title'] }}<i class="fas fa-chevron-right ms-1"></i>
         </a>
       @else

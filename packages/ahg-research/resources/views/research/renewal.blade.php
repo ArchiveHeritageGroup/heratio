@@ -5,7 +5,7 @@
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="card mb-3">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Current Researcher Card</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Current Researcher Card</h5></div>
     <div class="card-body">
         <dl class="row mb-0">
             <dt class="col-sm-4">Name</dt>
@@ -52,7 +52,7 @@
 </div>
 
 <div class="card">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-redo me-2"></i>Request Renewal</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-redo me-2"></i>Request Renewal</h5></div>
     <div class="card-body">
         <p class="text-muted">Submit a renewal request to extend your researcher access. An administrator will review your request.</p>
         <form method="POST">
@@ -62,7 +62,7 @@
                 <textarea class="form-control" name="reason" rows="4" placeholder="Please describe why you need to renew your researcher access (e.g., ongoing research project, continued study...)"></textarea>
                 <div class="form-text">Providing a reason helps administrators process your request faster.</div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i>Submit Renewal Request</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>Submit Renewal Request</button>
         </form>
     </div>
 </div>

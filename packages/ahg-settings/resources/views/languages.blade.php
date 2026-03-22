@@ -28,7 +28,7 @@
             {{-- Current languages --}}
             <table class="table table-bordered table-sm mb-4">
               <thead>
-                <tr>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>Language code</th>
                   <th>Language name</th>
                   <th style="width: 80px">Actions</th>
@@ -48,7 +48,7 @@
                           @csrf
                           <input type="hidden" name="action" value="delete">
                           <input type="hidden" name="delete_id" value="{{ $lang->id }}">
-                          <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
                         </form>
                       @else
                         <i class="fas fa-lock text-muted" title="Cannot delete"></i>
@@ -68,7 +68,7 @@
                 <input type="text" name="languageCode" class="form-control" placeholder="e.g. fr" maxlength="3" style="width: 100px">
               </div>
               <div class="col-auto">
-                <button type="submit" class="btn btn-outline-success"><i class="fas fa-plus me-1"></i>Add</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add</button>
               </div>
             </form>
 

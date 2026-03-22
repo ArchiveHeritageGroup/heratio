@@ -3,11 +3,11 @@
 @section('sidebar')
 <div class="sidebar-content">
     <div class="card">
-        <div class="card-header bg-light">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
             <h5 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h5>
         </div>
         <div class="card-body">
-            <a href="{{ route('iiif-collection.index') }}" class="btn btn-outline-primary w-100">
+            <a href="{{ route('iiif-collection.index') }}" class="btn atom-btn-white w-100">
                 <i class="fas fa-arrow-left me-2"></i>Back to Collections
             </a>
         </div>
@@ -25,7 +25,7 @@
         @csrf
 
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                 <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Collection Details</h5>
             </div>
             <div class="card-body">
@@ -89,10 +89,10 @@
         </div>
 
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn atom-btn-outline-success">
                 <i class="fas fa-save me-2"></i>Create Collection
             </button>
-            <a href="{{ route('iiif-collection.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('iiif-collection.index') }}" class="btn atom-btn-white">
                 <i class="fas fa-times me-2"></i>Cancel
             </a>
         </div>

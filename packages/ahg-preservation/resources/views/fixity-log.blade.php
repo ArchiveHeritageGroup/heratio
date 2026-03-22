@@ -17,9 +17,9 @@
         {{-- Status Filter --}}
         <div class="mb-3">
             <div class="btn-group" role="group">
-                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm {{ !$status ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-                <a href="{{ route('preservation.fixity-log', ['status' => 'pass']) }}" class="btn btn-sm {{ $status === 'pass' ? 'btn-success' : 'btn-outline-success' }}">Pass</a>
-                <a href="{{ route('preservation.fixity-log', ['status' => 'fail']) }}" class="btn btn-sm {{ $status === 'fail' ? 'btn-danger' : 'btn-outline-danger' }}">Fail</a>
+                <a href="{{ route('preservation.fixity-log') }}" class="btn btn-sm {{ !$status ? 'atom-btn-outline-success' : 'atom-btn-white' }}">All</a>
+                <a href="{{ route('preservation.fixity-log', ['status' => 'pass']) }}" class="btn btn-sm {{ $status === 'pass' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">Pass</a>
+                <a href="{{ route('preservation.fixity-log', ['status' => 'fail']) }}" class="btn btn-sm {{ $status === 'fail' ? 'atom-btn-outline-danger' : 'atom-btn-white' }}">Fail</a>
             </div>
         </div>
 

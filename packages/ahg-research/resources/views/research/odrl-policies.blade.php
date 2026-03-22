@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">ODRL Policies</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
+    <button class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createPolicyModal"><i class="fas fa-plus me-1"></i>Create Policy</button>
 </div>
 
 <!-- Filter bar -->
@@ -50,7 +50,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">Filter</button></div>
+            <div class="col-auto"><button type="submit" class="btn atom-btn-outline-light btn-sm">Filter</button></div>
         </form>
     </div>
 </div>
@@ -59,9 +59,9 @@
     <div class="alert alert-info">No ODRL policies found. Create one to get started.</div>
 @else
 <div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
-            <tr>
+    <table class="table table-bordered table-hover align-middle">
+        <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Target</th>
                 <th>Policy Type</th>
@@ -109,7 +109,7 @@
                         @csrf
                         <input type="hidden" name="form_action" value="delete">
                         <input type="hidden" name="policy_id" value="{{ (int) $p->id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
                     </form>
                 </td>
             </tr>
@@ -185,8 +185,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Policy</button>
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">Create Policy</button>
         </div>
       </form>
     </div>

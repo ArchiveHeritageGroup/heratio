@@ -18,7 +18,7 @@
     <div class="alert alert-warning">
       <h5><i class="fa fa-exclamation-triangle me-2"></i>FTP/SFTP Not Configured</h5>
       <p class="mb-2">Please configure the FTP/SFTP connection settings before using this page.</p>
-      <a href="{{ url('/admin/settings/ftp') }}" class="btn btn-warning">
+      <a href="{{ url('/admin/settings/ftp') }}" class="btn atom-btn-white">
         <i class="fa fa-cog me-1"></i>Configure FTP Settings
       </a>
     </div>
@@ -30,7 +30,7 @@
       <p class="mb-2">Files uploaded here are stored at the remote path shown below. In your CSV import file, set the <code>digitalObjectPath</code> column to:</p>
       <div class="bg-white border rounded p-3 mb-2">
         <code id="path-prefix" class="fs-5 text-primary user-select-all">{{ $diskPath }}/</code><code class="fs-5 text-muted">your-filename.ext</code>
-        <button type="button" class="btn btn-sm btn-outline-secondary ms-3" id="copy-path-btn" title="Copy path prefix">
+        <button type="button" class="btn btn-sm atom-btn-white ms-3" id="copy-path-btn" title="Copy path prefix">
           <i class="fa fa-copy"></i>
         </button>
       </div>
@@ -39,7 +39,7 @@
 
     <!-- Upload Zone -->
     <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>Upload Files
           <small class="ms-2 opacity-75">(supports files up to 2 GB — chunked upload with resume)</small>
         </h5>
@@ -70,9 +70,9 @@
 
     <!-- File Listing -->
     <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i>Remote Files</h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-btn">
+        <button type="button" class="btn btn-sm atom-btn-white" id="refresh-btn">
           <i class="fa fa-sync-alt me-1"></i>Refresh
         </button>
       </div>
@@ -83,9 +83,9 @@
           </div>
         @endif
         <div class="table-responsive">
-          <table class="table table-striped table-hover mb-0" id="files-table">
+          <table class="table table-bordered table-striped table-hover mb-0" id="files-table">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Filename</th>
                 <th class="text-end" style="width:120px">Size</th>
                 <th style="width:180px">Modified</th>
@@ -102,7 +102,7 @@
                     <td class="text-end">{{ \AhgFtpUpload\Services\FtpService::formatBytes($file['size']) }}</td>
                     <td>{{ $file['modified'] }}</td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-sm btn-outline-danger delete-file-btn" data-filename="{{ $file['name'] }}" title="Delete">
+                      <button type="button" class="btn btn-sm atom-btn-outline-danger delete-file-btn" data-filename="{{ $file['name'] }}" title="Delete">
                         <i class="fa fa-trash"></i>
                       </button>
                     </td>
@@ -192,9 +192,9 @@
               '</div>' +
               '<div class="upload-detail text-muted small"></div>' +
               '<div class="upload-actions mt-1">' +
-                  '<button type="button" class="btn btn-sm btn-outline-warning pause-btn d-none"><i class="fa fa-pause me-1"></i>Pause</button> ' +
-                  '<button type="button" class="btn btn-sm btn-outline-success resume-btn d-none"><i class="fa fa-play me-1"></i>Resume</button> ' +
-                  '<button type="button" class="btn btn-sm btn-outline-danger cancel-btn"><i class="fa fa-times me-1"></i>Cancel</button>' +
+                  '<button type="button" class="btn btn-sm atom-btn-white pause-btn d-none"><i class="fa fa-pause me-1"></i>Pause</button> ' +
+                  '<button type="button" class="btn btn-sm atom-btn-outline-success resume-btn d-none"><i class="fa fa-play me-1"></i>Resume</button> ' +
+                  '<button type="button" class="btn btn-sm atom-btn-outline-danger cancel-btn"><i class="fa fa-times me-1"></i>Cancel</button>' +
               '</div>' +
           '</div>';
           progressContainer.insertAdjacentHTML('beforeend', html);
@@ -400,7 +400,7 @@
                           '<td><i class="fa fa-file me-2 text-muted"></i>' + escapeHtml(f.name) + '</td>' +
                           '<td class="text-end">' + formatBytes(f.size) + '</td>' +
                           '<td>' + escapeHtml(f.modified) + '</td>' +
-                          '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger delete-file-btn" data-filename="' + escapeHtml(f.name) + '" title="Delete"><i class="fa fa-trash"></i></button></td>' +
+                          '<td class="text-center"><button type="button" class="btn btn-sm atom-btn-outline-danger delete-file-btn" data-filename="' + escapeHtml(f.name) + '" title="Delete"><i class="fa fa-trash"></i></button></td>' +
                           '</tr>';
                       tbody.insertAdjacentHTML('beforeend', row);
                   });

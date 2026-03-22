@@ -16,15 +16,15 @@
   <div class="mb-4">
     <div class="btn-group" role="group" aria-label="Time period">
       <a href="{{ route('audit.statistics', ['days' => 7]) }}"
-         class="btn btn-sm {{ $days === 7 ? 'btn-primary' : 'btn-outline-primary' }}">
+         class="btn btn-sm {{ $days === 7 ? 'atom-btn-white' : 'atom-btn-white' }}">
         7 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 30]) }}"
-         class="btn btn-sm {{ $days === 30 ? 'btn-primary' : 'btn-outline-primary' }}">
+         class="btn btn-sm {{ $days === 30 ? 'atom-btn-white' : 'atom-btn-white' }}">
         30 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 90]) }}"
-         class="btn btn-sm {{ $days === 90 ? 'btn-primary' : 'btn-outline-primary' }}">
+         class="btn btn-sm {{ $days === 90 ? 'atom-btn-white' : 'atom-btn-white' }}">
         90 days
       </a>
     </div>
@@ -68,7 +68,7 @@
 
   {{-- Most Active Users --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-users me-2"></i>Most Active Users</h5>
     </div>
     <div class="card-body p-0">
@@ -76,7 +76,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>User</th>
                 <th class="text-end" style="width:150px">Action Count</th>
               </tr>
@@ -99,7 +99,7 @@
 
   {{-- Recent Failed Actions --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Recent Failed Actions</h5>
     </div>
     <div class="card-body p-0">
@@ -107,7 +107,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Time</th>
                 <th>User</th>
                 <th>Action</th>
@@ -142,7 +142,7 @@
     </div>
   </div>
 
-  <a href="{{ route('audit.browse') }}" class="btn btn-secondary">
+  <a href="{{ route('audit.browse') }}" class="btn atom-btn-white">
     <i class="fas fa-arrow-left me-1"></i> Back to Audit Trail
   </a>
 @endsection

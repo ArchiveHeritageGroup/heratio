@@ -3,7 +3,7 @@
 @section('title', 'Access Request Approvers')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-user-check me-2"></i> Access Request Approvers</h2>
-    <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back to ACL
     </a>
   </div>
@@ -43,14 +43,14 @@
     {{-- Left column: Current Approvers --}}
     <div class="col-lg-8 mb-4">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-list me-2"></i> Current Approvers</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-              <thead class="table-light">
-                <tr>
+            <table class="table table-bordered table-striped table-hover mb-0">
+              <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                   <th>User</th>
                   <th>Clearance</th>
                   <th>Can Approve</th>
@@ -89,7 +89,7 @@
                       <form action="{{ route('acl.remove-approver', ['id' => $approver->id]) }}" method="POST"
                             onsubmit="return confirm('Are you sure you want to remove this approver?');">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove approver">
+                        <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove approver">
                           <i class="fas fa-user-minus me-1"></i> Remove
                         </button>
                       </form>
@@ -110,7 +110,7 @@
     {{-- Right column: Add Approver --}}
     <div class="col-lg-4 mb-4">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i> Add Approver</h5>
         </div>
         <div class="card-body">
@@ -151,7 +151,7 @@
               <label class="form-check-label" for="email_notifications">Email Notifications</label>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">
+            <button type="submit" class="btn atom-btn-outline-success w-100">
               <i class="fas fa-user-plus me-1"></i> Add Approver
             </button>
           </form>

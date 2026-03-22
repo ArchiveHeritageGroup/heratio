@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-layer-group"></i> Workflow Queues</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   @if(count($queues) === 0)
@@ -60,7 +60,7 @@
                   @endif
                 </small>
                 @if($queue->overdue_count > 0)
-                  <a href="{{ route('workflow.overdue', ['queue_id' => $queue->id]) }}" class="btn btn-sm btn-outline-danger">
+                  <a href="{{ route('workflow.overdue', ['queue_id' => $queue->id]) }}" class="btn btn-sm atom-btn-outline-danger">
                     View Overdue
                   </a>
                 @endif

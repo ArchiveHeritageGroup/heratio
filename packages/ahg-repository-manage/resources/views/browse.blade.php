@@ -281,11 +281,11 @@
     @endphp
     <div class="btn-group" role="group" aria-label="Display mode">
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
+         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-white' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
         <i class="fas fa-th" aria-hidden="true"></i><span class="visually-hidden">Grid</span>
       </a>
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Compact table/list view">
+         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-white' : 'atom-btn-white' }}" title="Compact table/list view">
         <i class="fas fa-list" aria-hidden="true"></i><span class="visually-hidden">List</span>
       </a>
     </div>
@@ -356,7 +356,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th class="sortable w-40">
                 <a title="Sort" class="sortable" href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge(request()->except(['sort', 'page']), ['sort' => request('sort') === 'nameUp' ? 'nameDown' : 'nameUp'])) }}">Name</a>
               </th>

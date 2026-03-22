@@ -9,7 +9,7 @@
     @if($items->isNotEmpty())
       <form method="post" action="{{ route('cart.clear') }}" class="d-inline">
         @csrf
-        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Clear all items?')"><i class="fas fa-trash me-1"></i>Clear cart</button>
+        <button type="submit" class="btn atom-btn-outline-danger btn-sm" onclick="return confirm('Clear all items?')"><i class="fas fa-trash me-1"></i>Clear cart</button>
       </form>
     @endif
   </div>
@@ -24,7 +24,7 @@
   <div class="table-responsive mb-4">
     <table class="table table-bordered table-striped">
       <thead>
-        <tr>
+        <tr style="background:var(--ahg-primary);color:#fff">
           <th>Item</th>
           @if($isEcommerce)<th>Product</th><th>Price</th>@endif
           <th>Date added</th>
@@ -55,7 +55,7 @@
           <td>
             <form method="post" action="{{ route('cart.remove', $item->id) }}" class="d-inline">
               @csrf
-              <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+              <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
             </form>
           </td>
         </tr>
@@ -65,8 +65,8 @@
   </div>
 
   <div class="d-flex justify-content-between">
-    <a href="{{ url('/informationobject/browse') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Continue browsing</a>
-    <a href="{{ route('cart.checkout') }}" class="btn btn-primary"><i class="fas fa-credit-card me-1"></i>Proceed to checkout</a>
+    <a href="{{ url('/informationobject/browse') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Continue browsing</a>
+    <a href="{{ route('cart.checkout') }}" class="btn atom-btn-white"><i class="fas fa-credit-card me-1"></i>Proceed to checkout</a>
   </div>
 @endif
 @endsection

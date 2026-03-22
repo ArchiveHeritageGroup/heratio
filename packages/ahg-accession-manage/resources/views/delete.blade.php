@@ -11,8 +11,8 @@
     @method('DELETE')
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('accession.show', $accession->slug) }}" class="btn btn-outline-secondary">Cancel</a></li>
-      <li><input class="btn btn-outline-danger" type="submit" value="Delete"></li>
+      <li><a href="{{ route('accession.show', $accession->slug) }}" class="btn atom-btn-white">Cancel</a></li>
+      <li><input class="btn atom-btn-outline-danger" type="submit" value="Delete"></li>
     </ul>
   </form>
 

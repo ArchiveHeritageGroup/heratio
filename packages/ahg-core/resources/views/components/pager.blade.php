@@ -11,7 +11,7 @@
       {{-- Previous --}}
       @if($pager->getPage() <= 1)
         <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          <span class="page-link">Previous</span>
         </li>
       @else
         <li class="page-item">
@@ -46,7 +46,7 @@
       {{-- Next --}}
       @if($pager->getPage() >= $pager->getLastPage())
         <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+          <span class="page-link">Next</span>
         </li>
       @else
         <li class="page-item">

@@ -7,8 +7,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Task #{{ $task->id }}: {{ $task->step_name }}</h1>
     <div>
-      <a href="{{ route('workflow.my-tasks') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> My Tasks</a>
-      <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> My Tasks</a>
+      <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
     </div>
   </div>
 
@@ -18,11 +18,11 @@
     {{-- Task Details --}}
     <div class="col-lg-8 mb-4">
       <div class="card">
-        <div class="card-header"><h5 class="mb-0">Task Details</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Task Details</h5></div>
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-md-6">
-              <table class="table table-sm table-borderless">
+              <table class="table table-bordered table-sm table-borderless">
                 <tr>
                   <th class="text-muted" style="width:40%">Workflow</th>
                   <td>{{ $task->workflow_name }}</td>
@@ -53,7 +53,7 @@
               </table>
             </div>
             <div class="col-md-6">
-              <table class="table table-sm table-borderless">
+              <table class="table table-bordered table-sm table-borderless">
                 <tr>
                   <th class="text-muted" style="width:40%">Status</th>
                   <td>
@@ -144,13 +144,13 @@
       {{-- Action Buttons --}}
       @if($task->status !== 'completed')
         <div class="card mt-3">
-          <div class="card-header"><h5 class="mb-0">Actions</h5></div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Actions</h5></div>
           <div class="card-body">
             @if($task->assigned_to === null && $task->pool_enabled)
               {{-- Claim --}}
               <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn btn-success"><i class="fas fa-hand-paper"></i> Claim This Task</button>
+                <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-hand-paper"></i> Claim This Task</button>
               </form>
             @elseif((int) $task->assigned_to === (int) auth()->id())
               {{-- Approve / Reject / Release --}}
@@ -162,19 +162,19 @@
               <div class="d-flex gap-2 flex-wrap">
                 <form id="approve-form" action="{{ route('workflow.task.approve', $task->id) }}" method="POST" class="d-inline">
                   @csrf
-                  <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Approve</button>
+                  <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-check"></i> Approve</button>
                 </form>
 
                 <form action="{{ route('workflow.task.reject', $task->id) }}" method="POST" class="d-inline" onsubmit="this.querySelector('[name=comment]').value = document.getElementById('comment').value; if(!this.querySelector('[name=comment]').value) { alert('Comment is required for rejection.'); return false; }">
                   @csrf
                   <input type="hidden" name="comment" value="">
-                  <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Reject</button>
+                  <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times"></i> Reject</button>
                 </form>
 
                 <form action="{{ route('workflow.task.release', $task->id) }}" method="POST" class="d-inline">
                   @csrf
                   <input type="hidden" name="comment" value="">
-                  <button type="submit" class="btn btn-warning" onclick="this.form.querySelector('[name=comment]').value = document.getElementById('comment').value;"><i class="fas fa-undo"></i> Release to Pool</button>
+                  <button type="submit" class="btn atom-btn-white" onclick="this.form.querySelector('[name=comment]').value = document.getElementById('comment').value;"><i class="fas fa-undo"></i> Release to Pool</button>
                 </form>
               </div>
 
@@ -192,7 +192,7 @@
 
       {{-- History Timeline --}}
       <div class="card mt-3">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Task History</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-history"></i> Task History</h5></div>
         <div class="card-body">
           @if(empty($task->history))
             <p class="text-muted mb-0">No history recorded.</p>
@@ -244,9 +244,9 @@
     {{-- Sidebar --}}
     <div class="col-lg-4">
       <div class="card mb-3">
-        <div class="card-header"><h6 class="mb-0">Timestamps</h6></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Timestamps</h6></div>
         <div class="card-body">
-          <table class="table table-sm table-borderless mb-0">
+          <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
               <th class="text-muted">Created</th>
               <td>{{ $task->created_at }}</td>
@@ -278,9 +278,9 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header"><h6 class="mb-0">Metadata</h6></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Metadata</h6></div>
         <div class="card-body">
-          <table class="table table-sm table-borderless mb-0">
+          <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
               <th class="text-muted">Task ID</th>
               <td>{{ $task->id }}</td>
@@ -307,9 +307,9 @@
 
       @if($task->object_type === 'information_object')
         <div class="card">
-          <div class="card-header"><h6 class="mb-0">Publish Readiness</h6></div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Publish Readiness</h6></div>
           <div class="card-body text-center">
-            <a href="{{ route('workflow.publish-readiness', $task->object_id) }}" class="btn btn-outline-primary">
+            <a href="{{ route('workflow.publish-readiness', $task->object_id) }}" class="btn atom-btn-white">
               <i class="fas fa-clipboard-check"></i> Check Publish Gates
             </a>
           </div>

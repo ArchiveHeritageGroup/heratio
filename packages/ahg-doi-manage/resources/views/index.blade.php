@@ -19,13 +19,13 @@
         <span class="small text-muted">DataCite Integration Dashboard</span>
       </div>
       <div class="d-flex gap-2">
-        <a href="{{ route('doi.report') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('doi.report') }}" class="btn atom-btn-white btn-sm">
           <i class="fas fa-file-export me-1"></i> Export
         </a>
-        <a href="{{ route('doi.queue') }}" class="btn btn-outline-primary btn-sm">
+        <a href="{{ route('doi.queue') }}" class="btn atom-btn-white btn-sm">
           <i class="fas fa-layer-group me-1"></i> Batch Mint
         </a>
-        <a href="{{ route('doi.config') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('doi.config') }}" class="btn atom-btn-white btn-sm">
           <i class="fas fa-cog me-1"></i> Configuration
         </a>
       </div>
@@ -129,7 +129,7 @@
       <div class="table-responsive mb-3">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>DOI</th>
               <th>Record Title</th>
               <th>Status</th>
@@ -153,7 +153,7 @@
                 </td>
                 <td>{{ $doi['minted_at'] ? \Carbon\Carbon::parse($doi['minted_at'])->format('Y-m-d H:i') : '' }}</td>
                 <td class="text-end">
-                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm btn-outline-primary">
+                  <a href="{{ route('doi.view', $doi['id']) }}" class="btn btn-sm atom-btn-white">
                     <i class="fas fa-eye"></i> View
                   </a>
                 </td>

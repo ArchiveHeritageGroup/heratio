@@ -57,20 +57,20 @@
 
   {{-- Quick Actions --}}
   <div class="card mb-4">
-    <div class="card-header bg-light">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-bolt"></i> Quick Actions
     </div>
     <div class="card-body">
       <div class="row">
         @auth
           <div class="col-md-4 mb-2">
-            <a href="{{ route('dam.create') }}" class="btn btn-success btn-lg w-100">
+            <a href="{{ route('dam.create') }}" class="btn atom-btn-outline-success btn-lg w-100">
               <i class="fas fa-plus me-2"></i>New Asset
             </a>
           </div>
         @endauth
         <div class="col-md-4 mb-2">
-          <a href="{{ route('dam.browse') }}" class="btn btn-info btn-lg w-100">
+          <a href="{{ route('dam.browse') }}" class="btn atom-btn-white btn-lg w-100">
             <i class="fas fa-search me-2"></i>Browse All
           </a>
         </div>
@@ -81,7 +81,7 @@
   {{-- Asset Type Breakdown --}}
   @if(!empty($stats['byAssetType']))
     <div class="card mb-4">
-      <div class="card-header bg-light">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-chart-bar"></i> Asset Types
       </div>
       <div class="card-body">
@@ -119,14 +119,14 @@
   {{-- License Breakdown --}}
   @if(!empty($stats['licenseTypes']))
     <div class="card mb-4">
-      <div class="card-header bg-light">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-gavel"></i> License Types
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-sm mb-0">
+          <table class="table table-bordered table-sm mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>License</th>
                 <th class="text-end" style="width:100px;">Count</th>
               </tr>
@@ -147,9 +147,9 @@
 
   {{-- Recent Assets --}}
   <div class="card">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-clock"></i> Recent Assets</span>
-      <a href="{{ route('dam.browse') }}?sort=lastUpdated&sortDir=desc" class="btn btn-sm btn-outline-secondary">View all</a>
+      <a href="{{ route('dam.browse') }}?sort=lastUpdated&sortDir=desc" class="btn btn-sm atom-btn-white">View all</a>
     </div>
     <div class="card-body p-0">
       @if(empty($recentAssets))
@@ -157,15 +157,15 @@
           <i class="fas fa-inbox fa-3x mb-3"></i>
           <p>No DAM assets yet</p>
           @auth
-            <a href="{{ route('dam.create') }}" class="btn btn-success">
+            <a href="{{ route('dam.create') }}" class="btn atom-btn-outline-success">
               <i class="fas fa-plus"></i> Create your first asset
             </a>
           @endauth
         </div>
       @else
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Title</th>
               <th style="width:120px;">Asset Type</th>
               <th style="width:150px;">Identifier</th>
@@ -197,9 +197,9 @@
                 <td><small>{{ $asset['creator'] ?? '' }}</small></td>
                 <td class="text-end">
                   @if($asset['slug'])
-                    <a href="{{ route('dam.show', $asset['slug']) }}" class="btn btn-sm btn-outline-success"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('dam.show', $asset['slug']) }}" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-eye"></i></a>
                     @auth
-                      <a href="{{ route('dam.edit', $asset['slug']) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                      <a href="{{ route('dam.edit', $asset['slug']) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i></a>
                     @endauth
                   @endif
                 </td>

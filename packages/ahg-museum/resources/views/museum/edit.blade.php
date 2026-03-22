@@ -10,19 +10,19 @@
   <section id="template-selector" class="sidebar-section">
     <h4>Object Template</h4>
     <div class="template-list">
-      <a href="#" data-template="general" class="template-option active">
+      <a href="javascript:void(0)" data-template="general" class="template-option active">
         <i class="fas fa-cube"></i> <span>General</span>
       </a>
-      <a href="#" data-template="painting" class="template-option">
+      <a href="javascript:void(0)" data-template="painting" class="template-option">
         <i class="fas fa-palette"></i> <span>Painting</span>
       </a>
-      <a href="#" data-template="sculpture" class="template-option">
+      <a href="javascript:void(0)" data-template="sculpture" class="template-option">
         <i class="fas fa-monument"></i> <span>Sculpture</span>
       </a>
-      <a href="#" data-template="photograph" class="template-option">
+      <a href="javascript:void(0)" data-template="photograph" class="template-option">
         <i class="fas fa-camera"></i> <span>Photograph</span>
       </a>
-      <a href="#" data-template="textile" class="template-option">
+      <a href="javascript:void(0)" data-template="textile" class="template-option">
         <i class="fas fa-scroll"></i> <span>Textile</span>
       </a>
     </div>
@@ -150,7 +150,7 @@
                 <div class="input-group">
                   <input type="text" class="form-control" id="object_number" name="object_number"
                          value="{{ old('object_number', $museum->object_number ?? '') }}">
-                  <button class="btn btn-outline-secondary" type="button" id="btn-generate-identifier">
+                  <button class="btn atom-btn-white" type="button" id="btn-generate-identifier">
                     <i class="fas fa-sync-alt"></i> Generate identifier
                   </button>
                 </div>

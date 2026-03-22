@@ -11,7 +11,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
-          <tr><th>Name</th><th>Version</th><th>Enabled</th></tr>
+          <tr style="background:var(--ahg-primary);color:#fff"><th>Name</th><th>Version</th><th>Enabled</th></tr>
         </thead>
         <tbody>
           @foreach($plugins as $plugin)

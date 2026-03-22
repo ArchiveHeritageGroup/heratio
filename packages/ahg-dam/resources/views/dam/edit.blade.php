@@ -27,7 +27,7 @@
 
     {{-- ===== 1. Identification ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-success text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-id-card me-1"></i> Identification
       </div>
       <div class="card-body">
@@ -96,7 +96,7 @@
 
     {{-- ===== 2. Asset Type & Classification ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-primary text-white border-primary">
+      <div class="card-header border-primary" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-tag me-1"></i> Asset Type &amp; Classification
       </div>
       <div class="card-body">
@@ -154,7 +154,7 @@
 
     {{-- ===== 3. Production Details ===== --}}
     <div class="card mb-3 field-video" style="display:none;">
-      <div class="card-header bg-danger text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-film me-1"></i> Production Details
       </div>
       <div class="card-body">
@@ -210,7 +210,7 @@
 
     {{-- ===== 4. Production Credits ===== --}}
     <div class="card mb-3 field-video field-audio" style="display:none;">
-      <div class="card-header bg-info text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-users me-1"></i> Production Credits
       </div>
       <div class="card-body">
@@ -225,7 +225,7 @@
                   <input type="text" name="credit_name[]" class="form-control" placeholder="Name" value="{{ $credit['name'] ?? '' }}">
                 </div>
                 <div class="col-md-2">
-                  <button type="button" class="btn btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
+                  <button type="button" class="btn atom-btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
                 </div>
               </div>
             @endforeach
@@ -238,12 +238,12 @@
                 <input type="text" name="credit_name[]" class="form-control" placeholder="Name">
               </div>
               <div class="col-md-2">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn atom-btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>
               </div>
             </div>
           @endif
         </div>
-        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-credit">
+        <button type="button" class="btn atom-btn-white btn-sm mt-2" id="add-credit">
           <i class="fas fa-plus"></i> Add Credit
         </button>
       </div>
@@ -251,7 +251,7 @@
 
     {{-- ===== 5. Language ===== --}}
     <div class="card mb-3 field-video field-audio" style="display:none;">
-      <div class="card-header bg-secondary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-language me-1"></i> Language
       </div>
       <div class="card-body">
@@ -274,7 +274,7 @@
 
     {{-- ===== 6. IPTC - Creator / Photographer ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcCreatorCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcCreatorCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-user me-1"></i> IPTC - Creator / Photographer
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -336,7 +336,7 @@
 
     {{-- ===== 7. IPTC - Content Description ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcContentCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcContentCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-file-alt me-1"></i> IPTC - Content Description
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -399,7 +399,7 @@
 
     {{-- ===== 8. IPTC - Location ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcLocationCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcLocationCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-map-marker-alt me-1"></i> IPTC - Location
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -468,7 +468,7 @@
 
     {{-- ===== 9. IPTC - Copyright & Rights ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcRightsCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcRightsCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-copyright me-1"></i> IPTC - Copyright &amp; Rights
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -544,7 +544,7 @@
 
     {{-- ===== 10. IPTC - Model & Property Releases ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcReleasesCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcReleasesCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-file-signature me-1"></i> IPTC - Model &amp; Property Releases
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -604,7 +604,7 @@
 
     {{-- ===== 11. IPTC - Artwork / Object in Image ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcArtworkCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcArtworkCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-palette me-1"></i> IPTC - Artwork / Object in Image
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -650,7 +650,7 @@
 
     {{-- ===== 12. IPTC - Administrative ===== --}}
     <div class="card mb-3">
-      <div class="card-header bg-light" data-bs-toggle="collapse" data-bs-target="#iptcAdminCollapse" style="cursor:pointer;">
+      <div class="card-header" data-bs-toggle="collapse" data-bs-target="#iptcAdminCollapse" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-cogs me-1"></i> IPTC - Administrative
         <i class="fas fa-chevron-down float-end"></i>
       </div>
@@ -681,8 +681,8 @@
     </div>
 
     <div class="d-flex gap-2 mt-4">
-      <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-save"></i> {{ $asset ? 'Save Asset' : 'Create Asset' }}</button>
-      <a href="{{ $asset ? route('dam.show', $asset->slug) : route('dam.dashboard') }}" class="btn btn-secondary btn-lg">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success btn-lg"><i class="fas fa-save"></i> {{ $asset ? 'Save Asset' : 'Create Asset' }}</button>
+      <a href="{{ $asset ? route('dam.show', $asset->slug) : route('dam.dashboard') }}" class="btn atom-btn-white btn-lg">Cancel</a>
     </div>
 
     <div class="alert alert-info mt-4">
@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<input type="text" name="credit_name[]" class="form-control" placeholder="Name">' +
         '</div>' +
         '<div class="col-md-2">' +
-        '<button type="button" class="btn btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>' +
+        '<button type="button" class="btn atom-btn-outline-danger btn-sm remove-credit"><i class="fas fa-times"></i></button>' +
         '</div>';
       creditsContainer.appendChild(row);
     });

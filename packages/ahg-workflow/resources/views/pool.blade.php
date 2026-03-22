@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-inbox"></i> Task Pool</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
@@ -19,9 +19,9 @@
     <div class="card">
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>#</th>
                 <th>Step</th>
                 <th>Workflow</th>
@@ -66,7 +66,7 @@
                   <td>
                     <form action="{{ route('workflow.task.claim', $task->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-hand-paper"></i> Claim</button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-hand-paper"></i> Claim</button>
                     </form>
                   </td>
                 </tr>

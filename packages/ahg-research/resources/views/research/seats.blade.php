@@ -28,9 +28,9 @@
 @if($roomId && $currentRoom)
     @if(count($seats) > 0)
     <div class="table-responsive">
-        <table class="table table-hover table-striped">
-            <thead class="table-light">
-                <tr>
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr style="background:var(--ahg-primary);color:#fff">
                     <th>Seat Number</th>
                     <th>Room</th>
                     <th>Status</th>
@@ -67,10 +67,10 @@
                             <input type="hidden" name="form_action" value="release">
                             <input type="hidden" name="seat_id" value="{{ $seat->id }}">
                             <input type="hidden" name="room_id" value="{{ $roomId }}">
-                            <button type="submit" class="btn btn-outline-warning btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Release</button>
+                            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Release</button>
                         </form>
                         @elseif($seatStatus === 'available')
-                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignSeat{{ $seat->id }}"><i class="fas fa-user-plus me-1"></i>Assign</button>
+                        <button class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#assignSeat{{ $seat->id }}"><i class="fas fa-user-plus me-1"></i>Assign</button>
                         @endif
                         @if($seatStatus !== 'maintenance')
                         <form method="POST" class="d-inline">
@@ -78,7 +78,7 @@
                             <input type="hidden" name="form_action" value="maintenance">
                             <input type="hidden" name="seat_id" value="{{ $seat->id }}">
                             <input type="hidden" name="room_id" value="{{ $roomId }}">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm" title="Set maintenance"><i class="fas fa-tools"></i></button>
+                            <button type="submit" class="btn atom-btn-white btn-sm" title="Set maintenance"><i class="fas fa-tools"></i></button>
                         </form>
                         @else
                         <form method="POST" class="d-inline">
@@ -86,7 +86,7 @@
                             <input type="hidden" name="form_action" value="activate">
                             <input type="hidden" name="seat_id" value="{{ $seat->id }}">
                             <input type="hidden" name="room_id" value="{{ $roomId }}">
-                            <button type="submit" class="btn btn-outline-success btn-sm" title="Activate"><i class="fas fa-check"></i></button>
+                            <button type="submit" class="btn atom-btn-outline-success btn-sm" title="Activate"><i class="fas fa-check"></i></button>
                         </form>
                         @endif
                     </td>
@@ -99,7 +99,7 @@
                     <div class="modal-body">
                         <div class="mb-3"><label class="form-label">Researcher ID <span class="text-danger">*</span></label><input type="number" class="form-control" name="researcher_id" required placeholder="Enter researcher ID"></div>
                     </div>
-                    <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
+                    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
                     </form>
                 </div></div></div>
                 @endforeach

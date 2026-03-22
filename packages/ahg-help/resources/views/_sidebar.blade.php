@@ -2,7 +2,7 @@
   <div class="mb-3">
     <form action="{{ route('help.search') }}" method="get" class="input-group input-group-sm">
       <input type="text" name="q" class="form-control" placeholder="Search help..." autocomplete="off">
-      <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+      <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
     </form>
   </div>
 

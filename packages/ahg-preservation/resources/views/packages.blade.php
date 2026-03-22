@@ -17,19 +17,19 @@
         {{-- Type Filter --}}
         <div class="mb-3">
             <div class="btn-group" role="group">
-                <a href="{{ route('preservation.packages') }}" class="btn btn-sm {{ !$type ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-                <a href="{{ route('preservation.packages', ['type' => 'SIP']) }}" class="btn btn-sm {{ $type === 'SIP' ? 'btn-info' : 'btn-outline-info' }}">SIP</a>
-                <a href="{{ route('preservation.packages', ['type' => 'AIP']) }}" class="btn btn-sm {{ $type === 'AIP' ? 'btn-success' : 'btn-outline-success' }}">AIP</a>
-                <a href="{{ route('preservation.packages', ['type' => 'DIP']) }}" class="btn btn-sm {{ $type === 'DIP' ? 'btn-warning' : 'btn-outline-warning' }}">DIP</a>
+                <a href="{{ route('preservation.packages') }}" class="btn btn-sm {{ !$type ? 'atom-btn-white' : 'atom-btn-white' }}">All</a>
+                <a href="{{ route('preservation.packages', ['type' => 'SIP']) }}" class="btn btn-sm {{ $type === 'SIP' ? 'atom-btn-white' : 'atom-btn-white' }}">SIP</a>
+                <a href="{{ route('preservation.packages', ['type' => 'AIP']) }}" class="btn btn-sm {{ $type === 'AIP' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">AIP</a>
+                <a href="{{ route('preservation.packages', ['type' => 'DIP']) }}" class="btn btn-sm {{ $type === 'DIP' ? 'atom-btn-white' : 'atom-btn-white' }}">DIP</a>
             </div>
         </div>
 
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>ID</th>
                                 <th>UUID</th>
                                 <th>Name</th>
@@ -88,7 +88,7 @@
                                 <td><small>{{ $pkg->total_size ? number_format($pkg->total_size / 1048576, 1) . ' MB' : '-' }}</small></td>
                                 <td class="text-nowrap"><small>{{ $pkg->created_at }}</small></td>
                                 <td>
-                                    <a href="{{ route('preservation.package-view', $pkg->id) }}" class="btn btn-sm btn-outline-primary" title="View package">
+                                    <a href="{{ route('preservation.package-view', $pkg->id) }}" class="btn btn-sm atom-btn-white" title="View package">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>

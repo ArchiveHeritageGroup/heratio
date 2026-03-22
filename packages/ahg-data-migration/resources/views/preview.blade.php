@@ -29,14 +29,14 @@
 
   @if(count($transformedRows) > 0)
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-table"></i> Transformed Data</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th style="width: 40px;">#</th>
                 @foreach($targetHeaders as $header)
                   <th class="text-nowrap">{{ $header }}</th>
@@ -64,7 +64,7 @@
   @endif
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('data-migration.map') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('data-migration.map') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Back to Mapping
     </a>
     @if(count($transformedRows) > 0)
@@ -72,7 +72,7 @@
         @csrf
         <input type="hidden" name="mapping" value="{{ json_encode($mapping) }}">
         <input type="hidden" name="name" value="CSV Import {{ now()->format('Y-m-d H:i:s') }}">
-        <button type="submit" class="btn btn-success">
+        <button type="submit" class="btn atom-btn-outline-success">
           <i class="fas fa-play"></i> Execute Import ({{ number_format($totalRows) }} rows)
         </button>
       </form>

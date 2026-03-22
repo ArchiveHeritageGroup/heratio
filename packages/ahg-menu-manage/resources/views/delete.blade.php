@@ -13,7 +13,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('menu.show', $menu->id) }}" class="btn btn-outline-secondary">Back</a></li>
+      <li><a href="{{ route('menu.show', $menu->id) }}" class="btn atom-btn-white">Back</a></li>
     </ul>
   @else
     @if($menu->hasChildren)
@@ -28,8 +28,8 @@
       @method('DELETE')
 
       <ul class="actions mb-3 nav gap-2">
-        <li><a href="{{ route('menu.show', $menu->id) }}" class="btn btn-outline-secondary">Cancel</a></li>
-        <li><input class="btn btn-outline-danger" type="submit" value="Delete"></li>
+        <li><a href="{{ route('menu.show', $menu->id) }}" class="btn atom-btn-white">Cancel</a></li>
+        <li><input class="btn atom-btn-outline-danger" type="submit" value="Delete"></li>
       </ul>
     </form>
   @endif

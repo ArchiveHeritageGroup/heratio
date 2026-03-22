@@ -44,7 +44,7 @@
     <div class="mb-3">
       <form action="{{ route('admin.3d-models.batch-thumbnails') }}" method="POST" class="d-inline">
         @csrf
-        <button type="submit" class="btn btn-primary"
+        <button type="submit" class="btn atom-btn-outline-success"
                 onclick="return confirm('Generate thumbnails for {{ $withoutThumbnails }} 3D objects? This may take a while.');">
           <i class="fas fa-magic me-1"></i>Generate all missing thumbnails ({{ $withoutThumbnails }})
         </button>
@@ -83,9 +83,9 @@
   @else
     <div class="card">
       <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-          <thead class="table-dark">
-            <tr>
+        <table class="table table-bordered table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th width="60">ID</th>
               <th>Filename</th>
               <th>Object</th>
@@ -135,12 +135,12 @@
                 <td>
                   <div class="btn-group btn-group-sm">
                     <a href="{{ route('admin.3d-models.thumbnail', $model->id) }}"
-                       class="btn btn-outline-primary"
+                       class="btn atom-btn-white"
                        title="{{ $model->has_thumbnail ? 'Regenerate thumbnail' : 'Generate thumbnail' }}">
                       <i class="fas fa-image me-1"></i>{{ $model->has_thumbnail ? 'Regen' : 'Generate' }}
                     </a>
                     <a href="{{ route('admin.3d-models.multiangle', $model->id) }}"
-                       class="btn btn-outline-secondary"
+                       class="btn atom-btn-white"
                        title="{{ $model->has_multiangle ? 'Regenerate multi-angle' : 'Generate multi-angle' }}">
                       <i class="fas fa-th-large me-1"></i>Multi
                     </a>

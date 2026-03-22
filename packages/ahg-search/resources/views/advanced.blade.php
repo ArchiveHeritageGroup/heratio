@@ -14,7 +14,7 @@
 
   <form action="{{ route('search') }}" method="get">
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <strong>Search criteria</strong>
       </div>
       <div class="card-body">
@@ -110,15 +110,15 @@
       </div>
 
       <div class="card-footer d-flex gap-2">
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn atom-btn-outline-success">
           <i class="fas fa-search" aria-hidden="true"></i>
           Search
         </button>
-        <a href="{{ route('search.advanced') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('search.advanced') }}" class="btn atom-btn-white">
           <i class="fas fa-undo" aria-hidden="true"></i>
           Reset
         </a>
-        <a href="{{ route('search') }}" class="btn btn-outline-secondary ms-auto">
+        <a href="{{ route('search') }}" class="btn atom-btn-white ms-auto">
           <i class="fas fa-arrow-left" aria-hidden="true"></i>
           Back to simple search
         </a>

@@ -27,7 +27,7 @@
     <div class="d-flex flex-wrap gap-2 ms-auto">
       @if(!empty($workTypes))
         <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {{ $selectedWorkType ?: 'Work type' }}
           </button>
           <ul class="dropdown-menu">
@@ -51,7 +51,7 @@
 
       @if(!empty($classifications))
         <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {{ $selectedClassification ?: 'Classification' }}
           </button>
           <ul class="dropdown-menu">
@@ -92,7 +92,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th style="width: 60px;">Thumbnail</th>
             <th>Title / Object</th>
             <th>Work type</th>

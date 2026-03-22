@@ -5,9 +5,9 @@
 @section('content')
 
 <div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">Merge Files to PDF</h5>
-    <a href="{{ route('pdf-tools.index') }}" class="btn btn-outline-secondary btn-sm">
+    <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white btn-sm">
       <i class="bi bi-arrow-left me-1"></i>Back
     </a>
   </div>
@@ -144,10 +144,10 @@
 
       {{-- Submit --}}
       <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary" id="mergeBtn">
+        <button type="submit" class="btn atom-btn-outline-success" id="mergeBtn">
           <i class="bi bi-files me-1"></i>Merge to PDF
         </button>
-        <a href="{{ route('pdf-tools.index') }}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>
 

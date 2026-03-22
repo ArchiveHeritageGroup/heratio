@@ -11,7 +11,7 @@
     <form method="post" action="{{ route('settings.treeview') }}">
       @csrf
       <div class="card mb-4">
-        <div class="card-header">General</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">General</div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
@@ -40,7 +40,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header">Sidebar</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Sidebar</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Sort (information object)</label>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header">Full width</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Full width</div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-4 mb-3">
@@ -87,8 +87,8 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
 </div>

@@ -39,7 +39,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>User name</th>
             <th>Email</th>
             <th>User groups</th>
@@ -72,14 +72,4 @@
   <section class="actions mb-3">
     <a class="btn atom-btn-outline-light" href="{{ route('user.create') }}">Add new</a>
   </section>
-
-@push('css')
-<style>
-.table thead th {
-  background-color: var(--ahg-primary, #005837);
-  color: var(--ahg-card-header-text, #fff);
-  border-color: var(--ahg-primary, #005837);
-}
-</style>
-@endpush
 @endsection

@@ -3,9 +3,9 @@
 @section('title-block')<h1><i class="fas fa-journal-whills me-2"></i>Research Journal</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Journal Entries</h5>
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newEntryModal"><i class="fas fa-plus me-1"></i>New Entry</button>
+        <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newEntryModal"><i class="fas fa-plus me-1"></i>New Entry</button>
     </div>
     <div class="card-body">
         <form method="GET" class="row g-2 mb-3">
@@ -18,7 +18,7 @@
             </div>
             <div class="col-md-2"><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $filters['date_from'] ?? '' }}"></div>
             <div class="col-md-2"><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $filters['date_to'] ?? '' }}"></div>
-            <div class="col-md-1"><button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-filter"></i></button></div>
+            <div class="col-md-1"><button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button></div>
         </form>
     </div>
 </div>
@@ -60,7 +60,7 @@
         </div>
         <div class="mb-3"><label class="form-label">Tags</label><input type="text" class="form-control" name="tags" placeholder="Comma-separated"></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i>Create Entry</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Entry</button></div>
     </form>
 </div></div></div>
 @endsection

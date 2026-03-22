@@ -45,7 +45,7 @@
         <span class="small text-muted">Configure how objects are displayed in different domains</span>
       </div>
     </div>
-    <a href="{{ route('glam.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
   </div>
@@ -59,7 +59,7 @@
       @foreach($profiles as $profile)
         <div class="col">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
               <div>
                 <i class="fas {{ getLayoutIcon($profile->layout ?? 'list') }} me-2"></i>
                 <strong>{{ $profile->name ?? $profile->code ?? 'Unnamed Profile' }}</strong>
@@ -69,7 +69,7 @@
               </span>
             </div>
             <div class="card-body">
-              <table class="table table-sm table-borderless mb-0">
+              <table class="table table-bordered table-sm table-borderless mb-0">
                 <tbody>
                   <tr>
                     <th class="text-muted" style="width: 40%;">Code</th>

@@ -14,7 +14,7 @@
       @if($isEcommerce)
         {{-- E-Commerce checkout form --}}
         <div class="card mb-4">
-          <div class="card-header"><i class="fas fa-user me-2"></i>Billing Information</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Billing Information</div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -43,7 +43,7 @@
       @else
         {{-- Standard (Request to Publish) form --}}
         <div class="card mb-4">
-          <div class="card-header"><i class="fas fa-paper-plane me-2"></i>Request to Publish</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>Request to Publish</div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -93,7 +93,7 @@
 
     <div class="col-md-4">
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-list me-2"></i>Order Summary</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>Order Summary</div>
         <div class="card-body">
           <ul class="list-unstyled mb-3">
             @foreach($items as $item)
@@ -116,12 +116,12 @@
           @endif
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary w-100">
+          <button type="submit" class="btn atom-btn-outline-success w-100">
             <i class="fas fa-check me-1"></i>{{ $isEcommerce ? 'Place Order' : 'Submit Request' }}
           </button>
         </div>
       </div>
-      <a href="{{ route('cart.browse') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-arrow-left me-1"></i>Back to cart</a>
+      <a href="{{ route('cart.browse') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-left me-1"></i>Back to cart</a>
     </div>
   </div>
 </form>

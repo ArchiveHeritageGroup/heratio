@@ -45,7 +45,7 @@
                       class="d-inline">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn btn-outline-danger btn-sm">
+                  <button type="submit" class="btn atom-btn-outline-danger btn-sm">
                     <i class="fas fa-trash me-1"></i> Delete digital object
                   </button>
                 </form>
@@ -73,7 +73,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-sm">
+          <button type="submit" class="btn atom-btn-outline-light btn-sm">
             <i class="fas fa-upload me-1"></i> Upload
           </button>
         </form>

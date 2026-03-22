@@ -60,8 +60,8 @@
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-          <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Back</a>
+          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+          <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back</a>
         </div>
       </form>
     @endif

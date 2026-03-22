@@ -6,7 +6,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-stamp"></i> Watermark Settings</h1>
-    <a href="{{ route('media-processing.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('media-processing.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left"></i> Back to Media Processing
     </a>
   </div>
@@ -23,7 +23,7 @@
     {{-- Global Settings --}}
     <div class="col-lg-8">
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-cog"></i> Global Watermark Settings</h5>
         </div>
         <div class="card-body">
@@ -119,7 +119,7 @@
             @endif
 
             <div class="text-end">
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn atom-btn-outline-success">
                 <i class="fas fa-save"></i> Save Settings
               </button>
             </div>
@@ -129,7 +129,7 @@
 
       {{-- Watermark Position Preview --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-crosshairs"></i> Position Reference</h5>
         </div>
         <div class="card-body">
@@ -159,7 +159,7 @@
     <div class="col-lg-4">
       {{-- Upload Custom Watermark --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-upload"></i> Upload Custom Watermark</h5>
         </div>
         <div class="card-body">
@@ -200,7 +200,7 @@
                 oninput="document.getElementById('opacity_value').textContent = Math.round(this.value * 100)">
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="submit" class="btn atom-btn-outline-success w-100">
               <i class="fas fa-upload"></i> Upload Watermark
             </button>
           </form>
@@ -209,7 +209,7 @@
 
       {{-- Existing Custom Watermarks --}}
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-images"></i> Custom Watermarks</h5>
         </div>
         <div class="card-body p-0">
@@ -225,7 +225,7 @@
             <form method="POST" action="{{ route('media-processing.watermark-settings') }}" class="d-inline">
               @csrf
               <input type="hidden" name="delete_custom_watermark" value="{{ $cw->id }}">
-              <button type="submit" class="btn btn-sm btn-outline-danger"
+              <button type="submit" class="btn btn-sm atom-btn-outline-danger"
                 onclick="return confirm('Delete this custom watermark?')" title="Delete">
                 <i class="fas fa-trash"></i>
               </button>
@@ -239,7 +239,7 @@
 
       {{-- System Watermark Types --}}
       <div class="card shadow-sm">
-        <div class="card-header bg-white">
+        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-shield-alt"></i> System Watermark Types</h5>
         </div>
         <div class="card-body p-0">

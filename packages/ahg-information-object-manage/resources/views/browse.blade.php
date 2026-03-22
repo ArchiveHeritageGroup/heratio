@@ -27,7 +27,7 @@
     <div class="d-flex flex-wrap gap-2 ms-auto">
       @if($repositories->isNotEmpty())
         <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {{ $selectedRepository ? ($repositoryNames[$selectedRepository] ?? 'Repository') : 'Repository' }}
           </button>
           <ul class="dropdown-menu">
@@ -60,7 +60,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Title</th>
             <th>Level of description</th>
             <th>Repository</th>

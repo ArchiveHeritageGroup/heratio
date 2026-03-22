@@ -35,7 +35,7 @@
                            class="form-control"
                            placeholder="Search..."
                            value="{{ $query }}">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn atom-btn-outline-success" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -53,7 +53,7 @@
     <!-- Active Filters -->
     @if (!empty($filters))
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-transparent border-0 pb-0">
+        <div class="card-header bg-transparent border-0 pb-0" style="background:var(--ahg-primary);color:#fff">
             <h5 class="card-title h6 mb-0">Active Filters</h5>
         </div>
         <div class="card-body">
@@ -75,7 +75,7 @@
                 $removeUrl = url('/heritage/search') . '?' . http_build_query(['q' => $query]) .
                     (empty($newFilters) ? '' : '&' . http_build_query($newFilters));
                 @endphp
-                <a href="{{ $removeUrl }}" class="btn btn-sm btn-outline-secondary mb-1 me-1">
+                <a href="{{ $removeUrl }}" class="btn btn-sm atom-btn-white mb-1 me-1">
                     {{ $filterLabelMap[$filterCode][$val] ?? $val }}
                     <i class="fas fa-times ms-1"></i>
                 </a>
@@ -95,7 +95,7 @@
     @foreach ($filterOptions as $filterOption)
     @if ($filterOption['show_in_search'] && !empty($filterOption['values']))
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-transparent border-0 d-flex align-items-center">
+        <div class="card-header bg-transparent border-0 d-flex align-items-center" style="background:var(--ahg-primary);color:#fff">
             @if (!empty($filterOption['icon']))
             <i class="{{ $filterOption['icon'] }} me-2 text-muted"></i>
             @endif
@@ -151,7 +151,7 @@
 
     <!-- Back to Landing -->
     <div class="mt-4">
-        <a href="{{ url('/heritage') }}" class="btn btn-outline-secondary w-100">
+        <a href="{{ url('/heritage') }}" class="btn atom-btn-white w-100">
             <i class="fas fa-home me-2"></i> Back to Home
         </a>
     </div>
@@ -180,7 +180,7 @@
         <div class="mt-4">
             <p class="mb-2">Did you mean:</p>
             @foreach ($suggestions as $suggestion)
-            <a href="{{ url('/heritage/search') . '?' . http_build_query(['q' => $suggestion]) }}" class="btn btn-outline-primary btn-sm me-2 mb-2">
+            <a href="{{ url('/heritage/search') . '?' . http_build_query(['q' => $suggestion]) }}" class="btn atom-btn-white btn-sm me-2 mb-2">
                 {{ $suggestion }}
             </a>
             @endforeach
@@ -188,7 +188,7 @@
         @endif
 
         <div class="mt-4">
-            <a href="{{ url('/heritage/search') }}" class="btn btn-primary">
+            <a href="{{ url('/heritage/search') }}" class="btn atom-btn-white">
                 Browse all items
             </a>
         </div>

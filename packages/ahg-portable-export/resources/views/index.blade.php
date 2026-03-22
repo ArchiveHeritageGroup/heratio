@@ -21,7 +21,7 @@
 
   {{-- Export Form --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>New Export</h5>
     </div>
     <div class="card-body">
@@ -133,7 +133,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn atom-btn-outline-success">
           <i class="fas fa-play me-1"></i> Start Export
         </button>
       </form>
@@ -142,7 +142,7 @@
 
   {{-- Past Exports --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history me-2"></i>Past Exports</h5>
     </div>
     <div class="card-body">
@@ -157,7 +157,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Title</th>
                 <th>Scope</th>
                 <th>Mode</th>
@@ -190,7 +190,7 @@
                   <td>{{ $export->created_at ? \Carbon\Carbon::parse($export->created_at)->format('Y-m-d H:i') : '' }}</td>
                   <td>
                     @if($export->status === 'completed' && !empty($export->output_path))
-                      <a href="{{ $export->output_path }}" class="btn btn-sm btn-outline-success">
+                      <a href="{{ $export->output_path }}" class="btn btn-sm atom-btn-outline-success">
                         <i class="fas fa-download me-1"></i> Download
                       </a>
                     @else

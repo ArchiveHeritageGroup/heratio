@@ -83,7 +83,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th style="width:60px;">Cover</th>
             <th>Title</th>
             <th>Author</th>

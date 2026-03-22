@@ -3,7 +3,7 @@
 @section('title', 'Provenance Timeline — ' . ($io->title ?? ''))
 
 @section('content')
-<div class="container-fluid py-3">
+<div class="container py-3">
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
@@ -20,11 +20,11 @@
       <p class="text-muted mb-0">{{ $io->title ?? $io->slug }}</p>
     </div>
     <div>
-      <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-outline-secondary me-2">
+      <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white me-2">
         <i class="bi bi-arrow-left me-1"></i>Back to Provenance
       </a>
       @auth
-      <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-primary">
+      <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white">
         <i class="bi bi-pencil me-1"></i> Edit Provenance
       </a>
       @endauth
@@ -33,7 +33,7 @@
 
   <!-- Timeline Visualization -->
   <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="bi bi-calendar-range me-2"></i>
         Visual Timeline
@@ -61,7 +61,7 @@
   <!-- Events Table -->
   @if($events->isNotEmpty())
   <div class="card shadow-sm mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="bi bi-list-ul me-2"></i>
         Provenance Events
@@ -70,9 +70,9 @@
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-striped table-hover mb-0">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-striped table-hover mb-0">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Type</th>
               <th>Date</th>
               <th>From</th>

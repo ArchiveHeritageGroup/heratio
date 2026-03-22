@@ -4,7 +4,7 @@
 @section('title', 'My Access Requests')
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -22,7 +22,7 @@
 
   {{-- Current Status Card --}}
   <div class="card mb-4">
-    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>My Security Status</h5>
     </div>
     <div class="card-body">
@@ -41,7 +41,7 @@
           @endif
         </div>
         <div class="col-md-6 text-md-end">
-          <a href="{{ url('/security/request-access') }}" class="btn btn-primary">
+          <a href="{{ url('/security/request-access') }}" class="btn atom-btn-white">
             <i class="fas fa-arrow-up me-1"></i> Request Higher Clearance
           </a>
         </div>
@@ -52,14 +52,14 @@
   {{-- Object Access Grants --}}
   @if($accessGrants->isNotEmpty())
     <div class="card mb-4">
-      <div class="card-header bg-success text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-key me-2"></i>My Access Grants</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Object</th>
                 <th>Type</th>
                 <th>Scope</th>
@@ -113,7 +113,7 @@
 
   {{-- Request History --}}
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history me-2"></i>Request History</h5>
     </div>
     <div class="card-body p-0">
@@ -124,9 +124,9 @@
         </div>
       @else
         <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Type</th>
                 <th>Requested</th>
                 <th>Urgency</th>

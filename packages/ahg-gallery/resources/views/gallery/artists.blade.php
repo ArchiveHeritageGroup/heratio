@@ -31,7 +31,7 @@
       ])
 
       @auth
-        <a href="{{ route('gallery.artists.create') }}" class="btn btn-sm btn-success">
+        <a href="{{ route('gallery.artists.create') }}" class="btn btn-sm atom-btn-outline-success">
           <i class="fas fa-plus me-1"></i> Add new
         </a>
       @endauth
@@ -42,7 +42,7 @@
     <div class="table-responsive mb-3">
       <table class="table table-bordered table-striped mb-0">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Name</th>
             <th>Nationality</th>
             <th>Type</th>

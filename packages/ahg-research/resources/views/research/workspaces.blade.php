@@ -16,7 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2"><i class="fas fa-users-cog text-primary me-2"></i>Research Workspaces</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
+    <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
         <i class="fas fa-plus me-1"></i> New Workspace
     </button>
 </div>
@@ -26,7 +26,7 @@
         @foreach($workspaces as $ws)
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
                         <span class="badge bg-{{ $ws->visibility === 'private' ? 'dark' : ($ws->visibility === 'members' ? 'info' : 'success') }}">
                             <i class="fas fa-{{ $ws->visibility === 'private' ? 'lock' : ($ws->visibility === 'members' ? 'users' : 'globe') }} me-1"></i>
                             {{ ucfirst($ws->visibility) }}
@@ -63,7 +63,7 @@
             <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
             <h5>No Workspaces Yet</h5>
             <p class="text-muted">Create a private workspace to collaborate with other researchers.</p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
+            <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
                 <i class="fas fa-plus me-1"></i> Create Workspace
             </button>
         </div>
@@ -101,8 +101,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Create</button>
+                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i> Create</button>
                 </div>
             </form>
         </div>

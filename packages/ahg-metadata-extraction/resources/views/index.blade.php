@@ -5,16 +5,16 @@
 @section('content')
 
 <div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">Digital Objects</h5>
     <div>
-      <a href="{{ route('metadata-extraction.status') }}" class="btn btn-outline-secondary btn-sm me-2">
+      <a href="{{ route('metadata-extraction.status') }}" class="btn atom-btn-white btn-sm me-2">
         <i class="bi bi-info-circle me-1"></i>Status
       </a>
       @if($exifToolAvailable)
         <form action="{{ route('metadata-extraction.batchExtract') }}" method="POST" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Run batch extraction on up to 50 objects?')">
+          <button type="submit" class="btn atom-btn-outline-light btn-sm" onclick="return confirm('Run batch extraction on up to 50 objects?')">
             <i class="bi bi-lightning me-1"></i>Batch Extract
           </button>
         </form>
@@ -75,8 +75,8 @@
           </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-          <button type="submit" class="btn btn-secondary btn-sm me-2">Filter</button>
-          <a href="{{ route('metadata-extraction.index') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+          <button type="submit" class="btn atom-btn-outline-light btn-sm me-2">Filter</button>
+          <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">Clear</a>
         </div>
       </div>
     </form>
@@ -86,9 +86,9 @@
 
     @if($digitalObjects->count() > 0)
       <div class="table-responsive">
-        <table class="table table-striped table-hover">
+        <table class="table table-bordered table-striped table-hover">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>ID</th>
               <th>File Name</th>
               <th>MIME Type</th>
@@ -125,11 +125,11 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <a href="{{ route('metadata-extraction.view', $obj->id) }}" class="btn btn-outline-primary" title="View metadata">
+                    <a href="{{ route('metadata-extraction.view', $obj->id) }}" class="btn atom-btn-white" title="View metadata">
                       <i class="bi bi-eye"></i>
                     </a>
                     @if($exifToolAvailable)
-                      <button type="button" class="btn btn-outline-success extract-btn" data-id="{{ $obj->id }}" title="Extract metadata">
+                      <button type="button" class="btn atom-btn-outline-success extract-btn" data-id="{{ $obj->id }}" title="Extract metadata">
                         <i class="bi bi-download"></i>
                       </button>
                     @endif

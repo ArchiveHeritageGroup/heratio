@@ -9,11 +9,11 @@
 
   @auth
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('function.edit', $function->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a></li>
+      <li><a href="{{ route('function.edit', $function->slug) }}" class="btn btn-sm atom-btn-white">Edit</a></li>
       @can('admin')
-        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a></li>
+        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a></li>
       @endcan
-      <li><a href="{{ route('function.create') }}" class="btn btn-sm btn-outline-success">Add new</a></li>
+      <li><a href="{{ route('function.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a></li>
     </ul>
   @endauth
 

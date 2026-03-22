@@ -23,7 +23,7 @@
   {{-- Import result --}}
   @if($result)
     <div class="card border-success mb-4">
-      <div class="card-header bg-success text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-check-circle me-1"></i> Import Successful
       </div>
       <div class="card-body">
@@ -86,7 +86,7 @@
   <div class="row">
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Upload Exchange File</h5>
         </div>
         <div class="card-body">
@@ -142,8 +142,8 @@
             </div>
 
             <div class="d-flex gap-2">
-              <a href="{{ route('researcher.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
-              <button type="submit" class="btn btn-primary" id="importBtn">
+              <a href="{{ route('researcher.dashboard') }}" class="btn atom-btn-white">Cancel</a>
+              <button type="submit" class="btn atom-btn-outline-success" id="importBtn">
                 <i class="fas fa-file-import me-1"></i> Import
               </button>
             </div>
@@ -154,7 +154,7 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">Supported Types</h5>
         </div>
         <div class="card-body">

@@ -46,7 +46,7 @@
         <span class="small text-muted">View field definitions, source mappings, and standard compliance</span>
       </div>
     </div>
-    <a href="{{ route('glam.index') }}" class="btn btn-outline-secondary">
+    <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
   </div>
@@ -57,7 +57,7 @@
         $icon = $groupIcons[strtolower($groupName)] ?? 'fa-th-list';
       @endphp
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0">
             <i class="fas {{ $icon }} me-2"></i>
             {{ ucfirst($groupName) }}
@@ -66,8 +66,8 @@
         </div>
         <div class="card-body p-0">
           <table class="table table-bordered table-striped mb-0">
-            <thead class="table-light">
-              <tr>
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Field Name</th>
                 <th>Code</th>
                 <th>Type</th>
@@ -123,13 +123,13 @@
   @elseif(!empty($fields) && count($fields))
     {{-- Flat field list fallback when fieldGroups is not grouped --}}
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>All Fields <span class="badge bg-secondary ms-2">{{ count($fields) }}</span></h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
-          <thead class="table-light">
-            <tr>
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Field Name</th>
               <th>Code</th>
               <th>Type</th>

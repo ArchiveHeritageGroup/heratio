@@ -13,7 +13,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-server me-2"></i>SMTP Configuration</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-server me-2"></i>SMTP Configuration</div>
             <div class="card-body">
               @foreach ($smtpSettings as $setting)
                 <div class="mb-3">
@@ -37,7 +37,7 @@
           </div>
 
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
             <div class="card-body">
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
@@ -52,7 +52,7 @@
 
         <div class="col-md-6">
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-2"></i>Email Templates</div>
             <div class="card-body">
               <div class="alert alert-info small">
                 <strong>Available placeholders:</strong><br>
@@ -97,7 +97,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-bell me-2"></i>Notification Toggles</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Toggles</div>
         <div class="card-body">
           @foreach (['research_email_notifications' => 'Research notifications', 'access_request_email_notifications' => 'Access request notifications', 'workflow_email_notifications' => 'Workflow notifications'] as $key => $label)
             <div class="form-check form-switch mb-2">
@@ -109,8 +109,8 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
   </div>
 </div>

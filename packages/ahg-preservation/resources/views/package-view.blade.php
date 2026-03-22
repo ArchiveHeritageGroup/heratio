@@ -11,16 +11,16 @@
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-box-open"></i> {{ $package->name }}</h1>
-            <a href="{{ route('preservation.packages') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Packages</a>
+            <a href="{{ route('preservation.packages') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left"></i> Back to Packages</a>
         </div>
 
         {{-- Package Metadata --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-info-circle"></i> Package Metadata</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle"></i> Package Metadata</div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <table class="table table-sm table-borderless">
+                        <table class="table table-bordered table-sm table-borderless">
                             <tr><th class="text-muted" style="width:40%">UUID</th><td><code>{{ $package->uuid }}</code></td></tr>
                             <tr><th class="text-muted">Type</th><td>
                                 @if($package->package_type === 'SIP')
@@ -40,7 +40,7 @@
                         </table>
                     </div>
                     <div class="col-md-6">
-                        <table class="table table-sm table-borderless">
+                        <table class="table table-bordered table-sm table-borderless">
                             <tr><th class="text-muted" style="width:40%">Objects</th><td><span class="badge bg-primary">{{ $package->object_count }}</span></td></tr>
                             <tr><th class="text-muted">Total Size</th><td>{{ $package->total_size ? number_format($package->total_size / 1048576, 2) . ' MB' : '-' }}</td></tr>
                             <tr><th class="text-muted">Originator</th><td>{{ $package->originator ?? '-' }}</td></tr>
@@ -67,12 +67,12 @@
 
         {{-- Package Objects --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-file-archive"></i> Package Objects ({{ count($package->objects) }})</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-archive"></i> Package Objects ({{ count($package->objects) }})</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>#</th>
                                 <th>File Name</th>
                                 <th>Relative Path</th>
@@ -106,12 +106,12 @@
 
         {{-- Package Events --}}
         <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-history"></i> Package Events ({{ count($package->events) }})</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history"></i> Package Events ({{ count($package->events) }})</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>Date/Time</th>
                                 <th>Type</th>
                                 <th>Outcome</th>

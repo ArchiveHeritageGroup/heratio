@@ -13,10 +13,10 @@
       </div>
     </div>
     <div class="d-flex gap-2">
-      <a href="{{ route('researcher.import') }}" class="btn btn-info">
+      <a href="{{ route('researcher.import') }}" class="btn atom-btn-white">
         <i class="fas fa-file-import me-1"></i> Import Exchange
       </a>
-      <a href="{{ route('researcher.submissions') }}" class="btn btn-outline-secondary">
+      <a href="{{ route('researcher.submissions') }}" class="btn atom-btn-white">
         <i class="fas fa-list me-1"></i> All Submissions
       </a>
     </div>
@@ -76,16 +76,16 @@
 
   {{-- Recent submissions table --}}
   <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
+    <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">Recent Submissions</h5>
-      <a href="{{ route('researcher.submissions') }}" class="btn btn-sm btn-outline-primary">View All</a>
+      <a href="{{ route('researcher.submissions') }}" class="btn btn-sm atom-btn-white">View All</a>
     </div>
     <div class="card-body p-0">
       @if(count($recentSubmissions) > 0)
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Title</th>
                 @if($isAdmin)
                   <th>Researcher</th>

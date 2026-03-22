@@ -3,7 +3,7 @@
 @section('title-block')<h1><i class="fas fa-quote-right me-2"></i>Citation Generator</h1>@endsection
 @section('content')
 <div class="card mb-3">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Item Details</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Item Details</h5></div>
     <div class="card-body">
         @php
             $firstCitation = collect($citations)->first();
@@ -27,7 +27,7 @@
 </div>
 
 <div class="card">
-    <div class="card-header"><h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Citations</h5></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Citations</h5></div>
     <div class="card-body">
         @php
             $styleLabels = [
@@ -48,7 +48,7 @@
             @if(isset($citations[$style]) && !isset($citations[$style]['error']))
             <div class="input-group">
                 <textarea class="form-control" rows="3" readonly id="citation-{{ $style }}">{{ $citations[$style]['citation'] ?? '' }}</textarea>
-                <button class="btn btn-outline-secondary" type="button" onclick="copyCitation('{{ $style }}')" title="Copy to clipboard">
+                <button class="btn atom-btn-white" type="button" onclick="copyCitation('{{ $style }}')" title="Copy to clipboard">
                     <i class="fas fa-copy"></i>
                 </button>
             </div>

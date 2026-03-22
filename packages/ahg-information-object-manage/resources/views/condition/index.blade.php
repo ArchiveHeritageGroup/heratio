@@ -3,7 +3,7 @@
 @section('title', 'Condition Checks — ' . ($io->title ?? 'Untitled'))
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4">
 
   {{-- Breadcrumb --}}
   <nav aria-label="breadcrumb">
@@ -15,11 +15,11 @@
 
   {{-- Action bar --}}
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-outline-secondary">
+    <a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> Back
     </a>
     @auth
-      <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-success">
+      <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success">
         <i class="fas fa-plus me-1"></i> New Condition Check
       </a>
     @endauth
@@ -32,7 +32,7 @@
 
     {{-- Latest Condition card --}}
     <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> Latest Condition</h5>
       </div>
       <div class="card-body">
@@ -66,7 +66,7 @@
           <div class="col-md-3">
             <strong>Photos</strong>
             <p>
-              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
+              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm atom-btn-white">
                 <i class="fas fa-camera me-1"></i> View Photos
               </a>
             </p>
@@ -85,14 +85,14 @@
 
     {{-- Condition History card --}}
     <div class="card mb-4">
-      <div class="card-header">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-history me-2"></i> Condition History</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-striped table-hover mb-0">
-            <thead class="table-light">
-              <tr>
+          <table class="table table-bordered table-striped table-hover mb-0">
+            <thead>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Status</th>
                 <th>Type</th>
@@ -124,7 +124,7 @@
                   <td>{{ $check->assessor ?? '—' }}</td>
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
-                    <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary" title="View photos">
+                    <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm atom-btn-white" title="View photos">
                       <i class="fas fa-camera"></i>
                     </a>
                   </td>
@@ -148,7 +148,7 @@
         No condition assessments have been recorded for this resource yet.
       </p>
       @auth
-        <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn btn-success btn-lg">
+        <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success btn-lg">
           <i class="fas fa-plus me-1"></i> Create First Condition Check
         </a>
       @endauth

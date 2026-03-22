@@ -54,7 +54,7 @@
                     <p class="card-text small text-muted">{{ e(\Illuminate\Support\Str::limit($item->description, 100)) }}</p>
                     @endif
                     @if($eqStatus === 'available')
-                    <button class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#bookEquipment{{ $item->id }}"><i class="fas fa-calendar-plus me-1"></i>Book</button>
+                    <button class="btn atom-btn-white btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#bookEquipment{{ $item->id }}"><i class="fas fa-calendar-plus me-1"></i>Book</button>
                     @endif
                 </div>
             </div>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2" placeholder="Purpose or special requirements"></textarea></div>
             </div>
-            <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-calendar-check me-1"></i>Book Equipment</button></div>
+            <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-calendar-check me-1"></i>Book Equipment</button></div>
             </form>
         </div></div></div>
         @endforeach

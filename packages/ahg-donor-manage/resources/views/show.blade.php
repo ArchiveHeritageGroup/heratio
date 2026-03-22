@@ -8,9 +8,9 @@
 
   @auth
     <div class="mb-3">
-      <a href="{{ route('donor.edit', $donor->slug) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-      <a href="{{ route('donor.confirmDelete', $donor->slug) }}" class="btn btn-sm btn-outline-danger">Delete</a>
-      <a href="{{ route('donor.create') }}" class="btn btn-sm btn-outline-success">Add new</a>
+      <a href="{{ route('donor.edit', $donor->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
+      <a href="{{ route('donor.confirmDelete', $donor->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
+      <a href="{{ route('donor.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a>
     </div>
   @endauth
 
@@ -72,7 +72,7 @@
       <div class="table-responsive">
         <table class="table table-bordered table-striped mb-0">
           <thead>
-            <tr>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th>Identifier</th>
               <th>Title</th>
             </tr>

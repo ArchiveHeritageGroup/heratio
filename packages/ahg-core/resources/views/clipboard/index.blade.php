@@ -20,7 +20,7 @@
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex flex-wrap gap-2 ms-auto">
       <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
           Entity type: {{ $uiLabels[$type] ?? 'All' }}
         </button>
         <ul class="dropdown-menu">
@@ -44,9 +44,9 @@
         <p class="mb-0">No results for this entity type.</p>
       </div>
     @else
-      <table class="table table-striped table-hover">
+      <table class="table table-bordered table-striped table-hover">
         <thead>
-          <tr>
+          <tr style="background:var(--ahg-primary);color:#fff">
             <th>Name</th>
             <th>Type</th>
             <th class="text-end">Actions</th>
@@ -85,7 +85,7 @@
                 @endswitch
               </td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-danger clipboard-remove-btn"
+                <button class="btn btn-sm atom-btn-outline-danger clipboard-remove-btn"
                         data-clipboard-slug="{{ $item->slug }}"
                         data-clipboard-type="{{ $item->type }}"
                         title="Remove from clipboard">

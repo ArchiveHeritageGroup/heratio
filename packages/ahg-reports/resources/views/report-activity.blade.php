@@ -7,7 +7,7 @@
   <div class="col-md-3">
     @include('ahg-reports::_menu')
     <div class="card mb-3">
-      <div class="card-header"><i class="fas fa-filter me-2"></i>Filters</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Filters</div>
       <div class="card-body">
         <form method="get" action="{{ route('reports.activity') }}">
           <div class="mb-3">
@@ -44,7 +44,7 @@
               @endforeach
             </select>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>Filter</button>
+          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100"><i class="fas fa-search me-1"></i>Filter</button>
         </form>
       </div>
     </div>
@@ -59,13 +59,16 @@
     @else
       <div class="table-responsive">
         <table class="table table-bordered table-striped table-sm">
-          <thead><tr><th>Date</th><th>User</th><th>Action</th>
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
+            <th>Date</th><th>User</th><th>Action</th>
             @if($auditTable === 'ahg_audit_log')
               <th>Entity type</th><th>Entity</th>
             @else
               <th>Table</th><th>Record</th>
             @endif
-          </tr></thead>
+            </tr>
+          </thead>
           <tbody>
             @forelse($results as $row)
               <tr>

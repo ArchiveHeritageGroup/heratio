@@ -74,15 +74,15 @@
 
         {{-- Recent PREMIS Events --}}
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                 <i class="fas fa-history"></i> Recent PREMIS Events
-                <a href="{{ route('preservation.events') }}" class="btn btn-sm btn-outline-primary float-end">View All</a>
+                <a href="{{ route('preservation.events') }}" class="btn btn-sm atom-btn-white float-end">View All</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>Date/Time</th>
                                 <th>Type</th>
                                 <th>File</th>
@@ -118,15 +118,15 @@
 
         {{-- At-Risk Formats --}}
         <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                 <i class="fas fa-exclamation-triangle text-warning"></i> At-Risk Formats
-                <a href="{{ route('preservation.formats') }}" class="btn btn-sm btn-outline-primary float-end">View All Formats</a>
+                <a href="{{ route('preservation.formats') }}" class="btn btn-sm atom-btn-white float-end">View All Formats</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
-                        <thead class="table-light">
-                            <tr>
+                    <table class="table table-bordered table-sm table-striped mb-0">
+                        <thead>
+                            <tr style="background:var(--ahg-primary);color:#fff">
                                 <th>Format</th>
                                 <th>PUID</th>
                                 <th>MIME Type</th>

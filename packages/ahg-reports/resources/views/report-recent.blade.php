@@ -30,7 +30,7 @@
     </div>
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-sm">
-        <thead><tr><th>ID</th><th>Entity type</th><th>Created</th><th>Updated</th></tr></thead>
+        <thead>
         <tbody>
           @forelse($results as $row)
             <tr>

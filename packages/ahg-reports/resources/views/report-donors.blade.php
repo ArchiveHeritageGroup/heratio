@@ -13,12 +13,12 @@
       <h1><i class="fas fa-hand-holding-heart me-2"></i>Donor Report</h1>
       <div>
         <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
-        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm btn-outline-success ms-2"><i class="fas fa-file-csv me-1"></i>CSV</a>
+        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm atom-btn-outline-success ms-2"><i class="fas fa-file-csv me-1"></i>CSV</a>
       </div>
     </div>
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-sm">
-        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Created</th></tr></thead>
+        <thead>
         <tbody>
           @forelse($results as $row)
             <tr>

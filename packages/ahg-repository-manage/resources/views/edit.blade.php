@@ -100,8 +100,8 @@
 
             <div class="table-responsive">
               <table class="table table-bordered mb-0" id="contact-table">
-                <thead class="table-light">
-                  <tr>
+                <thead>
+                  <tr style="background:var(--ahg-primary);color:#fff">
                     <th class="w-80">Contact person</th>
                     <th class="w-20">Primary</th>
                     <th><span class="visually-hidden">Actions</span></th>
@@ -238,8 +238,8 @@
                   </div>
 
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success modal-submit" data-bs-dismiss="modal">Submit</button>
+                    <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn atom-btn-outline-success modal-submit" data-bs-dismiss="modal">Submit</button>
                   </div>
                 </div>
               </div>

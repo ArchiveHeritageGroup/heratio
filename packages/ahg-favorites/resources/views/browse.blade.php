@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1><i class="fas fa-heart me-2"></i>Favorites <span class="badge bg-primary">{{ $totalCount }}</span></h1>
   <div class="dropdown">
-    <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+    <button class="btn atom-btn-white dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li><a class="dropdown-item" href="{{ route('favorites.export.csv', request()->query()) }}"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
       <li><a class="dropdown-item" href="{{ route('favorites.export.json', request()->query()) }}"><i class="fas fa-file-code me-2"></i>Export JSON</a></li>
@@ -22,9 +22,9 @@
   {{-- Sidebar: Folders --}}
   <div class="col-md-3">
     <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <span>Folders</span>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newFolderModal"><i class="fas fa-plus"></i></button>
+        <button class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#newFolderModal"><i class="fas fa-plus"></i></button>
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('favorites.browse') }}" class="list-group-item list-group-item-action d-flex justify-content-between{{ empty($params['folder_id']) && empty($params['unfiled']) ? ' active' : '' }}">
@@ -49,12 +49,12 @@
       @php $activeFolder = $folders->firstWhere('id', $params['folder_id']); @endphp
       @if($activeFolder)
         <div class="card mb-3">
-          <div class="card-header">Folder actions</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">Folder actions</div>
           <div class="card-body">
             <form method="post" action="{{ route('favorites.folder.edit', $activeFolder->id) }}" class="mb-2">
               @csrf
               <input type="text" name="name" class="form-control form-control-sm mb-2" value="{{ e($activeFolder->name) }}">
-              <button type="submit" class="btn btn-sm btn-outline-primary w-100">Rename</button>
+              <button type="submit" class="btn btn-sm atom-btn-white w-100">Rename</button>
             </form>
             @if($activeFolder->share_token)
               <div class="alert alert-info small mb-2">
@@ -62,17 +62,17 @@
               </div>
               <form method="post" action="{{ route('favorites.folder.revoke', $activeFolder->id) }}" class="mb-2">
                 @csrf
-                <button type="submit" class="btn btn-sm btn-outline-warning w-100">Revoke sharing</button>
+                <button type="submit" class="btn btn-sm atom-btn-white w-100">Revoke sharing</button>
               </form>
             @else
               <form method="post" action="{{ route('favorites.folder.share', $activeFolder->id) }}" class="mb-2">
                 @csrf
-                <button type="submit" class="btn btn-sm btn-outline-info w-100"><i class="fas fa-share me-1"></i>Share folder</button>
+                <button type="submit" class="btn btn-sm atom-btn-white w-100"><i class="fas fa-share me-1"></i>Share folder</button>
               </form>
             @endif
             <form method="post" action="{{ route('favorites.folder.delete', $activeFolder->id) }}" onsubmit="return confirm('Delete folder? Items will be moved to unfiled.')">
               @csrf
-              <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>Delete folder</button>
+              <button type="submit" class="btn btn-sm atom-btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>Delete folder</button>
             </form>
           </div>
         </div>
@@ -92,7 +92,7 @@
         <option value="title" {{ ($params['sort'] ?? '') === 'title' ? 'selected' : '' }}>Title</option>
         <option value="reference_code" {{ ($params['sort'] ?? '') === 'reference_code' ? 'selected' : '' }}>Reference code</option>
       </select>
-      <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-search"></i></button>
+      <button type="submit" class="btn atom-btn-outline-light btn-sm"><i class="fas fa-search"></i></button>
     </form>
 
     @if($results->isEmpty())
@@ -112,7 +112,7 @@
               <option value="">Unfiled</option>
               @foreach($folders as $f)<option value="{{ $f->id }}">{{ $f->name }}</option>@endforeach
             </select>
-            <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
+            <button type="submit" class="btn btn-sm atom-btn-white">Apply</button>
           </div>
           <span class="text-muted small">{{ $total }} {{ Str::plural('item', $total) }}</span>
         </div>
@@ -120,7 +120,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th style="width:30px"></th>
                 <th>Title</th>
                 <th>Reference code</th>
@@ -144,7 +144,7 @@
                   <td>
                     <form method="post" action="{{ route('favorites.remove', $item->id) }}" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
                     </form>
                   </td>
                 </tr>
@@ -171,7 +171,7 @@
           <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
           <div class="mb-3"><label class="form-label">Color</label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Create</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Create</button></div>
       </div>
     </form>
   </div>
@@ -188,7 +188,7 @@
           <div class="mb-3"><label class="form-label">CSV file</label><input type="file" name="file" class="form-control" accept=".csv,.txt"></div>
           <div class="mb-3"><label class="form-label">Or paste slugs (one per line)</label><textarea name="slugs" class="form-control" rows="4"></textarea></div>
         </div>
-        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Import</button></div>
+        <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Import</button></div>
       </div>
     </form>
   </div>

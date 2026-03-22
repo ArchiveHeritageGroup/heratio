@@ -17,14 +17,14 @@
             </select>
         </form>
     </div>
-    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>New Request</button>
+    <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>New Request</button>
 </div>
 
 @if(count($requests) > 0)
 <div class="table-responsive">
-    <table class="table table-hover table-striped">
-        <thead class="table-light">
-            <tr>
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
                 <th>ID</th>
                 <th>Item</th>
                 <th>Type</th>
@@ -97,7 +97,7 @@
         <div class="mb-3"><label class="form-label">Specifications</label><textarea class="form-control" name="specifications" rows="2" placeholder="e.g. 300dpi colour scan, A3 size"></textarea></div>
         <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2" placeholder="Additional information or special instructions"></textarea></div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn btn-success"><i class="fas fa-paper-plane me-1"></i>Submit Request</button></div>
+    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>Submit Request</button></div>
     </form>
 </div></div></div>
 @endsection

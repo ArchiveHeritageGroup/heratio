@@ -27,7 +27,7 @@
     <div class="d-flex flex-wrap gap-2 ms-auto">
       @if($repositories->isNotEmpty())
         <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {{ $selectedRepository ? ($repositoryNames[$selectedRepository] ?? 'Repository') : 'Repository' }}
           </button>
           <ul class="dropdown-menu">

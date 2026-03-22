@@ -18,7 +18,7 @@
         <div id="ai-condition-collapse" class="accordion-collapse collapse" aria-labelledby="ai-condition-heading">
           <div class="accordion-body">
             <p>AI condition assessment settings are managed in the AHG settings section.</p>
-            <a href="{{ route('settings.ahg', 'ai_condition') }}" class="btn btn-primary">
+            <a href="{{ route('settings.ahg', 'ai_condition') }}" class="btn atom-btn-white">
               <i class="fas fa-robot me-1"></i>Go to AI Condition settings
             </a>
           </div>

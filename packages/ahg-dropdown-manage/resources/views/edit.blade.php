@@ -15,21 +15,21 @@
   {{-- Sidebar --}}
   <div class="col-lg-3 col-md-4 mb-4">
     <div class="card mb-3">
-      <div class="card-header bg-primary text-white">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
       </div>
       <div class="card-body">
-        <a href="{{ route('dropdown.index') }}" class="btn btn-outline-secondary w-100 mb-2">
+        <a href="{{ route('dropdown.index') }}" class="btn atom-btn-white w-100 mb-2">
           <i class="fas fa-arrow-left me-2"></i>Back to List
         </a>
-        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addTermModal">
+        <button type="button" class="btn atom-btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#addTermModal">
           <i class="fas fa-plus me-2"></i>Add Term
         </button>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header bg-light">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Info</h6>
       </div>
       <div class="card-body small">
@@ -56,7 +56,7 @@
     <h1 class="h3 mb-3"><i class="fas fa-list me-2"></i>{{ $taxonomyLabel }}</h1>
 
     <div class="card">
-      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <span><i class="fas fa-grip-lines me-2"></i>Drag to reorder</span>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="showInactive" checked>
@@ -64,9 +64,9 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-hover mb-0" id="termsTable">
-          <thead class="table-light">
-            <tr>
+        <table class="table table-bordered table-hover mb-0" id="termsTable">
+          <thead>
+            <tr style="background:var(--ahg-primary);color:#fff">
               <th style="width:40px"></th>
               <th>Label</th>
               <th style="width:140px">Code</th>
@@ -104,7 +104,7 @@
                          data-id="{{ $term->id }}" {{ $term->is_active ? 'checked' : '' }}>
                 </td>
                 <td class="text-center">
-                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete-term"
+                  <button type="button" class="btn btn-sm atom-btn-outline-danger btn-delete-term"
                           data-id="{{ $term->id }}" data-label="{{ $term->label }}" title="Delete term">
                     <i class="fas fa-times"></i>
                   </button>
@@ -153,8 +153,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success" id="addTermBtn">Add</button>
+        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn atom-btn-outline-success" id="addTermBtn">Add</button>
       </div>
     </div>
   </div>

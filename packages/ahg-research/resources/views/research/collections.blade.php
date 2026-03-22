@@ -15,7 +15,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-layer-group me-2"></i>Evidence Sets</h1>
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+    <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
       <i class="fas fa-plus me-1"></i>New Collection
     </button>
   </div>
@@ -37,13 +37,13 @@
             </div>
           </div>
           <div class="card-footer bg-transparent d-flex justify-content-end gap-1">
-            <a href="{{ route('research.viewCollection', $collection->id) }}" class="btn btn-sm btn-outline-primary">
+            <a href="{{ route('research.viewCollection', $collection->id) }}" class="btn btn-sm atom-btn-white">
               <i class="fas fa-eye"></i>
             </a>
             <form action="{{ route('research.collections.destroy', $collection->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this collection?')">
               @csrf
               @method('DELETE')
-              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+              <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
             </form>
           </div>
         </div>
@@ -83,8 +83,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success"><i class="fas fa-plus me-1"></i>Create</button>
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
           </div>
         </form>
       </div>

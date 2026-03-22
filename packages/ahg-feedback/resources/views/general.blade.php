@@ -24,7 +24,7 @@
 
       {{-- Feedback Type & Content --}}
       <div class="card shadow-sm mb-3">
-        <div class="card-header">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-comment-alt me-2"></i>Your Feedback
         </div>
         <div class="card-body">
@@ -54,7 +54,7 @@
 
       {{-- Contact Details --}}
       <div class="card shadow-sm mb-3">
-        <div class="card-header bg-light">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-address-card me-2"></i>Your Contact Details
         </div>
         <div class="card-body">
@@ -90,10 +90,10 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ url('/') }}" class="btn btn-outline-secondary">
+            <a href="{{ url('/') }}" class="btn atom-btn-white">
               <i class="fas fa-times me-1"></i>Cancel
             </a>
-            <button type="submit" class="btn btn-primary btn-lg">
+            <button type="submit" class="btn atom-btn-outline-success btn-lg">
               <i class="fas fa-paper-plane me-1"></i>Submit Feedback
             </button>
           </div>

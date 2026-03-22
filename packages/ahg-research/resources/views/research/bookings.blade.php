@@ -17,7 +17,7 @@
 
   {{-- Pending Confirmation --}}
   <div class="card mb-4">
-    <div class="card-header bg-warning text-dark">
+    <div class="card-header text-dark" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-hourglass-half me-2"></i>Pending Confirmation
       @if(count($pendingBookings ?? []) > 0)
         <span class="badge bg-dark">{{ count($pendingBookings) }}</span>
@@ -26,9 +26,9 @@
     <div class="card-body">
       @if(count($pendingBookings ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Time</th>
                 <th>Researcher</th>
@@ -48,18 +48,18 @@
                   </td>
                   <td>{{ e($booking->room_name ?? '-') }}</td>
                   <td>
-                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-outline-primary" title="View">
+                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm atom-btn-white" title="View">
                       <i class="fas fa-eye"></i>
                     </a>
                     <form action="{{ route('research.bookings.confirm', $booking->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-success" title="Confirm">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Confirm">
                         <i class="fas fa-check"></i>
                       </button>
                     </form>
                     <form action="{{ route('research.bookings.cancel', $booking->id) }}" method="POST" class="d-inline">
                       @csrf
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel">
+                      <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Cancel">
                         <i class="fas fa-times"></i>
                       </button>
                     </form>
@@ -77,15 +77,15 @@
 
   {{-- Upcoming Confirmed --}}
   <div class="card mb-4">
-    <div class="card-header">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <i class="fas fa-calendar-check me-2"></i>Upcoming Confirmed Bookings
     </div>
     <div class="card-body">
       @if(count($upcomingBookings ?? []) > 0)
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-bordered table-sm table-hover">
             <thead>
-              <tr>
+              <tr style="background:var(--ahg-primary);color:#fff">
                 <th>Date</th>
                 <th>Time</th>
                 <th>Researcher</th>
@@ -105,7 +105,7 @@
                   </td>
                   <td>{{ e($booking->room_name ?? '-') }}</td>
                   <td>
-                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm btn-outline-primary" title="View">
+                    <a href="{{ route('research.viewBooking', $booking->id) }}" class="btn btn-sm atom-btn-white" title="View">
                       <i class="fas fa-eye"></i>
                     </a>
                   </td>

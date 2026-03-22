@@ -31,7 +31,7 @@
 
     {{-- Account Creation --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-key me-2"></i>Account Details</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-key me-2"></i>Account Details</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -58,7 +58,7 @@
 
     {{-- Personal Information --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-user me-2"></i>Personal Information</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>Personal Information</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
@@ -92,7 +92,7 @@
 
     {{-- Identification --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-id-card me-2"></i>Identification</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-id-card me-2"></i>Identification</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -120,7 +120,7 @@
 
     {{-- Affiliation --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-university me-2"></i>Affiliation</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>Affiliation</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
@@ -159,7 +159,7 @@
 
     {{-- Research --}}
     <div class="card mb-4">
-      <div class="card-header"><i class="fas fa-microscope me-2"></i>Research</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="research_interests" class="form-label">Research Interests</label>
@@ -174,7 +174,7 @@
 
     <div class="d-flex justify-content-between">
       <a href="{{ route('login') }}" class="btn btn-link">Already have an account? Log in</a>
-      <button type="submit" class="btn btn-primary">
+      <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-paper-plane me-1"></i>Create Account &amp; Register
       </button>
     </div>
