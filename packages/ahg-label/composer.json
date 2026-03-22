@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-label",
+    "name": "ahg/label",
     "description": "Heratio Label package (migrated from ahgLabelPlugin)",
     "autoload": {
         "psr-4": {

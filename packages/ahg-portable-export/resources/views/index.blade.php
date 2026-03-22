@@ -33,15 +33,15 @@
           <label class="form-label fw-bold">Scope <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="scope" id="scope_all" value="all" checked>
-            <label class="form-check-label" for="scope_all">All — export the entire archive</label>
+            <label class="form-check-label" for="scope_all">All — export the entire archive <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="scope" id="scope_repository" value="repository">
-            <label class="form-check-label" for="scope_repository">Repository — export a single repository</label>
+            <label class="form-check-label" for="scope_repository">Repository — export a single repository <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="scope" id="scope_fonds" value="fonds">
-            <label class="form-check-label" for="scope_fonds">Fonds — export a single fonds</label>
+            <label class="form-check-label" for="scope_fonds">Fonds — export a single fonds <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           @error('scope')
             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -67,11 +67,11 @@
           <label class="form-label fw-bold">Mode <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="mode" id="mode_read_only" value="read_only" checked>
-            <label class="form-check-label" for="mode_read_only">Read Only — browsable HTML package for reference use</label>
+            <label class="form-check-label" for="mode_read_only">Read Only — browsable HTML package for reference use <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="mode" id="mode_archive" value="archive">
-            <label class="form-check-label" for="mode_archive">Archive — full importable archive package</label>
+            <label class="form-check-label" for="mode_archive">Archive — full importable archive package <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           @error('mode')
             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -95,15 +95,15 @@
           <label class="form-label fw-bold">Include <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="include_digital_objects" id="include_digital_objects" value="1">
-            <label class="form-check-label" for="include_digital_objects">Include digital objects (master files)</label>
+            <label class="form-check-label" for="include_digital_objects">Include digital objects (master files) <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="include_thumbnails" id="include_thumbnails" value="1">
-            <label class="form-check-label" for="include_thumbnails">Include thumbnails</label>
+            <label class="form-check-label" for="include_thumbnails">Include thumbnails <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="include_references" id="include_references" value="1">
-            <label class="form-check-label" for="include_references">Include reference copies</label>
+            <label class="form-check-label" for="include_references">Include reference copies <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
 

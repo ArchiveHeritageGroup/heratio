@@ -48,7 +48,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="ner_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="ner_enabled" id="ner_enabled" value="1" {{ ($settings['ner_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="ner_enabled">Enable Named Entity Recognition</label>
+            <label class="form-check-label" for="ner_enabled">Enable Named Entity Recognition <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
           <div class="mb-3">
             <label class="form-label">Confidence Threshold <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -63,7 +63,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="translation_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="translation_enabled" id="translation_enabled" value="1" {{ ($settings['translation_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="translation_enabled">Enable Auto-Translation</label>
+            <label class="form-check-label" for="translation_enabled">Enable Auto-Translation <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="spellcheck_enabled" value="0">
             <input class="form-check-input" type="checkbox" name="spellcheck_enabled" id="spellcheck_enabled" value="1" {{ ($settings['spellcheck_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="spellcheck_enabled">Enable Spellcheck</label>
+            <label class="form-check-label" for="spellcheck_enabled">Enable Spellcheck <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
       </div>

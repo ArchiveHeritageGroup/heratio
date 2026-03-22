@@ -481,6 +481,7 @@
               <div class="field-header">
                 <label for="culture">Culture/People</label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">4.4</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_CULTURES</span>
                 </span>
@@ -544,6 +545,7 @@
               <div class="field-header">
                 <label for="period">Period</label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">5.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_PERIODS</span>
                 </span>
@@ -657,6 +659,7 @@
                   <div class="field-header">
                     <label for="depth_value">Depth</label>
                     <span class="field-badges">
+                      <span class="badge badge-optional">Optional</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="depth_value" title="Help">
@@ -874,6 +877,7 @@
               <div class="field-header">
                 <label for="inscriptions">Inscriptions</label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">9.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="inscriptions" title="Help">
@@ -1289,6 +1293,7 @@
               <div class="cco-field">
                 <div class="field-header">
                   <label for="watermark_type_id">System Watermark</label>
+                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
                   <select name="watermark_type_id" id="watermark_type_id" class="form-select">
@@ -1304,6 +1309,7 @@
               <div class="cco-field">
                 <div class="field-header">
                   <label for="custom_watermark_id">Or use Custom Watermark</label>
+                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
                   <select name="custom_watermark_id" id="custom_watermark_id" class="form-select">
@@ -1321,6 +1327,7 @@
               <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
                 <div class="field-header">
                   <label>Upload NEW Custom Watermark</label>
+                  <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <p class="text-muted small">Leave empty to keep existing selection above</p>
 

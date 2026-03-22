@@ -93,7 +93,7 @@
                   <div class="panel-body">
                     <div class="mb-3 form-check">
                       <input class="form-check-input" name="skipUnmatched" id="skip-unmatched-input" type="checkbox"/>
-                      <label class="form-check-label" for="skip-unmatched-input">{{ __('Skip unmatched records') }}</label>
+                      <label class="form-check-label" for="skip-unmatched-input">{{ __('Skip unmatched records') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
 
                     <div class="criteria">
@@ -126,7 +126,7 @@
                   <div class="panel-body">
                     <div class="mb-3 form-check">
                       <input class="form-check-input" name="skipMatched" id="skip-matched-input" type="checkbox"/>
-                      <label class="form-check-label" for="skip-matched-input">{{ __('Skip matched records') }}</label>
+                      <label class="form-check-label" for="skip-matched-input">{{ __('Skip matched records') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                     </div>
                   </div>
                 </div>
@@ -135,13 +135,13 @@
 
             <div class="mb-3 form-check" id="noIndex">
               <input class="form-check-input" name="noIndex" id="no-index-input" type="checkbox"/>
-              <label class="form-check-label" for="no-index-input">{{ __('Do not index imported items') }}</label>
+              <label class="form-check-label" for="no-index-input">{{ __('Do not index imported items') }} <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
 
             @if('csv' == $type && sfConfig::get('app_csv_transform_script_name'))
               <div class="mb-3 form-check">
                 <input class="form-check-input" name="doCsvTransform" id="do-csv-transform-input" type="checkbox"/>
-                <label class="form-check-label" for="do-csv-transform-input" aria-described-by="do-csv-transform-help">{{ __('Include transformation script') }}</label>
+                <label class="form-check-label" for="do-csv-transform-input" aria-described-by="do-csv-transform-help">{{ __('Include transformation script') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-text" id="do-csv-transform-help">{{ __(sfConfig::get('app_csv_transform_script_name')) }}</div>
               </div>
             @endforeach

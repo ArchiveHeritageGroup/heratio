@@ -187,16 +187,16 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
           <hr>
           <div class="d-flex gap-2">
             @if($userClearance)
-              <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
+              <button type="button" class="btn atom-btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
                 <i class="fas fa-edit me-1"></i>{{ __('Change Clearance') }}
               </button>
               <a href="@php echo url_for('@security_clearance_revoke?id=' . $resource->id); @endphp" 
-                 class="btn btn-danger btn-sm"
+                 class="btn atom-btn-outline-danger btn-sm"
                  onclick="return confirm('{{ __('Are you sure you want to revoke this user\'s security clearance?') }}');">
                 <i class="fas fa-user-slash me-1"></i>{{ __('Revoke Clearance') }}
               </a>
             @php } else { @endphp
-              <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
+              <button type="button" class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
                 <i class="fas fa-user-shield me-1"></i>{{ __('Grant Clearance') }}
               </button>
             @endforeach

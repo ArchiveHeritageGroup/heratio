@@ -100,4 +100,44 @@ class TenantController extends Controller
     {
         return view('ahg-multi-tenant::unknown-tenant');
     }
+
+    /**
+     * Admin dashboard for tenant management.
+     */
+    public function admin()
+    {
+        $tenants = $this->service->getTenants();
+        $stats = [
+            'total' => count($tenants),
+            'active' => collect($tenants)->where('is_active', 1)->count(),
+        ];
+
+        return view('ahg-multi-tenant::admin', compact('tenants', 'stats'));
+    }
+
+    /**
+     * Handle POST actions for tenant management.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+        $id = (int) $request->get('id');
+
+        if ($action === 'delete' && $id) {
+            $this->service->deleteTenant($id);
+
+            return redirect()->route('tenant.index')->with('notice', 'Tenant deleted.');
+        }
+
+        if ($action === 'toggle_active' && $id) {
+            $tenant = $this->service->getTenant($id);
+            if ($tenant) {
+                $this->service->updateTenant($id, ['is_active' => !$tenant->is_active]);
+            }
+
+            return redirect()->route('tenant.index')->with('notice', 'Tenant status updated.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

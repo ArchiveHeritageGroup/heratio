@@ -1,1 +1,0 @@
-_tiff-pdf-merge-settings.blade.php

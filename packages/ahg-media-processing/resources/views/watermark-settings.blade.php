@@ -37,7 +37,7 @@
                     name="default_watermark_enabled" value="1"
                     {{ ($settings['default_watermark_enabled'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="default_watermark_enabled">
-                    <strong>Enable default watermark</strong>
+                    <strong>Enable default watermark</strong> <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                   <div class="form-text">Apply watermark to all images by default</div>
                 </div>
@@ -48,7 +48,7 @@
                     name="security_watermark_override" value="1"
                     {{ ($settings['security_watermark_override'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="security_watermark_override">
-                    <strong>Security classification override</strong>
+                    <strong>Security classification override</strong> <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                   <div class="form-text">Security classification watermarks take priority</div>
                 </div>
@@ -62,7 +62,7 @@
                     name="apply_watermark_on_view" value="1"
                     {{ ($settings['apply_watermark_on_view'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="apply_watermark_on_view">
-                    Apply watermark on view (IIIF)
+                    Apply watermark on view (IIIF) <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                 </div>
               </div>
@@ -72,7 +72,7 @@
                     name="apply_watermark_on_download" value="1"
                     {{ ($settings['apply_watermark_on_download'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="apply_watermark_on_download">
-                    Apply watermark on download
+                    Apply watermark on download <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                 </div>
               </div>

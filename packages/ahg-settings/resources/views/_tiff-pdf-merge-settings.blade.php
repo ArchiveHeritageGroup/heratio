@@ -27,12 +27,12 @@
         <div class="form-check form-switch mb-3">
           <input type="hidden" name="settings[tiff_pdf_ocr_enabled]" value="0">
           <input class="form-check-input" type="checkbox" name="settings[tiff_pdf_ocr_enabled]" id="tiff_ocr" value="1" {{ ($mergeSettings['tiff_pdf_ocr_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="tiff_ocr">Enable OCR on merged PDFs</label>
+          <label class="form-check-label" for="tiff_ocr">Enable OCR on merged PDFs <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         <div class="form-check form-switch mb-3">
           <input type="hidden" name="settings[tiff_pdf_compress]" value="0">
           <input class="form-check-input" type="checkbox" name="settings[tiff_pdf_compress]" id="tiff_compress" value="1" {{ ($mergeSettings['tiff_pdf_compress'] ?? '1') == '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="tiff_compress">Compress output PDF</label>
+          <label class="form-check-label" for="tiff_compress">Compress output PDF <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
     </div>

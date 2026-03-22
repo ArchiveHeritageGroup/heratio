@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-mods-manage",
+    "name": "ahg/mods-manage",
     "description": "Heratio ModsManage package (migrated from ahgModsManagePlugin)",
     "autoload": {
         "psr-4": {

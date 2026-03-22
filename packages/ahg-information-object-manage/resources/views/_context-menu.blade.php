@@ -164,7 +164,7 @@ if (isset($resource)) {
       <div class="modal-body" id="nerModalBody"></div>
       <div class="modal-footer">
         <span id="nerProcessingTime" class="text-muted small me-auto"></span>
-        <a href="/ner/review" class="btn btn-success ctx-hidden" id="nerReviewBtn">Review & Link</a>
+        <a href="/ner/review" class="btn atom-btn-white ctx-hidden" id="nerReviewBtn">Review & Link</a>
         <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -440,7 +440,7 @@ function scanForPii(objectId) {
           html += '</div>';
         }
         html += '</div>';
-        html += '<a href="/admin/privacy/redaction/' + objectId + '" class="btn btn-sm btn-warning mt-2"><i class="bi bi-eraser me-1"></i>Review & Redact</a>';
+        html += '<a href="/admin/privacy/redaction/' + objectId + '" class="btn btn-sm atom-btn-outline-warning mt-2"><i class="bi bi-eraser me-1"></i>Review & Redact</a>';
         resultDiv.innerHTML = html;
       }
       resultDiv.classList.remove('ctx-hidden');

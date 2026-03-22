@@ -38,7 +38,7 @@
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="settings[ahg_central_enabled]" value="0">
             <input class="form-check-input" type="checkbox" name="settings[ahg_central_enabled]" id="ahg_central_enabled" value="1" {{ ($settings['ahg_central_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-            <label class="form-check-label" for="ahg_central_enabled">Enable AHG Central Integration</label>
+            <label class="form-check-label" for="ahg_central_enabled">Enable AHG Central Integration <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-text">Allow this instance to communicate with AHG Central services.</div>
           </div>
           <div class="mb-3">

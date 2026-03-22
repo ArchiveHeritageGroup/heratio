@@ -28,9 +28,9 @@
 </div></div>
 @if(($assertion->status ?? '') === 'pending')
 <div class="card"><div class="card-header"><h6 class="mb-0">Actions</h6></div><div class="card-body d-flex flex-wrap gap-2">
-    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="approve" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>Approve</button></form>
-    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="reject" class="btn btn-danger btn-sm"><i class="fas fa-times me-1"></i>Reject</button></form>
-    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="flag" class="btn btn-warning btn-sm"><i class="fas fa-flag me-1"></i>Flag</button></form>
+    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="approve" class="btn atom-btn-white btn-sm"><i class="fas fa-check me-1"></i>Approve</button></form>
+    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="reject" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-times me-1"></i>Reject</button></form>
+    <form method="POST" class="d-inline">@csrf <input type="hidden" name="assertion_id" value="{{ $assertion->id ?? 0 }}"><button type="submit" name="action" value="flag" class="btn atom-btn-outline-warning btn-sm"><i class="fas fa-flag me-1"></i>Flag</button></form>
 </div></div>
 @endif
 </div></div>

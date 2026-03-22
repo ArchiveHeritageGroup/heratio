@@ -69,7 +69,7 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordA->id ?? '' }}" id="primaryA" checked>
                   <label class="form-check-label fw-bold" for="primaryA">
-                    Record A (Keep This)
+                    Record A (Keep This) <span class="badge bg-secondary ms-1">Required</span>
                   </label>
                 </div>
               </div>
@@ -100,7 +100,7 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordB->id ?? '' }}" id="primaryB">
                   <label class="form-check-label fw-bold" for="primaryB">
-                    Record B (Keep This)
+                    Record B (Keep This) <span class="badge bg-secondary ms-1">Required</span>
                   </label>
                 </div>
               </div>
@@ -168,12 +168,12 @@
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="confirmMerge" required>
           <label class="form-check-label" for="confirmMerge">
-            I understand that this action is permanent and cannot be undone.
+            I understand that this action is permanent and cannot be undone. <span class="badge bg-secondary ms-1">Required</span>
           </label>
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-danger" id="mergeBtn" disabled>
+          <button type="submit" class="btn atom-btn-outline-danger" id="mergeBtn" disabled>
             <i class="fas fa-compress-arrows-alt me-1"></i> Merge Records
           </button>
           <a href="{{ route('dedupe.compare', $duplicate->id) }}" class="btn atom-btn-white">

@@ -134,4 +134,33 @@ class SemanticSearchController extends Controller
 
         return view('ahg-semantic-search::history', compact('history'));
     }
+
+    /**
+     * Handle POST actions for semantic search.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+
+        if ($action === 'delete_term') {
+            $id = (int) $request->get('id');
+            $this->service->deleteTerm($id);
+
+            return redirect()->route('semantic-search.terms')->with('notice', 'Term deleted.');
+        }
+
+        if ($action === 'sync') {
+            $this->service->syncTerms();
+
+            return redirect()->route('semantic-search.index')->with('notice', 'Terms synced.');
+        }
+
+        if ($action === 'clear_history') {
+            $this->service->clearSearchHistory(auth()->id());
+
+            return redirect()->route('semantic-search.history')->with('notice', 'Search history cleared.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

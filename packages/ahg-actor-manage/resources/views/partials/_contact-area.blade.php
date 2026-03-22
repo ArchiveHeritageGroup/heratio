@@ -181,7 +181,7 @@
         <div class="form-check">
           <input type="checkbox" name="contacts[{{ $index }}][primary_contact]" value="1" class="form-check-input primary-contact-check"
                  @checked(!empty($contact->primary_contact))>
-          <label class="form-check-label">Primary contact</label>
+          <label class="form-check-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
     </div>
@@ -354,7 +354,7 @@
 
         <div class="form-check">
           <input type="checkbox" name="contacts[__INDEX__][primary_contact]" value="1" class="form-check-input primary-contact-check">
-          <label class="form-check-label">Primary contact</label>
+          <label class="form-check-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
     </div>

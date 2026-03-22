@@ -72,7 +72,7 @@ try {
     @endif
     
     @if(!empty($_GET))
-    <button type="button" class="btn btn-sm btn-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveSearchModal">
+    <button type="button" class="btn btn-sm atom-btn-white py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveSearchModal">
       <i class="fa fa-bookmark me-1"></i>{{ __('Save Search') }}
     </button>
     @endif

@@ -1,1 +1,0 @@
-ahg-integration.blade.php

@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-rad-manage",
+    "name": "ahg/rad-manage",
     "description": "Heratio RadManage package (migrated from ahgRadManagePlugin)",
     "autoload": {
         "psr-4": {

@@ -423,7 +423,7 @@
       <div class="modal-footer">
         <form action="{{ route('favorites.folder.revoke', $activeFolder->id) }}" method="post" class="d-inline">
           @csrf
-          <button type="submit" class="btn btn-danger" onclick="return confirm('Revoke sharing? The link will no longer work.');">
+          <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Revoke sharing? The link will no longer work.');">
             <i class="fas fa-ban me-1"></i>Revoke Sharing
           </button>
         </form>

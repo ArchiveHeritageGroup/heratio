@@ -190,6 +190,41 @@ class IpsasController extends Controller
         return view('ahg-ipsas::config', compact('config'));
     }
 
+    /**
+     * Admin dashboard for IPSAS configuration.
+     */
+    public function admin()
+    {
+        $config = $this->service->getAllConfig();
+        $stats = $this->service->getDashboardStats();
+
+        return view('ahg-ipsas::admin', compact('config', 'stats'));
+    }
+
+    /**
+     * Handle POST actions for IPSAS.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+
+        if ($action === 'delete_asset') {
+            $id = (int) $request->get('id');
+            $this->service->deleteAsset($id);
+
+            return redirect()->route('ipsas.assets')->with('notice', 'Asset deleted.');
+        }
+
+        if ($action === 'recalculate') {
+            $year = $request->get('year', date('Y'));
+            $this->service->calculateFinancialYearSummary($year);
+
+            return redirect()->route('ipsas.financialYear', ['year' => $year])->with('notice', 'Financial year recalculated.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
+
     protected function generateReport(string $report, string $year)
     {
         $assets = $this->service->getAssets([]);

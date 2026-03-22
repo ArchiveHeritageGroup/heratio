@@ -44,7 +44,7 @@
                 <div class="rename-form-field-toggle form-check mb-4">
                   <input class="form-check-input" type="checkbox" id="rename_enable_title" checked>
                   <label class="form-check-label" for="rename_enable_title">
-                    Update title
+                    Update title <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                 </div>
                 <div class="mb-3">
@@ -61,7 +61,7 @@
                 <div class="rename-form-field-toggle form-check mb-4">
                   <input class="form-check-input" type="checkbox" id="rename_enable_slug" checked>
                   <label class="form-check-label" for="rename_enable_slug">
-                    Update slug
+                    Update slug <span class="badge bg-secondary ms-1">Optional</span>
                   </label>
                 </div>
                 <div class="mb-3">
@@ -76,7 +76,7 @@
                   <div class="rename-form-field-toggle form-check mb-4">
                     <input class="form-check-input" type="checkbox" id="rename_enable_filename" checked>
                     <label class="form-check-label" for="rename_enable_filename">
-                      Update filename
+                      Update filename <span class="badge bg-secondary ms-1">Optional</span>
                     </label>
                   </div>
                   <div class="mb-3">

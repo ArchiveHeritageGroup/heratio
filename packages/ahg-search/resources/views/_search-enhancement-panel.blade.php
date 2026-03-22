@@ -136,27 +136,27 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
-            {{ __('Make public (shareable link)') }}
+            {{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
 	<div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
-            <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }}
+            <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
         @if($user->isAdministrator())
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-global">
           <label class="form-check-label" for="save-search-global">
-            <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }}
+            <i class="fa fa-globe me-1"></i>{{ __('Global (visible to all users)') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
         @endif
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-notify">
           <label class="form-check-label" for="save-search-notify">
-            {{ __('Notify me of new results') }}
+            {{ __('Notify me of new results') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
         <div class="mb-3" id="notify-frequency-group" style="display:none;">

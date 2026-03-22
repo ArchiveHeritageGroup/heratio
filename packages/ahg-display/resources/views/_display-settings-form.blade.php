@@ -165,7 +165,7 @@ $moduleLabels = [
                                            id="edit_avail_@php echo $mode; @endphp">
                                     <label class="form-check-label" for="edit_avail_@php echo $mode; @endphp">
                                         <i class="bi @php echo $info['icon']; @endphp me-1"></i>
-                                        @php echo $info['name']; @endphp
+                                        @php echo $info['name']; @endphp <span class="badge bg-secondary ms-1">Optional</span>
                                     </label>
                                 </div>
                             @php endforeach; @endphp
@@ -214,7 +214,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_thumbnails" id="editShowThumbnails" value="1">
                                                 <label class="form-check-label" for="editShowThumbnails">
-                                                    Show Thumbnails
+                                                    Show Thumbnails <span class="badge bg-secondary ms-1">Optional</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_descriptions" id="editShowDescriptions" value="1">
                                                 <label class="form-check-label" for="editShowDescriptions">
-                                                    Show Descriptions
+                                                    Show Descriptions <span class="badge bg-secondary ms-1">Optional</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -232,7 +232,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="allow_user_override" id="editAllowOverride" value="1">
                                                 <label class="form-check-label" for="editAllowOverride">
-                                                    Allow User Override
+                                                    Allow User Override <span class="badge bg-secondary ms-1">Optional</span>
                                                 </label>
                                             </div>
                                         </div>

@@ -84,7 +84,7 @@
                 <div class="col-md-4">
                   <div class="form-check form-switch mt-4">
                     <input class="form-check-input" type="checkbox" name="is_default" value="1" id="is_default" {{ ($scheme->is_default ?? false) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_default">Set as default</label>
+                    <label class="form-check-label" for="is_default">Set as default <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

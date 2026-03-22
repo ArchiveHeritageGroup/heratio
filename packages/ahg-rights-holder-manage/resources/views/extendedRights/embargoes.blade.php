@@ -44,7 +44,7 @@
                 @endif
               </td>
               <td>
-                <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to lift this embargo?');">
+                <a href="{{ route('extended-rights.lift-embargo', $embargo->id) }}" class="btn btn-sm atom-btn-white" onclick="return confirm('Are you sure you want to lift this embargo?');">
                   <i class="fas fa-unlock"></i> Lift
                 </a>
               </td>

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2fc2f287a638cd93e6ca4c925f576244",
+    "content-hash": "fee847c386eccc070fd9c173aa06a1fa",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -31,6 +31,36 @@
                 }
             },
             "description": "3D model thumbnail generation and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/access-request",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-access-request",
+                "reference": "34bd8e7199d85abb33f415cdd26e7d0fb9cbb67b"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAccessRequest\\Providers\\AhgAccessRequestServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAccessRequest\\": "src/"
+                }
+            },
+            "description": "Access request management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -200,6 +230,33 @@
             }
         },
         {
+            "name": "ahg/api-plugin",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-api-plugin",
+                "reference": "db695d8acc17bba251f4a86ea725752e71eee36b"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgApiPlugin\\Providers\\AhgApiPluginServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgApiPlugin\\": "src/"
+                }
+            },
+            "description": "Heratio ApiPlugin package (migrated from ahgAPIPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/audit-trail",
             "version": "dev-main",
             "dist": {
@@ -290,6 +347,63 @@
             }
         },
         {
+            "name": "ahg/cdpa",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-cdpa",
+                "reference": "7c91f0667a182019ec755714a1b249fe5748b058"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgCdpa\\Providers\\AhgCdpaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgCdpa\\": "src/"
+                }
+            },
+            "description": "Heratio Cdpa package (migrated from ahgCDPAPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/condition",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-condition",
+                "reference": "67b77de2e2f7dffb0fcd30b27faff7f0dd497bd4"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgCondition\\Providers\\AhgConditionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgCondition\\": "src/"
+                }
+            },
+            "description": "Condition report photo annotation for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/core",
             "version": "dev-main",
             "dist": {
@@ -319,6 +433,63 @@
                 "proprietary"
             ],
             "description": "AHG Core - Eloquent models and base services for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/custom-fields",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-custom-fields",
+                "reference": "95de39f37a18142315d06780f89f2b711e748a7f"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgCustomFields\\Providers\\AhgCustomFieldsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgCustomFields\\": "src/"
+                }
+            },
+            "description": "Custom field definitions and values management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/dacs-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-dacs-manage",
+                "reference": "87b60bbfe3f4beaf46b1288957902731f8670535"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDacsManage\\Providers\\AhgDacsManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDacsManage\\": "src/"
+                }
+            },
+            "description": "Heratio DacsManage package (migrated from ahgDacsManagePlugin)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -385,6 +556,33 @@
             }
         },
         {
+            "name": "ahg/dc-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-dc-manage",
+                "reference": "d74eb32679ae248a20a0c880891a267355e0fc99"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDcManage\\Providers\\AhgDcManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDcManage\\": "src/"
+                }
+            },
+            "description": "Heratio DcManage package (migrated from ahgDcManagePlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/dedupe",
             "version": "dev-main",
             "dist": {
@@ -409,6 +607,33 @@
                 }
             },
             "description": "Duplicate detection and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/discovery",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-discovery",
+                "reference": "1560a6a79eb8304781331263378110eb2db99886"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgDiscovery\\Providers\\AhgDiscoveryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgDiscovery\\": "src/"
+                }
+            },
+            "description": "Heratio Discovery package (migrated from ahgDiscoveryPlugin)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -532,6 +757,66 @@
             }
         },
         {
+            "name": "ahg/exhibition",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-exhibition",
+                "reference": "0cb867eeb4fb40b6bd9e5791bf929425d8e14016"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgExhibition\\Providers\\AhgExhibitionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgExhibition\\": "src/"
+                }
+            },
+            "description": "Exhibition management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/export",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-export",
+                "reference": "8c8d58ef90540f4ecda536bbd6a3bbac15a405e4"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgExport\\Providers\\AhgExportServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgExport\\": "src/"
+                }
+            },
+            "description": "Export management for Heratio (CSV, EAD, archival, authority, repository exports)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/favorites",
             "version": "dev-main",
             "dist": {
@@ -562,6 +847,36 @@
             }
         },
         {
+            "name": "ahg/federation",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-federation",
+                "reference": "b96b82427ef65c029335501b7947ab56d3ae7c23"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFederation\\Providers\\AhgFederationServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFederation\\": "src/"
+                }
+            },
+            "description": "Federation and OAI-PMH peer harvesting for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/feedback",
             "version": "dev-main",
             "dist": {
@@ -586,6 +901,36 @@
                 }
             },
             "description": "Feedback submission for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/forms",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-forms",
+                "reference": "274379a0c518ca2d9cbd665545e1126d5b172783"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgForms\\Providers\\AhgFormsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgForms\\": "src/"
+                }
+            },
+            "description": "Form template builder for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -682,6 +1027,63 @@
             }
         },
         {
+            "name": "ahg/gis",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-gis",
+                "reference": "9ff615e647cdd49d7e6857e1b55688ee3664cc97"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgGis\\Providers\\AhgGisServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgGis\\": "src/"
+                }
+            },
+            "description": "GIS spatial search (bounding box, radius, GeoJSON) for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/graphql",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-graphql",
+                "reference": "9c2d01d2e66ade5ad5b6aee75aed265629de1b24"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgGraphql\\Providers\\AhgGraphqlServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgGraphql\\": "src/"
+                }
+            },
+            "description": "Heratio Graphql package (migrated from ahgGraphQLPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/help",
             "version": "dev-main",
             "dist": {
@@ -736,6 +1138,33 @@
                 }
             },
             "description": "Heritage Admin, Analytics, and Custodian dashboards for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/icip",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-icip",
+                "reference": "62218eff6e13b41087fde8956769edb7ad1f2f23"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgIcip\\Providers\\AhgIcipServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgIcip\\": "src/"
+                }
+            },
+            "description": "Heratio Icip package (migrated from ahgICIPPlugin)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -802,6 +1231,36 @@
             }
         },
         {
+            "name": "ahg/ingest",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ingest",
+                "reference": "043e6548da8f36bf7a5791880b2cd71d67352acc"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgIngest\\Providers\\AhgIngestServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgIngest\\": "src/"
+                }
+            },
+            "description": "Ingestion manager for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/integrity",
             "version": "dev-main",
             "dist": {
@@ -832,6 +1291,36 @@
             }
         },
         {
+            "name": "ahg/ipsas",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ipsas",
+                "reference": "f6b4e5d303bc60882d5a3b8f3de4a7dfcec4c667"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgIpsas\\Providers\\AhgIpsasServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgIpsas\\": "src/"
+                }
+            },
+            "description": "IPSAS heritage asset management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/jobs-manage",
             "version": "dev-main",
             "dist": {
@@ -856,6 +1345,63 @@
                 }
             },
             "description": "Background jobs browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/label",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-label",
+                "reference": "b72275331e36bb0ab44a8fb22f7b1be26cedc3f6"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgLabel\\Providers\\AhgLabelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgLabel\\": "src/"
+                }
+            },
+            "description": "Heratio Label package (migrated from ahgLabelPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/landing-page",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-landing-page",
+                "reference": "cb515d5d65c6e0e9b22fb2f5a4ac15e10a9a665d"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgLandingPage\\Providers\\AhgLandingPageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgLandingPage\\": "src/"
+                }
+            },
+            "description": "Landing page builder for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -916,6 +1462,33 @@
                 }
             },
             "description": "Loan management for Heratio: agreements, objects, returns, condition reports, facility reports, courier tracking",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/marketplace",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-marketplace",
+                "reference": "fa5f366a2e083af7351d73c1bfc68c114d855b91"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMarketplace\\Providers\\AhgMarketplaceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMarketplace\\": "src/"
+                }
+            },
+            "description": "Heratio Marketplace package (migrated from ahgMarketplacePlugin)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1018,6 +1591,36 @@
             }
         },
         {
+            "name": "ahg/metadata-export",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-metadata-export",
+                "reference": "e5ce649085627b1d55ef824b53cbc2ce2e610c00"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMetadataExport\\Providers\\AhgMetadataExportServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMetadataExport\\": "src/"
+                }
+            },
+            "description": "Metadata export in multiple RDF/linked data formats for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/metadata-extraction",
             "version": "dev-main",
             "dist": {
@@ -1048,6 +1651,63 @@
             }
         },
         {
+            "name": "ahg/mods-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-mods-manage",
+                "reference": "f9be05d9b303d65d30c11bae9b478497e224b1e2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgModsManage\\Providers\\AhgModsManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgModsManage\\": "src/"
+                }
+            },
+            "description": "Heratio ModsManage package (migrated from ahgModsManagePlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/multi-tenant",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-multi-tenant",
+                "reference": "a2d5d91514fa4455726e8dfc9ea50e470a02bbdf"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgMultiTenant\\Providers\\AhgMultiTenantServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgMultiTenant\\": "src/"
+                }
+            },
+            "description": "Multi-tenant management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/museum",
             "version": "dev-main",
             "dist": {
@@ -1072,6 +1732,63 @@
                 }
             },
             "description": "Museum cataloguing (CCO standard) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/naz",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-naz",
+                "reference": "d0ff81bb19cbdeab853a80e41f22d66913fe3f2a"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgNaz\\Providers\\AhgNazServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgNaz\\": "src/"
+                }
+            },
+            "description": "Heratio Naz package (migrated from ahgNAZPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/nmmz",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-nmmz",
+                "reference": "f8105dc7863d5d7f6257f9d3eb8c6c62825f76fe"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgNmmz\\Providers\\AhgNmmzServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgNmmz\\": "src/"
+                }
+            },
+            "description": "NMMZ (National Museums and Monuments of Zimbabwe) compliance management for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1192,6 +1909,120 @@
                 }
             },
             "description": "Digital preservation management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/privacy",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-privacy",
+                "reference": "bce4cd9e3000f912e8b186cdc76b96300ba158af"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgPrivacy\\Providers\\AhgPrivacyServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgPrivacy\\": "src/"
+                }
+            },
+            "description": "Heratio Privacy package (migrated from ahgPrivacyPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/provenance",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-provenance",
+                "reference": "493b12f8281290e65bda3d8c92bbd53cd99b5e41"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgProvenance\\Providers\\AhgProvenanceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgProvenance\\": "src/"
+                }
+            },
+            "description": "Provenance tracking and chain of custody for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/rad-manage",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-rad-manage",
+                "reference": "5c882bf191baff332f6d8bf38e48f816ff516a7d"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRadManage\\Providers\\AhgRadManageServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRadManage\\": "src/"
+                }
+            },
+            "description": "Heratio RadManage package (migrated from ahgRadManagePlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/registry",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-registry",
+                "reference": "8ed62b0e968a00f94afa5135a8c650c69d8c0449"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgRegistry\\Providers\\AhgRegistryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgRegistry\\": "src/"
+                }
+            },
+            "description": "Registry / Community Hub for Heratio — institutions, vendors, software, standards, groups, blog, discussions",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1438,6 +2269,36 @@
             }
         },
         {
+            "name": "ahg/semantic-search",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-semantic-search",
+                "reference": "af74b9ac8e338edd81a0706d62b7f73321de563a"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSemanticSearch\\Providers\\AhgSemanticSearchServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSemanticSearch\\": "src/"
+                }
+            },
+            "description": "Semantic search and search enhancement for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/settings",
             "version": "dev-main",
             "dist": {
@@ -1468,6 +2329,33 @@
             }
         },
         {
+            "name": "ahg/spectrum",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-spectrum",
+                "reference": "6c4473c1d0a49db1beeb009a510f5de473ede034"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSpectrum\\Providers\\AhgSpectrumServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSpectrum\\": "src/"
+                }
+            },
+            "description": "Heratio Spectrum package (migrated from ahgSpectrumPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/static-page",
             "version": "dev-main",
             "dist": {
@@ -1492,6 +2380,36 @@
                 }
             },
             "description": "Static page display for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/statistics",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-statistics",
+                "reference": "cb919181675ce5bb1d35666a8291c481522a1694"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgStatistics\\Providers\\AhgStatisticsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgStatistics\\": "src/"
+                }
+            },
+            "description": "Usage statistics and analytics for Heratio",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1592,6 +2510,36 @@
             }
         },
         {
+            "name": "ahg/translation",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-translation",
+                "reference": "e9811e6e885ab9d3b5177818d0027113340af5d1"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgTranslation\\Providers\\AhgTranslationServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgTranslation\\": "src/"
+                }
+            },
+            "description": "Translation management and settings for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/user-manage",
             "version": "dev-main",
             "dist": {
@@ -1616,6 +2564,33 @@
                 }
             },
             "description": "User browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/vendor",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-vendor",
+                "reference": "5249714cefee8a6b392dcfdb3a5de813921a3fe7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgVendor\\Providers\\AhgVendorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgVendor\\": "src/"
+                }
+            },
+            "description": "Heratio Vendor package (migrated from ahgVendorPlugin)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -10033,44 +11008,73 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "ahg/3d-model": 20,
+        "ahg/access-request": 20,
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
-        "ahg/dam": 20,
-        "ahg/gallery": 20,
-        "ahg/library": 20,
-        "ahg/museum": 20,
         "ahg/ai-services": 20,
         "ahg/api": 20,
+        "ahg/api-plugin": 20,
         "ahg/audit-trail": 20,
         "ahg/backup": 20,
         "ahg/cart": 20,
+        "ahg/cdpa": 20,
+        "ahg/condition": 20,
         "ahg/core": 20,
+        "ahg/custom-fields": 20,
+        "ahg/dacs-manage": 20,
+        "ahg/dam": 20,
         "ahg/data-migration": 20,
+        "ahg/dc-manage": 20,
         "ahg/dedupe": 20,
+        "ahg/discovery": 20,
         "ahg/display": 20,
         "ahg/doi-manage": 20,
         "ahg/donor-manage": 20,
         "ahg/dropdown-manage": 20,
+        "ahg/exhibition": 20,
+        "ahg/export": 20,
         "ahg/favorites": 20,
+        "ahg/federation": 20,
         "ahg/feedback": 20,
+        "ahg/forms": 20,
         "ahg/ftp-upload": 20,
         "ahg/function-manage": 20,
+        "ahg/gallery": 20,
+        "ahg/gis": 20,
+        "ahg/graphql": 20,
         "ahg/help": 20,
         "ahg/heritage-manage": 20,
+        "ahg/icip": 20,
         "ahg/iiif-collection": 20,
         "ahg/information-object-manage": 20,
+        "ahg/ingest": 20,
         "ahg/integrity": 20,
+        "ahg/ipsas": 20,
         "ahg/jobs-manage": 20,
+        "ahg/label": 20,
+        "ahg/landing-page": 20,
+        "ahg/library": 20,
         "ahg/loan": 20,
+        "ahg/marketplace": 20,
         "ahg/media-processing": 20,
         "ahg/media-streaming": 20,
         "ahg/menu-manage": 20,
+        "ahg/metadata-export": 20,
         "ahg/metadata-extraction": 20,
+        "ahg/mods-manage": 20,
+        "ahg/multi-tenant": 20,
+        "ahg/museum": 20,
+        "ahg/naz": 20,
+        "ahg/nmmz": 20,
         "ahg/oai": 20,
         "ahg/pdf-tools": 20,
         "ahg/portable-export": 20,
         "ahg/preservation": 20,
+        "ahg/privacy": 20,
+        "ahg/provenance": 20,
+        "ahg/rad-manage": 20,
+        "ahg/registry": 20,
         "ahg/reports": 20,
         "ahg/repository-manage": 20,
         "ahg/request-publish": 20,
@@ -10079,12 +11083,17 @@
         "ahg/ric": 20,
         "ahg/rights-holder-manage": 20,
         "ahg/search": 20,
+        "ahg/semantic-search": 20,
         "ahg/settings": 20,
+        "ahg/spectrum": 20,
         "ahg/static-page": 20,
+        "ahg/statistics": 20,
         "ahg/storage-manage": 20,
         "ahg/term-taxonomy": 20,
         "ahg/theme-b5": 20,
+        "ahg/translation": 20,
         "ahg/user-manage": 20,
+        "ahg/vendor": 20,
         "ahg/workflow": 20
     },
     "prefer-stable": true,

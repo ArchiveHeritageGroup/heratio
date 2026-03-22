@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-dacs-manage",
+    "name": "ahg/dacs-manage",
     "description": "Heratio DacsManage package (migrated from ahgDacsManagePlugin)",
     "autoload": {
         "psr-4": {

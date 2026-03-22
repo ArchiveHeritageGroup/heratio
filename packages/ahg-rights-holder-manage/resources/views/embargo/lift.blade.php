@@ -47,7 +47,7 @@
 
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
     <a href="{{ url()->previous() }}" class="btn atom-btn-outline-light">Cancel</a>
-    <button type="submit" class="btn btn-success"><i class="fas fa-unlock me-1"></i> Lift Embargo</button>
+    <button type="submit" class="btn atom-btn-white"><i class="fas fa-unlock me-1"></i> Lift Embargo</button>
   </section>
 </form>
 @endsection

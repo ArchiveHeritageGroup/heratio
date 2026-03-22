@@ -177,6 +177,46 @@ class LandingPageController extends Controller
         return view('ahg-landing-page::my-dashboard-list', compact('pages'));
     }
 
+    /**
+     * Admin dashboard for landing pages.
+     */
+    public function admin()
+    {
+        $pages = $this->service->getAllPages();
+        $stats = [
+            'total' => count($pages),
+            'active' => collect($pages)->where('is_active', 1)->count(),
+        ];
+
+        return view('ahg-landing-page::admin', compact('pages', 'stats'));
+    }
+
+    /**
+     * Handle POST actions for landing pages.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+        $id = (int) $request->get('id');
+
+        if ($action === 'delete' && $id) {
+            $this->service->deletePage($id, auth()->id());
+
+            return redirect()->route('landing-page.list')->with('notice', 'Landing page deleted.');
+        }
+
+        if ($action === 'toggle_active' && $id) {
+            $page = $this->service->getPage($id);
+            if ($page) {
+                $this->service->updatePage($id, ['is_active' => !$page->is_active], auth()->id());
+            }
+
+            return redirect()->route('landing-page.list')->with('notice', 'Page status updated.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
+
     public function myDashboardCreate(Request $request)
     {
         if ($request->isMethod('post')) {

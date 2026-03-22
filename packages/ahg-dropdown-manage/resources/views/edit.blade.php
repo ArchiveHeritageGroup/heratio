@@ -90,7 +90,7 @@
         <span><i class="fas fa-grip-lines me-2"></i>Drag to reorder</span>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="showInactive" checked>
-          <label class="form-check-label" for="showInactive">Show inactive</label>
+          <label class="form-check-label" for="showInactive">Show inactive <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
       </div>
       <div class="table-responsive">

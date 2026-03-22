@@ -75,23 +75,23 @@
 	      <style @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
                 #uploadLimit_value { width: 6em }
               </style>	
-              <label for="uploadLimit_type">{{ __('Set the upload limit for this %1%', ['%1%' => strtolower(sfConfig::get('app_ui_label_repository'))]) }}</label>
+              <label for="uploadLimit_type">{{ __('Set the upload limit for this %1%', ['%1%' => strtolower(sfConfig::get('app_ui_label_repository'))]) }} <span class="badge bg-secondary ms-1">Required</span></label>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_disabled" value="disabled"@php echo ('disabled' == $quotaType) ? ' checked' : ''; @endphp>
                 <label class="form-check-label" for="uploadLimit_type_disabled">
-                  {{ __('Disable uploads') }}
+                  {{ __('Disable uploads') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_limited" value="limited"@php echo ('limited' == $quotaType) ? ' checked' : ''; @endphp>
                 <label class="form-check-label" for="uploadLimit_type_limited">
-                  {{ __('Limit uploads to %1% GB', ['%1%' => '<input class="form-control form-control-sm d-inline" id="uploadLimit_value" type="number" step="any" name="uploadLimit[value]" value="'.(($resource->uploadLimit > 0) ? $resource->uploadLimit : '').'" />']) }}
+                  {{ __('Limit uploads to %1% GB', ['%1%' => '<input class="form-control form-control-sm d-inline" id="uploadLimit_value" type="number" step="any" name="uploadLimit[value]" value="'.(($resource->uploadLimit > 0) ? $resource->uploadLimit : '').'" />']) }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="uploadLimit[type]" id="uploadLimit_type_unlimited" value="unlimited"@php echo ('unlimited' == $quotaType) ? ' checked' : ''; @endphp>
                 <label class="form-check-label" for="uploadLimit_type_unlimited">
-                  {{ __('Allow unlimited uploads', ['%1%' => sfConfig::get('app_ui_label_repository')]) }}
+                  {{ __('Allow unlimited uploads', ['%1%' => sfConfig::get('app_ui_label_repository')]) }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
             </div>
@@ -102,7 +102,7 @@
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
             {{ __('Cancel') }}
           </button>
-          <button type="button" class="btn btn-success">
+          <button type="button" class="btn atom-btn-white">
             {{ __('Save') }}
           </button>
         </div>

@@ -79,13 +79,13 @@
                             <div class="card-body d-flex gap-2">
                                 <form method="post" action="{{ route('accessRequest.approve', $accessRequest->id) }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-success">
+                                    <button type="submit" class="btn atom-btn-white">
                                         <i class="fas fa-check me-1"></i>Approve
                                     </button>
                                 </form>
                                 <form method="post" action="{{ route('accessRequest.deny', $accessRequest->id) }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-danger">
+                                    <button type="submit" class="btn atom-btn-outline-danger">
                                         <i class="fas fa-times me-1"></i>Deny
                                     </button>
                                 </form>

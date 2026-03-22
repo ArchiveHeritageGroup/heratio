@@ -210,4 +210,49 @@ class FormsController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Admin dashboard for forms management.
+     */
+    public function admin()
+    {
+        $templates = $this->service->getTemplates();
+        $stats = $this->service->getStatistics();
+
+        return view('ahg-forms::admin', compact('templates', 'stats'));
+    }
+
+    /**
+     * Handle POST actions for forms.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+
+        if ($action === 'delete') {
+            $id = (int) $request->get('id');
+            \Illuminate\Support\Facades\DB::table('ahg_form_field')->where('template_id', $id)->delete();
+            \Illuminate\Support\Facades\DB::table('ahg_form_template')->where('id', $id)->delete();
+
+            return redirect()->route('forms.index')->with('notice', 'Template deleted.');
+        }
+
+        if ($action === 'duplicate') {
+            $id = (int) $request->get('id');
+            $template = $this->service->getTemplate($id);
+
+            if ($template) {
+                $newId = $this->service->createTemplate([
+                    'name' => $template->name . ' (Copy)',
+                    'description' => $template->description,
+                    'form_type' => $template->form_type,
+                    'config' => json_decode($template->config ?? '{}', true),
+                ]);
+
+                return redirect()->route('forms.builder', $newId)->with('notice', 'Template duplicated.');
+            }
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

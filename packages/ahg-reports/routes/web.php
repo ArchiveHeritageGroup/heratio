@@ -74,6 +74,4 @@ Route::middleware('admin')->prefix('admin/reports')->group(function () {
         Route::delete('/template/{id}', [ReportBuilderController::class, 'deleteTemplate'])->name('reports.builder.delete-template');
     });
 
-// Auto-registered stub routes
-Route::match(['get','post'], '/data-migration/batch-export', function() { return view('reports::batch-export'); })->name('data-migration.batch-export');
 });

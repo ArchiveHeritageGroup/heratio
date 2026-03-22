@@ -61,12 +61,12 @@
 
               <div class="form-check mb-2">
                 <input type="checkbox" name="topLevelOnly" value="1" class="form-check-input" id="topLevelOnly" {{ ($params['topLevelOnly'] ?? false) ? 'checked' : '' }}>
-                <label class="form-check-label" for="topLevelOnly">Top-level records only</label>
+                <label class="form-check-label" for="topLevelOnly">Top-level records only <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
 
               <div class="form-check mb-2">
                 <input type="checkbox" name="requireCoordinates" value="1" class="form-check-input" id="requireCoordinates" {{ ($params['requireCoordinates'] ?? true) ? 'checked' : '' }}>
-                <label class="form-check-label" for="requireCoordinates">Require coordinates (exclude records without lat/lng)</label>
+                <label class="form-check-label" for="requireCoordinates">Require coordinates (exclude records without lat/lng) <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>

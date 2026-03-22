@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-marketplace",
+    "name": "ahg/marketplace",
     "description": "Heratio Marketplace package (migrated from ahgMarketplacePlugin)",
     "autoload": {
         "psr-4": {

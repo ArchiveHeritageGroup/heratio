@@ -59,7 +59,7 @@
         @endforeach
       </ul>
       <p class="mt-2">
-        <button type="submit" name="saveAnyway" value="1" form="editForm" class="btn btn-sm btn-warning">Save anyway</button>
+        <button type="submit" name="saveAnyway" value="1" form="editForm" class="btn btn-sm atom-btn-outline-warning">Save anyway</button>
       </p>
     </div>
   @endif
@@ -126,6 +126,7 @@
                   Work type qualifier
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">2.1.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="work_type_qualifier" title="Help">
@@ -154,6 +155,7 @@
                   Components/Parts
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">2.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="components_count" title="Help">
@@ -284,6 +286,7 @@
                   Title language
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">3.1.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> ISO639_2</span>
                 </span>
@@ -308,6 +311,7 @@
                   Alternate titles
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">3.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="alternate_titles" title="Help">
@@ -567,6 +571,7 @@
                   Culture/People
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">4.4</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_CULTURES</span>
                 </span>
@@ -633,6 +638,7 @@
                   Period
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">5.2</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> AAT_PERIODS</span>
                 </span>
@@ -658,6 +664,7 @@
                   School/Group
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">5.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="school_group" title="Help">
@@ -773,6 +780,7 @@
                       Depth
                     </label>
                     <span class="field-badges">
+                      <span class="badge badge-optional">Optional</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
                     </span>
                     <button type="button" class="btn-help" data-field="depth_value" title="Help">
@@ -797,6 +805,7 @@
                       Weight
                     </label>
                     <span class="field-badges">
+                      <span class="badge badge-optional">Optional</span>
                       <span class="badge badge-cco" title="CCO Reference">6.3</span>
                     </span>
                     <button type="button" class="btn-help" data-field="weight_value" title="Help">
@@ -822,6 +831,7 @@
                   Dimension notes
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">6.4</span>
                 </span>
                 <button type="button" class="btn-help" data-field="dimension_notes" title="Help">
@@ -1025,6 +1035,7 @@
                   Iconography
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">8.3</span>
                   <span class="badge badge-vocab" title="Controlled Vocabulary"><i class="fa fa-book"></i> ICONCLASS</span>
                 </span>
@@ -1049,6 +1060,7 @@
                   Named subjects
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">8.4</span>
                 </span>
                 <button type="button" class="btn-help" data-field="named_subjects" title="Help">
@@ -1088,6 +1100,7 @@
                   Inscriptions
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">9.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="inscriptions" title="Help">
@@ -1135,6 +1148,7 @@
                   Marks/Labels
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">9.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="marks" title="Help">
@@ -1198,6 +1212,7 @@
                   Physical description
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">11.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="physical_description" title="Help">
@@ -1261,6 +1276,7 @@
                   Condition notes
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">12.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="condition_notes" title="Help">
@@ -1393,6 +1409,7 @@
                   Related works
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">14.1</span>
                 </span>
                 <button type="button" class="btn-help" data-field="related_works" title="Help">
@@ -1416,6 +1433,7 @@
                   Relationship type
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">14.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="relationship_type" title="Help">
@@ -1484,6 +1502,7 @@
                   Copyright holder
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">15.2</span>
                 </span>
                 <button type="button" class="btn-help" data-field="copyright_holder" title="Help">
@@ -1507,6 +1526,7 @@
                   Reproduction conditions
                 </label>
                 <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">15.3</span>
                 </span>
                 <button type="button" class="btn-help" data-field="reproduction_conditions" title="Help">

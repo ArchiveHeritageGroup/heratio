@@ -252,4 +252,44 @@ class NmmzController extends Controller
 
         return view('ahg-nmmz::config', compact('config'));
     }
+
+    /**
+     * Admin dashboard for NMMZ.
+     */
+    public function admin()
+    {
+        $stats = $this->service->getDashboardStats();
+        $config = $this->service->getAllConfig();
+
+        return view('ahg-nmmz::admin', compact('stats', 'config'));
+    }
+
+    /**
+     * Handle POST actions for NMMZ.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+        $id = (int) $request->get('id');
+
+        if ($action === 'delete_monument' && $id) {
+            $this->service->deleteMonument($id);
+
+            return redirect()->route('nmmz.monuments')->with('notice', 'Monument deleted.');
+        }
+
+        if ($action === 'delete_antiquity' && $id) {
+            $this->service->deleteAntiquity($id);
+
+            return redirect()->route('nmmz.antiquities')->with('notice', 'Antiquity deleted.');
+        }
+
+        if ($action === 'delete_site' && $id) {
+            $this->service->deleteSite($id);
+
+            return redirect()->route('nmmz.sites')->with('notice', 'Site deleted.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

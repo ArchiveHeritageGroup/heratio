@@ -93,7 +93,7 @@ if ($isAuthenticated && $hasSpectrum) {
       </a>
       @endif
       @if($hasResearch)
-      <a href="@php echo route('research.publicRegister'); @endphp" class="btn btn-sm btn-success w-100 mb-1">
+      <a href="@php echo route('research.publicRegister'); @endphp" class="btn btn-sm atom-btn-white w-100 mb-1">
         <i class="fas fa-user-graduate me-1"></i>{{ __('Register as Researcher') }}
       </a>
       <a href="@php echo route('research.dashboard'); @endphp" class="small text-muted d-block mt-1">

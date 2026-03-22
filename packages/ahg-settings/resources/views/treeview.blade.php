@@ -62,21 +62,21 @@
               <div class="form-check">
                 <input type="hidden" name="settings[treeview_show_identifier]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[treeview_show_identifier]" value="1" id="tv_id" {{ ($settings['treeview_show_identifier'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="tv_id">Show identifier</label>
+                <label class="form-check-label" for="tv_id">Show identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="form-check">
                 <input type="hidden" name="settings[treeview_show_level_of_description]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[treeview_show_level_of_description]" value="1" id="tv_level" {{ ($settings['treeview_show_level_of_description'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="tv_level">Show level of description</label>
+                <label class="form-check-label" for="tv_level">Show level of description <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
             <div class="col-md-4 mb-3">
               <div class="form-check">
                 <input type="hidden" name="settings[treeview_show_dates]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[treeview_show_dates]" value="1" id="tv_dates" {{ ($settings['treeview_show_dates'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="tv_dates">Show dates</label>
+                <label class="form-check-label" for="tv_dates">Show dates <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
             <div class="col-md-12 mb-3">

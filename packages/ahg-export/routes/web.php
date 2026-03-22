@@ -14,15 +14,3 @@ Route::middleware(['auth', 'admin'])->prefix('export')->group(function () {
     Route::post('/accession-csv', [ExportController::class, 'accessionCsv'])->name('export.accessionCsv.post');
 });
 
-// Export routes
-Route::middleware(['web'])->prefix('admin/export')->group(function () {
-    Route::get('/', fn() => view('export::index'))->name('export.index');
-    Route::get('/ead', fn() => view('export::ead'))->name('export.ead');
-    Route::get('/csv', fn() => view('export::csv'))->name('export.csv');
-    Route::get('/archival', fn() => view('export::archival'))->name('export.archival');
-    Route::get('/authority', fn() => view('export::authority'))->name('export.authority');
-    Route::get('/repository', fn() => view('export::repository'))->name('export.repository');
-    Route::get('/accession-csv', fn() => view('export::accession-csv'))->name('export.accessionCsv');
-    Route::post('/accession-csv', fn() => redirect()->back())->name('export.accessionCsv.post');
-});
-Route::get('/', fn() => redirect('/heritage'))->name('homepage');

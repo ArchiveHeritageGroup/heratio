@@ -33,4 +33,134 @@ class CustomFieldAdminController extends Controller
 
         return view('ahg-custom-fields::admin.edit', compact('definition', 'entityTypes', 'fieldTypes'));
     }
+
+    /**
+     * Admin dashboard for custom fields.
+     */
+    public function admin()
+    {
+        $definitions = $this->service->getDefinitions();
+        $stats = [
+            'total' => count($definitions),
+            'active' => collect($definitions)->where('is_active', 1)->count(),
+        ];
+
+        return view('ahg-custom-fields::admin.dashboard', compact('definitions', 'stats'));
+    }
+
+    /**
+     * Save a custom field definition.
+     */
+    public function save(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'field_type' => 'required|string|max:50',
+            'entity_type' => 'required|string|max:50',
+        ]);
+
+        $id = $request->get('id');
+
+        if ($id) {
+            $this->service->updateDefinition((int) $id, $request->except('_token'));
+        } else {
+            $id = $this->service->createDefinition($request->except('_token'));
+        }
+
+        return redirect()->route('customFields.index')->with('notice', 'Custom field saved.');
+    }
+
+    /**
+     * Delete a custom field definition.
+     */
+    public function delete(int $id)
+    {
+        $this->service->deleteDefinition($id);
+
+        return redirect()->route('customFields.index')->with('notice', 'Custom field deleted.');
+    }
+
+    /**
+     * Export custom field definitions.
+     */
+    public function export()
+    {
+        $definitions = $this->service->getDefinitions();
+
+        $output = fopen('php://temp', 'r+');
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fputcsv($output, ['ID', 'Name', 'Field Type', 'Entity Type', 'Is Active']);
+
+        foreach ($definitions as $def) {
+            fputcsv($output, [
+                $def->id ?? '',
+                $def->name ?? '',
+                $def->field_type ?? '',
+                $def->entity_type ?? '',
+                $def->is_active ?? 0,
+            ]);
+        }
+
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="custom_fields_export.csv"',
+        ]);
+    }
+
+    /**
+     * Import custom field definitions from CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('file');
+        $rows = array_map('str_getcsv', file($file->getRealPath()));
+        $header = array_shift($rows);
+
+        $imported = 0;
+        foreach ($rows as $row) {
+            if (count($row) >= 3) {
+                $this->service->createDefinition([
+                    'name' => $row[1] ?? '',
+                    'field_type' => $row[2] ?? 'text',
+                    'entity_type' => $row[3] ?? 'information_object',
+                    'is_active' => $row[4] ?? 1,
+                ]);
+                $imported++;
+            }
+        }
+
+        return redirect()->route('customFields.index')->with('notice', "{$imported} custom field(s) imported.");
+    }
+
+    /**
+     * Reorder custom field definitions.
+     */
+    public function reorder(Request $request)
+    {
+        $order = $request->input('order', []);
+
+        foreach ($order as $item) {
+            $this->service->updateDefinition((int) $item['id'], ['sort_order' => $item['sort']]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Web-facing custom fields view.
+     */
+    public function web()
+    {
+        $definitions = $this->service->getDefinitions();
+
+        return view('ahg-custom-fields::web', compact('definitions'));
+    }
 }

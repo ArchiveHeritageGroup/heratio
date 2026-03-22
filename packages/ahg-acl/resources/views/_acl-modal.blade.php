@@ -39,7 +39,7 @@
         <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
           {{ __('Cancel') }}
         </button>
-        <button type="button" class="btn btn-success">
+        <button type="button" class="btn atom-btn-white">
           {{ __('Submit') }}
         </button>
       </div>

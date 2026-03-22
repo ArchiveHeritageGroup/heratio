@@ -198,7 +198,7 @@
       <a href="{{ route('register') }}" class="btn btn-sm btn-primary w-100 mb-2">
         <i class="fas fa-user-plus me-1"></i>Register
       </a>
-      <a href="{{ route('researcher.register') }}" class="btn btn-sm btn-success w-100 mb-1">
+      <a href="{{ route('researcher.register') }}" class="btn btn-sm atom-btn-white w-100 mb-1">
         <i class="fas fa-user-graduate me-1"></i>Register as Researcher
       </a>
       <a href="{{ url('/research/dashboard') }}" class="small text-muted d-block mt-1">

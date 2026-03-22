@@ -91,7 +91,7 @@
                              name="settings[{{ $key }}]" id="setting-{{ $key }}" value="1"
                              {{ in_array($val, ['1', 'true', 'yes']) ? 'checked' : '' }}>
                       <label class="form-check-label" for="setting-{{ $key }}">
-                        {{ $label }}
+                        {{ $label }} <span class="badge bg-secondary ms-1">Optional</span>
                       </label>
                     </div>
                     @if($setting->description)

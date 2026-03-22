@@ -29,7 +29,7 @@
               checked
               value>
             <label class="form-check-label" for="search-realm-global">
-              {{ __('Global search') }}
+              {{ __('Global search') }} <span class="badge bg-secondary ms-1">Optional</span>
             </label>
           </div>
           @if(isset($repository))
@@ -41,7 +41,7 @@
                 id="search-realm-repo"
                 value="@php echo $repository->id; @endphp">
               <label class="form-check-label" for="search-realm-repo">
-                {{ __('Search <span>%1%</span>', ['%1%' => render_title($repository)]) }}
+                {{ __('Search <span>%1%</span>', ['%1%' => render_title($repository)]) }} <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
           @endforeach
@@ -54,7 +54,7 @@
                 id="search-realm-alt-repo"
                 value="@php echo $altRepository->id; @endphp">
               <label class="form-check-label" for="search-realm-alt-repo">
-                {{ __('Search <span>%1%</span>', ['%1%' => render_title($altRepository)]) }}
+                {{ __('Search <span>%1%</span>', ['%1%' => render_title($altRepository)]) }} <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
           @endforeach
@@ -80,7 +80,7 @@
             value="1"
             @php echo ($sf_request->getParameter('semantic') == '1') ? 'checked' : ''; @endphp>
           <label class="form-check-label" for="semantic-search-toggle">
-            {{ __('Expand search with synonyms') }}
+            {{ __('Expand search with synonyms') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
       </div>

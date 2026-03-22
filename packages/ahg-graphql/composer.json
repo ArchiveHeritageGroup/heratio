@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-graphql",
+    "name": "ahg/graphql",
     "description": "Heratio Graphql package (migrated from ahgGraphQLPlugin)",
     "autoload": {
         "psr-4": {

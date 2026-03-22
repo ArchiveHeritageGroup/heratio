@@ -19,7 +19,7 @@
           <div class="mb-3">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="tts_enabled" name="tts[all][enabled]" value="1" {{ ($settings['all']['enabled'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="tts_enabled"><strong>Enable Text-to-Speech</strong></label>
+              <label class="form-check-label" for="tts_enabled"><strong>Enable Text-to-Speech</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-text">Show the read-aloud button on record detail pages.</div>
           </div>
@@ -33,7 +33,7 @@
           <div class="mb-3">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="tts_labels" name="tts[all][read_labels]" value="1" {{ ($settings['all']['read_labels'] ?? '1') === '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="tts_labels">Read field labels</label>
+              <label class="form-check-label" for="tts_labels">Read field labels <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
             <div class="form-text">Include field labels (e.g. "Scope and content:") when reading aloud.</div>
           </div>

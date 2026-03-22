@@ -184,4 +184,31 @@ class StatisticsController extends Controller
             'Content-Disposition' => "attachment; filename=\"statistics_{$type}_{$startDate}_{$endDate}.csv\"",
         ]);
     }
+
+    /**
+     * Handle POST actions for statistics.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+
+        if ($action === 'purge') {
+            $days = (int) $request->get('days', 90);
+            $cutoff = now()->subDays($days)->toDateString();
+
+            \Illuminate\Support\Facades\DB::table('ahg_usage_event')
+                ->where('created_at', '<', $cutoff)
+                ->delete();
+
+            return redirect()->route('statistics.admin')->with('notice', "Events older than {$days} days purged.");
+        }
+
+        if ($action === 'aggregate') {
+            $this->service->aggregateStats();
+
+            return redirect()->route('statistics.admin')->with('notice', 'Statistics aggregated.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

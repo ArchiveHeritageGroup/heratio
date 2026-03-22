@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-naz",
+    "name": "ahg/naz",
     "description": "Heratio Naz package (migrated from ahgNAZPlugin)",
     "autoload": {
         "psr-4": {

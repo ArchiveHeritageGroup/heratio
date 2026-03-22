@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-cdpa",
+    "name": "ahg/cdpa",
     "description": "Heratio Cdpa package (migrated from ahgCDPAPlugin)",
     "autoload": {
         "psr-4": {

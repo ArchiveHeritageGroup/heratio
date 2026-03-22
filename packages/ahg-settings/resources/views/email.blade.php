@@ -152,7 +152,7 @@
             <div class="form-check form-switch mb-2">
               <input type="hidden" name="notif_toggles[{{ $key }}]" value="0">
               <input class="form-check-input" type="checkbox" name="notif_toggles[{{ $key }}]" value="1" id="{{ $key }}" {{ ($notifToggles[$key] ?? '1') == '1' ? 'checked' : '' }}>
-              <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
+              <label class="form-check-label" for="{{ $key }}">{{ $label }} <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           @endforeach
         </div>

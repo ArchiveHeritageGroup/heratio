@@ -132,4 +132,27 @@ class IngestController extends Controller
 
         return view('ahg-ingest::commit', compact('session', 'job'));
     }
+
+    /**
+     * Handle POST actions for ingest sessions.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+        $id = (int) $request->get('id');
+
+        if ($action === 'delete' && $id) {
+            $this->service->deleteSession($id);
+
+            return redirect()->route('ingest.index')->with('notice', 'Ingest session deleted.');
+        }
+
+        if ($action === 'cancel' && $id) {
+            $this->service->updateSessionStatus($id, 'cancelled');
+
+            return redirect()->route('ingest.index')->with('notice', 'Ingest session cancelled.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

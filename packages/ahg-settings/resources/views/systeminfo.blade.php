@@ -1,1 +1,0 @@
-system-info.blade.php

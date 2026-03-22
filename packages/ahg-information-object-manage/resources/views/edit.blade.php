@@ -700,7 +700,7 @@
           </div>
           <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" name="security_inherit_to_children" id="security_inherit_to_children" value="1" {{ old('security_inherit_to_children', $io->security_inherit_to_children ?? '') ? 'checked' : '' }}>
-            <label class="form-check-label" for="security_inherit_to_children">Apply classification to children</label>
+            <label class="form-check-label" for="security_inherit_to_children">Apply classification to children <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
       </div>
@@ -761,7 +761,7 @@
 
           <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="updateDescendants" name="updateDescendants" value="1">
-            <label class="form-check-label" for="updateDescendants">Make this the default for existing children</label>
+            <label class="form-check-label" for="updateDescendants">Make this the default for existing children <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
 
           <div class="mb-3">

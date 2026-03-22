@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-icip",
+    "name": "ahg/icip",
     "description": "Heratio Icip package (migrated from ahgICIPPlugin)",
     "autoload": {
         "psr-4": {

@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-api-plugin",
+    "name": "ahg/api-plugin",
     "description": "Heratio ApiPlugin package (migrated from ahgAPIPlugin)",
     "autoload": {
         "psr-4": {

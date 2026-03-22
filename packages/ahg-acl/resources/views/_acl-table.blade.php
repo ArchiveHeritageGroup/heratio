@@ -35,7 +35,7 @@
                   @php echo (1 == $permissions[$key]->grantDeny) ? 'checked' : ''; @endphp
                   value="@php echo \AtomExtensions\Services\AclService::GRANT; @endphp">
                 <label class="form-check-label" for="acl_grant_[@php echo $permissions[$key]->id; @endphp]">
-                  {{ __('Grant') }}
+                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -47,7 +47,7 @@
                   @php echo (0 == $permissions[$key]->grantDeny) ? 'checked' : ''; @endphp
                   value="@php echo \AtomExtensions\Services\AclService::DENY; @endphp">
                 <label class="form-check-label" for="acl_deny_[@php echo $permissions[$key]->id; @endphp]">
-                  {{ __('Deny') }}
+                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -58,7 +58,7 @@
                   id="acl_inherit_[@php echo $permissions[$key]->id; @endphp]"
                   value="@php echo \AtomExtensions\Services\AclService::INHERIT; @endphp">
                 <label class="form-check-label" for="acl_inherit_[@php echo $permissions[$key]->id; @endphp]">
-                  {{ __('Inherit') }}
+                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
             @php } else { @endphp
@@ -72,7 +72,7 @@
                 <label
                   class="form-check-label"
                   for="acl_grant_[@php echo $key.'_'.url_for([$object, 'module' => $module]); @endphp]">
-                  {{ __('Grant') }}
+                  {{ __('Grant') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -85,7 +85,7 @@
                 <label
                   class="form-check-label"
                   for="acl_deny_[@php echo $key.'_'.url_for([$object, 'module' => $module]); @endphp]">
-                  {{ __('Deny') }}
+                  {{ __('Deny') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
               <div class="form-check form-check-inline">
@@ -99,7 +99,7 @@
                 <label
                   class="form-check-label"
                   for="acl_inherit_[@php echo $key.'_'.url_for([$object, 'module' => $module]); @endphp]">
-                  {{ __('Inherit') }}
+                  {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
             @endforeach

@@ -72,7 +72,7 @@
               <a href="@php echo route('researcher.dashboard') @endphp" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Cancel
               </a>
-              <button type="submit" class="btn btn-success">
+              <button type="submit" class="btn atom-btn-white">
                 <i class="bi bi-check-lg me-1"></i>Create Submission
               </button>
             </div>

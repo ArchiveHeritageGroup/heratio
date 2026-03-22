@@ -69,4 +69,63 @@ class AccessRequestController extends Controller
 
         return view('ahg-access-request::approvers', compact('approvers'));
     }
+
+    /**
+     * Store a new access request.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'object_id' => 'required|integer',
+            'reason' => 'required|string|max:2000',
+        ]);
+
+        $this->service->createRequest(auth()->id(), $validated);
+
+        return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request submitted.');
+    }
+
+    /**
+     * Approve an access request.
+     */
+    public function approve(Request $request, int $id)
+    {
+        $this->service->approveRequest($id, auth()->id(), $request->get('notes'));
+
+        return redirect()->route('accessRequest.pending')->with('notice', 'Request approved.');
+    }
+
+    /**
+     * Deny an access request.
+     */
+    public function deny(Request $request, int $id)
+    {
+        $this->service->denyRequest($id, auth()->id(), $request->get('reason'));
+
+        return redirect()->route('accessRequest.pending')->with('notice', 'Request denied.');
+    }
+
+    /**
+     * Add an approver.
+     */
+    public function addApprover(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|integer',
+        ]);
+
+        $this->service->addApprover($validated['user_id']);
+
+        return redirect()->route('accessRequest.approvers')->with('notice', 'Approver added.');
+    }
+
+    /**
+     * Remove an approver.
+     */
+    public function removeApprover(int $id)
+    {
+        $this->service->removeApprover($id);
+
+        return redirect()->route('accessRequest.approvers')->with('notice', 'Approver removed.');
+    }
 }

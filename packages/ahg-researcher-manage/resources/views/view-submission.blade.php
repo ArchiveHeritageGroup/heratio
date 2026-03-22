@@ -44,7 +44,7 @@
           @endif
           @if(in_array($submission->status, ['draft', 'returned']))
             <a href="@php echo url_for(['module' => 'researcher', 'action' => 'addItem', 'id' => $submission->id]) @endphp"
-               class="btn btn-success btn-sm">
+               class="btn atom-btn-white btn-sm">
               <i class="bi bi-plus-lg me-1"></i>Add Item
             </a>
           @endif
@@ -254,7 +254,7 @@
         <div class="card-body d-grid gap-2">
           @if($submission->status === 'draft')
             <form method="post" action="@php echo url_for(['module' => 'researcher', 'action' => 'submit', 'id' => $submission->id]) @endphp">
-              <button type="submit" class="btn btn-warning w-100" @php echo count($items) === 0 ? 'disabled' : '' @endphp
+              <button type="submit" class="btn atom-btn-outline-warning w-100" @php echo count($items) === 0 ? 'disabled' : '' @endphp
                       onclick="return confirm('Submit this collection for archivist review?')">
                 <i class="bi bi-send me-1"></i>Submit for Review
               </button>
@@ -270,7 +270,7 @@
               <i class="bi bi-plus-lg me-1"></i>Add More Items
             </a>
             <form method="post" action="@php echo url_for(['module' => 'researcher', 'action' => 'resubmit', 'id' => $submission->id]) @endphp">
-              <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Resubmit for review?')">
+              <button type="submit" class="btn atom-btn-outline-warning w-100" onclick="return confirm('Resubmit for review?')">
                 <i class="bi bi-send me-1"></i>Resubmit
               </button>
             </form>

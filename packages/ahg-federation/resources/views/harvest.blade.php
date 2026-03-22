@@ -62,7 +62,7 @@
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="full_harvest" name="full_harvest" value="1">
                     <label class="form-check-label" for="full_harvest">
-                        Full harvest (ignore last harvest date, re-fetch everything)
+                        Full harvest (ignore last harvest date, re-fetch everything) <span class="badge bg-secondary ms-1">Optional</span>
                     </label>
                 </div>
 

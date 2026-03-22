@@ -218,7 +218,7 @@
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="self_reciprocal" id="self_reciprocal" value="1"
                            @checked(old('self_reciprocal', ($converseTerm && $term && $converseTerm->id == $term->id) ? 1 : 0))>
-                    <label class="form-check-label" for="self_reciprocal">Self-reciprocal</label>
+                    <label class="form-check-label" for="self_reciprocal">Self-reciprocal <span class="badge bg-secondary ms-1">Optional</span></label>
                   </div>
                 </div>
               </div>

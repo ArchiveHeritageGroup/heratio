@@ -133,10 +133,3 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$)[a-z0-9][a-z0-9-]*$');
 
-Route::middleware(['web'])->group(function () {
-
-// Auto-registered stub routes
-Route::match(['get','post'], '/actor/autocomplete', function() { return view('informationobjectmanage::autocomplete'); })->name('actor.autocomplete');
-Route::match(['get','post'], '/actor/add', function() { return view('informationobjectmanage::add'); })->name('actor.add');
-Route::match(['get','post'], '/loan/index', function() { return view('informationobjectmanage::index'); })->name('loan.index');
-});

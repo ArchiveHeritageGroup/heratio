@@ -138,7 +138,7 @@ $allModes = [
                                                    id="thumb_@php echo $module; @endphp"
                                                    @php echo ($settings['show_thumbnails'] ?? 1) ? 'checked' : ''; @endphp>
                                             <label class="form-check-label" for="thumb_@php echo $module; @endphp">
-                                                Show thumbnails
+                                                Show thumbnails <span class="badge bg-secondary ms-1">Optional</span>
                                             </label>
                                         </div>
                                         
@@ -148,7 +148,7 @@ $allModes = [
                                                    id="desc_@php echo $module; @endphp"
                                                    @php echo ($settings['show_descriptions'] ?? 1) ? 'checked' : ''; @endphp>
                                             <label class="form-check-label" for="desc_@php echo $module; @endphp">
-                                                Show descriptions
+                                                Show descriptions <span class="badge bg-secondary ms-1">Optional</span>
                                             </label>
                                         </div>
                                     </div>

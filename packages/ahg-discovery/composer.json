@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-discovery",
+    "name": "ahg/discovery",
     "description": "Heratio Discovery package (migrated from ahgDiscoveryPlugin)",
     "autoload": {
         "psr-4": {

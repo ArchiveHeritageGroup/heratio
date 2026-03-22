@@ -38,7 +38,7 @@
                            name="settings[{{ $setting->id }}]" id="setting-{{ $setting->id }}" value="1"
                            {{ in_array(strtolower($val), ['1', 'true', 'yes']) ? 'checked' : '' }}>
                     <label class="form-check-label" for="setting-{{ $setting->id }}">
-                      {{ $label }}
+                      {{ $label }} <span class="badge bg-secondary ms-1">Optional</span>
                     </label>
                   </div>
                 </div>

@@ -84,13 +84,13 @@
               <div class="col-md-6">
                 <div class="form-check form-switch mb-3">
                   <input class="form-check-input" type="checkbox" id="is_enabled" name="is_enabled" value="1" checked>
-                  <label class="form-check-label" for="is_enabled">Enabled</label>
+                  <label class="form-check-label" for="is_enabled">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-check form-switch mb-3">
                   <input class="form-check-input" type="checkbox" id="is_blocking" name="is_blocking" value="1">
-                  <label class="form-check-label" for="is_blocking">Blocking</label>
+                  <label class="form-check-label" for="is_blocking">Blocking <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div class="form-text">Block record save if duplicate found</div>
                 </div>
               </div>

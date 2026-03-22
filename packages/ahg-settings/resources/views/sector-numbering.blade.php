@@ -54,7 +54,7 @@
                 <div class="form-check form-switch mb-3">
                   <input type="hidden" name="sector_{{ $code }}__identifier_mask_enabled" value="0">
                   <input class="form-check-input" type="checkbox" name="sector_{{ $code }}__identifier_mask_enabled" value="1" id="mask_{{ $code }}" {{ ($sectorSettings[$code]['identifier_mask_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-                  <label class="form-check-label" for="mask_{{ $code }}">Mask enabled</label>
+                  <label class="form-check-label" for="mask_{{ $code }}">Mask enabled <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
               <div class="col-md-4">

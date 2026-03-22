@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-spectrum",
+    "name": "ahg/spectrum",
     "description": "Heratio Spectrum package (migrated from ahgSpectrumPlugin)",
     "autoload": {
         "psr-4": {

@@ -59,9 +59,9 @@
             </table>
         </div>
         <div class="card-footer d-flex gap-2">
-            <button type="submit" name="batch_action" value="approve" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>Approve Selected</button>
-            <button type="submit" name="batch_action" value="reject" class="btn btn-danger btn-sm"><i class="fas fa-times me-1"></i>Reject Selected</button>
-            <button type="submit" name="batch_action" value="flag" class="btn btn-warning btn-sm"><i class="fas fa-flag me-1"></i>Flag for Review</button>
+            <button type="submit" name="batch_action" value="approve" class="btn atom-btn-white btn-sm"><i class="fas fa-check me-1"></i>Approve Selected</button>
+            <button type="submit" name="batch_action" value="reject" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-times me-1"></i>Reject Selected</button>
+            <button type="submit" name="batch_action" value="flag" class="btn atom-btn-outline-warning btn-sm"><i class="fas fa-flag me-1"></i>Flag for Review</button>
         </div>
     </div>
 </form>

@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-privacy",
+    "name": "ahg/privacy",
     "description": "Heratio Privacy package (migrated from ahgPrivacyPlugin)",
     "autoload": {
         "psr-4": {

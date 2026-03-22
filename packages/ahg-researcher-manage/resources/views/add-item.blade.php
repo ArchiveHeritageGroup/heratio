@@ -23,7 +23,7 @@
            class="btn btn-outline-secondary me-1">
           <i class="bi bi-arrow-left me-1"></i>Back
         </a>
-        <button type="submit" class="btn btn-success">
+        <button type="submit" class="btn atom-btn-white">
           <i class="bi bi-check-lg me-1"></i>Save
         </button>
       </div>

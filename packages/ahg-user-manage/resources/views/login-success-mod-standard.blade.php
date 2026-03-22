@@ -66,7 +66,7 @@
       <p class="card-text text-muted">
         {{ __('Register to access the reading room, request archival materials, and save your research.') }}
       </p>
-      <a href="@php echo route('research.publicRegister'); @endphp" class="btn btn-success">
+      <a href="@php echo route('research.publicRegister'); @endphp" class="btn atom-btn-white">
         <i class="fas fa-user-plus me-2"></i>{{ __('Register as Researcher') }}
       </a>
     </div>

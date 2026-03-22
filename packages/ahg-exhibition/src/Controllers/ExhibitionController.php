@@ -181,4 +181,21 @@ class ExhibitionController extends Controller
 
         return view('ahg-exhibition::checklists', compact('exhibition'));
     }
+
+    /**
+     * Handle POST actions for exhibitions.
+     */
+    public function post(Request $request)
+    {
+        $action = $request->get('action');
+        $id = (int) $request->get('id');
+
+        if ($action === 'delete' && $id) {
+            $this->service->delete($id);
+
+            return redirect()->route('exhibition.index')->with('notice', 'Exhibition deleted.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action.');
+    }
 }

@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-vendor",
+    "name": "ahg/vendor",
     "description": "Heratio Vendor package (migrated from ahgVendorPlugin)",
     "autoload": {
         "psr-4": {

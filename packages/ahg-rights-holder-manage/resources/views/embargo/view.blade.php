@@ -146,7 +146,7 @@
   @auth
     <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
       @if($status === 'active')
-        <li><a href="{{ route('embargo.liftForm', $embargo['id']) }}" class="btn btn-success"><i class="fas fa-unlock me-1"></i> Lift Embargo</a></li>
+        <li><a href="{{ route('embargo.liftForm', $embargo['id']) }}" class="btn atom-btn-white"><i class="fas fa-unlock me-1"></i> Lift Embargo</a></li>
       @endif
       <li><a href="{{ route('embargo.index') }}" class="btn atom-btn-outline-light">Back to Embargoes</a></li>
     </ul>

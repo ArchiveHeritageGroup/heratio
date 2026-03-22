@@ -99,10 +99,10 @@ $moduleLabels = [
                                                        id="mode_@php echo $module; @endphp_@php echo $mode; @endphp"
                                                        data-module="@php echo $module; @endphp"
                                                        @php echo in_array($mode, $availableModes) ? 'checked' : ''; @endphp>
-                                                <label class="form-check-label" 
+                                                <label class="form-check-label"
                                                        for="mode_@php echo $module; @endphp_@php echo $mode; @endphp"
                                                        title="@php echo $meta['name']; @endphp">
-                                                    <i class="bi @php echo $meta['icon']; @endphp"></i>
+                                                    <i class="bi @php echo $meta['icon']; @endphp"></i> <span class="badge bg-secondary ms-1">Optional</span>
                                                 </label>
                                             </div>
                                         @php endforeach; @endphp
@@ -130,7 +130,7 @@ $moduleLabels = [
                                                id="thumb_@php echo $module; @endphp"
                                                @php echo ($setting['show_thumbnails'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="thumb_@php echo $module; @endphp">
-                                            Thumbnails
+                                            Thumbnails <span class="badge bg-secondary ms-1">Optional</span>
                                         </label>
                                     </div>
                                     
@@ -142,7 +142,7 @@ $moduleLabels = [
                                                id="override_@php echo $module; @endphp"
                                                @php echo ($setting['allow_user_override'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="override_@php echo $module; @endphp">
-                                            Allow user override
+                                            Allow user override <span class="badge bg-secondary ms-1">Optional</span>
                                         </label>
                                     </div>
                                 </td>

@@ -99,13 +99,13 @@
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientPortrait" value="portrait" checked>
               <label class="form-check-label" for="orientPortrait">
-                <i class="bi bi-phone me-1"></i>Portrait
+                <i class="bi bi-phone me-1"></i>Portrait <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientLandscape" value="landscape">
               <label class="form-check-label" for="orientLandscape">
-                <i class="bi bi-phone-landscape me-1"></i>Landscape
+                <i class="bi bi-phone-landscape me-1"></i>Landscape <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
           </div>
@@ -117,7 +117,7 @@
             <input class="form-check-input" type="checkbox" id="pdfa" name="pdfa" value="1"
                    {{ !$ghostscriptAvailable ? 'disabled' : '' }}>
             <label class="form-check-label fw-bold" for="pdfa">
-              Generate PDF/A
+              Generate PDF/A <span class="badge bg-secondary ms-1">Optional</span>
             </label>
           </div>
           @if(!$ghostscriptAvailable)

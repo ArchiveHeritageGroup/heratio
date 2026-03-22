@@ -13,11 +13,3 @@ Route::middleware('auth')->prefix('provenance')->group(function () {
     Route::delete('/{slug}/event/{eventId}', [ProvenanceController::class, 'deleteEvent'])->name('provenance.deleteEvent');
 });
 
-// Provenance routes
-Route::middleware(['web'])->prefix('provenance')->group(function () {
-    Route::get('/{slug}', fn($slug) => view('provenance::view', ['slug' => $slug]))->name('provenance.view');
-    Route::get('/{slug}/edit', fn($slug) => view('provenance::edit', ['slug' => $slug]))->name('provenance.edit');
-    Route::put('/{slug}', fn($slug) => redirect()->back())->name('provenance.update');
-    Route::delete('/{slug}/event/{id}', fn($slug, $id) => redirect()->back())->name('provenance.deleteEvent');
-    Route::get('/{slug}/timeline', fn($slug) => view('provenance::timeline', ['slug' => $slug]))->name('provenance.timeline');
-});

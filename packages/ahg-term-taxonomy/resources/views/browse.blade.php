@@ -56,15 +56,15 @@
             <div class="px-3 py-2">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-all" value="allLabels" {{ (request('subqueryField', 'allLabels') === 'allLabels') ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-all">All labels</label>
+                <label class="form-check-label" for="qf-all">All labels <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-preferred" value="preferredLabel" {{ request('subqueryField') === 'preferredLabel' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-preferred">Preferred label</label>
+                <label class="form-check-label" for="qf-preferred">Preferred label <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-usefor" value="useForLabels" {{ request('subqueryField') === 'useForLabels' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-usefor">"Use for" labels</label>
+                <label class="form-check-label" for="qf-usefor">"Use for" labels <span class="badge bg-secondary ms-1">Optional</span></label>
               </div>
             </div>
           </div>

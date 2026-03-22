@@ -176,7 +176,7 @@
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
             {{ __('Cancel') }}
           </button>
-          <button type="button" class="btn btn-success modal-submit">
+          <button type="button" class="btn atom-btn-white modal-submit">
             {{ __('Submit') }}
           </button>
         </div>

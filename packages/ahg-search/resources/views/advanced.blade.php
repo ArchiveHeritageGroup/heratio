@@ -103,7 +103,7 @@
         <div class="mb-3">
           <div class="form-check">
             <input type="checkbox" id="adv-hasDo" name="hasDigitalObject" value="1" class="form-check-input">
-            <label for="adv-hasDo" class="form-check-label">Only show descriptions with digital objects</label>
+            <label for="adv-hasDo" class="form-check-label">Only show descriptions with digital objects <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
 

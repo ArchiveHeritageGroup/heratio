@@ -836,7 +836,7 @@
                 <label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check mt-1">
                   <input type="checkbox" class="form-check-input" name="holding_primary[]" value="{{ $h->id }}" @checked($h->is_primary)>
-                  <label class="form-check-label small">Primary copy</label>
+                  <label class="form-check-label small">Primary copy <span class="badge bg-secondary ms-1">Optional</span></label>
                 </div>
               </div>
             </div>
@@ -1092,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="col-md-2"><label class="form-label small">Access <span class="badge bg-secondary ms-1">Optional</span></label><select class="form-select form-select-sm" name="holding_access[]"><option value="unknown">Unknown</option><option value="available">Available</option><option value="restricted">Restricted</option><option value="preservation_only">Preservation Only</option><option value="digitized_available">Digitized</option><option value="on_request">On Request</option><option value="staff_only">Staff Only</option></select></div>' +
         '<div class="col-md-3"><label class="form-label small">Access URL <span class="badge bg-secondary ms-1">Optional</span></label><input type="url" class="form-control form-control-sm" name="holding_url[]" placeholder="Streaming URL"></div>' +
         '<div class="col-md-2"><label class="form-label small">Verified Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control form-control-sm" name="holding_verified[]"></div>' +
-        '<div class="col-md-2"><label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="holding_primary[]" value="new"><label class="form-check-label small">Primary copy</label></div></div>' +
+        '<div class="col-md-2"><label class="form-label small">Primary <span class="badge bg-secondary ms-1">Optional</span></label><div class="form-check mt-1"><input type="checkbox" class="form-check-input" name="holding_primary[]" value="new"><label class="form-check-label small">Primary copy <span class="badge bg-secondary ms-1">Optional</span></label></div></div>' +
         '</div>' +
         '<div class="row">' +
         '<div class="col-md-6"><label class="form-label small">Access Notes <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control form-control-sm" name="holding_access_notes[]" placeholder="How to request, viewing conditions"></div>' +

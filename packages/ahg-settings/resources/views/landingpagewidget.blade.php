@@ -1,1 +1,0 @@
-_landing-page-widget.blade.php

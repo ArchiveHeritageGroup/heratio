@@ -21,13 +21,13 @@
               <div class="form-check form-switch mb-3">
                 <input type="hidden" name="settings[enable_public_notices]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_public_notices]" id="enable_public_notices" value="1" {{ ($settings['enable_public_notices'] ?? '0') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_public_notices">Display cultural notices to public users</label>
+                <label class="form-check-label" for="enable_public_notices">Display cultural notices to public users <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-text">When enabled, cultural sensitivity notices will be displayed on the public view of records.</div>
               </div>
               <div class="form-check form-switch mb-3">
                 <input type="hidden" name="settings[enable_staff_notices]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_staff_notices]" id="enable_staff_notices" value="1" {{ ($settings['enable_staff_notices'] ?? '0') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_staff_notices">Display cultural notices to staff</label>
+                <label class="form-check-label" for="enable_staff_notices">Display cultural notices to staff <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-text">When enabled, cultural sensitivity notices will be displayed to authenticated staff members.</div>
               </div>
             </div>
@@ -43,7 +43,7 @@
               <div class="form-check form-switch mb-3">
                 <input type="hidden" name="settings[require_acknowledgement_default]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[require_acknowledgement_default]" id="require_ack" value="1" {{ ($settings['require_acknowledgement_default'] ?? '0') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="require_ack">Require acknowledgement by default</label>
+                <label class="form-check-label" for="require_ack">Require acknowledgement by default <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-text">When enabled, new sensitive cultural notices will require user acknowledgement before viewing content.</div>
               </div>
             </div>
@@ -59,7 +59,7 @@
               <div class="form-check form-switch mb-3">
                 <input type="hidden" name="settings[require_community_consent]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[require_community_consent]" id="require_consent" value="1" {{ ($settings['require_community_consent'] ?? '0') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="require_consent">Require community consent for access</label>
+                <label class="form-check-label" for="require_consent">Require community consent for access <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-text">Restrict access to sensitive records until community consent is recorded.</div>
               </div>
               <div class="mb-3">

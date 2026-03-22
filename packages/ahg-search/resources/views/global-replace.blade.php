@@ -52,7 +52,7 @@
         <div class="col-md-4">
           <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" name="caseSensitive" id="caseSensitive" value="1" {{ old('caseSensitive', $caseSensitive ?? true) ? 'checked' : '' }}>
-            <label class="form-check-label" for="caseSensitive">Case sensitive</label>
+            <label class="form-check-label" for="caseSensitive">Case sensitive <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
         </div>
 

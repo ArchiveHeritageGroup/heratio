@@ -1,1 +1,0 @@
-privacy-notification.blade.php

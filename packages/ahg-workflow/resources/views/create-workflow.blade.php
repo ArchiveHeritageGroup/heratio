@@ -88,32 +88,32 @@
           <div class="col-md-3">
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {{ old('is_active', true) ? 'checked' : '' }}>
-              <label class="form-check-label" for="is_active">Active</label>
+              <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="is_default" name="is_default" {{ old('is_default') ? 'checked' : '' }}>
-              <label class="form-check-label" for="is_default">Default Workflow</label>
+              <label class="form-check-label" for="is_default">Default Workflow <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="require_all_steps" name="require_all_steps" {{ old('require_all_steps', true) ? 'checked' : '' }}>
-              <label class="form-check-label" for="require_all_steps">Require All Steps</label>
+              <label class="form-check-label" for="require_all_steps">Require All Steps <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="allow_parallel" name="allow_parallel" {{ old('allow_parallel') ? 'checked' : '' }}>
-              <label class="form-check-label" for="allow_parallel">Allow Parallel Steps</label>
+              <label class="form-check-label" for="allow_parallel">Allow Parallel Steps <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
           </div>
         </div>
 
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="notification_enabled" name="notification_enabled" {{ old('notification_enabled', true) ? 'checked' : '' }}>
-          <label class="form-check-label" for="notification_enabled">Enable Notifications</label>
+          <label class="form-check-label" for="notification_enabled">Enable Notifications <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
 
         <div class="d-flex gap-2">

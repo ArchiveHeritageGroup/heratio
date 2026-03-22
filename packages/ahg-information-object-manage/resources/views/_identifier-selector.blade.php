@@ -120,7 +120,7 @@ $hasLookup = in_array($sector, ['library']);
             </div>
             <div class="lookup-content"></div>
             <div class="mt-2">
-                <button type="button" class="btn btn-success btn-sm apply-lookup">
+                <button type="button" class="btn atom-btn-white btn-sm apply-lookup">
                     <i class="fa-solid fa-check me-1"></i>@php echo __('Apply to Form') @endphp
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm close-lookup ms-2">

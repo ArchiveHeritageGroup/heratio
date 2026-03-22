@@ -127,7 +127,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="tpmAttachToRecord" checked>
                     <label class="form-check-label" for="tpmAttachToRecord">
-                        Attach PDF to this record as digital object
+                        Attach PDF to this record as digital object <span class="badge bg-secondary ms-1">Optional</span>
                     </label>
                 </div>
             </div>
@@ -359,7 +359,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
             if (result.success) {
                 showAlert(`
                     <strong>PDF created successfully!</strong> ${result.pages} page(s)
-                    <a href="${API_BASE}/jobs/${currentJob}/download" class="btn btn-sm btn-success ms-2" target="_blank">
+                    <a href="${API_BASE}/jobs/${currentJob}/download" class="btn btn-sm atom-btn-white ms-2" target="_blank">
                         <i class="fas fa-download me-1"></i> Download
                     </a>
                 `, 'success');

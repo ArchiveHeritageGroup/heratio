@@ -37,7 +37,7 @@
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="fas fa-server me-2"></i>Replication Targets</span>
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
+        <button class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
           <i class="fas fa-plus me-1"></i>Add Target
         </button>
       </div>

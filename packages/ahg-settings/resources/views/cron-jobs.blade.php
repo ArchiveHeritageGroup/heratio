@@ -214,7 +214,7 @@
                           <div class="mb-3">
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" name="notify_on_failure" id="notify-{{ $job->id }}" {{ $job->notify_on_failure ? 'checked' : '' }}>
-                              <label class="form-check-label" for="notify-{{ $job->id }}">Notify on failure</label>
+                              <label class="form-check-label" for="notify-{{ $job->id }}">Notify on failure <span class="badge bg-secondary ms-1">Optional</span></label>
                             </div>
                           </div>
                           <div class="mb-3">

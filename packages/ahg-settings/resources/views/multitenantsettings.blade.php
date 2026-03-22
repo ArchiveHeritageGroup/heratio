@@ -1,1 +1,0 @@
-_multi-tenant-settings.blade.php

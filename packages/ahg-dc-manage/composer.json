@@ -1,5 +1,5 @@
 {
-    "name": "ahg/ahg-dc-manage",
+    "name": "ahg/dc-manage",
     "description": "Heratio DcManage package (migrated from ahgDcManagePlugin)",
     "autoload": {
         "psr-4": {
