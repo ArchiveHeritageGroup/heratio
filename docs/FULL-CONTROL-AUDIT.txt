@@ -1,67 +1,67 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 08:56:20
+# Generated: 2026-03-22 09:12:39
 # Total Heratio views: 361
-# Views with AtoM equivalent: 43
-# Views without AtoM equivalent: 318
+# Views with AtoM equivalent: 194
+# Views without AtoM equivalent: 167
 # Total Heratio controls: 12291
-# Total AtoM controls (matched): 194
-# Total delta: -790
+# Total AtoM controls (matched): 9647
+# Total delta: 1876
 
 ## SUMMARY BY PACKAGE
 
 Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sidebar   AtoM? 
 ───────────────────────────────────────────────────────────────────────────────────────────
-ahg-3d-model                       1     29      —     ?       1col      none      0/1   
-ahg-accession-manage               4     189     —     ?       1col      none,right0/4   
-ahg-acl                            9     238     —     ?       1col      none      0/9   
-ahg-actor-manage                   7     468     6       -462    2col,1col,unknown,print,3colleft,none,detected2/7   
-ahg-ai-services                    2     212     —     ?       1col      none      0/2   
-ahg-audit-trail                    4     83      —     ?       1col      none      0/4   
-ahg-backup                         3     124     —     ?       1col      none      0/3   
-ahg-cart                           7     122     —     ?       1col      none      0/7   
-ahg-core                           7     61      —     ?       unknown,1colnone      0/7   
-ahg-dam                            4     350     —     ?       1col,3col none,detected0/4   
-ahg-data-migration                 11    246     —     ?       1col      none      0/11  
-ahg-dedupe                         6     89      —     ?       1col      none,detected0/6   
-ahg-display                        11    459     —     ?       unknown,masternone,detected,left0/11  
-ahg-doi-manage                     6     105     —     ?       1col      none      0/6   
-ahg-donor-manage                   4     33      —     ?       1col      none,right0/4   
-ahg-dropdown-manage                2     97      —     ?       1col      detected  0/2   
-ahg-favorites                      2     71      —     ?       1col      left,none 0/2   
-ahg-feedback                       3     107     —     ?       1col      left,none 0/3   
-ahg-ftp-upload                     1     51      —     ?       1col      none      0/1   
-ahg-function-manage                4     106     5       -101    1col      none,right2/4   
-ahg-gallery                        6     727     —     ?       1col,2col,3colnone,detected0/6   
-ahg-help                           5     69      —     ?       unknown,1coldetected  0/5   
-ahg-heritage-manage                6     216     —     ?       1col,unknown,2colleft,none,detected0/6   
-ahg-iiif-collection                5     181     —     ?       2col      detected  0/5   
-ahg-information-object-manage      34    1272    15      -1257   1col,unknown,2col,print,3colnone,detected,right2/34  
-ahg-integrity                      1     37      —     ?       1col      none      0/1   
-ahg-jobs-manage                    2     16      8       -8      1col      none      1/2   
-ahg-library                        3     338     —     ?       1col,3col none,detected0/3   
-ahg-loan                           4     291     —     ?       1col      none      0/4   
-ahg-media-processing               2     95      —     ?       1col      none,detected0/2   
-ahg-menu-manage                    5     45      8       -37     1col,unknownnone      3/5   
-ahg-metadata-extraction            3     81      —     ?       1col      none      0/3   
-ahg-museum                         3     583     —     ?       1col,2col,3colnone,detected0/3   
-ahg-pdf-tools                      3     85      —     ?       1col      none      0/3   
-ahg-portable-export                1     57      —     ?       1col      none      0/1   
-ahg-preservation                   12    176     —     ?       unknown,1colnone,left 0/12  
+ahg-3d-model                       1     29      107     78      1col      none      1/1   
+ahg-accession-manage               4     189     36      -153    1col      none,right4/4   
+ahg-acl                            9     238     35      -203    1col      none      1/9   
+ahg-actor-manage                   7     468     55      -413    2col,1col,unknown,print,3colleft,none,detected4/7   
+ahg-ai-services                    2     212     93      -119    1col      none      1/2   
+ahg-audit-trail                    4     83      70      -13     1col      none      4/4   
+ahg-backup                         3     124     215     91      1col      none      3/3   
+ahg-cart                           7     122     125     3       1col      none      4/7   
+ahg-core                           7     61      9       -52     unknown,1colnone      2/7   
+ahg-dam                            4     350     525     175     1col,3col none,detected4/4   
+ahg-data-migration                 11    246     243     -3      1col      none      4/11  
+ahg-dedupe                         6     89      214     125     1col      none,detected5/6   
+ahg-display                        11    459     275     -184    unknown,masternone,detected,left6/11  
+ahg-doi-manage                     6     105     224     119     1col      none      6/6   
+ahg-donor-manage                   4     33      151     118     1col      none,right4/4   
+ahg-dropdown-manage                2     97      92      -5      1col      detected  2/2   
+ahg-favorites                      2     71      195     124     1col      left,none 1/2   
+ahg-feedback                       3     107     87      -20     1col      left,none 3/3   
+ahg-ftp-upload                     1     51      48      -3      1col      none      1/1   
+ahg-function-manage                4     106     70      -36     1col      none,right4/4   
+ahg-gallery                        6     727     440     -287    1col,2col,3colnone,detected4/6   
+ahg-help                           5     69      58      -11     unknown,1coldetected  4/5   
+ahg-heritage-manage                6     216     100     -116    1col,unknown,2colleft,none,detected2/6   
+ahg-iiif-collection                5     181     164     -17     2col      detected  4/5   
+ahg-information-object-manage      34    1272    375     -897    1col,unknown,2col,print,3colnone,detected,right9/34  
+ahg-integrity                      1     37      42      5       1col      none      1/1   
+ahg-jobs-manage                    2     16      39      23      1col      none      1/2   
+ahg-library                        3     338     1119    781     1col,3col none,detected3/3   
+ahg-loan                           4     291     228     -63     1col      none      4/4   
+ahg-media-processing               2     95      49      -46     1col      none,detected1/2   
+ahg-menu-manage                    5     45      43      -2      1col,unknownnone      3/5   
+ahg-metadata-extraction            3     81      67      -14     1col      none      3/3   
+ahg-museum                         3     583     304     -279    1col,2col,3colnone,detected3/3   
+ahg-pdf-tools                      3     85      50      -35     1col      none      1/3   
+ahg-portable-export                1     57      155     98      1col      none      1/1   
+ahg-preservation                   12    176     263     87      unknown,1colnone,left 8/12  
 ahg-reports                        14    574     —     ?       unknown,1colnone,right,left0/14  
-ahg-repository-manage              5     267     8       -259    2col,1col,printdetected,none,right2/5   
-ahg-request-publish                2     99      —     ?       1col      none      0/2   
-ahg-research                       44    1504    —     ?       unknown,2coldetected  0/44  
-ahg-researcher-manage              3     68      —     ?       1col      none      0/3   
-ahg-ric                            6     103     —     ?       1col      none      0/6   
-ahg-rights-holder-manage           4     31      15      -16     1col      none,right4/4   
+ahg-repository-manage              5     267     56      -211    2col,1col,printdetected,none,right4/5   
+ahg-request-publish                2     99      110     11      1col      none      2/2   
+ahg-research                       44    1504    876     -628    unknown,2coldetected  23/44 
+ahg-researcher-manage              3     68      56      -12     1col      none      2/3   
+ahg-ric                            6     103     130     27      1col      none      4/6   
+ahg-rights-holder-manage           4     31      551     520     1col      none,right4/4   
 ahg-search                         5     124     —     ?       1col,unknownnone,left,detected0/5   
-ahg-settings                       37    856     86      -770    unknown,1colnone,left,right,detected12/37 
-ahg-static-page                    3     23      8       -15     2col,1col detected,none3/3   
-ahg-storage-manage                 4     161     13      -148    1col      none      4/4   
-ahg-term-taxonomy                  5     170     20      -150    2col,1col detected,none,right4/5   
+ahg-settings                       37    856     1048    192     unknown,1colnone,left,right,detected18/37 
+ahg-static-page                    3     23      31      8       2col,1col detected,none3/3   
+ahg-storage-manage                 4     161     184     23      1col      none      4/4   
+ahg-term-taxonomy                  5     170     55      -115    2col,1col detected,none,right4/5   
 ahg-theme-b5                       19    318     —     ?       master,unknownnone,left,detected0/19  
-ahg-user-manage                    4     98      2       -96     1col      none,right4/4   
-ahg-workflow                       13    386     —     ?       1col      none,detected0/13  
+ahg-user-manage                    4     98      70      -28     1col      none,right4/4   
+ahg-workflow                       13    386     115     -271    1col      none,detected6/13  
 
 
 ## DETAILED PAGE-BY-PAGE AUDIT
@@ -70,35 +70,35 @@ ahg-workflow                       13    386     —     ?       1col      none,
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    4     6     0     5     0     5     29     —   —   —   —    ?      
+browse                        1col    none    4     6     0     5     0     5     29     1     13    25    107    78     
   BTN classes: btn(1), btn-close(3)
   URLs: {{ url( | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahg3DModelPlugin/modules/model3d/templates/indexSuccess.php, atom-ahg-plugins/ahg3DModelPlugin/modules/model3dSettings/templates/indexSuccess.php
 
 
 ### ahg-accession-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    1     5     0     1     0     0     7      —   —   —   —    ?      
+browse                        1col    none    1     5     0     1     0     0     7      1     3     0     13     6      
   BTN classes: btn(2), btn-sm(1)
   URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAccessionManagePlugin/modules/accessionManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/indexSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      —   —   —   —    ?      
+delete                        1col    none    1     1     0     1     0     0     3      2     0     0     4      1      
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/deleteSuccess.php
 
-edit                          1col    none    25    2     54    11    32    32    169    —   —   —   —    ?      
+edit                          1col    none    25    2     54    11    32    32    169    9     0     0     16     -153   
   BTN classes: btn(20), btn-close(1)
   Field badges: Req=4 Rec=2 Opt=26
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/editSuccess.php
 
-show                          1col    right   0     4     0     6     0     0     10     —   —   —   —    ?      
+show                          1col    right   0     4     0     6     0     0     10     1     0     0     3      -7     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/accession/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/deaccession/templates/indexSuccess.php
 
 
 ### ahg-acl
@@ -127,11 +127,11 @@ classifications               1col    none    0     3     0     2     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-clearances                    1col    none    6     1     8     2     8     13    45     —   —   —   —    ?      
+clearances                    1col    none    6     1     8     2     8     13    45     5     1     8     35     -10    
   BTN classes: btn(5), btn-close(2), btn-sm(1)
   Field badges: Req=2 Rec=0 Opt=6
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSecurityClearancePlugin/modules/securityClearance/templates/clearancesSuccess.php
 
 edit-group                    1col    none    5     3     4     3     4     6     35     —   —   —   —    ?      
   BTN classes: btn(5), btn-close(1), btn-sm(4)
@@ -160,21 +160,21 @@ pending-requests              1col    none    9     1     2     7     2     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    left    11    25    12    14    6     7     79     1     0     0     4      -75    
+browse                        2col    left    11    25    12    14    6     7     79     3     6     0     28     -51    
   BTN classes: btn(5), btn-lg(1), btn-sm(1)
   Field badges: Req=0 Rec=1 Opt=5
   URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: apps/qubit/modules/actor/templates/browseSuccess.php
+  AtoM: atom-ahg-plugins/ahgActorManagePlugin/modules/actorManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/actor/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/indexSuccess.php, apps/qubit/modules/actor/templates/browseSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/actor/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgActorManagePlugin/modules/sfIsaarPlugin/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/actor/templates/deleteSuccess.php, apps/qubit/modules/actor/templates/deleteSuccess.php
 
-edit                          1col    none    17    2     45    11    27    27    138    —   —   —   —    ?      
+edit                          1col    none    17    2     45    11    27    27    138    8     0     0     16     -122   
   BTN classes: btn(10)
   Field badges: Req=5 Rec=8 Opt=14
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/editSuccess.php
 
 _contact-area                 unknown none    3     0     48    4     48    46    156    —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(2), btn-outline-light(2)
@@ -189,10 +189,10 @@ _other-names                  unknown none    3     0     6     0     6     6   
 print                         print   none    0     0     0     9     0     0     9      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          3col    detected1     13    0     37    0     4     59     —   —   —   —    ?      
+show                          3col    detected1     13    0     37    0     4     59     0     1     0     5      -54    
   BTN classes: btn(7), btn-sm(2)
   URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsaarPlugin/templates/indexSuccess.php
 
 
 ### ahg-ai-services
@@ -205,71 +205,71 @@ config                        1col    none    7     1     45    2     47    47  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    5     3     2     1     2     14    45     —   —   —   —    ?      
+index                         1col    none    5     3     2     1     2     14    45     15    4     13    93     48     
   BTN classes: btn(7), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAiConditionPlugin/modules/aiCondition/templates/indexSuccess.php
 
 
 ### ahg-audit-trail
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    1     4     5     1     5     7     25     —   —   —   —    ?      
+browse                        1col    none    1     4     5     1     5     7     25     2     11    5     29     4      
   BTN classes: btn(1), btn-sm(1)
   Field badges: Req=0 Rec=1 Opt=4
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAuditTrailPlugin/modules/auditTrail/templates/browseSuccess.php
 
-settings                      1col    none    1     1     9     4     9     0     27     —   —   —   —    ?      
+settings                      1col    none    1     1     9     4     9     0     27     1     1     5     17     -10    
   BTN classes: btn(2)
   ⚠ NO FIELD BADGES on 9 labels
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAuditTrailPlugin/modules/auditTrail/templates/settingsSuccess.php
 
-show                          1col    none    0     1     0     9     0     3     15     —   —   —   —    ?      
+show                          1col    none    0     1     0     9     0     3     15     0     1     0     11     -4     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAuditTrailPlugin/modules/auditTrail/templates/viewSuccess.php
 
-statistics                    1col    none    0     4     0     7     0     1     16     —   —   —   —    ?      
+statistics                    1col    none    0     4     0     7     0     1     16     0     2     1     13     -3     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgAuditTrailPlugin/modules/auditTrail/templates/statisticsSuccess.php
 
 
 ### ahg-backup
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    8     4     4     2     4     15    70     —   —   —   —    ?      
+index                         1col    none    8     4     4     2     4     15    70     24    4     24    148    78     
   BTN classes: btn(10), btn-sm(2), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgBackupPlugin/modules/backup/templates/indexSuccess.php
 
-restore                       1col    none    1     2     5     3     5     5     36     —   —   —   —    ?      
+restore                       1col    none    1     2     5     3     5     5     36     1     1     4     22     -14    
   BTN classes: btn(3), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgBackupPlugin/modules/backup/templates/restoreSuccess.php
 
-settings                      1col    none    1     1     4     1     4     4     18     —   —   —   —    ?      
+settings                      1col    none    1     1     4     1     4     4     18     3     1     12    45     27     
   BTN classes: btn(1), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgBackupPlugin/modules/backup/templates/settingsSuccess.php
 
 
 ### ahg-cart
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-orders                        1col    none    0     3     0     1     0     3     9      —   —   —   —    ?      
+orders                        1col    none    0     3     0     1     0     3     9      0     5     0     13     4      
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgCartPlugin/modules/cart/templates/ordersSuccess.php
 
 settings                      1col    none    1     1     10    1     10    10    35     —   —   —   —    ?      
   BTN classes: btn(2)
@@ -277,24 +277,24 @@ settings                      1col    none    1     1     10    1     10    10  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse                        1col    none    2     3     1     1     0     1     14     —   —   —   —    ?      
+browse                        1col    none    2     3     1     1     0     1     14     7     11    2     49     35     
   BTN classes: btn(4), btn-sm(2)
   URLs: {{ url( | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgCartPlugin/modules/cart/templates/browseSuccess.php
 
-checkout                      1col    none    1     1     13    1     13    13    48     —   —   —   —    ?      
+checkout                      1col    none    1     1     13    1     13    13    48     5     3     15    50     2      
   BTN classes: btn(2)
   Field badges: Req=2 Rec=0 Opt=11
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgCartPlugin/modules/cart/templates/checkoutSuccess.php
 
 order-confirmation            1col    none    0     1     0     1     0     3     6      —   —   —   —    ?      
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-orders                        1col    none    0     1     0     1     0     3     6      —   —   —   —    ?      
+orders                        1col    none    0     1     0     1     0     3     6      0     5     0     13     7      
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgCartPlugin/modules/cart/templates/ordersSuccess.php
 
 thank-you                     1col    none    0     1     0     1     0     0     4      —   —   —   —    ?      
   BTN classes: btn(1)
@@ -306,19 +306,19 @@ thank-you                     1col    none    0     1     0     1     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-_button                       unknown none    1     0     0     0     0     0     2      —   —   —   —    ?      
+_button                       unknown none    1     0     0     0     0     0     2      2     0     0     4      2      
   BTN classes: btn(1)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgCorePlugin/modules/clipboard/templates/_button.php, apps/qubit/modules/clipboard/templates/_button.php
 
 index                         1col    none    5     6     0     1     0     13    29     —   —   —   —    ?      
   BTN classes: btn(5), btn-sm(2), btn-close(1)
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-load                          1col    none    4     0     2     2     2     2     12     —   —   —   —    ?      
+load                          1col    none    4     0     2     2     2     2     12     3     0     0     5      -7     
   BTN classes: btn(2), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=1
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: apps/qubit/modules/clipboard/templates/loadSuccess.php
 
 digital-object                unknown none    0     3     0     0     0     2     7      —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(2)
@@ -344,26 +344,26 @@ sort-pickers                  unknown none    1     1     0     0     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    3     5     0     1     0     1     14     —   —   —   —    ?      
+browse                        1col    none    3     5     0     1     0     1     14     2     22    0     105    91     
   BTN classes: btn(4), btn-sm(3)
   URLs: {{ request()->url() }}?{{ http_build_query(array_merge($assetTypeQuery, [ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/indexSuccess.php, atom-ahg-plugins/ahgDAMPlugin/modules/damReports/templates/indexSuccess.php
 
-dashboard                     1col    none    0     7     0     5     0     1     28     —   —   —   —    ?      
+dashboard                     1col    none    0     7     0     5     0     1     28     0     15    0     43     15     
   BTN classes: btn(6), btn-lg(2), btn-sm(3)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/dashboardSuccess.php
 
-edit                          1col    none    5     1     65    1     59    59    216    —   —   —   —    ?      
+edit                          1col    none    5     1     65    1     59    59    216    13    0     109   272    56     
   BTN classes: btn(5), btn-sm(4), btn-lg(1)
   Field badges: Req=3 Rec=0 Opt=56
   URLs: {{ $asset ? route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/editSuccess.php
 
-show                          3col    detected3     9     0     71    0     1     92     —   —   —   —    ?      
+show                          3col    detected3     9     0     71    0     1     92     2     22    0     105    13     
   BTN classes: btn(5), btn-sm(2)
   URLs: {{ route( | mailto:{{ $asset->creator_email }} | {{ $asset->creator_website }} | {{ $asset->license_url }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDAMPlugin/modules/dam/templates/indexSuccess.php, atom-ahg-plugins/ahgDAMPlugin/modules/damReports/templates/indexSuccess.php
 
 
 ### ahg-data-migration
@@ -387,27 +387,27 @@ import-results                1col    none    0     5     0     3     0     4   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    3     10    1     3     1     5     38     —   —   —   —    ?      
+index                         1col    none    3     10    1     3     1     5     38     4     10    12    76     38     
   BTN classes: btn-close(2), btn-sm(2)
   Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDataMigrationPlugin/modules/dataMigration/templates/indexSuccess.php, atom-ahg-plugins/ahgDataMigrationPlugin/modules/preservica/templates/indexSuccess.php
 
 job-status                    1col    none    0     4     0     4     0     5     20     —   —   —   —    ?      
   BTN classes: btn(2)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-jobs                          1col    none    0     4     0     1     0     5     14     —   —   —   —    ?      
+jobs                          1col    none    0     4     0     1     0     5     14     3     3     0     14     0      
   BTN classes: btn(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDataMigrationPlugin/modules/dataMigration/templates/jobsSuccess.php
 
-map                           1col    none    7     3     3     5     2     2     37     —   —   —   —    ?      
+map                           1col    none    7     3     3     5     2     2     37     34    2     35    129    92     
   BTN classes: btn-close(1), btn(7), btn-sm(3)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDataMigrationPlugin/modules/dataMigration/templates/mapSuccess.php
 
 preservica-export             1col    none    1     2     4     2     4     4     20     —   —   —   —    ?      
   Field badges: Req=3 Rec=1 Opt=0
@@ -419,10 +419,10 @@ preservica-import             1col    none    1     2     5     2     5     5   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-preview                       1col    none    1     3     0     2     0     0     12     —   —   —   —    ?      
+preview                       1col    none    1     3     0     2     0     0     12     1     3     4     24     12     
   BTN classes: btn(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDataMigrationPlugin/modules/dataMigration/templates/previewSuccess.php
 
 upload                        1col    none    2     2     3     2     3     3     18     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2)
@@ -435,35 +435,35 @@ upload                        1col    none    2     2     3     2     3     3   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     3     1     3     6     25     —   —   —   —    ?      
+browse                        1col    none    2     5     3     1     3     6     25     6     21    6     88     63     
   BTN classes: btn(5), btn-sm(2), btn-dismiss(1)
   Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/browseSuccess.php, atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/indexSuccess.php, atom-ahg-plugins/ahgAuthorityPlugin/modules/authorityDedup/templates/indexSuccess.php
 
-compare                       1col    none    2     3     0     1     0     1     15     —   —   —   —    ?      
+compare                       1col    none    2     3     0     1     0     1     15     0     10    0     34     19     
   BTN classes: btn(3)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/compareSuccess.php, atom-ahg-plugins/ahgAuthorityPlugin/modules/authorityDedup/templates/compareSuccess.php
 
-index                         1col    detected1     11    0     1     0     8     31     —   —   —   —    ?      
+index                         1col    detected1     11    0     1     0     8     31     2     12    1     53     22     
   BTN classes: btn(3), btn-dismiss(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/indexSuccess.php, atom-ahg-plugins/ahgAuthorityPlugin/modules/authorityDedup/templates/indexSuccess.php
 
 not-configured                1col    none    0     0     0     1     0     0     3      —   —   —   —    ?      
   Field badges: Req=1 Rec=0 Opt=0
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report                        1col    none    0     1     0     1     0     1     5      —   —   —   —    ?      
+report                        1col    none    0     1     0     1     0     1     5      0     2     0     18     13     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/reportSuccess.php
 
-rules                         1col    none    0     1     0     1     0     5     10     —   —   —   —    ?      
+rules                         1col    none    0     1     0     1     0     5     10     0     5     0     21     11     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDedupePlugin/modules/dedupe/templates/rulesSuccess.php
 
 
 ### ahg-display
@@ -491,11 +491,11 @@ browse-settings               master  detected2     3     7     2     7     4   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse                        master  left    3     16    2     1     3     10    49     —   —   —   —    ?      
+browse                        master  left    3     16    2     1     3     10    49     10    66    4     222    173    
   BTN classes: btn-close(1), btn-close-white(1), btn(2)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ glamBrowseUrl($fp, [], [ | {{ glamBrowseUrl($fp, [
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/browseSuccess.php, atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/indexSuccess.php, atom-ahg-plugins/ahgDisplayPlugin/modules/displaySearch/templates/browseSuccess.php
 
 bulk-set-type                 master  detected1     4     2     4     3     2     24     —   —   —   —    ?      
   BTN classes: btn(3)
@@ -503,119 +503,119 @@ bulk-set-type                 master  detected1     4     2     4     3     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-fields                        master  none    0     3     0     3     0     4     21     —   —   —   —    ?      
+fields                        master  none    0     3     0     3     0     4     21     0     1     0     6      -15    
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/fieldsSuccess.php
 
-index                         master  detected0     7     0     6     0     3     31     —   —   —   —    ?      
+index                         master  detected0     7     0     6     0     3     31     0     5     0     30     -1     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/indexSuccess.php
 
-levels                        master  none    1     4     1     2     1     6     23     —   —   —   —    ?      
+levels                        master  none    1     4     1     2     1     6     23     1     1     1     7      -16    
   BTN classes: btn(3), btn-sm(2)
   Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/levelsSuccess.php
 
-print                         unknown none    2     0     0     1     0     0     5      —   —   —   —    ?      
+print                         unknown none    2     0     0     1     0     0     5      2     0     0     3      -2     
   BTN classes: btn(2)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/printSuccess.php
 
-profiles                      master  none    0     3     0     1     0     3     12     —   —   —   —    ?      
+profiles                      master  none    0     3     0     1     0     3     12     0     1     0     7      -5     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDisplayPlugin/modules/display/templates/profilesSuccess.php
 
 
 ### ahg-doi-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     6     0     1     0     3     13     —   —   —   —    ?      
+browse                        1col    none    0     6     0     1     0     3     13     2     21    1     62     49     
   BTN classes: btn(2), btn-sm(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/browseSuccess.php, atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/indexSuccess.php
 
-config                        1col    none    2     1     8     1     8     8     31     —   —   —   —    ?      
+config                        1col    none    2     1     8     1     8     8     31     3     2     11    45     14     
   BTN classes: btn(2), btn-sm(1), btn-close(1)
   Field badges: Req=0 Rec=0 Opt=8
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/configSuccess.php
 
-index                         1col    none    0     8     0     2     0     3     23     —   —   —   —    ?      
+index                         1col    none    0     8     0     2     0     3     23     1     14    0     42     19     
   BTN classes: btn(4), btn-sm(4)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/indexSuccess.php
 
-queue                         1col    none    0     7     0     1     0     9     20     —   —   —   —    ?      
+queue                         1col    none    0     7     0     1     0     9     20     1     3     0     16     -4     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/queueSuccess.php
 
-report                        1col    none    0     1     0     3     0     0     7      —   —   —   —    ?      
+report                        1col    none    0     1     0     3     0     0     7      1     3     4     30     23     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/reportSuccess.php
 
-view                          1col    none    0     2     0     2     0     4     11     —   —   —   —    ?      
+view                          1col    none    0     2     0     2     0     4     11     2     10    0     29     18     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDoiPlugin/modules/doi/templates/viewSuccess.php
 
 
 ### ahg-donor-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     0     1     0     0     8      —   —   —   —    ?      
+browse                        1col    none    2     5     0     1     0     0     8      1     7     4     27     19     
   BTN classes: btn(3), btn-sm(2)
   URLs: {{ request()->fullUrlWithQuery([ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/browseSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/indexSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/browseSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      —   —   —   —    ?      
+delete                        1col    none    1     1     0     1     0     0     3      2     0     0     4      1      
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/deleteSuccess.php
 
-edit                          1col    none    4     2     1     3     1     1     12     —   —   —   —    ?      
+edit                          1col    none    4     2     1     3     1     1     12     8     0     24    62     50     
   BTN classes: btn(1)
   Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/editSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/editSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/editSuccess.php
 
-show                          1col    right   0     5     0     5     0     0     10     —   —   —   —    ?      
+show                          1col    right   0     5     0     5     0     0     10     0     8     0     58     48     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route( | {{ $contact->website }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgDonorManagePlugin/modules/donorManage/templates/viewSuccess.php, atom-ahg-plugins/ahgDonorManagePlugin/modules/donor/templates/indexSuccess.php, atom-ahg-plugins/ahgDonorAgreementPlugin/modules/donorAgreement/templates/viewSuccess.php
 
 
 ### ahg-dropdown-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-edit                          1col    detected5     4     9     4     5     4     40     —   —   —   —    ?      
+edit                          1col    detected5     4     9     4     5     4     40     6     2     9     36     -4     
   BTN classes: btn(5), btn-sm(1), btn-delete-term(1), btn-close(1)
   Field badges: Req=2 Rec=0 Opt=2
   URLs: {{ url( | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgDropdown/templates/editSuccess.php
 
-index                         1col    detected16    3     7     5     5     8     57     —   —   —   —    ?      
+index                         1col    detected16    3     7     5     5     8     57     17    3     7     56     -1     
   BTN classes: btn(12), btn-sm(5), btn-rename(1), btn-move(1), btn-delete-taxonomy(1), btn-close(3)
   Field badges: Req=3 Rec=0 Opt=2
   URLs: #section-{{ $sKey }} | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgDropdown/templates/indexSuccess.php
 
 
 ### ahg-favorites
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    left    15    7     13    3     5     10    64     —   —   —   —    ?      
+browse                        1col    left    15    7     13    3     5     10    64     43    17    26    195    131    
   BTN classes: btn(13), btn-sm(8), btn-close(2)
   Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route( | {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFavoritesPlugin/modules/favorites/templates/browseSuccess.php
 
 shared                        1col    none    1     2     0     1     0     1     7      —   —   —   —    ?      
   BTN classes: btn(1)
@@ -627,57 +627,57 @@ shared                        1col    none    1     2     0     1     0     1   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    left    1     10    0     1     0     8     31     —   —   —   —    ?      
+browse                        1col    left    1     10    0     1     0     8     31     0     12    0     37     6      
   BTN classes: btn(3), btn-sm(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFeedbackPlugin/modules/feedback/templates/browseSuccess.php
 
-edit                          1col    none    1     1     11    1     11    11    42     —   —   —   —    ?      
+edit                          1col    none    1     1     11    1     11    11    42     1     4     0     32     -10    
   BTN classes: btn(2)
   Field badges: Req=1 Rec=0 Opt=10
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFeedbackPlugin/modules/feedback/templates/editSuccess.php
 
-general                       1col    none    1     1     8     1     8     8     34     —   —   —   —    ?      
+general                       1col    none    1     1     8     1     8     8     34     1     1     0     18     -16    
   BTN classes: btn(2), btn-lg(1)
   Field badges: Req=6 Rec=0 Opt=2
   URLs: {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFeedbackPlugin/modules/feedback/templates/generalSuccess.php
 
 
 ### ahg-ftp-upload
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    7     2     1     5     0     9     51     —   —   —   —    ?      
+index                         1col    none    7     2     1     5     0     9     51     7     2     1     48     -3     
   BTN classes: btn(8), btn-sm(7)
   URLs: {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFtpPlugin/modules/ftpUpload/templates/indexSuccess.php
 
 
 ### ahg-function-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     0     1     0     0     8      0     0     0     3      -5     
+browse                        1col    none    2     5     0     1     0     0     8      0     0     0     8      0      
   BTN classes: btn(3), btn-sm(2)
   URLs: {{ request()->fullUrlWithQuery([ | {{ route(
-  AtoM: apps/qubit/modules/function/templates/browseSuccess.php, apps/qubit/modules/function/templates/listSuccess.php
+  AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/function/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/function/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/indexSuccess.php, apps/qubit/modules/function/templates/browseSuccess.php, apps/qubit/modules/function/templates/listSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/function/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/function/templates/deleteSuccess.php, apps/qubit/modules/function/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     29    4     19    19    84     —   —   —   —    ?      
+edit                          1col    none    8     2     29    4     19    19    84     11    0     15    50     -34    
   BTN classes: btn(4)
   Field badges: Req=4 Rec=4 Opt=11
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/editSuccess.php
 
-show                          1col    right   0     5     0     5     0     1     11     —   —   —   —    ?      
+show                          1col    right   0     5     0     5     0     1     11     0     0     0     6      -5     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgFunctionManagePlugin/modules/functionManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdfPlugin/templates/indexSuccess.php
 
 
 ### ahg-gallery
@@ -694,25 +694,25 @@ artist-show                   1col    none    0     8     0     10    0     2   
   URLs: {{ route( | mailto:{{ $artist->email }} | {{ $artist->website }} | https://instagram.com/{{ ltrim($artist->instagram, | https://twitter.com/{{ ltrim($artist->twitter, | {{ $artist->facebook }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-artists                       1col    none    0     2     0     1     0     0     5      —   —   —   —    ?      
+artists                       1col    none    0     2     0     1     0     0     5      2     6     6     33     28     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/artistsSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/galleryReports/templates/artistsSuccess.php
 
-browse                        1col    none    1     5     0     2     0     1     14     —   —   —   —    ?      
+browse                        1col    none    1     5     0     2     0     1     14     11    54    0     183    169    
   BTN classes: btn(2), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/browseSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/indexSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/galleryReports/templates/indexSuccess.php
 
-edit                          2col    detected67    9     65    23    67    218   524    —   —   —   —    ?      
+edit                          2col    detected67    9     65    23    67    218   524    5     5     0     52     -472   
   BTN classes: btn(4), btn-sm(3), btn-cco-guide(2), btn-help(49)
   Field badges: Req=13 Rec=18 Opt=18
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | https://www.getty.edu/research/publications/electronic_publications/cdwa/ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/editSuccess.php
 
-show                          3col    detected1     9     0     51    0     5     74     —   —   —   —    ?      
+show                          3col    detected1     9     0     51    0     5     74     11    49    0     172    98     
   URLs: {{ route( | /actor/{{ $creator->slug }} | /repository/{{ $repository->slug }} | {{ $digitalObjects[
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgGalleryPlugin/modules/gallery/templates/indexSuccess.php, atom-ahg-plugins/ahgGalleryPlugin/modules/galleryReports/templates/indexSuccess.php
 
 
 ### ahg-help
@@ -724,24 +724,24 @@ _sidebar                      unknown detected1     3     1     2     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-article                       1col    detected1     7     1     1     0     0     17     —   —   —   —    ?      
+article                       1col    detected1     7     1     1     0     0     17     1     6     1     16     -1     
   BTN classes: btn(3)
   URLs: {{ route( | #{{ $entry[
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHelpPlugin/modules/help/templates/articleSuccess.php
 
-category                      1col    detected0     2     0     3     0     1     8      —   —   —   —    ?      
+category                      1col    detected0     2     0     3     0     1     8      0     2     0     8      0      
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHelpPlugin/modules/help/templates/categorySuccess.php
 
-index                         1col    detected1     3     1     5     0     3     17     —   —   —   —    ?      
+index                         1col    detected1     3     1     5     0     3     17     1     3     1     18     1      
   BTN classes: btn(2)
   URLs: https://docs.theahg.co.za | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHelpPlugin/modules/help/templates/indexSuccess.php
 
-search                        1col    detected1     3     1     4     0     5     16     —   —   —   —    ?      
+search                        1col    detected1     3     1     4     0     5     16     1     3     1     16     0      
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHelpPlugin/modules/help/templates/searchSuccess.php
 
 
 ### ahg-heritage-manage
@@ -762,18 +762,18 @@ custodian-dashboard           1col    left    0     3     0     8     0     8   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-landing                       1col    none    3     24    1     12    0     1     62     —   —   —   —    ?      
+landing                       1col    none    3     24    1     12    0     1     62     3     24    1     62     0      
   URLs: {{ url( | #heritage-explore | {{ route( | {{ $collectionUrl }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHeritagePlugin/modules/heritage/templates/landingSuccess.php
 
 _admin-sidebar                unknown detected0     17    0     0     0     0     39     —   —   —   —    ?      
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-search                        2col    left    1     13    1     5     0     5     36     —   —   —   —    ?      
+search                        2col    left    1     13    1     5     0     5     36     1     14    1     38     2      
   BTN classes: btn(4), btn-sm(1)
   URLs: {{ $removeUrl }} | {{ url( | {{ $result[
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgHeritagePlugin/modules/heritage/templates/searchSuccess.php
 
 
 ### ahg-iiif-collection
@@ -786,26 +786,26 @@ add-items                     2col    detected3     1     4     6     5     7   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-create                        2col    detected1     2     6     3     6     5     29     —   —   —   —    ?      
+create                        2col    detected1     2     6     3     6     5     29     1     1     6     22     -7     
   BTN classes: btn(3)
   Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/newSuccess.php
 
-edit                          2col    detected1     3     6     4     6     5     32     —   —   —   —    ?      
+edit                          2col    detected1     3     6     4     6     5     32     1     3     6     27     -5     
   BTN classes: btn(1)
   Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/editSuccess.php
 
-index                         2col    detected0     6     0     3     0     1     18     —   —   —   —    ?      
+index                         2col    detected0     6     0     3     0     1     18     3     9     5     50     32     
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/indexSuccess.php, atom-ahg-plugins/ahgIiifPlugin/modules/iiifAuth/templates/indexSuccess.php, atom-ahg-plugins/ahgIiifPlugin/modules/mediaSettings/templates/indexSuccess.php
 
-view                          2col    detected2     12    1     6     1     17    65     —   —   —   —    ?      
+view                          2col    detected2     12    1     6     1     17    65     1     13    1     65     0      
   BTN classes: btn(1), btn-close(1)
   URLs: {{ route( | {{ url( | {{ e($item->manifest_uri) }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/iiifCollection/templates/viewSuccess.php
 
 
 ### ahg-information-object-manage
@@ -831,14 +831,14 @@ translate                     1col    none    1     0     1     0     1     1   
   Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse                        1col    none    1     2     0     1     0     0     5      1     5     0     13     8      
+browse                        1col    none    1     2     0     1     0     0     5      4     18    0     47     42     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/informationobject/templates/browseSuccess.php
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/informationobject/templates/browseSuccess.php, apps/qubit/modules/informationobject/templates/browseSuccess.php
 
-index                         1col    none    0     6     0     3     0     2     19     —   —   —   —    ?      
+index                         1col    none    0     6     0     3     0     2     19     2     8     0     21     2      
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 create                        unknown detected13    3     38    12    38    38    143    —   —   —   —    ?      
   BTN classes: btn(3)
@@ -846,19 +846,19 @@ create                        unknown detected13    3     38    12    38    38  
   URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/informationobject/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/informationobject/templates/deleteSuccess.php, apps/qubit/modules/informationobject/templates/deleteSuccess.php
 
-show                          1col    none    0     2     0     2     0     0     5      —   —   —   —    ?      
+show                          1col    none    0     2     0     2     0     0     5      2     8     0     21     16     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
-edit                          2col    detected12    2     44    12    44    43    157    —   —   —   —    ?      
+edit                          2col    detected12    2     44    12    44    43    157    55    1     73    196    39     
   Field badges: Req=1 Rec=13 Opt=29
   URLs: {{ url( | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgInformationObjectManagePlugin/modules/ioManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/editSuccess.php
 
 upload                        1col    none    2     1     1     2     1     1     8      —   —   —   —    ?      
   Field badges: Req=0 Rec=0 Opt=1
@@ -890,11 +890,11 @@ feature-header                unknown none    0     2     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    7     15    2     8     2     4     56     —   —   —   —    ?      
+index                         1col    none    7     15    2     8     2     4     56     2     8     0     21     -35    
   BTN classes: btn(6), btn-lg(1), btn-close(1)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route( | javascript:void(0)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 print                         print   none    0     0     0     13    0     0     13     —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
@@ -912,11 +912,11 @@ scan                          1col    none    2     7     0     3     0     5   
   URLs: {{ isset($io->slug) ? route( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    detected7     5     45    10    46    43    174    —   —   —   —    ?      
+index                         1col    detected7     5     45    10    46    43    174    2     8     0     21     -153   
   BTN classes: btn(7), btn-sm(6)
   Field badges: Req=0 Rec=0 Opt=42
   URLs: {{ route( | {{ $doc->file_path }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 timeline                      1col    none    0     5     0     3     0     11    26     —   —   —   —    ?      
   URLs: {{ route(
@@ -954,37 +954,37 @@ extended                      1col    none    1     2     4     1     5     4   
   URLs: {{ route( | {{ isset($io->slug) ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          3col    detected23    91    7     76    0     11    318    —   —   —   —    ?      
+show                          3col    detected23    91    7     76    0     11    318    2     8     0     21     -297   
   BTN classes: btn(29), btn-sm(9)
   URLs: {{ route( | {{ $masterUrl }} | {{ $imgSrc }} | /media/transcription/{{ $doId }}/vtt | /media/transcription/{{ $doId }}/srt | {{ url( | #identity-collapse | #context-collapse | #content-collapse | #conditions-collapse ... +10 more
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 heritage                      1col    none    0     0     0     0     0     0     1      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    0     0     0     0     0     0     1      —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+index                         1col    none    0     0     0     0     0     0     1      2     8     0     21     20     
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsadPlugin/templates/indexSuccess.php
 
 
 ### ahg-integrity
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    0     8     1     5     1     8     37     —   —   —   —    ?      
+index                         1col    none    0     8     1     5     1     8     37     0     10    1     42     5      
   BTN classes: btn(8), btn-sm(8)
   Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIntegrityPlugin/modules/integrity/templates/indexSuccess.php
 
 
 ### ahg-jobs-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     5     0     1     0     0     6      0     3     0     8      2      
+browse                        1col    none    0     5     0     1     0     0     6      1     21    0     39     33     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/jobs/templates/browseSuccess.php
+  AtoM: atom-ahg-plugins/ahgJobsManagePlugin/modules/jobsManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/jobs/templates/browseSuccess.php, apps/qubit/modules/jobs/templates/browseSuccess.php
 
 show                          1col    none    0     2     0     2     0     3     10     —   —   —   —    ?      
   BTN classes: btn(1)
@@ -996,60 +996,60 @@ show                          1col    none    0     2     0     2     0     3   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    3     6     0     1     0     1     15     —   —   —   —    ?      
+browse                        1col    none    3     6     0     1     0     1     15     20    99    19    381    366    
   BTN classes: btn(4), btn-sm(3)
   URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ request()->url() }}?{{ http_build_query(array_merge($materialTypeQuery, [ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLibraryPlugin/modules/library/templates/browseSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/library/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/circulation/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/acquisition/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/patron/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/serial/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/ill/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/opac/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/libraryReports/templates/indexSuccess.php
 
-edit                          1col    none    15    7     67    18    54    54    256    —   —   —   —    ?      
+edit                          1col    none    15    7     67    18    54    54    256    20    13    85    261    5      
   BTN classes: btn(16), btn-sm(10), btn-close(1)
   Field badges: Req=0 Rec=1 Opt=51
   URLs: {{ $item->openlibrary_url }} | {{ route( | {{ $item->ebook_preview_url ?? old(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLibraryPlugin/modules/library/templates/editSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/patron/templates/editSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/serial/templates/editSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/ill/templates/editSuccess.php
 
-show                          3col    detected1     22    0     26    0     2     67     —   —   —   —    ?      
+show                          3col    detected1     22    0     26    0     2     67     42    97    29    477    410    
   BTN classes: btn(2)
   URLs: {{ route( | {{ $creator->slug ? route( | {{ $item->openlibrary_url }} | https://openlibrary.org/works/{{ $item->openlibrary_id }} | https://www.goodreads.com/book/show/{{ $item->goodreads_id }} | https://www.librarything.com/work/{{ $item->librarything_id }} | {{ $item->ebook_preview_url }} | #basic-collapse | #identifiers-collapse | #classification-collapse ... +6 more
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLibraryPlugin/modules/library/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/circulation/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/acquisition/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/patron/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/patron/templates/viewSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/serial/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/serial/templates/viewSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/ill/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/ill/templates/viewSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/opac/templates/indexSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/opac/templates/viewSuccess.php, atom-ahg-plugins/ahgLibraryPlugin/modules/libraryReports/templates/indexSuccess.php
 
 
 ### ahg-loan
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-create                        1col    none    5     1     22    5     20    20    79     —   —   —   —    ?      
+create                        1col    none    5     1     22    5     20    20    79     1     3     16    45     -34    
   BTN classes: btn(2)
   Field badges: Req=3 Rec=0 Opt=17
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/addSuccess.php
 
-edit                          1col    none    5     1     22    5     20    20    79     —   —   —   —    ?      
+edit                          1col    none    5     1     22    5     20    20    79     1     6     16    48     -31    
   BTN classes: btn(1)
   Field badges: Req=3 Rec=0 Opt=17
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/editSuccess.php
 
-index                         1col    none    1     3     5     1     5     8     30     —   —   —   —    ?      
+index                         1col    none    1     3     5     1     5     8     30     1     16    4     32     2      
   BTN classes: btn(3), btn-sm(2)
   Field badges: Req=0 Rec=1 Opt=3
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/indexSuccess.php
 
-show                          1col    none    18    3     10    18    5     20    103    —   —   —   —    ?      
+show                          1col    none    18    3     10    18    5     20    103    17    25    15    103    0      
   BTN classes: btn-close(4), btn(13), btn-sm(7)
   Field badges: Req=3 Rec=0 Opt=2
   URLs: {{ route( | mailto:{{ $loan->partner_contact_email }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/indexSuccess.php, atom-ahg-plugins/ahgLoanPlugin/modules/loan/templates/showSuccess.php
 
 
 ### ahg-media-processing
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    6     3     0     4     0     3     33     —   —   —   —    ?      
+index                         1col    none    6     3     0     4     0     3     33     2     7     5     49     16     
   BTN classes: btn(5), btn-close(2), btn-sm(1)
   URLs: {{ route( | {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgIiifPlugin/modules/mediaSettings/templates/indexSuccess.php, atom-ahg-plugins/ahgIiifPlugin/modules/threeDReports/templates/indexSuccess.php
 
 watermark-settings            1col    detected4     1     11    6     11    19    62     —   —   —   —    ?      
   BTN classes: btn(4), btn-close(1), btn-sm(1)
@@ -1062,20 +1062,20 @@ watermark-settings            1col    detected4     1     11    6     11    19  
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     2     0     1     0     0     3      0     0     0     1      -2     
+browse                        1col    none    0     2     0     1     0     0     3      2     0     0     11     8      
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/menu/templates/listSuccess.php
+  AtoM: atom-ahg-plugins/ahgMenuManagePlugin/modules/menuManage/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/menu/templates/listSuccess.php, apps/qubit/modules/menu/templates/listSuccess.php
 
-delete                        1col    none    1     2     0     1     0     0     6      1     0     0     2      -4     
+delete                        1col    none    1     2     0     1     0     0     6      3     0     0     7      1      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/menu/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgMenuManagePlugin/modules/menuManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/menu/templates/deleteSuccess.php, apps/qubit/modules/menu/templates/deleteSuccess.php
 
-edit                          1col    none    2     2     5     1     5     5     21     2     0     0     5      -16    
+edit                          1col    none    2     2     5     1     5     5     21     6     0     6     25     4      
   BTN classes: btn(1)
   Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
-  AtoM: apps/qubit/modules/menu/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgMenuManagePlugin/modules/menuManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/menu/templates/editSuccess.php, apps/qubit/modules/menu/templates/editSuccess.php
 
 tree-node                     unknown none    0     1     0     0     0     1     3      —   —   —   —    ?      
   URLs: {{ route(
@@ -1091,41 +1091,41 @@ show                          1col    none    0     5     0     2     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    3     7     2     1     2     7     32     —   —   —   —    ?      
+index                         1col    none    3     7     2     1     2     7     32     2     9     2     26     -6     
   BTN classes: btn(5), btn-sm(4)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMetadataExtractionPlugin/modules/metadataExtraction/templates/indexSuccess.php
 
-status                        1col    none    0     1     0     12    0     8     28     —   —   —   —    ?      
+status                        1col    none    0     1     0     12    0     8     28     0     1     0     19     -9     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMetadataExtractionPlugin/modules/metadataExtraction/templates/statusSuccess.php
 
-view                          1col    none    3     2     0     5     0     2     21     —   —   —   —    ?      
+view                          1col    none    3     2     0     5     0     2     21     3     2     0     22     1      
   BTN classes: btn(3), btn-sm(3)
   URLs: {{ route( | {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMetadataExtractionPlugin/modules/metadataExtraction/templates/viewSuccess.php
 
 
 ### ahg-museum
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     6     0     1     0     0     12     —   —   —   —    ?      
+browse                        1col    none    2     6     0     1     0     0     12     3     23    1     111    99     
   BTN classes: btn(3), btn-sm(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMuseumPlugin/modules/museum/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/cco/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/dashboard/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/museumReports/templates/indexSuccess.php
 
-edit                          2col    detected53    8     58    24    61    183   443    —   —   —   —    ?      
+edit                          2col    detected53    8     58    24    61    183   443    21    4     1     82     -361   
   BTN classes: btn(3), btn-sm(1), btn-cco-guide(1), btn-help(33)
   Field badges: Req=13 Rec=18 Opt=22
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMuseumPlugin/modules/museum/templates/editSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/cco/templates/editSuccess.php
 
-show                          3col    detected1     4     0     116   0     4     128    —   —   —   —    ?      
+show                          3col    detected1     4     0     116   0     4     128    3     23    1     111    -17    
   URLs: {{ route( | {{ url( | {{ $masterUrl ?: $displayUrl }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgMuseumPlugin/modules/museum/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/cco/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/dashboard/templates/indexSuccess.php, atom-ahg-plugins/ahgMuseumPlugin/modules/museumReports/templates/indexSuccess.php
 
 
 ### ahg-pdf-tools
@@ -1137,11 +1137,11 @@ extract-result                1col    none    1     1     0     1     0     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    5     1     2     12    2     7     36     —   —   —   —    ?      
+index                         1col    none    5     1     2     12    2     7     36     3     4     6     50     14     
   BTN classes: btn(5), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/tiffpdfmerge/templates/indexSuccess.php
 
 merge                         1col    none    1     2     8     1     10    9     37     —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(1)
@@ -1154,11 +1154,11 @@ merge                         1col    none    1     2     8     1     10    9   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    2     1     13    3     17    15    57     —   —   —   —    ?      
+index                         1col    none    2     1     13    3     17    15    57     20    5     33    155    98     
   BTN classes: btn-close(1), btn(1)
   Field badges: Req=0 Rec=0 Opt=9
   URLs: {{ $export->output_path }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgPortableExportPlugin/modules/portableExport/templates/indexSuccess.php
 
 
 ### ahg-preservation
@@ -1169,45 +1169,45 @@ _menu                         unknown none    0     1     0     0     0     0   
   URLs: {{ route($item[
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-backup                        1col    left    0     0     0     1     0     16    28     —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+backup                        1col    left    0     0     0     1     0     16    28     0     1     0     34     6      
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/backupSuccess.php
 
-events                        1col    left    0     1     0     1     0     5     10     —   —   —   —    ?      
+events                        1col    left    0     1     0     1     0     5     10     0     4     0     12     2      
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/eventsSuccess.php
 
 fixity-log                    1col    left    0     3     0     1     0     2     10     —   —   —   —    ?      
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-formats                       1col    left    0     0     0     1     0     8     13     —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+formats                       1col    left    0     0     0     1     0     8     13     0     1     0     6      -7     
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/formatsSuccess.php
 
-index                         1col    left    0     2     0     7     0     7     25     —   —   —   —    ?      
+index                         1col    left    0     2     0     7     0     7     25     3     18    6     98     73     
   BTN classes: btn(2), btn-sm(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/indexSuccess.php, atom-ahg-plugins/ahgPreservationPlugin/modules/tiffpdfmerge/templates/indexSuccess.php
 
 package-view                  1col    left    0     1     0     1     0     11    18     —   —   —   —    ?      
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-packages                      1col    left    0     5     0     1     0     12    20     —   —   —   —    ?      
+packages                      1col    left    0     5     0     1     0     12    20     2     12    0     40     20     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/packagesSuccess.php
 
-policies                      1col    left    0     0     0     1     0     3     7      —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+policies                      1col    left    0     0     0     1     0     3     7      0     1     0     8      1      
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/policiesSuccess.php
 
-reports                       1col    left    0     0     0     1     0     9     17     —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+reports                       1col    left    0     0     0     1     0     9     17     0     1     0     17     0      
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/reportsSuccess.php
 
-scheduler                     1col    left    0     0     0     1     0     8     13     —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+scheduler                     1col    left    0     0     0     1     0     8     13     5     4     1     48     35     
+  AtoM: atom-ahg-plugins/ahgPreservationPlugin/modules/preservation/templates/schedulerSuccess.php
 
 virus-scan                    1col    left    0     0     0     1     0     5     13     —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
@@ -1283,46 +1283,46 @@ report-taxonomy               1col    left    0     0     1     1     1     3   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    detected12    22    3     9     3     3     57     2     0     0     6      -51    
+browse                        2col    detected12    22    3     9     3     3     57     6     4     0     27     -30    
   BTN classes: btn(5), btn-lg(1), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: apps/qubit/modules/repository/templates/browseSuccess.php
+  AtoM: atom-ahg-plugins/ahgRepositoryManagePlugin/modules/repositoryManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/repository/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/indexSuccess.php, apps/qubit/modules/repository/templates/browseSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/repository/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgRepositoryManagePlugin/modules/sfIsdiahPlugin/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/repository/templates/deleteSuccess.php, apps/qubit/modules/repository/templates/deleteSuccess.php
 
-edit                          1col    none    18    2     46    11    46    46    172    —   —   —   —    ?      
+edit                          1col    none    18    2     46    11    46    46    172    9     0     0     18     -154   
   BTN classes: btn(9), btn-close(1)
   Field badges: Req=3 Rec=6 Opt=37
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/editSuccess.php
 
 print                         print   none    0     0     0     8     0     0     8      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          2col    right   1     8     0     10    0     5     27     —   —   —   —    ?      
+show                          2col    right   1     8     0     10    0     5     27     0     2     0     5      -22    
   BTN classes: btn(2), btn-sm(1)
   URLs: {{ route( | mailto:{{ $contact->email }} | {{ $contact->website }}
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfIsdiahPlugin/templates/indexSuccess.php
 
 
 ### ahg-request-publish
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     10    0     4     3     9     46     —   —   —   —    ?      
+browse                        1col    none    2     10    0     4     3     9     46     3     8     0     58     12     
   BTN classes: btn-close(1), btn(1), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route( | /{{ $row[
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRequestToPublishPlugin/modules/requestToPublish/templates/browseSuccess.php, atom-ahg-plugins/ahgRequestToPublishPlugin/modules/requesttopublish/templates/browseSuccess.php
 
-edit                          1col    none    1     5     2     9     9     11    53     —   —   —   —    ?      
+edit                          1col    none    1     5     2     9     9     11    53     5     6     1     52     -1     
   BTN classes: btn(2)
   Field badges: Req=1 Rec=0 Opt=8
   URLs: mailto:{{ $record->rtp_email }} | tel:{{ $record->rtp_phone }} | /{{ $record->object_slug ?? | /{{ $record->object_slug }} | {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRequestToPublishPlugin/modules/requestToPublish/templates/editSuccess.php
 
 
 ### ahg-research
@@ -1333,9 +1333,9 @@ _sidebar                      unknown detected0     29    0     0     0     1   
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-activities                    2col    detected1     0     3     4     0     2     16     —   —   —   —    ?      
+activities                    2col    detected1     0     3     4     0     2     16     5     2     17    52     36     
   BTN classes: btn(1), btn-sm(1)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/activitiesSuccess.php
 
 admin-statistics              2col    detected1     0     2     10    2     2     29     —   —   —   —    ?      
   BTN classes: btn(1), btn-sm(1)
@@ -1347,48 +1347,48 @@ admin-types                   2col    detected6     1     8     4     8     9   
   Field badges: Req=2 Rec=0 Opt=6
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-annotations                   2col    detected11    1     13    4     13    17    68     —   —   —   —    ?      
+annotations                   2col    detected11    1     13    4     13    17    68     13    19    10    90     22     
   BTN classes: btn-close(3), btn(8), btn-sm(3)
   Field badges: Req=4 Rec=0 Opt=9
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/annotationsSuccess.php
 
 api-keys                      2col    detected4     0     5     3     6     6     31     —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(2), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-bibliographies                2col    detected3     1     3     3     3     3     20     —   —   —   —    ?      
+bibliographies                2col    detected3     1     3     3     3     3     20     5     5     3     26     6      
   BTN classes: btn(2), btn-sm(1), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/bibliographiesSuccess.php
 
-book                          2col    detected4     1     8     1     6     6     36     —   —   —   —    ?      
+book                          2col    detected4     1     8     1     6     6     36     1     2     6     31     -5     
   BTN classes: btn-close(1), btn(4), btn-add-material(1), btn-remove-material(1)
   Field badges: Req=4 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/bookSuccess.php
 
-bookings                      2col    detected3     4     0     1     0     1     16     —   —   —   —    ?      
+bookings                      2col    detected3     4     0     1     0     1     16     0     4     0     17     1      
   BTN classes: btn-close(1), btn(2), btn-sm(2)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/bookingsSuccess.php
 
-cite                          2col    detected1     0     1     3     1     1     14     —   —   —   —    ?      
+cite                          2col    detected1     0     1     3     1     1     14     1     3     0     18     4      
   BTN classes: btn(1)
   Field badges: Req=0 Rec=0 Opt=1
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/citeSuccess.php
 
-collections                   2col    detected6     2     2     3     2     3     25     —   —   —   —    ?      
+collections                   2col    detected6     2     2     3     2     3     25     4     3     3     21     -4     
   BTN classes: btn-close(2), btn(4), btn-sm(1)
   Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/collectionsSuccess.php
 
-dashboard                     2col    detected1     27    0     11    0     5     75     —   —   —   —    ?      
+dashboard                     2col    detected1     27    0     11    0     5     75     0     24    0     70     -5     
   BTN classes: btn-close(1), btn(20), btn-lg(1), btn-outline-dark(1), btn-sm(4)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/dashboardSuccess.php
 
 document-templates            2col    detected8     1     8     4     8     9     39     —   —   —   —    ?      
   BTN classes: btn(6), btn-sm(1), btn-close(2)
@@ -1408,14 +1408,14 @@ entity-resolution             2col    detected11    1     11    6     11    14  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-equipment                     2col    detected3     0     5     3     5     6     30     —   —   —   —    ?      
+equipment                     2col    detected3     0     5     3     5     6     30     9     0     14    64     34     
   BTN classes: btn(2), btn-sm(1), btn-close(1)
   Field badges: Req=3 Rec=0 Opt=2
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/equipmentSuccess.php
 
-institutions                  2col    detected1     0     2     2     0     3     13     —   —   —   —    ?      
+institutions                  2col    detected1     0     2     2     0     3     13     0     6     0     16     3      
   BTN classes: btn(1), btn-sm(1)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/institutionsSuccess.php
 
 journal-entry                 2col    detected2     1     6     3     6     7     29     —   —   —   —    ?      
   BTN classes: btn(3)
@@ -1423,15 +1423,15 @@ journal-entry                 2col    detected2     1     6     3     6     7   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-journal                       2col    detected4     1     11    4     7     9     43     —   —   —   —    ?      
+journal                       2col    detected4     1     11    4     7     9     43     7     4     12    60     17     
   BTN classes: btn(3), btn-sm(2), btn-close(1)
   Field badges: Req=2 Rec=0 Opt=5
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/journalSuccess.php
 
-notifications                 2col    detected2     0     0     1     0     2     12     —   —   —   —    ?      
+notifications                 2col    detected2     0     0     1     0     2     12     3     2     3     20     8      
   BTN classes: btn(2), btn-sm(2)
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/notificationsSuccess.php
 
 odrl-policies                 2col    detected6     2     8     2     8     10    38     —   —   —   —    ?      
   BTN classes: btn(5), btn-sm(2), btn-close(1)
@@ -1439,17 +1439,17 @@ odrl-policies                 2col    detected6     2     8     2     8     10  
   URLs: {{ route( | ?page={{ $i }}{{ request(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-profile                       2col    detected2     6     15    1     15    17    64     —   —   —   —    ?      
+profile                       2col    detected2     6     15    1     15    17    64     1     10    12    59     -5     
   BTN classes: btn-close(1), btn(4), btn-sm(2)
   Field badges: Req=2 Rec=0 Opt=13
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/profileSuccess.php
 
-projects                      2col    detected5     5     6     3     6     7     40     —   —   —   —    ?      
+projects                      2col    detected5     5     6     3     6     7     40     5     2     7     31     -9     
   BTN classes: btn-close(2), btn(3)
   Field badges: Req=1 Rec=0 Opt=5
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/projectsSuccess.php
 
 public-register               2col    detected2     1     18    1     18    18    65     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-link(1)
@@ -1457,46 +1457,46 @@ public-register               2col    detected2     1     18    1     18    18  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-register                      2col    detected2     1     15    1     15    15    55     —   —   —   —    ?      
+register                      2col    detected2     1     15    1     15    15    55     1     2     15    45     -10    
   BTN classes: btn-close(1), btn(2)
   Field badges: Req=5 Rec=0 Opt=10
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/registerSuccess.php
 
 registration-complete         2col    detected0     1     0     1     0     0     4      —   —   —   —    ?      
   BTN classes: btn(1)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-renewal                       2col    detected1     0     1     3     1     4     16     —   —   —   —    ?      
+renewal                       2col    detected1     0     1     3     1     4     16     1     1     1     12     -4     
   BTN classes: btn(1)
   Field badges: Req=0 Rec=0 Opt=1
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/renewalSuccess.php
 
-reports                       2col    detected3     1     5     3     4     5     28     —   —   —   —    ?      
+reports                       2col    detected3     1     5     3     4     5     28     0     6     0     17     -11    
   BTN classes: btn(2), btn-sm(1), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=3
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/reportsSuccess.php
 
-reproductions                 2col    detected3     0     5     2     4     5     24     —   —   —   —    ?      
+reproductions                 2col    detected3     0     5     2     4     5     24     0     4     1     14     -10    
   BTN classes: btn(2), btn-sm(1), btn-close(1)
   Field badges: Req=2 Rec=0 Opt=2
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/reproductionsSuccess.php
 
-researchers                   2col    detected3     6     1     1     0     6     21     —   —   —   —    ?      
+researchers                   2col    detected3     6     1     1     0     6     21     1     2     2     10     -11    
   BTN classes: btn-close(1), btn(2), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/researchersSuccess.php
 
 retrieval-queue               2col    detected3     0     0     2     0     6     20     —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(3)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-rooms                         2col    detected0     2     0     1     0     2     11     —   —   —   —    ?      
+rooms                         2col    detected0     2     0     1     0     2     11     4     6     3     38     27     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/roomsSuccess.php
 
 saved-searches                2col    detected3     1     2     1     2     2     17     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-sm(1)
@@ -1504,10 +1504,10 @@ saved-searches                2col    detected3     1     2     1     2     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-seats                         2col    detected6     0     2     2     2     3     26     —   —   —   —    ?      
+seats                         2col    detected6     0     2     2     2     3     26     7     0     14    67     41     
   BTN classes: btn(5), btn-sm(4), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=1
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/seatsSuccess.php
 
 validation-queue              2col    detected11    1     7     3     4     8     40     —   —   —   —    ?      
   BTN classes: btn(9), btn-sm(1), btn-close(2)
@@ -1553,27 +1553,27 @@ walk-in                       2col    detected3     0     11    4     11    11  
   Field badges: Req=3 Rec=0 Opt=7
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-workspace                     2col    detected5     6     2     7     2     5     45     —   —   —   —    ?      
+workspace                     2col    detected5     6     2     7     2     5     45     8     13    2     72     27     
   BTN classes: btn-close(2), btn(6), btn-sm(2)
   Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/workspaceSuccess.php
 
-workspaces                    2col    detected5     2     3     4     3     4     29     —   —   —   —    ?      
+workspaces                    2col    detected5     2     3     4     3     4     29     5     2     3     26     -3     
   BTN classes: btn(4), btn-close(1)
   Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route( | {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearchPlugin/modules/research/templates/workspacesSuccess.php
 
 
 ### ahg-researcher-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-dashboard                     1col    none    0     4     0     2     0     10    20     —   —   —   —    ?      
+dashboard                     1col    none    0     4     0     2     0     10    20     2     6     0     44     24     
   BTN classes: btn(3), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearcherPlugin/modules/researcher/templates/dashboardSuccess.php
 
 import-exchange               1col    none    1     2     2     3     3     8     23     —   —   —   —    ?      
   BTN classes: btn(2)
@@ -1581,39 +1581,39 @@ import-exchange               1col    none    1     2     2     3     3     8   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-submissions                   1col    none    0     10    0     1     0     10    25     —   —   —   —    ?      
+submissions                   1col    none    0     10    0     1     0     10    25     1     3     0     12     -13    
   BTN classes: btn(3), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgResearcherPlugin/modules/researcher/templates/submissionsSuccess.php
 
 
 ### ahg-ric
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    0     6     0     1     0     10    29     —   —   —   —    ?      
+index                         1col    none    0     6     0     1     0     10    29     11    8     1     92     63     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRicExplorerPlugin/modules/ricDashboard/templates/indexSuccess.php, atom-ahg-plugins/ahgRicExplorerPlugin/modules/ricSemanticSearch/templates/indexSuccess.php
 
-logs                          1col    none    0     2     5     1     5     9     24     —   —   —   —    ?      
+logs                          1col    none    0     2     5     1     5     9     24     1     1     4     11     -13    
   BTN classes: btn(2), btn-sm(2)
   Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRicExplorerPlugin/modules/ricDashboard/templates/logsSuccess.php
 
 not-configured                1col    none    0     0     0     1     0     0     3      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-orphans                       1col    none    0     5     0     1     0     8     16     —   —   —   —    ?      
+orphans                       1col    none    0     5     0     1     0     8     16     3     2     0     16     0      
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRicExplorerPlugin/modules/ricDashboard/templates/orphansSuccess.php
 
-queue                         1col    none    0     6     0     1     0     10    19     —   —   —   —    ?      
+queue                         1col    none    0     6     0     1     0     10    19     2     1     0     11     -8     
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgRicExplorerPlugin/modules/ricDashboard/templates/queueSuccess.php
 
 sync-status                   1col    none    0     2     2     1     0     5     12     —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(2)
@@ -1625,25 +1625,25 @@ sync-status                   1col    none    0     2     2     1     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     0     1     0     0     8      1     0     1     5      -3     
+browse                        1col    none    2     5     0     1     0     0     8      2     47    2     160    152    
   BTN classes: btn(3), btn-sm(2)
   URLs: {{ request()->fullUrlWithQuery([ | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
-  AtoM: apps/qubit/modules/rightsholder/templates/browseSuccess.php, apps/qubit/modules/rightsholder/templates/listSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rightsAdmin/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/browseSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/extendedRights/templates/indexSuccess.php, apps/qubit/modules/rightsholder/templates/browseSuccess.php, apps/qubit/modules/rightsholder/templates/listSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      5     0     0     10     7      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/rightsholder/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/deleteSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/right/templates/deleteSuccess.php, apps/qubit/modules/rightsholder/templates/deleteSuccess.php, apps/qubit/modules/right/templates/deleteSuccess.php
 
-edit                          1col    none    4     2     1     3     1     1     12     4     0     0     7      -5     
+edit                          1col    none    4     2     1     3     1     1     12     33    4     51    177    165    
   BTN classes: btn(1)
   Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
-  AtoM: apps/qubit/modules/rightsholder/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/editSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/editSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/editSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/right/templates/editSuccess.php, apps/qubit/modules/rightsholder/templates/editSuccess.php, apps/qubit/modules/right/templates/editSuccess.php
 
-show                          1col    right   0     4     0     4     0     0     8      0     0     0     1      -7     
+show                          1col    right   0     4     0     4     0     0     8      8     53    8     204    196    
   BTN classes: btn(1), btn-sm(1)
   URLs: {{ route( | {{ $contact->website }}
-  AtoM: apps/qubit/modules/rightsholder/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgRightsHolderManagePlugin/modules/rightsHolderManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/rightsholder/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rights/templates/indexSuccess.php, atom-ahg-plugins/ahgRightsPlugin/modules/rightsAdmin/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/extendedRights/templates/viewSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/indexSuccess.php, atom-ahg-plugins/ahgExtendedRightsPlugin/modules/embargo/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/extendedRights/templates/indexSuccess.php, apps/qubit/modules/rightsholder/templates/indexSuccess.php
 
 
 ### ahg-search
@@ -1688,7 +1688,7 @@ _ahg-menu                     unknown none    0     2     0     0     0     0   
 
 _menu                         unknown none    0     1     0     0     0     0     2      0     0     0     0      -2     
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/_menu.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/_menu.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/_menu.php, apps/qubit/modules/settings/templates/_menu.php
 
 ahg-section                   1col    left    2     2     8     1     7     6     29     —   —   —   —    ?      
   BTN classes: btn(3)
@@ -1701,9 +1701,9 @@ ai-condition                  1col    left    1     1     0     2     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-clipboard                     1col    left    4     0     10    4     13    7     38     4     0     0     8      -30    
+clipboard                     1col    left    4     0     10    4     13    7     38     12    0     0     24     -14    
   Field badges: Req=0 Rec=0 Opt=7
-  AtoM: apps/qubit/modules/settings/templates/clipboardSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/clipboardSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/clipboardSuccess.php, apps/qubit/modules/settings/templates/clipboardSuccess.php
 
 cron-jobs                     1col    right   9     3     6     6     5     11    49     —   —   —   —    ?      
   BTN classes: btn(9), btn-sm(5), btn-close(2)
@@ -1720,9 +1720,9 @@ default-template              1col    left    2     0     3     2     3     3   
   Field badges: Req=0 Rec=0 Opt=3
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-diacritics                    1col    left    3     0     3     3     4     2     15     3     0     0     6      -9     
+diacritics                    1col    left    3     0     3     3     4     2     15     9     0     0     18     3      
   Field badges: Req=0 Rec=0 Opt=2
-  AtoM: apps/qubit/modules/settings/templates/diacriticsSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/diacriticsSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/diacriticsSuccess.php, apps/qubit/modules/settings/templates/diacriticsSuccess.php
 
 digital-objects               1col    left    1     1     2     1     2     2     11     —   —   —   —    ?      
   BTN classes: btn(2)
@@ -1734,11 +1734,11 @@ dip-upload                    1col    left    2     0     2     2     3     1   
   Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-email                         1col    left    2     1     8     2     5     4     28     —   —   —   —    ?      
+email                         1col    left    2     1     8     2     5     4     28     3     2     11    38     10     
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/emailSuccess.php
 
 errorLog                      1col    none    7     4     3     5     3     6     37     —   —   —   —    ?      
   BTN classes: btn(8), btn-sm(7)
@@ -1750,25 +1750,25 @@ finding-aid                   1col    left    2     0     6     2     8     4   
   Field badges: Req=0 Rec=0 Opt=4
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-global                        1col    left    7     1     18    7     18    9     62     8     0     0     16     -46    
+global                        1col    left    7     1     18    7     18    9     62     25    0     0     50     -12    
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=9
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/globalSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/globalSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/globalSuccess.php, apps/qubit/modules/settings/templates/globalSuccess.php
 
 header-customizations         1col    left    4     0     6     4     4     4     22     —   —   —   —    ?      
   Field badges: Req=0 Rec=0 Opt=4
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-identifier                    1col    left    1     1     10    1     10    5     34     2     0     0     4      -30    
+identifier                    1col    left    1     1     10    1     10    5     34     5     2     0     17     -17    
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/identifierSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/identifierSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/identifierSuccess.php, apps/qubit/modules/settings/templates/identifierSuccess.php
 
-index                         1col    none    0     7     0     8     0     0     29     —   —   —   —    ?      
+index                         1col    none    0     7     0     8     0     0     29     17    6     7     67     38     
   URLs: {{ route( | {{ $cardRoute }} | {{ url(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/indexSuccess.php, atom-ahg-plugins/ahgSettingsPlugin/modules/ahgDropdown/templates/indexSuccess.php
 
 interface-labels              1col    left    1     1     1     1     1     1     8      —   —   —   —    ?      
   BTN classes: btn(2)
@@ -1776,52 +1776,52 @@ interface-labels              1col    left    1     1     1     1     1     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-inventory                     1col    left    2     1     1     2     1     1     8      2     0     0     4      -4     
+inventory                     1col    left    2     1     1     2     1     1     8      6     0     0     12     4      
   Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/inventorySuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/inventorySuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/inventorySuccess.php, apps/qubit/modules/settings/templates/inventorySuccess.php
 
 languages                     1col    left    3     0     1     2     1     1     12     —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(1)
   Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-markdown                      1col    left    2     0     2     2     3     1     10     2     0     0     4      -6     
+markdown                      1col    left    2     0     2     2     3     1     10     6     0     0     12     2      
   Field badges: Req=0 Rec=0 Opt=1
-  AtoM: apps/qubit/modules/settings/templates/markdownSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/markdownSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/markdownSuccess.php, apps/qubit/modules/settings/templates/markdownSuccess.php
 
-oai                           1col    left    1     1     7     1     7     7     26     2     0     0     4      -22    
+oai                           1col    left    1     1     7     1     7     7     26     6     0     0     12     -14    
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=7
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/oaiSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/oaiSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/oaiSuccess.php, apps/qubit/modules/settings/templates/oaiSuccess.php
 
-permissions                   1col    left    8     0     12    6     14    8     48     18    0     0     24     -24    
+permissions                   1col    left    8     0     12    6     14    8     48     54    0     0     72     24     
   BTN classes: btn(2), btn-sm(2)
   Field badges: Req=0 Rec=0 Opt=8
-  AtoM: apps/qubit/modules/settings/templates/permissionsSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/permissionsSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/permissionsSuccess.php, apps/qubit/modules/settings/templates/permissionsSuccess.php
 
-plugins                       1col    none    1     0     1     1     0     0     3      —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+plugins                       1col    none    1     0     1     1     0     0     3      8     1     1     37     34     
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/pluginsSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/sfPluginAdminPlugin/templates/pluginsSuccess.php
 
 privacy-notification          1col    left    2     0     3     2     4     2     13     —   —   —   —    ?      
   Field badges: Req=0 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-section                       1col    left    1     1     3     1     3     2     12     —   —   —   —    ?      
+section                       1col    left    1     1     3     1     3     2     12     5     16    230   597    585    
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/sectionSuccess.php
 
-security                      1col    left    1     1     3     1     3     3     15     2     0     0     4      -11    
+security                      1col    left    1     1     3     1     3     3     15     6     0     0     12     -3     
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/securitySuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/securitySuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/securitySuccess.php, apps/qubit/modules/settings/templates/securitySuccess.php
 
-services                      1col    left    0     0     0     2     0     0     6      —   —   —   —    ?      
-  AtoM: ⚠ NO EQUIVALENT FOUND
+services                      1col    left    0     0     0     2     0     0     6      3     0     8     41     35     
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/servicesSuccess.php
 
 site-information              1col    left    2     0     3     2     3     3     13     —   —   —   —    ?      
   Field badges: Req=0 Rec=0 Opt=3
@@ -1834,21 +1834,21 @@ storage-service               1col    left    2     0     6     2     7     5   
 system-info                   1col    right   0     0     0     1     0     0     2      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-themes                        1col    detected1     1     64    13    39    38    168    —   —   —   —    ?      
+themes                        1col    detected1     1     64    13    39    38    168    1     0     1     3      -165   
   BTN classes: btn(1)
   Field badges: Req=0 Rec=0 Opt=37
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/sfPluginAdminPlugin/templates/themesSuccess.php
 
-treeview                      1col    left    1     1     8     1     8     5     26     4     0     0     8      -18    
+treeview                      1col    left    1     1     8     1     8     5     26     12    0     0     24     -2     
   BTN classes: btn(2)
   Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
-  AtoM: apps/qubit/modules/settings/templates/treeviewSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/treeviewSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/treeviewSuccess.php, apps/qubit/modules/settings/templates/treeviewSuccess.php
 
-uploads                       1col    left    2     0     6     2     8     4     22     2     0     0     4      -18    
+uploads                       1col    left    2     0     6     2     8     4     22     6     0     0     12     -10    
   Field badges: Req=0 Rec=0 Opt=4
-  AtoM: apps/qubit/modules/settings/templates/uploadsSuccess.php
+  AtoM: atom-ahg-plugins/ahgSettingsPlugin/modules/ahgSettings/templates/uploadsSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/settings/templates/uploadsSuccess.php, apps/qubit/modules/settings/templates/uploadsSuccess.php
 
 visible-elements              1col    left    2     0     1     2     1     0     7      —   —   —   —    ?      
   BTN classes: btn(1)
@@ -1863,73 +1863,73 @@ web-analytics                 1col    left    3     0     2     3     2     2   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    detected0     2     0     2     0     0     5      0     0     0     2      -3     
+browse                        2col    detected0     2     0     2     0     0     5      2     0     0     8      3      
   BTN classes: btn(1)
   URLs: {{ url(
-  AtoM: apps/qubit/modules/staticpage/templates/listSuccess.php, apps/qubit/modules/staticpage/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgStaticPagePlugin/modules/staticPageManage/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/staticpage/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/staticpage/templates/indexSuccess.php, apps/qubit/modules/staticpage/templates/listSuccess.php, apps/qubit/modules/staticpage/templates/indexSuccess.php
 
-edit                          1col    none    2     2     3     2     3     3     15     3     0     0     5      -10    
+edit                          1col    none    2     2     3     2     3     3     15     8     0     4     21     6      
   BTN classes: btn(2)
   Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
-  AtoM: apps/qubit/modules/staticpage/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgStaticPagePlugin/modules/staticPageManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/staticpage/templates/editSuccess.php, apps/qubit/modules/staticpage/templates/editSuccess.php
 
-show                          1col    none    0     1     0     1     0     0     3      0     0     0     1      -2     
+show                          1col    none    0     1     0     1     0     0     3      0     0     0     2      -1     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/staticpage/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/staticpage/templates/indexSuccess.php, apps/qubit/modules/staticpage/templates/indexSuccess.php
 
 
 ### ahg-storage-manage
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     5     0     1     0     0     6      0     1     0     4      -2     
+browse                        1col    none    0     5     0     1     0     0     6      0     5     0     50     44     
   BTN classes: btn(2)
   URLs: {{ storageSortUrl( | {{ route( | {{ url(
-  AtoM: apps/qubit/modules/physicalobject/templates/browseSuccess.php, apps/qubit/modules/physicalobject/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgStorageManagePlugin/modules/storageManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/physicalobject/templates/indexSuccess.php, atom-ahg-plugins/ahgCorePlugin/modules/physicalobject/templates/browseSuccess.php, apps/qubit/modules/physicalobject/templates/browseSuccess.php, apps/qubit/modules/physicalobject/templates/indexSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      2     0     0     4      1      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/physicalobject/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgCorePlugin/modules/physicalobject/templates/deleteSuccess.php, apps/qubit/modules/physicalobject/templates/deleteSuccess.php
 
-edit                          1col    none    2     2     30    9     31    30    112    2     0     0     4      -108   
+edit                          1col    none    2     2     30    9     31    30    112    3     2     30    87     -25    
   BTN classes: btn(1)
   Field badges: Req=1 Rec=0 Opt=29
   URLs: {{ route(
-  AtoM: apps/qubit/modules/physicalobject/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/physicalobject/templates/editSuccess.php, apps/qubit/modules/physicalobject/templates/editSuccess.php
 
-show                          1col    none    0     4     0     18    0     3     40     0     1     0     3      -37    
+show                          1col    none    0     4     0     18    0     3     40     0     5     0     43     3      
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/physicalobject/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgThemeB5Plugin/modules/physicalobject/templates/indexSuccess.php, apps/qubit/modules/physicalobject/templates/indexSuccess.php
 
 
 ### ahg-term-taxonomy
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    detected5     7     4     2     3     0     26     0     1     0     6      -20    
+browse                        2col    detected5     7     4     2     3     0     26     0     3     0     15     -11    
   BTN classes: btn(5), btn-lg(1), btn-sm(4)
   ⚠ NO FIELD BADGES on 3 labels
   URLs: {{ route( | {{ request()->fullUrlWithQuery([
-  AtoM: apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/listSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgTermTaxonomyPlugin/modules/termTaxonomy/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/term/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/taxonomy/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/taxonomy/templates/indexSuccess.php, apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/listSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/term/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgTermTaxonomyPlugin/modules/termTaxonomy/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/term/templates/deleteSuccess.php, apps/qubit/modules/term/templates/deleteSuccess.php
 
-edit                          1col    right   11    3     14    6     10    9     60     4     0     0     7      -53    
+edit                          1col    right   11    3     14    6     10    9     60     12    0     0     21     -39    
   BTN classes: btn(8)
   Field badges: Req=1 Rec=0 Opt=8
   URLs: {{ route(
-  AtoM: apps/qubit/modules/term/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgTermTaxonomyPlugin/modules/termTaxonomy/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/term/templates/editSuccess.php, apps/qubit/modules/term/templates/editSuccess.php
 
-show                          1col    detected7     34    4     20    3     0     79     0     1     0     5      -74    
+show                          1col    detected7     34    4     20    3     0     79     0     3     0     13     -66    
   BTN classes: btn(7), btn-lg(2), btn-sm(1)
   ⚠ NO FIELD BADGES on 3 labels
   URLs: {{ route( | {{ request()->fullUrlWithQuery([ | {{ url(
-  AtoM: apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgTermTaxonomyPlugin/modules/termTaxonomy/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/term/templates/indexSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/taxonomy/templates/indexSuccess.php, apps/qubit/modules/term/templates/indexSuccess.php, apps/qubit/modules/taxonomy/templates/indexSuccess.php
 
 taxonomy-index                1col    none    0     1     0     1     0     0     2      —   —   —   —    ?      
   URLs: {{ route(
@@ -2020,35 +2020,35 @@ voice-commands                unknown none    3     0     1     11    0     46  
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    0     6     0     1     0     1     9      0     0     0     0      -9     
+browse                        1col    none    0     6     0     1     0     1     9      0     0     0     1      -8     
   BTN classes: btn(2), btn-sm(1)
   URLs: {{ route( | ?status=active | ?status=inactive | ?status=all
-  AtoM: apps/qubit/modules/user/templates/listSuccess.php, apps/qubit/modules/user/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/browseSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/listSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/indexSuccess.php, apps/qubit/modules/user/templates/listSuccess.php, apps/qubit/modules/user/templates/indexSuccess.php
 
-delete                        1col    none    1     1     0     1     0     0     3      1     0     0     2      -1     
+delete                        1col    none    1     1     0     1     0     0     3      3     0     0     6      3      
   URLs: {{ route(
-  AtoM: apps/qubit/modules/user/templates/deleteSuccess.php
+  AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/deleteSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/deleteSuccess.php, apps/qubit/modules/user/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     19    7     19    19    74     0     0     0     0      -74    
+edit                          1col    none    8     2     19    7     19    19    74     8     0     19    53     -21    
   BTN classes: btn(1)
   Field badges: Req=3 Rec=1 Opt=15
   URLs: {{ route(
-  AtoM: apps/qubit/modules/user/templates/editSuccess.php
+  AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/editSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/editSuccess.php, apps/qubit/modules/user/templates/editSuccess.php
 
-show                          1col    right   0     3     0     5     0     4     12     0     0     0     0      -12    
+show                          1col    right   0     3     0     5     0     4     12     0     1     0     10     -2     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: apps/qubit/modules/user/templates/indexSuccess.php
+  AtoM: atom-ahg-plugins/ahgUserManagePlugin/modules/userManage/templates/viewSuccess.php, atom-ahg-plugins/ahgThemeB5Plugin/modules/user/templates/indexSuccess.php, apps/qubit/modules/user/templates/indexSuccess.php
 
 
 ### ahg-workflow
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-admin                         1col    none    1     4     0     1     0     6     17     —   —   —   —    ?      
+admin                         1col    none    1     4     0     1     0     6     17     2     8     0     25     8      
   BTN classes: btn(3), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/adminSuccess.php
 
 create-workflow               1col    none    1     2     12    1     12    7     38     —   —   —   —    ?      
   BTN classes: btn(3)
@@ -2056,10 +2056,10 @@ create-workflow               1col    none    1     2     12    1     12    7   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-dashboard                     1col    none    1     10    0     8     0     13    46     —   —   —   —    ?      
+dashboard                     1col    none    1     10    0     8     0     13    46     2     9     0     40     -6     
   BTN classes: btn(5), btn-sm(4)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/dashboardSuccess.php
 
 edit-workflow                 1col    none    4     1     22    4     22    20    80     —   —   —   —    ?      
   BTN classes: btn(5), btn-sm(2)
@@ -2078,35 +2078,35 @@ gate-edit                     1col    none    1     2     12    1     12    11  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-history                       1col    none    0     2     0     1     0     8     13     —   —   —   —    ?      
+history                       1col    none    0     2     0     1     0     8     13     0     2     0     8      -5     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/historySuccess.php
 
 my-tasks                      1col    none    0     8     0     1     0     11    24     —   —   —   —    ?      
   BTN classes: btn(2)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-overdue                       1col    none    0     3     0     1     0     7     15     —   —   —   —    ?      
+overdue                       1col    none    0     3     0     1     0     7     15     1     5     3     23     8      
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/overdueSuccess.php
 
-pool                          1col    none    1     2     0     1     0     4     12     —   —   —   —    ?      
+pool                          1col    none    1     2     0     1     0     4     12     0     4     0     14     2      
   BTN classes: btn(2), btn-sm(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/poolSuccess.php
 
 publish-readiness             1col    none    0     1     0     5     0     6     19     —   —   —   —    ?      
   BTN classes: btn(1)
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-queues                        1col    none    0     2     0     5     0     1     11     —   —   —   —    ?      
+queues                        1col    none    0     2     0     5     0     1     11     0     1     0     5      -6     
   BTN classes: btn(1)
   URLs: {{ route(
-  AtoM: ⚠ NO EQUIVALENT FOUND
+  AtoM: atom-ahg-plugins/ahgWorkflowPlugin/modules/workflow/templates/queuesSuccess.php
 
 view-task                     1col    detected4     5     1     10    1     18    54     —   —   —   —    ?      
   BTN classes: btn(6)
