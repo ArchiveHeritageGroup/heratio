@@ -45,8 +45,23 @@ class FindingAidController extends Controller
             abort(404);
         }
 
+        // Get repository for sidebar context menu (matching AtoM 2col layout)
+        $repository = null;
+        if ($io->repository_id) {
+            $repository = \Illuminate\Support\Facades\DB::table('repository')
+                ->join('slug', 'repository.id', '=', 'slug.object_id')
+                ->leftJoin('actor_i18n', function ($j) {
+                    $j->on('repository.id', '=', 'actor_i18n.id')
+                      ->where('actor_i18n.culture', '=', app()->getLocale());
+                })
+                ->where('repository.id', $io->repository_id)
+                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->first();
+        }
+
         return view('ahg-io-manage::findingaid.upload', [
             'io' => $io,
+            'repository' => $repository,
         ]);
     }
 

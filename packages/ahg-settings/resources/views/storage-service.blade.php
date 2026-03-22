@@ -61,6 +61,13 @@
                 <input type="password" name="settings[storage_service_api_key]" class="form-control" value="{{ e($settings['storage_service_api_key']) }}">
                 <small class="text-muted">The API key or password used to authenticate with the storage service</small>
               </div>
+
+              <div class="d-flex gap-2">
+                <button type="button" class="btn atom-btn-white" id="btnTestConnection">
+                  <i class="fas fa-plug me-1"></i>Test Connection
+                </button>
+                <span id="connectionResult" class="align-self-center small"></span>
+              </div>
             </div>
           </div>
         </div>

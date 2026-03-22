@@ -85,8 +85,8 @@
           <i class="fas fa-download"></i> Export CSV
         </a>
       @endif
-      @if(($stats['completed'] ?? 0) + ($stats['error'] ?? 0) > 0 && Route::has('job.delete-inactive'))
-        <a href="{{ route('job.delete-inactive') }}" class="btn btn-outline-danger btn-sm" title="Clear inactive jobs">
+      @if(($stats['completed'] ?? 0) + ($stats['error'] ?? 0) > 0 && Route::has('job.clear-inactive'))
+        <a href="{{ route('job.clear-inactive') }}" class="btn btn-outline-danger btn-sm" title="Clear inactive jobs">
           <i class="fas fa-trash-alt"></i> Clear inactive
         </a>
       @endif
@@ -140,8 +140,8 @@
                     <i class="fas fa-file-alt"></i>
                   </a>
                   @if($job['status_id'] != 183)
-                    @if(Route::has('job.delete'))
-                      <a href="{{ route('job.delete', $job['id']) }}" class="btn btn-outline-danger btn-sm" title="Delete">
+                    @if(Route::has('job.destroy'))
+                      <a href="{{ route('job.destroy', $job['id']) }}" class="btn btn-outline-danger btn-sm" title="Delete">
                         <i class="fas fa-trash-alt"></i>
                       </a>
                     @endif

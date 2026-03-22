@@ -16,6 +16,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/accession/{slug}/delete', [AccessionController::class, 'confirmDelete'])->name('accession.confirmDelete');
     Route::delete('/accession/{slug}/delete', [AccessionController::class, 'destroy'])->name('accession.destroy');
     Route::get('/accession/export-csv', [AccessionController::class, 'exportCsv'])->name('accession.export-csv');
+    Route::get('/accession/intake-queue', [AccessionController::class, 'intakeQueue'])->name('accession.intake-queue');
+    Route::get('/accession/dashboard', [AccessionController::class, 'dashboard'])->name('accession.dashboard');
+    Route::get('/accession/valuation-report', [AccessionController::class, 'valuationReport'])->name('accession.valuation-report');
 });
 
 Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('accession.show');

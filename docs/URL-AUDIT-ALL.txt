@@ -1,0 +1,108 @@
+# COMPLETE URL AUDIT: Every route() call in every blade file
+# Generated: 2026-03-22 10:49:48
+# Named routes in app: 648
+
+## SUMMARY
+
+| Metric | Count |
+|---|---|
+| Files scanned | 364 |
+| Total hrefs found | 1569 |
+| route() calls found | 1270 |
+| Valid routes | 1160 |
+| **UNKNOWN ROUTES (broken)** | **110** |
+| Blade expressions | 1467 |
+| Static url() paths | 3 |
+| External URLs | 12 |
+| Anchors/JS | 84 |
+
+## BROKEN ROUTES — route() name not in route:list
+
+File                                                        Route Name                                   Status
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ahg-research/resources/views/research/saved-searches.blade.phproute('research.savedSearches.run')          NOT FOUND
+ahg-research/resources/views/research/saved-searches.blade.phproute('research.savedSearches.destroy')      NOT FOUND
+ahg-research/resources/views/research/view-researcher.blade.phproute('research.researchers.approve')        NOT FOUND
+ahg-research/resources/views/research/view-researcher.blade.phproute('research.researchers.suspend')        NOT FOUND
+ahg-research/resources/views/research/view-researcher.blade.phproute('research.researchers.reject')         NOT FOUND
+ahg-research/resources/views/research/researchers.blade.php route('research.researchers.approve')        NOT FOUND
+ahg-research/resources/views/research/public-register.blade.phproute('login')                               NOT FOUND
+ahg-research/resources/views/research/view-collection.blade.phproute('research.collections.removeItem')     NOT FOUND
+ahg-research/resources/views/research/view-collection.blade.phproute('research.collections.addItem')        NOT FOUND
+ahg-research/resources/views/research/profile.blade.php     route('research.savedSearches.run')          NOT FOUND
+ahg-research/resources/views/research/view-booking.blade.phproute('research.bookings.checkOut')          NOT FOUND
+ahg-research/resources/views/research/dashboard.blade.php   route('login')                               NOT FOUND
+ahg-metadata-extraction/resources/views/index.blade.php     route('metadata-extraction.status')          NOT FOUND
+ahg-metadata-extraction/resources/views/index.blade.php     route('metadata-extraction.batchExtract')    NOT FOUND
+ahg-metadata-extraction/resources/views/index.blade.php     route('metadata-extraction.view')            NOT FOUND
+ahg-workflow/resources/views/edit-workflow.blade.php        route('workflow.admin.step.add')             NOT FOUND
+ahg-workflow/resources/views/view-task.blade.php            route('workflow.publish-readiness')          NOT FOUND
+ahg-pdf-tools/resources/views/index.blade.php               route('pdf-tools.batchExtractText')          NOT FOUND
+ahg-theme-b5/resources/views/partials/menus/user-menu.blade.phproute('logout')                              NOT FOUND
+ahg-theme-b5/resources/views/partials/menus/user-menu.blade.phproute('login')                               NOT FOUND
+ahg-theme-b5/resources/views/partials/menus/user-menu.blade.phproute('register')                            NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/edit.blade.phproute('iiif-collection.add-items')           NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/index.blade.phproute('iiif-collection.manifest')            NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/add-items.blade.phproute('iiif-collection.add-items')           NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/add-items.blade.phproute('iiif-collection.autocomplete')        NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/view.blade.phproute('iiif-collection.manifest')            NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/view.blade.phproute('iiif-collection.add-items')           NOT FOUND
+ahg-iiif-collection/resources/views/iiif-collection/view.blade.phproute('iiif-collection.remove-item')         NOT FOUND
+ahg-search/resources/views/components/search-box.blade.php  route('search')                              NOT FOUND
+ahg-search/resources/views/search.blade.php                 route('search')                              NOT FOUND
+ahg-search/resources/views/advanced.blade.php               route('search')                              NOT FOUND
+ahg-display/resources/views/display/index.blade.php         route('home')                                NOT FOUND
+ahg-display/resources/views/display/fields.blade.php        route('home')                                NOT FOUND
+ahg-display/resources/views/display/profiles.blade.php      route('home')                                NOT FOUND
+ahg-display/resources/views/display/levels.blade.php        route('home')                                NOT FOUND
+ahg-display/resources/views/display/browse-settings.blade.phproute('home')                                NOT FOUND
+ahg-display/resources/views/display/bulk-set-type.blade.php route('home')                                NOT FOUND
+ahg-information-object-manage/resources/views/rename.blade.phproute('informationobject.renameUpdate')      NOT FOUND
+ahg-information-object-manage/resources/views/privacy/redaction.blade.phproute('home')                                NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('loan.index')                          NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.findingaid.download')NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.inventory')         NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.import.xml')        NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.import.csv')        NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.export.dc')         NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.export.ead')        NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.findingaid.generate')NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.findingaid.upload.form')NOT FOUND
+ahg-information-object-manage/resources/views/show.blade.phproute('informationobject.calculateDates')    NOT FOUND
+ahg-information-object-manage/resources/views/findingaid/upload.blade.phproute('informationobject.findingaid.upload') NOT FOUND
+ahg-information-object-manage/resources/views/inventory.blade.phproute('informationobject.inventory')         NOT FOUND
+ahg-information-object-manage/resources/views/import/select.blade.phproute('informationobject.import.process')    NOT FOUND
+ahg-settings/resources/views/privacy-notification.blade.php route('settings.privacy-notification')       NOT FOUND
+ahg-settings/resources/views/header-customizations.blade.phproute('settings.header-customizations')      NOT FOUND
+ahg-settings/resources/views/_menu.blade.php                route('settings.')                           NOT FOUND
+ahg-acl/resources/views/edit-group.blade.php                route('acl.remove-member')                   NOT FOUND
+ahg-help/resources/views/category.blade.php                 route('help.index')                          NOT FOUND
+ahg-help/resources/views/search.blade.php                   route('help.index')                          NOT FOUND
+ahg-help/resources/views/_sidebar.blade.php                 route('help.index')                          NOT FOUND
+ahg-help/resources/views/article.blade.php                  route('help.index')                          NOT FOUND
+ahg-reports/resources/views/dashboard.blade.php             route('data-migration.batch-export')         NOT FOUND
+ahg-jobs-manage/resources/views/browse.blade.php            route('job.delete-inactive')                 NOT FOUND
+ahg-jobs-manage/resources/views/browse.blade.php            route('job.delete')                          NOT FOUND
+ahg-favorites/resources/views/shared.blade.php              route('login')                               NOT FOUND
+ahg-data-migration/resources/views/preservica-import.blade.phproute('data-migration.preservica-import')    NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.batch-export')         NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.preservica-import')    NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.preservica-export')    NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.import-results')       NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.export-mapping')       NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.delete-mapping')       NOT FOUND
+ahg-data-migration/resources/views/index.blade.php          route('data-migration.import-mapping')       NOT FOUND
+ahg-data-migration/resources/views/batch-export.blade.php   route('data-migration.batch-export')         NOT FOUND
+ahg-data-migration/resources/views/preservica-export.blade.phproute('data-migration.preservica-export')    NOT FOUND
+ahg-accession-manage/resources/views/browse.blade.php       route('accession.intake-queue')              NOT FOUND
+ahg-accession-manage/resources/views/browse.blade.php       route('accession.dashboard')                 NOT FOUND
+ahg-accession-manage/resources/views/browse.blade.php       route('accession.valuation-report')          NOT FOUND
+ahg-media-processing/resources/views/index.blade.php        route('media-processing.watermark-settings') NOT FOUND
+ahg-media-processing/resources/views/index.blade.php        route('media-processing.batch-regenerate')   NOT FOUND
+ahg-media-processing/resources/views/index.blade.php        route('media-processing.regenerate')         NOT FOUND
+ahg-media-processing/resources/views/watermark-settings.blade.phproute('media-processing.watermark-settings') NOT FOUND
+ahg-loan/resources/views/loan/index.blade.php               route('loan.index')                          NOT FOUND
+ahg-loan/resources/views/loan/create.blade.php              route('loan.index')                          NOT FOUND
+ahg-3d-model/resources/views/browse.blade.php               route('admin.3d-models.batch-thumbnails')    NOT FOUND
+
+Total unique broken routes: 84

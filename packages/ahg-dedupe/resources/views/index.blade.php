@@ -11,6 +11,9 @@
       <span class="small text-muted">Dashboard</span>
     </div>
     <div class="ms-auto d-flex gap-2">
+      <a href="{{ route('dedupe.scan') }}" class="btn atom-btn-outline-success">
+        <i class="fas fa-search me-1"></i> New Scan
+      </a>
       <a href="{{ route('dedupe.rules') }}" class="btn atom-btn-white">
         <i class="fas fa-cog me-1"></i> Rules
       </a>

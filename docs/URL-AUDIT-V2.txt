@@ -1,0 +1,196 @@
+PHP Warning:  file_get_contents(/usr/share/nginx/heratio/bin/atom-mapping.json): Failed to open stream: No such file or directory in /usr/share/nginx/heratio/bin/audit-urls-v2.php on line 107
+# FULL URL AUDIT V2: Page-by-Page Link Comparison
+# Generated: 2026-03-22 10:46:29
+# Route map: 648 named routes resolved
+
+### ahg-actor-manage/edit
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  ">                            <?php echo $list['moreUrl']; ?>         N/A                                     
+
+### ahg-actor-manage/browse
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  ">                            <?php echo $list['moreUrl']; ?>         N/A                                     
+
+### ahg-actor-manage/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'sfEacPlugin', 'sf_format' =  /{slug}/sfEacPlugin                     N/A                                     
+
+### ahg-actor-manage/delete
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  ">                            <?php echo $list['moreUrl']; ?>         N/A                                     
+
+### ahg-favorites/browse
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  id) ? ' active' : ''; ?>" st  /favorites?folder_id=<?php echo $folde  N/A                                     
+MISSING_IN_HERATIO  'table']); ?>" class="btn "   <?php echo $buildUrl(['view' => 'table  N/A                                     
+MISSING_IN_HERATIO  'grid']); ?>" class="btn " t  <?php echo $buildUrl(['view' => 'grid'  N/A                                     
+MISSING_IN_HERATIO  null]); ?>" class="btn btn-o  <?php echo $buildUrl(['query' => null]  N/A                                     
+MISSING_IN_HERATIO  id; ?>">                      <?php echo favItemUrl($favorite); ?>    N/A                                     
+MISSING_IN_HERATIO  id; ?>">                      <?php echo favItemUrl($favorite); ?>    N/A                                     
+MISSING_IN_HERATIO  id; ?>" title="">             <?php echo favItemUrl($favorite); ?>    N/A                                     
+
+### ahg-feedback/edit
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject']) ?>" cl  /{slug}/informationobject               N/A                                     
+
+### ahg-feedback/browse
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject']) ?>" cl  /{slug}/informationobject               N/A                                     
+
+### ahg-gallery/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'digitalobject', 'action' =>  /{slug}/digitalobject/edit              N/A                                     
+MISSING_IN_HERATIO  'digitalobject', 'action' =>  /{slug}/digitalobject/delete            N/A                                     
+MISSING_IN_HERATIO  'digitalobject', 'action' =>  /{slug}/digitalobject/edit              N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'addDi  /{slug}/object/addDigitalObject         N/A                                     
+MISSING_IN_HERATIO  'slug/default', 'module' =>   /{slug}/right/edit                      N/A                                     
+
+### ahg-information-object-manage/edit
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-information-object-manage/browse
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  getParameterHolder()->getAll  /{slug}/informationobject/exportCsv     N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-information-object-manage/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-information-object-manage/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-information-object-manage/delete
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-information-object-manage/create
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/reports       N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/inventory     N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'impor  /{slug}/object/importSelect             N/A                                     
+MISSING_IN_HERATIO  'sfModsPlugin', 'sf_format'   /{slug}/sfModsPlugin                    N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/generateFind  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/uploadFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/deleteFindin  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/calculateDat  N/A                                     
+
+### ahg-library/edit
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  " target="_blank" class="btn  <?php echo esc_entities($libraryData['  N/A                                     
+MISSING_IN_HERATIO  'digitalobject', 'action' =>  /{slug}/digitalobject/edit              N/A                                     
+MISSING_IN_HERATIO  'digitalobject', 'action' =>  /{slug}/digitalobject/edit              N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'addDi  /{slug}/object/addDigitalObject         N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'addDi  /{slug}/object/addDigitalObject         N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  <?php echo esc_entities($libraryData['  N/A                                     
+
+### ahg-library/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  " target="_blank" class="ms-  <?php echo esc_entities($creator['auth  N/A                                     
+MISSING_IN_HERATIO  " target="_blank">            https://doi.org/<?php echo esc_entitie  N/A                                     
+MISSING_IN_HERATIO  " target="_blank">            https://www.worldcat.org/oclc/<?php ec  N/A                                     
+MISSING_IN_HERATIO  " target="_blank">            https://openlibrary.org/books/<?php ec  N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="bad  <?php echo esc_entities($subject['uri'  N/A                                     
+MISSING_IN_HERATIO  'informationobject', 'action  /{slug}/informationobject/delete        N/A                                     
+MISSING_IN_HERATIO  'default', 'action' => 'move  /{slug}/default/move                    N/A                                     
+SCOPE_MISMATCH      'informationobject', 'action  /{slug}/informationobject/updatePublic  #publication-collapse                   
+MISSING_IN_HERATIO  'object', 'action' => 'editP  /{slug}/object/editPhysicalObjects      N/A                                     
+MISSING_IN_HERATIO  'object', 'action' => 'addDi  /{slug}/object/addDigitalObject         N/A                                     
+MISSING_IN_HERATIO  'slug/default', 'module' =>   /{slug}/right/edit                      N/A                                     
+MISSING_IN_HERATIO  'physicalobject']); ?>">      /{slug}/physicalobject                  N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  <?php echo esc_entities($libraryData['  N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  <?php echo esc_entities($libraryData['  N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  https://www.goodreads.com/book/show/<?  N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  https://www.librarything.com/work/<?ph  N/A                                     
+
+### ahg-loan/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  &laquo;                       ?page=<?php echo $page - 1; ?>          N/A                                     
+MISSING_IN_HERATIO  &raquo;                       ?page=<?php echo $page + 1; ?>          N/A                                     
+MISSING_IN_HERATIO  " target="_blank" class="btn  <?php echo $doc['file_path']; ?>        N/A                                     
+
+### ahg-storage-manage/edit
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'physicalobject']); ?>" clas  /{slug}/physicalobject                  N/A                                     
+
+### ahg-storage-manage/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'physicalobject', 'action' =  /{slug}/physicalobject/edit             N/A                                     
+MISSING_IN_HERATIO  'physicalobject', 'action' =  /{slug}/physicalobject/delete           N/A                                     
+
+### ahg-term-taxonomy/show
+Type                Link Text                     AtoM URL                                Heratio URL                             
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+MISSING_IN_HERATIO  'term'] + $params ); ?>" cla  /{slug}/term                            N/A                                     
+MISSING_IN_HERATIO  'term'] + $params ); ?>" cla  /{slug}/term                            N/A                                     
+
+
+## SUMMARY
+
+Pages checked:     74
+Total links:       396
+Scope mismatches:  1
+Missing in Heratio: 102
+Pages with issues: 20

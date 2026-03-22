@@ -147,6 +147,9 @@
       <a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">
         <i class="fas fa-plus me-1"></i>Add new
       </a>
+      <a href="{{ route('library.browse') }}?reports=1" class="btn atom-btn-outline-light ms-2">
+        <i class="fas fa-chart-bar me-1"></i>Library Reports
+      </a>
     </div>
   @endauth
 @endsection

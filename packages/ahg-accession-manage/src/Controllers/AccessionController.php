@@ -20,6 +20,124 @@ class AccessionController extends Controller
         $this->service = new AccessionService(app()->getLocale());
     }
 
+    public function intakeQueue(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $rows = DB::table('accession')
+            ->join('accession_i18n', function ($j) use ($culture) {
+                $j->on('accession.id', '=', 'accession_i18n.id')
+                  ->where('accession_i18n.culture', '=', $culture);
+            })
+            ->join('object', 'accession.id', '=', 'object.id')
+            ->leftJoin('slug', function ($j) {
+                $j->on('accession.id', '=', 'slug.object_id');
+            })
+            ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
+                $j->on('accession.processing_status_id', '=', 'status_term.id')
+                  ->where('status_term.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
+                $j->on('accession.processing_priority_id', '=', 'priority_term.id')
+                  ->where('priority_term.culture', '=', $culture);
+            })
+            ->whereNotIn('accession.processing_status_id', function ($q) {
+                // Exclude "Complete" status (term 163 in default AtoM taxonomy)
+                $q->select('id')->from('term')->where('taxonomy_id', 90);
+            })
+            ->select([
+                'accession.id',
+                'accession.identifier',
+                'accession_i18n.title',
+                'accession.date',
+                'status_term.name as status_name',
+                'priority_term.name as priority_name',
+                'slug.slug',
+                'object.created_at',
+                'object.updated_at',
+            ])
+            ->orderBy('accession.date', 'desc')
+            ->paginate($request->get('limit', 25));
+
+        return view('ahg-accession-manage::intake-queue', [
+            'rows' => $rows,
+        ]);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $total = DB::table('accession')->count();
+
+        $byStatus = DB::table('accession')
+            ->leftJoin('term_i18n', function ($j) use ($culture) {
+                $j->on('accession.processing_status_id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $culture);
+            })
+            ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as status_name'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('status_name')
+            ->orderByDesc('cnt')
+            ->get();
+
+        $byPriority = DB::table('accession')
+            ->leftJoin('term_i18n', function ($j) use ($culture) {
+                $j->on('accession.processing_priority_id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $culture);
+            })
+            ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as priority_name'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('priority_name')
+            ->orderByDesc('cnt')
+            ->get();
+
+        $recentCount = DB::table('accession')
+            ->join('object', 'accession.id', '=', 'object.id')
+            ->where('object.created_at', '>=', now()->subDays(30))
+            ->count();
+
+        return view('ahg-accession-manage::dashboard', [
+            'total' => $total,
+            'byStatus' => $byStatus,
+            'byPriority' => $byPriority,
+            'recentCount' => $recentCount,
+        ]);
+    }
+
+    public function valuationReport(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        $rows = DB::table('accession')
+            ->join('accession_i18n', function ($j) use ($culture) {
+                $j->on('accession.id', '=', 'accession_i18n.id')
+                  ->where('accession_i18n.culture', '=', $culture);
+            })
+            ->join('object', 'accession.id', '=', 'object.id')
+            ->leftJoin('slug', function ($j) {
+                $j->on('accession.id', '=', 'slug.object_id');
+            })
+            ->leftJoin('term_i18n as type_term', function ($j) use ($culture) {
+                $j->on('accession.acquisition_type_id', '=', 'type_term.id')
+                  ->where('type_term.culture', '=', $culture);
+            })
+            ->select([
+                'accession.id',
+                'accession.identifier',
+                'accession_i18n.title',
+                'accession.date',
+                'accession_i18n.received_extent_units',
+                'accession_i18n.appraisal',
+                'type_term.name as acquisition_type',
+                'slug.slug',
+            ])
+            ->orderBy('accession.identifier')
+            ->paginate($request->get('limit', 25));
+
+        return view('ahg-accession-manage::valuation-report', [
+            'rows' => $rows,
+        ]);
+    }
+
     public function browse(Request $request)
     {
         $culture = app()->getLocale();

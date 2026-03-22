@@ -14,6 +14,24 @@
     <form method="post" action="{{ route('settings.global') }}">
       @csrf
       <div class="accordion mb-3" id="globalAccordion">
+        {{-- Version --}}
+        <div class="accordion-item">
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version-collapse">Version</button></h2>
+          <div id="version-collapse" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <label class="form-label">Application version <span class="badge bg-secondary ms-1">Optional</span></label>
+                <input type="text" name="settings[version]" class="form-control" value="{{ $settings['version'] ?? '' }}" readonly>
+              </div>
+              <div class="form-check mb-3">
+                <input type="hidden" name="settings[check_for_updates]" value="0">
+                <input class="form-check-input" type="checkbox" name="settings[check_for_updates]" value="1" id="check_for_updates" {{ ($settings['check_for_updates'] ?? '') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="check_for_updates">Check for updates</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {{-- Search and browse --}}
         <div class="accordion-item">
           <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#search-collapse">Search and browse</button></h2>
@@ -167,6 +185,35 @@
               <div class="mb-3">
                 <label class="form-label">SWORD deposit directory <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[sword_deposit_dir]" class="form-control" value="{{ $settings['sword_deposit_dir'] ?? '' }}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- Enhancements --}}
+        <div class="accordion-item">
+          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#enhance-collapse">Enhancements</button></h2>
+          <div id="enhance-collapse" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-check mb-3">
+                <input type="hidden" name="settings[enable_enhanced_search]" value="0">
+                <input class="form-check-input" type="checkbox" name="settings[enable_enhanced_search]" value="1" id="enable_enhanced_search" {{ ($settings['enable_enhanced_search'] ?? '') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="enable_enhanced_search">Enable enhanced search</label>
+              </div>
+              <div class="form-check mb-3">
+                <input type="hidden" name="settings[enable_fulltext_search]" value="0">
+                <input class="form-check-input" type="checkbox" name="settings[enable_fulltext_search]" value="1" id="enable_fulltext_search" {{ ($settings['enable_fulltext_search'] ?? '') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="enable_fulltext_search">Enable full-text search</label>
+              </div>
+              <div class="form-check mb-3">
+                <input type="hidden" name="settings[enable_batch_editing]" value="0">
+                <input class="form-check-input" type="checkbox" name="settings[enable_batch_editing]" value="1" id="enable_batch_editing" {{ ($settings['enable_batch_editing'] ?? '') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="enable_batch_editing">Enable batch editing</label>
+              </div>
+              <div class="form-check mb-3">
+                <input type="hidden" name="settings[enable_advanced_filters]" value="0">
+                <input class="form-check-input" type="checkbox" name="settings[enable_advanced_filters]" value="1" id="enable_advanced_filters" {{ ($settings['enable_advanced_filters'] ?? '') == '1' ? 'checked' : '' }}>
+                <label class="form-check-label" for="enable_advanced_filters">Enable advanced filters</label>
               </div>
             </div>
           </div>

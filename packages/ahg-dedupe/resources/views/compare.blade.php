@@ -20,6 +20,11 @@
       </span>
     </div>
     <div class="ms-auto d-flex gap-2">
+      @if($duplicate->status !== 'merged')
+        <a href="{{ route('dedupe.merge', $duplicate->id) }}" class="btn atom-btn-outline-success">
+          <i class="fas fa-compress-arrows-alt me-1"></i> Merge Records
+        </a>
+      @endif
       <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i> Back
       </a>
@@ -112,6 +117,49 @@
       </div>
     </div>
   </div>
+
+  {{-- Detection Info --}}
+  <div class="alert alert-info mb-4">
+    <div class="row">
+      <div class="col-md-3">
+        <strong>Similarity Score:</strong>
+        <span class="badge {{ $badgeClass }} fs-6">{{ number_format($score, 1) }}%</span>
+      </div>
+      <div class="col-md-3">
+        <strong>Detection Method:</strong>
+        {{ ucwords(str_replace('_', ' ', $duplicate->detection_method)) }}
+      </div>
+      <div class="col-md-3">
+        <strong>Status:</strong>
+        @php
+          $statusColors = ['pending' => 'bg-warning text-dark', 'confirmed' => 'bg-info', 'dismissed' => 'bg-secondary', 'merged' => 'bg-success'];
+        @endphp
+        <span class="badge {{ $statusColors[$duplicate->status] ?? 'bg-secondary' }}">{{ $duplicate->status }}</span>
+      </div>
+      <div class="col-md-3">
+        <strong>Detected:</strong>
+        {{ $duplicate->detected_at ? \Carbon\Carbon::parse($duplicate->detected_at)->format('M j, Y H:i') : '-' }}
+      </div>
+    </div>
+  </div>
+
+  {{-- Field Comparison Legend --}}
+  <div class="alert alert-secondary mb-4">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Legend:</strong>
+    <span class="badge bg-success">Green rows</span> indicate matching values.
+    <span class="badge bg-warning text-dark">Yellow rows</span> indicate differing values between records.
+  </div>
+
+  {{-- Detection Details --}}
+  @if(!empty($duplicate->detection_details))
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-microscope me-2"></i>Detection Details</strong></div>
+      <div class="card-body">
+        <pre class="mb-0">{{ json_encode(json_decode($duplicate->detection_details), JSON_PRETTY_PRINT) }}</pre>
+      </div>
+    </div>
+  @endif
 
   {{-- Action buttons --}}
   @if($duplicate->status === 'pending')

@@ -1,13 +1,29 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
-@section('title', 'Upload Finding Aid')
+@section('title', $io->title ?? 'Upload Finding Aid')
+
+@section('sidebar')
+  {{-- Repository context menu (matching AtoM layout_2col sidebar) --}}
+  @if(isset($repository) && $repository)
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-university me-1"></i> {{ $repository->name ?? 'Repository' }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('repository.show', $repository->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-eye me-1"></i> View repository
+        </a>
+        <a href="{{ route('informationobject.browse', ['repository' => $repository->id]) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list me-1"></i> Browse holdings
+        </a>
+      </div>
+    </div>
+  @endif
+@endsection
 
 @section('content')
 
-  <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0" aria-describedby="heading-label">Upload finding aid</h1>
-    <span class="small" id="heading-label">{{ $io->title ?? '' }}</span>
-  </div>
+  <h1>{{ $io->title ?? '[Untitled]' }}</h1>
 
   @if($errors->any())
     <div class="alert alert-danger">
@@ -24,26 +40,26 @@
 
     <div class="accordion mb-3">
       <div class="accordion-item">
-        <h2 class="accordion-header" id="file-heading">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#file-collapse" aria-expanded="true">
-            Select file
+        <h2 class="accordion-header" id="load-heading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#load-collapse" aria-expanded="true" aria-controls="load-collapse">
+            Upload finding aid
           </button>
         </h2>
-        <div id="file-collapse" class="accordion-collapse collapse show">
+        <div id="load-collapse" class="accordion-collapse collapse show" aria-labelledby="load-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="finding-aid-file" class="form-label">Select a PDF or RTF file to upload <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input class="form-control" type="file" id="finding-aid-file" name="file" accept=".pdf,.rtf">
+              <label for="finding-aid-file" class="form-label">PDF file <span class="badge bg-danger ms-1">Required</span></label>
+              <input class="form-control" type="file" id="finding-aid-file" name="file" accept=".pdf,.rtf" required>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <section class="actions mb-3">
-      <input class="btn atom-btn-outline-success" type="submit" value="Upload">
-      <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light ms-2">Cancel</a>
-    </section>
+    <ul class="actions mb-3 nav gap-2">
+      <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><input class="btn atom-btn-outline-success" type="submit" value="Upload"></li>
+    </ul>
 
   </form>
 

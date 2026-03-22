@@ -12,7 +12,7 @@
   @else
     <div class="multiline-header d-flex align-items-center mb-3">
       <i class="fas fa-3x fa-tasks me-3" aria-hidden="true"></i>
-      <div class="d-flex flex-column">
+      <div class="d-flex flex-column flex-grow-1">
         <h1 class="mb-0">
           @if($pager->getNbResults())
             Showing {{ number_format($pager->getNbResults()) }} results
@@ -22,7 +22,19 @@
         </h1>
         <span class="small text-muted">DOI Queue</span>
       </div>
+      <div class="ms-auto">
+        <a href="{{ route('doi.index') }}" class="btn btn-sm atom-btn-white">
+          <i class="fas fa-arrow-left me-1"></i> Dashboard
+        </a>
+      </div>
     </div>
+
+    @if(session('success'))
+      <div class="alert alert-success alert-dismissible fade show">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    @endif
 
     {{-- Status summary cards --}}
     <div class="row g-3 mb-4">
@@ -58,6 +70,13 @@
           </div>
         </div>
       </div>
+    </div>
+
+    {{-- CLI Command Help --}}
+    <div class="alert alert-info">
+      <i class="fas fa-terminal me-2"></i>
+      <strong>Process queue via CLI:</strong>
+      <code class="ms-2">php artisan doi:process-queue</code>
     </div>
 
     {{-- Status filter tabs --}}
@@ -134,17 +153,19 @@
                     <span class="badge bg-secondary">{{ $item['status'] }}</span>
                   @endif
                 </td>
-                <td>{{ $item['attempts'] }}</td>
-                <td>{{ $item['scheduled_at'] ? \Carbon\Carbon::parse($item['scheduled_at'])->format('Y-m-d H:i') : '' }}</td>
+                <td>{{ $item['attempts'] }}/{{ $item['max_attempts'] ?? 3 }}</td>
+                <td>{{ $item['scheduled_at'] ? \Carbon\Carbon::parse($item['scheduled_at'])->format('Y-m-d H:i') : '-' }}</td>
                 <td>
                   @if($item['error_message'])
-                    <span title="{{ $item['error_message'] }}">{{ \Illuminate\Support\Str::limit($item['error_message'], 60) }}</span>
+                    <small class="text-danger" title="{{ $item['error_message'] }}">{{ \Illuminate\Support\Str::limit($item['error_message'], 50) }}...</small>
+                  @else
+                    -
                   @endif
                 </td>
                 <td class="text-end">
                   @if($item['status'] === 'failed')
-                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm atom-btn-white">
-                      <i class="fas fa-redo"></i> Retry
+                    <a href="{{ route('doi.queue', ['retry' => $item['id']]) }}" class="btn btn-sm atom-btn-white" title="Retry">
+                      <i class="fas fa-redo"></i>
                     </a>
                   @endif
                 </td>
@@ -155,6 +176,12 @@
       </div>
 
       @include('ahg-core::components.pager', ['pager' => $pager])
+    @else
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-tasks fa-3x mb-3"></i>
+        <p>The queue is empty.</p>
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn atom-btn-white">Queue Records for Minting</a>
+      </div>
     @endif
   @endif
 @endsection

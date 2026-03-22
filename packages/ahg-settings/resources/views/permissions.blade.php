@@ -162,6 +162,8 @@
                 <small class="text-muted">When enabled the following text will appear whenever a user tries to download a digital object master with an associated rights statement where the Basis = copyright and the Restriction = conditional. You can style and customize the text as in a static page.</small>
               </div>
 
+              <input class="btn atom-btn-white mb-3" type="submit" name="preview" value="Preview">
+
               <div class="mb-3">
                 <label class="form-label">Apply to every digital object <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>

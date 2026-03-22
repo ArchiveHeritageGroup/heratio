@@ -1774,6 +1774,9 @@
         <a href="{{ route('informationobject.export.ead', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> EAD 2002 XML
         </a>
+        <a href="{{ url('/' . $io->slug . '/informationobject/exportMods') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> MODS 3.5 XML
+        </a>
       </div>
     </div>
 
@@ -1790,6 +1793,14 @@
           <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-upload me-1"></i> Upload
           </a>
+          @if(isset($findingAid) && $findingAid)
+            <form action="{{ url('/' . $io->slug . '/informationobject/deleteFindingAid') }}" method="POST" class="d-inline">
+              @csrf
+              <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 text-start w-100" onclick="return confirm('Delete finding aid?')">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            </form>
+          @endif
         </div>
       </div>
     @endauth

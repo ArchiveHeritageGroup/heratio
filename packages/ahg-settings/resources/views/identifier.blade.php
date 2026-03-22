@@ -75,6 +75,13 @@
         </div>
       </div>
 
+      <div class="alert alert-secondary mb-4" role="alert">
+        <i class="fas fa-layer-group me-2"></i>
+        <strong>Sector-specific numbering?</strong>
+        Configure different numbering schemes per GLAM/DAM sector in the
+        <a href="{{ route('settings.ahg', 'accession') }}">AHG Settings (Accession section)</a>.
+      </div>
+
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>

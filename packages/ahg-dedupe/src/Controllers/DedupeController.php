@@ -294,13 +294,318 @@ class DedupeController extends Controller
             return view('ahg-dedupe::not-configured');
         }
 
-        $rules = DB::table('ahg_duplicate_rule')
-            ->orderBy('priority')
+        $culture = app()->getLocale();
+
+        $rules = DB::table('ahg_duplicate_rule as r')
+            ->leftJoin('repository_i18n as ri', function ($join) use ($culture) {
+                $join->on('r.repository_id', '=', 'ri.id')
+                    ->where('ri.culture', '=', $culture);
+            })
+            ->select('r.*', 'ri.authorized_form_of_name as repository_name')
+            ->orderBy('r.priority')
             ->get();
 
         return view('ahg-dedupe::rules', [
             'rules' => $rules,
         ]);
+    }
+
+    /**
+     * Scan — form to start a new duplicate scan.
+     */
+    public function scan()
+    {
+        if (!$this->tablesExist()) {
+            return view('ahg-dedupe::not-configured');
+        }
+
+        $culture = app()->getLocale();
+
+        $repositories = DB::table('repository')
+            ->join('repository_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'repository_i18n.id')
+                    ->where('repository_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
+            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->get();
+
+        return view('ahg-dedupe::scan', [
+            'repositories' => $repositories,
+        ]);
+    }
+
+    /**
+     * Start a new scan job.
+     */
+    public function scanStart(Request $request)
+    {
+        if (!$this->tablesExist()) {
+            return redirect()->route('dedupe.index');
+        }
+
+        DB::table('ahg_dedupe_scan')->insert([
+            'scope'             => $request->input('scope', 'all'),
+            'repository_id'     => $request->input('scope') === 'repository' ? $request->input('repository_id') : null,
+            'status'            => 'pending',
+            'processed_records' => 0,
+            'total_records'     => 0,
+            'duplicates_found'  => 0,
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ]);
+
+        return redirect()->route('dedupe.index')->with('notice', 'Scan job created. Run the CLI command to process it.');
+    }
+
+    /**
+     * Merge — form to merge two duplicate records.
+     */
+    public function merge(int $id)
+    {
+        if (!$this->tablesExist()) {
+            return view('ahg-dedupe::not-configured');
+        }
+
+        $culture = app()->getLocale();
+
+        $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
+        if (!$duplicate) {
+            abort(404);
+        }
+
+        $recordA = DB::table('information_object')
+            ->join('information_object_i18n', function ($join) use ($culture) {
+                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('repository_i18n', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
+                    ->where('repository_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
+                $join->on('information_object.level_of_description_id', '=', 'level_term.id')
+                    ->where('level_term.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('information_object.id', $duplicate->record_a_id)
+            ->select([
+                'information_object.id',
+                'information_object.identifier',
+                'information_object_i18n.title',
+                'level_term.name as level_of_description',
+                'repository_i18n.authorized_form_of_name as repository_name',
+                'slug.slug',
+            ])
+            ->first();
+
+        $recordB = DB::table('information_object')
+            ->join('information_object_i18n', function ($join) use ($culture) {
+                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('repository_i18n', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
+                    ->where('repository_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
+                $join->on('information_object.level_of_description_id', '=', 'level_term.id')
+                    ->where('level_term.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('information_object.id', $duplicate->record_b_id)
+            ->select([
+                'information_object.id',
+                'information_object.identifier',
+                'information_object_i18n.title',
+                'level_term.name as level_of_description',
+                'repository_i18n.authorized_form_of_name as repository_name',
+                'slug.slug',
+            ])
+            ->first();
+
+        return view('ahg-dedupe::merge', [
+            'duplicate' => $duplicate,
+            'recordA'   => $recordA,
+            'recordB'   => $recordB,
+        ]);
+    }
+
+    /**
+     * Execute merge of two duplicate records.
+     */
+    public function mergeExecute(Request $request, int $id)
+    {
+        if (!$this->tablesExist()) {
+            return redirect()->route('dedupe.index');
+        }
+
+        $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
+        if (!$duplicate) {
+            abort(404);
+        }
+
+        $primaryId = $request->input('primary_id');
+        $secondaryId = ($primaryId == $duplicate->record_a_id) ? $duplicate->record_b_id : $duplicate->record_a_id;
+
+        DB::table('ahg_duplicate_detection')
+            ->where('id', $id)
+            ->update([
+                'status'      => 'merged',
+                'reviewed_by' => Auth::id(),
+                'reviewed_at' => now(),
+            ]);
+
+        return redirect()->route('dedupe.browse')->with('notice', 'Records have been flagged for merge. A background task will complete the data transfer.');
+    }
+
+    /**
+     * Rule Create form.
+     */
+    public function ruleCreate()
+    {
+        if (!$this->tablesExist()) {
+            return view('ahg-dedupe::not-configured');
+        }
+
+        $culture = app()->getLocale();
+
+        $repositories = DB::table('repository')
+            ->join('repository_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'repository_i18n.id')
+                    ->where('repository_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
+            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->get();
+
+        return view('ahg-dedupe::rule-create', [
+            'ruleTypes'    => $this->getRuleTypes(),
+            'repositories' => $repositories,
+        ]);
+    }
+
+    /**
+     * Store a new detection rule.
+     */
+    public function ruleStore(Request $request)
+    {
+        if (!$this->tablesExist()) {
+            return redirect()->route('dedupe.index');
+        }
+
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'rule_type' => 'required|string|max:50',
+            'threshold' => 'required|numeric|min:0|max:1',
+        ]);
+
+        DB::table('ahg_duplicate_rule')->insert([
+            'name'          => $request->input('name'),
+            'rule_type'     => $request->input('rule_type'),
+            'threshold'     => $request->input('threshold'),
+            'priority'      => (int) $request->input('priority', 100),
+            'repository_id' => $request->input('repository_id') ?: null,
+            'config_json'   => $request->input('config_json') ?: null,
+            'is_enabled'    => $request->has('is_enabled') ? 1 : 0,
+            'is_blocking'   => $request->has('is_blocking') ? 1 : 0,
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
+
+        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule created.');
+    }
+
+    /**
+     * Rule Edit form.
+     */
+    public function ruleEdit(int $id)
+    {
+        if (!$this->tablesExist()) {
+            return view('ahg-dedupe::not-configured');
+        }
+
+        $rule = DB::table('ahg_duplicate_rule')->where('id', $id)->first();
+        if (!$rule) {
+            abort(404);
+        }
+
+        $culture = app()->getLocale();
+
+        $repositories = DB::table('repository')
+            ->join('repository_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'repository_i18n.id')
+                    ->where('repository_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
+            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->get();
+
+        return view('ahg-dedupe::rule-edit', [
+            'rule'         => $rule,
+            'ruleTypes'    => $this->getRuleTypes(),
+            'repositories' => $repositories,
+        ]);
+    }
+
+    /**
+     * Update a detection rule.
+     */
+    public function ruleUpdate(Request $request, int $id)
+    {
+        if (!$this->tablesExist()) {
+            return redirect()->route('dedupe.index');
+        }
+
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'rule_type' => 'required|string|max:50',
+            'threshold' => 'required|numeric|min:0|max:1',
+        ]);
+
+        DB::table('ahg_duplicate_rule')->where('id', $id)->update([
+            'name'          => $request->input('name'),
+            'rule_type'     => $request->input('rule_type'),
+            'threshold'     => $request->input('threshold'),
+            'priority'      => (int) $request->input('priority', 100),
+            'repository_id' => $request->input('repository_id') ?: null,
+            'config_json'   => $request->input('config_json') ?: null,
+            'is_enabled'    => $request->has('is_enabled') ? 1 : 0,
+            'is_blocking'   => $request->has('is_blocking') ? 1 : 0,
+            'updated_at'    => now(),
+        ]);
+
+        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule updated.');
+    }
+
+    /**
+     * Delete a detection rule.
+     */
+    public function ruleDelete(int $id)
+    {
+        if (!$this->tablesExist()) {
+            return redirect()->route('dedupe.index');
+        }
+
+        DB::table('ahg_duplicate_rule')->where('id', $id)->delete();
+
+        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule deleted.');
+    }
+
+    /**
+     * Available rule types.
+     */
+    private function getRuleTypes(): array
+    {
+        return [
+            'title_similarity' => 'Title Similarity',
+            'identifier_exact' => 'Identifier Exact Match',
+            'identifier_fuzzy' => 'Identifier Fuzzy Match',
+            'date_creator'     => 'Date + Creator Match',
+            'checksum'         => 'File Checksum',
+            'combined'         => 'Combined Analysis',
+            'custom'           => 'Custom Rule',
+        ];
     }
 
     /**
@@ -311,6 +616,8 @@ class DedupeController extends Controller
         if (!$this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
+
+        $culture = app()->getLocale();
 
         $monthlyStats = DB::table('ahg_duplicate_detection')
             ->select(
@@ -338,9 +645,33 @@ class DedupeController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        $totalDetected = DB::table('ahg_duplicate_detection')->count();
+        $totalMerged   = DB::table('ahg_duplicate_detection')->where('status', 'merged')->count();
+        $totalDismissed = DB::table('ahg_duplicate_detection')->where('status', 'dismissed')->count();
+        $falsePositiveRate = $totalDetected > 0 ? round(($totalDismissed / $totalDetected) * 100, 1) : 0;
+
+        $topClusters = DB::table('ahg_duplicate_detection as d')
+            ->leftJoin('information_object_i18n as a_i18n', function ($join) use ($culture) {
+                $join->on('d.record_a_id', '=', 'a_i18n.id')
+                    ->where('a_i18n.culture', '=', $culture);
+            })
+            ->where('d.status', 'pending')
+            ->select('d.record_a_id', 'a_i18n.title', DB::raw('COUNT(*) as duplicate_count'))
+            ->groupBy('d.record_a_id', 'a_i18n.title')
+            ->orderByDesc('duplicate_count')
+            ->limit(10)
+            ->get();
+
         return view('ahg-dedupe::report', [
             'monthlyStats'    => $monthlyStats,
             'methodBreakdown' => $methodBreakdown,
+            'efficiency'      => [
+                'total_detected'     => $totalDetected,
+                'total_merged'       => $totalMerged,
+                'total_dismissed'    => $totalDismissed,
+                'false_positive_rate' => $falsePositiveRate,
+            ],
+            'topClusters' => $topClusters,
         ]);
     }
 }

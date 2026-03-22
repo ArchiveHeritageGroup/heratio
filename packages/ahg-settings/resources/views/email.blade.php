@@ -36,6 +36,20 @@
             </div>
           </div>
 
+          {{-- Test Email --}}
+          <div class="card mb-4">
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>Test Email</div>
+            <div class="card-body">
+              <p class="small text-muted">Save settings first, then send a test email to verify configuration.</p>
+              <div class="input-group">
+                <input type="email" name="test_email" class="form-control" placeholder="test@example.com" id="testEmailInput">
+                <button type="button" class="btn atom-btn-white" id="btnSendTest">
+                  <i class="fas fa-paper-plane me-1"></i>Send Test
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="card mb-4">
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Recipients</div>
             <div class="card-body">
@@ -96,6 +110,41 @@
         </div>
       </div>
 
+      {{-- Error Alert Configuration --}}
+      <div class="card mb-4">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-exclamation-triangle me-2"></i>Error Alert Configuration</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">Optional</span></label>
+            <select name="error_alert[error_alert_enabled]" class="form-select">
+              <option value="0" {{ (isset($errorAlertSettings['error_alert_enabled']) && $errorAlertSettings['error_alert_enabled'] === '0') ? 'selected' : '' }}>Disabled</option>
+              <option value="1" {{ (!isset($errorAlertSettings['error_alert_enabled']) || $errorAlertSettings['error_alert_enabled'] === '1') ? 'selected' : '' }}>Enabled</option>
+            </select>
+            <small class="text-muted">Send email alerts when unhandled exceptions occur.</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Throttle TTL (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="number" name="error_alert[error_alert_throttle_ttl]" class="form-control" min="30" max="86400"
+                   value="{{ e($errorAlertSettings['error_alert_throttle_ttl'] ?? '300') }}">
+            <small class="text-muted">Minimum seconds between duplicate error alerts. Default: 300 (5 min).</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Daily Cap <span class="badge bg-secondary ms-1">Optional</span></label>
+            <input type="number" name="error_alert[error_alert_daily_cap]" class="form-control" min="0" max="1000"
+                   value="{{ e($errorAlertSettings['error_alert_daily_cap'] ?? '50') }}">
+            <small class="text-muted">Maximum alert emails per day. 0 = unlimited. Default: 50.</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Production Only <span class="badge bg-secondary ms-1">Optional</span></label>
+            <select name="error_alert[error_alert_env_gate]" class="form-select">
+              <option value="0" {{ (isset($errorAlertSettings['error_alert_env_gate']) && $errorAlertSettings['error_alert_env_gate'] === '0') ? 'selected' : '' }}>Send in all environments</option>
+              <option value="1" {{ (!isset($errorAlertSettings['error_alert_env_gate']) || $errorAlertSettings['error_alert_env_gate'] === '1') ? 'selected' : '' }}>Production only</option>
+            </select>
+            <small class="text-muted">When enabled, suppresses alerts in debug/development mode.</small>
+          </div>
+        </div>
+      </div>
+
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bell me-2"></i>Notification Toggles</div>
         <div class="card-body">
@@ -114,4 +163,17 @@
     </form>
   </div>
 </div>
+
+@push('scripts')
+<script>
+document.getElementById('btnSendTest').addEventListener('click', function() {
+    var email = document.getElementById('testEmailInput').value;
+    if (email) {
+        window.location.href = '{{ route("settings.email") }}?test_email=' + encodeURIComponent(email);
+    } else {
+        alert('Please enter an email address');
+    }
+});
+</script>
+@endpush
 @endsection

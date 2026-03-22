@@ -368,7 +368,66 @@
 
     <div class="d-flex gap-2 mb-4">
       <input type="submit" class="btn atom-btn-outline-success" value="Save">
+      <button type="button" class="btn atom-btn-white" id="btnLivePreview">
+        <i class="fas fa-eye me-1"></i>Live Preview
+      </button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back to Settings</a>
+      <button type="button" class="btn atom-btn-outline-danger ms-auto" id="btnResetDefaults"
+              onclick="return confirm('Reset all theme settings to defaults? This cannot be undone.');">
+        <i class="fas fa-undo me-1"></i>Reset to Defaults
+      </button>
     </div>
   </form>
 @endsection
+
+@push('scripts')
+<script>
+// Live Preview
+document.getElementById('btnLivePreview').addEventListener('click', function() {
+    var headerBg = document.querySelector('[name="ahg_header_bg"]');
+    var headerText = document.querySelector('[name="ahg_header_text"]');
+    var primaryColor = document.querySelector('[name="ahg_primary_color"]');
+    var bodyBg = document.querySelector('[name="ahg_body_bg"]');
+    var bodyText = document.querySelector('[name="ahg_body_text"]');
+
+    if (primaryColor) document.documentElement.style.setProperty('--ahg-primary', primaryColor.value);
+    if (bodyBg) document.body.style.backgroundColor = bodyBg.value;
+    if (bodyText) document.body.style.color = bodyText.value;
+
+    // Update preview header
+    var previewHeader = document.getElementById('preview-header');
+    var cardHeaderBg = document.querySelector('[name="ahg_card_header_bg"]');
+    var cardHeaderText = document.querySelector('[name="ahg_card_header_text"]');
+    if (previewHeader && cardHeaderBg) previewHeader.style.background = cardHeaderBg.value;
+    if (previewHeader && cardHeaderText) previewHeader.style.color = cardHeaderText.value;
+});
+
+// Reset to Defaults
+document.getElementById('btnResetDefaults').addEventListener('click', function() {
+    var defaults = {
+        ahg_header_bg: '#212529', ahg_header_text: '#ffffff',
+        ahg_descbar_bg: '#005837', ahg_descbar_text: '#ffffff', ahg_descbar_align: 'left',
+        ahg_primary_color: '#005837', ahg_secondary_color: '#37A07F', ahg_link_color: '#005837',
+        ahg_body_bg: '#ffffff', ahg_body_text: '#212529',
+        ahg_card_header_bg: '#005837', ahg_card_header_text: '#ffffff',
+        ahg_button_bg: '#005837', ahg_button_text: '#ffffff',
+        ahg_sidebar_bg: '#f8f9fa', ahg_sidebar_text: '#333333',
+        ahg_footer_bg: '#005837', ahg_footer_text_color: '#ffffff',
+        ahg_success_color: '#28a745', ahg_danger_color: '#dc3545',
+        ahg_warning_color: '#ffc107', ahg_info_color: '#17a2b8',
+        ahg_light_color: '#f8f9fa', ahg_dark_color: '#343a40',
+        ahg_muted_color: '#6c757d', ahg_border_color: '#dee2e6',
+    };
+    Object.keys(defaults).forEach(function(key) {
+        var inputs = document.querySelectorAll('[name="' + key + '"]');
+        inputs.forEach(function(input) {
+            input.value = defaults[key];
+            if (input.type === 'color') {
+                var event = new Event('input', { bubbles: true });
+                input.dispatchEvent(event);
+            }
+        });
+    });
+});
+</script>
+@endpush
