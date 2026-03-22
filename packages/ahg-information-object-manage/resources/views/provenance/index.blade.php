@@ -41,7 +41,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Provenance Statement</label>
+              <label class="form-label">Provenance Statement <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="provenance_summary" class="form-control" rows="4" placeholder="Enter a human-readable summary of the item's provenance...">{{ old('provenance_summary', $io->provenance_summary ?? '') }}</textarea>
               <small class="text-muted">This summary will be displayed publicly. Leave blank to auto-generate from events.</small>
             </div>
@@ -56,7 +56,7 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Acquisition Type</label>
+                <label class="form-label">Acquisition Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="acquisition_type" class="form-select">
                   <option value="">-- Select --</option>
                   <option value="purchase" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'purchase')>Purchase</option>
@@ -76,19 +76,19 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Acquisition Date</label>
+                <label class="form-label">Acquisition Date <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" name="acquisition_date" class="form-control" value="{{ old('acquisition_date', $io->acquisition_date ?? '') }}">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Date (Text)</label>
+                <label class="form-label">Date (Text) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="acquisition_date_text" class="form-control" placeholder="e.g., circa 1950" value="{{ old('acquisition_date_text', $io->acquisition_date_text ?? '') }}">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Price</label>
+                <label class="form-label">Price <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="acquisition_price" class="form-control" step="0.01" value="{{ old('acquisition_price', $io->acquisition_price ?? '') }}">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Currency</label>
+                <label class="form-label">Currency <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="acquisition_currency" class="form-select">
                   <option value="">-- Select --</option>
                   <option value="ZAR" @selected(old('acquisition_currency', $io->acquisition_currency ?? '') === 'ZAR')>ZAR - South African Rand</option>
@@ -98,7 +98,7 @@
                 </select>
               </div>
               <div class="col-12">
-                <label class="form-label">Acquisition Notes</label>
+                <label class="form-label">Acquisition Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="acquisition_notes" class="form-control" rows="2">{{ old('acquisition_notes', $io->acquisition_notes ?? '') }}</textarea>
               </div>
             </div>
@@ -120,7 +120,7 @@
                 <div class="card-body">
                   <div class="row g-2">
                     <div class="col-md-3">
-                      <label class="form-label small">Event Type</label>
+                      <label class="form-label small">Event Type <span class="badge bg-secondary ms-1">Optional</span></label>
                       <select name="event_type[]" class="form-select form-select-sm">
                         <optgroup label="Ownership">
                           <option value="creation" @selected(($event->event_type ?? '') === 'creation')>Creation</option>
@@ -159,15 +159,15 @@
                       </select>
                     </div>
                     <div class="col-md-2">
-                      <label class="form-label small">Date</label>
+                      <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="date" name="event_date[]" class="form-control form-control-sm" value="{{ $event->event_date ?? '' }}">
                     </div>
                     <div class="col-md-2">
-                      <label class="form-label small">Date Text</label>
+                      <label class="form-label small">Date Text <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="text" name="event_date_text[]" class="form-control form-control-sm" placeholder="circa 1920" value="{{ $event->event_date_text ?? '' }}">
                     </div>
                     <div class="col-md-2">
-                      <label class="form-label small">Certainty</label>
+                      <label class="form-label small">Certainty <span class="badge bg-secondary ms-1">Optional</span></label>
                       <select name="event_certainty[]" class="form-select form-select-sm">
                         <option value="certain" @selected(($event->certainty ?? '') === 'certain')>Certain</option>
                         <option value="probable" @selected(($event->certainty ?? '') === 'probable')>Probable</option>
@@ -176,19 +176,19 @@
                       </select>
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label small">From (Agent)</label>
+                      <label class="form-label small">From (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="text" name="from_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="Previous owner..." value="{{ $event->from_agent_name ?? '' }}">
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label small">To (Agent)</label>
+                      <label class="form-label small">To (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="text" name="to_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="New owner..." value="{{ $event->to_agent_name ?? '' }}">
                     </div>
                     <div class="col-md-3">
-                      <label class="form-label small">Location</label>
+                      <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="text" name="event_location[]" class="form-control form-control-sm" placeholder="City, Country" value="{{ $event->event_location ?? '' }}">
                     </div>
                     <div class="col-md-5">
-                      <label class="form-label small">Notes</label>
+                      <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                       <input type="text" name="event_notes[]" class="form-control form-control-sm" value="{{ $event->notes ?? $event->notes_i18n ?? '' }}">
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
@@ -211,7 +211,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Research Status</label>
+              <label class="form-label">Research Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="research_status" class="form-select">
                 <option value="not_started" @selected(old('research_status', $io->research_status ?? '') === 'not_started')>Not Started</option>
                 <option value="in_progress" @selected(old('research_status', $io->research_status ?? '') === 'in_progress')>In Progress</option>
@@ -220,7 +220,7 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Research Notes</label>
+              <label class="form-label">Research Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="research_notes" class="form-control" rows="3" placeholder="Document your research findings, sources consulted, etc.">{{ old('research_notes', $io->research_notes ?? $io->research_notes_i18n ?? '') }}</textarea>
             </div>
             <div class="form-check mb-3">
@@ -228,7 +228,7 @@
               <label class="form-check-label" for="hasGaps">There are gaps in the provenance chain</label>
             </div>
             <div class="mb-0" id="gapDescriptionGroup" style="{{ old('has_gaps', $io->has_gaps ?? 0) ? '' : 'display:none' }}">
-              <label class="form-label">Gap Description</label>
+              <label class="form-label">Gap Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="gap_description" class="form-control" rows="2" placeholder="Describe the gaps in provenance...">{{ old('gap_description', $io->gap_description ?? '') }}</textarea>
             </div>
           </div>
@@ -246,7 +246,7 @@
             <!-- Existing Documents -->
             @if(!empty($documents) && count($documents) > 0)
             <div class="mb-3">
-              <label class="form-label text-muted small">Existing Documents</label>
+              <label class="form-label text-muted small">Existing Documents <span class="badge bg-secondary ms-1">Optional</span></label>
               @foreach($documents as $doc)
               <div class="d-flex align-items-center justify-content-between border rounded p-2 mb-2">
                 <div>
@@ -282,7 +282,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Current Status</label>
+              <label class="form-label">Current Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="current_status" class="form-select">
                 <option value="owned" @selected(old('current_status', $io->current_status ?? '') === 'owned')>Owned</option>
                 <option value="on_loan" @selected(old('current_status', $io->current_status ?? '') === 'on_loan')>On Loan</option>
@@ -292,7 +292,7 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Custody Type</label>
+              <label class="form-label">Custody Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="custody_type" class="form-select">
                 <option value="permanent" @selected(old('custody_type', $io->custody_type ?? '') === 'permanent')>Permanent</option>
                 <option value="temporary" @selected(old('custody_type', $io->custody_type ?? '') === 'temporary')>Temporary</option>
@@ -301,7 +301,7 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Certainty Level</label>
+              <label class="form-label">Certainty Level <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="certainty_level" class="form-select">
                 <option value="verified" @selected(old('certainty_level', $io->certainty_level ?? '') === 'verified')>Verified</option>
                 <option value="reliable" @selected(old('certainty_level', $io->certainty_level ?? '') === 'reliable')>Reliable</option>
@@ -329,11 +329,11 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Name</label>
+              <label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="current_agent_name" class="form-control agent-autocomplete" value="{{ old('current_agent_name', $io->current_agent_name ?? '') }}">
             </div>
             <div class="mb-0">
-              <label class="form-label">Type</label>
+              <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="current_agent_type" class="form-select">
                 <option value="person" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'person')>Person</option>
                 <option value="organization" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'organization')>Organization</option>
@@ -356,7 +356,7 @@
             </div>
             <div id="naziEraClearGroup" style="{{ old('nazi_era_provenance_checked', $io->nazi_era_provenance_checked ?? 0) ? '' : 'display:none' }}">
               <div class="mb-3">
-                <label class="form-label">Result</label>
+                <label class="form-label">Result <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="nazi_era_provenance_clear" class="form-select">
                   <option value="">-- Select --</option>
                   <option value="1" @selected(old('nazi_era_provenance_clear', $io->nazi_era_provenance_clear ?? '') === '1')>Clear - No issues found</option>
@@ -364,7 +364,7 @@
                 </select>
               </div>
               <div class="mb-0">
-                <label class="form-label">Notes</label>
+                <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="nazi_era_notes" class="form-control" rows="2">{{ old('nazi_era_notes', $io->nazi_era_notes ?? '') }}</textarea>
               </div>
             </div>
@@ -378,7 +378,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Status</label>
+              <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="cultural_property_status" class="form-select">
                 <option value="none" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'none')>None / Not Applicable</option>
                 <option value="claimed" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'claimed')>Claimed</option>
@@ -388,7 +388,7 @@
               </select>
             </div>
             <div class="mb-0">
-              <label class="form-label">Notes</label>
+              <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="cultural_property_notes" class="form-control" rows="2">{{ old('cultural_property_notes', $io->cultural_property_notes ?? '') }}</textarea>
             </div>
           </div>
@@ -405,7 +405,7 @@
     <div class="card-body">
       <div class="row g-2">
         <div class="col-md-3">
-          <label class="form-label small">Event Type</label>
+          <label class="form-label small">Event Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="event_type[]" class="form-select form-select-sm">
             <optgroup label="Ownership">
               <option value="creation">Creation</option>
@@ -444,15 +444,15 @@
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label small">Date</label>
+          <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="event_date[]" class="form-control form-control-sm">
         </div>
         <div class="col-md-2">
-          <label class="form-label small">Date Text</label>
+          <label class="form-label small">Date Text <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="event_date_text[]" class="form-control form-control-sm" placeholder="circa 1920">
         </div>
         <div class="col-md-2">
-          <label class="form-label small">Certainty</label>
+          <label class="form-label small">Certainty <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="event_certainty[]" class="form-select form-select-sm">
             <option value="certain">Certain</option>
             <option value="probable">Probable</option>
@@ -461,19 +461,19 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label class="form-label small">From (Agent)</label>
+          <label class="form-label small">From (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="from_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="Previous owner...">
         </div>
         <div class="col-md-3">
-          <label class="form-label small">To (Agent)</label>
+          <label class="form-label small">To (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="to_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="New owner...">
         </div>
         <div class="col-md-3">
-          <label class="form-label small">Location</label>
+          <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="event_location[]" class="form-control form-control-sm" placeholder="City, Country">
         </div>
         <div class="col-md-5">
-          <label class="form-label small">Notes</label>
+          <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="event_notes[]" class="form-control form-control-sm">
         </div>
         <div class="col-md-1 d-flex align-items-end">
@@ -490,7 +490,7 @@
   <div class="document-entry border rounded p-3 mb-2">
     <div class="row g-2">
       <div class="col-md-4">
-        <label class="form-label small">Document Type</label>
+        <label class="form-label small">Document Type <span class="badge bg-secondary ms-1">Optional</span></label>
         <select name="doc_type[]" class="form-select form-select-sm">
           <option value="deed_of_gift">Deed of Gift</option>
           <option value="bill_of_sale">Bill of Sale</option>
@@ -517,11 +517,11 @@
         </select>
       </div>
       <div class="col-md-4">
-        <label class="form-label small">Title</label>
+        <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="doc_title[]" class="form-control form-control-sm" placeholder="Document title...">
       </div>
       <div class="col-md-3">
-        <label class="form-label small">Date</label>
+        <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="date" name="doc_date[]" class="form-control form-control-sm">
       </div>
       <div class="col-md-1 d-flex align-items-end">
@@ -530,15 +530,15 @@
         </button>
       </div>
       <div class="col-md-6">
-        <label class="form-label small">File Upload</label>
+        <label class="form-label small">File Upload <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="file" name="doc_file[]" class="form-control form-control-sm">
       </div>
       <div class="col-md-6">
-        <label class="form-label small">Or External URL</label>
+        <label class="form-label small">Or External URL <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="doc_url[]" class="form-control form-control-sm" placeholder="https://...">
       </div>
       <div class="col-12">
-        <label class="form-label small">Description</label>
+        <label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" name="doc_description[]" class="form-control form-control-sm" placeholder="Brief description...">
       </div>
     </div>

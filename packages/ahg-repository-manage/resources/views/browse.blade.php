@@ -231,7 +231,7 @@
             <div class="row mb-4">
 
               <div class="col-md-4">
-                <label class="form-label" for="thematicAreas">Thematic area</label>
+                <label class="form-label" for="thematicAreas">Thematic area <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="thematicAreas" id="thematicAreas">
                   <option selected="selected"></option>
                   @foreach($thematicAreaOptions ?? [] as $ta)
@@ -241,7 +241,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="types">Archive type</label>
+                <label class="form-label" for="types">Archive type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="types" id="types">
                   <option selected="selected"></option>
                   @foreach($repositoryTypes ?? [] as $rt)
@@ -251,7 +251,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="regions">Region</label>
+                <label class="form-label" for="regions">Region <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="regions" id="regions">
                   <option selected="selected"></option>
                   @foreach($regions ?? [] as $r)

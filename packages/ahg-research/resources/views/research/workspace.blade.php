@@ -215,11 +215,11 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="collection_name" class="form-label">Name <span class="text-danger">*</span></label>
+              <label for="collection_name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="name" id="collection_name" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="collection_description" class="form-label">Description</label>
+              <label for="collection_description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" id="collection_description" class="form-control" rows="3"></textarea>
             </div>
           </div>

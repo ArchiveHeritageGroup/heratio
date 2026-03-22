@@ -68,28 +68,28 @@
             </div>
 
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="parallel_name" id="parallel_name" class="form-control"
                      value="{{ old('parallel_name', $actor->parallel_name ?? '') }}">
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules." (ISAAR 5.1.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="standardized_name" class="form-label">Standardized form(s) of name according to other rules</label>
+              <label for="standardized_name" class="form-label">Standardized form(s) of name according to other rules <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="standardized_name" id="standardized_name" class="form-control"
                      value="{{ old('standardized_name', $actor->standardized_name ?? '') }}">
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed." (ISAAR 5.1.4)</div>
             </div>
 
             <div class="mb-3">
-              <label for="other_name" class="form-label">Other form(s) of name</label>
+              <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="other_name" id="other_name" class="form-control"
                      value="{{ old('other_name', $actor->other_name ?? '') }}">
               <div class="form-text text-muted small">The purpose of this field is to "indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area." Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)</div>
             </div>
 
             <div class="mb-3">
-              <label for="corporate_body_identifiers" class="form-label">Identifiers for corporate bodies</label>
+              <label for="corporate_body_identifiers" class="form-label">Identifiers for corporate bodies <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="corporate_body_identifiers" id="corporate_body_identifiers" class="form-control"
                      value="{{ old('corporate_body_identifiers', $actor->corporate_body_identifiers ?? '') }}">
               <div class="form-text text-muted small">"Record where possible any official number or other identifier (e.g. a company registration number) for the corporate body and reference the jurisdiction and scheme under which it has been allocated." (ISAAR 5.1.6)</div>
@@ -118,43 +118,43 @@
             </div>
 
             <div class="mb-3">
-              <label for="history" class="form-label">History</label>
+              <label for="history" class="form-label">History <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $actor->history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record in narrative form or as a chronology the main life events, activities, achievements and/or roles of the entity being described. This may include information on gender, nationality, family and religious or political affiliations. Wherever possible, supply dates as an integral component of the narrative description." (ISAAR 5.2.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="places" class="form-label">Places</label>
+              <label for="places" class="form-label">Places <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="places" id="places" class="form-control" rows="4">{{ old('places', $actor->places ?? '') }}</textarea>
               <div class="form-text text-muted small">"Purpose: to indicate the predominant places and/or jurisdictions where the corporate body, person or family was based, lived or resided or had some other connection. Rule: record the name of the predominant place(s)/jurisdiction(s), together with the nature and covering dates of the relationship with the entity." (ISAAR 5.2.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="legal_status" class="form-label">Legal status</label>
+              <label for="legal_status" class="form-label">Legal status <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="legal_status" id="legal_status" class="form-control" rows="4">{{ old('legal_status', $actor->legal_status ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the legal status and where appropriate the type of corporate body together with the covering dates when this status applied." (ISAAR 5.2.4)</div>
             </div>
 
             <div class="mb-3">
-              <label for="functions" class="form-label">Functions, occupations and activities</label>
+              <label for="functions" class="form-label">Functions, occupations and activities <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="functions" id="functions" class="form-control" rows="4">{{ old('functions', $actor->functions ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the functions, occupations and activities performed by the entity being described, together with the covering dates when useful. If necessary, describe the nature of the function, occupation or activity." (ISAAR 5.2.5)</div>
             </div>
 
             <div class="mb-3">
-              <label for="mandates" class="form-label">Mandates/sources of authority</label>
+              <label for="mandates" class="form-label">Mandates/sources of authority <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="mandates" id="mandates" class="form-control" rows="4">{{ old('mandates', $actor->mandates ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record any document, law, directive or charter which acts as a source of authority for the powers, functions and responsibilities of the entity being described, together with information on the jurisdiction(s) and covering dates when the mandate(s) applied or were changed." (ISAAR 5.2.6)</div>
             </div>
 
             <div class="mb-3">
-              <label for="internal_structures" class="form-label">Internal structures/genealogy</label>
+              <label for="internal_structures" class="form-label">Internal structures/genealogy <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="internal_structures" id="internal_structures" class="form-control" rows="4">{{ old('internal_structures', $actor->internal_structures ?? '') }}</textarea>
               <div class="form-text text-muted small">"Describe the internal structure of a corporate body and the dates of any changes to that structure that are significant to the understanding of the way that corporate body conducted its affairs (e.g. by means of dated organization charts). Describe the genealogy of a family (e.g. by means of a family tree) in a way that demonstrates the inter-relationships of its members with covering dates." (ISAAR 5.2.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="general_context" class="form-label">General context</label>
+              <label for="general_context" class="form-label">General context <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="general_context" id="general_context" class="form-control" rows="4">{{ old('general_context', $actor->general_context ?? '') }}</textarea>
               <div class="form-text text-muted small">"Provide any significant information on the social, cultural, economic, political and/or historical context in which the entity being described operated." (ISAAR 5.2.8)</div>
             </div>
@@ -288,12 +288,12 @@
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label class="form-label">Subject access points</label>
+              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects..." autocomplete="off">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Place access points</label>
+              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places..." autocomplete="off">
             </div>
 
@@ -355,27 +355,27 @@
             </div>
 
             <div class="mb-3">
-              <label for="maintaining_repository" class="form-label">Maintaining repository</label>
+              <label for="maintaining_repository" class="form-label">Maintaining repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="maintaining_repository" id="maintaining_repository" class="form-control"
                      value="{{ old('maintaining_repository') }}" placeholder="Type to search repositories..." autocomplete="off">
               <div class="form-text text-muted small">"Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511)." (ISAAR 5.4.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="institution_responsible_identifier" class="form-label">Institution identifier</label>
+              <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="institution_responsible_identifier" id="institution_responsible_identifier" class="form-control"
                      value="{{ old('institution_responsible_identifier', $actor->institution_responsible_identifier ?? '') }}">
               <div class="form-text text-muted small">"Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511)." (ISAAR 5.4.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules and/or conventions used</label>
+              <label for="rules" class="form-label">Rules and/or conventions used <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="rules" id="rules" class="form-control" rows="4">{{ old('rules', $actor->rules ?? '') }}</textarea>
               <div class="form-text text-muted small">"Purpose: To identify the national or international conventions or rules applied in creating the archival authority record. Rule: Record the names and where useful the editions or publication dates of the conventions or rules applied. Specify separately which rules have been applied for creating the Authorized form of name. Include reference to any system(s) of dating used to identify dates in this authority record (e.g. ISO 8601)." (ISAAR 5.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status</label>
+              <label for="description_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="description_status_id" id="description_status_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionStatuses'] as $status)
@@ -388,7 +388,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_detail_id" class="form-label">Level of detail</label>
+              <label for="description_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="description_detail_id" id="description_detail_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionDetails'] as $detail)
@@ -401,7 +401,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="revision_history" id="revision_history" class="form-control" rows="4">{{ old('revision_history', $actor->revision_history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the date the authority record was created and the dates of any revisions to the record." (ISAAR 5.4.6)</div>
             </div>
@@ -414,25 +414,25 @@
             @endif
 
             <div class="mb-3">
-              <label for="language" class="form-label">Language(s)</label>
+              <label for="language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" id="language" name="language" value="{{ old('language') }}">
               <div class="form-text text-muted small">Select the language(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="script" class="form-label">Script(s)</label>
+              <label for="script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="hidden" id="script" name="script" value="{{ old('script') }}">
               <div class="form-text text-muted small">Select the script(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources</label>
+              <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="sources" id="sources" class="form-control" rows="4">{{ old('sources', $actor->sources ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the sources consulted in establishing the authority record." (ISAAR 5.4.8)</div>
             </div>
 
             <div class="mb-3">
-              <label for="maintenance_notes" class="form-label">Maintenance notes</label>
+              <label for="maintenance_notes" class="form-label">Maintenance notes <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="maintenance_notes" id="maintenance_notes" class="form-control" rows="4">{{ old('maintenance_notes', $maintenanceNotes ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record notes pertinent to the creation and maintenance of the authority record. The names of persons responsible for creating the authority record may be recorded here." (ISAAR 5.4.9)</div>
             </div>

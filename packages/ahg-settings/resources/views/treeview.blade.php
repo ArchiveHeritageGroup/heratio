@@ -15,21 +15,21 @@
         <div class="card-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Type</label>
+              <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="settings[treeview_type]" class="form-select">
                 <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>Sidebar</option>
                 <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>Full width</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Show browse hierarchy page</label>
+              <label class="form-label">Show browse hierarchy page <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="settings[show_browse_hierarchy_page]" class="form-select">
                 <option value="1" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
                 <option value="0" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '0' ? 'selected' : '' }}>No</option>
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Make full width treeview collapsed on description pages</label>
+              <label class="form-label">Make full width treeview collapsed on description pages <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="settings[allow_full_width_treeview_collapse]" class="form-select">
                 <option value="1" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
                 <option value="0" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '0' ? 'selected' : '' }}>No</option>
@@ -43,7 +43,7 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">Sidebar</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Sort (information object)</label>
+            <label class="form-label">Sort (information object) <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings[sort]" class="form-select">
               <option value="" {{ ($settings['sort'] ?? '') == '' ? 'selected' : '' }}>Manual</option>
               <option value="title" {{ ($settings['sort'] ?? '') == 'title' ? 'selected' : '' }}>Title</option>
@@ -80,7 +80,7 @@
               </div>
             </div>
             <div class="col-md-12 mb-3">
-              <label class="form-label">Items per page</label>
+              <label class="form-label">Items per page <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" name="settings[treeview_items_per_page]" class="form-control" value="{{ $settings['treeview_items_per_page'] ?? '50' }}" min="10" max="10000">
             </div>
           </div>

@@ -29,11 +29,11 @@
         </div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">Subject <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="subject" class="form-control" required value="{{ old('subject') }}" placeholder="Brief subject of your feedback">
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Feedback Type <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">Feedback Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select name="feed_type_id" class="form-select" required>
               <option value="">-- Select --</option>
               @foreach($feedbackTypes as $type)
@@ -42,11 +42,11 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Your Feedback / Comments <span class="text-danger">*</span></label>
+            <label class="form-label fw-semibold">Your Feedback / Comments <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <textarea name="remarks" class="form-control" rows="6" required placeholder="Please provide details about your feedback, suggestion, or issue...">{{ old('remarks') }}</textarea>
           </div>
           <div class="mb-0">
-            <label class="form-label fw-semibold">Your Relationship to the Archive</label>
+            <label class="form-label fw-semibold">Your Relationship to the Archive <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="feed_relationship" class="form-control" rows="2" placeholder="e.g., Researcher, visitor, community member, donor...">{{ old('feed_relationship') }}</textarea>
           </div>
         </div>
@@ -61,22 +61,22 @@
           <p class="text-muted small mb-3">Please provide your contact details so we can follow up if needed.</p>
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+              <label class="form-label fw-semibold">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="feed_name" class="form-control" required value="{{ old('feed_name', auth()->user()->username ?? '') }}" placeholder="Your first name">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Surname <span class="text-danger">*</span></label>
+              <label class="form-label fw-semibold">Surname <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="feed_surname" class="form-control" required value="{{ old('feed_surname') }}" placeholder="Your surname">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Phone Number</label>
+              <label class="form-label fw-semibold">Phone Number <span class="badge bg-secondary ms-1">Optional</span></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                 <input type="tel" name="feed_phone" class="form-control" value="{{ old('feed_phone') }}" placeholder="Contact number">
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+              <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                 <input type="email" name="feed_email" class="form-control" required value="{{ old('feed_email', auth()->user()->email ?? '') }}" placeholder="your@email.com">

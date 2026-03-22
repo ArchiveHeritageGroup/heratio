@@ -25,19 +25,19 @@
         <div class="row">
           <div class="col-md-8">
             <div class="mb-3">
-              <label for="name" class="form-label">Workflow Name <span class="text-danger">*</span></label>
+              <label for="name" class="form-label">Workflow Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required maxlength="255">
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
             </div>
           </div>
 
           <div class="col-md-4">
             <div class="mb-3">
-              <label for="scope_type" class="form-label">Scope <span class="text-danger">*</span></label>
+              <label for="scope_type" class="form-label">Scope <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="scope_type" name="scope_type">
                 <option value="global" {{ old('scope_type') === 'global' ? 'selected' : '' }}>Global</option>
                 <option value="repository" {{ old('scope_type') === 'repository' ? 'selected' : '' }}>Repository</option>
@@ -46,12 +46,12 @@
             </div>
 
             <div class="mb-3">
-              <label for="scope_id" class="form-label">Scope ID</label>
+              <label for="scope_id" class="form-label">Scope ID <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" class="form-control" id="scope_id" name="scope_id" value="{{ old('scope_id') }}" placeholder="Leave empty for global">
             </div>
 
             <div class="mb-3">
-              <label for="trigger_event" class="form-label">Trigger Event <span class="text-danger">*</span></label>
+              <label for="trigger_event" class="form-label">Trigger Event <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="trigger_event" name="trigger_event">
                 <option value="submit" {{ old('trigger_event') === 'submit' ? 'selected' : '' }}>Submit</option>
                 <option value="publish" {{ old('trigger_event') === 'publish' ? 'selected' : '' }}>Publish</option>
@@ -62,7 +62,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="applies_to" class="form-label">Applies To <span class="text-danger">*</span></label>
+              <label for="applies_to" class="form-label">Applies To <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="applies_to" name="applies_to">
                 <option value="information_object" {{ old('applies_to') === 'information_object' ? 'selected' : '' }}>Information Object</option>
                 <option value="actor" {{ old('applies_to') === 'actor' ? 'selected' : '' }}>Actor</option>
@@ -78,7 +78,7 @@
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
-              <label for="auto_archive_days" class="form-label">Auto Archive (days)</label>
+              <label for="auto_archive_days" class="form-label">Auto Archive (days) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" class="form-control" id="auto_archive_days" name="auto_archive_days" value="{{ old('auto_archive_days') }}" placeholder="Leave empty to disable">
             </div>
           </div>

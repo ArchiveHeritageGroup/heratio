@@ -133,21 +133,21 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Label <span class="text-danger">*</span></label>
+          <label class="form-label">Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="addTermLabel" class="form-control" placeholder="e.g., Approved">
         </div>
         <div class="mb-3">
-          <label class="form-label">Code <span class="text-danger">*</span></label>
+          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="addTermCode" class="form-control" placeholder="e.g., approved">
           <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
         <div class="row">
           <div class="col-6">
-            <label class="form-label">Color</label>
+            <label class="form-label">Color <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="color" id="addTermColor" class="form-control form-control-color w-100" value="#6c757d">
           </div>
           <div class="col-6">
-            <label class="form-label">Icon</label>
+            <label class="form-label">Icon <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" id="addTermIcon" class="form-control" placeholder="fa-check">
           </div>
         </div>

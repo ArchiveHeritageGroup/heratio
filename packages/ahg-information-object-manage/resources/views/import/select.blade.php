@@ -42,7 +42,7 @@
 
             @if($type === 'csv')
               <div class="mb-3">
-                <label class="form-label" for="object-type-select">Type</label>
+                <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="informationObject">Archival description</option>
                   <option value="accession">Accession</option>
@@ -56,7 +56,7 @@
 
             @if($type === 'xml')
               <div class="mb-3">
-                <label for="object-type-select" class="form-label">Type</label>
+                <label for="object-type-select" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
                   <option value="ead">EAD 2002</option>
                   <option value="eac-cpf">EAC CPF</option>
@@ -68,7 +68,7 @@
 
             @if($type === 'csv')
               <div class="mb-3">
-                <label class="form-label" for="update-type-select">Update behaviours</label>
+                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
                   <option value="import-as-new">Ignore matches and create new records on import</option>
                   <option value="match-and-update">Update matches ignoring blank fields in CSV</option>
@@ -77,7 +77,7 @@
               </div>
             @else
               <div class="mb-3">
-                <label class="form-label" for="update-type-select">Update behaviours</label>
+                <label class="form-label" for="update-type-select">Update behaviours <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="updateType" id="update-type-select">
                   <option value="import-as-new">Ignore matches and import as new</option>
                   <option value="delete-and-replace">Delete matches and replace with imports</option>
@@ -91,7 +91,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label" for="collection-select">Limit matches to:</label>
+              <label class="form-label" for="collection-select">Limit matches to: <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" name="collection" id="collection-select">
                 <option value="">Top-level description</option>
                 @foreach($collections ?? [] as $coll)
@@ -123,7 +123,7 @@
         <div id="file-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="import-file" class="form-label">Select a file to import</label>
+              <label for="import-file" class="form-label">Select a file to import <span class="badge bg-secondary ms-1">Optional</span></label>
               <input class="form-control" type="file" id="import-file" name="file"
                      accept="{{ $type === 'csv' ? '.csv' : '.xml' }}">
             </div>

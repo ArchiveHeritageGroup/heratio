@@ -41,7 +41,7 @@
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DataCite Connection</div>
       <div class="card-body">
         <div class="row mb-3">
-          <label for="datacite_prefix" class="col-sm-3 col-form-label">DataCite Prefix</label>
+          <label for="datacite_prefix" class="col-sm-3 col-form-label">DataCite Prefix <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="datacite_prefix" name="datacite_prefix"
                    value="{{ old('datacite_prefix', $settings['datacite_prefix'] ?? '') }}"
@@ -51,7 +51,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID</label>
+          <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="datacite_repository_id" name="datacite_repository_id"
                    value="{{ old('datacite_repository_id', $settings['datacite_repository_id'] ?? '') }}"
@@ -61,7 +61,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="datacite_password" class="col-sm-3 col-form-label">Password</label>
+          <label for="datacite_password" class="col-sm-3 col-form-label">Password <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="password" class="form-control" id="datacite_password" name="datacite_password"
                    value="{{ old('datacite_password', $settings['datacite_password'] ?? '') }}">
@@ -70,7 +70,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="datacite_url" class="col-sm-3 col-form-label">DataCite URL</label>
+          <label for="datacite_url" class="col-sm-3 col-form-label">DataCite URL <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="url" class="form-control" id="datacite_url" name="datacite_url"
                    value="{{ old('datacite_url', $settings['datacite_url'] ?? '') }}"
@@ -80,7 +80,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="datacite_environment" class="col-sm-3 col-form-label">Environment</label>
+          <label for="datacite_environment" class="col-sm-3 col-form-label">Environment <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <select class="form-select" id="datacite_environment" name="datacite_environment">
               <option value="test" {{ (old('datacite_environment', $settings['datacite_environment'] ?? '') === 'test') ? 'selected' : '' }}>
@@ -100,7 +100,7 @@
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Defaults</div>
       <div class="card-body">
         <div class="row mb-3">
-          <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs</label>
+          <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <select class="form-select" id="auto_mint" name="auto_mint">
               <option value="0" {{ (old('auto_mint', $settings['auto_mint'] ?? '0') === '0') ? 'selected' : '' }}>
@@ -115,7 +115,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher</label>
+          <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="default_publisher" name="default_publisher"
                    value="{{ old('default_publisher', $settings['default_publisher'] ?? '') }}"
@@ -125,7 +125,7 @@
         </div>
 
         <div class="row mb-3">
-          <label for="default_resource_type" class="col-sm-3 col-form-label">Default Resource Type</label>
+          <label for="default_resource_type" class="col-sm-3 col-form-label">Default Resource Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="default_resource_type" name="default_resource_type"
                    value="{{ old('default_resource_type', $settings['default_resource_type'] ?? '') }}"

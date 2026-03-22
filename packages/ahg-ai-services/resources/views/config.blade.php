@@ -34,7 +34,7 @@
 
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Provider</label>
+                <label class="form-label">Provider <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="provider" class="form-select" required id="newProvider" onchange="updateNewConfigDefaults()">
                   <option value="ollama">Ollama (Local)</option>
                   <option value="openai">OpenAI</option>
@@ -42,36 +42,36 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Name</label>
+                <label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="name" class="form-control" required placeholder="e.g., Local Ollama" id="newConfigName">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Model</label>
+                <label class="form-label">Model <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="text" name="model" class="form-control" required id="newConfigModel" placeholder="e.g., llama3.1:8b">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Endpoint URL</label>
+                <label class="form-label">Endpoint URL <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="url" name="endpoint_url" class="form-control" id="newConfigEndpoint" placeholder="http://localhost:11434">
               </div>
               <div class="col-md-6">
-                <label class="form-label">API Key</label>
+                <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="password" name="api_key" class="form-control" placeholder="Leave blank for Ollama" id="newConfigApiKey">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Max Tokens</label>
+                <label class="form-label">Max Tokens <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="max_tokens" class="form-control" value="2000" min="100" max="100000">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Temperature</label>
+                <label class="form-label">Temperature <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="range" name="temperature" class="form-range mt-2" min="0" max="2" step="0.05" value="0.70" id="newTempSlider" oninput="document.getElementById('newTempVal').textContent=this.value">
                 <small class="text-muted">Value: <span id="newTempVal">0.70</span></small>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Timeout (seconds)</label>
+                <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="timeout_seconds" class="form-control" value="120" min="10" max="600">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Options</label>
+                <label class="form-label">Options <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="form-check mt-2">
                   <input type="hidden" name="is_active" value="0">
                   <input type="checkbox" name="is_active" value="1" class="form-check-input" id="newIsActive" checked>
@@ -126,41 +126,41 @@
 
               <div class="row g-3">
                 <div class="col-md-4">
-                  <label class="form-label">Provider</label>
+                  <label class="form-label">Provider <span class="badge bg-danger ms-1">Required</span></label>
                   <input type="text" class="form-control" value="{{ ucfirst($cfg->provider) }}" disabled>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Name</label>
+                  <label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="name" class="form-control" value="{{ $cfg->name }}" required>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Model</label>
+                  <label class="form-label">Model <span class="badge bg-danger ms-1">Required</span></label>
                   <input type="text" name="model" class="form-control" value="{{ $cfg->model }}" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Endpoint URL</label>
+                  <label class="form-label">Endpoint URL <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="url" name="endpoint_url" class="form-control" value="{{ $cfg->endpoint_url }}">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">API Key</label>
+                  <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="password" name="api_key" class="form-control" placeholder="{{ $cfg->api_key_encrypted ? '(encrypted - leave blank to keep)' : 'Enter API key' }}">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Max Tokens</label>
+                  <label class="form-label">Max Tokens <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="number" name="max_tokens" class="form-control" value="{{ $cfg->max_tokens }}" min="100" max="100000">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Temperature</label>
+                  <label class="form-label">Temperature <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="range" name="temperature" class="form-range mt-2" min="0" max="2" step="0.05" value="{{ $cfg->temperature }}"
                          oninput="this.nextElementSibling.querySelector('span').textContent=this.value">
                   <small class="text-muted">Value: <span>{{ $cfg->temperature }}</span></small>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Timeout (seconds)</label>
+                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="number" name="timeout_seconds" class="form-control" value="{{ $cfg->timeout_seconds }}" min="10" max="600">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Options</label>
+                  <label class="form-label">Options <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div class="form-check mt-2">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" class="form-check-input" {{ $cfg->is_active ? 'checked' : '' }}>
@@ -204,36 +204,36 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">AI API URL</label>
+            <label class="form-label">AI API URL <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="url" name="settings_general[api_url]" class="form-control"
                    value="{{ $generalSettings->get('api_url')->setting_value ?? '' }}" placeholder="http://192.168.0.112:5004/ai/v1">
           </div>
           <div class="col-md-3">
-            <label class="form-label">API Key</label>
+            <label class="form-label">API Key <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="password" name="settings_general[api_key]" class="form-control"
                    value="{{ $generalSettings->get('api_key')->setting_value ?? '' }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">API Timeout (seconds)</label>
+            <label class="form-label">API Timeout (seconds) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_general[api_timeout]" class="form-control"
                    value="{{ $generalSettings->get('api_timeout')->setting_value ?? '60' }}" min="10" max="600">
           </div>
           <div class="col-md-4">
-            <label class="form-label">Processing Backend</label>
+            <label class="form-label">Processing Backend <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_general[backend]" class="form-select">
               <option value="local" {{ ($generalSettings->get('backend')->setting_value ?? '') === 'local' ? 'selected' : '' }}>Local</option>
               <option value="api" {{ ($generalSettings->get('backend')->setting_value ?? '') === 'api' ? 'selected' : '' }}>API</option>
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Processing Mode</label>
+            <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_general[processing_mode]" class="form-select">
               <option value="sync" {{ ($generalSettings->get('processing_mode')->setting_value ?? '') === 'sync' ? 'selected' : '' }}>Synchronous</option>
               <option value="job" {{ ($generalSettings->get('processing_mode')->setting_value ?? '') === 'job' ? 'selected' : '' }}>Job Queue</option>
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Require Review</label>
+            <label class="form-label">Require Review <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_general[require_review]" class="form-select">
               <option value="1" {{ ($generalSettings->get('require_review')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($generalSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
@@ -251,26 +251,26 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">NER Enabled</label>
+            <label class="form-label">NER Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_ner[enabled]" class="form-select">
               <option value="1" {{ ($nerSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($nerSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Auto-link Exact Matches</label>
+            <label class="form-label">Auto-link Exact Matches <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_ner[auto_link_exact]" class="form-select">
               <option value="0" {{ ($nerSettings->get('auto_link_exact')->setting_value ?? '0') === '0' ? 'selected' : '' }}>No</option>
               <option value="1" {{ ($nerSettings->get('auto_link_exact')->setting_value ?? '0') === '1' ? 'selected' : '' }}>Yes</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Confidence Threshold</label>
+            <label class="form-label">Confidence Threshold <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_ner[confidence_threshold]" class="form-control"
                    value="{{ $nerSettings->get('confidence_threshold')->setting_value ?? '0.85' }}" min="0" max="1" step="0.01">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Extract from PDF</label>
+            <label class="form-label">Extract from PDF <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_ner[extract_from_pdf]" class="form-select">
               <option value="1" {{ ($nerSettings->get('extract_from_pdf')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($nerSettings->get('extract_from_pdf')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
@@ -288,24 +288,24 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Enabled</label>
+            <label class="form-label">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_summarize[enabled]" class="form-select">
               <option value="1" {{ ($summarizeSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($summarizeSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Max Length (words)</label>
+            <label class="form-label">Max Length (words) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_summarize[max_length]" class="form-control"
                    value="{{ $summarizeSettings->get('max_length')->setting_value ?? '1000' }}" min="50" max="10000">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Min Length (words)</label>
+            <label class="form-label">Min Length (words) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_summarize[min_length]" class="form-control"
                    value="{{ $summarizeSettings->get('min_length')->setting_value ?? '100' }}" min="10" max="5000">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Target Field</label>
+            <label class="form-label">Target Field <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings_summarize[target_field]" class="form-control"
                    value="{{ $summarizeSettings->get('target_field')->setting_value ?? 'scope_and_content' }}">
           </div>
@@ -321,26 +321,26 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Enabled</label>
+            <label class="form-label">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_translate[enabled]" class="form-select">
               <option value="1" {{ ($translateSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($translateSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Engine</label>
+            <label class="form-label">Engine <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_translate[engine]" class="form-select">
               <option value="argos" {{ ($translateSettings->get('engine')->setting_value ?? 'argos') === 'argos' ? 'selected' : '' }}>Argos</option>
               <option value="llm" {{ ($translateSettings->get('engine')->setting_value ?? '') === 'llm' ? 'selected' : '' }}>LLM</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Source Language</label>
+            <label class="form-label">Source Language <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings_translate[translation_source_lang]" class="form-control"
                    value="{{ $translateSettings->get('translation_source_lang')->setting_value ?? 'en' }}" maxlength="5">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Target Language</label>
+            <label class="form-label">Target Language <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings_translate[translation_target_lang]" class="form-control"
                    value="{{ $translateSettings->get('translation_target_lang')->setting_value ?? 'af' }}" maxlength="5">
           </div>
@@ -356,19 +356,19 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label">Enabled</label>
+            <label class="form-label">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_spellcheck[enabled]" class="form-select">
               <option value="1" {{ ($spellcheckSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($spellcheckSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Language</label>
+            <label class="form-label">Language <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings_spellcheck[language]" class="form-control"
                    value="{{ $spellcheckSettings->get('language')->setting_value ?? 'en' }}" maxlength="10">
           </div>
           <div class="col-md-4">
-            <label class="form-label">Ignore Capitalized Words</label>
+            <label class="form-label">Ignore Capitalized Words <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_spellcheck[ignore_capitalized]" class="form-select">
               <option value="1" {{ ($spellcheckSettings->get('ignore_capitalized')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($spellcheckSettings->get('ignore_capitalized')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
@@ -386,26 +386,26 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Enabled</label>
+            <label class="form-label">Enabled <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_suggest[enabled]" class="form-select">
               <option value="1" {{ ($suggestSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($suggestSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Require Review</label>
+            <label class="form-label">Require Review <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="settings_suggest[require_review]" class="form-select">
               <option value="1" {{ ($suggestSettings->get('require_review')->setting_value ?? '1') === '1' ? 'selected' : '' }}>Yes</option>
               <option value="0" {{ ($suggestSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Auto Expire (days)</label>
+            <label class="form-label">Auto Expire (days) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_suggest[auto_expire_days]" class="form-control"
                    value="{{ $suggestSettings->get('auto_expire_days')->setting_value ?? '30' }}" min="0" max="365">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Max Pending Per Object</label>
+            <label class="form-label">Max Pending Per Object <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings_suggest[max_pending_per_object]" class="form-control"
                    value="{{ $suggestSettings->get('max_pending_per_object')->setting_value ?? '3' }}" min="1" max="10">
           </div>

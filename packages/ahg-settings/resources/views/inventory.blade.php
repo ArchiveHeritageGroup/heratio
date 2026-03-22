@@ -21,7 +21,7 @@
           <div id="inventory-collapse" class="accordion-collapse collapse" aria-labelledby="inventory-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Levels of description</label>
+                <label class="form-label">Levels of description <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[levels][]" class="form-select" multiple size="{{ max(count($levels), 4) }}">
                   @foreach ($levels as $level)
                     <option value="{{ $level->id }}" {{ in_array($level->id, $selectedLevels) ? 'selected' : '' }}>{{ $level->name }}</option>

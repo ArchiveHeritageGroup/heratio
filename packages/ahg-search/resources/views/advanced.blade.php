@@ -21,7 +21,7 @@
 
         {{-- Text query --}}
         <div class="mb-3">
-          <label for="adv-query" class="form-label fw-semibold">Search terms</label>
+          <label for="adv-query" class="form-label fw-semibold">Search terms <span class="badge bg-secondary ms-1">Optional</span></label>
           <input
             type="text"
             id="adv-query"
@@ -39,7 +39,7 @@
         <div class="row">
           {{-- Repository --}}
           <div class="col-md-6 mb-3">
-            <label for="adv-repository" class="form-label fw-semibold">Repository</label>
+            <label for="adv-repository" class="form-label fw-semibold">Repository <span class="badge bg-warning ms-1">Recommended</span></label>
             <select id="adv-repository" name="repository" class="form-select">
               <option value="">-- Any repository --</option>
               @foreach($repositories as $id => $name)
@@ -50,7 +50,7 @@
 
           {{-- Level of description --}}
           <div class="col-md-6 mb-3">
-            <label for="adv-level" class="form-label fw-semibold">Level of description</label>
+            <label for="adv-level" class="form-label fw-semibold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
             <select id="adv-level" name="level" class="form-select">
               <option value="">-- Any level --</option>
               @foreach($levels as $id => $name)
@@ -63,19 +63,19 @@
         <div class="row">
           {{-- Date from --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-dateFrom" class="form-label fw-semibold">Date from</label>
+            <label for="adv-dateFrom" class="form-label fw-semibold">Date from <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" id="adv-dateFrom" name="dateFrom" class="form-control">
           </div>
 
           {{-- Date to --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-dateTo" class="form-label fw-semibold">Date to</label>
+            <label for="adv-dateTo" class="form-label fw-semibold">Date to <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" id="adv-dateTo" name="dateTo" class="form-control">
           </div>
 
           {{-- Media type --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-mediaType" class="form-label fw-semibold">Media type</label>
+            <label for="adv-mediaType" class="form-label fw-semibold">Media type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select id="adv-mediaType" name="mediaType" class="form-select">
               <option value="">-- Any type --</option>
               @foreach($mediaTypes as $id => $name)
@@ -86,7 +86,7 @@
 
           {{-- Sort --}}
           <div class="col-md-3 mb-3">
-            <label for="adv-sort" class="form-label fw-semibold">Sort by</label>
+            <label for="adv-sort" class="form-label fw-semibold">Sort by <span class="badge bg-secondary ms-1">Optional</span></label>
             <select id="adv-sort" name="sort" class="form-select">
               <option value="relevance" {{ $sort === 'relevance' ? 'selected' : '' }}>Relevance</option>
               <option value="titleAsc" {{ $sort === 'titleAsc' ? 'selected' : '' }}>Title (A-Z)</option>

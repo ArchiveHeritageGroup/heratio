@@ -199,16 +199,16 @@
                         </div>
                         <div class="modal-body">
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Command</label>
+                            <label class="form-label fw-bold">Command <span class="badge bg-danger ms-1">Required</span></label>
                             <input type="text" class="form-control" value="{{ $job->artisan_command }}" disabled>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Cron Expression</label>
+                            <label class="form-label fw-bold">Cron Expression <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="cron_expression" class="form-control font-monospace" value="{{ $job->cron_expression }}" required>
                             <small class="text-muted">e.g. <code>*/5 * * * *</code> = every 5 min, <code>0 2 * * *</code> = daily 2am</small>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Timeout (minutes)</label>
+                            <label class="form-label fw-bold">Timeout (minutes) <span class="badge bg-danger ms-1">Required</span></label>
                             <input type="number" name="timeout_minutes" class="form-control" value="{{ $job->timeout_minutes }}" min="1" max="1440" required>
                           </div>
                           <div class="mb-3">
@@ -218,7 +218,7 @@
                             </div>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Notification Email</label>
+                            <label class="form-label fw-bold">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="admin@example.com">
                           </div>
                           <div class="row text-muted small">

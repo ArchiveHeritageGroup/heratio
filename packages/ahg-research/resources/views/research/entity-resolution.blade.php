@@ -24,7 +24,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status</label>
+                <label class="form-label form-label-sm mb-0">Status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="status" class="form-select form-select-sm">
                     <option value="">All</option>
                     <option value="proposed" {{ request('status') === 'proposed' ? 'selected' : '' }}>Proposed</option>
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Entity Type</label>
+                <label class="form-label form-label-sm mb-0">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="entity_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     <option value="actor" {{ request('entity_type') === 'actor' ? 'selected' : '' }}>Actor</option>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Relationship</label>
+                <label class="form-label form-label-sm mb-0">Relationship <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="relationship_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     <option value="sameAs" {{ request('relationship_type') === 'sameAs' ? 'selected' : '' }}>sameAs</option>
@@ -144,7 +144,7 @@
                         <div class="col-md-6">
                             <h6>Entity A</h6>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Type</label>
+                                <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="entity_a_type" class="form-select form-select-sm">
                                     <option value="actor">Actor</option>
                                     <option value="information_object">Information Object</option>
@@ -152,14 +152,14 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Entity A ID *</label>
+                                <label class="form-label form-label-sm">Entity A ID * <span class="badge bg-danger ms-1">Required</span></label>
                                 <input type="number" name="entity_a_id" class="form-control form-control-sm" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6>Entity B</h6>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Type</label>
+                                <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <select name="entity_b_type" class="form-select form-select-sm">
                                     <option value="actor">Actor</option>
                                     <option value="information_object">Information Object</option>
@@ -167,13 +167,13 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Entity B ID *</label>
+                                <label class="form-label form-label-sm">Entity B ID * <span class="badge bg-danger ms-1">Required</span></label>
                                 <input type="number" name="entity_b_id" class="form-control form-control-sm" required>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label form-label-sm">Relationship Type</label>
+                        <label class="form-label form-label-sm">Relationship Type <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="relationship_type" class="form-select form-select-sm">
                             <option value="sameAs">sameAs (identical entities)</option>
                             <option value="relatedTo">relatedTo (associated entities)</option>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label form-label-sm">Match Method</label>
+                            <label class="form-label form-label-sm">Match Method <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="match_method" class="form-select form-select-sm">
                                 <option value="manual">Manual</option>
                                 <option value="name_similarity">Name Similarity</option>
@@ -192,12 +192,12 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label form-label-sm">Confidence (0-1)</label>
+                            <label class="form-label form-label-sm">Confidence (0-1) <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="number" name="confidence" class="form-control form-control-sm" min="0" max="1" step="0.01" value="0.8">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label form-label-sm">Notes</label>
+                        <label class="form-label form-label-sm">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="notes" class="form-control form-control-sm" rows="2"></textarea>
                     </div>
                 </form>

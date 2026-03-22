@@ -56,13 +56,13 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="identifier" class="form-label">Identifier</label>
+              <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="identifier" name="identifier"
                      value="{{ old('identifier', $io->identifier) }}">
             </div>
 
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+              <label for="title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title"
                      value="{{ old('title', $io->title) }}" required>
               @error('title')
@@ -71,7 +71,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="level_of_description_id" class="form-label">Level of description</label>
+              <label for="level_of_description_id" class="form-label">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">-- Select --</option>
                 @foreach($levels as $level)
@@ -83,7 +83,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="extent_and_medium" class="form-label">Extent and medium</label>
+              <label for="extent_and_medium" class="form-label">Extent and medium <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium', $io->extent_and_medium) }}</textarea>
             </div>
 
@@ -102,13 +102,13 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="creators" class="form-label">Creator(s)</label>
+              <label for="creators" class="form-label">Creator(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="creators" name="creators" value="{{ old('creators', $io->creators ?? '') }}" placeholder="Type to search authority records...">
               <div class="form-text">Link to existing authority records as creators</div>
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Repository</label>
+              <label for="repository_id" class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="repository_id" name="repository_id">
                 <option value="">-- Select --</option>
                 @foreach($repositories as $repo)
@@ -120,12 +120,12 @@
             </div>
 
             <div class="mb-3">
-              <label for="archival_history" class="form-label">Archival history</label>
+              <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="archival_history" name="archival_history" rows="3">{{ old('archival_history', $io->archival_history) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer</label>
+              <label for="acquisition" class="form-label">Immediate source of acquisition or transfer <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="acquisition" name="acquisition" rows="3">{{ old('acquisition', $io->acquisition) }}</textarea>
             </div>
 
@@ -144,22 +144,22 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content</label>
+              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="scope_and_content" name="scope_and_content" rows="4">{{ old('scope_and_content', $io->scope_and_content) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling information</label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling information <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="appraisal" name="appraisal" rows="3">{{ old('appraisal', $io->appraisal) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="accruals" class="form-label">Accruals</label>
+              <label for="accruals" class="form-label">Accruals <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="accruals" name="accruals" rows="3">{{ old('accruals', $io->accruals) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="arrangement" class="form-label">System of arrangement</label>
+              <label for="arrangement" class="form-label">System of arrangement <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="arrangement" name="arrangement" rows="3">{{ old('arrangement', $io->arrangement) }}</textarea>
             </div>
 
@@ -178,37 +178,37 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="access_conditions" class="form-label">Conditions governing access</label>
+              <label for="access_conditions" class="form-label">Conditions governing access <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="access_conditions" name="access_conditions" rows="3">{{ old('access_conditions', $io->access_conditions) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction</label>
+              <label for="reproduction_conditions" class="form-label">Conditions governing reproduction <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="reproduction_conditions" name="reproduction_conditions" rows="3">{{ old('reproduction_conditions', $io->reproduction_conditions) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Languages of the material</label>
+              <label class="form-label">Languages of the material <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" name="language_of_material" value="{{ old('language_of_material', $io->language_of_material ?? '') }}" placeholder="e.g. English, Afrikaans">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Scripts of the material</label>
+              <label class="form-label">Scripts of the material <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" name="script_of_material" value="{{ old('script_of_material', $io->script_of_material ?? '') }}" placeholder="e.g. Latin">
             </div>
 
             <div class="mb-3">
-              <label for="language_notes" class="form-label">Language and script notes</label>
+              <label for="language_notes" class="form-label">Language and script notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="language_notes" name="language_notes" rows="2">{{ old('language_notes', $io->language_notes ?? '') }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements</label>
+              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="physical_characteristics" name="physical_characteristics" rows="3">{{ old('physical_characteristics', $io->physical_characteristics) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="finding_aids" class="form-label">Finding aids</label>
+              <label for="finding_aids" class="form-label">Finding aids <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="finding_aids" name="finding_aids" rows="3">{{ old('finding_aids', $io->finding_aids) }}</textarea>
             </div>
 
@@ -227,17 +227,17 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="location_of_originals" class="form-label">Existence and location of originals</label>
+              <label for="location_of_originals" class="form-label">Existence and location of originals <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="location_of_originals" name="location_of_originals" rows="3">{{ old('location_of_originals', $io->location_of_originals) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="location_of_copies" class="form-label">Existence and location of copies</label>
+              <label for="location_of_copies" class="form-label">Existence and location of copies <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="location_of_copies" name="location_of_copies" rows="3">{{ old('location_of_copies', $io->location_of_copies) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="related_units_of_description" class="form-label">Related units of description</label>
+              <label for="related_units_of_description" class="form-label">Related units of description <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="related_units_of_description" name="related_units_of_description" rows="3">{{ old('related_units_of_description', $io->related_units_of_description) }}</textarea>
             </div>
 
@@ -282,17 +282,17 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label class="form-label">Subject access points</label>
+              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points', $io->subject_access_points ?? '') }}" placeholder="Type to search subjects...">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Place access points</label>
+              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points', $io->place_access_points ?? '') }}" placeholder="Type to search places...">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Genre access points</label>
+              <label class="form-label">Genre access points <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" name="genre_access_points" value="{{ old('genre_access_points', $io->genre_access_points ?? '') }}" placeholder="Type to search genres...">
             </div>
 
@@ -311,23 +311,23 @@
           <div class="accordion-body">
 
             <div class="mb-3">
-              <label for="description_identifier" class="form-label">Description identifier</label>
+              <label for="description_identifier" class="form-label">Description identifier <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" id="description_identifier" name="description_identifier"
                      value="{{ old('description_identifier', $io->description_identifier) }}">
             </div>
 
             <div class="mb-3">
-              <label for="institution_responsible_identifier" class="form-label">Institution identifier</label>
+              <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="institution_responsible_identifier" name="institution_responsible_identifier" rows="2">{{ old('institution_responsible_identifier', $io->institution_responsible_identifier) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules or conventions</label>
+              <label for="rules" class="form-label">Rules or conventions <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="rules" name="rules" rows="3">{{ old('rules', $io->rules) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status</label>
+              <label for="description_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="description_status_id" name="description_status_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionStatuses as $status)
@@ -339,7 +339,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_detail_id" class="form-label">Level of detail</label>
+              <label for="description_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="description_detail_id" name="description_detail_id">
                 <option value="">-- Select --</option>
                 @foreach($descriptionDetails as $detail)
@@ -351,27 +351,27 @@
             </div>
 
             <div class="mb-3">
-              <label for="revision_history" class="form-label">Dates of creation, revision and deletion</label>
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="revision_history" name="revision_history" rows="3">{{ old('revision_history', $io->revision_history) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Language(s)</label>
+              <label class="form-label">Language(s) <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" name="language_of_description" value="{{ old('language_of_description', $io->language_of_description ?? '') }}" placeholder="e.g. English">
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Script(s)</label>
+              <label class="form-label">Script(s) <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" class="form-control" name="script_of_description" value="{{ old('script_of_description', $io->script_of_description ?? '') }}" placeholder="e.g. Latin">
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources</label>
+              <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea class="form-control" id="sources" name="sources" rows="3">{{ old('sources', $io->sources) }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="publication_status_id" class="form-label">Publication status</label>
+              <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="publication_status_id" name="publication_status_id">
                 <option value="159" @selected(old('publication_status_id', $io->publication_status_id ?? '') == '159')>Draft</option>
                 <option value="160" @selected(old('publication_status_id', $io->publication_status_id ?? '') == '160')>Published</option>
@@ -379,7 +379,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="display_standard_id" class="form-label">Display standard</label>
+              <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="display_standard_id" name="display_standard_id">
                 <option value="">-- Select --</option>
                 @foreach($displayStandards as $std)
@@ -406,7 +406,7 @@
       <div id="security-collapse" class="accordion-collapse collapse" aria-labelledby="security-heading">
         <div class="accordion-body">
           <div class="mb-3">
-            <label for="security_classification_id" class="form-label">Classification level</label>
+            <label for="security_classification_id" class="form-label">Classification level <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="security_classification_id" id="security_classification_id" class="form-select">
               <option value="">-- None --</option>
               @foreach($formChoices['securityLevels'] ?? [] as $level)
@@ -415,21 +415,21 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="security_reason" class="form-label">Reason</label>
+            <label for="security_reason" class="form-label">Reason <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="security_reason" id="security_reason" class="form-control" rows="2">{{ old('security_reason', $io->security_reason ?? '') }}</textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="security_review_date" class="form-label">Review date</label>
+              <label for="security_review_date" class="form-label">Review date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="date" name="security_review_date" id="security_review_date" class="form-control" value="{{ old('security_review_date', $io->security_review_date ?? '') }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label for="security_declassify_date" class="form-label">Declassify date</label>
+              <label for="security_declassify_date" class="form-label">Declassify date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="date" name="security_declassify_date" id="security_declassify_date" class="form-control" value="{{ old('security_declassify_date', $io->security_declassify_date ?? '') }}">
             </div>
           </div>
           <div class="mb-3">
-            <label for="security_handling_instructions" class="form-label">Handling instructions</label>
+            <label for="security_handling_instructions" class="form-label">Handling instructions <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="security_handling_instructions" id="security_handling_instructions" class="form-control" rows="2">{{ old('security_handling_instructions', $io->security_handling_instructions ?? '') }}</textarea>
           </div>
           <div class="form-check mb-3">
@@ -464,14 +464,14 @@
       <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
         <div class="accordion-body">
           <div class="mb-3">
-            <label for="publication_status_id" class="form-label">Publication status</label>
+            <label for="publication_status_id" class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="publication_status_id" id="publication_status_id" class="form-select">
               <option value="159" @selected(old('publication_status_id', $io->publication_status_id ?? '') == 159)>Draft</option>
               <option value="160" @selected(old('publication_status_id', $io->publication_status_id ?? '') == 160)>Published</option>
             </select>
           </div>
           <div class="mb-3">
-            <label for="display_standard_id" class="form-label">Display standard</label>
+            <label for="display_standard_id" class="form-label">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="display_standard_id" id="display_standard_id" class="form-select">
               @foreach($formChoices['displayStandards'] ?? [] as $dsId => $dsName)
                 <option value="{{ $dsId }}" @selected(old('display_standard_id', $io->display_standard_id ?? '') == $dsId)>{{ $dsName }}</option>

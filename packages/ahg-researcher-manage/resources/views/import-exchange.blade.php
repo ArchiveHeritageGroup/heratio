@@ -101,7 +101,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="exchange_file" class="form-label">Exchange File (.json)</label>
+              <label for="exchange_file" class="form-label">Exchange File (.json) <span class="badge bg-danger ms-1">Required</span></label>
               <input type="file"
                      class="form-control @error('exchange_file') is-invalid @enderror"
                      id="exchange_file"
@@ -114,7 +114,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Target Repository</label>
+              <label for="repository_id" class="form-label">Target Repository <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select @error('repository_id') is-invalid @enderror"
                       id="repository_id"
                       name="repository_id">
@@ -132,7 +132,7 @@
 
             {{-- JSON preview area --}}
             <div id="jsonPreview" class="mb-3" style="display: none;">
-              <label class="form-label">File Preview</label>
+              <label class="form-label">File Preview <span class="badge bg-secondary ms-1">Optional</span></label>
               <div class="card bg-light">
                 <div class="card-body py-2">
                   <dl class="row mb-0" id="jsonPreviewContent">

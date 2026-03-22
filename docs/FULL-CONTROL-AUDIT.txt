@@ -1,67 +1,67 @@
 # FULL CONTROL AUDIT: Heratio vs AtoM
-# Generated: 2026-03-22 08:16:45
+# Generated: 2026-03-22 08:34:17
 # Total Heratio views: 361
 # Views with AtoM equivalent: 43
 # Views without AtoM equivalent: 318
-# Total Heratio controls: 10964
+# Total Heratio controls: 12257
 # Total AtoM controls (matched): 194
-# Total delta: -562
+# Total delta: -787
 
 ## SUMMARY BY PACKAGE
 
 Package                            Views H-Ctrl  A-Ctrl  Delta   Layout    Sidebar   AtoM? 
 ───────────────────────────────────────────────────────────────────────────────────────────
 ahg-3d-model                       1     29      —     ?       1col      none      0/1   
-ahg-accession-manage               4     157     —     ?       1col      none,right0/4   
-ahg-acl                            9     219     —     ?       1col      none      0/9   
-ahg-actor-manage                   7     435     6       -429    2col,1col,unknown,print,3colleft,none,detected2/7   
-ahg-ai-services                    2     167     —     ?       1col      none      0/2   
-ahg-audit-trail                    4     78      —     ?       1col      none      0/4   
-ahg-backup                         3     119     —     ?       1col      none      0/3   
-ahg-cart                           7     101     —     ?       1col      none      0/7   
-ahg-core                           7     59      —     ?       unknown,1colnone      0/7   
-ahg-dam                            4     291     —     ?       1col,3col none,detected0/4   
-ahg-data-migration                 11    237     —     ?       1col      none      0/11  
-ahg-dedupe                         6     86      —     ?       1col      none,detected0/6   
-ahg-display                        11    428     —     ?       unknown,masternone,detected,left0/11  
-ahg-doi-manage                     6     97      —     ?       1col      none      0/6   
-ahg-donor-manage                   4     32      —     ?       1col      none,right0/4   
-ahg-dropdown-manage                2     88      —     ?       1col      detected  0/2   
-ahg-favorites                      2     66      —     ?       1col      left,none 0/2   
-ahg-feedback                       3     88      —     ?       1col      left,none 0/3   
+ahg-accession-manage               4     186     —     ?       1col      none,right0/4   
+ahg-acl                            9     234     —     ?       1col      none      0/9   
+ahg-actor-manage                   7     464     6       -458    2col,1col,unknown,print,3colleft,none,detected2/7   
+ahg-ai-services                    2     212     —     ?       1col      none      0/2   
+ahg-audit-trail                    4     83      —     ?       1col      none      0/4   
+ahg-backup                         3     124     —     ?       1col      none      0/3   
+ahg-cart                           7     122     —     ?       1col      none      0/7   
+ahg-core                           7     61      —     ?       unknown,1colnone      0/7   
+ahg-dam                            4     348     —     ?       1col,3col none,detected0/4   
+ahg-data-migration                 11    245     —     ?       1col      none      0/11  
+ahg-dedupe                         6     89      —     ?       1col      none,detected0/6   
+ahg-display                        11    459     —     ?       unknown,masternone,detected,left0/11  
+ahg-doi-manage                     6     105     —     ?       1col      none      0/6   
+ahg-donor-manage                   4     33      —     ?       1col      none,right0/4   
+ahg-dropdown-manage                2     97      —     ?       1col      detected  0/2   
+ahg-favorites                      2     71      —     ?       1col      left,none 0/2   
+ahg-feedback                       3     107     —     ?       1col      left,none 0/3   
 ahg-ftp-upload                     1     51      —     ?       1col      none      0/1   
-ahg-function-manage                4     87      5       -82     1col      none,right2/4   
-ahg-gallery                        6     686     —     ?       1col,2col,3colnone,detected0/6   
+ahg-function-manage                4     103     5       -98     1col      none,right2/4   
+ahg-gallery                        6     727     —     ?       1col,2col,3colnone,detected0/6   
 ahg-help                           5     69      —     ?       unknown,1coldetected  0/5   
 ahg-heritage-manage                6     216     —     ?       1col,unknown,2colleft,none,detected0/6   
-ahg-iiif-collection                5     167     —     ?       2col      detected  0/5   
-ahg-information-object-manage      34    1123    15      -1108   1col,unknown,2col,print,3colnone,detected,right2/34  
-ahg-integrity                      1     36      —     ?       1col      none      0/1   
+ahg-iiif-collection                5     181     —     ?       2col      detected  0/5   
+ahg-information-object-manage      34    1267    15      -1252   1col,unknown,2col,print,3colnone,detected,right2/34  
+ahg-integrity                      1     37      —     ?       1col      none      0/1   
 ahg-jobs-manage                    2     16      8       -8      1col      none      1/2   
-ahg-library                        3     286     —     ?       1col,3col none,detected0/3   
-ahg-loan                           4     242     —     ?       1col      none      0/4   
-ahg-media-processing               2     88      —     ?       1col      none,detected0/2   
-ahg-menu-manage                    5     40      8       -32     1col,unknownnone      3/5   
-ahg-metadata-extraction            3     79      —     ?       1col      none      0/3   
-ahg-museum                         3     562     —     ?       1col,2col,3colnone,detected0/3   
-ahg-pdf-tools                      3     76      —     ?       1col      none      0/3   
-ahg-portable-export                1     48      —     ?       1col      none      0/1   
+ahg-library                        3     338     —     ?       1col,3col none,detected0/3   
+ahg-loan                           4     291     —     ?       1col      none      0/4   
+ahg-media-processing               2     94      —     ?       1col      none,detected0/2   
+ahg-menu-manage                    5     44      8       -36     1col,unknownnone      3/5   
+ahg-metadata-extraction            3     81      —     ?       1col      none      0/3   
+ahg-museum                         3     582     —     ?       1col,2col,3colnone,detected0/3   
+ahg-pdf-tools                      3     85      —     ?       1col      none      0/3   
+ahg-portable-export                1     57      —     ?       1col      none      0/1   
 ahg-preservation                   12    176     —     ?       unknown,1colnone,left 0/12  
-ahg-reports                        14    553     —     ?       unknown,1colnone,right,left0/14  
-ahg-repository-manage              5     218     8       -210    2col,1col,printdetected,none,right2/5   
-ahg-request-publish                2     87      —     ?       1col      none      0/2   
-ahg-research                       44    1301    —     ?       unknown,2coldetected  0/44  
-ahg-researcher-manage              3     65      —     ?       1col      none      0/3   
-ahg-ric                            6     98      —     ?       1col      none      0/6   
-ahg-rights-holder-manage           4     30      15      -15     1col      none,right4/4   
-ahg-search                         5     108     —     ?       1col,unknownnone,left,detected0/5   
-ahg-settings                       37    719     86      -633    unknown,1colnone,left,right,detected12/37 
-ahg-static-page                    3     20      8       -12     2col,1col detected,none3/3   
-ahg-storage-manage                 4     31      13      -18     1col      none,right4/4   
-ahg-term-taxonomy                  5     161     20      -141    2col,1col detected,none,right4/5   
+ahg-reports                        14    574     —     ?       unknown,1colnone,right,left0/14  
+ahg-repository-manage              5     265     8       -257    2col,1col,printdetected,none,right2/5   
+ahg-request-publish                2     99      —     ?       1col      none      0/2   
+ahg-research                       44    1503    —     ?       unknown,2coldetected  0/44  
+ahg-researcher-manage              3     68      —     ?       1col      none      0/3   
+ahg-ric                            6     103     —     ?       1col      none      0/6   
+ahg-rights-holder-manage           4     31      15      -16     1col      none,right4/4   
+ahg-search                         5     124     —     ?       1col,unknownnone,left,detected0/5   
+ahg-settings                       37    854     86      -768    unknown,1colnone,left,right,detected12/37 
+ahg-static-page                    3     23      8       -15     2col,1col detected,none3/3   
+ahg-storage-manage                 4     161     13      -148    1col      none      4/4   
+ahg-term-taxonomy                  5     170     20      -150    2col,1col detected,none,right4/5   
 ahg-theme-b5                       19    316     —     ?       master,unknownnone,left,detected0/19  
-ahg-user-manage                    4     79      2       -77     1col      none,right4/4   
-ahg-workflow                       13    353     —     ?       1col      none,detected0/13  
+ahg-user-manage                    4     96      2       -94     1col      none,right4/4   
+ahg-workflow                       13    386     —     ?       1col      none,detected0/13  
 
 
 ## DETAILED PAGE-BY-PAGE AUDIT
@@ -89,9 +89,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    25    2     54    11    32    0     137    —   —   —   —    ?      
+edit                          1col    none    25    2     54    11    32    29    166    —   —   —   —    ?      
   BTN classes: btn(20), btn-white(17), btn-close(1), btn-outline-success(1), btn-outline-light(2)
-  ⚠ NO FIELD BADGES on 32 labels
+  Field badges: Req=1 Rec=2 Opt=26
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -110,9 +110,9 @@ access-requests               1col    none    8     7     2     3     2     3   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-approvers                     1col    none    4     3     4     3     4     1     27     —   —   —   —    ?      
+approvers                     1col    none    4     3     4     3     4     4     30     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(1), btn-close(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=3 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -126,15 +126,15 @@ classifications               1col    none    0     3     0     2     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-clearances                    1col    none    6     1     8     2     8     5     37     —   —   —   —    ?      
+clearances                    1col    none    6     1     8     2     8     13    45     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(2), btn-outline-success(2), btn-close(2), btn-sm(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=2 Rec=0 Opt=6
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit-group                    1col    none    5     3     4     3     4     2     31     —   —   —   —    ?      
+edit-group                    1col    none    5     3     4     3     4     6     35     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(1), btn-close(1), btn-sm(4), btn-outline-danger(2), btn-outline-success(2)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=4 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -158,9 +158,9 @@ pending-requests              1col    none    9     1     2     7     2     3   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    left    11    25    12    14    6     1     73     1     0     0     4      -69    
+browse                        2col    left    11    25    12    14    6     7     79     1     0     0     4      -75    
   BTN classes: btn(5), btn-lg(1), btn-white(4), btn-sm(1), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=0 Rec=1 Opt=5
   URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
   AtoM: apps/qubit/modules/actor/templates/browseSuccess.php
 
@@ -168,9 +168,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/actor/templates/deleteSuccess.php
 
-edit                          1col    none    17    2     45    11    27    0     111    —   —   —   —    ?      
+edit                          1col    none    17    2     45    11    27    23    134    —   —   —   —    ?      
   BTN classes: btn(10), btn-white(9), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 27 labels
+  Field badges: Req=1 Rec=8 Opt=14
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -197,14 +197,15 @@ show                          3col    detected1     13    0     37    0     4   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-config                        1col    none    7     1     45    2     47    4     124    —   —   —   —    ?      
+config                        1col    none    7     1     45    2     47    47    167    —   —   —   —    ?      
   BTN classes: btn(8), btn-white(3), btn-outline-light(1), btn-sm(3), btn-outline-success(3), btn-outline-danger(1), btn-lg(1)
-  ⚠ NO FIELD BADGES on 47 labels
+  Field badges: Req=4 Rec=0 Opt=39
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    5     3     2     1     2     12    43     —   —   —   —    ?      
+index                         1col    none    5     3     2     1     2     14    45     —   —   —   —    ?      
   BTN classes: btn(7), btn-white(6), btn-outline-success(1), btn-sm(1)
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -213,9 +214,9 @@ index                         1col    none    5     3     2     1     2     12  
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    1     4     5     1     5     2     20     —   —   —   —    ?      
+browse                        1col    none    1     4     5     1     5     7     25     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=1 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -246,15 +247,15 @@ index                         1col    none    8     4     4     2     4     15  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-restore                       1col    none    1     2     5     3     5     4     35     —   —   —   —    ?      
+restore                       1col    none    1     2     5     3     5     5     36     —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(1), btn-white(1), btn-outline-danger(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-settings                      1col    none    1     1     4     1     4     0     14     —   —   —   —    ?      
+settings                      1col    none    1     1     4     1     4     4     18     —   —   —   —    ?      
   BTN classes: btn(1), btn-sm(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -268,9 +269,9 @@ orders                        1col    none    0     3     0     1     0     3   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-settings                      1col    none    1     1     10    1     10    2     27     —   —   —   —    ?      
+settings                      1col    none    1     1     10    1     10    10    35     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 10 labels
+  Field badges: Req=0 Rec=0 Opt=8
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -279,9 +280,9 @@ browse                        1col    none    2     3     1     1     0     1   
   URLs: {{ url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-checkout                      1col    none    1     1     13    1     13    0     35     —   —   —   —    ?      
+checkout                      1col    none    1     1     13    1     13    13    48     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 13 labels
+  Field badges: Req=2 Rec=0 Opt=11
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -312,8 +313,9 @@ index                         1col    none    5     6     0     1     0     13  
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-load                          1col    none    4     0     2     2     2     0     10     —   —   —   —    ?      
+load                          1col    none    4     0     2     2     2     2     12     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(2), btn-close(1)
+  Field badges: Req=1 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 digital-object                unknown none    0     3     0     0     0     2     7      —   —   —   —    ?      
@@ -350,9 +352,9 @@ dashboard                     1col    none    0     7     0     5     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    5     1     65    1     59    0     157    —   —   —   —    ?      
+edit                          1col    none    5     1     65    1     59    57    214    —   —   —   —    ?      
   BTN classes: btn(5), btn-outline-danger(3), btn-sm(4), btn-white(1), btn-outline-success(1), btn-lg(1)
-  ⚠ NO FIELD BADGES on 59 labels
+  Field badges: Req=1 Rec=0 Opt=56
   URLs: {{ $asset ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -366,9 +368,9 @@ show                          3col    detected3     9     0     71    0     1   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-batch-export                  1col    none    1     2     3     3     3     0     17     —   —   —   —    ?      
+batch-export                  1col    none    1     2     3     3     3     3     20     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -398,8 +400,9 @@ jobs                          1col    none    0     4     0     1     0     5   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-map                           1col    none    7     3     3     5     2     0     35     —   —   —   —    ?      
+map                           1col    none    7     3     3     5     2     2     37     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(8), btn-sm(3), btn-white(5), btn-outline-success(2)
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -420,9 +423,9 @@ preview                       1col    none    1     3     0     2     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-upload                        1col    none    2     2     3     2     3     0     15     —   —   —   —    ?      
+upload                        1col    none    2     2     3     2     3     3     18     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=3 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -431,9 +434,9 @@ upload                        1col    none    2     2     3     2     3     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     5     3     1     3     3     22     —   —   —   —    ?      
+browse                        1col    none    2     5     3     1     3     6     25     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(4), btn-outline-light(1), btn-sm(2), btn-dismiss(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -466,9 +469,9 @@ rules                         1col    none    0     1     0     1     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-_advanced-search              unknown none    13    9     27    2     27    2     99     —   —   —   —    ?      
+_advanced-search              unknown none    13    9     27    2     27    24    121    —   —   —   —    ?      
   BTN classes: btn(13), btn-sm(3), btn-white(3), btn-outline-success(4), btn-close(1)
-  ⚠ NO FIELD BADGES on 27 labels
+  Field badges: Req=1 Rec=2 Opt=19
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -481,21 +484,21 @@ _discovery_meta               unknown none    0     1     0     0     0     2   
   URLs: #discovery-explain-{{ $discovery[
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse-settings               master  detected2     3     7     2     7     0     25     —   —   —   —    ?      
+browse-settings               master  detected2     3     7     2     7     4     29     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(1), btn-white(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 7 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-browse                        master  left    3     16    2     1     3     8     47     —   —   —   —    ?      
+browse                        master  left    3     16    2     1     3     10    49     —   —   —   —    ?      
   BTN classes: btn-close(1), btn-close-white(1), btn(2), btn-white(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ glamBrowseUrl($fp, [], [ | {{ glamBrowseUrl($fp, [
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-bulk-set-type                 master  detected1     4     2     4     3     0     22     —   —   —   —    ?      
+bulk-set-type                 master  detected1     4     2     4     3     2     24     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -509,8 +512,9 @@ index                         master  detected0     7     0     6     0     3   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-levels                        master  none    1     4     1     2     1     5     22     —   —   —   —    ?      
+levels                        master  none    1     4     1     2     1     6     23     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-light(1), btn-sm(2)
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -533,9 +537,9 @@ browse                        1col    none    0     6     0     1     0     3   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-config                        1col    none    2     1     8     1     8     0     23     —   —   —   —    ?      
+config                        1col    none    2     1     8     1     8     8     31     —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(1), btn-white(1), btn-close(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=0 Rec=0 Opt=8
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -573,8 +577,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    4     2     1     3     1     0     11     —   —   —   —    ?      
+edit                          1col    none    4     2     1     3     1     1     12     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1)
+  Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -588,15 +593,15 @@ show                          1col    right   0     5     0     5     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-edit                          1col    detected5     4     9     4     5     0     36     —   —   —   —    ?      
+edit                          1col    detected5     4     9     4     5     4     40     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(2), btn-outline-success(2), btn-sm(1), btn-outline-danger(1), btn-delete-term(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=2 Rec=0 Opt=2
   URLs: {{ url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    detected16    3     7     5     5     3     52     —   —   —   —    ?      
+index                         1col    detected16    3     7     5     5     8     57     —   —   —   —    ?      
   BTN classes: btn(12), btn-outline-success(2), btn-sm(5), btn-white(9), btn-rename(1), btn-move(1), btn-outline-danger(1), btn-delete-taxonomy(1), btn-close(3)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=3 Rec=0 Opt=2
   URLs: #section-{{ $sKey }} | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -605,9 +610,9 @@ index                         1col    detected16    3     7     5     5     3   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    left    15    7     13    3     5     5     59     —   —   —   —    ?      
+browse                        1col    left    15    7     13    3     5     10    64     —   —   —   —    ?      
   BTN classes: btn(13), btn-white(8), btn-sm(8), btn-outline-danger(2), btn-outline-light(1), btn-close(2), btn-outline-success(2)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -626,15 +631,15 @@ browse                        1col    left    1     10    0     1     0     8   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    1     1     11    1     11    0     31     —   —   —   —    ?      
+edit                          1col    none    1     1     11    1     11    11    42     —   —   —   —    ?      
   BTN classes: btn(2), btn-white(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=1 Rec=0 Opt=10
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-general                       1col    none    1     1     8     1     8     0     26     —   —   —   —    ?      
+general                       1col    none    1     1     8     1     8     8     34     —   —   —   —    ?      
   BTN classes: btn(2), btn-white(1), btn-outline-success(1), btn-lg(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=6 Rec=0 Opt=2
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -662,9 +667,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/function/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     29    4     19    0     65     —   —   —   —    ?      
+edit                          1col    none    8     2     29    4     19    16    81     —   —   —   —    ?      
   BTN classes: btn(4), btn-outline-light(1), btn-white(3)
-  ⚠ NO FIELD BADGES on 19 labels
+  Field badges: Req=1 Rec=4 Opt=11
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -678,9 +683,9 @@ show                          1col    right   0     5     0     5     0     1   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-artist-create                 1col    none    1     3     25    1     25    0     55     —   —   —   —    ?      
+artist-create                 1col    none    1     3     25    1     25    24    79     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 25 labels
+  Field badges: Req=1 Rec=0 Opt=23
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -698,9 +703,9 @@ browse                        1col    none    1     5     0     2     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          2col    detected67    9     65    23    67    201   507    —   —   —   —    ?      
+edit                          2col    detected67    9     65    23    67    218   524    —   —   —   —    ?      
   BTN classes: btn(4), btn-sm(3), btn-cco-guide(2), btn-help(49), btn-white(1), btn-outline-light(1)
-  Field badges: Req=13 Rec=18 Opt=1
+  Field badges: Req=13 Rec=18 Opt=18
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | https://www.getty.edu/research/publications/electronic_publications/cdwa/ | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -728,7 +733,7 @@ category                      1col    detected0     2     0     3     0     1   
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 index                         1col    detected1     3     1     5     0     3     17     —   —   —   —    ?      
-  BTN classes: btn(2), btn-light(1), btn-white(1)
+  BTN classes: btn(2), btn-white(2)
   URLs: https://docs.theahg.co.za | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -775,21 +780,21 @@ search                        2col    left    1     13    1     5     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-add-items                     2col    detected3     1     4     6     5     3     33     —   —   —   —    ?      
+add-items                     2col    detected3     1     4     6     5     7     37     —   —   —   —    ?      
   BTN classes: btn(4), btn-sm(2), btn-outline-success(2), btn-lg(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-create                        2col    detected1     2     6     3     6     0     24     —   —   —   —    ?      
+create                        2col    detected1     2     6     3     6     5     29     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          2col    detected1     3     6     4     6     0     27     —   —   —   —    ?      
+edit                          2col    detected1     3     6     4     6     5     32     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -821,8 +826,9 @@ summarize                     1col    none    1     0     0     0     0     0   
   BTN classes: btn(1), btn-outline-success(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-translate                     1col    none    1     0     1     0     1     0     4      —   —   —   —    ?      
+translate                     1col    none    1     0     1     0     1     1     5      —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 browse                        1col    none    1     2     0     1     0     0     5      1     5     0     13     8      
@@ -834,9 +840,9 @@ index                         1col    none    0     6     0     3     0     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-create                        unknown detected13    3     38    12    38    0     105    —   —   —   —    ?      
+create                        unknown detected13    3     38    12    38    33    138    —   —   —   —    ?      
   BTN classes: btn(3), btn-white(1), btn-outline-light(2)
-  ⚠ NO FIELD BADGES on 38 labels
+  Field badges: Req=1 Rec=12 Opt=20
   URLs: {{ url( | {{ $sourceSlug ? url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -849,41 +855,44 @@ show                          1col    none    0     2     0     2     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          2col    detected12    2     44    12    44    0     114    —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 44 labels
+edit                          2col    detected12    2     44    12    44    43    157    —   —   —   —    ?      
+  Field badges: Req=1 Rec=13 Opt=29
   URLs: {{ url( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-upload                        1col    none    2     1     1     2     1     0     7      —   —   —   —    ?      
+upload                        1col    none    2     1     1     2     1     1     8      —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-select                        1col    none    3     0     9     4     9     0     25     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 9 labels
+select                        1col    none    3     0     9     4     9     6     31     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=6
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-skos-import                   1col    none    3     0     3     3     3     0     13     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 3 labels
+skos-import                   1col    none    3     0     3     3     3     3     16     —   —   —   —    ?      
+  Field badges: Req=1 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-validate-csv                  1col    none    3     0     2     4     2     6     20     —   —   —   —    ?      
-  Field badges: Req=1 Rec=0 Opt=0
+validate-csv                  1col    none    3     0     2     4     2     8     22     —   —   —   —    ?      
+  Field badges: Req=1 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 _treeview                     unknown detected1     1     0     0     0     0     14     —   —   —   —    ?      
   BTN classes: btn(1), btn-sm(1), btn-link(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-_upload-form                  unknown none    3     0     1     2     1     0     10     —   —   —   —    ?      
+_upload-form                  unknown none    3     0     1     2     1     1     11     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-danger(1), btn-sm(2), btn-outline-light(1)
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 feature-header                unknown none    0     2     0     1     0     0     4      —   —   —   —    ?      
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    7     15    2     8     2     2     54     —   —   —   —    ?      
+index                         1col    none    7     15    2     8     2     4     56     —   —   —   —    ?      
   BTN classes: btn(6), btn-outline-success(3), btn-white(3), btn-lg(1), btn-close(1)
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route( | javascript:void(0)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -903,9 +912,9 @@ scan                          1col    none    2     7     0     3     0     5   
   URLs: {{ isset($io->slug) ? route( | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    detected7     5     45    10    46    1     132    —   —   —   —    ?      
+index                         1col    detected7     5     45    10    46    43    174    —   —   —   —    ?      
   BTN classes: btn(11), btn-outline-success(3), btn-sm(6), btn-outline-danger(4)
-  ⚠ NO FIELD BADGES on 46 labels
+  Field badges: Req=0 Rec=0 Opt=42
   URLs: {{ route( | {{ $doc->file_path }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -917,9 +926,9 @@ annotations                   1col    none    1     0     0     0     0     0   
   BTN classes: btn(1), btn-outline-success(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-assessment                    1col    none    1     0     3     0     3     0     8      —   —   —   —    ?      
+assessment                    1col    none    1     0     3     0     3     3     11     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 citation                      1col    none    3     0     0     0     0     0     6      —   —   —   —    ?      
@@ -933,9 +942,9 @@ trust                         1col    none    1     0     0     1     0     0   
   BTN classes: btn(1), btn-outline-success(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-embargo                       1col    none    1     1     10    4     10    1     31     —   —   —   —    ?      
+embargo                       1col    none    1     1     10    4     10    8     38     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 10 labels
+  Field badges: Req=2 Rec=0 Opt=5
   URLs: {{ isset($io->slug) ? route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -961,8 +970,9 @@ index                         1col    none    0     0     0     0     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    0     8     1     5     1     7     36     —   —   —   —    ?      
+index                         1col    none    0     8     1     5     1     8     37     —   —   —   —    ?      
   BTN classes: btn(8), btn-sm(8), btn-white(8)
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -991,9 +1001,9 @@ browse                        1col    none    3     6     0     1     0     1   
   URLs: {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ request()->url() }}?{{ http_build_query(array_merge($materialTypeQuery, [ | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    15    7     67    18    54    2     204    —   —   —   —    ?      
-  BTN classes: btn(23), btn-sm(10), btn-light(2), btn-outline-danger(7), btn-white(5), btn-outline-success(2), btn-close(1)
-  ⚠ NO FIELD BADGES on 54 labels
+edit                          1col    none    15    7     67    18    54    54    256    —   —   —   —    ?      
+  BTN classes: btn(23), btn-sm(10), btn-white(7), btn-outline-danger(7), btn-outline-success(2), btn-close(1)
+  Field badges: Req=0 Rec=1 Opt=51
   URLs: {{ $item->openlibrary_url }} | {{ route( | {{ $item->ebook_preview_url ?? old(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1007,27 +1017,27 @@ show                          3col    detected1     22    0     26    0     2   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-create                        1col    none    5     1     22    5     20    0     59     —   —   —   —    ?      
+create                        1col    none    5     1     22    5     20    20    79     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 20 labels
+  Field badges: Req=3 Rec=0 Opt=17
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    5     1     22    5     20    0     59     —   —   —   —    ?      
+edit                          1col    none    5     1     22    5     20    20    79     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 20 labels
+  Field badges: Req=3 Rec=0 Opt=17
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    1     3     5     1     5     4     26     —   —   —   —    ?      
+index                         1col    none    1     3     5     1     5     8     30     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(1), btn-outline-light(1), btn-sm(2), btn-white(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=1 Opt=3
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-show                          1col    none    18    3     10    18    5     15    98     —   —   —   —    ?      
+show                          1col    none    18    3     10    18    5     20    103    —   —   —   —    ?      
   BTN classes: btn-close(4), btn(13), btn-sm(7), btn-white(7), btn-outline-success(4), btn-outline-danger(2)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=3 Rec=0 Opt=2
   URLs: {{ route( | mailto:{{ $loan->partner_contact_email }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1041,9 +1051,9 @@ index                         1col    none    6     3     0     4     0     3   
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-watermark-settings            1col    detected4     1     11    6     11    12    55     —   —   —   —    ?      
+watermark-settings            1col    detected4     1     11    6     11    18    61     —   —   —   —    ?      
   BTN classes: btn(4), btn-white(1), btn-close(1), btn-outline-success(2), btn-sm(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=2 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1061,9 +1071,9 @@ delete                        1col    none    1     2     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/menu/templates/deleteSuccess.php
 
-edit                          1col    none    2     2     5     1     5     0     16     2     0     0     5      -11    
+edit                          1col    none    2     2     5     1     5     4     20     2     0     0     5      -15    
   BTN classes: btn(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: apps/qubit/modules/menu/templates/editSuccess.php
 
@@ -1081,8 +1091,9 @@ show                          1col    none    0     5     0     2     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    3     7     2     1     2     5     30     —   —   —   —    ?      
+index                         1col    none    3     7     2     1     2     7     32     —   —   —   —    ?      
   BTN classes: btn(6), btn-white(2), btn-sm(4), btn-outline-light(2), btn-outline-success(1)
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1106,9 +1117,9 @@ browse                        1col    none    2     6     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          2col    detected53    8     58    24    61    162   422    —   —   —   —    ?      
+edit                          2col    detected53    8     58    24    61    182   442    —   —   —   —    ?      
   BTN classes: btn(3), btn-sm(1), btn-cco-guide(1), btn-help(33), btn-white(1), btn-outline-light(1)
-  Field badges: Req=13 Rec=18 Opt=1
+  Field badges: Req=13 Rec=18 Opt=21
   URLs: javascript:void(0) | http://cco.vrafoundation.org/ | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1126,14 +1137,15 @@ extract-result                1col    none    1     1     0     1     0     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-index                         1col    none    5     1     2     12    2     5     34     —   —   —   —    ?      
+index                         1col    none    5     1     2     12    2     7     36     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(3), btn-outline-success(2), btn-close(1)
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-merge                         1col    none    1     2     8     1     10    2     30     —   —   —   —    ?      
+merge                         1col    none    1     2     8     1     10    9     37     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-sm(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 10 labels
+  Field badges: Req=1 Rec=0 Opt=6
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1142,9 +1154,9 @@ merge                         1col    none    1     2     8     1     10    2   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-index                         1col    none    2     1     13    3     17    6     48     —   —   —   —    ?      
+index                         1col    none    2     1     13    3     17    15    57     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 17 labels
+  Field badges: Req=0 Rec=0 Opt=9
   URLs: {{ $export->output_path }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1205,9 +1217,9 @@ virus-scan                    1col    left    0     0     0     1     0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-_filters                      unknown none    1     0     5     0     5     0     13     —   —   —   —    ?      
+_filters                      unknown none    1     0     5     0     5     5     18     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=5
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 _menu                         unknown none    0     11    0     0     0     0     23     —   —   —   —    ?      
@@ -1226,16 +1238,18 @@ report-accessions             1col    left    0     1     0     1     0     1   
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-activity               1col    left    1     0     5     1     5     4     19     —   —   —   —    ?      
+report-activity               1col    left    1     0     5     1     5     9     24     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=5
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-authorities            1col    left    0     1     1     1     1     1     7      —   —   —   —    ?      
+report-authorities            1col    left    0     1     1     1     1     2     8      —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-descriptions           1col    left    0     1     2     1     2     3     11     —   —   —   —    ?      
+report-descriptions           1col    left    0     1     2     1     2     5     13     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1243,23 +1257,25 @@ report-donors                 1col    left    0     1     0     1     0     1   
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-recent                 1col    left    0     0     1     1     1     1     5      —   —   —   —    ?      
+report-recent                 1col    left    0     0     1     1     1     2     6      —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 report-repositories           1col    left    0     1     0     1     0     2     6      —   —   —   —    ?      
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-spatial                1col    left    3     0     8     1     8     0     35     —   —   —   —    ?      
+report-spatial                1col    left    3     0     8     1     8     6     41     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(2), btn-white(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=0 Rec=0 Opt=6
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 report-storage                1col    left    0     1     0     1     0     1     5      —   —   —   —    ?      
   URLs: {{ request()->fullUrlWithQuery([
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-report-taxonomy               1col    left    0     0     1     1     1     2     6      —   —   —   —    ?      
+report-taxonomy               1col    left    0     0     1     1     1     3     7      —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 
@@ -1267,9 +1283,9 @@ report-taxonomy               1col    left    0     0     1     1     1     2   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        2col    detected12    22    3     9     3     0     54     2     0     0     6      -48    
+browse                        2col    detected12    22    3     9     3     3     57     2     0     0     6      -51    
   BTN classes: btn(5), btn-lg(1), btn-white(4), btn-sm(1), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ url( | {{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, [ | {{ route(
   AtoM: apps/qubit/modules/repository/templates/browseSuccess.php
 
@@ -1277,9 +1293,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/repository/templates/deleteSuccess.php
 
-edit                          1col    none    18    2     46    11    46    0     126    —   —   —   —    ?      
+edit                          1col    none    18    2     46    11    46    44    170    —   —   —   —    ?      
   BTN classes: btn(9), btn-white(7), btn-close(1), btn-outline-success(1), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 46 labels
+  Field badges: Req=1 Rec=6 Opt=37
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1296,15 +1312,15 @@ show                          2col    right   1     8     0     10    0     5   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-browse                        1col    none    2     10    0     4     3     6     43     —   —   —   —    ?      
+browse                        1col    none    2     10    0     4     3     9     46     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(1), btn-sm(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route( | /{{ $row[
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit                          1col    none    1     5     2     9     9     2     44     —   —   —   —    ?      
+edit                          1col    none    1     5     2     9     9     11    53     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 9 labels
+  Field badges: Req=1 Rec=0 Opt=8
   URLs: mailto:{{ $record->rtp_email }} | tel:{{ $record->rtp_phone }} | /{{ $record->object_slug ?? | /{{ $record->object_slug }} | {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1321,34 +1337,35 @@ activities                    2col    detected1     0     3     4     0     2   
   BTN classes: btn(1), btn-white(1), btn-sm(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-admin-statistics              2col    detected1     0     2     10    2     0     27     —   —   —   —    ?      
+admin-statistics              2col    detected1     0     2     10    2     2     29     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-light(1), btn-sm(1)
+  Field badges: Req=0 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-admin-types                   2col    detected6     1     8     4     8     1     35     —   —   —   —    ?      
+admin-types                   2col    detected6     1     8     4     8     9     43     —   —   —   —    ?      
   BTN classes: btn(5), btn-outline-success(3), btn-sm(3), btn-outline-light(1), btn-outline-danger(1), btn-close(2)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=2 Rec=0 Opt=6
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-annotations                   2col    detected11    1     13    4     13    4     55     —   —   —   —    ?      
+annotations                   2col    detected11    1     13    4     13    17    68     —   —   —   —    ?      
   BTN classes: btn-close(3), btn(8), btn-outline-success(3), btn-outline-light(1), btn-sm(3), btn-white(3), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 13 labels
+  Field badges: Req=4 Rec=0 Opt=9
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-api-keys                      2col    detected4     0     5     3     6     3     28     —   —   —   —    ?      
+api-keys                      2col    detected4     0     5     3     6     6     31     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(2), btn-sm(2), btn-outline-danger(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=1 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-bibliographies                2col    detected3     1     3     3     3     0     17     —   —   —   —    ?      
+bibliographies                2col    detected3     1     3     3     3     3     20     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-book                          2col    detected4     1     8     1     6     1     31     —   —   —   —    ?      
+book                          2col    detected4     1     8     1     6     6     36     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(4), btn-outline-success(2), btn-add-material(1), btn-white(1), btn-outline-danger(1), btn-remove-material(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=4 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1361,8 +1378,9 @@ cite                          2col    detected1     0     1     3     1     0   
   BTN classes: btn(1), btn-white(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-collections                   2col    detected6     2     2     3     2     1     23     —   —   —   —    ?      
+collections                   2col    detected6     2     2     3     2     3     25     —   —   —   —    ?      
   BTN classes: btn-close(2), btn(4), btn-outline-success(2), btn-sm(1), btn-outline-danger(1), btn-white(1)
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1371,42 +1389,42 @@ dashboard                     2col    detected1     27    0     11    0     5   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-document-templates            2col    detected8     1     8     4     8     1     31     —   —   —   —    ?      
+document-templates            2col    detected8     1     8     4     8     9     39     —   —   —   —    ?      
   BTN classes: btn(7), btn-white(4), btn-sm(1), btn-close(2), btn-outline-success(2)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=4 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit-room                     2col    detected1     1     14    1     15    0     35     —   —   —   —    ?      
+edit-room                     2col    detected1     1     14    1     15    14    49     —   —   —   —    ?      
   BTN classes: btn(2), btn-white(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 15 labels
+  Field badges: Req=1 Rec=0 Opt=13
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-entity-resolution             2col    detected11    1     11    6     11    3     52     —   —   —   —    ?      
+entity-resolution             2col    detected11    1     11    6     11    14    63     —   —   —   —    ?      
   BTN classes: btn(12), btn-white(4), btn-outline-light(1), btn-sm(2), btn-outline-success(2), btn-outline-danger(1), btn-close(3)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=2 Rec=0 Opt=9
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-equipment                     2col    detected3     0     5     3     5     1     25     —   —   —   —    ?      
+equipment                     2col    detected3     0     5     3     5     6     30     —   —   —   —    ?      
   BTN classes: btn(2), btn-white(1), btn-sm(1), btn-close(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=3 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 institutions                  2col    detected1     0     2     2     0     3     13     —   —   —   —    ?      
   BTN classes: btn(1), btn-white(1), btn-sm(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-journal-entry                 2col    detected2     1     6     3     6     1     23     —   —   —   —    ?      
+journal-entry                 2col    detected2     1     6     3     6     7     29     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(1), btn-white(1), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=0 Rec=0 Opt=6
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-journal                       2col    detected4     1     11    4     7     2     36     —   —   —   —    ?      
+journal                       2col    detected4     1     11    4     7     9     43     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(2), btn-sm(2), btn-white(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 7 labels
+  Field badges: Req=2 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1414,33 +1432,33 @@ notifications                 2col    detected2     0     0     1     0     2   
   BTN classes: btn(2), btn-white(2), btn-sm(2)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-odrl-policies                 2col    detected6     2     8     2     8     2     30     —   —   —   —    ?      
+odrl-policies                 2col    detected6     2     8     2     8     10    38     —   —   —   —    ?      
   BTN classes: btn(5), btn-outline-success(2), btn-outline-light(1), btn-sm(2), btn-outline-danger(1), btn-close(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=2 Rec=0 Opt=6
   URLs: {{ route( | ?page={{ $i }}{{ request(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-profile                       2col    detected2     6     15    1     15    2     49     —   —   —   —    ?      
+profile                       2col    detected2     6     15    1     15    17    64     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(4), btn-sm(2), btn-white(2), btn-outline-danger(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 15 labels
+  Field badges: Req=2 Rec=0 Opt=13
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-projects                      2col    detected5     5     6     3     6     1     34     —   —   —   —    ?      
+projects                      2col    detected5     5     6     3     6     7     40     —   —   —   —    ?      
   BTN classes: btn-close(2), btn(3), btn-outline-success(2), btn-white(1)
-  ⚠ NO FIELD BADGES on 6 labels
+  Field badges: Req=1 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-public-register               2col    detected2     1     18    1     18    0     47     —   —   —   —    ?      
+public-register               2col    detected2     1     18    1     18    18    65     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-link(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 18 labels
+  Field badges: Req=8 Rec=0 Opt=10
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-register                      2col    detected2     1     15    1     15    0     40     —   —   —   —    ?      
+register                      2col    detected2     1     15    1     15    15    55     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-white(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 15 labels
+  Field badges: Req=5 Rec=0 Opt=10
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1449,19 +1467,20 @@ registration-complete         2col    detected0     1     0     1     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-renewal                       2col    detected1     0     1     3     1     3     15     —   —   —   —    ?      
+renewal                       2col    detected1     0     1     3     1     4     16     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-reports                       2col    detected3     1     5     3     4     1     24     —   —   —   —    ?      
+reports                       2col    detected3     1     5     3     4     5     28     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=1 Rec=0 Opt=3
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-reproductions                 2col    detected3     0     5     2     4     1     20     —   —   —   —    ?      
+reproductions                 2col    detected3     0     5     2     4     5     24     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(2), btn-sm(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=2 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 researchers                   2col    detected3     6     1     1     0     6     21     —   —   —   —    ?      
@@ -1478,35 +1497,37 @@ rooms                         2col    detected0     2     0     1     0     2   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-saved-searches                2col    detected3     1     2     1     2     0     15     —   —   —   —    ?      
+saved-searches                2col    detected3     1     2     1     2     2     17     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
+  Field badges: Req=2 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-seats                         2col    detected6     0     2     2     2     1     24     —   —   —   —    ?      
+seats                         2col    detected6     0     2     2     2     3     26     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(3), btn-sm(4), btn-outline-success(2), btn-close(1)
+  Field badges: Req=1 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-validation-queue              2col    detected11    1     7     3     4     4     36     —   —   —   —    ?      
+validation-queue              2col    detected11    1     7     3     4     8     40     —   —   —   —    ?      
   BTN classes: btn(13), btn-outline-light(1), btn-sm(1), btn-white(3), btn-outline-success(3), btn-outline-danger(2), btn-close(2)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-view-bibliography             2col    detected5     2     11    4     11    1     43     —   —   —   —    ?      
+view-bibliography             2col    detected5     2     11    4     11    12    54     —   —   —   —    ?      
   BTN classes: btn(5), btn-outline-success(2), btn-sm(4), btn-outline-danger(2), btn-white(1), btn-close(1)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=1 Rec=0 Opt=10
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 view-booking                  2col    detected6     2     0     2     0     2     24     —   —   —   —    ?      
-  BTN classes: btn-close(1), btn(5), btn-outline-success(2), btn-dark(1), btn-white(1), btn-outline-danger(1)
+  BTN classes: btn-close(1), btn(5), btn-outline-success(2), btn-white(2), btn-outline-danger(1)
   URLs: {{ route( | {{ url()->previous() }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-view-collection               2col    detected4     2     4     1     4     0     23     —   —   —   —    ?      
+view-collection               2col    detected4     2     4     1     4     4     27     —   —   —   —    ?      
   BTN classes: btn-close(1), btn(4), btn-white(1), btn-outline-light(1), btn-sm(3), btn-outline-danger(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=1 Rec=0 Opt=3
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1514,30 +1535,32 @@ view-project                  2col    detected0     1     0     6     0     3   
   URLs: {{ e($r->external_url) }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-view-report                   2col    detected11    2     5     7     5     1     49     —   —   —   —    ?      
+view-report                   2col    detected11    2     5     7     5     6     54     —   —   —   —    ?      
   BTN classes: btn(9), btn-outline-success(4), btn-sm(4), btn-white(3), btn-outline-danger(2), btn-close(3)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=1 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-view-researcher               2col    detected8     2     1     3     1     2     30     —   —   —   —    ?      
+view-researcher               2col    detected8     2     1     3     1     3     31     —   —   —   —    ?      
   BTN classes: btn-close(2), btn(7), btn-outline-success(2), btn-outline-danger(2), btn-white(3)
+  Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-walk-in                       2col    detected3     0     11    4     11    1     35     —   —   —   —    ?      
+walk-in                       2col    detected3     0     11    4     11    11    45     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(2), btn-outline-danger(1), btn-sm(1)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=3 Rec=0 Opt=7
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-workspace                     2col    detected5     6     2     7     2     3     43     —   —   —   —    ?      
+workspace                     2col    detected5     6     2     7     2     5     45     —   —   —   —    ?      
   BTN classes: btn-close(2), btn(6), btn-outline-light(1), btn-sm(2), btn-outline-success(2), btn-white(3)
+  Field badges: Req=1 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-workspaces                    2col    detected5     2     3     4     3     1     26     —   —   —   —    ?      
+workspaces                    2col    detected5     2     3     4     3     4     29     —   —   —   —    ?      
   BTN classes: btn(4), btn-outline-success(3), btn-close(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1551,9 +1574,9 @@ dashboard                     1col    none    0     4     0     2     0     10  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-import-exchange               1col    none    1     2     2     3     3     5     20     —   —   —   —    ?      
+import-exchange               1col    none    1     2     2     3     3     8     23     —   —   —   —    ?      
   BTN classes: btn(2), btn-white(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1572,9 +1595,9 @@ index                         1col    none    0     6     0     1     0     10  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-logs                          1col    none    0     2     5     1     5     4     19     —   —   —   —    ?      
+logs                          1col    none    0     2     5     1     5     9     24     —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(2), btn-white(2)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1610,8 +1633,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/rightsholder/templates/deleteSuccess.php
 
-edit                          1col    none    4     2     1     3     1     0     11     4     0     0     7      -4     
+edit                          1col    none    4     2     1     3     1     1     12     4     0     0     7      -5     
   BTN classes: btn(1), btn-outline-light(1)
+  Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route(
   AtoM: apps/qubit/modules/rightsholder/templates/editSuccess.php
 
@@ -1625,9 +1649,9 @@ show                          1col    right   0     4     0     4     0     0   
 
 View                          Layout  Side    H-Btn H-Lnk H-Fld H-Hdg H-Lbl H-Bdg H-Tot  A-Btn A-Lnk A-Fld A-Tot  Delta  
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-advanced                      1col    none    1     2     8     1     8     0     24     —   —   —   —    ?      
+advanced                      1col    none    1     2     8     1     8     7     31     —   —   —   —    ?      
   BTN classes: btn(3), btn-outline-success(1), btn-white(2)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=0 Rec=1 Opt=6
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1635,15 +1659,15 @@ search-box                    unknown none    1     0     1     0     0     0   
   BTN classes: btn(1), btn-outline-light(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-description-updates           1col    left    1     2     9     1     11    0     26     —   —   —   —    ?      
+description-updates           1col    left    1     2     9     1     11    6     32     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-light(2)
-  ⚠ NO FIELD BADGES on 11 labels
+  Field badges: Req=0 Rec=0 Opt=6
   URLs: {{ route( | /{{ $row->slug }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-global-replace                1col    none    2     3     4     1     4     0     22     —   —   —   —    ?      
+global-replace                1col    none    2     3     4     1     4     3     25     —   —   —   —    ?      
   BTN classes: btn(4), btn-outline-success(1), btn-white(2), btn-outline-danger(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=2 Rec=0 Opt=1
   URLs: {{ route( | /{{ $row->slug }}
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1665,9 +1689,9 @@ _menu                         unknown none    0     1     0     0     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/_menu.php
 
-ahg-section                   1col    left    2     2     8     1     7     0     23     —   —   —   —    ?      
+ahg-section                   1col    left    2     2     8     1     7     6     29     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 7 labels
+  Field badges: Req=0 Rec=0 Opt=6
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -1676,67 +1700,68 @@ ai-condition                  1col    left    1     1     0     2     0     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-clipboard                     1col    left    4     0     10    4     13    0     31     4     0     0     8      -23    
-  ⚠ NO FIELD BADGES on 13 labels
+clipboard                     1col    left    4     0     10    4     13    7     38     4     0     0     8      -30    
+  Field badges: Req=0 Rec=0 Opt=7
   AtoM: apps/qubit/modules/settings/templates/clipboardSuccess.php
 
-cron-jobs                     1col    right   9     3     6     6     5     7     45     —   —   —   —    ?      
+cron-jobs                     1col    right   9     3     6     6     5     11    49     —   —   —   —    ?      
   BTN classes: btn(9), btn-sm(5), btn-white(7), btn-outline-success(2), btn-close(2)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=2 Rec=0 Opt=2
   URLs: #cron-reference
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-csv-validator                 1col    left    2     0     3     2     4     0     11     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 4 labels
+csv-validator                 1col    left    2     0     3     2     4     1     12     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-default-template              1col    left    2     0     3     2     3     0     11     —   —   —   —    ?      
+default-template              1col    left    2     0     3     2     3     3     14     —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-diacritics                    1col    left    3     0     3     3     4     0     13     3     0     0     6      -7     
-  ⚠ NO FIELD BADGES on 4 labels
+diacritics                    1col    left    3     0     3     3     4     2     15     3     0     0     6      -9     
+  Field badges: Req=0 Rec=0 Opt=2
   AtoM: apps/qubit/modules/settings/templates/diacriticsSuccess.php
 
-digital-objects               1col    left    1     1     2     1     2     0     9      —   —   —   —    ?      
+digital-objects               1col    left    1     1     2     1     2     2     11     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  Field badges: Req=0 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-dip-upload                    1col    left    2     0     2     2     3     0     9      —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 3 labels
+dip-upload                    1col    left    2     0     2     2     3     1     10     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-email                         1col    left    2     1     8     2     5     0     24     —   —   —   —    ?      
+email                         1col    left    2     1     8     2     5     4     28     —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 5 labels
+  Field badges: Req=0 Rec=0 Opt=4
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-errorLog                      1col    none    7     4     3     5     3     3     34     —   —   —   —    ?      
+errorLog                      1col    none    7     4     3     5     3     6     37     —   —   —   —    ?      
   BTN classes: btn(8), btn-sm(7), btn-white(3), btn-outline-success(2), btn-outline-danger(2), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-finding-aid                   1col    left    2     0     6     2     8     0     18     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 8 labels
+finding-aid                   1col    left    2     0     6     2     8     4     22     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=4
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-global                        1col    left    7     1     18    7     18    0     53     8     0     0     16     -37    
+global                        1col    left    7     1     18    7     18    9     62     8     0     0     16     -46    
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 18 labels
+  Field badges: Req=0 Rec=0 Opt=9
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/globalSuccess.php
 
-header-customizations         1col    left    4     0     6     4     4     0     18     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 4 labels
+header-customizations         1col    left    4     0     6     4     4     4     22     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=4
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-identifier                    1col    left    1     1     10    1     10    0     29     2     0     0     4      -25    
+identifier                    1col    left    1     1     10    1     10    5     34     2     0     0     4      -30    
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 10 labels
+  Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/identifierSuccess.php
 
@@ -1744,39 +1769,42 @@ index                         1col    none    0     7     0     8     0     0   
   URLs: {{ route( | {{ $cardRoute }} | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-interface-labels              1col    left    1     1     1     1     1     0     7      —   —   —   —    ?      
+interface-labels              1col    left    1     1     1     1     1     1     8      —   —   —   —    ?      
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-inventory                     1col    left    2     1     1     2     1     0     7      2     0     0     4      -3     
+inventory                     1col    left    2     1     1     2     1     1     8      2     0     0     4      -4     
+  Field badges: Req=0 Rec=0 Opt=1
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/inventorySuccess.php
 
-languages                     1col    left    3     0     1     2     1     0     11     —   —   —   —    ?      
+languages                     1col    left    3     0     1     2     1     1     12     —   —   —   —    ?      
   BTN classes: btn(2), btn-sm(1), btn-outline-danger(1), btn-outline-success(1)
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-markdown                      1col    left    2     0     2     2     3     0     9      2     0     0     4      -5     
-  ⚠ NO FIELD BADGES on 3 labels
+markdown                      1col    left    2     0     2     2     3     1     10     2     0     0     4      -6     
+  Field badges: Req=0 Rec=0 Opt=1
   AtoM: apps/qubit/modules/settings/templates/markdownSuccess.php
 
-oai                           1col    left    1     1     7     1     7     0     19     2     0     0     4      -15    
+oai                           1col    left    1     1     7     1     7     7     26     2     0     0     4      -22    
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 7 labels
+  Field badges: Req=0 Rec=0 Opt=7
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/oaiSuccess.php
 
-permissions                   1col    left    8     0     12    6     14    0     40     18    0     0     24     -16    
+permissions                   1col    left    8     0     12    6     14    8     48     18    0     0     24     -24    
   BTN classes: btn(2), btn-sm(2), btn-white(2)
-  ⚠ NO FIELD BADGES on 14 labels
+  Field badges: Req=0 Rec=0 Opt=8
   AtoM: apps/qubit/modules/settings/templates/permissionsSuccess.php
 
 plugins                       1col    none    1     0     1     1     0     0     3      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-privacy-notification          1col    left    2     0     3     2     4     0     11     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 4 labels
+privacy-notification          1col    left    2     0     3     2     4     2     13     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 section                       1col    left    1     1     3     1     3     0     10     —   —   —   —    ?      
@@ -1785,47 +1813,48 @@ section                       1col    left    1     1     3     1     3     0   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-security                      1col    left    1     1     3     1     3     0     12     2     0     0     4      -8     
+security                      1col    left    1     1     3     1     3     3     15     2     0     0     4      -11    
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=0 Rec=0 Opt=3
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/securitySuccess.php
 
 services                      1col    left    0     0     0     2     0     0     6      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-site-information              1col    left    2     0     3     2     3     0     10     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 3 labels
+site-information              1col    left    2     0     3     2     3     3     13     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=3
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-storage-service               1col    left    2     0     6     2     7     0     17     —   —   —   —    ?      
-  ⚠ NO FIELD BADGES on 7 labels
+storage-service               1col    left    2     0     6     2     7     5     22     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=5
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 system-info                   1col    right   0     0     0     1     0     0     2      —   —   —   —    ?      
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-themes                        1col    detected1     1     64    13    39    1     131    —   —   —   —    ?      
+themes                        1col    detected1     1     64    13    39    38    168    —   —   —   —    ?      
   BTN classes: btn(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 39 labels
+  Field badges: Req=0 Rec=0 Opt=37
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-treeview                      1col    left    1     1     8     1     8     0     21     4     0     0     8      -13    
+treeview                      1col    left    1     1     8     1     8     5     26     4     0     0     8      -18    
   BTN classes: btn(2), btn-outline-success(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 8 labels
+  Field badges: Req=0 Rec=0 Opt=5
   URLs: {{ route(
   AtoM: apps/qubit/modules/settings/templates/treeviewSuccess.php
 
-uploads                       1col    left    2     0     6     2     8     0     18     2     0     0     4      -14    
-  ⚠ NO FIELD BADGES on 8 labels
+uploads                       1col    left    2     0     6     2     8     4     22     2     0     0     4      -18    
+  Field badges: Req=0 Rec=0 Opt=4
   AtoM: apps/qubit/modules/settings/templates/uploadsSuccess.php
 
 visible-elements              1col    left    2     0     1     2     1     0     7      —   —   —   —    ?      
   BTN classes: btn(1), btn-outline-success(1)
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-web-analytics                 1col    left    3     0     2     3     2     0     10     —   —   —   —    ?      
+web-analytics                 1col    left    3     0     2     3     2     2     12     —   —   —   —    ?      
+  Field badges: Req=0 Rec=0 Opt=2
   AtoM: ⚠ NO EQUIVALENT FOUND
 
 
@@ -1838,9 +1867,9 @@ browse                        2col    detected0     2     0     2     0     0   
   URLs: {{ url(
   AtoM: apps/qubit/modules/staticpage/templates/listSuccess.php, apps/qubit/modules/staticpage/templates/indexSuccess.php
 
-edit                          1col    none    2     2     3     2     3     0     12     3     0     0     5      -7     
+edit                          1col    none    2     2     3     2     3     3     15     3     0     0     5      -10    
   BTN classes: btn(2), btn-outline-light(2)
-  ⚠ NO FIELD BADGES on 3 labels
+  Field badges: Req=1 Rec=0 Opt=2
   URLs: {{ route(
   AtoM: apps/qubit/modules/staticpage/templates/editSuccess.php
 
@@ -1863,14 +1892,14 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/physicalobject/templates/deleteSuccess.php
 
-edit                          1col    none    3     2     4     2     4     0     15     2     0     0     4      -11    
+edit                          1col    none    2     2     30    9     31    30    112    2     0     0     4      -108   
   BTN classes: btn(1), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 4 labels
+  Field badges: Req=1 Rec=0 Opt=29
   URLs: {{ route(
   AtoM: apps/qubit/modules/physicalobject/templates/editSuccess.php
 
-show                          1col    right   0     4     0     3     0     0     7      0     1     0     3      -4     
-  BTN classes: btn(1), btn-sm(1), btn-outline-success(1)
+show                          1col    none    0     4     0     18    0     3     40     0     1     0     3      -37    
+  BTN classes: btn(1), btn-outline-light(1)
   URLs: {{ route(
   AtoM: apps/qubit/modules/physicalobject/templates/indexSuccess.php
 
@@ -1889,9 +1918,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/term/templates/deleteSuccess.php
 
-edit                          1col    right   11    3     14    6     10    0     51     4     0     0     7      -44    
+edit                          1col    right   11    3     14    6     10    9     60     4     0     0     7      -53    
   BTN classes: btn(8), btn-white(7), btn-outline-light(1)
-  ⚠ NO FIELD BADGES on 10 labels
+  Field badges: Req=1 Rec=0 Opt=8
   URLs: {{ route(
   AtoM: apps/qubit/modules/term/templates/editSuccess.php
 
@@ -1999,9 +2028,9 @@ delete                        1col    none    1     1     0     1     0     0   
   URLs: {{ route(
   AtoM: apps/qubit/modules/user/templates/deleteSuccess.php
 
-edit                          1col    none    8     2     19    7     19    0     55     0     0     0     0      -55    
+edit                          1col    none    8     2     19    7     19    17    72     0     0     0     0      -72    
   BTN classes: btn(1), btn-white(1)
-  ⚠ NO FIELD BADGES on 19 labels
+  Field badges: Req=3 Rec=1 Opt=13
   URLs: {{ route(
   AtoM: apps/qubit/modules/user/templates/editSuccess.php
 
@@ -2020,9 +2049,9 @@ admin                         1col    none    1     4     0     1     0     6   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-create-workflow               1col    none    1     2     12    1     12    0     31     —   —   —   —    ?      
+create-workflow               1col    none    1     2     12    1     12    7     38     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 12 labels
+  Field badges: Req=4 Rec=0 Opt=3
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -2031,9 +2060,9 @@ dashboard                     1col    none    1     10    0     8     0     13  
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-edit-workflow                 1col    none    4     1     22    4     22    6     66     —   —   —   —    ?      
+edit-workflow                 1col    none    4     1     22    4     22    20    80     —   —   —   —    ?      
   BTN classes: btn(5), btn-white(1), btn-outline-success(3), btn-sm(2), btn-outline-danger(1)
-  Field badges: Req=0 Rec=0 Opt=1
+  Field badges: Req=7 Rec=0 Opt=8
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -2042,9 +2071,9 @@ gate-admin                    1col    none    1     3     0     1     0     5   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-gate-edit                     1col    none    1     2     12    1     12    0     31     —   —   —   —    ?      
+gate-edit                     1col    none    1     2     12    1     12    11    42     —   —   —   —    ?      
   BTN classes: btn(3), btn-white(2), btn-outline-success(1)
-  ⚠ NO FIELD BADGES on 12 labels
+  Field badges: Req=4 Rec=0 Opt=7
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -2078,8 +2107,9 @@ queues                        1col    none    0     2     0     5     0     1   
   URLs: {{ route(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
-view-task                     1col    detected4     5     1     10    1     17    53     —   —   —   —    ?      
+view-task                     1col    detected4     5     1     10    1     18    54     —   —   —   —    ?      
   BTN classes: btn(6), btn-white(3), btn-outline-success(2), btn-outline-danger(1)
+  Field badges: Req=1 Rec=0 Opt=0
   URLs: {{ route( | {{ url(
   AtoM: ⚠ NO EQUIVALENT FOUND
 
@@ -2089,137 +2119,80 @@ view-task                     1col    detected4     5     1     10    1     17  
 
 Package                            View                          Labels  Req  Rec  Opt  Status         
 ───────────────────────────────────────────────────────────────────────────────────────────────────────
-ahg-accession-manage               edit                          32      0    0    0    MISSING        
-ahg-acl                            approvers                     4       0    0    0    MISSING        
-ahg-acl                            clearances                    8       0    0    0    MISSING        
-ahg-acl                            edit-group                    4       0    0    0    MISSING        
-ahg-actor-manage                   browse                        6       0    0    0    MISSING        
-ahg-actor-manage                   edit                          27      0    0    0    MISSING        
+ahg-accession-manage               edit                          32      1    2    26   PARTIAL        
+ahg-acl                            approvers                     4       3    0    0    PARTIAL        
+ahg-actor-manage                   edit                          27      1    8    14   PARTIAL        
 ahg-actor-manage                   _contact-area                 48      0    0    46   PARTIAL        
-ahg-ai-services                    config                        47      0    0    0    MISSING        
-ahg-audit-trail                    browse                        5       0    0    0    MISSING        
+ahg-ai-services                    config                        47      4    0    39   PARTIAL        
 ahg-audit-trail                    settings                      9       0    0    0    MISSING        
 ahg-backup                         index                         4       1    0    0    PARTIAL        
-ahg-backup                         restore                       5       0    0    0    MISSING        
-ahg-backup                         settings                      4       0    0    0    MISSING        
-ahg-cart                           settings                      10      0    0    0    MISSING        
-ahg-cart                           checkout                      13      0    0    0    MISSING        
-ahg-dam                            edit                          59      0    0    0    MISSING        
-ahg-data-migration                 batch-export                  3       0    0    0    MISSING        
-ahg-data-migration                 upload                        3       0    0    0    MISSING        
-ahg-dedupe                         browse                        3       0    0    0    MISSING        
-ahg-display                        _advanced-search              27      0    0    0    MISSING        
-ahg-display                        browse-settings               7       0    0    0    MISSING        
-ahg-display                        browse                        3       0    0    0    MISSING        
-ahg-display                        bulk-set-type                 3       0    0    0    MISSING        
-ahg-doi-manage                     config                        8       0    0    0    MISSING        
-ahg-dropdown-manage                edit                          5       0    0    0    MISSING        
-ahg-dropdown-manage                index                         5       0    0    0    MISSING        
-ahg-favorites                      browse                        5       0    0    0    MISSING        
-ahg-feedback                       edit                          11      0    0    0    MISSING        
-ahg-feedback                       general                       8       0    0    0    MISSING        
-ahg-function-manage                edit                          19      0    0    0    MISSING        
-ahg-gallery                        artist-create                 25      0    0    0    MISSING        
-ahg-gallery                        edit                          67      13   18   1    PARTIAL        
-ahg-iiif-collection                add-items                     5       0    0    0    MISSING        
-ahg-iiif-collection                create                        6       0    0    0    MISSING        
-ahg-iiif-collection                edit                          6       0    0    0    MISSING        
-ahg-information-object-manage      create                        38      0    0    0    MISSING        
-ahg-information-object-manage      edit                          44      0    0    0    MISSING        
-ahg-information-object-manage      select                        9       0    0    0    MISSING        
-ahg-information-object-manage      skos-import                   3       0    0    0    MISSING        
-ahg-information-object-manage      index                         46      0    0    0    MISSING        
-ahg-information-object-manage      assessment                    3       0    0    0    MISSING        
-ahg-information-object-manage      embargo                       10      0    0    0    MISSING        
+ahg-backup                         restore                       5       0    0    1    PARTIAL        
+ahg-cart                           settings                      10      0    0    8    PARTIAL        
+ahg-dam                            edit                          59      1    0    56   PARTIAL        
+ahg-display                        _advanced-search              27      1    2    19   PARTIAL        
+ahg-display                        browse-settings               7       0    0    4    PARTIAL        
+ahg-display                        browse                        3       0    0    2    PARTIAL        
+ahg-display                        bulk-set-type                 3       1    0    1    PARTIAL        
+ahg-dropdown-manage                edit                          5       2    0    2    PARTIAL        
+ahg-function-manage                edit                          19      1    4    11   PARTIAL        
+ahg-gallery                        artist-create                 25      1    0    23   PARTIAL        
+ahg-gallery                        edit                          67      13   18   18   PARTIAL        
+ahg-iiif-collection                add-items                     5       0    0    4    PARTIAL        
+ahg-iiif-collection                create                        6       1    0    4    PARTIAL        
+ahg-iiif-collection                edit                          6       1    0    4    PARTIAL        
+ahg-information-object-manage      create                        38      1    12   20   PARTIAL        
+ahg-information-object-manage      edit                          44      1    13   29   PARTIAL        
+ahg-information-object-manage      select                        9       0    0    6    PARTIAL        
+ahg-information-object-manage      index                         46      0    0    42   PARTIAL        
+ahg-information-object-manage      embargo                       10      2    0    5    PARTIAL        
 ahg-information-object-manage      extended                      5       0    0    4    PARTIAL        
-ahg-library                        edit                          54      0    0    0    MISSING        
-ahg-loan                           create                        20      0    0    0    MISSING        
-ahg-loan                           edit                          20      0    0    0    MISSING        
-ahg-loan                           index                         5       0    0    0    MISSING        
-ahg-loan                           show                          5       0    0    0    MISSING        
-ahg-media-processing               watermark-settings            11      0    0    0    MISSING        
-ahg-menu-manage                    edit                          5       0    0    0    MISSING        
-ahg-museum                         edit                          61      13   18   1    PARTIAL        
-ahg-pdf-tools                      merge                         10      0    0    0    MISSING        
-ahg-portable-export                index                         17      0    0    0    MISSING        
-ahg-reports                        _filters                      5       0    0    0    MISSING        
-ahg-reports                        report-activity               5       0    0    0    MISSING        
-ahg-reports                        report-spatial                8       0    0    0    MISSING        
-ahg-repository-manage              browse                        3       0    0    0    MISSING        
-ahg-repository-manage              edit                          46      0    0    0    MISSING        
-ahg-request-publish                browse                        3       0    0    0    MISSING        
-ahg-request-publish                edit                          9       0    0    0    MISSING        
-ahg-research                       admin-types                   8       0    0    0    MISSING        
-ahg-research                       annotations                   13      0    0    0    MISSING        
-ahg-research                       api-keys                      6       0    0    0    MISSING        
-ahg-research                       bibliographies                3       0    0    0    MISSING        
-ahg-research                       book                          6       0    0    0    MISSING        
-ahg-research                       document-templates            8       0    0    0    MISSING        
-ahg-research                       edit-room                     15      0    0    0    MISSING        
-ahg-research                       entity-resolution             11      0    0    0    MISSING        
-ahg-research                       equipment                     5       0    0    0    MISSING        
-ahg-research                       journal-entry                 6       0    0    0    MISSING        
-ahg-research                       journal                       7       0    0    0    MISSING        
-ahg-research                       odrl-policies                 8       0    0    0    MISSING        
-ahg-research                       profile                       15      0    0    0    MISSING        
-ahg-research                       projects                      6       0    0    0    MISSING        
-ahg-research                       public-register               18      0    0    0    MISSING        
-ahg-research                       register                      15      0    0    0    MISSING        
-ahg-research                       reports                       4       0    0    0    MISSING        
-ahg-research                       reproductions                 4       0    0    0    MISSING        
-ahg-research                       validation-queue              4       0    0    0    MISSING        
-ahg-research                       view-bibliography             11      0    0    0    MISSING        
-ahg-research                       view-collection               4       0    0    0    MISSING        
-ahg-research                       view-report                   5       0    0    0    MISSING        
-ahg-research                       walk-in                       11      0    0    0    MISSING        
-ahg-research                       workspaces                    3       0    0    0    MISSING        
-ahg-researcher-manage              import-exchange               3       0    0    0    MISSING        
-ahg-ric                            logs                          5       0    0    0    MISSING        
-ahg-search                         advanced                      8       0    0    0    MISSING        
-ahg-search                         description-updates           11      0    0    0    MISSING        
-ahg-search                         global-replace                4       0    0    0    MISSING        
-ahg-settings                       ahg-section                   7       0    0    0    MISSING        
-ahg-settings                       clipboard                     13      0    0    0    MISSING        
-ahg-settings                       cron-jobs                     5       0    0    0    MISSING        
-ahg-settings                       csv-validator                 4       0    0    0    MISSING        
-ahg-settings                       default-template              3       0    0    0    MISSING        
-ahg-settings                       diacritics                    4       0    0    0    MISSING        
-ahg-settings                       dip-upload                    3       0    0    0    MISSING        
-ahg-settings                       email                         5       0    0    0    MISSING        
-ahg-settings                       errorLog                      3       0    0    0    MISSING        
-ahg-settings                       finding-aid                   8       0    0    0    MISSING        
-ahg-settings                       global                        18      0    0    0    MISSING        
-ahg-settings                       header-customizations         4       0    0    0    MISSING        
-ahg-settings                       identifier                    10      0    0    0    MISSING        
-ahg-settings                       markdown                      3       0    0    0    MISSING        
-ahg-settings                       oai                           7       0    0    0    MISSING        
-ahg-settings                       permissions                   14      0    0    0    MISSING        
-ahg-settings                       privacy-notification          4       0    0    0    MISSING        
+ahg-library                        edit                          54      0    1    51   PARTIAL        
+ahg-loan                           index                         5       0    1    3    PARTIAL        
+ahg-media-processing               watermark-settings            11      2    0    4    PARTIAL        
+ahg-menu-manage                    edit                          5       0    0    4    PARTIAL        
+ahg-museum                         edit                          61      13   18   21   PARTIAL        
+ahg-pdf-tools                      merge                         10      1    0    6    PARTIAL        
+ahg-portable-export                index                         17      0    0    9    PARTIAL        
+ahg-reports                        report-spatial                8       0    0    6    PARTIAL        
+ahg-repository-manage              edit                          46      1    6    37   PARTIAL        
+ahg-research                       api-keys                      6       1    0    2    PARTIAL        
+ahg-research                       book                          6       4    0    1    PARTIAL        
+ahg-research                       edit-room                     15      1    0    13   PARTIAL        
+ahg-research                       walk-in                       11      3    0    7    PARTIAL        
+ahg-search                         advanced                      8       0    1    6    PARTIAL        
+ahg-search                         description-updates           11      0    0    6    PARTIAL        
+ahg-search                         global-replace                4       2    0    1    PARTIAL        
+ahg-settings                       ahg-section                   7       0    0    6    PARTIAL        
+ahg-settings                       clipboard                     13      0    0    7    PARTIAL        
+ahg-settings                       cron-jobs                     5       2    0    2    PARTIAL        
+ahg-settings                       csv-validator                 4       0    0    1    PARTIAL        
+ahg-settings                       diacritics                    4       0    0    2    PARTIAL        
+ahg-settings                       dip-upload                    3       0    0    1    PARTIAL        
+ahg-settings                       email                         5       0    0    4    PARTIAL        
+ahg-settings                       finding-aid                   8       0    0    4    PARTIAL        
+ahg-settings                       global                        18      0    0    9    PARTIAL        
+ahg-settings                       identifier                    10      0    0    5    PARTIAL        
+ahg-settings                       markdown                      3       0    0    1    PARTIAL        
+ahg-settings                       permissions                   14      0    0    8    PARTIAL        
+ahg-settings                       privacy-notification          4       0    0    2    PARTIAL        
 ahg-settings                       section                       3       0    0    0    MISSING        
-ahg-settings                       security                      3       0    0    0    MISSING        
-ahg-settings                       site-information              3       0    0    0    MISSING        
-ahg-settings                       storage-service               7       0    0    0    MISSING        
-ahg-settings                       themes                        39      0    0    0    MISSING        
-ahg-settings                       treeview                      8       0    0    0    MISSING        
-ahg-settings                       uploads                       8       0    0    0    MISSING        
-ahg-static-page                    edit                          3       0    0    0    MISSING        
-ahg-storage-manage                 edit                          4       0    0    0    MISSING        
+ahg-settings                       storage-service               7       0    0    5    PARTIAL        
+ahg-settings                       themes                        39      0    0    37   PARTIAL        
+ahg-settings                       treeview                      8       0    0    5    PARTIAL        
+ahg-settings                       uploads                       8       0    0    4    PARTIAL        
+ahg-storage-manage                 edit                          31      1    0    29   PARTIAL        
 ahg-term-taxonomy                  browse                        3       0    0    0    MISSING        
-ahg-term-taxonomy                  edit                          10      0    0    0    MISSING        
+ahg-term-taxonomy                  edit                          10      1    0    8    PARTIAL        
 ahg-term-taxonomy                  show                          3       0    0    0    MISSING        
-ahg-user-manage                    edit                          19      0    0    0    MISSING        
-ahg-workflow                       create-workflow               12      0    0    0    MISSING        
-ahg-workflow                       edit-workflow                 22      0    0    1    PARTIAL        
-ahg-workflow                       gate-edit                     12      0    0    0    MISSING        
+ahg-user-manage                    edit                          19      3    1    13   PARTIAL        
+ahg-workflow                       create-workflow               12      4    0    3    PARTIAL        
+ahg-workflow                       edit-workflow                 22      7    0    8    PARTIAL        
+ahg-workflow                       gate-edit                     12      4    0    7    PARTIAL        
 
 
 ## BUTTON CLASS AUDIT (non-theme classes)
 
-Package                            View                          Bad Class           Count 
-───────────────────────────────────────────────────────────────────────────────────────────
-ahg-help                           index                         btn-light           1     
-ahg-library                        edit                          btn-light           2     
-ahg-research                       view-booking                  btn-dark            1     
+All button classes use atom-btn-* theme. ✓
 
 
 # END OF AUDIT

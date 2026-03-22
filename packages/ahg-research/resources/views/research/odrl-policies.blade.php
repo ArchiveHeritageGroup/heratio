@@ -24,7 +24,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Target Type</label>
+                <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_target_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Policy Type</label>
+                <label class="form-label form-label-sm mb-0">Policy Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_policy_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     <option value="permission" {{ request('filter_policy_type') === 'permission' ? 'selected' : '' }}>Permission</option>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Action Type</label>
+                <label class="form-label form-label-sm mb-0">Action Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_action_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['use', 'reproduce', 'distribute', 'modify', 'archive', 'display'] as $at)
@@ -145,7 +145,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Target Type *</label>
+            <label class="form-label">Target Type * <span class="badge bg-danger ms-1">Required</span></label>
             <select name="target_type" class="form-select" required>
               <option value="">Select...</option>
               <option value="collection">Collection</option>
@@ -156,11 +156,11 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Target ID *</label>
+            <label class="form-label">Target ID * <span class="badge bg-danger ms-1">Required</span></label>
             <input type="number" name="target_id" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Policy Type *</label>
+            <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="policy_type" class="form-select">
               <option value="permission">Permission</option>
               <option value="prohibition">Prohibition</option>
@@ -168,7 +168,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Action Type *</label>
+            <label class="form-label">Action Type * <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="action_type" class="form-select">
               <option value="use">Use</option>
               <option value="reproduce">Reproduce</option>
@@ -179,7 +179,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Constraints (JSON, optional)</label>
+            <label class="form-label">Constraints (JSON, optional) <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="constraints_json" class="form-control" rows="3" placeholder='{"date_from": "2026-01-01", "max_uses": 10}'></textarea>
             <small class="text-muted">Keys: researcher_ids (array), date_from, date_to, max_uses</small>
           </div>

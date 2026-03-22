@@ -118,7 +118,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="approver_user_id" class="form-label">User</label>
+              <label for="approver_user_id" class="form-label">User <span class="badge bg-danger ms-1">Required</span></label>
               <select name="user_id" id="approver_user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($availableUsers as $user)
@@ -128,7 +128,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="min_classification_level" class="form-label">Min Classification Level</label>
+              <label for="min_classification_level" class="form-label">Min Classification Level <span class="badge bg-danger ms-1">Required</span></label>
               <select name="min_classification_level" id="min_classification_level" class="form-select" required>
                 @foreach($classifications as $cls)
                   <option value="{{ $cls->level }}">{{ $cls->name }} (Level {{ $cls->level }})</option>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="max_classification_level" class="form-label">Max Classification Level</label>
+              <label for="max_classification_level" class="form-label">Max Classification Level <span class="badge bg-danger ms-1">Required</span></label>
               <select name="max_classification_level" id="max_classification_level" class="form-select" required>
                 @foreach($classifications as $cls)
                   <option value="{{ $cls->level }}" @if($loop->last) selected @endif>{{ $cls->name }} (Level {{ $cls->level }})</option>

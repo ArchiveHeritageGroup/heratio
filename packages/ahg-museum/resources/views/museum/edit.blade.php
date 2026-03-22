@@ -1161,7 +1161,7 @@
 
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Storage container</label>
+                <label class="form-label">Storage container <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="item_physical_object_id" class="form-select">
                   <option value="">-- Select container --</option>
                   @foreach($physicalObjects ?? [] as $poId => $poName)
@@ -1171,7 +1171,7 @@
                 <small class="form-text text-muted">Link to a physical storage container</small>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Item barcode</label>
+                <label class="form-label">Item barcode <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_barcode" class="form-control" value="{{ old('item_barcode', $itemLocation['barcode'] ?? '') }}">
               </div>
             </div>
@@ -1179,38 +1179,38 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
             <div class="row mb-3">
               <div class="col-md-2">
-                <label class="form-label">Box</label>
+                <label class="form-label">Box <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_box_number" class="form-control" value="{{ old('item_box_number', $itemLocation['box_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Folder</label>
+                <label class="form-label">Folder <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_folder_number" class="form-control" value="{{ old('item_folder_number', $itemLocation['folder_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Shelf</label>
+                <label class="form-label">Shelf <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_shelf" class="form-control" value="{{ old('item_shelf', $itemLocation['shelf'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Row</label>
+                <label class="form-label">Row <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_row" class="form-control" value="{{ old('item_row', $itemLocation['row'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Position</label>
+                <label class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_position" class="form-control" value="{{ old('item_position', $itemLocation['position'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Item #</label>
+                <label class="form-label">Item # <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_item_number" class="form-control" value="{{ old('item_item_number', $itemLocation['item_number'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Extent value</label>
+                <label class="form-label">Extent value <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ old('item_extent_value', $itemLocation['extent_value'] ?? '') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Extent unit</label>
+                <label class="form-label">Extent unit <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="item_extent_unit" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
@@ -1223,7 +1223,7 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Condition</label>
+                <label class="form-label">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="item_condition_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
@@ -1232,7 +1232,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Access status</label>
+                <label class="form-label">Access status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="item_access_status" class="form-select">
                   @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
                     <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
@@ -1240,14 +1240,14 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Condition notes</label>
+                <label class="form-label">Condition notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="item_condition_notes" class="form-control" value="{{ old('item_condition_notes', $itemLocation['condition_notes'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-12">
-                <label class="form-label">Location notes</label>
+                <label class="form-label">Location notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="item_location_notes" class="form-control" rows="2">{{ old('item_location_notes', $itemLocation['notes'] ?? '') }}</textarea>
               </div>
             </div>
@@ -1326,12 +1326,12 @@
 
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label for="new_watermark_name" class="form-label">Watermark Name</label>
+                    <label for="new_watermark_name" class="form-label">Watermark Name <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="text" class="form-control" id="new_watermark_name"
                            name="new_watermark_name" placeholder="e.g., Company Logo">
                   </div>
                   <div class="col-md-6">
-                    <label for="new_watermark_file" class="form-label">Watermark Image</label>
+                    <label for="new_watermark_file" class="form-label">Watermark Image <span class="badge bg-secondary ms-1">Optional</span></label>
                     <input type="file" class="form-control" id="new_watermark_file"
                            name="new_watermark_file" accept="image/png,image/gif">
                     <div class="form-text">PNG or GIF with transparency recommended</div>
@@ -1340,7 +1340,7 @@
 
                 <div class="row g-3 mt-2">
                   <div class="col-md-6">
-                    <label for="new_watermark_position" class="form-label">Position</label>
+                    <label for="new_watermark_position" class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
                     @php $wmPosition = old('new_watermark_position', $watermarkSetting->position ?? 'center'); @endphp
                     <select name="new_watermark_position" id="new_watermark_position" class="form-select">
                       @foreach(['center' => 'Center', 'top left' => 'Top Left', 'top center' => 'Top Center', 'top right' => 'Top Right', 'left center' => 'Left Center', 'right center' => 'Right Center', 'bottom left' => 'Bottom Left', 'bottom center' => 'Bottom Center', 'bottom right' => 'Bottom Right', 'repeat' => 'Repeat/Tile'] as $val => $label)
@@ -1401,13 +1401,13 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Source language</label>
+                  <label class="form-label fw-bold">Source language <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div>{{ $sourceCulture ?? 'English' }}</div>
                 </div>
 
                 @if(!$isNew && isset($museum->updated_at) && $museum->updated_at)
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Last updated</label>
+                  <label class="form-label fw-bold">Last updated <span class="badge bg-secondary ms-1">Optional</span></label>
                   <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('F j, Y, g:i a') }}</div>
                 </div>
                 @endif
@@ -1415,7 +1415,7 @@
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="displayStandard" class="form-label fw-bold">Display standard</label>
+                  <label for="displayStandard" class="form-label fw-bold">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="displayStandard" id="displayStandard" class="form-select">
                     @foreach($displayStandards ?? [] as $dsId => $dsName)
                       <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>

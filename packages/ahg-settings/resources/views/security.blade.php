@@ -15,19 +15,19 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">Security settings</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Limit admin IP addresses</label>
+            <label class="form-label">Limit admin IP addresses <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="limit_admin_ip" class="form-control" value="{{ e($settings['limit_admin_ip']) }}">
             <small class="text-muted">Comma-separated list of IPs allowed to access admin pages. Leave blank to allow all.</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Require SSL for admin</label>
+            <label class="form-label">Require SSL for admin <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="require_ssl_admin" class="form-select">
               <option value="0" {{ $settings['require_ssl_admin'] == '0' ? 'selected' : '' }}>No</option>
               <option value="1" {{ $settings['require_ssl_admin'] == '1' ? 'selected' : '' }}>Yes</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Require strong passwords</label>
+            <label class="form-label">Require strong passwords <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="require_strong_passwords" class="form-select">
               <option value="0" {{ $settings['require_strong_passwords'] == '0' ? 'selected' : '' }}>No</option>
               <option value="1" {{ $settings['require_strong_passwords'] == '1' ? 'selected' : '' }}>Yes</option>

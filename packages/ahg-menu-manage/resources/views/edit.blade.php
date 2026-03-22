@@ -55,7 +55,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
+          <label for="name" class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="name" id="name" class="form-control"
                  value="{{ old('name', $menu->name ?? '') }}"
                  @if($menu && $menu->isProtected) readonly @endif>
@@ -63,14 +63,14 @@
         </div>
 
         <div class="mb-3">
-          <label for="path" class="form-label">Path</label>
+          <label for="path" class="form-label">Path <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="path" id="path" class="form-control"
                  value="{{ old('path', $menu->path ?? '') }}">
           <div class="form-text">The URL path for this menu item (e.g. /informationobject/browse).</div>
         </div>
 
         <div class="mb-3">
-          <label for="parent_id" class="form-label">Parent</label>
+          <label for="parent_id" class="form-label">Parent <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="parent_id" id="parent_id" class="form-select">
             @foreach($parentChoices as $choiceId => $choiceLabel)
               <option value="{{ $choiceId }}"
@@ -83,7 +83,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
+          <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea name="description" id="description" class="form-control" rows="4">{{ old('description', $menu->description ?? '') }}</textarea>
           <div class="form-text">An optional description for this menu item.</div>
         </div>

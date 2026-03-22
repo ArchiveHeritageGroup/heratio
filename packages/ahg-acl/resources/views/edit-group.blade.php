@@ -79,7 +79,7 @@
           <form action="{{ route('acl.add-member', ['groupId' => $group->id]) }}" method="POST" class="row g-2 align-items-end">
             @csrf
             <div class="col">
-              <label for="user_id" class="form-label form-label-sm">Add Member</label>
+              <label for="user_id" class="form-label form-label-sm">Add Member <span class="badge bg-danger ms-1">Required</span></label>
               <select name="user_id" id="user_id" class="form-select form-select-sm" required>
                 <option value="">-- Select User --</option>
                 @foreach($allUsers as $user)
@@ -151,15 +151,15 @@
             @csrf
             <input type="hidden" name="_action" value="add_permission">
             <div class="col">
-              <label for="perm_action" class="form-label form-label-sm">Action</label>
+              <label for="perm_action" class="form-label form-label-sm">Action <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="action" id="perm_action" class="form-control form-control-sm" placeholder="e.g. read, create, update, delete" required>
             </div>
             <div class="col-3">
-              <label for="perm_object_id" class="form-label form-label-sm">Object ID</label>
+              <label for="perm_object_id" class="form-label form-label-sm">Object ID <span class="badge bg-danger ms-1">Required</span></label>
               <input type="number" name="object_id" id="perm_object_id" class="form-control form-control-sm" placeholder="All">
             </div>
             <div class="col-3">
-              <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny</label>
+              <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny <span class="badge bg-danger ms-1">Required</span></label>
               <select name="grant_deny" id="perm_grant_deny" class="form-select form-select-sm" required>
                 <option value="1">Grant</option>
                 <option value="0">Deny</option>

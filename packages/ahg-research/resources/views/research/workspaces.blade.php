@@ -83,15 +83,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name *</label>
+                        <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
                         <input type="text" name="name" class="form-control" required placeholder="e.g., Thesis Research Group">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Visibility</label>
+                        <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
                         <select name="visibility" class="form-select">
                             <option value="private">Private</option>
                             <option value="members">Members Only</option>

@@ -30,7 +30,7 @@
 
         {{-- Scope --}}
         <div class="mb-3">
-          <label class="form-label fw-bold">Scope</label>
+          <label class="form-label fw-bold">Scope <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="scope" id="scope_all" value="all" checked>
             <label class="form-check-label" for="scope_all">All — export the entire archive</label>
@@ -50,7 +50,7 @@
 
         {{-- Repository dropdown (shown conditionally) --}}
         <div class="mb-3" id="repository-select" style="display: none;">
-          <label for="repository_id" class="form-label fw-bold">Repository</label>
+          <label for="repository_id" class="form-label fw-bold">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="repository_id" id="repository_id" class="form-select">
             <option value="">-- Select a repository --</option>
             @foreach($repositories as $repo)
@@ -64,7 +64,7 @@
 
         {{-- Mode --}}
         <div class="mb-3">
-          <label class="form-label fw-bold">Mode</label>
+          <label class="form-label fw-bold">Mode <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="mode" id="mode_read_only" value="read_only" checked>
             <label class="form-check-label" for="mode_read_only">Read Only — browsable HTML package for reference use</label>
@@ -80,7 +80,7 @@
 
         {{-- Culture/Language --}}
         <div class="mb-3">
-          <label for="culture" class="form-label fw-bold">Culture / Language</label>
+          <label for="culture" class="form-label fw-bold">Culture / Language <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="culture" id="culture" class="form-select">
             @foreach($languages as $lang)
               <option value="{{ $lang->code }}" {{ $lang->code === app()->getLocale() ? 'selected' : '' }}>
@@ -92,7 +92,7 @@
 
         {{-- Include options --}}
         <div class="mb-3">
-          <label class="form-label fw-bold">Include</label>
+          <label class="form-label fw-bold">Include <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="include_digital_objects" id="include_digital_objects" value="1">
             <label class="form-check-label" for="include_digital_objects">Include digital objects (master files)</label>
@@ -109,23 +109,23 @@
 
         {{-- Branding --}}
         <div class="mb-3">
-          <label class="form-label fw-bold">Branding</label>
+          <label class="form-label fw-bold">Branding <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="mb-2">
-            <label for="title" class="form-label">Title</label>
+            <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" name="title" id="title" placeholder="Export title" maxlength="255">
             @error('title')
               <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
           </div>
           <div class="mb-2">
-            <label for="subtitle" class="form-label">Subtitle</label>
+            <label for="subtitle" class="form-label">Subtitle <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" name="subtitle" id="subtitle" placeholder="Export subtitle" maxlength="255">
             @error('subtitle')
               <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
           </div>
           <div class="mb-2">
-            <label for="footer_text" class="form-label">Footer text</label>
+            <label for="footer_text" class="form-label">Footer text <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control" name="footer_text" id="footer_text" placeholder="Footer text for exported pages" maxlength="500">
             @error('footer_text')
               <div class="text-danger small mt-1">{{ $message }}</div>

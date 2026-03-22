@@ -123,7 +123,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">User <span class="text-danger">*</span></label>
+              <label class="form-label">User <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($users as $user)
@@ -132,7 +132,7 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Clearance Level <span class="text-danger">*</span></label>
+              <label class="form-label">Clearance Level <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="classification_id" class="form-select" required>
                 <option value="">-- Select Level --</option>
                 @foreach($classifications as $cls)
@@ -143,30 +143,30 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Granted Date</label>
+              <label class="form-label">Granted Date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="date" name="granted_date" class="form-control" value="{{ date('Y-m-d') }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Expiry Date</label>
+              <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="date" name="expiry_date" class="form-control">
             </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Reference</label>
+              <label class="form-label">Vetting Reference <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="vetting_reference" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Date</label>
+              <label class="form-label">Vetting Date <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="date" name="vetting_date" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Authority</label>
+              <label class="form-label">Vetting Authority <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="vetting_authority" class="form-control">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Notes</label>
+            <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
         </div>

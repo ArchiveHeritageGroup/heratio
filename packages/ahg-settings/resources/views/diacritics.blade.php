@@ -27,7 +27,7 @@
           <div id="diacritics-collapse" class="accordion-collapse collapse" aria-labelledby="diacritics-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Diacritics</label>
+                <label class="form-label">Diacritics <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[diacritics]" id="diacritics_disabled" value="0" {{ $settings['diacritics'] != '1' ? 'checked' : '' }}>
@@ -59,7 +59,7 @@ mappings:
             </div>
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Mappings YAML</label>
+                <label class="form-label">Mappings YAML <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="file" name="mappings" class="form-control" accept=".yml,.yaml">
                 <small class="text-muted">Upload a YAML file with diacritics mappings</small>
               </div>

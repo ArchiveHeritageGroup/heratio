@@ -91,18 +91,18 @@
     <div class="modal-header"><h5 class="modal-title">Generate New API Key</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
-            <label class="form-label">Key Name <span class="text-danger">*</span></label>
+            <label class="form-label">Key Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" class="form-control" name="name" required placeholder="e.g. My Research App">
             <div class="form-text">A descriptive name to identify this key.</div>
         </div>
         <div class="mb-3">
-            <label class="form-label">Permissions</label>
+            <label class="form-label">Permissions <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">Read (collections, annotations, bibliographies)</label></div>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">Write (create/update collections, annotations)</label></div>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">Search (query the catalogue)</label></div>
         </div>
         <div class="mb-3">
-            <label class="form-label">Expiry Date</label>
+            <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" class="form-control" name="expires_at">
             <div class="form-text">Leave empty for no expiration.</div>
         </div>

@@ -8,7 +8,7 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-6">
-                <label class="form-label">Select Reading Room</label>
+                <label class="form-label">Select Reading Room <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="room_id" class="form-select" onchange="this.form.submit()">
                     <option value="">-- Select a room --</option>
                     @foreach($rooms as $r)
@@ -65,12 +65,12 @@
             <form method="POST">@csrf<input type="hidden" name="form_action" value="book"><input type="hidden" name="equipment_id" value="{{ $item->id }}"><input type="hidden" name="room_id" value="{{ $roomId }}">
             <div class="modal-header"><h5 class="modal-title">Book: {{ e($item->name ?? 'Equipment') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <div class="mb-3"><label class="form-label">Booking Date <span class="text-danger">*</span></label><input type="date" class="form-control" name="booking_date" value="{{ date('Y-m-d') }}" required></div>
+                <div class="mb-3"><label class="form-label">Booking Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="date" class="form-control" name="booking_date" value="{{ date('Y-m-d') }}" required></div>
                 <div class="row">
-                    <div class="col-md-6"><div class="mb-3"><label class="form-label">From <span class="text-danger">*</span></label><input type="time" class="form-control" name="time_from" value="09:00" required></div></div>
-                    <div class="col-md-6"><div class="mb-3"><label class="form-label">To <span class="text-danger">*</span></label><input type="time" class="form-control" name="time_to" value="10:00" required></div></div>
+                    <div class="col-md-6"><div class="mb-3"><label class="form-label">From <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="time" class="form-control" name="time_from" value="09:00" required></div></div>
+                    <div class="col-md-6"><div class="mb-3"><label class="form-label">To <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="time" class="form-control" name="time_to" value="10:00" required></div></div>
                 </div>
-                <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2" placeholder="Purpose or special requirements"></textarea></div>
+                <div class="mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" rows="2" placeholder="Purpose or special requirements"></textarea></div>
             </div>
             <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-calendar-check me-1"></i>Book Equipment</button></div>
             </form>

@@ -10,7 +10,7 @@
       'action' => route('reports.recent'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Entity type</label>
+          <label class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="className" class="form-select form-select-sm">
             <option value="">All types</option>
             <option value="QubitInformationObject"' . (($params['className'] ?? '') === 'QubitInformationObject' ? ' selected' : '') . '>Descriptions</option>

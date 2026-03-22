@@ -60,7 +60,7 @@
           @csrf
 
           <div class="mb-3">
-            <label for="digital_object" class="form-label">Select file to upload</label>
+            <label for="digital_object" class="form-label">Select file to upload <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="file" class="form-control @error('digital_object') is-invalid @enderror"
                    id="digital_object" name="digital_object"
                    accept="image/*,application/pdf,audio/*,video/*,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.txt,.rtf,.csv,.xml,.json">

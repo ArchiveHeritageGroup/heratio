@@ -27,17 +27,17 @@
         <div class="row">
           <div class="col-md-8">
             <div class="mb-3">
-              <label for="name" class="form-label">Workflow Name <span class="text-danger">*</span></label>
+              <label for="name" class="form-label">Workflow Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $workflow->name) }}" required maxlength="255">
             </div>
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $workflow->description) }}</textarea>
             </div>
           </div>
           <div class="col-md-4">
             <div class="mb-3">
-              <label for="scope_type" class="form-label">Scope <span class="text-danger">*</span></label>
+              <label for="scope_type" class="form-label">Scope <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="scope_type" name="scope_type">
                 <option value="global" {{ $workflow->scope_type === 'global' ? 'selected' : '' }}>Global</option>
                 <option value="repository" {{ $workflow->scope_type === 'repository' ? 'selected' : '' }}>Repository</option>
@@ -45,11 +45,11 @@
               </select>
             </div>
             <div class="mb-3">
-              <label for="scope_id" class="form-label">Scope ID</label>
+              <label for="scope_id" class="form-label">Scope ID <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" class="form-control" id="scope_id" name="scope_id" value="{{ old('scope_id', $workflow->scope_id) }}">
             </div>
             <div class="mb-3">
-              <label for="trigger_event" class="form-label">Trigger Event <span class="text-danger">*</span></label>
+              <label for="trigger_event" class="form-label">Trigger Event <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="trigger_event" name="trigger_event">
                 <option value="submit" {{ $workflow->trigger_event === 'submit' ? 'selected' : '' }}>Submit</option>
                 <option value="publish" {{ $workflow->trigger_event === 'publish' ? 'selected' : '' }}>Publish</option>
@@ -59,7 +59,7 @@
               </select>
             </div>
             <div class="mb-3">
-              <label for="applies_to" class="form-label">Applies To <span class="text-danger">*</span></label>
+              <label for="applies_to" class="form-label">Applies To <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select class="form-select" id="applies_to" name="applies_to">
                 <option value="information_object" {{ $workflow->applies_to === 'information_object' ? 'selected' : '' }}>Information Object</option>
                 <option value="actor" {{ $workflow->applies_to === 'actor' ? 'selected' : '' }}>Actor</option>
@@ -73,7 +73,7 @@
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
-              <label for="auto_archive_days" class="form-label">Auto Archive (days)</label>
+              <label for="auto_archive_days" class="form-label">Auto Archive (days) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="number" class="form-control" id="auto_archive_days" name="auto_archive_days" value="{{ old('auto_archive_days', $workflow->auto_archive_days) }}">
             </div>
           </div>
@@ -133,11 +133,11 @@
             @csrf
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="step_name" class="form-label">Step Name <span class="text-danger">*</span></label>
+                <label for="step_name" class="form-label">Step Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="text" class="form-control" id="step_name" name="name" required maxlength="255">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="step_type" class="form-label">Step Type <span class="text-danger">*</span></label>
+                <label for="step_type" class="form-label">Step Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <select class="form-select" id="step_type" name="step_type">
                   <option value="review">Review</option>
                   <option value="approve">Approve</option>
@@ -147,7 +147,7 @@
                 </select>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="action_required" class="form-label">Action Required <span class="text-danger">*</span></label>
+                <label for="action_required" class="form-label">Action Required <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <select class="form-select" id="action_required" name="action_required">
                   <option value="approve_reject">Approve / Reject</option>
                   <option value="acknowledge">Acknowledge</option>
@@ -157,21 +157,21 @@
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="step_description" class="form-label">Description</label>
+                <label for="step_description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea class="form-control" id="step_description" name="description" rows="2"></textarea>
               </div>
               <div class="col-md-3 mb-3">
-                <label for="escalation_days" class="form-label">Escalation Days</label>
+                <label for="escalation_days" class="form-label">Escalation Days <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" class="form-control" id="escalation_days" name="escalation_days">
               </div>
               <div class="col-md-3 mb-3">
-                <label for="step_order" class="form-label">Step Order</label>
+                <label for="step_order" class="form-label">Step Order <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" class="form-control" id="step_order" name="step_order" placeholder="Auto">
               </div>
             </div>
             <div class="row">
               <div class="col-md-12 mb-3">
-                <label for="step_instructions" class="form-label">Instructions</label>
+                <label for="step_instructions" class="form-label">Instructions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea class="form-control" id="step_instructions" name="instructions" rows="2"></textarea>
               </div>
             </div>

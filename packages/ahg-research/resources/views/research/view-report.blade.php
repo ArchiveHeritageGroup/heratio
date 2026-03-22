@@ -80,8 +80,8 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="update_section"><input type="hidden" name="section_id" value="{{ $section->id }}">
     <div class="modal-header"><h5 class="modal-title">Edit Section</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title</label><input type="text" class="form-control" name="title" value="{{ e($section->title ?? '') }}"></div>
-        <div class="mb-3"><label class="form-label">Content</label><textarea class="form-control" name="content" rows="10">{{ e($section->content ?? '') }}</textarea></div>
+        <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="title" value="{{ e($section->title ?? '') }}"></div>
+        <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="content" rows="10">{{ e($section->content ?? '') }}</textarea></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Section</button></div>
     </form>
@@ -102,8 +102,8 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="add_section">
     <div class="modal-header"><h5 class="modal-title">Add Section</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Section Title <span class="text-danger">*</span></label><input type="text" class="form-control" name="title" required></div>
-        <div class="mb-3"><label class="form-label">Section Type</label>
+        <div class="mb-3"><label class="form-label">Section Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title" required></div>
+        <div class="mb-3"><label class="form-label">Section Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="section_type" class="form-select">
                 <option value="text">Text</option>
                 <option value="introduction">Introduction</option>
@@ -124,7 +124,7 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="update_status">
     <div class="modal-header"><h5 class="modal-title">Change Report Status</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Status</label>
+        <div class="mb-3"><label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="status" class="form-select">
                 <option value="draft" {{ ($report->status ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
                 <option value="in_progress" {{ ($report->status ?? '') === 'in_progress' ? 'selected' : '' }}>In Progress</option>

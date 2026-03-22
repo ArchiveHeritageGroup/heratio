@@ -80,7 +80,7 @@
 
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="default_watermark_type" class="form-label">Default Watermark Type</label>
+                <label for="default_watermark_type" class="form-label">Default Watermark Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" id="default_watermark_type" name="default_watermark_type">
                   @foreach($watermarkTypes as $type)
                     <option value="{{ $type->code }}"
@@ -95,7 +95,7 @@
                 <div class="form-text">Watermark type applied when no per-object setting exists</div>
               </div>
               <div class="col-md-6">
-                <label for="watermark_min_size" class="form-label">Minimum Image Size (px)</label>
+                <label for="watermark_min_size" class="form-label">Minimum Image Size (px) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" class="form-control" id="watermark_min_size" name="watermark_min_size"
                   value="{{ $settings['watermark_min_size'] ?? '200' }}" min="50" max="2000">
                 <div class="form-text">Images smaller than this dimension (width or height) will not be watermarked</div>
@@ -104,7 +104,7 @@
 
             @if($customWatermarks->isNotEmpty())
             <div class="mb-3">
-              <label for="default_custom_watermark_id" class="form-label">Default Custom Watermark</label>
+              <label for="default_custom_watermark_id" class="form-label">Default Custom Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="default_custom_watermark_id" name="default_custom_watermark_id">
                 <option value="">-- Use system watermark type --</option>
                 @foreach($customWatermarks as $cw)
@@ -167,20 +167,20 @@
             @csrf
 
             <div class="mb-3">
-              <label for="custom_watermark_name" class="form-label">Name</label>
+              <label for="custom_watermark_name" class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="custom_watermark_name"
                 name="custom_watermark_name" required maxlength="100" placeholder="e.g. Company Logo">
             </div>
 
             <div class="mb-3">
-              <label for="custom_watermark_file" class="form-label">Watermark Image</label>
+              <label for="custom_watermark_file" class="form-label">Watermark Image <span class="badge bg-danger ms-1">Required</span></label>
               <input type="file" class="form-control" id="custom_watermark_file"
                 name="custom_watermark_file" required accept="image/png,image/jpeg,image/gif">
               <div class="form-text">PNG, JPEG, or GIF. Max 5 MB. Transparent PNG recommended.</div>
             </div>
 
             <div class="mb-3">
-              <label for="custom_watermark_position" class="form-label">Position</label>
+              <label for="custom_watermark_position" class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" id="custom_watermark_position" name="custom_watermark_position">
                 @foreach($positions as $value => $label)
                   <option value="{{ strtolower(str_replace(['North', 'South', 'East', 'West'], ['top', 'bottom', 'right', 'left'], $value)) }}"

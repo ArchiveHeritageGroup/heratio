@@ -20,7 +20,7 @@
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-crosshairs me-2"></i>Coordinate Source</div>
             <div class="card-body">
               <div class="mb-3">
-                <label class="form-label">Source</label>
+                <label class="form-label">Source <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="coordinateSource" class="form-select">
                   <option value="property" selected>Property table (latitude/longitude)</option>
                 </select>
@@ -34,7 +34,7 @@
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Record Filters</div>
             <div class="card-body">
               <div class="mb-3">
-                <label class="form-label">Place (Taxonomy 42)</label>
+                <label class="form-label">Place (Taxonomy 42) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="place[]" class="form-select" multiple size="5">
                   @foreach($placeTerms as $term)
                     <option value="{{ $term->id }}" {{ in_array($term->id, (array) ($params['place'] ?? [])) ? 'selected' : '' }}>{{ $term->name }}</option>
@@ -44,7 +44,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Level of Description</label>
+                <label class="form-label">Level of Description <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="level" class="form-select">
                   <option value="">-- All levels --</option>
                   @foreach($levels as $lev)
@@ -54,7 +54,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Subject filter</label>
+                <label class="form-label">Subject filter <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="subjects" class="form-control" rows="3" placeholder="Enter subject terms, comma-separated">{{ $params['subjects'] ?? '' }}</textarea>
                 <div class="form-text">Comma-separated list of subject terms to filter by.</div>
               </div>
@@ -76,11 +76,11 @@
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-layer-group me-2"></i>Tradition Classification</div>
             <div class="card-body">
               <div class="mb-3">
-                <label class="form-label">Include traditions</label>
+                <label class="form-label">Include traditions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="includeTraditions" class="form-control" rows="2" placeholder="Comma-separated tradition names to include"></textarea>
               </div>
               <div class="mb-3">
-                <label class="form-label">Exclude traditions</label>
+                <label class="form-label">Exclude traditions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="excludeTraditions" class="form-control" rows="2" placeholder="Comma-separated tradition names to exclude"></textarea>
               </div>
             </div>

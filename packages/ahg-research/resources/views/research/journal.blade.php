@@ -50,15 +50,15 @@
     <form method="POST"><@csrf><input type="hidden" name="do" value="create">
     <div class="modal-header"><h5 class="modal-title">New Journal Entry</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title</label><input type="text" class="form-control" name="title"></div>
-        <div class="mb-3"><label class="form-label">Content</label><textarea class="form-control" name="content" rows="6" required></textarea></div>
+        <div class="mb-3"><label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title"></div>
+        <div class="mb-3"><label class="form-label">Content <span class="badge bg-danger ms-1">Required</span></label><textarea class="form-control" name="content" rows="6" required></textarea></div>
         <div class="row">
-            <div class="col-md-4"><div class="mb-3"><label class="form-label">Project</label><select name="project_id" class="form-select"><option value="">None</option>@foreach($projects as $p)<option value="{{ $p->id }}">{{ e($p->title) }}</option>@endforeach</select></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Type</label><select name="entry_type" class="form-select"><option value="manual">Manual</option><option value="observation">Observation</option><option value="finding">Finding</option><option value="reflection">Reflection</option></select></div></div>
-            <div class="col-md-2"><div class="mb-3"><label class="form-label">Time (min)</label><input type="number" class="form-control" name="time_spent_minutes"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Date</label><input type="date" class="form-control" name="entry_date" value="{{ date('Y-m-d') }}"></div></div>
+            <div class="col-md-4"><div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">Optional</span></label><select name="project_id" class="form-select"><option value="">None</option>@foreach($projects as $p)<option value="{{ $p->id }}">{{ e($p->title) }}</option>@endforeach</select></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label><select name="entry_type" class="form-select"><option value="manual">Manual</option><option value="observation">Observation</option><option value="finding">Finding</option><option value="reflection">Reflection</option></select></div></div>
+            <div class="col-md-2"><div class="mb-3"><label class="form-label">Time (min) <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="time_spent_minutes"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="entry_date" value="{{ date('Y-m-d') }}"></div></div>
         </div>
-        <div class="mb-3"><label class="form-label">Tags</label><input type="text" class="form-control" name="tags" placeholder="Comma-separated"></div>
+        <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="tags" placeholder="Comma-separated"></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Entry</button></div>
     </form>

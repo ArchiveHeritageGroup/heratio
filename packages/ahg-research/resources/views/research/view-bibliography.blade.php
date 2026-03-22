@@ -89,23 +89,23 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="add_entry">
     <div class="modal-header"><h5 class="modal-title">Add Bibliography Entry</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" class="form-control" name="title" required></div>
+        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title" required></div>
         <div class="row">
-            <div class="col-md-8"><div class="mb-3"><label class="form-label">Authors</label><input type="text" class="form-control" name="authors" placeholder="Last, First; Last, First"></div></div>
-            <div class="col-md-4"><div class="mb-3"><label class="form-label">Year</label><input type="text" class="form-control" name="year" placeholder="e.g. 2024"></div></div>
+            <div class="col-md-8"><div class="mb-3"><label class="form-label">Authors <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="authors" placeholder="Last, First; Last, First"></div></div>
+            <div class="col-md-4"><div class="mb-3"><label class="form-label">Year <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="year" placeholder="e.g. 2024"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">Publication</label><input type="text" class="form-control" name="publication"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Volume</label><input type="text" class="form-control" name="volume"></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Pages</label><input type="text" class="form-control" name="pages" placeholder="e.g. 1-25"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">Publication <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="publication"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">Volume <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="volume"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">Pages <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="pages" placeholder="e.g. 1-25"></div></div>
         </div>
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">DOI</label><input type="text" class="form-control" name="doi" placeholder="10.xxxx/xxxxx"></div></div>
-            <div class="col-md-6"><div class="mb-3"><label class="form-label">URL</label><input type="url" class="form-control" name="url" placeholder="https://..."></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">DOI <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="doi" placeholder="10.xxxx/xxxxx"></div></div>
+            <div class="col-md-6"><div class="mb-3"><label class="form-label">URL <span class="badge bg-secondary ms-1">Optional</span></label><input type="url" class="form-control" name="url" placeholder="https://..."></div></div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                <div class="mb-3"><label class="form-label">Entry Type</label>
+                <div class="mb-3"><label class="form-label">Entry Type <span class="badge bg-secondary ms-1">Optional</span></label>
                     <select name="entry_type" class="form-select">
                         <option value="book">Book</option>
                         <option value="article">Article</option>
@@ -117,10 +117,10 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="mb-3"><label class="form-label">Archive Item ID</label><input type="number" class="form-control" name="object_id" placeholder="Link to archive item (optional)"></div>
+                <div class="mb-3"><label class="form-label">Archive Item ID <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="object_id" placeholder="Link to archive item (optional)"></div>
             </div>
         </div>
-        <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" rows="2"></textarea></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Entry</button></div>
     </form>

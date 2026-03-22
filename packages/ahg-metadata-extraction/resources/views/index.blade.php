@@ -58,7 +58,7 @@
     <form method="get" action="{{ route('metadata-extraction.index') }}" class="mb-4">
       <div class="row g-3">
         <div class="col-md-4">
-          <label class="form-label">MIME Type</label>
+          <label class="form-label">MIME Type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="mime_type" class="form-select form-select-sm">
             <option value="">All types</option>
             @foreach($mimeTypes as $mime)
@@ -67,7 +67,7 @@
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Has Metadata</label>
+          <label class="form-label">Has Metadata <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="extracted" class="form-select form-select-sm">
             <option value="">All</option>
             <option value="yes" {{ $filterExtracted === 'yes' ? 'selected' : '' }}>Yes - has metadata</option>

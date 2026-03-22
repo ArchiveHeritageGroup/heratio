@@ -17,23 +17,23 @@
             <label class="form-check-label" for="is_enabled">Enable e-commerce</label>
           </div>
           <div class="mb-3">
-            <label class="form-label">Currency</label>
+            <label class="form-label">Currency <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="currency" class="form-control" value="{{ e($settings->currency ?? 'ZAR') }}" maxlength="3">
           </div>
           <div class="mb-3">
-            <label class="form-label">VAT rate (%)</label>
+            <label class="form-label">VAT rate (%) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="vat_rate" class="form-control" value="{{ $settings->vat_rate ?? 15 }}" step="0.01">
           </div>
           <div class="mb-3">
-            <label class="form-label">VAT number</label>
+            <label class="form-label">VAT number <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="vat_number" class="form-control" value="{{ e($settings->vat_number ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Admin notification email</label>
+            <label class="form-label">Admin notification email <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="email" name="admin_notification_email" class="form-control" value="{{ e($settings->admin_notification_email ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Terms & conditions</label>
+            <label class="form-label">Terms & conditions <span class="badge bg-secondary ms-1">Optional</span></label>
             <textarea name="terms_conditions" class="form-control" rows="4">{{ e($settings->terms_conditions ?? '') }}</textarea>
           </div>
         </div>
@@ -44,15 +44,15 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">PayFast Gateway</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Merchant ID</label>
+            <label class="form-label">Merchant ID <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="payfast_merchant_id" class="form-control" value="{{ e($settings->payfast_merchant_id ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Merchant Key</label>
+            <label class="form-label">Merchant Key <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="password" name="payfast_merchant_key" class="form-control" placeholder="Leave blank to keep current">
           </div>
           <div class="mb-3">
-            <label class="form-label">Passphrase</label>
+            <label class="form-label">Passphrase <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="password" name="payfast_passphrase" class="form-control" placeholder="Leave blank to keep current">
           </div>
           <div class="form-check form-switch mb-3">

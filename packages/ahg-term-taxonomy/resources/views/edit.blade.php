@@ -37,10 +37,10 @@
             {{-- Taxonomy --}}
             <div class="mb-3">
               @if($term)
-                <label class="form-label">Taxonomy</label>
+                <label class="form-label">Taxonomy <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" class="form-control" value="{{ $taxonomyName }}" disabled>
               @else
-                <label for="taxonomy_id" class="form-label">Taxonomy</label>
+                <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="taxonomy_id" id="taxonomy_id" class="form-control"
                        value="{{ old('taxonomy_id', $selectedTaxonomyId ?? '') }}" placeholder="Type to search taxonomies..." autocomplete="off">
               @endif
@@ -48,7 +48,7 @@
 
             {{-- Name --}}
             <div class="mb-3">
-              <label for="name" class="form-label">Name</label>
+              <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="name" id="name" class="form-control" required
                      value="{{ old('name', $term->name ?? '') }}"
                      @if($term && $term->is_protected) disabled @endif>
@@ -56,14 +56,14 @@
 
             {{-- Use for --}}
             <div class="mb-3">
-              <label for="use_for" class="form-label">Use for</label>
+              <label for="use_for" class="form-label">Use for <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="use_for" id="use_for" class="form-control"
                      value="{{ old('use_for', $useFor ?? '') }}">
             </div>
 
             {{-- Code --}}
             <div class="mb-3">
-              <label for="code" class="form-label">Code</label>
+              <label for="code" class="form-label">Code <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="code" id="code" class="form-control"
                      value="{{ old('code', $term->code ?? '') }}">
             </div>
@@ -192,14 +192,14 @@
 
             {{-- Broad term (parent) --}}
             <div class="mb-3">
-              <label for="parent_id" class="form-label">Broad term</label>
+              <label for="parent_id" class="form-label">Broad term <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="parent_id" id="parent_id" class="form-control"
                      value="{{ old('parent_id', $parentTerm->name ?? '') }}" placeholder="Type to search terms..." autocomplete="off">
             </div>
 
             {{-- Related term(s) --}}
             <div class="mb-3">
-              <label for="related_terms" class="form-label">Related term(s)</label>
+              <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="related_terms" id="related_terms" class="form-control"
                      value="{{ old('related_terms') }}" placeholder="Type to search terms..." autocomplete="off">
             </div>
@@ -208,7 +208,7 @@
             <div class="row">
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label for="converse_term" class="form-label">Converse term</label>
+                  <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="converse_term" id="converse_term" class="form-control"
                          value="{{ old('converse_term') }}" placeholder="Type to search terms..." autocomplete="off">
                 </div>
@@ -226,7 +226,7 @@
 
             {{-- Add new narrow terms --}}
             <div class="mb-3">
-              <label for="narrow_terms" class="form-label">Add new narrow terms</label>
+              <label for="narrow_terms" class="form-label">Add new narrow terms <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="narrow_terms" id="narrow_terms" class="form-control" rows="2">{{ old('narrow_terms', '') }}</textarea>
             </div>
 

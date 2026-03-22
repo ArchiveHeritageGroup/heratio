@@ -63,21 +63,21 @@
             </div>
 
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="parallel_name" id="parallel_name" class="form-control"
                      value="{{ old('parallel_name', $repository->parallel_name ?? '') }}">
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the authorised form of name of an institution occurs in other languages or script form(s). Rule: Record the parallel form(s) of name of the institution in accordance with any relevant national or international conventions or rules applied by the agency that created the description, including any necessary sub elements and/or qualifiers required by those conventions or rules. Specify in the Rules and/or conventions used element (5.6.3) which rules have been applied." (ISDIAH 5.1.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="other_name" class="form-label">Other form(s) of name</label>
+              <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="other_name" id="other_name" class="form-control"
                      value="{{ old('other_name', $repository->other_name ?? '') }}">
               <div class="form-text text-muted small">"Record any other name(s) by which the institution may be known. This could include other forms of the same name, acronyms, other institutional names, or changes of name over time, including, if possible, relevant dates." (ISDIAH 5.1.4)</div>
             </div>
 
             <div class="mb-3">
-              <label for="repository_type" class="form-label">Type</label>
+              <label for="repository_type" class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="repository_type" id="repository_type" class="form-control"
                      value="{{ old('repository_type', $repository->repository_type ?? '') }}" placeholder="Type to search repository types..." autocomplete="off">
               <div class="form-text text-muted small">Record the type of the institution. (ISDIAH 5.1.5) Select as many types as desired from the drop-down menu; these values are drawn from the Repository Types taxonomy.</div>
@@ -165,72 +165,72 @@
                     <div class="tab-content">
                       <div class="tab-pane fade show active" id="pills-main" role="tabpanel" aria-labelledby="pills-main-tab">
                         <div class="mb-3">
-                          <label class="form-label">Primary contact</label>
+                          <label class="form-label">Primary contact <span class="badge bg-secondary ms-1">Optional</span></label>
                           <select name="contact_primary" class="form-select">
                             <option value="0">No</option>
                             <option value="1">Yes</option>
                           </select>
                         </div>
                         <div class="mb-3">
-                          <label for="contact_person" class="form-label">Contact person</label>
+                          <label for="contact_person" class="form-label">Contact person <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_person" id="contact_person" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_telephone" class="form-label">Phone</label>
+                          <label for="contact_telephone" class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="tel" name="contact_telephone" id="contact_telephone" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_fax" class="form-label">Fax</label>
+                          <label for="contact_fax" class="form-label">Fax <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="tel" name="contact_fax" id="contact_fax" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_email" class="form-label">Email</label>
+                          <label for="contact_email" class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="email" name="contact_email" id="contact_email" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_website" class="form-label">URL</label>
+                          <label for="contact_website" class="form-label">URL <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="url" name="contact_website" id="contact_website" class="form-control" placeholder="https://">
                         </div>
                       </div>
 
                       <div class="tab-pane fade" id="pills-phys" role="tabpanel" aria-labelledby="pills-phys-tab">
                         <div class="mb-3">
-                          <label for="contact_street_address" class="form-label">Street address</label>
+                          <label for="contact_street_address" class="form-label">Street address <span class="badge bg-secondary ms-1">Optional</span></label>
                           <textarea name="contact_street_address" id="contact_street_address" class="form-control" rows="2"></textarea>
                         </div>
                         <div class="mb-3">
-                          <label for="contact_region" class="form-label">Region/province</label>
+                          <label for="contact_region" class="form-label">Region/province <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_region" id="contact_region" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_country" class="form-label">Country</label>
+                          <label for="contact_country" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_country" id="contact_country" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_postal_code" class="form-label">Postal code</label>
+                          <label for="contact_postal_code" class="form-label">Postal code <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_postal_code" id="contact_postal_code" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_city" class="form-label">City</label>
+                          <label for="contact_city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_city" id="contact_city" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_latitude" class="form-label">Latitude</label>
+                          <label for="contact_latitude" class="form-label">Latitude <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_latitude" id="contact_latitude" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_longitude" class="form-label">Longitude</label>
+                          <label for="contact_longitude" class="form-label">Longitude <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_longitude" id="contact_longitude" class="form-control">
                         </div>
                       </div>
 
                       <div class="tab-pane fade" id="pills-other" role="tabpanel" aria-labelledby="pills-other-tab">
                         <div class="mb-3">
-                          <label for="contact_type" class="form-label">Contact type</label>
+                          <label for="contact_type" class="form-label">Contact type <span class="badge bg-secondary ms-1">Optional</span></label>
                           <input type="text" name="contact_type" id="contact_type" class="form-control">
                         </div>
                         <div class="mb-3">
-                          <label for="contact_note" class="form-label">Note</label>
+                          <label for="contact_note" class="form-label">Note <span class="badge bg-secondary ms-1">Optional</span></label>
                           <textarea name="contact_note" id="contact_note" class="form-control" rows="2"></textarea>
                         </div>
                       </div>
@@ -259,49 +259,49 @@
         <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="history" class="form-label">History</label>
+              <label for="history" class="form-label">History <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $repository->history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record any relevant information about the history of the institution. This element may include information on dates of establishment, changes of names, changes of legislative mandates, or of any other sources of authority for the institution." (ISDIAH 5.3.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="geocultural_context" class="form-label">Geographical and cultural context</label>
+              <label for="geocultural_context" class="form-label">Geographical and cultural context <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="geocultural_context" id="geocultural_context" class="form-control" rows="4">{{ old('geocultural_context', $repository->geocultural_context ?? '') }}</textarea>
               <div class="form-text text-muted small">"Identify the geographical area the institution belongs to. Record any other relevant information about the cultural context of the institution." (ISDIAH 5.3.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="mandates" class="form-label">Mandates/Sources of authority</label>
+              <label for="mandates" class="form-label">Mandates/Sources of authority <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="mandates" id="mandates" class="form-control" rows="4">{{ old('mandates', $repository->mandates ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record any document, law, directive or charter which acts as a source of authority for the powers, functions and responsibilities of the institution, together with information on the jurisdiction(s) and covering dates when the mandate(s) applied or were changed." (ISDIAH 5.3.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="internal_structures" class="form-label">Administrative structure</label>
+              <label for="internal_structures" class="form-label">Administrative structure <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="internal_structures" id="internal_structures" class="form-control" rows="4">{{ old('internal_structures', $repository->internal_structures ?? '') }}</textarea>
               <div class="form-text text-muted small">"Describe, in narrative form or using organisational charts, the current administrative structure of the institution." (ISDIAH 5.3.4)</div>
             </div>
 
             <div class="mb-3">
-              <label for="collecting_policies" class="form-label">Records management and collecting policies</label>
+              <label for="collecting_policies" class="form-label">Records management and collecting policies <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="collecting_policies" id="collecting_policies" class="form-control" rows="4">{{ old('collecting_policies', $repository->collecting_policies ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information about the records management and collecting policies of the institution. Define the scope and nature of material which the institution accessions. Indicate whether the repository seeks to acquire archival materials by transfer, gift, purchase and/or loan. If the policy includes active survey and/or rescue work, this might be spelt out." (ISDIAH 5.3.5)</div>
             </div>
 
             <div class="mb-3">
-              <label for="buildings" class="form-label">Buildings</label>
+              <label for="buildings" class="form-label">Buildings <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="buildings" id="buildings" class="form-control" rows="4">{{ old('buildings', $repository->buildings ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information on the building(s) of the institution (general and architectural characteristics of the building, capacity of storage areas, etc). Where possible, provide information which can be used for generating statistics." (ISDIAH 5.3.6)</div>
             </div>
 
             <div class="mb-3">
-              <label for="holdings" class="form-label">Archival and other holdings</label>
+              <label for="holdings" class="form-label">Archival and other holdings <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="holdings" id="holdings" class="form-control" rows="4">{{ old('holdings', $repository->holdings ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record a short description of the holdings of the institution, describing how and when they were formed. Provide information on volume of holdings, media formats, thematic coverage, etc." (ISDIAH 5.3.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="finding_aids" class="form-label">Finding aids, guides and publications</label>
+              <label for="finding_aids" class="form-label">Finding aids, guides and publications <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="finding_aids" id="finding_aids" class="form-control" rows="4">{{ old('finding_aids', $repository->finding_aids ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the title and other pertinent details of the published and/or unpublished finding aids and guides prepared by the institution and of any other relevant publications. Use ISO 690 Information and documentation – Bibliographic references and other national or international cataloguing rules." (ISDIAH 5.3.8)</div>
             </div>
@@ -319,19 +319,19 @@
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="opening_times" class="form-label">Opening times</label>
+              <label for="opening_times" class="form-label">Opening times <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="opening_times" id="opening_times" class="form-control" rows="4">{{ old('opening_times', $repository->opening_times ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the opening hours of the institution and annual, seasonal and public holidays, and any other planned closures. Record times associated with the availability and/or delivery of services (for example, exhibition spaces, reference services, etc.)." (ISDIAH 5.4.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="access_conditions" class="form-label">Conditions and requirements</label>
+              <label for="access_conditions" class="form-label">Conditions and requirements <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="access_conditions" id="access_conditions" class="form-control" rows="4">{{ old('access_conditions', $repository->access_conditions ?? '') }}</textarea>
               <div class="form-text text-muted small">"Describe access policies, including any restrictions and/or regulations for the use of materials and facilities. Record information about registration, appointments, readers' tickets, letters of introduction, admission fees, etc. Where appropriate, make reference to the relevant legislation." (ISDIAH 5.4.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="disabled_access" class="form-label">Accessibility</label>
+              <label for="disabled_access" class="form-label">Accessibility <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="disabled_access" id="disabled_access" class="form-control" rows="4">{{ old('disabled_access', $repository->disabled_access ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information about travelling to the institution and details for users with disabilities, including building features, specialised equipment or tools, parking or lifts." (ISDIAH 5.4.3)</div>
             </div>
@@ -349,19 +349,19 @@
         <div id="services-collapse" class="accordion-collapse collapse" aria-labelledby="services-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="research_services" class="form-label">Research services</label>
+              <label for="research_services" class="form-label">Research services <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="research_services" id="research_services" class="form-control" rows="4">{{ old('research_services', $repository->research_services ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information about the onsite services provided by the institution such as languages spoken by staff, research and consultation rooms, enquiry services, internal libraries, map, microfiches, audio-visual, computer rooms, etc. Record as well any relevant information about research services, such as research undertaken by the institution, and the fee charge if applicable." (ISDIAH 5.5.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="reproduction_services" class="form-label">Reproduction services</label>
+              <label for="reproduction_services" class="form-label">Reproduction services <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="reproduction_services" id="reproduction_services" class="form-control" rows="4">{{ old('reproduction_services', $repository->reproduction_services ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information about reproduction services available to the public (microfilms, photocopies, photographs, digitised copies). Specify general conditions and restrictions to the services, including applicable fees and publication rules." (ISDIAH 5.5.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="public_facilities" class="form-label">Public areas</label>
+              <label for="public_facilities" class="form-label">Public areas <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="public_facilities" id="public_facilities" class="form-control" rows="4">{{ old('public_facilities', $repository->public_facilities ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record information about spaces available for public use (permanent or temporary exhibitions, free or charged internet connection, cash machines, cafeterias, restaurants, shops, etc.)." (ISDIAH 5.5.3)</div>
             </div>
@@ -379,27 +379,27 @@
         <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="desc_identifier" class="form-label">Description identifier</label>
+              <label for="desc_identifier" class="form-label">Description identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="desc_identifier" id="desc_identifier" class="form-control"
                      value="{{ old('desc_identifier', $repository->desc_identifier ?? '') }}">
               <div class="form-text text-muted small">"Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 - Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code." (ISDIAH 5.6.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="desc_institution_identifier" class="form-label">Institution identifier</label>
+              <label for="desc_institution_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="desc_institution_identifier" id="desc_institution_identifier" class="form-control"
                      value="{{ old('desc_institution_identifier', $repository->desc_institution_identifier ?? '') }}">
               <div class="form-text text-muted small">"Record the full authorised form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the description or, alternatively, record a code for the agency in accordance with the national or international agency code standard." (ISDIAH 5.6.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="desc_rules" class="form-label">Rules and/or conventions used</label>
+              <label for="desc_rules" class="form-label">Rules and/or conventions used <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="desc_rules" id="desc_rules" class="form-control" rows="4">{{ old('desc_rules', $repository->desc_rules ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the names, and, where useful, the editions or publication dates of the conventions or rules applied. Specify, separately, which rules have been applied for creating the Authorised form(s) of name. Include reference to any system(s) of dating used to identify dates in this description (e.g. ISO 8601)." (ISDIAH 5.6.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="desc_status_id" class="form-label">Status</label>
+              <label for="desc_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="desc_status_id" id="desc_status_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionStatuses'] as $status)
@@ -412,7 +412,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="desc_detail_id" class="form-label">Level of detail</label>
+              <label for="desc_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="desc_detail_id" id="desc_detail_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionDetails'] as $detail)
@@ -425,7 +425,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="desc_revision_history" class="form-label">Dates of creation, revision and deletion</label>
+              <label for="desc_revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="desc_revision_history" id="desc_revision_history" class="form-control" rows="4">{{ old('desc_revision_history', $repository->desc_revision_history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the date the description was created and the dates of any revisions to the description." (ISDIAH 5.6.6)</div>
             </div>
@@ -438,27 +438,27 @@
             @endif
 
             <div class="mb-3">
-              <label for="desc_language" class="form-label">Language(s)</label>
+              <label for="desc_language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="desc_language" name="desc_language"
                      value="{{ old('desc_language') }}" placeholder="e.g. English, French">
               <div class="form-text text-muted small">Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="desc_script" class="form-label">Script(s)</label>
+              <label for="desc_script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="desc_script" name="desc_script"
                      value="{{ old('desc_script') }}" placeholder="e.g. Latin, Cyrillic">
               <div class="form-text text-muted small">Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDIAH 5.6.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="desc_sources" class="form-label">Sources</label>
+              <label for="desc_sources" class="form-label">Sources <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="desc_sources" id="desc_sources" class="form-control" rows="4">{{ old('desc_sources', $repository->desc_sources ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the sources consulted in establishing the description of the institution." (ISDIAH 5.6.8)</div>
             </div>
 
             <div class="mb-3">
-              <label for="maintenance_notes" class="form-label">Maintenance notes</label>
+              <label for="maintenance_notes" class="form-label">Maintenance notes <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="maintenance_notes" id="maintenance_notes" class="form-control" rows="4">{{ old('maintenance_notes', $maintenanceNotes ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record notes pertinent to the creation and maintenance of the description." (ISDIAH 5.6.9)</div>
             </div>
@@ -476,14 +476,14 @@
         <div id="points-collapse" class="accordion-collapse collapse" aria-labelledby="points-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="thematic_area" class="form-label">Thematic area</label>
+              <label for="thematic_area" class="form-label">Thematic area <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="thematic_area" name="thematic_area"
                      value="{{ old('thematic_area') }}" placeholder="Type to search thematic areas..." autocomplete="off">
               <div class="form-text text-muted small">Search for an existing term in the Thematic Areas taxonomy by typing the first few characters of the term name. This should be used to identify major collecting areas.</div>
             </div>
 
             <div class="mb-3">
-              <label for="geographic_subregion" class="form-label">Geographic subregion</label>
+              <label for="geographic_subregion" class="form-label">Geographic subregion <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="geographic_subregion" name="geographic_subregion"
                      value="{{ old('geographic_subregion') }}" placeholder="Type to search geographic subregions..." autocomplete="off">
               <div class="form-text text-muted small">Search for an existing term in the Geographic Subregion taxonomy by typing the first few characters of the term name.</div>

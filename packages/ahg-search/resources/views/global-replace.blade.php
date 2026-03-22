@@ -21,7 +21,7 @@
       <div class="row g-3">
         {{-- Column --}}
         <div class="col-md-4">
-          <label for="column" class="form-label">Column</label>
+          <label for="column" class="form-label">Column <span class="badge bg-danger ms-1">Required</span></label>
           <select name="column" id="column" class="form-select" required>
             <option value="">-- Select a field --</option>
             @foreach($columns as $value => $label)
@@ -35,7 +35,7 @@
 
         {{-- Pattern --}}
         <div class="col-md-4">
-          <label for="pattern" class="form-label">Search pattern</label>
+          <label for="pattern" class="form-label">Search pattern <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" name="pattern" id="pattern" class="form-control" value="{{ old('pattern', $pattern ?? '') }}" required>
           @error('pattern')
             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -44,7 +44,7 @@
 
         {{-- Replacement --}}
         <div class="col-md-4">
-          <label for="replacement" class="form-label">Replacement</label>
+          <label for="replacement" class="form-label">Replacement <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="replacement" id="replacement" class="form-control" value="{{ old('replacement', $replacement ?? '') }}">
         </div>
 

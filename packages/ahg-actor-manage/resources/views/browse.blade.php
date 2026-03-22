@@ -346,7 +346,7 @@
             <h5>Limit results to:</h5>
             <div class="criteria mb-4">
               <div class="mb-3">
-                <label class="form-label" for="repository">Repository</label>
+                <label class="form-label" for="repository">Repository <span class="badge bg-warning ms-1">Recommended</span></label>
                 <select name="repository" class="form-select" id="repository">
                   <option value=""></option>
                   @foreach($repositories as $repo)
@@ -362,7 +362,7 @@
             <div class="criteria row mb-2">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="hasDigitalObject">Digital object available</label>
+                  <label class="form-label" for="hasDigitalObject">Digital object available <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="hasDigitalObject" class="form-select" id="hasDigitalObject">
                     <option value=""></option>
                     <option value="1" {{ ($params['hasDigitalObject'] ?? '') === '1' ? 'selected' : '' }}>Yes</option>
@@ -371,7 +371,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="entityTypeFilter">Entity type</label>
+                  <label class="form-label" for="entityTypeFilter">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="entityType" class="form-select" id="entityTypeFilter">
                     <option value=""></option>
                     @foreach($entityTypeFacets as $typeId => $facet)
@@ -384,7 +384,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="emptyField">Empty field</label>
+                  <label class="form-label" for="emptyField">Empty field <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="emptyField" class="form-select" id="emptyField">
                     <option value=""></option>
                     <option value="authorizedFormOfName" {{ ($params['emptyField'] ?? '') === 'authorizedFormOfName' ? 'selected' : '' }}>Name</option>
@@ -403,7 +403,7 @@
             <div class="criteria row mb-2">
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedType">Relationship</label>
+                  <label class="form-label" for="relatedType">Relationship <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="relatedType" class="form-select" id="relatedType">
                     <option value=""></option>
                     <option value="159" {{ ($params['relatedType'] ?? '') === '159' ? 'selected' : '' }}>Draft</option>
@@ -413,7 +413,7 @@
               </div>
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedAuthority">Related Authority record</label>
+                  <label class="form-label" for="relatedAuthority">Related Authority record <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" class="form-control" name="relatedAuthority" id="relatedAuthority" value="{{ $params['relatedAuthority'] ?? '' }}" placeholder="Type to search authority records...">
                 </div>
               </div>

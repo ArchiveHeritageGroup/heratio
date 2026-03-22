@@ -85,7 +85,7 @@
   {{-- Repository filter --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex align-items-center gap-2">
-      <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository:</label>
+      <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository: <span class="badge bg-secondary ms-1">Optional</span></label>
       <select id="repository_filter" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
         <option value="">All repositories</option>
         @foreach($repositories as $repo)

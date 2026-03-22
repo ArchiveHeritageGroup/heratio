@@ -22,18 +22,18 @@
         <div id="collapse-fields" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label class="form-label" for="title">Title</label>
+              <label class="form-label" for="title">Title <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $page->title ?? '') }}" required>
             </div>
             <div class="mb-3">
-              <label class="form-label" for="slug">Slug</label>
+              <label class="form-label" for="slug">Slug <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $slug) }}" {{ (!empty($isProtected)) ? 'readonly' : '' }}>
               @if(!empty($isProtected))
                 <div class="form-text">This is a protected page. The slug cannot be changed.</div>
               @endif
             </div>
             <div class="mb-3">
-              <label class="form-label" for="content">Content</label>
+              <label class="form-label" for="content">Content <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="content" name="content" rows="15">{{ old('content', $page->content ?? '') }}</textarea>
               <div class="form-text">You can use HTML or Markdown (if enabled in settings).</div>
             </div>

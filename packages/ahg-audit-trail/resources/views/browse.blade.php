@@ -23,7 +23,7 @@
     <div class="card-body">
       <div class="row g-3 align-items-end">
         <div class="col-md-2">
-          <label for="type" class="form-label small">Entity type</label>
+          <label for="type" class="form-label small">Entity type <span class="badge bg-warning ms-1">Recommended</span></label>
           <select name="type" id="type" class="form-select form-select-sm">
             <option value="">All types</option>
             @foreach($entityTypes as $et)
@@ -32,7 +32,7 @@
           </select>
         </div>
         <div class="col-md-2">
-          <label for="action" class="form-label small">Action</label>
+          <label for="action" class="form-label small">Action <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="action" id="action" class="form-select form-select-sm">
             <option value="">All actions</option>
             @foreach($actions as $a)
@@ -41,17 +41,17 @@
           </select>
         </div>
         <div class="col-md-2">
-          <label for="user" class="form-label small">User</label>
+          <label for="user" class="form-label small">User <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="user" id="user" class="form-control form-control-sm"
                  value="{{ $filters['user'] }}" placeholder="Username or email">
         </div>
         <div class="col-md-2">
-          <label for="from" class="form-label small">From</label>
+          <label for="from" class="form-label small">From <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="from" id="from" class="form-control form-control-sm"
                  value="{{ $filters['from'] }}">
         </div>
         <div class="col-md-2">
-          <label for="to" class="form-label small">To</label>
+          <label for="to" class="form-label small">To <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="to" id="to" class="form-control form-control-sm"
                  value="{{ $filters['to'] }}">
         </div>

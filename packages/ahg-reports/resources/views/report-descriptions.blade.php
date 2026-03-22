@@ -10,14 +10,14 @@
       'action' => route('reports.descriptions'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Level of description</label>
+          <label class="form-label">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="level" class="form-select form-select-sm">
             <option value="">All levels</option>' .
             $levels->map(fn($l) => '<option value="' . $l->id . '"' . (($params['level'] ?? '') == $l->id ? ' selected' : '') . '>' . e($l->name) . '</option>')->implode('') .
           '</select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Publication status</label>
+          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="publicationStatus" class="form-select form-select-sm">
             <option value="">All</option>
             <option value="159"' . (($params['publicationStatus'] ?? '') == '159' ? ' selected' : '') . '>Draft</option>

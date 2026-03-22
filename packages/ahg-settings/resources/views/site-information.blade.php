@@ -21,17 +21,17 @@
           <div id="site-information-collapse" class="accordion-collapse collapse" aria-labelledby="site-information-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Site title</label>
+                <label class="form-label">Site title <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="siteTitle" class="form-control" value="{{ e($settings['siteTitle']) }}">
                 <small class="text-muted">The name of the website for display in the header</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Site description</label>
+                <label class="form-label">Site description <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="siteDescription" class="form-control" value="{{ e($settings['siteDescription']) }}">
                 <small class="text-muted">A brief site description or "tagline" for the header</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Site base URL (used in MODS and EAD exports)</label>
+                <label class="form-label">Site base URL (used in MODS and EAD exports) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="siteBaseUrl" class="form-control" value="{{ e($settings['siteBaseUrl']) }}">
                 <small class="text-muted">Used to create absolute URLs, pointing to resources, in XML exports</small>
               </div>

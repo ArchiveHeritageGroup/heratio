@@ -64,7 +64,7 @@
               @csrf
               <input type="hidden" name="action" value="add">
               <div class="col-auto">
-                <label class="form-label">Language code</label>
+                <label class="form-label">Language code <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="languageCode" class="form-control" placeholder="e.g. fr" maxlength="3" style="width: 100px">
               </div>
               <div class="col-auto">

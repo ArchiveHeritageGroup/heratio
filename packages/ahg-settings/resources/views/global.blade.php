@@ -20,11 +20,11 @@
           <div id="search-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Hits per page</label>
+                <label class="form-label">Hits per page <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="settings[hits_per_page]" class="form-control" value="{{ $settings['hits_per_page'] ?? '10' }}" min="5" max="100">
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort browser (authenticated users)</label>
+                <label class="form-label">Sort browser (authenticated users) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[sort_browser_user]" class="form-select">
                   @foreach(['lastUpdated' => 'Most recent', 'alphabetic' => 'Alphabetic', 'identifier' => 'Identifier'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_user'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -32,7 +32,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort browser (anonymous users)</label>
+                <label class="form-label">Sort browser (anonymous users) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[sort_browser_anonymous]" class="form-select">
                   @foreach(['lastUpdated' => 'Most recent', 'alphabetic' => 'Alphabetic', 'identifier' => 'Identifier'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_anonymous'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -40,7 +40,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default archival description browse view</label>
+                <label class="form-label">Default archival description browse view <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[default_archival_description_browse_view]" class="form-select">
                   @foreach(['table' => 'Table', 'card' => 'Card'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['default_archival_description_browse_view'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -48,7 +48,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default repository browse view</label>
+                <label class="form-label">Default repository browse view <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[default_repository_browse_view]" class="form-select">
                   @foreach(['table' => 'Table', 'card' => 'Card'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['default_repository_browse_view'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -108,7 +108,7 @@
           <div id="permalinks-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Slug basis (information object)</label>
+                <label class="form-label">Slug basis (information object) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[slug_basis_informationobject]" class="form-select">
                   @foreach(['0' => 'Title', '1' => 'Identifier', '2' => 'Reference code'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['slug_basis_informationobject'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -145,7 +145,7 @@
                 <label class="form-check-label" for="cache_xml_on_save">Cache XML on save</label>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default publication status</label>
+                <label class="form-label">Default publication status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[defaultPubStatus]" class="form-select">
                   <option value="159" {{ ($settings['defaultPubStatus'] ?? '') == '159' ? 'selected' : '' }}>Draft</option>
                   <option value="160" {{ ($settings['defaultPubStatus'] ?? '') == '160' ? 'selected' : '' }}>Published</option>
@@ -161,11 +161,11 @@
           <div id="integrations-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Google Maps API key</label>
+                <label class="form-label">Google Maps API key <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[google_maps_api_key]" class="form-control" value="{{ $settings['google_maps_api_key'] ?? '' }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">SWORD deposit directory</label>
+                <label class="form-label">SWORD deposit directory <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[sword_deposit_dir]" class="form-control" value="{{ $settings['sword_deposit_dir'] ?? '' }}">
               </div>
             </div>

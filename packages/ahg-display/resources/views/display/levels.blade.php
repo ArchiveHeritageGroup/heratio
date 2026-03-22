@@ -33,7 +33,7 @@
     <div class="card-body">
       <form method="GET" action="{{ route('glam.levels') }}" class="row g-2 align-items-end">
         <div class="col-auto">
-          <label for="domain" class="form-label mb-0"><strong>Filter by domain:</strong></label>
+          <label for="domain" class="form-label mb-0"><strong>Filter by domain:</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
         </div>
         <div class="col-auto">
           <select name="domain" id="domain" class="form-select form-select-sm">

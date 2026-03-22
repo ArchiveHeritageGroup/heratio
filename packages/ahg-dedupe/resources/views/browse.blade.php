@@ -26,7 +26,7 @@
   {{-- Filters --}}
   <form method="GET" action="{{ route('dedupe.browse') }}" class="row g-2 mb-4 align-items-end">
     <div class="col-auto">
-      <label class="form-label small mb-1">Status</label>
+      <label class="form-label small mb-1">Status <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="status" class="form-select form-select-sm">
         <option value="">All statuses</option>
         @foreach(['pending', 'confirmed', 'merged', 'dismissed'] as $opt)
@@ -35,7 +35,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-1">Detection Method</label>
+      <label class="form-label small mb-1">Detection Method <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="method" class="form-select form-select-sm">
         <option value="">All methods</option>
         @foreach($methods as $m)
@@ -44,7 +44,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-1">Min Score</label>
+      <label class="form-label small mb-1">Min Score <span class="badge bg-secondary ms-1">Optional</span></label>
       <select name="min_score" class="form-select form-select-sm">
         <option value="">Any</option>
         @foreach([50, 60, 70, 75, 80, 85, 90, 95] as $s)

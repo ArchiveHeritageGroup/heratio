@@ -710,7 +710,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="transition-comment" class="form-label">Comment (optional)</label>
+              <label for="transition-comment" class="form-label">Comment (optional) <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="comment" id="transition-comment" class="form-control" rows="3" placeholder="Reason for status change..."></textarea>
             </div>
           </div>
@@ -735,12 +735,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="extend-date" class="form-label">New End Date <span class="text-danger">*</span></label>
+              <label for="extend-date" class="form-label">New End Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="date" name="new_end_date" id="extend-date" class="form-control" required
                      value="{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->addMonths(3)->format('Y-m-d') : '' }}">
             </div>
             <div class="mb-3">
-              <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span></label>
+              <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="reason" id="extend-reason" class="form-control" rows="3" required placeholder="Reason for extension..."></textarea>
             </div>
           </div>
@@ -765,12 +765,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="return-date" class="form-label">Return Date <span class="text-danger">*</span></label>
+              <label for="return-date" class="form-label">Return Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="date" name="return_date" id="return-date" class="form-control" required
                      value="{{ now()->format('Y-m-d') }}">
             </div>
             <div class="mb-3">
-              <label for="return-notes" class="form-label">Notes</label>
+              <label for="return-notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="notes" id="return-notes" class="form-control" rows="3" placeholder="Return notes..."></textarea>
             </div>
           </div>

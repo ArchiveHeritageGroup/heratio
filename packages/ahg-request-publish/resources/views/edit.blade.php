@@ -39,19 +39,19 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label text-muted small">Requester Name</label>
+                <label class="form-label text-muted small">Requester Name <span class="badge bg-secondary ms-1">Optional</span></label>
                 <p class="fw-semibold mb-0">
                   {{ ($record->rtp_name ?? '') . ' ' . ($record->rtp_surname ?? '') }}
                 </p>
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small">Institution</label>
+                <label class="form-label text-muted small">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
                 <p class="fw-semibold mb-0">
                   {{ $record->rtp_institution ?: '-' }}
                 </p>
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small">Email</label>
+                <label class="form-label text-muted small">Email <span class="badge bg-secondary ms-1">Optional</span></label>
                 <p class="mb-0">
                   @if(!empty($record->rtp_email))
                     <a href="mailto:{{ $record->rtp_email }}">
@@ -63,7 +63,7 @@
                 </p>
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small">Phone</label>
+                <label class="form-label text-muted small">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
                 <p class="mb-0">
                   @if(!empty($record->rtp_phone))
                     <a href="tel:{{ $record->rtp_phone }}">
@@ -121,18 +121,18 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label text-muted small">Planned Use</label>
+              <label class="form-label text-muted small">Planned Use <span class="badge bg-secondary ms-1">Optional</span></label>
               <p class="mb-0">{!! !empty($record->rtp_planned_use) ? nl2br(e($record->rtp_planned_use)) : '-' !!}</p>
             </div>
             @if(!empty($record->rtp_motivation))
             <div class="mb-3">
-              <label class="form-label text-muted small">Motivation</label>
+              <label class="form-label text-muted small">Motivation <span class="badge bg-secondary ms-1">Optional</span></label>
               <p class="mb-0">{!! nl2br(e($record->rtp_motivation)) !!}</p>
             </div>
             @endif
             @if(!empty($record->rtp_need_image_by))
             <div>
-              <label class="form-label text-muted small">Need Image By</label>
+              <label class="form-label text-muted small">Need Image By <span class="badge bg-secondary ms-1">Optional</span></label>
               <p class="mb-0">
                 <span class="badge bg-info text-dark">
                   <i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($record->rtp_need_image_by)->format('d M Y') }}
@@ -152,7 +152,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label for="rtp_admin_notes" class="form-label fw-semibold">Admin Notes</label>
+              <label for="rtp_admin_notes" class="form-label fw-semibold">Admin Notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="rtp_admin_notes" id="rtp_admin_notes" class="form-control" rows="4"
                         placeholder="Add notes for internal reference or to communicate with the requester...">{{ old('rtp_admin_notes', $record->rtp_admin_notes ?? '') }}</textarea>
             </div>
@@ -179,7 +179,7 @@
             </div>
             <hr>
             <div class="mb-3">
-              <label for="status_id" class="form-label fw-semibold">Change Status <span class="text-danger">*</span></label>
+              <label for="status_id" class="form-label fw-semibold">Change Status <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="status_id" id="status_id" class="form-select" required>
                 <option value="220" @selected(old('status_id', $record->status_id) == 220)>In Review</option>
                 <option value="219" @selected(old('status_id', $record->status_id) == 219)>Approved</option>

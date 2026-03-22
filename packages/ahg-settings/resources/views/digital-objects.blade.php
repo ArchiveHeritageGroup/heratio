@@ -14,12 +14,12 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">Derivative settings</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">PDF page number for reference image</label>
+            <label class="form-label">PDF page number for reference image <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings[digital_object_derivatives_pdf_page_number]" class="form-control" value="{{ e($settings['digital_object_derivatives_pdf_page_number'] ?? '1') }}" min="1">
             <small class="text-muted">Which page of a PDF to use when generating a reference image derivative</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Reference image maximum width (pixels)</label>
+            <label class="form-label">Reference image maximum width (pixels) <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings[reference_image_maxwidth]" class="form-control" value="{{ e($settings['reference_image_maxwidth'] ?? '480') }}" min="100" max="2000">
             <small class="text-muted">Maximum width in pixels for reference image derivatives</small>
           </div>

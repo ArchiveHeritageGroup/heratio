@@ -7,11 +7,11 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-3">
-                <label class="form-label">From</label>
+                <label class="form-label">From <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom }}">
             </div>
             <div class="col-md-3">
-                <label class="form-label">To</label>
+                <label class="form-label">To <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo }}">
             </div>
             <div class="col-md-2">

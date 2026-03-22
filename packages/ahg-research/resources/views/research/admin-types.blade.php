@@ -51,10 +51,10 @@
                         <form method="POST">@csrf<input type="hidden" name="form_action" value="update"><input type="hidden" name="type_id" value="{{ $type->id }}">
                         <div class="modal-header"><h5 class="modal-title">Edit Type: {{ e($type->name) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                         <div class="modal-body">
-                            <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" value="{{ e($type->name) }}" required></div>
-                            <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2">{{ e($type->description ?? '') }}</textarea></div>
-                            <div class="mb-3"><label class="form-label">Privileges</label><input type="text" class="form-control" name="privileges" value="{{ e($type->privileges ?? '') }}" placeholder="Comma-separated"></div>
-                            <div class="mb-3"><label class="form-label">Max Bookings</label><input type="number" class="form-control" name="max_bookings" value="{{ $type->max_bookings ?? '' }}" placeholder="Leave empty for unlimited"></div>
+                            <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="name" value="{{ e($type->name) }}" required></div>
+                            <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="2">{{ e($type->description ?? '') }}</textarea></div>
+                            <div class="mb-3"><label class="form-label">Privileges <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="privileges" value="{{ e($type->privileges ?? '') }}" placeholder="Comma-separated"></div>
+                            <div class="mb-3"><label class="form-label">Max Bookings <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="max_bookings" value="{{ $type->max_bookings ?? '' }}" placeholder="Leave empty for unlimited"></div>
                         </div>
                         <div class="modal-footer"><button type="submit" class="btn atom-atom-btn-outline-success"><i class="fas fa-save me-1"></i>Update</button></div>
                         </form>
@@ -77,10 +77,10 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="create">
     <div class="modal-header"><h5 class="modal-title">Add Researcher Type</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" required></div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2"></textarea></div>
-        <div class="mb-3"><label class="form-label">Privileges</label><input type="text" class="form-control" name="privileges" placeholder="Comma-separated (e.g. booking,collections,api)"></div>
-        <div class="mb-3"><label class="form-label">Max Bookings</label><input type="number" class="form-control" name="max_bookings" placeholder="Leave empty for unlimited"></div>
+        <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="name" required></div>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="2"></textarea></div>
+        <div class="mb-3"><label class="form-label">Privileges <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="privileges" placeholder="Comma-separated (e.g. booking,collections,api)"></div>
+        <div class="mb-3"><label class="form-label">Max Bookings <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="max_bookings" placeholder="Leave empty for unlimited"></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Type</button></div>
     </form>

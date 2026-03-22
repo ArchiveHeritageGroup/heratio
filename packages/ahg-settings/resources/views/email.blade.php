@@ -17,7 +17,7 @@
             <div class="card-body">
               @foreach ($smtpSettings as $setting)
                 <div class="mb-3">
-                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('smtp_', '', $setting->setting_key))) }}</label>
+                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('smtp_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   @if ($setting->setting_type === 'boolean')
                     <select name="settings[{{ $setting->setting_key }}]" class="form-select">
                       <option value="0" {{ $setting->setting_value == '0' ? 'selected' : '' }}>Disabled</option>
@@ -41,7 +41,7 @@
             <div class="card-body">
               @foreach ($notificationSettings as $setting)
                 <div class="mb-3">
-                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('notify_', '', $setting->setting_key))) }}</label>
+                  <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('notify_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="email" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}" placeholder="admin@example.com">
                   @if ($setting->description)<small class="text-muted">{{ e($setting->description) }}</small>@endif
                 </div>
@@ -76,12 +76,12 @@
                       <div id="tpl{{ $index }}" class="accordion-collapse collapse" data-bs-parent="#templateAccordion">
                         <div class="accordion-body">
                           <div class="mb-3">
-                            <label class="form-label">Subject</label>
+                            <label class="form-label">Subject <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}">
                           </div>
                           @if($bodySetting)
                           <div class="mb-3">
-                            <label class="form-label">Body</label>
+                            <label class="form-label">Body <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea name="settings[{{ $bodyKey }}]" class="form-control" rows="5">{{ e($bodySetting->setting_value ?? '') }}</textarea>
                           </div>
                           @endif

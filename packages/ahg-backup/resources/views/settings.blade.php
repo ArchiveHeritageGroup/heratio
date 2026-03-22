@@ -34,7 +34,7 @@
       @csrf
 
       <div class="mb-3">
-        <label for="backup_path" class="form-label">Backup Path</label>
+        <label for="backup_path" class="form-label">Backup Path <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="text" class="form-control @error('backup_path') is-invalid @enderror" id="backup_path" name="backup_path"
                value="{{ old('backup_path', $settings['backup_path']) }}">
         <div class="form-text">Absolute path on the server where backups will be stored.</div>
@@ -46,7 +46,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="backup_max_backups" class="form-label">Max Backups</label>
+            <label for="backup_max_backups" class="form-label">Max Backups <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" class="form-control @error('backup_max_backups') is-invalid @enderror" id="backup_max_backups" name="backup_max_backups"
                    value="{{ old('backup_max_backups', $settings['backup_max_backups']) }}" min="1" max="999">
             <div class="form-text">Maximum number of backups to keep. Older backups will be deleted automatically.</div>
@@ -57,7 +57,7 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label for="backup_retention_days" class="form-label">Retention Days</label>
+            <label for="backup_retention_days" class="form-label">Retention Days <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" class="form-control @error('backup_retention_days') is-invalid @enderror" id="backup_retention_days" name="backup_retention_days"
                    value="{{ old('backup_retention_days', $settings['backup_retention_days']) }}" min="1" max="3650">
             <div class="form-text">Backups older than this number of days will be deleted automatically.</div>
@@ -69,7 +69,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="backup_notification_email" class="form-label">Notification Email</label>
+        <label for="backup_notification_email" class="form-label">Notification Email <span class="badge bg-secondary ms-1">Optional</span></label>
         <input type="email" class="form-control @error('backup_notification_email') is-invalid @enderror" id="backup_notification_email" name="backup_notification_email"
                value="{{ old('backup_notification_email', $settings['backup_notification_email']) }}" placeholder="admin@example.com">
         <div class="form-text">Email address to receive backup completion notifications. Leave blank to disable notifications.</div>

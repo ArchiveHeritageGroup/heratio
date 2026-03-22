@@ -77,7 +77,7 @@
     <div class="card-body">
       <div class="row g-3 align-items-end">
         <div class="col-md-3">
-          <label for="status" class="form-label small">Status</label>
+          <label for="status" class="form-label small">Status <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="status" id="status" class="form-select form-select-sm">
             <option value="">All</option>
             <option value="open" @selected($filters['status'] === 'open')>Open</option>
@@ -85,7 +85,7 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label for="level" class="form-label small">Level</label>
+          <label for="level" class="form-label small">Level <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="level" id="level" class="form-select form-select-sm">
             <option value="">All levels</option>
             <option value="fatal" @selected($filters['level'] === 'fatal')>Fatal</option>
@@ -94,7 +94,7 @@
           </select>
         </div>
         <div class="col-md-4">
-          <label for="search" class="form-label small">Search</label>
+          <label for="search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="search" id="search" class="form-control form-control-sm"
                  value="{{ $filters['search'] }}" placeholder="Message, URL, or file...">
         </div>

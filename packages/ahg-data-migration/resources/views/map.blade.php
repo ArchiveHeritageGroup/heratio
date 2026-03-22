@@ -140,11 +140,11 @@
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-4">
-          <label for="mappingName" class="form-label">Mapping Name</label>
+          <label for="mappingName" class="form-label">Mapping Name <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" class="form-control" id="mappingName" placeholder="e.g. ISAD CSV Import">
         </div>
         <div class="col-md-3">
-          <label for="mappingCategory" class="form-label">Category</label>
+          <label for="mappingCategory" class="form-label">Category <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="Category">
         </div>
         <div class="col-md-3 d-flex align-items-end">

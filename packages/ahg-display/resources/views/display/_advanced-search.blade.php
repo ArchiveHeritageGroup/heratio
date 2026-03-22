@@ -43,7 +43,7 @@
 
           {{-- Sector Quick Filter Buttons --}}
           <div class="mb-4">
-            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector</label>
+            <label class="form-label fw-bold"><i class="fas fa-layer-group me-1"></i>Search in sector <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="d-flex flex-wrap gap-2">
               <a href="{{ url('/glam/browse?showAdvanced=1') }}" class="btn {{ empty($currentType) ? 'atom-btn-white' : 'atom-btn-white' }}"><i class="fas fa-globe me-1"></i>All</a>
               <a href="{{ url('/glam/browse?type=archive&showAdvanced=1') }}" class="btn {{ $currentType === 'archive' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}"><i class="fas fa-archive me-1"></i>Archive</a>
@@ -67,40 +67,40 @@
             {{-- Basic Tab --}}
             <div class="tab-pane fade show active" id="adv-basic">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Any field</label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Title</label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Identifier</label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Reference code</label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Content Tab --}}
             <div class="tab-pane fade" id="adv-content">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Scope and content</label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Extent and medium</label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Archival history</label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Acquisition</label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="scopeAndContent" class="form-control" value="{{ $params['scopeAndContent'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Extent and medium <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="extentAndMedium" class="form-control" value="{{ $params['extentAndMedium'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Archival history <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="archivalHistory" class="form-control" value="{{ $params['archivalHistory'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Acquisition <span class="badge bg-warning ms-1">Recommended</span></label><input type="text" name="acquisition" class="form-control" value="{{ $params['acquisition'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Access Points Tab --}}
             <div class="tab-pane fade" id="adv-access">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Creator</label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Subject</label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Place</label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
-                <div class="col-md-6"><label class="form-label small fw-bold">Genre</label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Creator <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="creatorSearch" class="form-control" value="{{ $params['creatorSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Subject <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="subjectSearch" class="form-control" value="{{ $params['subjectSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Place <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="placeSearch" class="form-control" value="{{ $params['placeSearch'] ?? '' }}"></div>
+                <div class="col-md-6"><label class="form-label small fw-bold">Genre <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="genreSearch" class="form-control" value="{{ $params['genreSearch'] ?? '' }}"></div>
               </div>
             </div>
 
             {{-- Dates Tab --}}
             <div class="tab-pane fade" id="adv-dates">
               <div class="row g-3">
-                <div class="col-md-4"><label class="form-label small fw-bold">Date from</label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
-                <div class="col-md-4"><label class="form-label small fw-bold">Date to</label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">Date from <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="startDate" class="form-control" value="{{ $params['startDate'] ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label small fw-bold">Date to <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" name="endDate" class="form-control" value="{{ $params['endDate'] ?? '' }}"></div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Date matching</label>
+                  <label class="form-label small fw-bold">Date matching <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="rangeType" class="form-select">
                     <option value="inclusive" {{ ($params['rangeType'] ?? '') === 'inclusive' ? 'selected' : '' }}>Overlapping</option>
                     <option value="exact" {{ ($params['rangeType'] ?? '') === 'exact' ? 'selected' : '' }}>Exact</option>
@@ -113,7 +113,7 @@
             <div class="tab-pane fade" id="adv-filters">
               {{-- Search specific field --}}
               <div class="mb-3 p-3 bg-light rounded">
-                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field</label>
+                <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div id="field-search-rows">
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
@@ -140,7 +140,7 @@
 
               <div class="row g-3">
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Sector</label>
+                  <label class="form-label small fw-bold">Sector <span class="badge bg-warning ms-1">Recommended</span></label>
                   <select name="type" class="form-select" id="sector-filter-select">
                     <option value="">All sectors</option>
                     <option value="archive" {{ $currentType === 'archive' ? 'selected' : '' }}>Archive</option>
@@ -151,7 +151,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Level of description</label>
+                  <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="level" class="form-select" id="level-filter-select">
                     <option value="">Any level</option>
                     @foreach($levels as $level)
@@ -160,7 +160,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Repository</label>
+                  <label class="form-label small fw-bold">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="repo" id="repo-select">
                     <option value="">Any repository</option>
                     @foreach($repositories as $repo)
@@ -169,7 +169,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label small fw-bold">Digital objects</label>
+                  <label class="form-label small fw-bold">Digital objects <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="hasDigital" class="form-select">
                     <option value="">Any</option>
                     <option value="1" {{ ($params['hasDigital'] ?? '') === '1' ? 'selected' : '' }}>With digital objects</option>
@@ -246,7 +246,7 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Name *</label>
+          <label class="form-label">Name * <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="glam-save-search-name" class="form-control" required>
         </div>
         <div class="form-check mb-2">

@@ -23,7 +23,7 @@
       <div class="row g-3">
         {{-- Entity type --}}
         <div class="col-md-3">
-          <label for="className" class="form-label">Entity type</label>
+          <label for="className" class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="className" id="className" class="form-select">
             @foreach($entityTypes as $value => $label)
               <option value="{{ $value }}" {{ $className === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -33,19 +33,19 @@
 
         {{-- Date start --}}
         <div class="col-md-2">
-          <label for="dateStart" class="form-label">Date start</label>
+          <label for="dateStart" class="form-label">Date start <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="dateStart" id="dateStart" class="form-control" value="{{ $dateStart }}">
         </div>
 
         {{-- Date end --}}
         <div class="col-md-2">
-          <label for="dateEnd" class="form-label">Date end</label>
+          <label for="dateEnd" class="form-label">Date end <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="date" name="dateEnd" id="dateEnd" class="form-control" value="{{ $dateEnd }}">
         </div>
 
         {{-- Date of --}}
         <div class="col-md-2">
-          <label class="form-label">Date of</label>
+          <label class="form-label">Date of <span class="badge bg-secondary ms-1">Optional</span></label>
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="dateOf" id="dateOfCreated" value="created" {{ $dateOf === 'created' ? 'checked' : '' }}>
@@ -60,7 +60,7 @@
 
         {{-- Publication status --}}
         <div class="col-md-3">
-          <label class="form-label">Publication status</label>
+          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
           <div>
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
@@ -79,7 +79,7 @@
 
         {{-- User --}}
         <div class="col-md-3">
-          <label for="user" class="form-label">User</label>
+          <label for="user" class="form-label">User <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="user" id="user" class="form-select">
             <option value="">All users</option>
             @foreach($users as $userId => $displayName)

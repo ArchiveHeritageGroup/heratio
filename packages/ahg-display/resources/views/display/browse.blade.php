@@ -364,7 +364,7 @@
         @endforeach
         <div class="modal-body">
           <div class="mb-3">
-            <label for="semantic-query" class="form-label fw-bold">Search query</label>
+            <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
                    value="{{ $queryFilter ?? '' }}" placeholder="Enter your search terms..."
                    autofocus>
@@ -382,7 +382,7 @@
             </small>
           </div>
           <div id="semantic-expansion-preview" class="browse-hidden">
-            <label class="form-label fw-bold">Expansion preview</label>
+            <label class="form-label fw-bold">Expansion preview <span class="badge bg-secondary ms-1">Optional</span></label>
             <div class="border rounded p-3 bg-light">
               <div id="semantic-preview-content">
                 <span class="text-muted">Enter a query and enable semantic search to see expansion preview...</span>

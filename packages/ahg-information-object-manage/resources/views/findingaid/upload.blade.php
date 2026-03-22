@@ -32,7 +32,7 @@
         <div id="file-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="finding-aid-file" class="form-label">Select a PDF or RTF file to upload</label>
+              <label for="finding-aid-file" class="form-label">Select a PDF or RTF file to upload <span class="badge bg-secondary ms-1">Optional</span></label>
               <input class="form-control" type="file" id="finding-aid-file" name="file" accept=".pdf,.rtf">
             </div>
           </div>

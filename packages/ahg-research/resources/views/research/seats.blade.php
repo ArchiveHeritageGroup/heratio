@@ -8,7 +8,7 @@
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-6">
-                <label class="form-label">Select Reading Room</label>
+                <label class="form-label">Select Reading Room <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="room_id" class="form-select" onchange="this.form.submit()">
                     <option value="">-- Select a room --</option>
                     @foreach($rooms as $r)
@@ -97,7 +97,7 @@
                     <form method="POST">@csrf<input type="hidden" name="form_action" value="assign"><input type="hidden" name="seat_id" value="{{ $seat->id }}"><input type="hidden" name="room_id" value="{{ $roomId }}">
                     <div class="modal-header"><h5 class="modal-title">Assign Seat {{ e($seat->seat_number ?? $seat->id) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                     <div class="modal-body">
-                        <div class="mb-3"><label class="form-label">Researcher ID <span class="text-danger">*</span></label><input type="number" class="form-control" name="researcher_id" required placeholder="Enter researcher ID"></div>
+                        <div class="mb-3"><label class="form-label">Researcher ID <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="number" class="form-control" name="researcher_id" required placeholder="Enter researcher ID"></div>
                     </div>
                     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-user-plus me-1"></i>Assign</button></div>
                     </form>

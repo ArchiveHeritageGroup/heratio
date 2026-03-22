@@ -29,7 +29,7 @@
 
         <div class="row mb-3">
           <div class="col-md-4">
-            <label for="entity_type" class="form-label fw-bold">Entity Type <span class="text-danger">*</span></label>
+            <label for="entity_type" class="form-label fw-bold">Entity Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select class="form-select" id="entity_type" name="entity_type" required>
               <option value="">-- Select entity type --</option>
               <option value="informationObject">Information Objects ({{ number_format($counts['informationObject']) }})</option>
@@ -41,11 +41,11 @@
             </select>
           </div>
           <div class="col-md-3">
-            <label for="date_from" class="form-label fw-bold">Date From</label>
+            <label for="date_from" class="form-label fw-bold">Date From <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" class="form-control" id="date_from" name="date_from">
           </div>
           <div class="col-md-3">
-            <label for="date_to" class="form-label fw-bold">Date To</label>
+            <label for="date_to" class="form-label fw-bold">Date To <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="date" class="form-control" id="date_to" name="date_to">
           </div>
           <div class="col-md-2 d-flex align-items-end">

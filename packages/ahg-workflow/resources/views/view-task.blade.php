@@ -155,7 +155,7 @@
             @elseif((int) $task->assigned_to === (int) auth()->id())
               {{-- Approve / Reject / Release --}}
               <div class="mb-3">
-                <label for="comment" class="form-label">Comment</label>
+                <label for="comment" class="form-label">Comment <span class="badge bg-danger ms-1">Required</span></label>
                 <textarea id="comment" class="form-control" rows="3" form="approve-form" name="comment" placeholder="Optional comment for approval, required for rejection..."></textarea>
               </div>
 

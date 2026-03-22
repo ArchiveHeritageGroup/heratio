@@ -18,7 +18,7 @@
   @endif
 
   <div class="mb-3">
-    <label class="form-label" for="target-language">Target language</label>
+    <label class="form-label" for="target-language">Target language <span class="badge bg-secondary ms-1">Optional</span></label>
     <select class="form-select" id="target-language" style="max-width: 300px;">
       <option value="af">Afrikaans</option>
       <option value="en" selected>English</option>

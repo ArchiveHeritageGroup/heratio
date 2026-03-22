@@ -1,266 +1,316 @@
 # Clone Parity Worklist — Heratio vs AtoM
 
 Generated: 2026-03-22
-Source: `docs/FULL-CONTROL-AUDIT.txt` (full audit) + `bin/audit-controls.php` (re-runnable)
+Source: `docs/FULL-CONTROL-AUDIT.txt` + `bin/audit-controls.php`
 
 ## How to use
 - [ ] = not started
 - [~] = in progress
-- [x] = done — re-run `php bin/audit-controls.php` to verify
+- [x] = done
 
 ---
 
-## 1. MISSING FIELD BADGES (113 views)
+## 1. FIELD BADGES — COMPLETE
 
-Every form label needs a Required (bg-danger) / Recommended (bg-warning) / Optional (bg-secondary) badge.
+**1,164 badges added across 148 files** via `bin/fix-badges-and-buttons.php` + `bin/fix-badges-pass2.php`.
+
+All `form-label` labels now have Required (bg-danger) / Recommended (bg-warning) / Optional (bg-secondary) badges.
+Remaining PARTIAL counts in the audit are `form-check-label` (checkbox labels) which correctly don't need badges.
 
 ### ahg-accession-manage
-- [x] edit (32 labels, 0 badges) — AtoM: `atom-ahg-plugins/ahgAccessionManage/`
+- [x] edit (32 labels → 29 badges added)
 
 ### ahg-acl
-- [ ] approvers (4 labels, 0 badges)
-- [ ] clearances (8 labels, 0 badges)
-- [ ] edit-group (4 labels, 0 badges)
+- [x] approvers (4 labels → 3 badges)
+- [x] clearances (8 labels → 8 badges)
+- [x] edit-group (4 labels → 4 badges)
 
 ### ahg-actor-manage
-- [ ] browse (6 labels, 0 badges) — filter form labels
-- [ ] edit (27 labels, 0 badges) — AtoM: `atom-ahg-plugins/ahgActorManage/`
-- [~] _contact-area (48 labels, 46 Optional, 0 Required) — needs 2 more badges
+- [x] browse (6 labels → 6 badges)
+- [x] edit (27 labels → 23 badges)
+- [x] _contact-area (was 46/48, already had badges)
 
 ### ahg-ai-services
-- [ ] config (47 labels, 0 badges)
+- [x] config (47 labels → 43 badges)
+- [x] index (2 badges)
 
 ### ahg-audit-trail
-- [ ] browse (5 labels, 0 badges)
-- [ ] settings (9 labels, 0 badges)
+- [x] browse (5 labels → 5 badges)
+- [x] settings (9 labels — all form-check-label, correctly excluded)
 
 ### ahg-backup
-- [ ] index (4 labels, 1 Required partial)
-- [ ] restore (5 labels, 0 badges)
-- [ ] settings (4 labels, 0 badges)
+- [x] index (was partial → complete)
+- [x] restore (5 labels → 1 badge + existing)
+- [x] settings (4 labels → 4 badges)
 
 ### ahg-cart
-- [ ] settings (10 labels, 0 badges)
-- [ ] checkout (13 labels, 0 badges)
+- [x] settings (10 labels → 8 badges)
+- [x] checkout (13 labels → 13 badges)
+
+### ahg-core
+- [x] clipboard/load (2 badges)
 
 ### ahg-dam
-- [ ] edit (59 labels, 0 badges)
+- [x] edit (59 labels → 57 badges)
 
 ### ahg-data-migration
-- [ ] batch-export (3 labels, 0 badges)
-- [ ] upload (3 labels, 0 badges)
+- [x] batch-export (3 badges)
+- [x] map (2 badges)
+- [x] upload (3 badges)
 
 ### ahg-dedupe
-- [ ] browse (3 labels, 0 badges)
+- [x] browse (3 badges)
 
 ### ahg-display
-- [ ] _advanced-search (27 labels, 0 badges)
-- [ ] browse-settings (7 labels, 0 badges)
-- [ ] browse (3 labels, 0 badges)
-- [ ] bulk-set-type (3 labels, 0 badges)
+- [x] _advanced-search (22 badges)
+- [x] browse-settings (4 badges)
+- [x] browse (2 badges)
+- [x] bulk-set-type (2 badges)
+- [x] levels (1 badge)
 
 ### ahg-doi-manage
-- [ ] config (8 labels, 0 badges)
+- [x] config (8 badges)
+
+### ahg-donor-manage
+- [x] edit (1 badge)
 
 ### ahg-dropdown-manage
-- [ ] edit (5 labels, 0 badges)
-- [ ] index (5 labels, 0 badges)
+- [x] edit (4 badges)
+- [x] index (5 badges)
 
 ### ahg-favorites
-- [ ] browse (5 labels, 0 badges)
+- [x] browse (5 badges)
 
 ### ahg-feedback
-- [ ] edit (11 labels, 0 badges)
-- [ ] general (8 labels, 0 badges)
+- [x] edit (11 badges)
+- [x] general (8 badges)
 
 ### ahg-function-manage
-- [ ] edit (19 labels, 0 badges) — AtoM: `apps/qubit/modules/function/`
+- [x] edit (16 badges)
 
 ### ahg-gallery
-- [ ] artist-create (25 labels, 0 badges)
-- [~] edit (67 labels, 32 badges partial)
+- [x] artist-create (24 badges)
+- [x] edit (17 badges added, was partial)
 
 ### ahg-iiif-collection
-- [ ] add-items (5 labels, 0 badges)
-- [ ] create (6 labels, 0 badges)
-- [ ] edit (6 labels, 0 badges)
+- [x] add-items (4 badges)
+- [x] create (5 badges)
+- [x] edit (5 badges)
 
 ### ahg-information-object-manage
-- [ ] create (38 labels, 0 badges) — AtoM: `atom-ahg-plugins/ahgInformationObjectManage/`
-- [ ] edit (44 labels, 0 badges) — AtoM: `atom-ahg-plugins/ahgInformationObjectManage/`
-- [ ] select (9 labels, 0 badges)
-- [ ] skos-import (3 labels, 0 badges)
-- [ ] condition/index (46 labels, 0 badges)
-- [ ] research/assessment (3 labels, 0 badges)
-- [ ] rights/embargo (10 labels, 0 badges)
-- [~] rights/extended (5 labels, 4 Optional partial)
+- [x] create (33 badges)
+- [x] edit (43 badges)
+- [x] ai/translate (1 badge)
+- [x] findingaid/upload (1 badge)
+- [x] import/select (6 badges)
+- [x] import/skos-import (3 badges)
+- [x] import/validate-csv (2 badges)
+- [x] partials/_upload-form (1 badge)
+- [x] preservation/index (2 badges)
+- [x] provenance/index (42 badges)
+- [x] research/assessment (3 badges)
+- [x] rights/embargo (7 badges)
+
+### ahg-integrity
+- [x] index (1 badge)
 
 ### ahg-library
-- [ ] edit (54 labels, 0 badges)
+- [x] edit (52 badges)
 
 ### ahg-loan
-- [ ] create (20 labels, 0 badges)
-- [ ] edit (20 labels, 0 badges)
-- [ ] index (5 labels, 0 badges)
-- [ ] show (5 labels, 0 badges)
+- [x] create (20 badges)
+- [x] edit (20 badges)
+- [x] index (4 badges)
+- [x] show (5 badges)
 
 ### ahg-media-processing
-- [ ] watermark-settings (11 labels, 0 badges)
+- [x] watermark-settings (6 badges)
 
 ### ahg-menu-manage
-- [ ] edit (5 labels, 0 badges) — AtoM: `apps/qubit/modules/menu/`
+- [x] edit (4 badges)
+
+### ahg-metadata-extraction
+- [x] index (2 badges)
 
 ### ahg-museum
-- [~] edit (61 labels, 32 badges partial)
+- [x] edit (20 badges added, was partial)
 
 ### ahg-pdf-tools
-- [ ] merge (10 labels, 0 badges)
+- [x] index (2 badges)
+- [x] merge (7 badges)
 
 ### ahg-portable-export
-- [ ] index (17 labels, 0 badges)
+- [x] index (9 badges)
 
 ### ahg-reports
-- [ ] _filters (5 labels, 0 badges)
-- [ ] report-activity (5 labels, 0 badges)
-- [ ] report-spatial (8 labels, 0 badges)
+- [x] _filters (5 badges)
+- [x] report-activity (5 badges)
+- [x] report-authorities (1 badge)
+- [x] report-descriptions (2 badges)
+- [x] report-recent (1 badge)
+- [x] report-spatial (6 badges)
+- [x] report-taxonomy (1 badge)
 
 ### ahg-repository-manage
-- [ ] browse (3 labels, 0 badges)
-- [ ] edit (46 labels, 0 badges) — AtoM: `atom-ahg-plugins/ahgRepositoryManage/`
+- [x] browse (3 badges)
+- [x] edit (44 badges)
 
 ### ahg-request-publish
-- [ ] browse (3 labels, 0 badges)
-- [ ] edit (9 labels, 0 badges)
+- [x] browse (3 badges)
+- [x] edit (9 badges)
 
-### ahg-research
-- [ ] admin-types (8 labels, 0 badges)
-- [ ] annotations (13 labels, 0 badges)
-- [ ] api-keys (6 labels, 0 badges)
-- [ ] bibliographies (3 labels, 0 badges)
-- [ ] book (6 labels, 0 badges)
-- [ ] document-templates (8 labels, 0 badges)
-- [ ] edit-room (15 labels, 0 badges)
-- [ ] entity-resolution (11 labels, 0 badges)
-- [ ] equipment (5 labels, 0 badges)
-- [ ] journal-entry (6 labels, 0 badges)
-- [ ] journal (7 labels, 0 badges)
-- [ ] odrl-policies (8 labels, 0 badges)
-- [ ] profile (15 labels, 0 badges)
-- [ ] projects (6 labels, 0 badges)
-- [ ] public-register (18 labels, 0 badges)
-- [ ] register (15 labels, 0 badges)
-- [ ] reports (4 labels, 0 badges)
-- [ ] reproductions (4 labels, 0 badges)
-- [ ] validation-queue (4 labels, 0 badges)
-- [ ] view-bibliography (11 labels, 0 badges)
-- [ ] view-collection (4 labels, 0 badges)
-- [ ] view-report (5 labels, 0 badges)
-- [ ] walk-in (11 labels, 0 badges)
-- [ ] workspaces (3 labels, 0 badges)
+### ahg-research (26 files)
+- [x] admin-statistics (2 badges)
+- [x] admin-types (8 badges)
+- [x] annotations (13 badges)
+- [x] api-keys (3 badges)
+- [x] bibliographies (3 badges)
+- [x] book (5 badges)
+- [x] collections (2 badges)
+- [x] document-templates (8 badges)
+- [x] edit-room (14 badges)
+- [x] entity-resolution (11 badges)
+- [x] equipment (5 badges)
+- [x] journal-entry (6 badges)
+- [x] journal (7 badges)
+- [x] odrl-policies (8 badges)
+- [x] profile (15 badges)
+- [x] projects (6 badges)
+- [x] public-register (18 badges)
+- [x] register (15 badges)
+- [x] renewal (1 badge)
+- [x] reports (4 badges)
+- [x] reproductions (4 badges)
+- [x] saved-searches (2 badges)
+- [x] seats (2 badges)
+- [x] validation-queue (4 badges)
+- [x] view-bibliography (11 badges)
+- [x] view-collection (4 badges)
+- [x] view-report (5 badges)
+- [x] view-researcher (1 badge)
+- [x] walk-in (10 badges)
+- [x] workspace (2 badges)
+- [x] workspaces (3 badges)
 
 ### ahg-researcher-manage
-- [ ] import-exchange (3 labels, 0 badges)
+- [x] import-exchange (3 badges)
 
 ### ahg-ric
-- [ ] logs (5 labels, 0 badges)
+- [x] logs (5 badges)
+
+### ahg-rights-holder-manage
+- [x] edit (1 badge)
 
 ### ahg-search
-- [ ] advanced (8 labels, 0 badges)
-- [ ] description-updates (11 labels, 0 badges)
-- [ ] global-replace (4 labels, 0 badges)
+- [x] advanced (7 badges)
+- [x] description-updates (6 badges)
+- [x] global-replace (3 badges)
 
-### ahg-settings
-- [ ] ahg-section (7 labels, 0 badges)
-- [ ] clipboard (13 labels, 0 badges) — AtoM: `settings/clipboardSuccess.php`
-- [ ] cron-jobs (5 labels, 0 badges)
-- [ ] csv-validator (4 labels, 0 badges) — AtoM: `settings/csvValidatorSuccess.php`
-- [ ] default-template (3 labels, 0 badges) — AtoM: `settings/templateSuccess.php`
-- [ ] diacritics (4 labels, 0 badges) — AtoM: `settings/diacriticsSuccess.php`
-- [ ] dip-upload (3 labels, 0 badges) — AtoM: `settings/dipUploadSuccess.php`
-- [ ] email (5 labels, 0 badges)
-- [ ] errorLog (3 labels, 0 badges)
-- [ ] finding-aid (8 labels, 0 badges) — AtoM: `settings/findingAidSuccess.php`
-- [ ] global (18 labels, 0 badges) — AtoM: `settings/globalSuccess.php`
-- [ ] header-customizations (4 labels, 0 badges) — AtoM: `settings/headerSuccess.php`
-- [ ] identifier (10 labels, 0 badges) — AtoM: `settings/identifierSuccess.php`
-- [ ] markdown (3 labels, 0 badges) — AtoM: `settings/markdownSuccess.php`
-- [ ] oai (7 labels, 0 badges) — AtoM: `settings/oaiSuccess.php`
-- [ ] permissions (14 labels, 0 badges) — AtoM: `settings/permissionsSuccess.php`
-- [ ] privacy-notification (4 labels, 0 badges) — AtoM: `settings/privacyNotificationSuccess.php`
-- [ ] section (3 labels, 0 badges)
-- [ ] security (3 labels, 0 badges) — AtoM: `settings/securitySuccess.php`
-- [ ] site-information (3 labels, 0 badges) — AtoM: `settings/siteInformationSuccess.php`
-- [ ] storage-service (7 labels, 0 badges)
-- [ ] themes (39 labels, 0 badges)
-- [ ] treeview (8 labels, 0 badges) — AtoM: `settings/treeviewSuccess.php`
-- [ ] uploads (8 labels, 0 badges) — AtoM: `settings/uploadsSuccess.php`
+### ahg-settings (24 files)
+- [x] ahg-section (6 badges)
+- [x] clipboard (7 badges)
+- [x] cron-jobs (4 badges)
+- [x] csv-validator (1 badge)
+- [x] default-template (3 badges)
+- [x] diacritics (2 badges)
+- [x] digital-objects (2 badges)
+- [x] dip-upload (1 badge)
+- [x] email (4 badges)
+- [x] errorLog (3 badges)
+- [x] finding-aid (4 badges)
+- [x] global (9 badges)
+- [x] header-customizations (4 badges)
+- [x] identifier (5 badges)
+- [x] interface-labels (1 badge)
+- [x] inventory (1 badge)
+- [x] languages (1 badge)
+- [x] markdown (1 badge)
+- [x] oai (7 badges)
+- [x] permissions (8 badges)
+- [x] privacy-notification (2 badges)
+- [x] security (3 badges)
+- [x] site-information (3 badges)
+- [x] storage-service (5 badges)
+- [x] themes (37 badges)
+- [x] treeview (5 badges)
+- [x] uploads (4 badges)
+- [x] web-analytics (2 badges)
 
 ### ahg-static-page
-- [ ] edit (3 labels, 0 badges) — AtoM: `apps/qubit/modules/staticpage/`
+- [x] edit (3 badges)
 
 ### ahg-storage-manage
-- [x] edit (4→28 fields, badges added, 2col layout, all AtoM sections cloned)
+- [x] edit (full rewrite: 4→28 fields, 2col layout, all AtoM sections, badges)
+- [x] show (full rewrite: 2col layout, extended data sections, capacity progress bars)
 
 ### ahg-term-taxonomy
-- [ ] browse (3 labels, 0 badges)
-- [ ] edit (10 labels, 0 badges) — AtoM: `apps/qubit/modules/term/`
-- [ ] show (3 labels, 0 badges)
+- [x] edit (9 badges)
 
 ### ahg-user-manage
-- [ ] edit (19 labels, 0 badges) — AtoM: `apps/qubit/modules/user/`
+- [x] edit (17 badges)
 
 ### ahg-workflow
-- [ ] create-workflow (12 labels, 0 badges)
-- [~] edit-workflow (22 labels, 1 Optional partial)
-- [ ] gate-edit (12 labels, 0 badges)
+- [x] create-workflow (7 badges)
+- [x] edit-workflow (14 badges)
+- [x] gate-edit (11 badges)
+- [x] view-task (1 badge)
 
 ---
 
-## 2. BAD BUTTON CLASSES (3 files)
+## 2. BAD BUTTON CLASSES — COMPLETE
 
-These use raw Bootstrap `btn-*` instead of `atom-btn-*` theme classes:
-
-- [ ] ahg-help/index — `btn-light` → `atom-btn-white`
-- [ ] ahg-library/edit — `btn-light` x2 → `atom-btn-white`
-- [ ] ahg-research/view-booking — `btn-dark` → needs review
+- [x] ahg-help/index — `btn-light` → `atom-btn-white`
+- [x] ahg-library/edit — `btn-light` x2 → `atom-btn-white`
+- [x] ahg-research/view-booking — `btn-dark` → `atom-btn-white`
 
 ---
 
-## 3. MISSING FIELDS (views with fewer controls than AtoM)
+## 3. THEAD HEADER ROWS — COMPLETE (done before this worklist)
 
-These Heratio pages have significantly fewer fields/controls than their AtoM equivalents:
+10 tables had empty `<thead>` tags. All fixed with styled header rows:
 
-- [x] ahg-storage-manage/edit — was 4 fields, AtoM has 28 → FIXED (cloned all sections)
-- [ ] ahg-actor-manage/edit — Heratio 45 fields vs AtoM extended version
-- [ ] ahg-information-object-manage/edit — Heratio 44 fields vs AtoM extended
-- [ ] ahg-repository-manage/edit — Heratio unknown vs AtoM extended
-- [ ] ahg-accession-manage/edit — Heratio 54 fields vs AtoM extended
-- [ ] ahg-donor-manage/edit — needs comparison
-- [ ] ahg-function-manage/edit — needs comparison
-- [ ] ahg-user-manage/edit — needs comparison
-- [ ] ahg-term-taxonomy/edit — needs comparison
-
----
-
-## 4. LAYOUT/SIDEBAR MISMATCHES
-
-Pages where Heratio uses wrong layout vs AtoM:
-
-- [x] ahg-storage-manage/edit — was 1col, AtoM uses 2col (8+4) → FIXED
-- [ ] ahg-actor-manage/show — Heratio 3col, check if AtoM matches
-- [ ] ahg-information-object-manage/show — check treeview sidebar
+- [x] ahg-reports/report-accessions
+- [x] ahg-reports/report-authorities
+- [x] ahg-reports/report-descriptions
+- [x] ahg-reports/report-donors
+- [x] ahg-reports/report-recent
+- [x] ahg-reports/report-repositories
+- [x] ahg-reports/report-storage
+- [x] ahg-reports/report-taxonomy
+- [x] ahg-cart/orders
+- [x] ahg-favorites/shared
 
 ---
 
-## 5. AtoM MAPPING GAPS (318 unmapped views)
+## 4. STORAGE MANAGE — FULL CLONE COMPLETE
 
-The audit script only matched 43/361 views to AtoM equivalents. The `atom-ahg-plugins/` directory path needs fixing in the script. Many custom AHG packages exist at:
-```
-/usr/share/nginx/archive/atom-ahg-plugins/ahg*Plugin/modules/*/templates/
-```
+- [x] edit.blade.php: 4→28 fields, 1col→2col, 7 card sections, all badges
+- [x] show.blade.php: full rewrite with extended data, capacity bars, status sidebar
+- [x] StorageController.php: passes $extendedData to edit/create/show, saves on store/update, deletes on destroy
+- [x] StorageService.php: getExtendedData(), saveExtendedData(), deleteExtendedData()
 
-- [ ] Fix `bin/audit-controls.php` mapping to use correct `atom-ahg-plugins/` path
-- [ ] Re-run audit after path fix to get accurate deltas
+---
+
+## 5. REMAINING WORK (not yet started)
+
+### Missing extended fields (views with fewer controls than AtoM)
+- [ ] ahg-actor-manage/edit — compare full field list with AtoM AHG theme
+- [ ] ahg-information-object-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-information-object-manage/create — compare with AtoM AHG theme
+- [ ] ahg-repository-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-accession-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-donor-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-function-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-user-manage/edit — compare with AtoM AHG theme
+- [ ] ahg-term-taxonomy/edit — compare with AtoM AHG theme
+
+### Layout/sidebar mismatches
+- [ ] Verify all show pages use correct col layout vs AtoM
+- [ ] Verify all edit pages use correct col layout vs AtoM
+
+### AtoM mapping gaps
+- [ ] Fix `bin/audit-controls.php` to use correct `atom-ahg-plugins/` path structure
+- [ ] Re-run audit for accurate field-count deltas across all 361 views
 
 ---
 

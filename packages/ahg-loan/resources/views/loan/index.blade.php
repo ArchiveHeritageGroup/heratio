@@ -63,7 +63,7 @@
     <div class="card-body">
       <form method="GET" action="{{ route('loan.index') }}" class="row g-2 align-items-end">
         <div class="col-md-2">
-          <label for="filter-type" class="form-label small">Type</label>
+          <label for="filter-type" class="form-label small">Type <span class="badge bg-warning ms-1">Recommended</span></label>
           <select name="type" id="filter-type" class="form-select form-select-sm">
             <option value="">All types</option>
             <option value="out" {{ ($params['type'] ?? '') === 'out' ? 'selected' : '' }}>Outgoing</option>
@@ -71,7 +71,7 @@
           </select>
         </div>
         <div class="col-md-2">
-          <label for="filter-status" class="form-label small">Status</label>
+          <label for="filter-status" class="form-label small">Status <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="status" id="filter-status" class="form-select form-select-sm">
             <option value="">All statuses</option>
             @foreach(['draft','submitted','under_review','approved','rejected','preparing','dispatched','in_transit','received','on_loan','return_requested','returned','closed','cancelled'] as $s)
@@ -80,12 +80,12 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label for="filter-search" class="form-label small">Search</label>
+          <label for="filter-search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="search" id="filter-search" class="form-control form-control-sm"
                  placeholder="Loan #, title, partner..." value="{{ $params['search'] ?? '' }}">
         </div>
         <div class="col-md-2">
-          <label for="filter-sector" class="form-label small">Sector</label>
+          <label for="filter-sector" class="form-label small">Sector <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="sector" id="filter-sector" class="form-select form-select-sm">
             <option value="">All sectors</option>
             @foreach(['museum','archive','library','gallery'] as $sec)

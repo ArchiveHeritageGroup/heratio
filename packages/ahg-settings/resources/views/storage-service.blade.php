@@ -21,7 +21,7 @@
           <div id="storage-config-collapse" class="accordion-collapse collapse" aria-labelledby="storage-config-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable storage service</label>
+                <label class="form-label">Enable storage service <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[storage_service_enabled]" id="ss_enabled_no" value="0" {{ ($settings['storage_service_enabled'] ?? '') != '1' ? 'checked' : '' }}>
@@ -35,7 +35,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service type</label>
+                <label class="form-label">Storage service type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[storage_service_type]" class="form-select">
                   <option value="">-- Select --</option>
                   <option value="archivematica" {{ ($settings['storage_service_type'] ?? '') == 'archivematica' ? 'selected' : '' }}>Archivematica</option>
@@ -46,18 +46,18 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service URL</label>
+                <label class="form-label">Storage service URL <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="url" name="settings[storage_service_url]" class="form-control" value="{{ e($settings['storage_service_url']) }}" placeholder="https://storage.example.com">
                 <small class="text-muted">Full URL of the storage service API endpoint</small>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service username</label>
+                <label class="form-label">Storage service username <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[storage_service_username]" class="form-control" value="{{ e($settings['storage_service_username']) }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service API key</label>
+                <label class="form-label">Storage service API key <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="password" name="settings[storage_service_api_key]" class="form-control" value="{{ e($settings['storage_service_api_key']) }}">
                 <small class="text-muted">The API key or password used to authenticate with the storage service</small>
               </div>

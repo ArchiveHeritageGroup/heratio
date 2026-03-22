@@ -50,7 +50,7 @@
         {{-- Default View --}}
         <div class="row mb-3">
           <div class="col-md-6">
-            <label for="default_view" class="form-label"><strong>Default View</strong></label>
+            <label for="default_view" class="form-label"><strong>Default View</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_view" id="default_view" class="form-select">
               <option value="list" {{ ($settings['default_view'] ?? 'list') === 'list' ? 'selected' : '' }}>
                 List View
@@ -72,7 +72,7 @@
 
           {{-- Items Per Page --}}
           <div class="col-md-6">
-            <label for="items_per_page" class="form-label"><strong>Items Per Page</strong></label>
+            <label for="items_per_page" class="form-label"><strong>Items Per Page</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="items_per_page" id="items_per_page" class="form-select">
               @foreach([10, 20, 30, 50, 100] as $count)
                 <option value="{{ $count }}" {{ ($settings['items_per_page'] ?? 30) == $count ? 'selected' : '' }}>
@@ -86,7 +86,7 @@
         {{-- Sort By / Direction --}}
         <div class="row mb-3">
           <div class="col-md-6">
-            <label for="sort_by" class="form-label"><strong>Sort By</strong></label>
+            <label for="sort_by" class="form-label"><strong>Sort By</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="sort_by" id="sort_by" class="form-select">
               <option value="title" {{ ($settings['sort_by'] ?? 'title') === 'title' ? 'selected' : '' }}>
                 Title
@@ -109,7 +109,7 @@
             </select>
           </div>
           <div class="col-md-6">
-            <label for="sort_direction" class="form-label"><strong>Direction</strong></label>
+            <label for="sort_direction" class="form-label"><strong>Direction</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="sort_direction" id="sort_direction" class="form-select">
               <option value="asc" {{ ($settings['sort_direction'] ?? 'asc') === 'asc' ? 'selected' : '' }}>
                 Ascending (A-Z)

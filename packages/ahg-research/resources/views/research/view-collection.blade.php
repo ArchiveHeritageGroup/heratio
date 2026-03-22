@@ -28,11 +28,11 @@
         @csrf
         @method('PUT')
         <div class="mb-3">
-          <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+          <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $collection->name ?? '') }}" required>
         </div>
         <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
+          <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $collection->description ?? '') }}</textarea>
         </div>
         <button type="submit" class="btn atom-btn-outline-light btn-sm">
@@ -99,11 +99,11 @@
         @csrf
         <div class="row">
           <div class="col-md-8 mb-3">
-            <label for="search_query" class="form-label">Search for an item</label>
+            <label for="search_query" class="form-label">Search for an item <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="search_query" id="search_query" class="form-control" placeholder="Search by title, reference, or slug...">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="item_notes" class="form-label">Notes</label>
+            <label for="item_notes" class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="notes" id="item_notes" class="form-control" placeholder="Optional notes">
           </div>
         </div>

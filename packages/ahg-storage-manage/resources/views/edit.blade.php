@@ -216,7 +216,7 @@
                 $barClass = $percent >= 90 ? 'bg-danger' : ($percent >= 70 ? 'bg-warning' : 'bg-success');
               @endphp
               <div class="mb-3">
-                <label class="form-label">Capacity Usage</label>
+                <label class="form-label">Capacity Usage <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="progress" style="height:25px">
                   <div class="progress-bar {{ $barClass }}" role="progressbar" style="width:{{ $percent }}%">
                     {{ $used }} / {{ $total }} ({{ $percent }}%)

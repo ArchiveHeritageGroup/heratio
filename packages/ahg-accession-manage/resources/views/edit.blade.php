@@ -29,7 +29,7 @@
         <div id="basic-collapse" class="accordion-collapse collapse" aria-labelledby="basic-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="identifier" class="form-label">Accession number</label>
+              <label for="identifier" class="form-label">Accession number <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                      value="{{ old('identifier', $accession->identifier ?? '') }}">
               @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -192,7 +192,7 @@
                     <div class="modal-body pb-2">
 
                       <div class="mb-3">
-                        <label for="donor_name" class="form-label">Name</label>
+                        <label for="donor_name" class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="Type to search donors..." autocomplete="off">
                         <div class="form-text text-muted small">This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form.</div>
                       </div>
@@ -214,65 +214,65 @@
                       <div class="tab-content">
                         <div class="tab-pane fade show active" id="pills-main" role="tabpanel" aria-labelledby="pills-main-tab">
                           <div class="mb-3">
-                            <label for="donor_contact_person" class="form-label">Contact person</label>
+                            <label for="donor_contact_person" class="form-label">Contact person <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_contact_person" id="donor_contact_person" class="form-control" value="{{ old('donor_contact_person', $donorContact->contact_person ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_telephone" class="form-label">Telephone</label>
+                            <label for="donor_telephone" class="form-label">Telephone <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_telephone" id="donor_telephone" class="form-control" value="{{ old('donor_telephone', $donorContact->telephone ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_fax" class="form-label">Fax</label>
+                            <label for="donor_fax" class="form-label">Fax <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_fax" id="donor_fax" class="form-control" value="{{ old('donor_fax', $donorContact->fax ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_email" class="form-label">Email</label>
+                            <label for="donor_email" class="form-label">Email <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="email" name="donor_email" id="donor_email" class="form-control" value="{{ old('donor_email', $donorContact->email ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_url" class="form-label">URL</label>
+                            <label for="donor_url" class="form-label">URL <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="url" name="donor_url" id="donor_url" class="form-control" value="{{ old('donor_url', $donorContact->website ?? '') }}">
                           </div>
                         </div>
 
                         <div class="tab-pane fade" id="pills-phys" role="tabpanel" aria-labelledby="pills-phys-tab">
                           <div class="mb-3">
-                            <label for="donor_street_address" class="form-label">Street address</label>
+                            <label for="donor_street_address" class="form-label">Street address <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_street_address" id="donor_street_address" class="form-control" value="{{ old('donor_street_address', $donorContact->street_address ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_region" class="form-label">Region/province</label>
+                            <label for="donor_region" class="form-label">Region/province <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_region" id="donor_region" class="form-control" value="{{ old('donor_region', $donorContact->region ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_country" class="form-label">Country</label>
+                            <label for="donor_country" class="form-label">Country <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_country" id="donor_country" class="form-control" value="{{ old('donor_country', $donorContact->country_code ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_postal_code" class="form-label">Postal code</label>
+                            <label for="donor_postal_code" class="form-label">Postal code <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_postal_code" id="donor_postal_code" class="form-control" value="{{ old('donor_postal_code', $donorContact->postal_code ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_city" class="form-label">City</label>
+                            <label for="donor_city" class="form-label">City <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_city" id="donor_city" class="form-control" value="{{ old('donor_city', $donorContact->city ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_latitude" class="form-label">Latitude</label>
+                            <label for="donor_latitude" class="form-label">Latitude <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_latitude" id="donor_latitude" class="form-control" value="{{ old('donor_latitude', $donorContact->latitude ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_longitude" class="form-label">Longitude</label>
+                            <label for="donor_longitude" class="form-label">Longitude <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_longitude" id="donor_longitude" class="form-control" value="{{ old('donor_longitude', $donorContact->longitude ?? '') }}">
                           </div>
                         </div>
 
                         <div class="tab-pane fade" id="pills-other" role="tabpanel" aria-labelledby="pills-other-tab">
                           <div class="mb-3">
-                            <label for="donor_contact_type" class="form-label">Contact type</label>
+                            <label for="donor_contact_type" class="form-label">Contact type <span class="badge bg-secondary ms-1">Optional</span></label>
                             <input type="text" name="donor_contact_type" id="donor_contact_type" class="form-control" value="{{ old('donor_contact_type', $donorContact->contact_type ?? '') }}">
                           </div>
                           <div class="mb-3">
-                            <label for="donor_note" class="form-label">Note</label>
+                            <label for="donor_note" class="form-label">Note <span class="badge bg-secondary ms-1">Optional</span></label>
                             <textarea name="donor_note" id="donor_note" class="form-control" rows="2">{{ old('donor_note', $donorContact->note ?? '') }}</textarea>
                           </div>
                         </div>
@@ -302,7 +302,7 @@
         <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="acquisition_type_id" class="form-label">Acquisition type</label>
+              <label for="acquisition_type_id" class="form-label">Acquisition type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="acquisition_type_id" id="acquisition_type_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['acquisitionTypes'] as $type)
@@ -313,7 +313,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="resource_type_id" class="form-label">Resource type</label>
+              <label for="resource_type_id" class="form-label">Resource type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="resource_type_id" id="resource_type_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['resourceTypes'] as $type)
@@ -324,13 +324,13 @@
             </div>
 
             <div class="mb-3">
-              <label for="title" class="form-label">Title</label>
+              <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $accession->title ?? '') }}">
               <div class="form-text text-muted small">The title of the accession, usually the creator name and term describing the format of the accession materials.</div>
             </div>
 
             <div class="mb-3">
-              <label for="creators" class="form-label">Creators</label>
+              <label for="creators" class="form-label">Creators <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
               <div class="form-text text-muted small">The name of the creator of the accession or the name of the department that created the accession.</div>
             </div>
@@ -452,37 +452,37 @@
             </div>
 
             <div class="mb-3">
-              <label for="archival_history" class="form-label">Archival/Custodial history</label>
+              <label for="archival_history" class="form-label">Archival/Custodial history <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="archival_history" id="archival_history" class="form-control" rows="3">{{ old('archival_history', $accession->archival_history ?? '') }}</textarea>
               <div class="form-text text-muted small">Information on the history of the accession. When the accession is acquired directly from the creator, do not record an archival history but record the information as the Immediate Source of Acquisition.</div>
             </div>
 
             <div class="mb-3">
-              <label for="scope_and_content" class="form-label">Scope and content</label>
+              <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="4">{{ old('scope_and_content', $accession->scope_and_content ?? '') }}</textarea>
               <div class="form-text text-muted small">A description of the intellectual content and document types represented in the accession.</div>
             </div>
 
             <div class="mb-3">
-              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling</label>
+              <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="appraisal" id="appraisal" class="form-control" rows="3">{{ old('appraisal', $accession->appraisal ?? '') }}</textarea>
               <div class="form-text text-muted small">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material.</div>
             </div>
 
             <div class="mb-3">
-              <label for="physical_characteristics" class="form-label">Physical condition</label>
+              <label for="physical_characteristics" class="form-label">Physical condition <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="physical_characteristics" id="physical_characteristics" class="form-control" rows="3">{{ old('physical_characteristics', $accession->physical_characteristics ?? '') }}</textarea>
               <div class="form-text text-muted small">A description of the physical condition of the accession and if any preservation or special handling is required.</div>
             </div>
 
             <div class="mb-3">
-              <label for="received_extent_units" class="form-label">Received extent units</label>
+              <label for="received_extent_units" class="form-label">Received extent units <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="received_extent_units" id="received_extent_units" class="form-control" rows="2">{{ old('received_extent_units', $accession->received_extent_units ?? '') }}</textarea>
               <div class="form-text text-muted small">The number of units as a whole number and the measurement of the received volume of records in the accession.</div>
             </div>
 
             <div class="mb-3">
-              <label for="processing_status_id" class="form-label">Processing status</label>
+              <label for="processing_status_id" class="form-label">Processing status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="processing_status_id" id="processing_status_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['processingStatuses'] as $status)
@@ -493,7 +493,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="processing_priority_id" class="form-label">Processing priority</label>
+              <label for="processing_priority_id" class="form-label">Processing priority <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="processing_priority_id" id="processing_priority_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['processingPriorities'] as $priority)
@@ -504,7 +504,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="processing_notes" class="form-label">Processing notes</label>
+              <label for="processing_notes" class="form-label">Processing notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="processing_notes" id="processing_notes" class="form-control" rows="3">{{ old('processing_notes', $accession->processing_notes ?? '') }}</textarea>
               <div class="form-text text-muted small">Notes about the processing plan, describing what needs to be done for the accession to be processed completely.</div>
             </div>
@@ -522,7 +522,7 @@
         <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="information_objects" class="form-label">Archival description</label>
+              <label for="information_objects" class="form-label">Archival description <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="information_objects" id="information_objects" class="form-control" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions..." autocomplete="off">
             </div>
           </div>

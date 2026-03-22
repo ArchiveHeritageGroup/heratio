@@ -21,13 +21,13 @@
           <div id="settings-collapse" class="accordion-collapse collapse" aria-labelledby="settings-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Total space available for uploads</label>
+                <label class="form-label">Total space available for uploads <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[upload_quota]" class="form-control" value="{{ e($settings['upload_quota']) }}">
                 <small class="text-muted">A value of "-1" allows unlimited uploads. This value is typically set via the server configuration file.</small>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Repository upload limits</label>
+                <label class="form-label">Repository upload limits <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enable_repository_quotas]" id="repo_quota_disabled" value="0" {{ $settings['enable_repository_quotas'] != '1' ? 'checked' : '' }}>
@@ -42,13 +42,13 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Default repository upload limit (GB)</label>
+                <label class="form-label">Default repository upload limit (GB) <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="settings[repository_quota]" class="form-control" value="{{ e($settings['repository_quota']) }}" min="-1" step="0.01">
                 <small class="text-muted">Default digital object upload limit for a new repository. A value of "0" (zero) disables file upload. A value of "-1" allows unlimited uploads</small>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Upload multi-page files as multiple descriptions</label>
+                <label class="form-label">Upload multi-page files as multiple descriptions <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[explode_multipage_files]" id="explode_no" value="0" {{ $settings['explode_multipage_files'] != '1' ? 'checked' : '' }}>

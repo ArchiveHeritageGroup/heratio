@@ -35,21 +35,21 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+            <label for="username" class="form-label">Username <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="username" id="username" class="form-control" value="{{ old('username') }}" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <label for="email" class="form-label">Email <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <label for="password" class="form-label">Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="password" name="password" id="password" class="form-control" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
           </div>
         </div>
@@ -62,7 +62,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label for="title" class="form-label">Title</label>
+            <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="title" id="title" class="form-select">
               <option value="">-- Select --</option>
               <option value="Mr" {{ old('title') === 'Mr' ? 'selected' : '' }}>Mr</option>
@@ -73,17 +73,17 @@
             </select>
           </div>
           <div class="col-md-5 mb-3">
-            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name') }}" required>
           </div>
           <div class="col-md-5 mb-3">
-            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name') }}" required>
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="phone" class="form-label">Phone</label>
+            <label for="phone" class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone') }}">
           </div>
         </div>
@@ -96,7 +96,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="id_type" class="form-label">ID Type <span class="text-danger">*</span></label>
+            <label for="id_type" class="form-label">ID Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select name="id_type" id="id_type" class="form-select" required>
               <option value="">-- Select --</option>
               <option value="sa_id" {{ old('id_type') === 'sa_id' ? 'selected' : '' }}>SA ID</option>
@@ -107,11 +107,11 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="id_number" class="form-label">ID Number <span class="text-danger">*</span></label>
+            <label for="id_number" class="form-label">ID Number <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="id_number" id="id_number" class="form-control" value="{{ old('id_number') }}" required>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="student_id" class="form-label">Student ID</label>
+            <label for="student_id" class="form-label">Student ID <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id') }}">
           </div>
         </div>
@@ -124,7 +124,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="affiliation_type" class="form-label">Affiliation Type</label>
+            <label for="affiliation_type" class="form-label">Affiliation Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="affiliation_type" id="affiliation_type" class="form-select">
               <option value="">-- Select --</option>
               <option value="academic" {{ old('affiliation_type') === 'academic' ? 'selected' : '' }}>Academic</option>
@@ -136,21 +136,21 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="institution" class="form-label">Institution</label>
+            <label for="institution" class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="institution" id="institution" class="form-control" value="{{ old('institution') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="department" class="form-label">Department</label>
+            <label for="department" class="form-label">Department <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="department" id="department" class="form-control" value="{{ old('department') }}">
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="position" class="form-label">Position</label>
+            <label for="position" class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="position" id="position" class="form-control" value="{{ old('position') }}">
           </div>
           <div class="col-md-6 mb-3">
-            <label for="orcid_id" class="form-label">ORCID iD</label>
+            <label for="orcid_id" class="form-label">ORCID iD <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id') }}" placeholder="0000-0000-0000-0000">
           </div>
         </div>
@@ -162,11 +162,11 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>Research</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="research_interests" class="form-label">Research Interests</label>
+          <label for="research_interests" class="form-label">Research Interests <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea name="research_interests" id="research_interests" class="form-control" rows="4">{{ old('research_interests') }}</textarea>
         </div>
         <div class="mb-3">
-          <label for="current_project" class="form-label">Current Project</label>
+          <label for="current_project" class="form-label">Current Project <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea name="current_project" id="current_project" class="form-control" rows="4">{{ old('current_project') }}</textarea>
         </div>
       </div>

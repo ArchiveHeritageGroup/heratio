@@ -31,7 +31,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status</label>
+                <label class="form-label form-label-sm mb-0">Status <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="status" class="form-select form-select-sm">
                     <option value="pending" {{ request('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>Accepted</option>
@@ -41,7 +41,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Result Type</label>
+                <label class="form-label form-label-sm mb-0">Result Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="result_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['entity','summary','translation','transcription','form_field','face'] as $rt)
@@ -50,7 +50,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Extraction Type</label>
+                <label class="form-label form-label-sm mb-0">Extraction Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="extraction_type" class="form-select form-select-sm">
                     <option value="">All</option>
                     @foreach(['ocr','ner','summarize','translate','spellcheck','face_detection','form_extraction'] as $et)
@@ -59,7 +59,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Min Confidence</label>
+                <label class="form-label form-label-sm mb-0">Min Confidence <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="number" name="min_confidence" class="form-control form-control-sm" style="width:100px" min="0" max="1" step="0.01" value="{{ request('min_confidence', '') }}" placeholder="0.00">
             </div>
             <div class="col-auto"><button type="submit" class="btn atom-btn-outline-light btn-sm">Filter</button></div>

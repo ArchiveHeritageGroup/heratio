@@ -18,23 +18,23 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Name *</label>
+                <label class="form-label">Name * <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="customer_name" class="form-control" required value="{{ old('customer_name') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Email *</label>
+                <label class="form-label">Email * <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="email" name="customer_email" class="form-control" required value="{{ old('customer_email') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Phone</label>
+                <label class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="tel" name="customer_phone" class="form-control" value="{{ old('customer_phone') }}">
               </div>
               <div class="col-md-12 mb-3">
-                <label class="form-label">Billing address</label>
+                <label class="form-label">Billing address <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="billing_address" class="form-control" rows="2">{{ old('billing_address') }}</textarea>
               </div>
               <div class="col-md-12 mb-3">
-                <label class="form-label">Order notes</label>
+                <label class="form-label">Order notes <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
               </div>
             </div>
@@ -47,27 +47,27 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">First name *</label>
+                <label class="form-label">First name * <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="rtp_name" class="form-control" required value="{{ old('rtp_name') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Surname *</label>
+                <label class="form-label">Surname * <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="rtp_surname" class="form-control" required value="{{ old('rtp_surname') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Email *</label>
+                <label class="form-label">Email * <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="email" name="rtp_email" class="form-control" required value="{{ old('rtp_email') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Phone</label>
+                <label class="form-label">Phone <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="tel" name="rtp_phone" class="form-control" value="{{ old('rtp_phone') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Institution</label>
+                <label class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="rtp_institution" class="form-control" value="{{ old('rtp_institution') }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Planned use</label>
+                <label class="form-label">Planned use <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="rtp_planned_use" class="form-select">
                   <option value="">Select...</option>
                   <option value="Publication">Publication</option>
@@ -78,11 +78,11 @@
                 </select>
               </div>
               <div class="col-md-12 mb-3">
-                <label class="form-label">Motivation</label>
+                <label class="form-label">Motivation <span class="badge bg-secondary ms-1">Optional</span></label>
                 <textarea name="rtp_motivation" class="form-control" rows="3">{{ old('rtp_motivation') }}</textarea>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Need image by</label>
+                <label class="form-label">Need image by <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" name="rtp_need_image_by" class="form-control" value="{{ old('rtp_need_image_by') }}">
               </div>
             </div>

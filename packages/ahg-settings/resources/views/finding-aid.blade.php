@@ -21,7 +21,7 @@
           <div id="finding-aid-collapse" class="accordion-collapse collapse" aria-labelledby="finding-aid-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable finding aids</label>
+                <label class="form-label">Enable finding aids <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[finding_aids_enabled]" id="fa_enabled_no" value="0" {{ $settings['finding_aids_enabled'] != '1' ? 'checked' : '' }}>
@@ -35,7 +35,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Finding aid format</label>
+                <label class="form-label">Finding aid format <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[finding_aid_format]" class="form-select">
                   <option value="pdf" {{ $settings['finding_aid_format'] == 'pdf' ? 'selected' : '' }}>PDF</option>
                   <option value="rtf" {{ $settings['finding_aid_format'] == 'rtf' ? 'selected' : '' }}>RTF</option>
@@ -43,7 +43,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Finding aid model</label>
+                <label class="form-label">Finding aid model <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="settings[finding_aid_model]" class="form-select">
                   <option value="inventory-summary" {{ $settings['finding_aid_model'] == 'inventory-summary' ? 'selected' : '' }}>Inventory summary</option>
                   <option value="full-details" {{ $settings['finding_aid_model'] == 'full-details' ? 'selected' : '' }}>Full details</option>
@@ -51,7 +51,7 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Public finding aid</label>
+                <label class="form-label">Public finding aid <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[public_finding_aid]" id="public_fa_no" value="0" {{ $settings['public_finding_aid'] != '1' ? 'checked' : '' }}>

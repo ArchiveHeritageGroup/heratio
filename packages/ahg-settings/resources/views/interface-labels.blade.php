@@ -16,7 +16,7 @@
         <div class="card-body">
           @foreach($settings as $setting)
             <div class="mb-3">
-              <label class="form-label"><code>{{ $setting->name }}</code></label>
+              <label class="form-label"><code>{{ $setting->name }}</code> <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="settings[{{ $setting->id }}]" class="form-control" value="{{ e($setting->value ?? '') }}">
             </div>
           @endforeach

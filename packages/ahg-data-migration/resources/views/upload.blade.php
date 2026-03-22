@@ -45,7 +45,7 @@
         @csrf
 
         <div class="mb-3">
-          <label for="file" class="form-label fw-bold">File <span class="text-danger">*</span></label>
+          <label for="file" class="form-label fw-bold">File <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="file" class="form-control @error('file') is-invalid @enderror" id="file" name="file" accept=".csv,.txt,.xml" required>
           <div class="form-text">Accepted formats: CSV (.csv, .txt), XML (.xml). Maximum size: 100 MB.</div>
           @error('file')
@@ -54,7 +54,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="target_type" class="form-label fw-bold">Target Type <span class="text-danger">*</span></label>
+          <label for="target_type" class="form-label fw-bold">Target Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <select class="form-select @error('target_type') is-invalid @enderror" id="target_type" name="target_type" required>
             <option value="">-- Select target type --</option>
             <option value="informationObject" {{ old('target_type') === 'informationObject' ? 'selected' : '' }}>Information Objects</option>
@@ -68,7 +68,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="import_type" class="form-label fw-bold">Import Type <span class="text-danger">*</span></label>
+          <label for="import_type" class="form-label fw-bold">Import Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
             <option value="create" {{ old('import_type', 'create') === 'create' ? 'selected' : '' }}>Create new records</option>
             <option value="update" {{ old('import_type') === 'update' ? 'selected' : '' }}>Match and update existing</option>

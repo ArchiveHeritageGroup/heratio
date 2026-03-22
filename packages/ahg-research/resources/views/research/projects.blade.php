@@ -88,30 +88,30 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="proj_title" class="form-label">Title <span class="text-danger">*</span></label>
+              <label for="proj_title" class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="title" id="proj_title" class="form-control" required>
             </div>
             <div class="mb-3">
-              <label for="proj_description" class="form-label">Description</label>
+              <label for="proj_description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" id="proj_description" class="form-control" rows="3"></textarea>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="proj_type" class="form-label">Project Type</label>
+                <label for="proj_type" class="form-label">Project Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="project_type" id="proj_type" class="form-control" placeholder="e.g. thesis, dissertation, article">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="proj_institution" class="form-label">Institution</label>
+                <label for="proj_institution" class="form-label">Institution <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="institution" id="proj_institution" class="form-control">
               </div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="proj_start" class="form-label">Start Date</label>
+                <label for="proj_start" class="form-label">Start Date <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" name="start_date" id="proj_start" class="form-control">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="proj_end" class="form-label">End Date</label>
+                <label for="proj_end" class="form-label">End Date <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" name="end_date" id="proj_end" class="form-control">
               </div>
             </div>

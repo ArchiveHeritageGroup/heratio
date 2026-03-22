@@ -143,7 +143,7 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Section <span class="text-danger">*</span></label>
+          <label class="form-label">Section <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <select id="createSection" class="form-select">
             @foreach ($sectionLabels as $sKey => $sLabel)
               <option value="{{ $sKey }}">{{ $sLabel }}</option>
@@ -151,11 +151,11 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Display Name <span class="text-danger">*</span></label>
+          <label class="form-label">Display Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="createLabel" class="form-control" placeholder="e.g., Condition Status">
         </div>
         <div class="mb-3">
-          <label class="form-label">Code <span class="text-danger">*</span></label>
+          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" id="createCode" class="form-control" placeholder="e.g., condition_status">
           <div class="form-text">Lowercase letters, numbers, and underscores only</div>
         </div>
@@ -179,7 +179,7 @@
       <div class="modal-body">
         <input type="hidden" id="renameTaxonomyCode">
         <div class="mb-3">
-          <label class="form-label">New Display Name</label>
+          <label class="form-label">New Display Name <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" id="renameNewLabel" class="form-control">
         </div>
       </div>
@@ -202,7 +202,7 @@
       <div class="modal-body">
         <input type="hidden" id="moveTaxonomyCode">
         <div class="mb-3">
-          <label class="form-label">Target Section</label>
+          <label class="form-label">Target Section <span class="badge bg-secondary ms-1">Optional</span></label>
           <select id="moveTargetSection" class="form-select">
             @foreach ($sectionLabels as $sKey => $sLabel)
               <option value="{{ $sKey }}">{{ $sLabel }}</option>

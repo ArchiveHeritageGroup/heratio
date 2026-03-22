@@ -19,7 +19,7 @@
           <div class="col-lg-8 col-md-10">
             <form action="{{ route('help.search') }}" method="get" class="input-group input-group-lg">
               <input type="text" name="q" class="form-control" placeholder="Search help articles..." autocomplete="off">
-              <button type="submit" class="btn btn-light"><i class="fas fa-search"></i></button>
+              <button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button>
             </form>
           </div>
         </div>

@@ -12,7 +12,7 @@
     <div class="card-body">
       <form>
         <div class="mb-3">
-          <label class="form-label fw-bold">Authenticity</label>
+          <label class="form-label fw-bold">Authenticity <span class="badge bg-secondary ms-1">Optional</span></label>
           <select class="form-select" style="max-width:300px;">
             <option>— Select —</option>
             <option>Original</option>
@@ -23,7 +23,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Reliability</label>
+          <label class="form-label fw-bold">Reliability <span class="badge bg-secondary ms-1">Optional</span></label>
           <select class="form-select" style="max-width:300px;">
             <option>— Select —</option>
             <option>Primary source</option>
@@ -32,7 +32,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Notes</label>
+          <label class="form-label fw-bold">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
           <textarea class="form-control" rows="4" placeholder="Assessment notes..."></textarea>
         </div>
         <button type="button" class="btn atom-btn-outline-success" onclick="alert('Source assessment save — migration in progress'); return false;">

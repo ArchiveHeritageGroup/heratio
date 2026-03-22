@@ -167,9 +167,9 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title">New Folder</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required></div>
-          <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
-          <div class="mb-3"><label class="form-label">Color</label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
+          <div class="mb-3"><label class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label><input type="text" name="name" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
+          <div class="mb-3"><label class="form-label">Color <span class="badge bg-secondary ms-1">Optional</span></label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Create</button></div>
       </div>
@@ -185,8 +185,8 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title">Import Favorites</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">CSV file</label><input type="file" name="file" class="form-control" accept=".csv,.txt"></div>
-          <div class="mb-3"><label class="form-label">Or paste slugs (one per line)</label><textarea name="slugs" class="form-control" rows="4"></textarea></div>
+          <div class="mb-3"><label class="form-label">CSV file <span class="badge bg-secondary ms-1">Optional</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"></div>
+          <div class="mb-3"><label class="form-label">Or paste slugs (one per line) <span class="badge bg-secondary ms-1">Optional</span></label><textarea name="slugs" class="form-control" rows="4"></textarea></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Import</button></div>
       </div>

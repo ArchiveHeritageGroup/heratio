@@ -62,9 +62,9 @@
     <form method="POST" action="{{ route('research.reports') }}">@csrf<input type="hidden" name="form_action" value="create">
     <div class="modal-header"><h5 class="modal-title">New Report</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" class="form-control" name="title" required></div>
-        <div class="mb-3"><label class="form-label">Project ID</label><input type="number" class="form-control" name="project_id" placeholder="Link to a project (optional)"></div>
-        <div class="mb-3"><label class="form-label">Report Type</label>
+        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title" required></div>
+        <div class="mb-3"><label class="form-label">Project ID <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="project_id" placeholder="Link to a project (optional)"></div>
+        <div class="mb-3"><label class="form-label">Report Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="report_type" class="form-select">
                 <option value="progress">Progress Report</option>
                 <option value="final">Final Report</option>
@@ -73,7 +73,7 @@
                 <option value="findings">Findings</option>
             </select>
         </div>
-        <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3"></textarea></div>
+        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="3"></textarea></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Report</button></div>
     </form>

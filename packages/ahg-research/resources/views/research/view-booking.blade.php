@@ -140,7 +140,7 @@
           </form>
           <form action="{{ route('research.bookings.noShow', $booking->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-dark"><i class="fas fa-user-slash me-1"></i>No Show</button>
+            <button type="submit" class="btn atom-btn-white"><i class="fas fa-user-slash me-1"></i>No Show</button>
           </form>
         @endif
 

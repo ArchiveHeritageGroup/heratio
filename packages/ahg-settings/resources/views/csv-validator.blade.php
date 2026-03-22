@@ -21,7 +21,7 @@
           <div id="validator-collapse" class="accordion-collapse collapse" aria-labelledby="validator-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">CSV Validator default behaviour when CSV Import is run</label>
+                <label class="form-label">CSV Validator default behaviour when CSV Import is run <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="settings[csv_validator_default_import_behaviour]" id="validator_off" value="0" {{ $settings['csv_validator_default_import_behaviour'] == '0' ? 'checked' : '' }}>

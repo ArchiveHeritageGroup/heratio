@@ -161,12 +161,12 @@
     </div>
     <div class="card-body">
       <div class="mb-3">
-        <label for="aiTestInput" class="form-label">Input Text</label>
+        <label for="aiTestInput" class="form-label">Input Text <span class="badge bg-secondary ms-1">Optional</span></label>
         <textarea class="form-control" id="aiTestInput" rows="4" placeholder="Enter text to test AI services...">The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.</textarea>
       </div>
 
       <div class="mb-3">
-        <label for="aiTargetLang" class="form-label">Target Language (for translation)</label>
+        <label for="aiTargetLang" class="form-label">Target Language (for translation) <span class="badge bg-secondary ms-1">Optional</span></label>
         <select class="form-select form-select-sm w-auto d-inline-block" id="aiTargetLang">
           <option value="af">Afrikaans</option>
           <option value="fr">French</option>

@@ -25,11 +25,11 @@
     <div class="card-body">
       <form action="{{ route('research.annotations') }}" method="GET" class="row g-2 align-items-end">
         <div class="col-md-4">
-          <label for="search" class="form-label small">Search</label>
+          <label for="search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="q" id="search" class="form-control form-control-sm" placeholder="Search annotations..." value="{{ e($query ?? '') }}">
         </div>
         <div class="col-md-3">
-          <label for="visibility" class="form-label small">Visibility</label>
+          <label for="visibility" class="form-label small">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="visibility" id="visibility" class="form-select form-select-sm">
             <option value="">All</option>
             <option value="private" {{ ($visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
@@ -38,7 +38,7 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label for="tag" class="form-label small">Tag</label>
+          <label for="tag" class="form-label small">Tag <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="tag" id="tag" class="form-control form-control-sm" placeholder="Filter by tag" value="{{ e($tag ?? '') }}">
         </div>
         <div class="col-md-2">
@@ -113,24 +113,24 @@
             </div>
             <div class="modal-body">
               <div class="mb-3">
-                <label class="form-label">Title</label>
+                <label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
                 <input type="text" name="title" class="form-control" value="{{ e($annotation->title ?? '') }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">Content <span class="text-danger">*</span></label>
+                <label class="form-label">Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
                 <textarea name="content" class="form-control" rows="5" required>{{ e($annotation->content ?? '') }}</textarea>
               </div>
               <div class="row">
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Entity Type</label>
+                  <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="entity_type" class="form-control" value="{{ e($annotation->entity_type ?? '') }}">
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Tags</label>
+                  <label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
                   <input type="text" name="tags" class="form-control" value="{{ e($annotation->tags ?? '') }}" placeholder="comma-separated">
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label class="form-label">Visibility</label>
+                  <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select name="visibility" class="form-select">
                     <option value="private" {{ ($annotation->visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
                     <option value="public" {{ ($annotation->visibility ?? '') === 'public' ? 'selected' : '' }}>Public</option>
@@ -170,24 +170,24 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="ann_title" class="form-label">Title</label>
+              <label for="ann_title" class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="title" id="ann_title" class="form-control">
             </div>
             <div class="mb-3">
-              <label for="ann_content" class="form-label">Content <span class="text-danger">*</span></label>
+              <label for="ann_content" class="form-label">Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="content" id="ann_content" class="form-control" rows="5" required></textarea>
             </div>
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="ann_entity_type" class="form-label">Entity Type</label>
+                <label for="ann_entity_type" class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="entity_type" id="ann_entity_type" class="form-control" placeholder="e.g. information_object">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="ann_tags" class="form-label">Tags</label>
+                <label for="ann_tags" class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="tags" id="ann_tags" class="form-control" placeholder="comma-separated">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="ann_visibility" class="form-label">Visibility</label>
+                <label for="ann_visibility" class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="visibility" id="ann_visibility" class="form-select">
                   <option value="private">Private</option>
                   <option value="public">Public</option>

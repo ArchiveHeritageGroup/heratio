@@ -26,7 +26,7 @@
           <div id="markdown-collapse" class="accordion-collapse collapse" aria-labelledby="markdown-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable Markdown support</label>
+                <label class="form-label">Enable Markdown support <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[enabled]" id="md_no" value="0" {{ $settings['enabled'] != '1' ? 'checked' : '' }}>

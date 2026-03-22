@@ -18,9 +18,9 @@
 <form method="POST">@csrf<input type="hidden" name="form_action" value="create">
 <div class="modal-header"><h5 class="modal-title">New Bibliography</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
 <div class="modal-body">
-    <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" required></div>
-    <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2"></textarea></div>
-    <div class="mb-3"><label class="form-label">Citation Style</label><select name="citation_style" class="form-select"><option value="chicago">Chicago</option><option value="mla">MLA</option><option value="apa">APA</option><option value="harvard">Harvard</option><option value="turabian">Turabian</option></select></div>
+    <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="name" required></div>
+    <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="2"></textarea></div>
+    <div class="mb-3"><label class="form-label">Citation Style <span class="badge bg-secondary ms-1">Optional</span></label><select name="citation_style" class="form-select"><option value="chicago">Chicago</option><option value="mla">MLA</option><option value="apa">APA</option><option value="harvard">Harvard</option><option value="turabian">Turabian</option></select></div>
 </div>
 <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create</button></div>
 </form></div></div></div>

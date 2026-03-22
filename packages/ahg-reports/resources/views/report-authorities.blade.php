@@ -10,7 +10,7 @@
       'action' => route('reports.authorities'),
       'extraFilters' => '
         <div class="mb-3">
-          <label class="form-label">Entity type</label>
+          <label class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
           <select name="entityType" class="form-select form-select-sm">
             <option value="">All types</option>' .
             $entityTypes->map(fn($t) => '<option value="' . $t->id . '"' . (($params['entityType'] ?? '') == $t->id ? ' selected' : '') . '>' . e($t->name) . '</option>')->implode('') .

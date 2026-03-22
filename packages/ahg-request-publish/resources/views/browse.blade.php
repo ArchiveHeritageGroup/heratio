@@ -196,15 +196,15 @@
                           <div class="accordion-body bg-light py-2 px-3">
                             <div class="row">
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Motivation</label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Motivation <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <p class="small mb-2">{{ $row['rtp_motivation'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Planned Use</label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Planned Use <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <p class="small mb-2">{{ $row['rtp_planned_use'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Admin Notes</label>
+                                <label class="form-label text-muted small fw-semibold mb-0">Admin Notes <span class="badge bg-secondary ms-1">Optional</span></label>
                                 <p class="small mb-2">{{ $row['rtp_admin_notes'] ?: '-' }}</p>
                               </div>
                             </div>

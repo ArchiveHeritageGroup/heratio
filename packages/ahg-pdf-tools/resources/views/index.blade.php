@@ -155,13 +155,13 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Upload PDF File</label>
+            <label class="form-label">Upload PDF File <span class="badge bg-danger ms-1">Required</span></label>
             <input type="file" class="form-control" name="pdf_file" accept=".pdf" required>
             <div class="form-text">Maximum 100 MB</div>
           </div>
           <div class="text-muted small">OR</div>
           <div class="mb-3 mt-2">
-            <label class="form-label">Digital Object ID</label>
+            <label class="form-label">Digital Object ID <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" class="form-control" name="digital_object_id" placeholder="Enter digital object ID">
             <div class="form-text">Extract text from an existing PDF in the repository</div>
           </div>

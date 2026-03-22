@@ -273,7 +273,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="package_type" class="form-label">Package Type</label>
+            <label for="package_type" class="form-label">Package Type <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="package_type" id="package_type" class="form-select">
               <option value="SIP">SIP (Submission Information Package)</option>
               <option value="AIP" selected>AIP (Archival Information Package)</option>
@@ -281,7 +281,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="package_name" class="form-label">Package Name</label>
+            <label for="package_name" class="form-label">Package Name <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="package_name" id="package_name" class="form-control" placeholder="Enter a descriptive name">
           </div>
         </div>

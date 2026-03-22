@@ -30,7 +30,7 @@
 
       {{-- File Upload --}}
       <div class="mb-4">
-        <label class="form-label fw-bold">Files to Merge</label>
+        <label class="form-label fw-bold">Files to Merge <span class="badge bg-danger ms-1">Required</span></label>
         <input type="file" class="form-control" name="files[]" multiple required
                accept=".{{ implode(',.', $formats) }},.pdf"
                id="fileInput">
@@ -49,7 +49,7 @@
 
       {{-- Selected Files Preview --}}
       <div class="mb-4 d-none" id="fileList">
-        <label class="form-label fw-bold">Selected Files</label>
+        <label class="form-label fw-bold">Selected Files <span class="badge bg-secondary ms-1">Optional</span></label>
         <ul class="list-group list-group-flush" id="fileListItems"></ul>
       </div>
 
@@ -59,7 +59,7 @@
       <div class="row g-4">
         {{-- Quality --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="quality">Quality</label>
+          <label class="form-label fw-bold" for="quality">Quality <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="d-flex align-items-center gap-3">
             <input type="range" class="form-range flex-grow-1" id="quality" name="quality"
                    min="0" max="100" value="90" step="5">
@@ -70,7 +70,7 @@
 
         {{-- DPI --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="dpi">DPI (Resolution)</label>
+          <label class="form-label fw-bold" for="dpi">DPI (Resolution) <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="number" class="form-control" id="dpi" name="dpi"
                  min="72" max="600" value="150" step="1">
           <div class="form-text">Output resolution in dots per inch (72-600)</div>
@@ -82,7 +82,7 @@
 
         {{-- Page Size --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="page_size">Page Size</label>
+          <label class="form-label fw-bold" for="page_size">Page Size <span class="badge bg-secondary ms-1">Optional</span></label>
           <select class="form-select" id="page_size" name="page_size">
             @foreach($pageSizes as $size)
               <option value="{{ $size }}" {{ $size === 'a4' ? 'selected' : '' }}>
@@ -94,7 +94,7 @@
 
         {{-- Orientation --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold">Orientation</label>
+          <label class="form-label fw-bold">Orientation <span class="badge bg-secondary ms-1">Optional</span></label>
           <div class="d-flex gap-3 mt-1">
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientPortrait" value="portrait" checked>
@@ -129,7 +129,7 @@
 
         {{-- PDF/A Version --}}
         <div class="col-md-6" id="pdfaVersionGroup" style="display: none;">
-          <label class="form-label fw-bold" for="pdfa_version">PDF/A Version</label>
+          <label class="form-label fw-bold" for="pdfa_version">PDF/A Version <span class="badge bg-secondary ms-1">Optional</span></label>
           <select class="form-select" id="pdfa_version" name="pdfa_version">
             @foreach($pdfaVersions as $ver)
               <option value="{{ $ver }}" {{ $ver === '2b' ? 'selected' : '' }}>

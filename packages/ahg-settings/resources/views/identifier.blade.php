@@ -20,12 +20,12 @@
             <label class="form-check-label" for="accession_mask_enabled">Accession mask enabled</label>
           </div>
           <div class="mb-3">
-            <label class="form-label">Accession mask</label>
+            <label class="form-label">Accession mask <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings[accession_mask]" class="form-control" value="{{ e($settings['accession_mask'] ?? '') }}">
             <small class="text-muted">e.g. %Y-%m-%d/#</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Accession counter</label>
+            <label class="form-label">Accession counter <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings[accession_counter]" class="form-control" value="{{ e($settings['accession_counter'] ?? '0') }}">
           </div>
         </div>
@@ -40,11 +40,11 @@
             <label class="form-check-label" for="identifier_mask_enabled">Identifier mask enabled</label>
           </div>
           <div class="mb-3">
-            <label class="form-label">Identifier mask</label>
+            <label class="form-label">Identifier mask <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings[identifier_mask]" class="form-control" value="{{ e($settings['identifier_mask'] ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Identifier counter</label>
+            <label class="form-label">Identifier counter <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="number" name="settings[identifier_counter]" class="form-control" value="{{ e($settings['identifier_counter'] ?? '0') }}">
           </div>
         </div>
@@ -54,7 +54,7 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>Reference Code Options</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Reference code separator</label>
+            <label class="form-label">Reference code separator <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="settings[separator_character]" class="form-control" value="{{ e($settings['separator_character'] ?? '-') }}" maxlength="5">
           </div>
           <div class="form-check mb-3">

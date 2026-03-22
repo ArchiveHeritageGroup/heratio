@@ -180,7 +180,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span></label>
+              <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="4" required></textarea>
             </div>
           </div>

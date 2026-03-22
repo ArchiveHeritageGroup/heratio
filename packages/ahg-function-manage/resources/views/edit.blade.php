@@ -69,21 +69,21 @@
             </div>
 
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name</label>
+              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="parallel_name" id="parallel_name" class="form-control"
                      value="{{ old('parallel_name', $function->parallel_name ?? '') }}">
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the authorized form(s) of name occurs in other languages or script forms. Rule: Record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the description, including any necessary sub elements and/or qualifiers required by those conventions or rules. Specify in the Rules and/or conventions element (5.4.3.) which rules have been applied." (ISDF 5.1.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="other_name" class="form-label">Other form(s) of name</label>
+              <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="other_name" id="other_name" class="form-control"
                      value="{{ old('other_name', $function->other_name ?? '') }}">
               <div class="form-text text-muted small">"Record any other names for the function being described." (ISDF 5.1.4)</div>
             </div>
 
             <div class="mb-3">
-              <label for="classification" class="form-label">Classification</label>
+              <label for="classification" class="form-label">Classification <span class="badge bg-warning ms-1">Recommended</span></label>
               <input type="text" name="classification" id="classification" class="form-control"
                      value="{{ old('classification', $function->classification ?? '') }}">
               <div class="form-text text-muted small">"Record any term and/or code from a classification scheme of functions. Record the classification scheme used in the element Rules and/or conventions used (5.4.3)." (ISDF 5.1.5)</div>
@@ -102,26 +102,26 @@
         <div id="context-collapse" class="accordion-collapse collapse" aria-labelledby="context-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="dates" class="form-label">Dates</label>
+              <label for="dates" class="form-label">Dates <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="dates" id="dates" class="form-control"
                      value="{{ old('dates', $function->dates ?? '') }}">
               <div class="form-text text-muted small">"Provide a date or date span which covers the dates when the function was started and when it finished. If a function is ongoing, no end date is needed." (ISDF 5.2.1)</div>
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
+              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" id="description" class="form-control" rows="6">{{ old('description', $function->description ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record a narrative description of the purpose of the function." (ISDF 5.2.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="history" class="form-label">History</label>
+              <label for="history" class="form-label">History <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $function->history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record in narrative form or as a chronology the main events relating to the function." (ISDF 5.2.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="legislation" class="form-label">Legislation</label>
+              <label for="legislation" class="form-label">Legislation <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="legislation" id="legislation" class="form-control" rows="6">{{ old('legislation', $function->legislation ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record any law, directive or charter which creates, changes or ends the function." (ISDF 5.2.4)</div>
             </div>
@@ -151,19 +151,19 @@
             </div>
 
             <div class="mb-3">
-              <label for="institution_identifier" class="form-label">Institution identifier</label>
+              <label for="institution_identifier" class="form-label">Institution identifier <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="institution_identifier" id="institution_identifier" class="form-control" rows="4">{{ old('institution_identifier', $function->institution_identifier ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the full authorised form of name(s) of agency(ies) responsible for creating, modifying or disseminating the description or, alternatively, record a recognized code for the agency." (ISDF 5.4.2)</div>
             </div>
 
             <div class="mb-3">
-              <label for="rules" class="form-label">Rules and/or conventions used</label>
+              <label for="rules" class="form-label">Rules and/or conventions used <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="rules" id="rules" class="form-control" rows="4">{{ old('rules', $function->rules ?? '') }}</textarea>
               <div class="form-text text-muted small">"Purpose: To identify the national or international conventions or rules applied in creating the archival description. Rule: Record the names and where useful the editions or publication dates of the conventions or rules applied." (ISDF 5.4.3)</div>
             </div>
 
             <div class="mb-3">
-              <label for="description_status_id" class="form-label">Status</label>
+              <label for="description_status_id" class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="description_status_id" id="description_status_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionStatuses'] as $status)
@@ -176,7 +176,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="description_detail_id" class="form-label">Level of detail</label>
+              <label for="description_detail_id" class="form-label">Level of detail <span class="badge bg-secondary ms-1">Optional</span></label>
               <select name="description_detail_id" id="description_detail_id" class="form-select">
                 <option value="">-- Select --</option>
                 @foreach($formChoices['descriptionDetails'] as $detail)
@@ -189,33 +189,33 @@
             </div>
 
             <div class="mb-3">
-              <label for="revision_history" class="form-label">Dates of creation, revision or deletion</label>
+              <label for="revision_history" class="form-label">Dates of creation, revision or deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="revision_history" id="revision_history" class="form-control" rows="4">{{ old('revision_history', $function->revision_history ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the date the description was created and the dates of any revisions to the description." (ISDF 5.4.6)</div>
             </div>
 
             <div class="mb-3">
-              <label for="language" class="form-label">Language(s)</label>
+              <label for="language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="language" name="language"
                      value="{{ old('language', $function->language ?? '') }}" placeholder="e.g. English">
               <div class="form-text text-muted small">Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="script" class="form-label">Script(s)</label>
+              <label for="script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" class="form-control" id="script" name="script"
                      value="{{ old('script', $function->script ?? '') }}" placeholder="e.g. Latin">
               <div class="form-text text-muted small">Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)</div>
             </div>
 
             <div class="mb-3">
-              <label for="sources" class="form-label">Sources</label>
+              <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="sources" id="sources" class="form-control" rows="4">{{ old('sources', $function->sources ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record the sources consulted in establishing the function description." (ISDF 5.4.8)</div>
             </div>
 
             <div class="mb-3">
-              <label for="maintenance_notes" class="form-label">Maintenance notes</label>
+              <label for="maintenance_notes" class="form-label">Maintenance notes <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="maintenance_notes" id="maintenance_notes" class="form-control" rows="3">{{ old('maintenance_notes', $function->maintenance_notes ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record notes pertinent to the creation and maintenance of the description." (ISDF 5.4.9)</div>
             </div>

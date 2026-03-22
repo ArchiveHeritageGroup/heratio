@@ -85,8 +85,8 @@
     <form method="POST">@csrf<input type="hidden" name="form_action" value="create">
     <div class="modal-header"><h5 class="modal-title">New Reproduction Request</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Archive Item ID <span class="text-danger">*</span></label><input type="number" class="form-control" name="object_id" required placeholder="Enter the item ID"></div>
-        <div class="mb-3"><label class="form-label">Reproduction Type <span class="text-danger">*</span></label>
+        <div class="mb-3"><label class="form-label">Archive Item ID <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="number" class="form-control" name="object_id" required placeholder="Enter the item ID"></div>
+        <div class="mb-3"><label class="form-label">Reproduction Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select name="reproduction_type" class="form-select" required>
                 <option value="photocopy">Photocopy</option>
                 <option value="scan">Scan</option>
@@ -94,8 +94,8 @@
                 <option value="digital">Digital Copy</option>
             </select>
         </div>
-        <div class="mb-3"><label class="form-label">Specifications</label><textarea class="form-control" name="specifications" rows="2" placeholder="e.g. 300dpi colour scan, A3 size"></textarea></div>
-        <div class="mb-3"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="2" placeholder="Additional information or special instructions"></textarea></div>
+        <div class="mb-3"><label class="form-label">Specifications <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="specifications" rows="2" placeholder="e.g. 300dpi colour scan, A3 size"></textarea></div>
+        <div class="mb-3"><label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="notes" rows="2" placeholder="Additional information or special instructions"></textarea></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>Submit Request</button></div>
     </form>

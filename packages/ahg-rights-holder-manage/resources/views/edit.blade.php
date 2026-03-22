@@ -22,7 +22,7 @@
         <div id="identity-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="authorized_form_of_name" class="form-label">Authorized form of name <span class="text-danger">*</span></label>
+              <label for="authorized_form_of_name" class="form-label">Authorized form of name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $rightsHolder->authorized_form_of_name ?? '') }}">
             </div>

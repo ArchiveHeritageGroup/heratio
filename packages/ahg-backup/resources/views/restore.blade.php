@@ -27,7 +27,7 @@
   <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-archive me-1"></i> Select Backup</div>
   <div class="card-body">
     <div class="mb-3">
-      <label for="backup-select" class="form-label">Available Backups</label>
+      <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">Optional</span></label>
       <select class="form-select" id="backup-select" onchange="onBackupSelected()">
         <option value="">-- Select a backup --</option>
         @foreach($backups as $backup)

@@ -73,11 +73,11 @@
         @csrf
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="ss_name" class="form-label">Name <span class="text-danger">*</span></label>
+            <label for="ss_name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="name" id="ss_name" class="form-control" required>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="ss_query" class="form-label">Search Query <span class="text-danger">*</span></label>
+            <label for="ss_query" class="form-label">Search Query <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <input type="text" name="query" id="ss_query" class="form-control" required placeholder="Enter a search query or URL">
           </div>
           <div class="col-md-2 mb-3 d-flex align-items-end">
