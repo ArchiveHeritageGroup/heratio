@@ -3,8 +3,8 @@
   <a class="btn atom-btn-outline-light btn-sm" href="#main-column">Skip to main content</a>
 </div>
 
-<header id="top-bar" class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Main navigation" style="background-color: var(--ahg-header-bg, #212529) !important; color: var(--ahg-header-text, #fff) !important;">
-  <div class="container">
+<header id="top-bar" class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main navigation" style="background-color: var(--ahg-header-bg, #212529) !important; color: var(--ahg-header-text, #fff) !important;">
+  <div class="container-fluid">
     {{-- Brand / Logo --}}
     @if(($themeData['toggleLogo'] ?? true) || ($themeData['toggleTitle'] ?? true))
       <a class="navbar-brand d-flex flex-wrap flex-lg-nowrap align-items-center py-0 me-0" href="{{ url('/') }}" title="Home" rel="home">
@@ -22,7 +22,7 @@
     @endif
 
     {{-- Hamburger toggle --}}
-    <button class="navbar-toggler atom-btn-white my-2 me-1 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false">
+    <button class="navbar-toggler atom-btn-secondary my-2 me-1 px-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false">
       <i class="fas fa-2x fa-fw fa-bars" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle navigation" aria-hidden="true"></i>
       <span class="visually-hidden">Toggle navigation</span>
     </button>

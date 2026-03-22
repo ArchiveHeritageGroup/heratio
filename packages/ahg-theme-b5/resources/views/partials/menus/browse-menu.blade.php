@@ -3,7 +3,7 @@
 @endphp
 
 <div class="dropdown my-2 me-3">
-  <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="browse-menu" data-bs-toggle="dropdown" aria-expanded="false">
+  <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="browse-menu" data-bs-toggle="dropdown" aria-expanded="false">
     Browse
   </button>
   <ul class="dropdown-menu mt-2" aria-labelledby="browse-menu">

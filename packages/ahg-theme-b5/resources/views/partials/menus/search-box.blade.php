@@ -9,7 +9,7 @@
   <div class="input-group flex-nowrap">
     <button
       id="search-box-options"
-      class="btn btn-sm atom-btn-white dropdown-toggle"
+      class="btn btn-sm atom-btn-secondary dropdown-toggle"
       type="button"
       data-bs-toggle="dropdown"
       data-bs-auto-close="outside"
@@ -70,7 +70,7 @@
       aria-label="Search"
       aria-expanded="false">
     <ul id="search-box-results" class="dropdown-menu mt-2" aria-labelledby="search-box-input"></ul>
-    <button class="btn btn-sm atom-btn-white" type="submit">
+    <button class="btn btn-sm atom-btn-secondary" type="submit">
       <i class="fas fa-search" aria-hidden="true"></i>
       <span class="visually-hidden">Search in browse page</span>
     </button>
