@@ -156,8 +156,6 @@ Key configuration options are managed through `config/heratio.php` after install
 
 | Option | Description |
 |---|---|
-| `atom.base_url` | URL of your AtoM instance |
-| `atom.api_key` | AtoM REST API key (if using API features) |
 | `ner.provider` | NER provider: `ollama`, `spacy`, or `api` |
 | `ner.model` | Model name for NER processing |
 | `encryption.enabled` | Enable/disable digital object encryption |
