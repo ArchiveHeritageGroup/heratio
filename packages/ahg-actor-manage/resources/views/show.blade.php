@@ -413,6 +413,135 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
   </section>
 
+  {{-- ===== Digital object metadata (matching AtoM sfIsaarPlugin) ===== --}}
+  @if(isset($digitalObjects) && $digitalObjects['master'])
+    @php
+      $doMaster = $digitalObjects['master'];
+      $doReference = $digitalObjects['reference'];
+      $doThumbnail = $digitalObjects['thumbnail'];
+      $doMasterUrl = \AhgCore\Services\DigitalObjectService::getUrl($doMaster);
+      $doRefUrl = $doReference ? \AhgCore\Services\DigitalObjectService::getUrl($doReference) : '';
+      $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
+      $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
+      $doUploadedAt = \Illuminate\Support\Facades\DB::table('object')->where('id', $doMaster->id)->value('created_at');
+    @endphp
+    <section class="digitalObjectMetadata border-bottom">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Digital object metadata</div></h2>
+
+      {{-- Master file --}}
+      <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Master file</h4>
+      <div class="field text-break row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+        <div class="col-9 p-2">
+          @auth
+            <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
+          @else
+            {{ $doMaster->name }}
+          @endauth
+        </div>
+      </div>
+      @if($doMaster->media_type_id)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
+          <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
+        </div>
+      @endif
+      @if($doMaster->mime_type)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+          <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
+        </div>
+      @endif
+      @if($doMaster->byte_size)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+          <div class="col-9 p-2">
+            @if($doMaster->byte_size > 1048576)
+              {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
+            @else
+              {{ number_format($doMaster->byte_size / 1024, 1) }} KB
+            @endif
+          </div>
+        </div>
+      @endif
+      @if($doUploadedAt)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Uploaded</h3>
+          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($doUploadedAt)->format('F j, Y') }}</div>
+        </div>
+      @endif
+      @if($doMaster->checksum)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Checksum</h3>
+          <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
+        </div>
+      @endif
+
+      {{-- Reference copy --}}
+      @if($doReference)
+        <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Reference copy</h4>
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+          <div class="col-9 p-2">
+            @auth
+              <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
+            @else
+              {{ $doReference->name }}
+            @endauth
+          </div>
+        </div>
+        @if($doReference->mime_type)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+            <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
+          </div>
+        @endif
+        @if($doReference->byte_size)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+            <div class="col-9 p-2">
+              @if($doReference->byte_size > 1048576)
+                {{ number_format($doReference->byte_size / 1048576, 1) }} MB
+              @else
+                {{ number_format($doReference->byte_size / 1024, 1) }} KB
+              @endif
+            </div>
+          </div>
+        @endif
+      @endif
+
+      {{-- Thumbnail copy --}}
+      @if($doThumbnail)
+        <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">Thumbnail copy</h4>
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+          <div class="col-9 p-2">
+            <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
+          </div>
+        </div>
+        @if($doThumbnail->mime_type)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+            <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
+          </div>
+        @endif
+        @if($doThumbnail->byte_size)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+            <div class="col-9 p-2">
+              @if($doThumbnail->byte_size > 1048576)
+                {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
+              @else
+                {{ number_format($doThumbnail->byte_size / 1024, 1) }} KB
+              @endif
+            </div>
+          </div>
+        @endif
+      @endif
+
+    </section>
+  @endif
+
   {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
   <ul class="actions mb-3 nav gap-2">
