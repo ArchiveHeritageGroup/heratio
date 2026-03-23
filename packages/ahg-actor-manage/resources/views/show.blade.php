@@ -98,7 +98,7 @@
     <h4 class="h5 mb-2">Export</h4>
     <ul class="list-unstyled mb-3">
       <li>
-        <a class="atom-icon-link" href="{{ route('export.authority') }}?slug={{ $actor->slug }}">
+        <a class="atom-icon-link" href="{{ url('/' . $actor->slug . '/sfEacPlugin') }}">
           <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>EAC
         </a>
       </li>
@@ -125,11 +125,25 @@
     @endif
   </nav>
 
+  <div class="d-flex gap-1 mb-3">
+    <a class="btn btn-sm atom-btn-white" href="{{ route('actor.print', $actor->slug) }}" target="_blank" title="Print">
+      <i class="fas fa-print"></i>
+    </a>
+  </div>
 @endsection
 
 @section('content')
 
-  <h1>{{ $actor->authorized_form_of_name }}</h1>
+  <h1>
+    {{ $actor->authorized_form_of_name }}
+    @if($completeness ?? null)
+      @php
+        $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];
+        $color = $levelColors[$completeness->completeness_level] ?? 'secondary';
+      @endphp
+      <span class="badge bg-{{ $color }} ms-2" title="Completeness: {{ $completeness->completeness_score }}%">{{ $completeness->completeness_score }}%</span>
+    @endif
+  </h1>
 
   {{-- Breadcrumb (matching AtoM) --}}
   <nav aria-label="breadcrumb">
@@ -250,6 +264,97 @@
     </div>
   </section>
 
+  {{-- External identifiers area --}}
+  @if(($externalIdentifiers ?? collect())->isNotEmpty())
+  <section id="externalIdentifiersArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">External identifiers</div></h2>
+    @foreach($externalIdentifiers as $eid)
+      <div class="field text-break row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ ucfirst($eid->identifier_type) }}</h3>
+        <div class="col-9 p-2">
+          @if($eid->uri)
+            <a href="{{ $eid->uri }}" target="_blank" rel="noopener">{{ $eid->identifier_value }}</a>
+          @else
+            {{ $eid->identifier_value }}
+          @endif
+          @if($eid->label)
+            <br><small class="text-muted">{{ $eid->label }}</small>
+          @endif
+          @if($eid->is_verified)
+            <span class="badge bg-success ms-1" title="Verified{{ $eid->verified_at ? ' on ' . $eid->verified_at : '' }}"><i class="fas fa-check"></i> Verified</span>
+          @endif
+        </div>
+      </div>
+    @endforeach
+  </section>
+  @endif
+
+  {{-- Structured occupations area --}}
+  @if(($structuredOccupations ?? collect())->isNotEmpty())
+  <section id="structuredOccupationsArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Structured occupations</div></h2>
+    @foreach($structuredOccupations as $socc)
+      <div class="field text-break row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Occupation</h3>
+        <div class="col-9 p-2">
+          {{ $socc->term_name ?? $socc->occupation_text ?? '' }}
+          @if($socc->date_from || $socc->date_to)
+            <br><small class="text-muted">{{ $socc->date_from ?? '?' }} - {{ $socc->date_to ?? '?' }}</small>
+          @endif
+          @if($socc->notes)
+            <br><small class="text-muted">{{ $socc->notes }}</small>
+          @endif
+        </div>
+      </div>
+    @endforeach
+  </section>
+  @endif
+
+  {{-- Completeness details area --}}
+  @if($completeness ?? null)
+  <section id="completenessArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Completeness</div></h2>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Score</h3>
+      <div class="col-9 p-2">
+        @php
+          $levelColors = ['stub' => 'danger', 'minimal' => 'warning', 'partial' => 'info', 'full' => 'success'];
+          $color = $levelColors[$completeness->completeness_level] ?? 'secondary';
+        @endphp
+        <div class="progress" style="height: 20px;">
+          <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ $completeness->completeness_score }}%;" aria-valuenow="{{ $completeness->completeness_score }}" aria-valuemin="0" aria-valuemax="100">{{ $completeness->completeness_score }}%</div>
+        </div>
+      </div>
+    </div>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level</h3>
+      <div class="col-9 p-2"><span class="badge bg-{{ $color }}">{{ ucfirst($completeness->completeness_level) }}</span></div>
+    </div>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Has external IDs</h3>
+      <div class="col-9 p-2">{{ $completeness->has_external_ids ? 'Yes' : 'No' }}</div>
+    </div>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Has relations</h3>
+      <div class="col-9 p-2">{{ $completeness->has_relations ? 'Yes' : 'No' }}</div>
+    </div>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Has resources</h3>
+      <div class="col-9 p-2">{{ $completeness->has_resources ? 'Yes' : 'No' }}</div>
+    </div>
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Has contacts</h3>
+      <div class="col-9 p-2">{{ $completeness->has_contacts ? 'Yes' : 'No' }}</div>
+    </div>
+    @if($completeness->scored_at)
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Last scored</h3>
+      <div class="col-9 p-2">{{ $completeness->scored_at }}</div>
+    </div>
+    @endif
+  </section>
+  @endif
+
   {{-- Control area --}}
   <section id="controlArea" class="border-bottom">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Control area</div></h2>
@@ -268,13 +373,13 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
   </section>
 
-  {{-- Action buttons (bottom bar, matching AtoM _actions.php) --}}
+  {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
   <ul class="actions mb-3 nav gap-2">
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
     <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.rename', $actor->slug) }}">Rename</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
     <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -282,9 +387,9 @@
         </button>
         <ul class="dropdown-menu mb-2">
           @if(isset($digitalObject) && $digitalObject)
-            <li><a href="{{ route('actor.edit', $actor->slug) }}" class="dropdown-item">Edit digital object</a></li>
+            <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
           @else
-            <li><a href="{{ route('actor.edit', $actor->slug) }}" class="dropdown-item">Link digital object</a></li>
+            <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
           @endif
         </ul>
       </div>

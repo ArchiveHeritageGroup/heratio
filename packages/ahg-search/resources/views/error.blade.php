@@ -1,20 +1,20 @@
-@extends('theme::layouts.1col')
+@php decorate_with('layout_1col.php'); @endphp
 
-@section('title')
+@php slot('title'); @endphp
   <h1>{{ __('Search error encountered') }}</h1>
-@endsection
+@php end_slot(); @endphp
 
-@section('content')
+@php slot('content'); @endphp
 
   <div class="messages error">
     <div>
-      <strong>{{ $reason }}</strong>
+      <strong>@php echo $reason; @endphp</strong>
       @if(!empty($error))
-        <pre>{{ $error }}</pre>
-      @endif
+        <pre>@php echo $error; @endphp</pre>
+      @endforeach
     </div>
   </div>
 
   <p><a href="javascript:history.go(-1)">{{ __('Back to previous page.') }}</a></p>
 
-@endsection
+@php end_slot(); @endphp

@@ -1,107 +1,292 @@
 @extends('theme::layouts.1col')
 
-@section('title', $query ? __('Showing %1% results', ['%1%' => $pager->getNbResults()]) : __('Search'))
+@section('title', $query ? "Search results for \"{$query}\"" : 'Search')
+@section('body-class', 'search')
 
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-search me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0" aria-describedby="heading-label">
+      <h1 class="mb-0">
         @if($query && $pager->getNbResults())
-          {{ __('Showing %1% results', ['%1%' => $pager->getNbResults()]) }}
+          Showing {{ number_format($pager->getNbResults()) }} results
+          @if($query) for &ldquo;{{ $query }}&rdquo;@endif
+        @elseif($query || !empty($activeFilters))
+          No results found
+          @if($query) for &ldquo;{{ $query }}&rdquo;@endif
         @else
-          {{ __('No results found') }}
+          Search
         @endif
       </h1>
-      <span class="small" id="heading-label">
-        {{ __('Search') }}
-      </span>
+      <span class="small text-muted">Search archival descriptions</span>
     </div>
   </div>
 
-  {{-- Inline search --}}
-  <form id="inline-search" method="get" action="{{ route('search') }}" role="search" aria-label="{{ __('Search') }}" class="mb-3">
-    <div class="input-group flex-nowrap">
+  {{-- Search box --}}
+  <form action="{{ route('search') }}" method="get" class="mb-3">
+    {{-- Preserve existing filter params --}}
+    @if(request('repository'))
+      <input type="hidden" name="repository" value="{{ request('repository') }}">
+    @endif
+    @if(request('level'))
+      <input type="hidden" name="level" value="{{ request('level') }}">
+    @endif
+    @if(request('dateFrom'))
+      <input type="hidden" name="dateFrom" value="{{ request('dateFrom') }}">
+    @endif
+    @if(request('dateTo'))
+      <input type="hidden" name="dateTo" value="{{ request('dateTo') }}">
+    @endif
+    @if(request()->has('hasDigitalObject'))
+      <input type="hidden" name="hasDigitalObject" value="{{ request('hasDigitalObject') }}">
+    @endif
+    @if(request('mediaType'))
+      <input type="hidden" name="mediaType" value="{{ request('mediaType') }}">
+    @endif
+    @if(request('sort') && request('sort') !== 'relevance')
+      <input type="hidden" name="sort" value="{{ request('sort') }}">
+    @endif
+
+    <div class="input-group">
       <input
-        class="form-control form-control-sm"
-        type="search"
+        type="text"
         name="q"
+        class="form-control form-control-lg"
+        placeholder="Search descriptions, authority records, repositories, terms..."
         value="{{ $query }}"
-        placeholder="{{ __('Search') }}"
-        aria-label="{{ __('Search') }}">
-
-      @if(!empty($query))
-        <a
-          href="{{ route('search') }}"
-          class="btn btn-sm atom-btn-white d-flex align-items-center"
-          role="button">
-          <i class="fas fa-undo" aria-hidden="true"></i>
-          <span class="visually-hidden">{{ __('Reset search') }}</span>
-        </a>
-      @endif
-
-      <button class="btn btn-sm atom-btn-white" type="submit">
+        autocomplete="off"
+        data-autocomplete-url="{{ route('search.autocomplete') }}"
+      >
+      <button class="btn atom-btn-outline-success" type="submit">
         <i class="fas fa-search" aria-hidden="true"></i>
-        <span class="visually-hidden">{{ __('Search') }}</span>
+        Search
       </button>
+      <a href="{{ route('search.advanced') }}{{ $query ? '?q=' . urlencode($query) : '' }}" class="btn atom-btn-white" title="Advanced search">
+        <i class="fas fa-sliders-h" aria-hidden="true"></i>
+        Advanced
+      </a>
     </div>
   </form>
 
-  {{-- Results --}}
-  @if($pager->getNbResults())
-    @foreach($pager->getResults() as $result)
-      <article class="search-result row g-0 p-3 border-bottom">
-        <div class="col-12 d-flex flex-column gap-1">
-          <div class="d-flex align-items-center gap-2">
-            <a href="/{{ $result['slug'] ?? '' }}" class="h5 mb-0 text-truncate">
-              {{ $result['title'] ?? __('[Untitled]') }}
-            </a>
-          </div>
-
-          <div class="d-flex flex-wrap">
-            @php $showDash = false; @endphp
-            @if(!empty($result['identifier']))
-              <span class="text-primary">{{ $result['identifier'] }}</span>
-              @php $showDash = true; @endphp
-            @endif
-
-            @if(!empty($result['levelName']))
-              @if($showDash)
-                <span class="text-muted mx-2"> &middot; </span>
-              @endif
-              <span class="text-muted">{{ $result['levelName'] }}</span>
-              @php $showDash = true; @endphp
-            @endif
-
-            @if(!empty($result['dates']))
-              @if($showDash)
-                <span class="text-muted mx-2"> &middot; </span>
-              @endif
-              <span class="text-muted">{{ $result['dates'] }}</span>
-              @php $showDash = true; @endphp
-            @endif
-          </div>
-
-          @if(!empty($result['repositoryName']))
-            <span class="text-muted">
-              {{ __('Part of') }} {{ $result['repositoryName'] }}
-            </span>
-          @endif
-
-          @if(!empty($result['snippet']))
-            <span class="text-block d-none">
-              {!! $result['snippet'] !!}
-            </span>
-          @endif
-        </div>
-      </article>
-    @endforeach
-
-    @include('ahg-core::components.pager', ['pager' => $pager])
-
-  @elseif($query)
-    <div class="p-3">
-      {{ __("We couldn't find any results matching your search.") }}
+  {{-- Active filter tags --}}
+  @if(!empty($activeFilters))
+    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+      <span class="text-muted small me-1">Filters:</span>
+      @foreach($activeFilters as $filter)
+        @php
+          $removeParams = request()->except([$filter['param'], 'page']);
+        @endphp
+        <a href="{{ route('search', $removeParams) }}" class="badge bg-secondary text-decoration-none" title="Remove filter">
+          {{ $filter['label'] }}
+          <i class="fas fa-times ms-1" aria-hidden="true"></i>
+        </a>
+      @endforeach
+      <a href="{{ route('search', ['q' => $query]) }}" class="btn btn-sm atom-btn-outline-danger">
+        Clear all filters
+      </a>
     </div>
   @endif
+
+  <div class="row">
+    {{-- Sidebar facets --}}
+    @if(!empty($aggregations) && ($query || !empty($activeFilters)))
+      <div class="col-lg-3 mb-4">
+
+        {{-- Sort picker --}}
+        <div class="card mb-3">
+          <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Sort by</strong></div>
+          <div class="card-body py-2">
+            @php
+              $sortOptions = [
+                  'relevance'     => 'Relevance',
+                  'titleAsc'      => 'Title (A-Z)',
+                  'titleDesc'     => 'Title (Z-A)',
+                  'dateDesc'      => 'Date (newest)',
+                  'dateAsc'       => 'Date (oldest)',
+                  'identifierAsc' => 'Identifier (A-Z)',
+                  'lastUpdated'   => 'Last updated',
+              ];
+            @endphp
+            <select class="form-select form-select-sm" onchange="window.location.href=this.value" aria-label="Sort results">
+              @foreach($sortOptions as $val => $label)
+                @php $sortUrl = request()->fullUrlWithQuery(['sort' => $val, 'page' => null]); @endphp
+                <option value="{{ $sortUrl }}" {{ $sort === $val ? 'selected' : '' }}>{{ $label }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        {{-- Repository facet --}}
+        @if(!empty($aggregations['repositories']))
+          <div class="card mb-3">
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Repository</strong></div>
+            <ul class="list-group list-group-flush">
+              @foreach($aggregations['repositories'] as $bucket)
+                @php
+                  $isActive = (int) request('repository') === (int) $bucket['id'];
+                  $params = $isActive
+                      ? request()->except(['repository', 'page'])
+                      : array_merge(request()->except('page'), ['repository' => $bucket['id']]);
+                @endphp
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ $isActive ? 'list-group-item-primary' : '' }}">
+                  <a href="{{ route('search', $params) }}" class="text-decoration-none text-truncate {{ $isActive ? 'fw-bold' : '' }}" style="max-width:80%">
+                    @if($isActive)<i class="fas fa-check-circle me-1" aria-hidden="true"></i>@endif
+                    {{ $bucket['label'] }}
+                  </a>
+                  <span class="badge bg-secondary rounded-pill">{{ number_format($bucket['count']) }}</span>
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
+        {{-- Level of description facet --}}
+        @if(!empty($aggregations['levels']))
+          <div class="card mb-3">
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Level of description</strong></div>
+            <ul class="list-group list-group-flush">
+              @foreach($aggregations['levels'] as $bucket)
+                @php
+                  $isActive = (int) request('level') === (int) $bucket['id'];
+                  $params = $isActive
+                      ? request()->except(['level', 'page'])
+                      : array_merge(request()->except('page'), ['level' => $bucket['id']]);
+                @endphp
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ $isActive ? 'list-group-item-primary' : '' }}">
+                  <a href="{{ route('search', $params) }}" class="text-decoration-none {{ $isActive ? 'fw-bold' : '' }}">
+                    @if($isActive)<i class="fas fa-check-circle me-1" aria-hidden="true"></i>@endif
+                    {{ $bucket['label'] }}
+                  </a>
+                  <span class="badge bg-secondary rounded-pill">{{ number_format($bucket['count']) }}</span>
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
+        {{-- Media type facet --}}
+        @if(!empty($aggregations['mediaTypes']))
+          <div class="card mb-3">
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Media type</strong></div>
+            <ul class="list-group list-group-flush">
+              @foreach($aggregations['mediaTypes'] as $bucket)
+                @php
+                  $isActive = (int) request('mediaType') === (int) $bucket['id'];
+                  $params = $isActive
+                      ? request()->except(['mediaType', 'page'])
+                      : array_merge(request()->except('page'), ['mediaType' => $bucket['id']]);
+                @endphp
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ $isActive ? 'list-group-item-primary' : '' }}">
+                  <a href="{{ route('search', $params) }}" class="text-decoration-none {{ $isActive ? 'fw-bold' : '' }}">
+                    @if($isActive)<i class="fas fa-check-circle me-1" aria-hidden="true"></i>@endif
+                    {{ $bucket['label'] }}
+                  </a>
+                  <span class="badge bg-secondary rounded-pill">{{ number_format($bucket['count']) }}</span>
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
+        {{-- Digital object presence facet --}}
+        @if(!empty($aggregations['hasDigitalObject']))
+          <div class="card mb-3">
+            <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>Digital object</strong></div>
+            <ul class="list-group list-group-flush">
+              @foreach($aggregations['hasDigitalObject'] as $bucket)
+                @php
+                  $doVal = $bucket['id'] ? '1' : '0';
+                  $isActive = request()->has('hasDigitalObject') && request('hasDigitalObject') === $doVal;
+                  $params = $isActive
+                      ? request()->except(['hasDigitalObject', 'page'])
+                      : array_merge(request()->except('page'), ['hasDigitalObject' => $doVal]);
+                @endphp
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ $isActive ? 'list-group-item-primary' : '' }}">
+                  <a href="{{ route('search', $params) }}" class="text-decoration-none {{ $isActive ? 'fw-bold' : '' }}">
+                    @if($isActive)<i class="fas fa-check-circle me-1" aria-hidden="true"></i>@endif
+                    {{ $bucket['label'] }}
+                  </a>
+                  <span class="badge bg-secondary rounded-pill">{{ number_format($bucket['count']) }}</span>
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
+      </div>
+    @endif
+
+    {{-- Results --}}
+    <div class="{{ (!empty($aggregations) && ($query || !empty($activeFilters))) ? 'col-lg-9' : 'col-12' }}">
+      @if(($query || !empty($activeFilters)) && $pager->getNbResults())
+        <div class="list-group mb-4">
+          @foreach($pager->getResults() as $result)
+            <div class="list-group-item">
+              <div class="d-flex align-items-start">
+                {{-- Digital object icon --}}
+                @if(!empty($result['hasDigitalObject']))
+                  <span class="text-primary me-2 mt-1" title="Has digital object">
+                    <i class="fas fa-file-image" aria-hidden="true"></i>
+                  </span>
+                @endif
+
+                <div class="flex-grow-1">
+                  <h5 class="mb-1">
+                    <a href="/{{ $result['slug'] ?? '' }}">
+                      {!! $result['highlighted_title'] ?? e($result['title'] ?? '[Untitled]') !!}
+                    </a>
+                  </h5>
+
+                  <div class="d-flex flex-wrap gap-2 mb-1">
+                    @if(!empty($result['identifier']))
+                      <small class="text-muted">
+                        <i class="fas fa-barcode" aria-hidden="true"></i>
+                        {{ $result['identifier'] }}
+                      </small>
+                    @endif
+
+                    @if(!empty($result['levelName']))
+                      <small class="text-muted">
+                        <i class="fas fa-layer-group" aria-hidden="true"></i>
+                        {{ $result['levelName'] }}
+                      </small>
+                    @endif
+
+                    @if(!empty($result['repositoryName']))
+                      <small class="text-muted">
+                        <i class="fas fa-institution" aria-hidden="true"></i>
+                        {{ $result['repositoryName'] }}
+                      </small>
+                    @endif
+
+                    @if(!empty($result['dates']))
+                      <small class="text-muted">
+                        <i class="fas fa-calendar" aria-hidden="true"></i>
+                        {{ $result['dates'] }}
+                      </small>
+                    @endif
+                  </div>
+
+                  @if(!empty($result['snippet']))
+                    <p class="mb-0 mt-1 text-muted small">{!! $result['snippet'] !!}</p>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+
+        @include('ahg-core::components.pager', ['pager' => $pager])
+
+      @elseif($query || !empty($activeFilters))
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+          No results matched your search. Try different keywords or broaden your search terms.
+          @if(!empty($activeFilters))
+            <a href="{{ route('search', ['q' => $query]) }}">Clear all filters</a> to see more results.
+          @endif
+        </div>
+      @endif
+    </div>
+  </div>
 @endsection

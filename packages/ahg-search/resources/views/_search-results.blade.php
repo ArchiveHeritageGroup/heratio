@@ -1,13 +1,13 @@
 @if($pager->getNbResults())
 
   @foreach($pager->getResults() as $hit)
-    @include('ahg-search::_search-result', ['hit' => $hit, 'culture' => $culture])
+    @php echo get_partial('search/searchResult', ['hit' => $hit, 'culture' => $culture]); @endphp
   @endforeach
 
-@else
+@php } else { @endphp
 
   <div class="p-3">
-    {{ __("We couldn't find any results matching your search.") }}
+    {{ __('We couldn\'t find any results matching your search.') }}
   </div>
 
-@endif
+@endforeach

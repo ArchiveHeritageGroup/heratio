@@ -1,17 +1,2 @@
-{{-- This partial is now integrated into description-updates.blade.php as an accordion filter. --}}
-{{-- Kept for backward compatibility if included elsewhere. --}}
-<form id="inline-search" method="get" action="{{ route('search.descriptionUpdates') }}" role="search" aria-label="{{ __('Search') }}">
-  <div class="input-group flex-nowrap">
-    <input
-      class="form-control form-control-sm"
-      type="search"
-      name="query"
-      value="{{ request('query') }}"
-      placeholder="{{ __('Search') }}"
-      aria-label="{{ __('Search') }}">
-    <button class="btn btn-sm atom-btn-white" type="submit">
-      <i class="fas fa-search" aria-hidden="true"></i>
-      <span class="visually-hidden">{{ __('Search') }}</span>
-    </button>
-  </div>
-</form>
+{{-- Partial: Updates search form --}}
+<div class="updates-search mb-3"><form method="GET" action="{{ route('search.descriptionUpdates') }}"><div class="input-group"><input type="text" class="form-control" name="query" value="{{ request('query') }}" placeholder="Search recent updates..."><button type="submit" class="btn atom-btn-white"><i class="fas fa-search"></i></button></div></form></div>

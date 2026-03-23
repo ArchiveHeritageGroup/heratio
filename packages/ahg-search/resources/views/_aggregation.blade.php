@@ -1,6 +1,6 @@
 @if(!isset($aggs[$name]) || (!isset($filters[$name]) && (count($aggs[$name]) < 2 || ('languages' == $name && count($aggs[$name]) < 3))))
   @php return; @endphp
-@endif
+@endforeach
 
 @php $openned = (isset($sf_request->{$name}) || (isset($open) && $open && 0 < count($aggs[$name]))); @endphp
 
@@ -29,8 +29,8 @@
             [$name => null, 'page' => null] + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
             ['class' => 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'.(!isset($filters[$name]) ? ' active text-decoration-underline' : '')]
         ); @endphp
-      @endif
-
+      @endforeach
+    
       @foreach($aggs[$name] as $bucket)
         @php $active = ((isset($filters[$name]) && $filters[$name] == $bucket['key'])
             || (!isset($filters[$name]) && 'unique_language' == $bucket['key'])); @endphp

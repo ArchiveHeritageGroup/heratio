@@ -4,24 +4,165 @@
 @section('body-class', 'view informationobject')
 
 {{-- ============================================================ --}}
-{{-- LEFT SIDEBAR: Context menu (logo/treeview/static pages)      --}}
-{{-- Matches AtoM _contextMenu.php                                --}}
+{{-- LEFT SIDEBAR: Treeview / Holdings + Quick search             --}}
 {{-- ============================================================ --}}
 @section('sidebar')
 
-  {{-- Repository logo --}}
-  @if(isset($repository) && $repository)
-    @include('ahg-repository-manage::_logo', ['repository' => $repository])
-  @endif
-
   {{-- Dynamic treeview hierarchy --}}
   @include('ahg-io-manage::partials._treeview', ['io' => $io])
+
+  {{-- Quick search within this collection --}}
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-search me-1"></i> Search within
+    </div>
+    <div class="card-body p-2">
+      <form action="{{ route('informationobject.browse') }}" method="GET">
+        <input type="hidden" name="collection" value="{{ $io->id }}">
+        <div class="input-group input-group-sm">
+          <input type="text" name="subquery" class="form-control" placeholder="Search...">
+          <button class="btn atom-btn-white" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {{-- ===== Authenticated-only management sections ===== --}}
+  @auth
+
+    {{-- Collections Management --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-archive me-1"></i> Collections Management
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.provenance', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-project-diagram me-1"></i> Provenance
+        </a>
+        <a href="{{ route('io.condition', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Condition assessment
+        </a>
+        <a href="{{ route('io.spectrum', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-chart-bar me-1"></i> Spectrum data
+        </a>
+        <a href="{{ route('io.heritage', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-landmark me-1"></i> Heritage Assets
+        </a>
+      </div>
+    </div>
+
+    {{-- Digital Preservation (OAIS) --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-shield-alt me-1"></i> Digital Preservation (OAIS)
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.preservation', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-box-open me-1"></i> Preservation packages
+        </a>
+      </div>
+    </div>
+
+    {{-- AI Tools --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-robot me-1"></i> AI Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.ai.extract', $io->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+        </a>
+        <a href="{{ route('io.ai.summarize', $io->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-file-alt me-1"></i> Generate Summary
+        </a>
+        <a href="{{ route('io.ai.translate', $io->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-language me-1"></i> Translate
+        </a>
+      </div>
+    </div>
+
+    {{-- Review Dashboard --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-tasks me-1"></i> Review Dashboard
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.ai.review') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list-check me-1"></i> NER Review
+        </a>
+      </div>
+    </div>
+
+    {{-- Privacy & PII --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-user-shield me-1"></i> Privacy & PII
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.privacy.scan', $io->id) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-search me-1"></i> Scan for PII
+        </a>
+        @if(isset($digitalObjects) && $digitalObjects['master'])
+          <a href="{{ route('io.privacy.redaction', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-eraser me-1"></i> Visual Redaction
+          </a>
+        @endif
+        <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Privacy Dashboard
+        </a>
+      </div>
+    </div>
+
+    {{-- Rights --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-copyright me-1"></i> Rights
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.rights.extended', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copyright me-1"></i> Add extended rights
+        </a>
+        <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-lock me-1"></i> Add embargo
+        </a>
+        <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+        </a>
+      </div>
+    </div>
+
+    {{-- Research Tools --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-graduation-cap me-1"></i> Research Tools
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('io.research.assessment', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-clipboard-check me-1"></i> Source Assessment
+        </a>
+        <a href="{{ route('io.research.annotations', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-highlighter me-1"></i> Annotation Studio
+        </a>
+        <a href="{{ route('io.research.trust', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-star-half-alt me-1"></i> Trust Score
+        </a>
+        <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
+        </a>
+        <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-quote-left me-1"></i> Generate citation
+        </a>
+      </div>
+    </div>
+
+  @endauth
 
 @endsection
 
 {{-- ============================================================ --}}
 {{-- TITLE BLOCK                                                  --}}
-{{-- Matches AtoM indexSuccess.php title slot                     --}}
 {{-- ============================================================ --}}
 @section('title-block')
 
@@ -60,8 +201,7 @@
 @endsection
 
 {{-- ============================================================ --}}
-{{-- BEFORE CONTENT: Digital object display                       --}}
-{{-- Matches AtoM: imageflow + digitalobject show component       --}}
+{{-- BEFORE CONTENT: Digital object reference image               --}}
 {{-- ============================================================ --}}
 @section('before-content')
 
@@ -75,53 +215,423 @@
       $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
       $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
       $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
+
+      // Non-native formats that need streaming/transcoding (matching AtoM's needs_streaming list)
+      $nonNativeVideo = ['video/x-ms-wmv', 'video/x-ms-asf', 'video/x-msvideo', 'video/quicktime',
+          'video/x-flv', 'video/x-matroska', 'video/mp2t', 'video/x-ms-wtv', 'video/hevc',
+          'application/mxf', 'video/3gpp', 'video/avi'];
+      $nonNativeAudio = ['audio/aiff', 'audio/x-aiff', 'audio/basic', 'audio/x-au',
+          'audio/ac3', 'audio/x-ms-wma', 'audio/x-pn-realaudio'];
+      $masterMime = $masterObj->mime_type ?? '';
+      $needsStreaming = in_array($masterMime, $nonNativeVideo) || in_array($masterMime, $nonNativeAudio);
+
+      // For non-native formats: prefer reference derivative (should be MP4/MP3), fallback to master
+      $videoSrc = ($needsStreaming && $refObj) ? $refUrl : $masterUrl;
+      $videoMime = ($needsStreaming && $refObj) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
       @if($isPdf)
-        {{-- PDF: embedded iframe viewer --}}
-        <div class="ratio" style="--bs-aspect-ratio: 85%;">
-          <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+        {{-- PDF: embedded iframe viewer with toolbar --}}
+        <div class="pdf-viewer-container" style="overflow:hidden;">
+          <div class="pdf-wrapper">
+            <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
+              <span class="badge bg-danger">
+                <i class="fas fa-file-pdf me-1"></i>PDF Document
+              </span>
+              <div class="btn-group btn-group-sm">
+                <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+                <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF">
+                  <i class="fas fa-download"></i>
+                </a>
+              </div>
+            </div>
+            <div class="ratio" style="--bs-aspect-ratio: 85%;">
+              <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+            </div>
+          </div>
         </div>
 
       @elseif($masterMediaType === 'video')
-        {{-- Video: HTML5 player --}}
-        <video controls class="w-100" style="max-height:500px; background:#000;" preload="metadata"
+        {{-- Video: HTML5 player with streaming fallback for non-native formats --}}
+        <video id="ahg-video-player" controls class="w-100" style="max-height:500px; background:#000;" preload="metadata"
                @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
-          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type ?? 'video/mp4' }}">
+          <source src="{{ $videoSrc }}" type="{{ $videoMime }}">
+          @if($needsStreaming && $videoSrc !== $masterUrl)
+            {{-- Also try master as fallback --}}
+            <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
+          @endif
           Your browser does not support this video format.
         </video>
+        <div class="mt-2 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+            <span class="badge bg-light text-dark">{{ $masterMime }}</span>
+            @if($masterObj->byte_size ?? 0)
+              <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
+            @endif
+          </div>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
+              <i class="fas fa-download me-1"></i>Download video
+            </a>
+          @endauth
+        </div>
 
       @elseif($masterMediaType === 'audio')
-        {{-- Audio: HTML5 player --}}
-        <audio controls class="w-100" preload="metadata">
-          <source src="{{ $masterUrl }}" type="{{ $masterObj->mime_type ?? 'audio/mpeg' }}">
+        {{-- Audio: HTML5 player with streaming fallback --}}
+        @php
+          $audioSrc = $needsStreaming && $refObj ? $refUrl : $masterUrl;
+          $audioMime = $needsStreaming && $refObj ? ($refObj->mime_type ?? 'audio/mpeg') : $masterMime;
+        @endphp
+        <audio id="ahg-audio-player" controls class="w-100" preload="metadata">
+          <source src="{{ $audioSrc }}" type="{{ $audioMime }}">
+          @if($needsStreaming && $audioSrc !== $masterUrl)
+            <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
+          @endif
           Your browser does not support this audio format.
         </audio>
+        <div class="mt-2 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+            <span class="badge bg-light text-dark">{{ $masterMime }}</span>
+          </div>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
+              <i class="fas fa-download me-1"></i>Download audio
+            </a>
+          @endauth
+        </div>
 
       @elseif($refUrl || $thumbUrl)
-        {{-- Image: clickable reference image --}}
-        <a href="{{ $masterUrl ?: $refUrl }}" target="_blank">
-          <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
-        </a>
+        {{-- Image: OpenSeadragon + Mirador viewer (matching AtoM) --}}
+        @php $viewerId = 'iiif-viewer-' . $io->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
 
+        {{-- Viewer toggle --}}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+              <i class="fas fa-search-plus me-1"></i>Deep Zoom
+            </button>
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+              <i class="fas fa-columns me-1"></i>Mirador
+            </button>
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+              <i class="fas fa-image me-1"></i>Image
+            </button>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+        </div>
+
+        {{-- OSD container --}}
+        <div id="osd-{{ $viewerId }}" style="width:100%;height:500px;background:#1a1a1a;border-radius:8px;"></div>
+
+        {{-- Mirador container (hidden) --}}
+        <div id="mirador-{{ $viewerId }}" style="width:100%;height:500px;border-radius:8px;display:none;"></div>
+
+        {{-- Simple image (hidden) --}}
+        <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
+          <a href="{{ $imgSrc }}" target="_blank">
+            <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
+          </a>
+        </div>
+
+        <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
+        });
+        </script>
       @else
-        {{-- Generic icon --}}
+        {{-- No displayable object: show download link --}}
         <div class="py-4">
           <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
           <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
+          @auth
+            <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
+              <i class="fas fa-download me-1"></i>Download file
+            </a>
+          @endauth
         </div>
       @endif
     </div>
+
+    {{-- Media controls: Extract Metadata, Transcription, Snippets (matching AtoM) --}}
+    @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+      @php
+        $doId = $digitalObjects['master']->id;
+        $doMediaType = \AhgCore\Services\DigitalObjectService::getMediaType($digitalObjects['master']);
+        $isMediaFile = in_array($doMediaType, ['audio', 'video']);
+
+        // Check for existing metadata
+        $mediaMetadata = \Illuminate\Support\Facades\DB::table('media_metadata')
+          ->where('digital_object_id', $doId)->first();
+
+        // Check for existing transcription
+        $transcription = \Illuminate\Support\Facades\DB::table('media_transcription')
+          ->where('digital_object_id', $doId)->first();
+
+        // Get snippets
+        $snippets = \Illuminate\Support\Facades\DB::table('media_snippets')
+          ->where('digital_object_id', $doId)->orderBy('start_time')->get();
+      @endphp
+
+      @if($isMediaFile)
+        {{-- Media Information panel --}}
+        @if($mediaMetadata)
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#media-info-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
+              <span><i class="fas fa-info-circle me-2"></i>Media Information</span>
+              <span class="badge bg-{{ $doMediaType === 'audio' ? 'info' : 'primary' }}">
+                {{ ucfirst($doMediaType) }}{{ $mediaMetadata->format ? ' - ' . strtoupper($mediaMetadata->format) : '' }}
+              </span>
+            </div>
+            <div class="collapse" id="media-info-collapse">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="text-muted mb-2">Technical Details</h6>
+                  <table class="table table-bordered table-sm table-borderless">
+                    @if($mediaMetadata->duration)<tr><td class="text-muted">Duration:</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
+                    @if($mediaMetadata->file_size)<tr><td class="text-muted">File Size:</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
+                    @if($mediaMetadata->bitrate)<tr><td class="text-muted">Bitrate:</td><td>{{ number_format($mediaMetadata->bitrate / 1000) }} kbps</td></tr>@endif
+                    @if($mediaMetadata->audio_codec ?? null)<tr><td class="text-muted">Audio Codec:</td><td>{{ $mediaMetadata->audio_codec }}</td></tr>@endif
+                    @if($mediaMetadata->audio_sample_rate ?? null)<tr><td class="text-muted">Sample Rate:</td><td>{{ number_format($mediaMetadata->audio_sample_rate) }} Hz</td></tr>@endif
+                    @if($mediaMetadata->audio_channels ?? null)<tr><td class="text-muted">Channels:</td><td>{{ $mediaMetadata->audio_channels == 1 ? 'Mono' : ($mediaMetadata->audio_channels == 2 ? 'Stereo' : $mediaMetadata->audio_channels . 'ch') }}</td></tr>@endif
+                    @if($mediaMetadata->video_codec ?? null)<tr><td class="text-muted">Video Codec:</td><td>{{ $mediaMetadata->video_codec }}</td></tr>@endif
+                    @if(($mediaMetadata->video_width ?? null) && ($mediaMetadata->video_height ?? null))<tr><td class="text-muted">Resolution:</td><td>{{ $mediaMetadata->video_width }} x {{ $mediaMetadata->video_height }}</td></tr>@endif
+                    @if($mediaMetadata->video_frame_rate ?? null)<tr><td class="text-muted">Frame Rate:</td><td>{{ round($mediaMetadata->video_frame_rate, 2) }} fps</td></tr>@endif
+                  </table>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="text-muted mb-2">Embedded Metadata</h6>
+                  <table class="table table-bordered table-sm table-borderless">
+                    @foreach(['title', 'artist', 'album', 'genre', 'year', 'copyright'] as $field)
+                      @if($mediaMetadata->$field ?? null)<tr><td class="text-muted">{{ ucfirst($field) }}:</td><td>{{ e($mediaMetadata->$field) }}</td></tr>@endif
+                    @endforeach
+                  </table>
+                </div>
+              </div>
+            </div>
+            </div>{{-- /collapse --}}
+          </div>
+        @else
+          {{-- Extract Metadata button --}}
+          @auth
+          <div class="card mb-3">
+            <div class="card-body text-center py-4">
+              <i class="fas fa-music fa-2x text-muted mb-3 d-block"></i>
+              <p class="text-muted mb-3">Media metadata has not been extracted yet.</p>
+              <button class="btn atom-btn-white" id="extract-btn-{{ $doId }}" data-action="extract" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-magic me-1"></i>Extract Metadata</button>
+            </div>
+          </div>
+          @endauth
+        @endif
+
+        {{-- Transcription panel --}}
+        @if($transcription)
+          @php
+            $segments = json_decode($transcription->segments ?? '[]', true) ?: [];
+          @endphp
+          <div class="card mb-3" id="transcription-panel-{{ $doId }}">
+            <div class="card-header d-flex justify-content-between align-items-center" role="button" data-bs-toggle="collapse" data-bs-target="#transcription-collapse" aria-expanded="false" style="background:var(--ahg-primary);color:#fff">
+              <span><i class="fas fa-file-alt me-2"></i>Transcription</span>
+              <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
+                <a href="/media/transcription/{{ $doId }}/vtt" class="btn atom-btn-white" title="Download VTT"><i class="fas fa-closed-captioning"></i> VTT</a>
+                <a href="/media/transcription/{{ $doId }}/srt" class="btn atom-btn-white" title="Download SRT"><i class="fas fa-file-video"></i> SRT</a>
+                @auth
+                <button class="btn atom-btn-white" title="Re-transcribe" data-action="retranscribe" data-do-id="{{ $doId }}" data-lang="{{ $transcription->language ?? 'en' }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-redo"></i></button>
+                @endauth
+              </div>
+            </div>
+            <div class="collapse" id="transcription-collapse">
+            <div class="card-body py-2 bg-light border-bottom">
+              <small class="text-muted">
+                <i class="fas fa-language me-1"></i>{{ \Locale::getDisplayLanguage($transcription->language ?? 'en', 'en') }}
+                @if($transcription->duration ?? null) &bull; <i class="fas fa-clock me-1"></i>{{ gmdate('H:i:s', (int) $transcription->duration) }}@endif
+                @if(count($segments)) &bull; <i class="fas fa-paragraph me-1"></i>{{ count($segments) }} segments @endif
+                @if($transcription->confidence ?? null)
+                  &bull; <span class="badge bg-{{ $transcription->confidence > 70 ? 'success' : ($transcription->confidence > 50 ? 'warning' : 'danger') }}">{{ round($transcription->confidence) }}% confidence</span>
+                @endif
+              </small>
+            </div>
+            {{-- Search --}}
+            <div class="card-body py-2 border-bottom">
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" id="transcript-search-{{ $doId }}" placeholder="Search in transcript...">
+                <button class="btn atom-btn-white" type="button" id="transcript-search-btn-{{ $doId }}"><i class="fas fa-search"></i></button>
+              </div>
+            </div>
+            {{-- Content --}}
+            <div class="card-body transcript-content" style="max-height:400px;overflow-y:auto;">
+              <div class="transcript-full-text" style="white-space:pre-wrap;line-height:1.8;">{{ e($transcription->full_text ?? '') }}</div>
+              <div class="transcript-segments" style="display:none;">
+                @foreach($segments as $i => $seg)
+                  <div class="transcript-segment" data-start="{{ $seg['start'] ?? 0 }}" data-end="{{ $seg['end'] ?? 0 }}" style="cursor:pointer;padding:4px 8px;border-radius:4px;margin:2px 0;">
+                    <small class="text-muted me-2">[{{ gmdate('i:s', (int) ($seg['start'] ?? 0)) }}]</small>{{ e(trim($seg['text'] ?? '')) }}
+                  </div>
+                @endforeach
+              </div>
+            </div>
+            {{-- View toggle --}}
+            <div class="card-footer py-2">
+              <div class="btn-group btn-group-sm">
+                <button class="btn atom-btn-white active" id="btn-text-{{ $doId }}"><i class="fas fa-align-left"></i> Full Text</button>
+                <button class="btn atom-btn-white" id="btn-segments-{{ $doId }}"><i class="fas fa-list"></i> Timed Segments</button>
+              </div>
+            </div>
+            </div>{{-- /collapse --}}
+          </div>
+        @else
+          {{-- Transcribe buttons --}}
+          @auth
+          <div class="card mb-3">
+            <div class="card-body text-center py-4">
+              <i class="fas fa-microphone fa-2x text-muted mb-3 d-block"></i>
+              <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>Transcribe (English)</button>
+                <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">Afrikaans</button>
+              </div>
+            </div>
+          </div>
+          @endauth
+        @endif
+
+        {{-- Snippets --}}
+        @if($snippets->isNotEmpty())
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+              <span><i class="fas fa-cut me-2"></i>Snippets</span>
+              <span class="badge bg-secondary">{{ $snippets->count() }}</span>
+            </div>
+            <div class="list-group list-group-flush">
+              @foreach($snippets as $snippet)
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ e($snippet->title ?? 'Untitled') }}</strong>
+                    <small class="text-muted ms-2">[{{ gmdate('i:s', (int) $snippet->start_time) }} - {{ gmdate('i:s', (int) $snippet->end_time) }}]</small>
+                    @if($snippet->notes)<br><small class="text-muted">{{ e($snippet->notes) }}</small>@endif
+                  </div>
+                  <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(p.currentTime={{ $snippet->start_time }},p.play())" title="Play snippet">
+                    <i class="fas fa-play"></i>
+                  </button>
+                </div>
+              @endforeach
+            </div>
+          </div>
+        @endif
+
+        {{-- Create Snippet button --}}
+        @auth
+        <div class="mb-3">
+          <button class="btn btn-sm atom-btn-white" id="create-snippet-btn" onclick="document.getElementById('snippet-form').style.display=document.getElementById('snippet-form').style.display==='none'?'block':'none';">
+            <i class="fas fa-cut me-1"></i>Create Snippet
+          </button>
+          <div id="snippet-form" style="display:none;" class="card mt-2">
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-title" placeholder="Snippet title"></div>
+                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-start" placeholder="Start (sec)" step="0.1"></div>
+                <div class="col-md-2"><input type="number" class="form-control form-control-sm" id="snippet-end" placeholder="End (sec)" step="0.1"></div>
+                <div class="col-md-4"><input type="text" class="form-control form-control-sm" id="snippet-notes" placeholder="Notes (optional)"></div>
+              </div>
+              <div class="mt-2 d-flex gap-2">
+                <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-start').value=p.currentTime.toFixed(1))">
+                  <i class="fas fa-sign-in-alt"></i> Mark IN
+                </button>
+                <button class="btn btn-sm atom-btn-white" onclick="var p=document.querySelector('audio,video');p&&(document.getElementById('snippet-end').value=p.currentTime.toFixed(1))">
+                  <i class="fas fa-sign-out-alt"></i> Mark OUT
+                </button>
+                <button class="btn atom-btn-outline-light btn-sm" data-action="save-snippet" data-do-id="{{ $doId }}" data-csrf="{{ csrf_token() }}"><i class="fas fa-save me-1"></i>Save Snippet</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        @endauth
+      @endif
+    @endif
   @endif
 
 @endsection
 
 {{-- ============================================================ --}}
 {{-- MAIN CONTENT: ISAD(G) sections                              --}}
-{{-- Matches AtoM sfIsadPlugin/indexSuccess.php exactly           --}}
 {{-- ============================================================ --}}
 @section('content')
+
+  {{-- User action buttons (matching AtoM: TTS, Favorites, Cart, Loan) --}}
+  <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
+    @auth
+      @php
+        $userId = auth()->id();
+        $isFavorited = \Illuminate\Support\Facades\DB::table('favorites')
+          ->where('user_id', $userId)->where('archival_description_id', $io->id)->exists();
+        $inCart = \Illuminate\Support\Facades\DB::table('cart')
+          ->where('user_id', $userId)->where('archival_description_id', $io->id)
+          ->whereNull('completed_at')->exists();
+        $hasDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null);
+      @endphp
+
+      {{-- Favorites toggle --}}
+      @if($isFavorited)
+        <form method="POST" action="{{ route('favorites.remove', \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->where('archival_description_id', $io->id)->value('id')) }}" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Remove from Favorites" data-bs-toggle="tooltip">
+            <i class="fas fa-heart-broken"></i>
+          </button>
+        </form>
+      @else
+        <a href="{{ route('favorites.add', $io->slug) }}"
+           class="btn btn-sm atom-btn-outline-danger" title="Add to Favorites" data-bs-toggle="tooltip">
+          <i class="fas fa-heart"></i>
+        </a>
+      @endif
+
+      {{-- Cart --}}
+      @if($hasDigitalObject)
+        @if($inCart)
+          <a href="{{ route('cart.browse') }}" class="btn btn-sm atom-btn-outline-success" title="Go to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-shopping-cart"></i>
+          </a>
+        @else
+          <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-outline-success" title="Add to Cart" data-bs-toggle="tooltip">
+            <i class="fas fa-cart-plus"></i>
+          </a>
+        @endif
+      @endif
+
+      {{-- Feedback --}}
+      <a href="{{ url('/feedback/submit/' . $io->slug) }}" class="btn btn-sm atom-btn-white" title="Item Feedback" data-bs-toggle="tooltip">
+        <i class="fas fa-comment"></i>
+      </a>
+
+      {{-- Request to Publish --}}
+      @if($hasDigitalObject)
+        <a href="{{ route('cart.add', $io->slug) }}" class="btn btn-sm atom-btn-white" title="Request to Publish" data-bs-toggle="tooltip">
+          <i class="fas fa-paper-plane"></i>
+        </a>
+      @endif
+
+      {{-- Loan: New + Manage --}}
+      <a href="{{ route('loan.create', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="New Loan" data-bs-toggle="tooltip">
+        <i class="fas fa-hand-holding"></i>
+      </a>
+      <a href="{{ route('loan.index', ['object_id' => $io->id]) }}" class="btn btn-sm atom-btn-white" title="Manage Loans" data-bs-toggle="tooltip">
+        <i class="fas fa-exchange-alt"></i>
+      </a>
+    @endauth
+  </div>
 
   {{-- ===== 1. Identity area ===== --}}
   <section id="identityArea" class="border-bottom">
@@ -129,11 +639,11 @@
       <a class="text-decoration-none text-white" href="#identity-collapse">
         Identity area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="identity-collapse">
 
@@ -195,11 +705,11 @@
       <a class="text-decoration-none text-white" href="#context-collapse">
         Context area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="context-collapse">
 
@@ -288,11 +798,11 @@
       <a class="text-decoration-none text-white" href="#content-collapse">
         Content and structure area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="content-collapse">
 
@@ -333,11 +843,11 @@
       <a class="text-decoration-none text-white" href="#conditions-collapse">
         Conditions of access and use area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="conditions-collapse">
 
@@ -429,11 +939,11 @@
       <a class="text-decoration-none text-white" href="#allied-collapse">
         Allied materials area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="allied-collapse">
 
@@ -458,7 +968,7 @@
         </div>
       @endif
 
-      {{-- Related material descriptions --}}
+      {{-- Related material descriptions (relation type_id = 176) --}}
       @if(isset($relatedMaterialDescriptions) && $relatedMaterialDescriptions->isNotEmpty())
         <div class="relatedMaterialDescriptions">
           <div class="field row g-0">
@@ -497,11 +1007,11 @@
       <a class="text-decoration-none text-white" href="#notes-collapse">
         Notes area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="notes-collapse">
 
@@ -536,11 +1046,11 @@
       <a class="text-decoration-none text-white" href="#access-collapse">
         Access points
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="access-collapse">
 
@@ -605,11 +1115,11 @@
       <a class="text-decoration-none text-white" href="#description-collapse">
         Description control area
       </a>
-      @auth
+      @if(auth()->check())
         <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endauth
+      @endif
     </h2>
     <div id="description-collapse">
 
@@ -699,11 +1209,14 @@
 
   {{-- ===== 9. Rights area (authenticated only) ===== --}}
   @auth
-    <div class="section border-bottom" id="rightsArea">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        Rights area
+    <section id="rightsArea" class="border-bottom">
+      <h2 class="h6 mb-0 atom-section-header">
+        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#rights-collapse">
+          Rights area
+        </a>
       </h2>
-      <div class="relatedRights">
+      <div id="rights-collapse">
+        {{-- Standard rights (from rights table via relation) --}}
         @if(isset($rights) && (is_countable($rights) ? count($rights) > 0 : !empty($rights)))
           @foreach($rights as $right)
             <div class="field row g-0">
@@ -720,8 +1233,87 @@
             </div>
           @endforeach
         @endif
+
+        {{-- Extended rights (from extended_rights + extended_rights_i18n + extended_rights_tk_label) --}}
+        @if(isset($extendedRights) && $extendedRights->isNotEmpty())
+          @foreach($extendedRights as $er)
+            @if($er->rights_statement_name || $er->rights_statement_code)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights statement</h3>
+                <div class="col-9 p-2">
+                  @if($er->rights_statement_uri)
+                    <a href="{{ $er->rights_statement_uri }}" target="_blank">{{ $er->rights_statement_name ?? $er->rights_statement_code }}</a>
+                  @else
+                    {{ $er->rights_statement_name ?? $er->rights_statement_code }}
+                  @endif
+                  @if($er->rights_statement_definition)
+                    <br><small class="text-muted">{{ $er->rights_statement_definition }}</small>
+                  @endif
+                </div>
+              </div>
+            @endif
+            @if($er->cc_license_code)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creative Commons</h3>
+                <div class="col-9 p-2">
+                  @if($er->cc_license_uri)
+                    <a href="{{ $er->cc_license_uri }}" target="_blank">CC {{ strtoupper($er->cc_license_code) }}</a>
+                  @else
+                    CC {{ strtoupper($er->cc_license_code) }}
+                  @endif
+                </div>
+              </div>
+            @endif
+            @if($er->rights_holder)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights holder</h3>
+                <div class="col-9 p-2">
+                  @if($er->rights_holder_uri)
+                    <a href="{{ $er->rights_holder_uri }}" target="_blank">{{ $er->rights_holder }}</a>
+                  @else
+                    {{ $er->rights_holder }}
+                  @endif
+                </div>
+              </div>
+            @endif
+            @if($er->copyright_notice)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Copyright notice</h3>
+                <div class="col-9 p-2">{!! nl2br(e($er->copyright_notice)) !!}</div>
+              </div>
+            @endif
+            @if($er->usage_conditions)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Usage conditions</h3>
+                <div class="col-9 p-2">{!! nl2br(e($er->usage_conditions)) !!}</div>
+              </div>
+            @endif
+            @if($er->rights_note)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights note</h3>
+                <div class="col-9 p-2">{!! nl2br(e($er->rights_note)) !!}</div>
+              </div>
+            @endif
+            @if($er->rights_date)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rights date</h3>
+                <div class="col-9 p-2">{{ $er->rights_date }}@if($er->expiry_date) &ndash; {{ $er->expiry_date }}@endif</div>
+              </div>
+            @endif
+            @if(isset($extendedRightsTkLabels[$er->id]) && $extendedRightsTkLabels[$er->id]->isNotEmpty())
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">TK Labels</h3>
+                <div class="col-9 p-2">
+                  @foreach($extendedRightsTkLabels[$er->id] as $tkl)
+                    <span class="badge bg-secondary me-1">{{ $tkl->code ?? $tkl->id }}</span>
+                  @endforeach
+                </div>
+              </div>
+            @endif
+          @endforeach
+        @endif
       </div>
-    </div>
+    </section>
   @endauth
 
   {{-- ===== 10. Digital object metadata ===== --}}
@@ -735,67 +1327,163 @@
       $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
       $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
     @endphp
-    <div class="digitalObjectMetadata">
-      <section class="border-bottom">
-        <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+    <section class="border-bottom">
+      <h2 class="h6 mb-0 atom-section-header">
+        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#digital-object-collapse">
           Digital object metadata
-        </h2>
-        <div>
-          <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
-            <div class="col-9 p-2">
-              @auth
-                <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
-              @else
-                {{ $doMaster->name }}
-              @endauth
-            </div>
-          </div>
-          @if($doMaster->media_type_id)
-            <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
-              <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
-            </div>
-          @endif
-          @if($doMaster->mime_type)
-            <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
-              <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
-            </div>
-          @endif
-          @if($doMaster->byte_size)
-            <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
-              <div class="col-9 p-2">
-                @if($doMaster->byte_size > 1048576)
-                  {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
-                @else
-                  {{ number_format($doMaster->byte_size / 1024, 1) }} KB
+        </a>
+      </h2>
+      <div id="digital-object-collapse">
+        <div class="accordion" id="doMetadataAccordion">
+
+          {{-- Master file --}}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="doMasterHeading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doMasterCollapse" aria-expanded="true">
+                Master file
+              </button>
+            </h2>
+            <div id="doMasterCollapse" class="accordion-collapse collapse show" data-bs-parent="">
+              <div class="accordion-body p-0">
+                <div class="field row g-0">
+                  <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                  <div class="col-9 p-2">
+                    @auth
+                      <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
+                    @else
+                      {{ $doMaster->name }}
+                    @endauth
+                  </div>
+                </div>
+                @if($doMaster->media_type_id)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Media type</h3>
+                    <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
+                  </div>
+                @endif
+                @if($doMaster->mime_type)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                    <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
+                  </div>
+                @endif
+                @if($doMaster->byte_size)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                    <div class="col-9 p-2">
+                      @if($doMaster->byte_size > 1048576)
+                        {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
+                      @else
+                        {{ number_format($doMaster->byte_size / 1024, 1) }} KB
+                      @endif
+                    </div>
+                  </div>
+                @endif
+                @if($doMaster->checksum)
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Checksum</h3>
+                    <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
+                  </div>
                 @endif
               </div>
             </div>
-          @endif
-          @if($doMaster->checksum)
-            <div class="field row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Checksum</h3>
-              <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
+          </div>
+
+          {{-- Reference copy --}}
+          @if($doReference)
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="doRefHeading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doRefCollapse" aria-expanded="true">
+                  Reference copy
+                </button>
+              </h2>
+              <div id="doRefCollapse" class="accordion-collapse collapse show" data-bs-parent="">
+                <div class="accordion-body p-0">
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                    <div class="col-9 p-2">
+                      @auth
+                        <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
+                      @else
+                        {{ $doReference->name }}
+                      @endauth
+                    </div>
+                  </div>
+                  @if($doReference->mime_type)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                      <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
+                    </div>
+                  @endif
+                  @if($doReference->byte_size)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                      <div class="col-9 p-2">
+                        @if($doReference->byte_size > 1048576)
+                          {{ number_format($doReference->byte_size / 1048576, 1) }} MB
+                        @else
+                          {{ number_format($doReference->byte_size / 1024, 1) }} KB
+                        @endif
+                      </div>
+                    </div>
+                  @endif
+                </div>
+              </div>
             </div>
           @endif
-        </div>
-      </section>
-    </div>
 
-    <div class="digitalObjectRights">
-      {{-- Digital object rights display here if any --}}
-    </div>
+          {{-- Thumbnail copy --}}
+          @if($doThumbnail)
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="doThumbHeading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#doThumbCollapse" aria-expanded="true">
+                  Thumbnail copy
+                </button>
+              </h2>
+              <div id="doThumbCollapse" class="accordion-collapse collapse show" data-bs-parent="">
+                <div class="accordion-body p-0">
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filename</h3>
+                    <div class="col-9 p-2">
+                      <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
+                    </div>
+                  </div>
+                  @if($doThumbnail->mime_type)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">MIME type</h3>
+                      <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
+                    </div>
+                  @endif
+                  @if($doThumbnail->byte_size)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Filesize</h3>
+                      <div class="col-9 p-2">
+                        @if($doThumbnail->byte_size > 1048576)
+                          {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
+                        @else
+                          {{ number_format($doThumbnail->byte_size / 1024, 1) }} KB
+                        @endif
+                      </div>
+                    </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endif
+
+        </div>
+      </div>
+    </section>
   @endif
 
   {{-- ===== 11. Accession area ===== --}}
   <section id="accessionArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      Accession area
+      <a class="text-decoration-none text-white" href="#accession-collapse">
+        Accession area
+      </a>
     </h2>
-    <div class="accessions">
+    <div id="accession-collapse">
       @if(isset($accessions) && (is_countable($accessions) ? count($accessions) > 0 : !empty($accessions)))
         @foreach($accessions as $accession)
           <div class="field row g-0">
@@ -813,190 +1501,431 @@
     </div>
   </section>
 
+  {{-- ===== Museum / CCO metadata (shown only if this IO has a museum_metadata row) ===== --}}
+  @if(!empty($museumMetadata))
+    <section id="museum-metadata" class="mb-4">
+      <h2 class="fs-5 fw-bold border-bottom pb-2 mb-3">
+        <i class="fas fa-landmark me-1"></i> CCO / Museum metadata
+      </h2>
+
+      {{-- Object / Work section --}}
+      @if(($museumMetadata['work_type'] ?? null) || ($museumMetadata['object_type'] ?? null) || ($museumMetadata['classification'] ?? null) || ($museumMetadata['object_class'] ?? null) || ($museumMetadata['object_category'] ?? null) || ($museumMetadata['object_sub_category'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Object / Work</div>
+          <div class="card-body">
+            @foreach(['work_type' => 'Work type', 'object_type' => 'Object type', 'classification' => 'Classification', 'object_class' => 'Object class', 'object_category' => 'Object category', 'object_sub_category' => 'Object sub-category', 'record_type' => 'Record type', 'record_level' => 'Record level'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Creator section --}}
+      @if(($museumMetadata['creator_identity'] ?? null) || ($museumMetadata['creator_role'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Creator</div>
+          <div class="card-body">
+            @foreach(['creator_identity' => 'Creator', 'creator_role' => 'Role', 'creator_extent' => 'Extent', 'creator_qualifier' => 'Qualifier', 'creator_attribution' => 'Attribution'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Dates section --}}
+      @if(($museumMetadata['creation_date_display'] ?? null) || ($museumMetadata['creation_date_earliest'] ?? null) || ($museumMetadata['creation_date_latest'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Dates</div>
+          <div class="card-body">
+            @foreach(['creation_date_display' => 'Date display', 'creation_date_earliest' => 'Earliest date', 'creation_date_latest' => 'Latest date', 'creation_date_qualifier' => 'Date qualifier'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Materials / Technique section --}}
+      @if(($museumMetadata['materials'] ?? null) || ($museumMetadata['techniques'] ?? null) || ($museumMetadata['technique_cco'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Materials &amp; technique</div>
+          <div class="card-body">
+            @foreach(['materials' => 'Materials', 'techniques' => 'Techniques', 'technique_cco' => 'Technique (CCO)', 'technique_qualifier' => 'Technique qualifier', 'facture_description' => 'Facture', 'color' => 'Color', 'physical_appearance' => 'Physical appearance'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Measurements section --}}
+      @if(($museumMetadata['measurements'] ?? null) || ($museumMetadata['dimensions'] ?? null) || ($museumMetadata['orientation'] ?? null) || ($museumMetadata['shape'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Measurements</div>
+          <div class="card-body">
+            @foreach(['measurements' => 'Measurements', 'dimensions' => 'Dimensions', 'orientation' => 'Orientation', 'shape' => 'Shape'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Style / Period / Cultural context --}}
+      @if(($museumMetadata['style_period'] ?? null) || ($museumMetadata['style'] ?? null) || ($museumMetadata['period'] ?? null) || ($museumMetadata['cultural_context'] ?? null) || ($museumMetadata['cultural_group'] ?? null) || ($museumMetadata['movement'] ?? null) || ($museumMetadata['school'] ?? null) || ($museumMetadata['dynasty'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Style / Period / Context</div>
+          <div class="card-body">
+            @foreach(['style_period' => 'Style/Period', 'style' => 'Style', 'period' => 'Period', 'cultural_context' => 'Cultural context', 'cultural_group' => 'Cultural group', 'movement' => 'Movement', 'school' => 'School', 'dynasty' => 'Dynasty'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Subject section --}}
+      @if(($museumMetadata['subject_indexing_type'] ?? null) || ($museumMetadata['subject_display'] ?? null) || ($museumMetadata['subject_extent'] ?? null) || ($museumMetadata['historical_context'] ?? null) || ($museumMetadata['architectural_context'] ?? null) || ($museumMetadata['archaeological_context'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Subject</div>
+          <div class="card-body">
+            @foreach(['subject_indexing_type' => 'Indexing type', 'subject_display' => 'Subject display', 'subject_extent' => 'Subject extent', 'historical_context' => 'Historical context', 'architectural_context' => 'Architectural context', 'archaeological_context' => 'Archaeological context'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Condition / Treatment section --}}
+      @if(($museumMetadata['condition_term'] ?? null) || ($museumMetadata['condition_notes'] ?? null) || ($museumMetadata['condition_description'] ?? null) || ($museumMetadata['treatment_type'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Condition &amp; treatment</div>
+          <div class="card-body">
+            @foreach(['condition_term' => 'Condition', 'condition_date' => 'Condition date', 'condition_description' => 'Condition description', 'condition_agent' => 'Condition agent', 'condition_notes' => 'Condition notes', 'treatment_type' => 'Treatment type', 'treatment_date' => 'Treatment date', 'treatment_agent' => 'Treatment agent', 'treatment_description' => 'Treatment description'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Inscriptions / Marks section --}}
+      @if(($museumMetadata['inscription'] ?? null) || ($museumMetadata['inscriptions'] ?? null) || ($museumMetadata['inscription_transcription'] ?? null) || ($museumMetadata['mark_type'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Inscriptions &amp; marks</div>
+          <div class="card-body">
+            @foreach(['inscription' => 'Inscription', 'inscriptions' => 'Inscriptions', 'inscription_transcription' => 'Transcription', 'inscription_type' => 'Inscription type', 'inscription_location' => 'Inscription location', 'inscription_language' => 'Inscription language', 'inscription_translation' => 'Translation', 'mark_type' => 'Mark type', 'mark_description' => 'Mark description', 'mark_location' => 'Mark location'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Edition section --}}
+      @if(($museumMetadata['edition_description'] ?? null) || ($museumMetadata['edition_number'] ?? null) || ($museumMetadata['edition_size'] ?? null) || ($museumMetadata['state_description'] ?? null) || ($museumMetadata['state_identification'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Edition / State</div>
+          <div class="card-body">
+            @foreach(['edition_description' => 'Edition description', 'edition_number' => 'Edition number', 'edition_size' => 'Edition size', 'state_description' => 'State description', 'state_identification' => 'State identification'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Location section --}}
+      @if(($museumMetadata['current_location'] ?? null) || ($museumMetadata['current_location_repository'] ?? null) || ($museumMetadata['creation_place'] ?? null) || ($museumMetadata['discovery_place'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Location / Geography</div>
+          <div class="card-body">
+            @foreach(['current_location' => 'Current location', 'current_location_repository' => 'Repository', 'current_location_geography' => 'Geography', 'current_location_coordinates' => 'Coordinates', 'current_location_ref_number' => 'Reference number', 'creation_place' => 'Creation place', 'creation_place_type' => 'Creation place type', 'discovery_place' => 'Discovery place', 'discovery_place_type' => 'Discovery place type'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Related works section --}}
+      @if(($museumMetadata['related_work_type'] ?? null) || ($museumMetadata['related_work_label'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Related works</div>
+          <div class="card-body">
+            @foreach(['related_work_type' => 'Relationship type', 'related_work_relationship' => 'Relationship', 'related_work_label' => 'Label', 'related_work_id' => 'Identifier'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{{ $museumMetadata[$field] }}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Provenance / Rights section --}}
+      @if(($museumMetadata['provenance'] ?? null) || ($museumMetadata['provenance_text'] ?? null) || ($museumMetadata['ownership_history'] ?? null) || ($museumMetadata['legal_status'] ?? null) || ($museumMetadata['rights_type'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Provenance &amp; rights</div>
+          <div class="card-body">
+            @foreach(['provenance' => 'Provenance', 'provenance_text' => 'Provenance text', 'ownership_history' => 'Ownership history', 'legal_status' => 'Legal status', 'rights_type' => 'Rights type', 'rights_holder' => 'Rights holder', 'rights_date' => 'Rights date', 'rights_remarks' => 'Rights remarks'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      {{-- Cataloguing section --}}
+      @if(($museumMetadata['cataloger_name'] ?? null) || ($museumMetadata['cataloging_date'] ?? null) || ($museumMetadata['cataloging_institution'] ?? null))
+        <div class="card mb-3">
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Cataloguing</div>
+          <div class="card-body">
+            @foreach(['cataloger_name' => 'Cataloger', 'cataloging_date' => 'Date', 'cataloging_institution' => 'Institution', 'cataloging_remarks' => 'Remarks'] as $field => $label)
+              @if($museumMetadata[$field] ?? null)
+                <div class="row mb-1"><div class="col-sm-4 text-muted small">{{ $label }}</div><div class="col-sm-8">{!! nl2br(e($museumMetadata[$field])) !!}</div></div>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+    </section>
+  @endif
+
 @endsection
 
 {{-- ============================================================ --}}
-{{-- RIGHT SIDEBAR (context-menu)                                 --}}
-{{-- Matches AtoM _actionIcons.php + _contextMenu.php partials    --}}
+{{-- RIGHT SIDEBAR                                                --}}
 {{-- ============================================================ --}}
 @section('right')
 
   <nav>
+    {{-- Clipboard --}}
+    <div class="mb-3">
+      @include('ahg-core::clipboard._button', ['slug' => $io->slug, 'type' => 'informationObject', 'wide' => true])
+    </div>
 
-    {{-- Clipboard (matches AtoM _actionIcons.php) --}}
-    <section id="action-icons">
-      <h4 class="h5 mb-2">Clipboard</h4>
-      <ul class="list-unstyled">
-        <li>
-          @include('ahg-core::clipboard._button', ['slug' => $io->slug, 'type' => 'informationObject', 'wide' => true])
-        </li>
-      </ul>
-
-      <h4 class="h5 mb-2">Explore</h4>
-      <ul class="list-unstyled">
-        <li>
-          <a class="atom-icon-link" href="{{ route('informationobject.reports', $io->slug) }}">
-            <i class="fas fa-fw fa-print me-1" aria-hidden="true"></i>Reports
-          </a>
-        </li>
+    {{-- Explore --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-cogs me-1"></i> Explore
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('informationobject.reports', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-print me-1"></i> Reports
+        </a>
         @if(isset($hasChildren) && $hasChildren)
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.inventory', $io->slug) }}">
-              <i class="fas fa-fw fa-list-alt me-1" aria-hidden="true"></i>Inventory
-            </a>
-          </li>
-        @endif
-        <li>
-          <a class="atom-icon-link" href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0]) }}">
-            <i class="fas fa-fw fa-list me-1" aria-hidden="true"></i>Browse as list
+          <a href="{{ route('informationobject.inventory', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-list-alt me-1"></i> Inventory
           </a>
-        </li>
+        @endif
+        <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0]) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list me-1"></i> Browse as list
+        </a>
         @if(isset($digitalObjects) && $digitalObjects['master'])
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0, 'view' => 'card', 'onlyMedia' => 1]) }}">
-              <i class="fas fa-fw fa-image me-1" aria-hidden="true"></i>Browse digital objects
-            </a>
-          </li>
+          <a href="{{ route('informationobject.browse', ['collection' => $collectionRootId, 'topLod' => 0, 'view' => 'card', 'onlyMedia' => 1]) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-image me-1"></i> Browse digital objects
+          </a>
         @endif
-      </ul>
+      </div>
+    </div>
 
-      @auth
-        <h4 class="h5 mb-2">Import</h4>
-        <ul class="list-unstyled">
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.import.xml', $io->slug) }}">
-              <i class="fas fa-fw fa-download me-1" aria-hidden="true"></i>XML
-            </a>
-          </li>
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.import.csv', $io->slug) }}">
-              <i class="fas fa-fw fa-download me-1" aria-hidden="true"></i>CSV
-            </a>
-          </li>
-        </ul>
-      @endauth
-
-      <h4 class="h5 mb-2">Export</h4>
-      <ul class="list-unstyled">
-        <li>
-          <a class="atom-icon-link" href="{{ route('informationobject.export.dc', $io->slug) }}">
-            <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>Dublin Core 1.1 XML
+    {{-- Import --}}
+    @auth
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-upload me-1"></i> Import
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="{{ route('informationobject.import.xml', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-code me-1"></i> XML
           </a>
-        </li>
-        <li>
-          <a class="atom-icon-link" href="{{ route('informationobject.export.ead', $io->slug) }}">
-            <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>EAD 2002 XML
+          <a href="{{ route('informationobject.import.csv', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-csv me-1"></i> CSV
           </a>
-        </li>
-      </ul>
+        </div>
+      </div>
+    @endauth
 
-      {{-- Finding aid --}}
-      @auth
-        <h4 class="h5 mb-2">Finding aid</h4>
-        <ul class="list-unstyled">
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.findingaid.generate', $io->slug) }}">
-              <i class="fas fa-fw fa-cogs me-1" aria-hidden="true"></i>Generate
-            </a>
-          </li>
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}">
-              <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>Upload
-            </a>
-          </li>
+    {{-- Export --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-file-export me-1"></i> Export
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('informationobject.export.dc', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
+        </a>
+        <a href="{{ route('informationobject.export.ead', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> EAD 2002 XML
+        </a>
+        <a href="{{ route('informationobject.export.mods', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> MODS 3.5 XML
+        </a>
+        @auth
+          <a href="{{ route('informationobject.export.csv', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-csv me-1"></i> Export CSV
+          </a>
+        @endauth
+      </div>
+    </div>
+
+    {{-- Finding aid --}}
+    @auth
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-book me-1"></i> Finding aid
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-file-alt me-1"></i> Generate
+          </a>
+          <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-upload me-1"></i> Upload
+          </a>
           @if(isset($findingAid) && $findingAid)
-            <li>
-              <a class="atom-icon-link" href="{{ route('informationobject.findingaid.delete', $io->slug) }}">
-                <i class="fas fa-fw fa-times me-1" aria-hidden="true"></i>Delete
+            <a href="{{ route('informationobject.findingaid.download', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-download me-1"></i> Download
+            </a>
+            <form action="{{ route('informationobject.findingaid.delete', $io->slug) }}" method="POST" class="d-inline">
+              @csrf
+              <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 text-start w-100" onclick="return confirm('{{ __('Are you sure you want to delete this finding aid?') }}')">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            </form>
+          @endif
+        </div>
+      </div>
+    @endauth
+
+    {{-- Tasks --}}
+    @auth
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-tasks me-1"></i> Tasks
+        </div>
+        <div class="list-group list-group-flush">
+          <form action="{{ route('informationobject.calculateDates', $io->slug) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small border-0 text-start w-100" title="Click 'Calculate dates' to recalculate the start and end dates of a parent-level description. A job runs in the background, accounting for the earliest and most recent dates across all the child descriptions. The results display in the Start and End fields of the edit page.">
+              <i class="fas fa-calendar me-1"></i> Calculate dates
+            </button>
+          </form>
+          <span class="list-group-item small text-muted">
+            <i class="fas fa-clock me-1"></i> Last run: {{ $io->updated_at ? \Carbon\Carbon::parse($io->updated_at)->diffForHumans() : 'Never' }}
+          </span>
+        </div>
+      </div>
+    @endauth
+
+    {{-- Related subjects --}}
+    @if(isset($subjects) && $subjects->isNotEmpty())
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-tag me-1"></i> Related subjects
+        </div>
+        <ul class="list-group list-group-flush">
+          @foreach($subjects as $subject)
+            <li class="list-group-item small">
+              <a href="{{ route('informationobject.browse', ['subject' => $subject->name]) }}" class="text-decoration-none">
+                {{ $subject->name }}
               </a>
             </li>
-            <li>
-              <a class="btn atom-btn-white" href="{{ route('informationobject.findingaid.download', $io->slug) }}" target="_blank">
-                <i class="fas fa-lg fa-file-pdf" aria-hidden="true"></i>
-                <span class="ms-2">Download</span>
-              </a>
-            </li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    {{-- Related people and organizations --}}
+    @if((isset($creators) && $creators->isNotEmpty()) || (isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty()))
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-users me-1"></i> Related people and organizations
+        </div>
+        <ul class="list-group list-group-flush">
+          @if(isset($creators) && $creators->isNotEmpty())
+            @foreach($creators as $creator)
+              <li class="list-group-item small">
+                <a href="{{ route('actor.show', $creator->slug) }}" class="text-decoration-none">{{ $creator->name }}</a>
+                <span class="text-muted">(Creation)</span>
+              </li>
+            @endforeach
+          @endif
+          @if(isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty())
+            @foreach($nameAccessPoints as $nap)
+              <li class="list-group-item small">
+                @if(isset($nap->slug))
+                  <a href="{{ route('actor.show', $nap->slug) }}" class="text-decoration-none">{{ $nap->name }}</a>
+                @else
+                  {{ $nap->name }}
+                @endif
+              </li>
+            @endforeach
           @endif
         </ul>
-      @endauth
-
-      {{-- Tasks (matches AtoM _calculateDatesLink.php) --}}
-      @auth
-        <h4 class="h5 mb-2">Tasks</h4>
-        <ul class="list-unstyled">
-          <li>
-            <a class="atom-icon-link" href="{{ route('informationobject.calculateDates', $io->slug) }}" title="Click 'Calculate dates' to recalculate the start and end dates of a parent-level description. A job runs in the background, accounting for the earliest and most recent dates across all the child descriptions. The results display in the Start and End fields of the edit page.">
-              <i class="fas fa-fw fa-calendar me-1" aria-hidden="true"></i>Calculate dates
-            </a>
-          </li>
-          <li>
-            <i class="fas fa-fw fa-clock me-1 text-muted" aria-hidden="true"></i>Last run: {{ $io->updated_at ? \Carbon\Carbon::parse($io->updated_at)->diffForHumans() : 'Never' }}
-          </li>
-        </ul>
-      @endauth
-    </section>
-
-    {{-- Subject access points (sidebar) --}}
-    @if(isset($subjects) && $subjects->isNotEmpty())
-      <h4 class="h5 mb-2">Subject access points</h4>
-      <ul class="list-unstyled">
-        @foreach($subjects as $subject)
-          <li>
-            <a href="{{ route('informationobject.browse', ['subject' => $subject->name]) }}">{{ $subject->name }}</a>
-          </li>
-        @endforeach
-      </ul>
+      </div>
     @endif
 
-    {{-- Name access points (sidebar) --}}
-    @if(isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty())
-      <h4 class="h5 mb-2">Name access points</h4>
-      <ul class="list-unstyled">
-        @foreach($nameAccessPoints as $nap)
-          <li>
-            @if(isset($nap->slug))
-              <a href="{{ route('actor.show', $nap->slug) }}">{{ $nap->name }}</a>
-            @else
-              {{ $nap->name }}
-            @endif
-          </li>
-        @endforeach
-      </ul>
-    @endif
-
-    {{-- Genre access points (sidebar) --}}
+    {{-- Related genres --}}
     @if(isset($genres) && $genres->isNotEmpty())
-      <h4 class="h5 mb-2">Genre access points</h4>
-      <ul class="list-unstyled">
-        @foreach($genres as $genre)
-          <li>{{ $genre->name }}</li>
-        @endforeach
-      </ul>
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-masks-theater me-1"></i> Related genres
+        </div>
+        <ul class="list-group list-group-flush">
+          @foreach($genres as $genre)
+            <li class="list-group-item small">{{ $genre->name }}</li>
+          @endforeach
+        </ul>
+      </div>
     @endif
 
-    {{-- Place access points (sidebar) --}}
+    {{-- Related places --}}
     @if(isset($places) && $places->isNotEmpty())
-      <h4 class="h5 mb-2">Place access points</h4>
-      <ul class="list-unstyled">
-        @foreach($places as $place)
-          <li>{{ $place->name }}</li>
-        @endforeach
-      </ul>
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-map-marker-alt me-1"></i> Related places
+        </div>
+        <ul class="list-group list-group-flush">
+          @foreach($places as $place)
+            <li class="list-group-item small">{{ $place->name }}</li>
+          @endforeach
+        </ul>
+      </div>
     @endif
 
     {{-- Physical storage --}}
     @if(isset($physicalObjects) && (is_countable($physicalObjects) ? count($physicalObjects) > 0 : !empty($physicalObjects)))
-      <h4 class="h5 mb-2">Physical storage</h4>
-      <ul class="list-unstyled">
-        @foreach($physicalObjects as $pobj)
-          <li>
-            @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
-              <strong>{{ $physicalObjectTypeNames[$pobj->type_id] }}:</strong>
-            @endif
-            {{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}
-          </li>
-        @endforeach
-      </ul>
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-box me-1"></i> Physical storage
+        </div>
+        <ul class="list-group list-group-flush">
+          @foreach($physicalObjects as $pobj)
+            <li class="list-group-item small">
+              @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
+                <strong>{{ $physicalObjectTypeNames[$pobj->type_id] }}:</strong>
+              @endif
+              {{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}
+            </li>
+          @endforeach
+        </ul>
+      </div>
     @endif
 
   </nav>
@@ -1005,7 +1934,6 @@
 
 {{-- ============================================================ --}}
 {{-- AFTER CONTENT: Action buttons                                --}}
-{{-- Matches AtoM _actions.php exactly                            --}}
 {{-- ============================================================ --}}
 @section('after-content')
   @auth
@@ -1037,44 +1965,76 @@
         </button>
         <ul class="dropdown-menu mb-2">
           <li>
-            <a class="dropdown-item" href="{{ route('informationobject.rename', $io->slug) }}">Rename</a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/informationobject/updatePublicationStatus') }}">Update publication status</a>
+            <a class="dropdown-item" href="{{ route('informationobject.rename', $io->slug) }}">
+              <i class="fas fa-i-cursor me-2"></i>Rename
+            </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
-            <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">Link physical storage</a>
+            <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">
+              <i class="fas fa-box me-2"></i>Link physical storage
+            </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           @if(isset($digitalObjects) && $digitalObjects['master'])
             <li>
-              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">Edit digital object</a>
+              <a class="dropdown-item" href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}">
+                <i class="fas fa-photo-video me-2"></i>Edit digital object
+              </a>
             </li>
           @else
             <li>
-              <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'upload' => 1]) }}">Link digital object</a>
+              <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'upload' => 1]) }}">
+                <i class="fas fa-link me-2"></i>Link digital object
+              </a>
             </li>
           @endif
           <li>
-            <a class="dropdown-item" href="{{ route('informationobject.import.xml', $io->slug) }}">Import digital objects</a>
+            <a class="dropdown-item" href="{{ route('informationobject.import.xml', $io->slug) }}">
+              <i class="fas fa-file-import me-2"></i>Import digital objects
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">
+              <i class="fas fa-balance-scale me-2"></i>Create new rights
+            </a>
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
-            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">Create new rights</a>
+            <a class="dropdown-item" href="{{ route('informationobject.export.ead', $io->slug) }}">
+              <i class="fas fa-file-code me-2"></i>Export EAD
+            </a>
           </li>
-          @if(isset($hasChildren) && $hasChildren)
-            <li>
-              <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/manage') }}">Manage rights inheritance</a>
-            </li>
-          @endif
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.dc', $io->slug) }}">
+              <i class="fas fa-file-alt me-2"></i>Export Dublin Core
+            </a>
+          </li>
           <li><hr class="dropdown-divider"></li>
           <li>
-            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id]) }}">View modification history</a>
+            <form method="POST" action="{{ route('io.updateStatus', $io->slug ?? '') }}" class="dropdown-item p-0">
+              @csrf
+              <select name="publication_status" onchange="this.form.submit()" class="form-select form-select-sm border-0">
+                <option value="" disabled selected>Update pub. status</option>
+                <option value="160">Published</option>
+                <option value="159">Draft</option>
+              </select>
+            </form>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id ?? '']) }}">
+              <i class="fas fa-history me-2"></i>Modification history
+            </a>
           </li>
         </ul>
       </div>
     </li>
+    <li>
+      <a href="{{ route('informationobject.print', $io->slug) }}" class="btn atom-btn-outline-light" target="_blank">
+        <i class="fas fa-print me-1"></i>Print
+      </a>
+    </li>
   </ul>
   @endauth
+  <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-transcription.js') }}"></script>
 @endsection
