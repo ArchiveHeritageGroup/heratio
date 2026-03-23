@@ -4,6 +4,7 @@ use Ahg3dModel\Controllers\Model3dController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
+    // Browse (derivative management)
     Route::get('/admin/3d-models', [Model3dController::class, 'browse'])
         ->name('admin.3d-models.browse');
 
@@ -17,11 +18,64 @@ Route::middleware('admin')->group(function () {
 
     Route::post('/admin/3d-models/batch-thumbnails', [Model3dController::class, 'batchThumbnails'])
         ->name('admin.3d-models.batch-thumbnails');
+
+    // Index (object_3d_model list)
+    Route::get('/admin/3d-models/index', [Model3dController::class, 'index'])
+        ->name('admin.3d-models.index');
+
+    // View
+    Route::get('/admin/3d-models/{id}/view', [Model3dController::class, 'view'])
+        ->whereNumber('id')
+        ->name('admin.3d-models.view');
+
+    // Edit
+    Route::match(['get', 'post'], '/admin/3d-models/{id}/edit', [Model3dController::class, 'edit'])
+        ->whereNumber('id')
+        ->name('admin.3d-models.edit');
+
+    // Embed
+    Route::get('/admin/3d-models/{id}/embed', [Model3dController::class, 'embed'])
+        ->whereNumber('id')
+        ->name('admin.3d-models.embed');
+
+    // Upload
+    Route::match(['get', 'post'], '/admin/3d-models/upload/{objectId}', [Model3dController::class, 'upload'])
+        ->whereNumber('objectId')
+        ->name('admin.3d-models.upload');
+
+    // Delete
+    Route::post('/admin/3d-models/{id}/delete', [Model3dController::class, 'delete'])
+        ->whereNumber('id')
+        ->name('admin.3d-models.delete');
+
+    // Settings
+    Route::match(['get', 'post'], '/admin/3d-models/settings', [Model3dController::class, 'settings'])
+        ->name('admin.3d-models.settings');
+
+    // TripoSR
+    Route::match(['get', 'post'], '/admin/3d-models/triposr', [Model3dController::class, 'triposr'])
+        ->name('admin.3d-models.triposr');
+
+    // Hotspot AJAX
+    Route::post('/admin/3d-models/{modelId}/hotspot', [Model3dController::class, 'addHotspot'])
+        ->whereNumber('modelId')
+        ->name('admin.3d-models.add-hotspot');
+
+    Route::post('/admin/3d-models/hotspot/{hotspotId}/delete', [Model3dController::class, 'deleteHotspot'])
+        ->whereNumber('hotspotId')
+        ->name('admin.3d-models.delete-hotspot');
+
+    // API
+    Route::get('/admin/3d-models/api/models/{objectId}', [Model3dController::class, 'apiModels'])
+        ->whereNumber('objectId')
+        ->name('admin.3d-models.api.models');
+
+    Route::get('/admin/3d-models/api/hotspots/{modelId}', [Model3dController::class, 'apiHotspots'])
+        ->whereNumber('modelId')
+        ->name('admin.3d-models.api.hotspots');
 });
-    Route::get('/admin/3d-models/index', [Model3dController::class, 'index'])->name('admin.3d-models.index');
-    Route::get('/admin/3d-models/{id}/view', [Model3dController::class, 'view'])->name('admin.3d-models.view')->whereNumber('id');
-    Route::match(['get','post'], '/admin/3d-models/{id}/edit', [Model3dController::class, 'edit'])->name('admin.3d-models.edit')->whereNumber('id');
-    Route::get('/admin/3d-models/{id}/embed', [Model3dController::class, 'embed'])->name('admin.3d-models.embed')->whereNumber('id');
-    Route::match(['get','post'], '/admin/3d-models/upload/{objectId}', [Model3dController::class, 'upload'])->name('admin.3d-models.upload')->whereNumber('objectId');
-    Route::match(['get','post'], '/admin/3d-models/settings', [Model3dController::class, 'settings'])->name('admin.3d-models.settings');
-    Route::match(['get','post'], '/admin/3d-models/triposr', [Model3dController::class, 'triposr'])->name('admin.3d-models.triposr');
+
+// IIIF 3D manifest (public)
+Route::get('/iiif/3d/{id}/manifest.json', [Model3dController::class, 'iiifManifest'])
+    ->whereNumber('id')
+    ->name('iiif.3d.manifest');

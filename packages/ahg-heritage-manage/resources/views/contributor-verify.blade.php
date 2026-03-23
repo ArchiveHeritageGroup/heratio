@@ -1,49 +1,25 @@
 @extends('theme::layouts.1col')
-@section('title', 'Verify Account')
+@section('title', 'Email Verification')
 @section('body-class', 'heritage')
 
 @section('content')
-<div class="row">  <div class="col-12">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-check-circle me-2"></i>Verify Account</h1>
-      <a href="{{ route('heritage.landing') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-home me-1"></i>Heritage Home</a>
-    </div>
-    <p class="text-muted">Verify your contributor email address.</p>
-
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-      <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-circle me-2"></i>Verify Account</div>
-      <div class="card-body">
-        @if(!empty($items))
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach($columns ?? ['ID','Name','Status','Date'] as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr></thead>
-            <tbody>
-              @foreach($items as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        @if($success ?? false)
+        <i class="fas fa-check-circle display-1 text-success"></i>
+        <h2 class="h4 mt-4">Email Verified!</h2>
+        <p class="text-muted mb-4">Your email address has been verified successfully. You can now log in and start contributing to our heritage collection.</p>
+        <a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Sign In</a>
         @else
-        <p class="text-muted text-center py-4">No data available.</p>
+        <i class="fas fa-times-circle display-1 text-danger"></i>
+        <h2 class="h4 mt-4">Verification Failed</h2>
+        <p class="text-muted mb-4">{{ $error ?? 'The verification link is invalid or has expired.' }}</p>
+        <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-secondary"><i class="fas fa-user-plus me-2"></i>Register Again</a>
         @endif
       </div>
     </div>
-
-    @if(isset($items) && method_exists($items, 'links'))
-      <div class="mt-3">{{ $items->withQueryString()->links() }}</div>
-    @endif
   </div>
 </div>
 @endsection

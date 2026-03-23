@@ -6,7 +6,15 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-sync-alt me-2"></i>Format Conversion</h1>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h1 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Format Conversion</h1>
+        <div class="text-end">
+            <span class="text-muted">Pending conversions:</span>
+            <span class="badge bg-{{ ($pendingConversions ?? 0) > 0 ? 'warning' : 'success' }} ms-2">
+                {{ number_format($pendingConversions ?? 0) }}
+            </span>
+        </div>
+    </div>
     <p class="text-muted">Convert digital object formats for long-term preservation.</p>
 
     {{-- Tool Status --}}
@@ -59,6 +67,25 @@
             <ul class="small mb-0"><li>Various &rarr; MKV/FFV1 (lossless)</li></ul>
           </div>
         </div>
+      </div>
+    </div>
+
+    {{-- CLI Commands --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-terminal me-2"></i>CLI Commands</div>
+      <div class="card-body">
+        <p class="mb-2">Run format conversions from the command line:</p>
+        <pre class="bg-dark text-light p-3 rounded mb-0"><code># Show available tools and statistics
+php artisan preservation:convert --status
+
+# Preview conversions (dry run)
+php artisan preservation:convert --dry-run
+
+# Convert specific object to TIFF
+php artisan preservation:convert --object-id=123 --format=tiff
+
+# Batch convert JPEG images to TIFF
+php artisan preservation:convert --mime-type=image/jpeg --format=tiff --limit=50</code></pre>
       </div>
     </div>
 

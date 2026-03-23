@@ -17,17 +17,24 @@
       <tbody>
       @php
         $types = ['type_a' => 'Type A — Death Certificate', 'type_b' => 'Type B — Register', 'type_c' => 'Type C — Narrative'];
-        $canTrain = true;
+        $canTrain = false;
+        $totalAnnotations = 0;
       @endphp
       @foreach($types as $key => $label)
-        @php $count = $status['counts'][$key] ?? 0; $ready = $count >= 50; if(!$ready) $canTrain = false; @endphp
+        @php
+          $count = $status['counts'][$key] ?? 0;
+          $totalAnnotations += $count;
+          $ready = $count >= 50;
+          if($ready) $canTrain = true;
+        @endphp
         <tr>
           <td>{{ $label }}</td>
-          <td>{{ $count }}</td>
+          <td><strong>{{ $count }}</strong></td>
           <td>50</td>
-          <td><span class="badge {{ $ready ? 'bg-success' : 'bg-warning' }}">{{ $ready ? 'Ready' : 'Need ' . (50 - $count) . ' more' }}</span></td>
+          <td><span class="badge {{ $ready ? 'bg-success' : ($count > 0 ? 'bg-info' : 'bg-warning') }}">{{ $ready ? 'Ready' : ($count > 0 ? $count . ' / 50' : 'Need 50') }}</span></td>
         </tr>
       @endforeach
+      <tr class="table-light"><td><strong>Total</strong></td><td><strong>{{ $totalAnnotations }}</strong></td><td></td><td></td></tr>
       </tbody>
     </table>
   </div>

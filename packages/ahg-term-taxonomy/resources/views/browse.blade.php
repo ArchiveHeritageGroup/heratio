@@ -56,15 +56,15 @@
             <div class="px-3 py-2">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-all" value="allLabels" {{ (request('subqueryField', 'allLabels') === 'allLabels') ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-all">All labels <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="qf-all">All labels</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-preferred" value="preferredLabel" {{ request('subqueryField') === 'preferredLabel' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-preferred">Preferred label <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="qf-preferred">Preferred label</label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-usefor" value="useForLabels" {{ request('subqueryField') === 'useForLabels' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-usefor">"Use for" labels <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-check-label" for="qf-usefor">"Use for" labels</label>
               </div>
             </div>
           </div>
@@ -95,16 +95,6 @@
             @foreach($sortOptions as $key => $label)
               <li><a class="dropdown-item {{ $activeSort === $key ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => $key, 'page' => 1]) }}">{{ $label }}</a></li>
             @endforeach
-          </ul>
-        </div>
-        @php $activeDir = request('sortDir', 'asc'); @endphp
-        <div class="dropdown d-inline-block">
-          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-            <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}">Ascending</a></li>
-            <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}">Descending</a></li>
           </ul>
         </div>
       </div>
@@ -170,8 +160,8 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   @auth
-    <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
+    <section class="actions mb-3">
       <a href="{{ route('term.create', ['taxonomy' => $taxonomyId]) }}" class="btn atom-btn-outline-light">Add new</a>
-    </div>
+    </section>
   @endauth
 @endsection

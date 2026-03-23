@@ -4,46 +4,34 @@
 @section('body-class', 'browse user')
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-users me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">List users</h1>
-    </div>
-  </div>
+  <h1>List users</h1>
 
-  <div class="d-flex flex-wrap gap-2 mb-3">
+  <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search users',
         'landmarkLabel' => 'User',
     ])
-
-    <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('user.add') }}" class="btn btn-sm atom-btn-outline-light">
-        Add new
-      </a>
-
-      @include('ahg-core::components.sort-pickers', [
-          'options' => $sortOptions,
-          'default' => 'alphabetic',
-      ])
-    </div>
   </div>
 
-  <ul class="nav nav-pills mb-3">
-    <li class="nav-item"><a class="nav-link {{ request('status', 'active') === 'active' ? 'active' : '' }}" href="?status=active">Show active only</a></li>
-    <li class="nav-item"><a class="nav-link {{ request('status') === 'inactive' ? 'active' : '' }}" href="?status=inactive">Show inactive only</a></li>
-    <li class="nav-item"><a class="nav-link {{ request('status') === 'all' ? 'active' : '' }}" href="?status=all">Show all</a></li>
-  </ul>
+  <nav>
+    <ul class="nav nav-pills mb-3 d-flex gap-2">
+      <li class="nav-item">
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyActive">Show active only</a>
+      </li>
+      <li class="nav-item">
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyInactive">Show inactive only</a>
+      </li>
+    </ul>
+  </nav>
 
   @if($pager->getNbResults())
     <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
+      <table class="table table-bordered mb-0">
         <thead>
           <tr>
             <th>User name</th>
             <th>Email</th>
             <th>User groups</th>
-            <th>Updated</th>
           </tr>
         </thead>
         <tbody>
@@ -53,13 +41,23 @@
                 <a href="{{ route('user.show', $doc['slug']) }}">
                   {{ $doc['username'] ?? $doc['name'] ?? '[Untitled]' }}
                 </a>
+                @if(!($doc['active'] ?? true))
+                  (inactive)
+                @endif
                 @if(isset($currentUserId) && $doc['id'] == $currentUserId)
-                  <span class="badge bg-info ms-1">(you)</span>
+                  (you)
                 @endif
               </td>
               <td>{{ $doc['email'] ?? '' }}</td>
-              <td>{{ $doc['groups'] ?? '' }}</td>
-              <td>{{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('F j, Y g:i A') : '' }}</td>
+              <td>
+                @if(!empty($doc['groups']))
+                  <ul>
+                    @foreach(explode(', ', $doc['groups']) as $group)
+                      <li>{{ $group }}</li>
+                    @endforeach
+                  </ul>
+                @endif
+              </td>
             </tr>
           @endforeach
         </tbody>

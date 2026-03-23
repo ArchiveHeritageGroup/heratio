@@ -4,26 +4,34 @@
 @section('body-class', 'admin workflow')
 
 @section('content')
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-user-check"></i> My Tasks</h1>
-    <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0"><i class="fas fa-clipboard-list me-2" aria-hidden="true"></i>My Tasks</h1>
+    <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Dashboard
+    </a>
   </div>
 
   @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
-  {{-- Status Filter --}}
-  <div class="mb-3">
-    <div class="btn-group" role="group">
-      <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white {{ !$currentStatus ? 'active' : '' }}">All Active</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'pending']) }}" class="btn atom-btn-white {{ $currentStatus === 'pending' ? 'active' : '' }}">Pending</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}" class="btn atom-btn-white {{ $currentStatus === 'claimed' ? 'active' : '' }}">Claimed</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}" class="btn atom-btn-white {{ $currentStatus === 'in_progress' ? 'active' : '' }}">In Progress</a>
-      <a href="{{ route('workflow.my-tasks', ['status' => 'completed']) }}" class="btn atom-btn-outline-success {{ $currentStatus === 'completed' ? 'active' : '' }}">Completed</a>
-    </div>
-  </div>
+  {{-- Filter Tabs --}}
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('workflow.my-tasks') }}">All Active</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ $currentStatus === 'claimed' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}">Claimed</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ $currentStatus === 'in_progress' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}">In Progress</a>
+    </li>
+  </ul>
 
   @if(count($tasks) === 0)
-    <div class="alert alert-info">No tasks found{{ $currentStatus ? ' with status "' . $currentStatus . '"' : '' }}.</div>
+    <div class="text-center text-muted py-5">
+      <i class="fas fa-inbox fa-4x mb-3 opacity-50" aria-hidden="true"></i>
+      <h4>No tasks assigned to you</h4>
+      <p>Browse the <a href="{{ route('workflow.pool') }}">task pool</a> to claim available tasks.</p>
+    </div>
   @else
     <div class="card">
       <div class="card-body p-0">

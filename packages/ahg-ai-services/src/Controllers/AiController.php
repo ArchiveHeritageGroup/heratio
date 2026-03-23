@@ -466,22 +466,67 @@ class AiController extends Controller
         ]);
 
         $file    = $request->file('file');
-        $tmpPath = $file->store('htr-uploads', 'local');
-        $fullPath = storage_path('app/private/' . $tmpPath);
-
         $docType = $request->input('doc_type', 'auto');
-        $format  = $request->input('formats') ? implode(',', $request->input('formats')) : 'all';
+        if ($docType === 'auto') $docType = 'type_a';
 
-        $results = $this->htrService->extract($fullPath, $docType, $format);
+        // Save uploaded image for display on results page
+        $jobId = 'htr_' . time() . '_' . mt_rand(1000, 9999);
+        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+        $imgName = $jobId . '.' . $ext;
+        $imgDir = storage_path('app/private/htr-extracts');
+        if (!is_dir($imgDir)) @mkdir($imgDir, 0777, true);
+        $imgPath = $imgDir . '/' . $imgName;
+        copy($file->getRealPath(), $imgPath);
 
-        @unlink($fullPath);
+        // Use local template extractor (bounding boxes from annotations)
+        $script = <<<PY
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from extractor import extract_and_ocr
+result = extract_and_ocr(sys.argv[1], sys.argv[2])
+print(json.dumps(result))
+PY;
+        $tmpScript = tempnam('/tmp', 'extract_') . '.py';
+        file_put_contents($tmpScript, $script);
+        $escaped = escapeshellarg($imgPath);
+        $escapedType = escapeshellarg($docType);
+        $output = shell_exec("python3 {$tmpScript} {$escaped} {$escapedType} 2>&1");
+        @unlink($tmpScript);
 
-        if (!$results) {
-            return redirect()->route('admin.ai.htr.extract')
-                ->with('error', 'HTR extraction failed. The service may be offline.');
+        $results = json_decode(trim($output ?: '{}'), true);
+
+        if (!$results || !($results['success'] ?? false)) {
+            \Log::warning('HTR local extractor failed', [
+                'output' => substr($output ?? '', 0, 500),
+                'imgPath' => $imgPath,
+                'exists' => file_exists($imgPath),
+            ]);
+            // Fallback to remote service
+            $results = $this->htrService->extract($imgPath, $docType, 'all');
+            if (!$results) {
+                @unlink($imgPath);
+                return redirect()->route('admin.ai.htr.extract')
+                    ->with('error', 'HTR extraction failed. ' . ($results['error'] ?? 'Service may be offline.'));
+            }
         }
 
-        $jobId = $results['job_id'] ?? Str::uuid()->toString();
+        $results['job_id'] = $jobId;
+        $results['image_name'] = $imgName;
+        $results['doc_type'] = $docType;
+
+        // Normalize bbox keys (width→w, height→h) for consistency
+        foreach ($results['fields'] ?? [] as &$field) {
+            if (isset($field['bbox'])) {
+                if (isset($field['bbox']['width']) && !isset($field['bbox']['w'])) {
+                    $field['bbox']['w'] = $field['bbox']['width'];
+                }
+                if (isset($field['bbox']['height']) && !isset($field['bbox']['h'])) {
+                    $field['bbox']['h'] = $field['bbox']['height'];
+                }
+            }
+        }
+        unset($field);
+
         session()->put("htr_results_{$jobId}", $results);
 
         return redirect()->route('admin.ai.htr.results', $jobId);
@@ -491,6 +536,20 @@ class AiController extends Controller
     {
         $results = session("htr_results_{$jobId}", []);
         return view('ahg-ai-services::htr.results', compact('results', 'jobId'));
+    }
+
+    /**
+     * Serve an extracted image for display on results page.
+     */
+    public function htrExtractImage(string $jobId)
+    {
+        $results = session("htr_results_{$jobId}", []);
+        $imgName = $results['image_name'] ?? '';
+        $imgPath = storage_path('app/private/htr-extracts/' . $imgName);
+        if (!$imgName || !file_exists($imgPath)) {
+            abort(404);
+        }
+        return response()->file($imgPath);
     }
 
     public function htrDownload(string $jobId, string $fmt)
@@ -594,6 +653,88 @@ class AiController extends Controller
     public function htrAnnotate()
     {
         return view('ahg-ai-services::htr.annotate');
+    }
+
+    /**
+     * Skip an image — move it to a rework/ folder for later review.
+     */
+    public function htrSkipImage(Request $request)
+    {
+        $path = $request->input('path', '');
+        if (!$path || !file_exists($path)) {
+            return response()->json(['success' => false, 'error' => 'Image not found.']);
+        }
+
+        $sourceDir = dirname($path);
+        $reworkDir = $sourceDir . '/rework';
+        if (!is_dir($reworkDir)) {
+            @mkdir($reworkDir, 0777, true);
+        }
+        if (!is_dir($reworkDir) || !is_writable($reworkDir)) {
+            return response()->json(['success' => false, 'error' => 'Cannot create rework folder. Check folder permissions.']);
+        }
+
+        $moved = @rename($path, $reworkDir . '/' . basename($path));
+
+        return response()->json([
+            'success' => $moved,
+            'moved_to' => $moved ? $reworkDir . '/' . basename($path) : null,
+        ]);
+    }
+
+    /**
+     * Spellcheck text using the HTR dictionary (EN + AF + SA towns + custom).
+     */
+    public function htrSpellcheck(Request $request)
+    {
+        $text = $request->input('text', '');
+        if (!$text) {
+            return response()->json(['errors' => []]);
+        }
+
+        $script = <<<'PY'
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from spellcheck import SpellChecker
+sc = SpellChecker()
+errors = sc.check_text(sys.argv[1])
+print(json.dumps(errors))
+PY;
+        $tmp = tempnam('/tmp', 'spell_') . '.py';
+        file_put_contents($tmp, $script);
+        $escaped = escapeshellarg($text);
+        $output = shell_exec("python3 {$tmp} {$escaped} 2>/dev/null");
+        @unlink($tmp);
+
+        $errors = json_decode(trim($output ?: '[]'), true) ?: [];
+        return response()->json(['errors' => $errors]);
+    }
+
+    /**
+     * Add a word to the custom HTR dictionary.
+     */
+    public function htrAddWord(Request $request)
+    {
+        $word = $request->input('word', '');
+        if (!$word || strlen($word) < 2) {
+            return response()->json(['success' => false, 'error' => 'Word too short.']);
+        }
+
+        $script = <<<'PY'
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from spellcheck import SpellChecker
+sc = SpellChecker()
+ok = sc.add_word(sys.argv[1])
+print(json.dumps({'success': ok, 'word': sys.argv[1], 'stats': sc.stats()}))
+PY;
+        $tmp = tempnam('/tmp', 'addw_') . '.py';
+        file_put_contents($tmp, $script);
+        $escaped = escapeshellarg($word);
+        $output = shell_exec("python3 {$tmp} {$escaped} 2>/dev/null");
+        @unlink($tmp);
+
+        return response()->json(json_decode(trim($output ?: '{}'), true) ?: ['success' => false]);
     }
 
     /**
@@ -722,46 +863,45 @@ class AiController extends Controller
             return response()->json(['success' => false, 'error' => 'No image provided.']);
         }
 
-        // Try remote HTR service first
-        $result = $this->htrService->saveAnnotation($fullPath, $type, $annotations);
+        // Always save locally to training_data (this is the ground truth)
+        $destDir = '/opt/ahg-ai/htr/training_data/' . $type . '/images';
+        $annDir  = '/opt/ahg-ai/htr/training_data/' . $type . '/annotations';
+        $cropsDir = '/opt/ahg-ai/htr/training_data/' . $type . '/crops';
 
-        // If service is offline, save locally as fallback
-        if ($result === null) {
-            $destDir = '/opt/ahg-ai/htr/training_data/' . $type . '/images';
-            $annDir  = '/opt/ahg-ai/htr/training_data/' . $type . '/annotations';
+        if (!is_dir($destDir)) { @mkdir($destDir, 0777, true); }
+        if (!is_dir($annDir)) { @mkdir($annDir, 0777, true); }
+        if (!is_dir($cropsDir)) { @mkdir($cropsDir, 0777, true); }
 
-            if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
-            if (!is_dir($annDir)) { mkdir($annDir, 0755, true); }
-
-            if ($isServerFile) {
-                // Image already in training folder — just save annotation alongside
-                $filename = basename($fullPath);
-                // Copy image to training dir if not already there
-                if (realpath(dirname($fullPath)) !== realpath($destDir)) {
-                    copy($fullPath, $destDir . '/' . $filename);
-                }
-            } else {
-                $timestamp = (int)(microtime(true) * 1000);
-                $ext = pathinfo($fullPath, PATHINFO_EXTENSION) ?: 'jpg';
-                $filename = "annotated_{$timestamp}.{$ext}";
+        if ($isServerFile) {
+            $filename = basename($fullPath);
+            if (realpath(dirname($fullPath)) !== realpath($destDir)) {
                 copy($fullPath, $destDir . '/' . $filename);
             }
+        } else {
+            $timestamp = (int)(microtime(true) * 1000);
+            $ext = pathinfo($fullPath, PATHINFO_EXTENSION) ?: 'jpg';
+            $filename = "annotated_{$timestamp}.{$ext}";
+            copy($fullPath, $destDir . '/' . $filename);
+        }
 
-            file_put_contents($annDir . '/' . $filename . '.json', json_encode([
-                'image' => $destDir . '/' . $filename,
-                'doc_type' => $type,
-                'annotations' => $annotations,
-                'created_at' => now()->toIso8601String(),
-                'saved_locally' => true,
-            ], JSON_PRETTY_PRINT));
+        // Auto-translate Dutch/Afrikaans → English using glossary
+        $translated = $this->translateAnnotations($annotations);
 
+        file_put_contents($annDir . '/' . $filename . '.json', json_encode([
+            'image' => $destDir . '/' . $filename,
+            'doc_type' => $type,
+            'annotations' => $translated,
+            'created_at' => now()->toIso8601String(),
+        ], JSON_PRETTY_PRINT));
+
+        // Crop individual field regions
+        $imgPath = $destDir . '/' . $filename;
+        $this->cropAnnotatedFields($imgPath, $annotations, $cropsDir, $filename);
+
+        // Also try remote HTR service (non-blocking — local save is the source of truth)
+        $result = $this->htrService->saveAnnotation($fullPath, $type, $annotations);
+        if ($result === null) {
             $result = ['success' => true, 'saved_locally' => true];
-
-            // Crop individual field regions for training
-            $cropsDir = '/opt/ahg-ai/htr/training_data/' . $type . '/crops';
-            if (!is_dir($cropsDir)) { mkdir($cropsDir, 0755, true); }
-            $imgPath = $destDir . '/' . $filename;
-            $this->cropAnnotatedFields($imgPath, $annotations, $cropsDir, $filename);
         }
 
         // Clean up temp file only if we uploaded one
@@ -771,13 +911,20 @@ class AiController extends Controller
 
         // Move source image to processed/ folder so it's skipped on next load
         if ($result && $isServerFile && $serverPath && file_exists($serverPath)) {
-            $sourceDir = dirname($serverPath);
-            $processedDir = $sourceDir . '/processed';
-            if (!is_dir($processedDir)) {
-                mkdir($processedDir, 0777, true);
+            try {
+                $sourceDir = dirname($serverPath);
+                $processedDir = $sourceDir . '/processed';
+                if (!is_dir($processedDir)) {
+                    @mkdir($processedDir, 0777, true);
+                }
+                if (is_dir($processedDir) && is_writable($processedDir)) {
+                    $moved = @rename($serverPath, $processedDir . '/' . basename($serverPath));
+                    $result['moved_to'] = $moved ? $processedDir . '/' . basename($serverPath) : null;
+                }
+            } catch (\Exception $e) {
+                // Don't fail the save if we can't move — annotation is already saved
+                \Log::warning('Could not move to processed: ' . $e->getMessage());
             }
-            $moved = rename($serverPath, $processedDir . '/' . basename($serverPath));
-            $result['moved_to'] = $moved ? $processedDir . '/' . basename($serverPath) : null;
         }
 
         return response()->json([
@@ -789,7 +936,26 @@ class AiController extends Controller
 
     public function htrTraining()
     {
-        $status = $this->htrService->trainingStatus() ?? ['counts' => [], 'training_active' => false];
+        // Count local training data (source of truth is on 112, not 115)
+        $baseDir = '/opt/ahg-ai/htr/training_data';
+        $counts = [];
+        foreach (['type_a', 'type_b', 'type_c'] as $type) {
+            $annDir = $baseDir . '/' . $type . '/annotations';
+            $counts[$type] = is_dir($annDir) ? count(glob($annDir . '/*.json')) : 0;
+        }
+
+        $status = [
+            'counts' => $counts,
+            'total' => array_sum($counts),
+            'training_active' => false,
+        ];
+
+        // Also try remote service for training status
+        $remote = $this->htrService->trainingStatus();
+        if ($remote && isset($remote['training_active'])) {
+            $status['training_active'] = $remote['training_active'];
+        }
+
         return view('ahg-ai-services::htr.training', compact('status'));
     }
 
@@ -810,6 +976,55 @@ class AiController extends Controller
      * Crop annotated field regions from an image and save as separate files.
      * Each crop is saved with its label and text in the filename for training.
      */
+
+    /**
+     * Auto-translate Dutch/Afrikaans month names and place names in annotations.
+     * Preserves original text as 'text_original', adds 'text_en' with English translation.
+     */
+    private function translateAnnotations(array $annotations): array
+    {
+        $script = <<<'PY'
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from glossary import translate_month, normalize_place
+
+data = json.loads(sys.argv[1])
+for ann in data:
+    for field in ann.get('fields', []):
+        text = field.get('text', '')
+        if not text:
+            continue
+        field['text_original'] = text
+        # Translate months and places
+        translated = translate_month(text)
+        translated = normalize_place(translated)
+        field['text_en'] = translated
+    # Also translate top-level ILM fields
+    for key in ['EVENT_YEAR_ORIG', 'EVENT_PLACE_ORIG']:
+        val = ann.get(key, '')
+        if val:
+            ann[key + '_original'] = val
+            t = translate_month(val)
+            t = normalize_place(t)
+            ann[key] = t
+print(json.dumps(data))
+PY;
+        $tmpScript = tempnam('/tmp', 'translate_') . '.py';
+        file_put_contents($tmpScript, $script);
+        $escapedData = escapeshellarg(json_encode($annotations));
+        $output = shell_exec("python3 {$tmpScript} {$escapedData} 2>/dev/null");
+        @unlink($tmpScript);
+
+        if ($output) {
+            $result = json_decode(trim($output), true);
+            if (is_array($result)) {
+                return $result;
+            }
+        }
+
+        return $annotations;
+    }
+
     private function cropAnnotatedFields(string $imagePath, array $annotations, string $cropsDir, string $sourceFilename): void
     {
         if (!file_exists($imagePath)) return;
@@ -837,8 +1052,9 @@ class AiController extends Controller
             if (empty($bbox['x']) && ($bbox['x'] ?? null) !== 0) continue;
 
             $label = $field['label'] ?? ('field_' . $i);
+            $formLabel = preg_replace('/[^a-zA-Z0-9_-]/', '_', $field['form_label'] ?? '');
             $text = preg_replace('/[^a-zA-Z0-9_-]/', '_', substr($field['text'] ?? '', 0, 40));
-            $cropName = "{$base}_{$i}_{$label}" . ($text ? "_{$text}" : '') . '.jpg';
+            $cropName = "{$base}_{$i}_{$label}" . ($formLabel ? "_{$formLabel}" : '') . ($text ? "_{$text}" : '') . '.jpg';
 
             $crops[] = [
                 'x' => (int)$bbox['x'],
@@ -863,8 +1079,10 @@ import sys, json
 from PIL import Image
 img = Image.open(sys.argv[1])
 crops = json.loads(sys.argv[2])
+# ~2mm padding at 300 DPI = ~24px, at 150 DPI = ~12px. Use 20px as safe default.
+PAD = 20
 for c in crops:
-    box = (c['x'], c['y'], c['x']+c['w'], c['y']+c['h'])
+    box = (c['x']-PAD, c['y']-PAD, c['x']+c['w']+PAD, c['y']+c['h']+PAD)
     box = (max(0,box[0]), max(0,box[1]), min(img.width,box[2]), min(img.height,box[3]))
     if box[2]>box[0] and box[3]>box[1]:
         crop = img.crop(box)

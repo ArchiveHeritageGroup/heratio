@@ -7,14 +7,14 @@
     <input
       type="text"
       name="q"
-      class="form-control"
-      placeholder="Search..."
+      class="form-control form-control-sm"
+      placeholder="{{ __('Search') }}"
       value="{{ request('q') }}"
       autocomplete="off"
       data-autocomplete-url="{{ route('search.autocomplete') }}"
-      aria-label="Search"
+      aria-label="{{ __('Search') }}"
     >
-    <button class="btn btn-outline-light" type="submit" aria-label="Search">
+    <button class="btn btn-sm atom-btn-secondary" type="submit" aria-label="{{ __('Search') }}">
       <i class="fas fa-search" aria-hidden="true"></i>
     </button>
   </div>

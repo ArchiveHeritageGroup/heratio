@@ -4,11 +4,15 @@
 @section('body-class', 'admin workflow')
 
 @section('content')
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-cogs"></i> Manage Workflows</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>Workflow Administration</h1>
     <div>
-      <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white"><i class="fas fa-shield-alt"></i> Publish Gates</a>
-      <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success"><i class="fas fa-plus"></i> Create Workflow</a>
+      <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success">
+        <i class="fas fa-plus me-1"></i>Create Workflow
+      </a>
+      <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Dashboard
+      </a>
     </div>
   </div>
 

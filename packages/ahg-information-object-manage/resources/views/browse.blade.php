@@ -67,9 +67,10 @@
 @section('before-content')
   {{-- Filter tags --}}
   @if(isset($filterTags) && count($filterTags) > 0)
-    <div class="d-flex flex-wrap gap-2 mb-2">
+    <div class="d-flex flex-wrap gap-2">
       @foreach($filterTags as $tag)
-        <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
+        <a href="{{ $tag['removeUrl'] ?? '#' }}"
+           class="btn btn-sm atom-btn-white align-self-start mw-100 filter-tag d-flex">
           <span class="visually-hidden">Remove filter:</span>
           <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
           <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
@@ -93,55 +94,80 @@
 
       <div class="d-flex flex-wrap gap-2 ms-auto">
         @include('ahg-core::components.sort-pickers', [
-            'options' => $sortOptions,
+            'options' => $sortOptions ?? [
+                'lastUpdated' => 'Date modified',
+                'alphabetic' => 'Title',
+                'relevance' => 'Relevance',
+                'identifier' => 'Identifier',
+                'referenceCode' => 'Reference code',
+                'startDate' => 'Start date',
+                'endDate' => 'End date',
+            ],
             'default' => 'alphabetic',
         ])
       </div>
     </div>
 
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered mb-0">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Level of description</th>
-            <th>Repository</th>
-            <th>Identifier</th>
-            @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
-            @endif
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($pager->getResults() as $doc)
-            <tr>
-              <td>
-                <a href="{{ route('informationobject.show', $doc['slug']) }}">
-                  {{ $doc['name'] ?: '[Untitled]' }}
-                </a>
-              </td>
-              <td>
+    <div id="content">
+      @foreach($pager->getResults() as $doc)
+        <article class="search-result row g-0 p-3 border-bottom">
+          <div class="col-12 d-flex flex-column gap-1">
+            <div class="d-flex align-items-center gap-2">
+              <a href="{{ route('informationobject.show', $doc['slug']) }}" class="h5 mb-0 text-truncate">
+                {{ $doc['name'] ?: '[Untitled]' }}
+              </a>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex flex-wrap">
+                @php $showDash = false; @endphp
+                @if(!empty($doc['identifier']))
+                  <span class="text-primary">{{ $doc['identifier'] }}</span>
+                  @php $showDash = true; @endphp
+                @endif
+
                 @if(!empty($doc['level_of_description_id']) && isset($levelNames[$doc['level_of_description_id']]))
-                  {{ $levelNames[$doc['level_of_description_id']] }}
+                  @if($showDash)<span class="text-muted mx-2"> &middot; </span>@endif
+                  <span class="text-muted">{{ $levelNames[$doc['level_of_description_id']] }}</span>
+                  @php $showDash = true; @endphp
                 @endif
-              </td>
-              <td>
-                @if(!empty($doc['repository_id']) && isset($repositoryNames[$doc['repository_id']]))
-                  {{ $repositoryNames[$doc['repository_id']] }}
+
+                @if(!empty($doc['date_display']))
+                  @if($showDash)<span class="text-muted mx-2"> &middot; </span>@endif
+                  <span class="text-muted">{{ $doc['date_display'] }}</span>
                 @endif
-              </td>
-              <td>{{ $doc['identifier'] ?? '' }}</td>
-              @if(request('sort') === 'lastUpdated')
-                <td>{{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') : '' }}</td>
+              </div>
+
+              @if(!empty($doc['part_of_title']))
+                <span class="text-muted">
+                  Part of
+                  @if(!empty($doc['part_of_slug']))
+                    <a href="{{ route('informationobject.show', $doc['part_of_slug']) }}">{{ $doc['part_of_title'] }}</a>
+                  @else
+                    {{ $doc['part_of_title'] }}
+                  @endif
+                </span>
               @endif
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
+
+              @if(!empty($doc['scope_and_content']))
+                <span class="text-block d-none">
+                  {!! nl2br(e(\Illuminate\Support\Str::limit($doc['scope_and_content'], 250))) !!}
+                </span>
+              @endif
+
+              @if(!empty($doc['creator']))
+                <span class="text-muted">{{ $doc['creator'] }}</span>
+              @endif
+            </div>
+          </div>
+        </article>
+      @endforeach
     </div>
   @endif
 @endsection
 
 @section('after-content')
-  @include('ahg-core::components.pager', ['pager' => $pager])
+  @if(isset($pager))
+    @include('ahg-core::components.pager', ['pager' => $pager])
+  @endif
 @endsection

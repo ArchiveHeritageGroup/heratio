@@ -3,47 +3,42 @@
 @section('body-class', 'heritage')
 
 @section('content')
-<div class="row">  <div class="col-12">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-sign-in-alt me-2"></i>Contributor Login</h1>
-      <a href="{{ route('heritage.landing') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-home me-1"></i>Heritage Home</a>
-    </div>
-    <p class="text-muted">Sign in to your contributor account.</p>
-
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-      <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sign-in-alt me-2"></i>Contributor Login</div>
-      <div class="card-body">
-        @if(!empty($items))
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach($columns ?? ['ID','Name','Status','Date'] as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr></thead>
-            <tbody>
-              @foreach($items as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
-              @endforeach
-            </tbody>
-          </table>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <i class="fas fa-users display-4" style="color:var(--ahg-primary)"></i>
+          <h2 class="h4 mt-3">Welcome Back</h2>
+          <p class="text-muted">Sign in to contribute to our heritage collection</p>
         </div>
-        @else
-        <p class="text-muted text-center py-4">No data available.</p>
+
+        @if(!empty($error))
+        <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>{{ $error }}</div>
         @endif
+
+        <form method="post" action="{{ route('heritage.contributor-login') }}">@csrf
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <div class="input-group"><span class="input-group-text"><i class="fas fa-envelope"></i></span><input type="email" class="form-control" id="email" name="email" required autofocus placeholder="your@email.com"></div>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group"><span class="input-group-text"><i class="fas fa-lock"></i></span><input type="password" class="form-control" id="password" name="password" required placeholder="Your password"></div>
+          </div>
+          <div class="d-grid gap-2 mb-3"><button type="submit" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Sign In</button></div>
+        </form>
+
+        <hr class="my-4">
+        <div class="text-center">
+          <p class="mb-2">Don't have an account?</p>
+          <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-2"></i>Create Account</a>
+        </div>
       </div>
     </div>
-
-    @if(isset($items) && method_exists($items, 'links'))
-      <div class="mt-3">{{ $items->withQueryString()->links() }}</div>
-    @endif
+    <div class="text-center mt-4">
+      <a href="{{ route('heritage.landing') }}" class="text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i>Back to Heritage Portal</a>
+    </div>
   </div>
 </div>
 @endsection

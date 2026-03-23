@@ -2,40 +2,65 @@
 @section('title', 'Audit Trail')
 @section('body-class', 'admin heritage')
 
+@php
+$logs = $historyData['logs'] ?? [];
+$total = $historyData['total'] ?? 0;
+@endphp
+
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-history me-2"></i>Audit Trail</h1>
-      <a href="{{ route('heritage.custodian') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back</a>
+  <div class="col-md-3">
+    @include('ahg-heritage-manage::partials._admin-sidebar')
+    <div class="mt-4">
+      <h6 class="text-muted mb-3">Quick Filters</h6>
+      <div class="list-group">
+        <a href="?" class="list-group-item list-group-item-action {{ !request('action_type') ? 'active' : '' }}">All Actions</a>
+        @foreach(['create','update','delete'] as $at)
+        <a href="?action_type={{ $at }}" class="list-group-item list-group-item-action {{ request('action_type')===$at ? 'active' : '' }}">{{ ucfirst($at) }}s</a>
+        @endforeach
+      </div>
     </div>
-    <p class="text-muted">View custodian activity audit trail.</p>
+  </div>
+  <div class="col-md-9">
+    <h1><i class="fas fa-history me-2"></i>Audit Trail</h1>
 
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history me-2"></i>Audit Trail</div>
+    <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
-        @if(!empty($items))
+        <form method="get" class="row g-3">
+          <div class="col-md-4"><label class="form-label">Search</label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="User, object, or action..."></div>
+          <div class="col-md-3"><label class="form-label">From Date</label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
+          <div class="col-md-3"><label class="form-label">To Date</label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
+          <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>Filter</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0">Audit Log</h5><span class="badge bg-secondary">{{ number_format($total) }} entries</span>
+      </div>
+      <div class="card-body p-0">
+        @if(empty($logs))
+        <div class="text-center text-muted py-5"><i class="fas fa-inbox fs-1 mb-3 d-block"></i><p>No audit log entries found.</p></div>
+        @else
         <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach($columns ?? ['ID','Name','Action','Date'] as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr></thead>
+          <table class="table table-hover mb-0">
+            <thead class="table-light"><tr><th style="width:140px">Timestamp</th><th>User</th><th>Action</th><th>Object</th><th>Changes</th><th></th></tr></thead>
             <tbody>
-              @foreach($items as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
+              @foreach($logs as $log)
+              @php $color = ['create'=>'success','update'=>'primary','delete'=>'danger','view'=>'info','approve'=>'success','deny'=>'danger'][$log->action] ?? 'secondary'; @endphp
+              <tr>
+                <td><small class="text-muted">{{ date('M d, Y', strtotime($log->created_at)) }}</small><br><small>{{ date('H:i:s', strtotime($log->created_at)) }}</small></td>
+                <td><strong>{{ $log->username ?? 'System' }}</strong>@if($log->ip_address)<br><small class="text-muted">{{ $log->ip_address }}</small>@endif</td>
+                <td><span class="badge bg-{{ $color }}">{{ ucfirst($log->action) }}</span></td>
+                <td>@if($log->object_id){{ mb_strimwidth($log->object_title ?? "Object #{$log->object_id}", 0, 40, '...') }}@else -@endif</td>
+                <td>@if($log->field_name)<small><strong>{{ $log->field_name }}</strong>: @if($log->old_value)<span class="text-danger text-decoration-line-through">{{ mb_strimwidth($log->old_value, 0, 20, '...') }}</span>@endif &rarr; <span class="text-success">{{ mb_strimwidth($log->new_value ?? '', 0, 20, '...') }}</span></small>@else -@endif</td>
+                <td><button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye"></i></button></td>
+              </tr>
               @endforeach
             </tbody>
           </table>
         </div>
-        @else
-        <p class="text-muted text-center py-4">No records found.</p>
         @endif
       </div>
     </div>

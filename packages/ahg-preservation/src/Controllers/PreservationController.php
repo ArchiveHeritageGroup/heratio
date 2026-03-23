@@ -13,15 +13,16 @@ class PreservationController extends Controller
     }
 
     /**
-     * Dashboard with stats cards, recent events, at-risk formats.
+     * Dashboard with stats cards, quick actions, recent fixity, events, at-risk formats.
      */
     public function index()
     {
         $stats = $this->service->getStatistics();
         $recentEvents = $this->service->getEvents(10);
         $atRiskFormats = $this->service->getAtRiskFormats();
+        $recentFixity = $this->service->getFixityLog(10);
 
-        return view('ahg-preservation::index', compact('stats', 'recentEvents', 'atRiskFormats'));
+        return view('ahg-preservation::index', compact('stats', 'recentEvents', 'atRiskFormats', 'recentFixity'));
     }
 
     /**
@@ -57,17 +58,63 @@ class PreservationController extends Controller
     }
 
     /**
-     * Virus scan dashboard.
+     * Virus scan dashboard with ClamAV status, stats, and recent scans.
      */
     public function virusScan()
     {
         $scans = $this->service->getVirusScans(50);
 
-        return view('ahg-preservation::virus-scan', compact('scans'));
+        // ClamAV availability check
+        $clamAvAvailable = false;
+        $clamAvVersion = null;
+        try {
+            $output = @shell_exec('clamscan --version 2>&1');
+            if ($output && str_contains($output, 'ClamAV')) {
+                $clamAvAvailable = true;
+                $parts = explode('/', trim($output));
+                $clamAvVersion = [
+                    'scanner' => 'ClamAV',
+                    'version' => trim($parts[0] ?? ''),
+                    'database' => trim($parts[1] ?? 'unknown'),
+                ];
+            }
+        } catch (\Exception $e) {
+            // ClamAV not available
+        }
+
+        // Scan stats
+        $scanStats = ['clean' => 0, 'infected' => 0, 'error' => 0];
+        try {
+            $rows = \Illuminate\Support\Facades\DB::table('preservation_virus_scan')
+                ->select('status', \Illuminate\Support\Facades\DB::raw('COUNT(*) as cnt'))
+                ->groupBy('status')
+                ->get();
+            foreach ($rows as $row) {
+                $scanStats[$row->status] = $row->cnt;
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Unscanned objects
+        $unscannedObjects = 0;
+        try {
+            $totalObjects = \Illuminate\Support\Facades\DB::table('digital_object')->count();
+            $scannedObjects = \Illuminate\Support\Facades\DB::table('preservation_virus_scan')
+                ->distinct('digital_object_id')
+                ->count('digital_object_id');
+            $unscannedObjects = $totalObjects - $scannedObjects;
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return view('ahg-preservation::virus-scan', compact(
+            'scans', 'clamAvAvailable', 'clamAvVersion', 'scanStats', 'unscannedObjects'
+        ));
     }
 
     /**
-     * Preservation policies list.
+     * Preservation policies list with CLI commands.
      */
     public function policies()
     {
@@ -77,7 +124,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * OAIS package browser with type filter (SIP/AIP/DIP).
+     * OAIS package browser with type filter (SIP/AIP/DIP) and stats.
      */
     public function packages(Request $request)
     {
@@ -88,7 +135,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * Package detail with objects.
+     * Package detail with objects, events, timeline, related packages.
      */
     public function packageView(int $id)
     {
@@ -97,21 +144,50 @@ class PreservationController extends Controller
             abort(404, 'Package not found');
         }
 
-        return view('ahg-preservation::package-view', compact('package'));
+        // Related packages
+        $parentPackage = null;
+        $childPackages = [];
+        try {
+            if ($package->parent_id ?? null) {
+                $parentPackage = \Illuminate\Support\Facades\DB::table('preservation_package')
+                    ->where('id', $package->parent_id)
+                    ->first();
+            }
+            $childPackages = \Illuminate\Support\Facades\DB::table('preservation_package')
+                ->where('parent_id', $id)
+                ->get();
+        } catch (\Exception $e) {
+            // Column may not exist
+        }
+
+        return view('ahg-preservation::package-view', compact('package', 'parentPackage', 'childPackages'));
     }
 
     /**
-     * Workflow schedules list.
+     * Workflow schedules list with stats, recent runs, sidebar.
      */
     public function scheduler()
     {
         $schedules = $this->service->getSchedules();
 
-        return view('ahg-preservation::scheduler', compact('schedules'));
+        // Recent runs across all schedules
+        $recentRuns = collect();
+        try {
+            $recentRuns = \Illuminate\Support\Facades\DB::table('preservation_workflow_run as wr')
+                ->leftJoin('preservation_workflow_schedule as ws', 'ws.id', '=', 'wr.schedule_id')
+                ->select('wr.*', 'ws.name as schedule_name')
+                ->orderByDesc('wr.started_at')
+                ->limit(20)
+                ->get();
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return view('ahg-preservation::scheduler', compact('schedules', 'recentRuns'));
     }
 
     /**
-     * Backup verification dashboard: replication targets + recent verifications.
+     * Backup verification dashboard: replication targets, logs, verifications.
      */
     public function backup()
     {
@@ -123,7 +199,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * Preservation reports: objects without checksums, stale fixity, high-risk formats.
+     * Preservation reports: objects without checksums, stale fixity, high-risk formats, summary stats.
      */
     public function reports()
     {
@@ -178,7 +254,7 @@ class PreservationController extends Controller
     }
 
     /**
-     * Format conversion dashboard.
+     * Format conversion dashboard with tool status, stats, supported conversions, recent.
      */
     public function conversion()
     {
@@ -191,18 +267,103 @@ class PreservationController extends Controller
     }
 
     /**
-     * Format identification dashboard.
+     * Format identification dashboard with Siegfried status, confidence, risk, top formats, CLI.
      */
     public function identification()
     {
         $stats = $this->service->getIdentificationStats();
         $identifications = $this->service->getRecentIdentifications(20);
 
-        return view('ahg-preservation::identification', compact('stats', 'identifications'));
+        // Siegfried availability
+        $siegfriedAvailable = false;
+        $siegfriedVersion = [];
+        try {
+            $sfOutput = @shell_exec('sf -version 2>&1');
+            if ($sfOutput && (str_contains($sfOutput, 'siegfried') || str_contains($sfOutput, 'sf'))) {
+                $siegfriedAvailable = true;
+                $siegfriedVersion = [
+                    'version' => trim($sfOutput),
+                    'signature_date' => 'Unknown',
+                ];
+            }
+        } catch (\Exception $e) {
+            // Not available
+        }
+
+        // Confidence distribution
+        $byConfidence = ['certain' => 0, 'high' => 0, 'medium' => 0, 'low' => 0];
+        try {
+            $confRows = \Illuminate\Support\Facades\DB::table('preservation_identification')
+                ->select('confidence', \Illuminate\Support\Facades\DB::raw('COUNT(*) as cnt'))
+                ->groupBy('confidence')
+                ->get();
+            foreach ($confRows as $row) {
+                if (isset($byConfidence[$row->confidence])) {
+                    $byConfidence[$row->confidence] = $row->cnt;
+                }
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Formats by risk level
+        $formatsByRisk = ['low' => 0, 'medium' => 0, 'high' => 0, 'critical' => 0];
+        try {
+            $riskRows = \Illuminate\Support\Facades\DB::table('preservation_format')
+                ->select('risk_level', \Illuminate\Support\Facades\DB::raw('COUNT(*) as cnt'))
+                ->groupBy('risk_level')
+                ->get();
+            foreach ($riskRows as $row) {
+                if (isset($formatsByRisk[$row->risk_level])) {
+                    $formatsByRisk[$row->risk_level] = $row->cnt;
+                }
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        // Warnings count
+        $withWarnings = 0;
+        $identificationsWithWarnings = [];
+        try {
+            $withWarnings = \Illuminate\Support\Facades\DB::table('preservation_identification')
+                ->whereNotNull('warning')
+                ->where('warning', '!=', '')
+                ->count();
+            $identificationsWithWarnings = \Illuminate\Support\Facades\DB::table('preservation_identification as pi')
+                ->leftJoin('digital_object as do', 'do.id', '=', 'pi.digital_object_id')
+                ->select('pi.*', 'do.name as object_name')
+                ->whereNotNull('pi.warning')
+                ->where('pi.warning', '!=', '')
+                ->orderByDesc('pi.created_at')
+                ->limit(5)
+                ->get()
+                ->toArray();
+        } catch (\Exception $e) {
+            // Column/table may not exist
+        }
+
+        // Top formats
+        $topFormats = [];
+        try {
+            $topFormats = \Illuminate\Support\Facades\DB::table('preservation_identification')
+                ->select('puid', 'format_name', \Illuminate\Support\Facades\DB::raw('COUNT(*) as count'))
+                ->groupBy('puid', 'format_name')
+                ->orderByDesc('count')
+                ->limit(10)
+                ->get();
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return view('ahg-preservation::identification', compact(
+            'stats', 'identifications', 'siegfriedAvailable', 'siegfriedVersion',
+            'byConfidence', 'formatsByRisk', 'withWarnings', 'identificationsWithWarnings', 'topFormats'
+        ));
     }
 
     /**
-     * Preservation object detail — checksums, events, format info.
+     * Preservation object detail -- checksums, fixity history, events, format info.
      */
     public function object(int $id)
     {
@@ -215,7 +376,19 @@ class PreservationController extends Controller
         $checksums = $this->service->getObjectChecksums($id);
         $events = $this->service->getObjectEvents($id, 20);
 
-        return view('ahg-preservation::object', compact('digitalObject', 'formatInfo', 'checksums', 'events'));
+        // Fixity history
+        $fixityHistory = collect();
+        try {
+            $fixityHistory = \Illuminate\Support\Facades\DB::table('preservation_fixity_check')
+                ->where('digital_object_id', $id)
+                ->orderByDesc('checked_at')
+                ->limit(20)
+                ->get();
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return view('ahg-preservation::object', compact('digitalObject', 'formatInfo', 'checksums', 'events', 'fixityHistory'));
     }
 
     /**
@@ -223,24 +396,43 @@ class PreservationController extends Controller
      */
     public function packageEdit(int $id)
     {
-        $package = $this->service->getPackage($id);
-        if (!$package) {
-            abort(404, 'Package not found');
-        }
+        $package = null;
+        $formAction = route('preservation.packages');
 
-        $formAction = route('preservation.package-view', $id);
+        if ($id > 0) {
+            $package = $this->service->getPackage($id);
+            if (!$package) {
+                abort(404, 'Package not found');
+            }
+            $formAction = route('preservation.package-view', $id);
+        }
 
         return view('ahg-preservation::package-edit', compact('package', 'formAction'));
     }
 
     /**
-     * Edit schedule form.
+     * Edit schedule form with cron presets, execution settings, notifications, runs.
      */
     public function scheduleEdit(int $id)
     {
         $schedule = null;
+        $runs = [];
         $formAction = route('preservation.scheduler');
 
-        return view('ahg-preservation::schedule-edit', compact('schedule', 'formAction'));
+        if ($id > 0) {
+            try {
+                $schedule = \Illuminate\Support\Facades\DB::table('preservation_workflow_schedule')
+                    ->where('id', $id)
+                    ->first();
+                if ($schedule) {
+                    $runs = $this->service->getScheduleRuns($id, 10);
+                    $formAction = route('preservation.schedule-edit', $id);
+                }
+            } catch (\Exception $e) {
+                // Table may not exist
+            }
+        }
+
+        return view('ahg-preservation::schedule-edit', compact('schedule', 'runs', 'formAction'));
     }
 }

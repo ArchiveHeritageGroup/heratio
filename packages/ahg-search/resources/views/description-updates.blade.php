@@ -1,138 +1,143 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Description updates')
-@section('body-class', 'search description-updates')
-
-@section('content')
+@section('title')
   <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-history me-3" aria-hidden="true"></i>
+    <i class="fas fa-3x fa-newspaper me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">
+      <h1 class="mb-0" aria-describedby="heading-label">
         @if(isset($pager) && $pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
+          {{ __('Showing %1% results', ['%1%' => $pager->getNbResults()]) }}
         @else
-          Description updates
+          {{ __('No results found') }}
         @endif
       </h1>
+      <span class="small" id="heading-label">
+        {{ __('Newest additions') }}
+      </span>
     </div>
   </div>
+@endsection
 
-  {{-- Filter form --}}
-  <form action="{{ route('search.descriptionUpdates') }}" method="get" class="card mb-4">
-    <div class="card-body">
-      <div class="row g-3">
-        {{-- Entity type --}}
-        <div class="col-md-3">
-          <label for="className" class="form-label">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="className" id="className" class="form-select">
-            @foreach($entityTypes as $value => $label)
-              <option value="{{ $value }}" {{ $className === $value ? 'selected' : '' }}>{{ $label }}</option>
-            @endforeach
-          </select>
-        </div>
+@section('content')
+  {{-- Filter form (accordion) --}}
+  <div class="accordion mb-3 adv-search" role="search">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading-adv-search">
+        <button class="accordion-button{{ $showForm ? '' : ' collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-adv-search" aria-expanded="{{ $showForm ? 'true' : 'false' }}" aria-controls="collapse-adv-search">
+          {{ __('Filter options') }}
+        </button>
+      </h2>
+      <div id="collapse-adv-search" class="accordion-collapse collapse{{ $showForm ? ' show' : '' }}" aria-labelledby="heading-adv-search">
+        <div class="accordion-body">
+          <form action="{{ route('search.descriptionUpdates') }}" method="get" name="advanced-search-form">
 
-        {{-- Date start --}}
-        <div class="col-md-2">
-          <label for="dateStart" class="form-label">Date start <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="date" name="dateStart" id="dateStart" class="form-control" value="{{ $dateStart }}">
-        </div>
+            <input type="hidden" name="showForm" value="1"/>
 
-        {{-- Date end --}}
-        <div class="col-md-2">
-          <label for="dateEnd" class="form-label">Date end <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="date" name="dateEnd" id="dateEnd" class="form-control" value="{{ $dateEnd }}">
-        </div>
+            <h5>{{ __('Filter results by:') }}</h5>
 
-        {{-- Date of --}}
-        <div class="col-md-2">
-          <label class="form-label">Date of <span class="badge bg-secondary ms-1">Optional</span></label>
-          <div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="dateOf" id="dateOfCreated" value="created" {{ $dateOf === 'created' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfCreated">Created <span class="badge bg-secondary ms-1">Optional</span></label>
+            <div class="criteria row mb-2">
+              <div class="col-md-6">
+                <label for="className" class="form-label">{{ __('Type') }}</label>
+                <select name="className" id="className" class="form-select">
+                  @foreach($entityTypes as $value => $label)
+                    <option value="{{ $value }}" {{ $className === $value ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <fieldset class="col-md-6">
+                <legend class="fs-6">{{ __('Date of') }}</legend>
+                <div class="form-check d-inline-block me-2">
+                  <input class="form-check-input" type="radio" name="dateOf" id="dateOf-created" value="CREATED_AT" {{ $dateOf === 'CREATED_AT' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="dateOf-created">{{ __('Creation') }}</label>
+                </div>
+                <div class="form-check d-inline-block me-2">
+                  <input class="form-check-input" type="radio" name="dateOf" id="dateOf-updated" value="UPDATED_AT" {{ $dateOf !== 'CREATED_AT' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="dateOf-updated">{{ __('Revision') }}</label>
+                </div>
+              </fieldset>
+
+              <fieldset class="col-md-6 mt-2">
+                <legend class="fs-6">{{ __('Publication status') }}</legend>
+                <div class="form-check d-inline-block me-2">
+                  <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="pubAll">{{ __('All') }}</label>
+                </div>
+                <div class="form-check d-inline-block me-2">
+                  <input class="form-check-input" type="radio" name="publicationStatus" id="pubDraft" value="draft" {{ $publicationStatus === 'draft' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="pubDraft">{{ __('Draft') }}</label>
+                </div>
+                <div class="form-check d-inline-block me-2">
+                  <input class="form-check-input" type="radio" name="publicationStatus" id="pubPublished" value="published" {{ $publicationStatus === 'published' ? 'checked' : '' }}>
+                  <label class="form-check-label" for="pubPublished">{{ __('Published') }}</label>
+                </div>
+              </fieldset>
             </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="dateOf" id="dateOfUpdated" value="updated" {{ $dateOf === 'updated' ? 'checked' : '' }}>
-              <label class="form-check-label" for="dateOfUpdated">Updated <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-          </div>
-        </div>
 
-        {{-- Publication status --}}
-        <div class="col-md-3">
-          <label class="form-label">Publication status <span class="badge bg-secondary ms-1">Optional</span></label>
-          <div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubAll">All <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="publicationStatus" id="pubPublished" value="published" {{ $publicationStatus === 'published' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubPublished">Published <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="publicationStatus" id="pubDraft" value="draft" {{ $publicationStatus === 'draft' ? 'checked' : '' }}>
-              <label class="form-check-label" for="pubDraft">Draft <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-          </div>
-        </div>
+            <h5>{{ __('Filter by date range:') }}</h5>
 
-        {{-- User --}}
-        <div class="col-md-3">
-          <label for="user" class="form-label">User <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="user" id="user" class="form-select">
-            <option value="">All users</option>
-            @foreach($users as $userId => $displayName)
-              <option value="{{ $userId }}" {{ (string) $userName === (string) $userId ? 'selected' : '' }}>{{ $displayName }}</option>
-            @endforeach
-          </select>
-        </div>
+            <div class="criteria row mb-2">
+              <div class="col-md-6 start-date">
+                <label for="dateStart" class="form-label">{{ __('Start') }}</label>
+                <input type="date" id="dateStart" name="dateStart" class="form-control" value="{{ $dateStart }}">
+              </div>
 
-        {{-- Buttons --}}
-        <div class="col-md-9 d-flex align-items-end gap-2">
-          <button type="submit" class="btn atom-btn-outline-light">Search</button>
-          <a href="{{ route('search.descriptionUpdates') }}" class="btn atom-btn-outline-light">Reset</a>
+              <div class="col-md-6 end-date">
+                <label for="dateEnd" class="form-label">{{ __('End') }}</label>
+                <input type="date" id="dateEnd" name="dateEnd" class="form-control" value="{{ $dateEnd }}">
+              </div>
+            </div>
+
+            <ul class="actions mb-1 nav gap-2 justify-content-center">
+              <li><input type="submit" class="btn atom-btn-outline-light" value="{{ __('Search') }}"></li>
+              <li><input type="button" class="btn atom-btn-outline-light reset" value="{{ __('Reset') }}"></li>
+            </ul>
+
+          </form>
         </div>
       </div>
     </div>
-  </form>
+  </div>
 
-  {{-- Results --}}
-  @if($results !== null && $results->count() > 0)
-    <div class="mb-2 text-muted small">
-      Showing {{ number_format($pager->getNbResults()) }} result(s)
-    </div>
-
-    <table class="table table-bordered mb-0">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Repository</th>
-          <th>Created</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($results as $row)
+  {{-- Results table --}}
+  <div class="table-responsive mb-3">
+    @if(isset($results) && $results->count() > 0)
+      <table class="table table-bordered mb-0">
+        <thead>
           <tr>
-            <td>
-              @if($row->slug)
-                <a href="/{{ $row->slug }}">{{ $row->title }}</a>
-              @else
-                {{ $row->title }}
-              @endif
-            </td>
-            <td>{{ $row->repository ?? '' }}</td>
-            <td>{{ $row->date ? \Carbon\Carbon::parse($row->date)->format('Y-m-d H:i') : '' }}</td>
+            <th class="w-40">{{ __('Title') }}</th>
+            <th class="w-40">{{ __('Repository') }}</th>
+            @if($dateOf === 'CREATED_AT')
+              <th class="w-20">{{ __('Created') }}</th>
+            @else
+              <th class="w-20">{{ __('Updated') }}</th>
+            @endif
           </tr>
-        @endforeach
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @foreach($results as $row)
+            <tr>
+              <td>
+                @if($row->slug)
+                  <a href="/{{ $row->slug }}">{{ $row->title }}</a>
+                @else
+                  {{ $row->title }}
+                @endif
+              </td>
+              <td>{{ $row->repository ?? '' }}</td>
+              <td>{{ $row->date ? \Carbon\Carbon::parse($row->date)->format('Y-m-d H:i') : '' }}</td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    @elseif(isset($results))
+      <div class="p-3">
+        {{ __("We couldn't find any results matching your search.") }}
+      </div>
+    @endif
+  </div>
 
+  @if(isset($pager) && $pager->getNbResults())
     @include('ahg-core::components.pager', ['pager' => $pager])
-  @elseif($results !== null)
-    <div class="alert alert-info">
-      <i class="fas fa-info-circle" aria-hidden="true"></i>
-      No description updates found matching the current filters.
-    </div>
   @endif
 @endsection

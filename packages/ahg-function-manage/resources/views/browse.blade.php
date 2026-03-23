@@ -32,20 +32,6 @@
           'default' => 'alphabetic',
       ])
 
-      @php
-        $activeSort = request('sort', 'alphabetic');
-        $activeDir = request('sortDir', ($activeSort === 'lastUpdated' ? 'desc' : 'asc'));
-        $dirQuery = request()->except(['sortDir', 'page']);
-      @endphp
-      <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Direction: {{ $activeDir === 'asc' ? 'Ascending' : 'Descending' }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-          <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}">Ascending</a></li>
-          <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}">Descending</a></li>
-        </ul>
-      </div>
     </div>
   </div>
 @endsection

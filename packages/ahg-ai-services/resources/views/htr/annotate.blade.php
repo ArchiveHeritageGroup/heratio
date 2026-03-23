@@ -33,13 +33,14 @@
             <option value="/usr/share/nginx/heratio/FamilySearch/1912">FamilySearch / 1912</option>
             <option value="/usr/share/nginx/heratio/FamilySearch/1920">FamilySearch / 1920</option>
             <option value="/usr/share/nginx/heratio/FamilySearch/1930">FamilySearch / 1930</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/wynberg_death_1925-1929">Wynberg Deaths 1925-1929 (248)</option>
             <option value="/tmp">Temp (/tmp)</option>
             <option value="type_a">Training: Type A</option>
             <option value="type_b">Training: Type B</option>
             <option value="type_c">Training: Type C</option>
             <option value="">— Custom path —</option>
           </select>
-          <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="/path/to/images" style="display:none;">
+          <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="or type path here">
           <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>Load</button>
         </div>
       </div>
@@ -102,6 +103,7 @@
         </div>
       </div>
       <div class="col-auto ms-auto">
+        <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="Skip — move to rework folder"><i class="fas fa-forward me-1"></i>Skip</button>
         <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>Save</button>
       </div>
     </div>
@@ -206,7 +208,7 @@
           <li>Select <strong>server folder</strong> → click <strong>Load</strong></li>
           <li>Set <strong>Record Type</strong> (top-right)</li>
           <li>Press <strong>R</strong> → draw box around the <strong>event year</strong> → type the year</li>
-          <li>Press <strong>R</strong> → draw box around the <strong>event place</strong> → type place or click Quick Place (", South Africa" auto-appended)</li>
+          <li>Press <strong>R</strong> → draw box around the <strong>event place</strong> → type place or click Quick Place (country appended automatically)</li>
           <li>Only <strong>2 boxes</strong> allowed — Record Type is set at document level</li>
           <li>Use <strong>V</strong> to drag/reposition boxes</li>
           <li>Click <strong>Save</strong> → auto-advances to next image</li>
@@ -232,6 +234,17 @@
   .fi .dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
   .fi input, .fi select { font-size: 0.78rem; }
   .qp { font-size: 0.72rem; margin: 1px; padding: 2px 6px; }
+  .ac-dropdown { position:absolute; z-index:99; background:#fff; border:1px solid #ddd; border-top:0; max-height:180px; overflow-y:auto; width:100%; box-shadow:0 4px 8px rgba(0,0,0,.15); }
+  .ac-item { padding:4px 8px; font-size:.78rem; cursor:pointer; }
+  .ac-item:hover, .ac-item.ac-active { background:var(--ahg-primary); color:#fff; }
+  .ac-item .ac-prov { opacity:.7; font-size:.7rem; }
+  .spell-errors { font-size:.72rem; margin-top:3px; line-height:1.6; }
+  .spell-bad { color:#dc3545; font-weight:bold; text-decoration:line-through; cursor:pointer; margin-right:2px; padding:1px 3px; border:1px dashed #dc3545; border-radius:3px; }
+  .spell-bad:hover { background:#dc3545; color:#fff; text-decoration:none; }
+  .spell-bad:hover::after { content:' +add'; font-size:.6rem; font-weight:normal; }
+  .spell-sug { color:#0d6efd; cursor:pointer; padding:1px 4px; border:1px solid #0d6efd; border-radius:3px; margin:0 2px; font-size:.68rem; }
+  .spell-sug:hover { background:#0d6efd; color:#fff; }
+  .spell-ok { color:#198754; }
 </style>
 @endpush
 
@@ -241,7 +254,28 @@
   const COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#e91e63','#00bcd4'];
   const ILM_LABELS = ['EVENT_YEAR_ORIG','EVENT_PLACE_ORIG'];
   const MAX_ANNS = 2; // Only 2 field boxes allowed: year + place
-  const PLACES = ['Cape Province, South Africa','Transvaal, South Africa','Natal, South Africa','Orange Free State, South Africa','South Africa'];
+  const PLACES = ['Cape Province','Transvaal','Natal','Orange Free State'];
+
+  // Printed form labels — what's physically printed on the document next to the field
+  // Grouped by ILM field they map to
+  const FORM_LABELS = {
+    EVENT_YEAR_ORIG: [
+      {en: 'Date of Death', af: 'Datum van Oorlyde', nl: 'Datum van Overlijden'},
+      {en: 'Date of Birth', af: 'Geboortedatum', nl: 'Datum van Geboorte'},
+      {en: 'Date of Marriage', af: 'Huweliksdatum', nl: 'Datum van Huwelijk'},
+      {en: 'Date of Baptism', af: 'Doopdatum', nl: 'Datum van Doop'},
+      {en: 'Date of Burial', af: 'Begrafnisdatum', nl: 'Datum van Begrafnis'},
+      {en: 'Date Registered', af: 'Datum Geregistreer', nl: 'Datum Ingeschreven'},
+    ],
+    EVENT_PLACE_ORIG: [
+      {en: 'Place of Death', af: 'Plek waar Oorlede', nl: 'Plaats van Overlijden'},
+      {en: 'Place of Birth', af: 'Geboorteplek', nl: 'Plaats van Geboorte'},
+      {en: 'Usual Residence', af: 'Gewone Woonplek', nl: 'Verblijfplaats'},
+      {en: 'Place of Burial', af: 'Begraafplek', nl: 'Plaats van Begrafenis'},
+      {en: 'District', af: 'Distrik', nl: 'District'},
+      {en: 'Parish', af: 'Gemeente', nl: 'Parochie'},
+    ],
+  };
 
   // State
   let img = null, scale = 1, anns = [], activeId = null;
@@ -260,7 +294,7 @@
 
   // ── Quick place buttons ──
   document.getElementById('quick-place').innerHTML = PLACES.map(p =>
-    '<button class="btn btn-sm atom-btn-white qp" data-p="' + p + '">' + p.replace(', South Africa','') + '</button>'
+    '<button class="btn btn-sm atom-btn-white qp" data-p="' + p + '">' + p + '</button>'
   ).join('');
   document.getElementById('quick-place').addEventListener('click', function(e) {
     const b = e.target.closest('.qp');
@@ -296,6 +330,7 @@
       document.getElementById('rectype-card').style.display = '';
       redraw(); updInfo(); buildPanel();
       document.getElementById('btn-save').disabled = false;
+      document.getElementById('btn-skip').disabled = false;
     };
     img.onerror = function() { alert('Failed to load image.'); };
     img.src = src;
@@ -475,9 +510,16 @@
     // First box = EVENT_YEAR_ORIG, second = EVENT_PLACE_ORIG — fixed, no choice
     const label = ILM_LABELS[anns.length];
 
+    // Default form label based on doc type
+    const docType = document.getElementById('doc-type').value;
+    const defaultFormLabel = label === 'EVENT_YEAR_ORIG'
+      ? (docType === 'type_a' ? 'Date of Death' : 'Date of Birth')
+      : (docType === 'type_a' ? 'Place of Death' : 'Place of Birth');
+
     anns.push({
       id: Date.now(), x:Math.round(x), y:Math.round(y), w:Math.round(w), h:Math.round(h),
-      label: label, text: label === 'EVENT_PLACE_ORIG' ? ', South Africa' : '',
+      label: label, text: '',
+      form_label: defaultFormLabel,
       color: COLORS[anns.length%COLORS.length],
     });
     setActive(anns[anns.length-1].id); redraw(); buildPanel();
@@ -544,8 +586,8 @@
         ctx.fillRect(a.x+a.w-hs/2, a.y+a.h-hs/2, hs, hs);
       }
 
-      // Label tag
-      let lbl = '#'+(i+1)+' '+a.label;
+      // Label tag — show form label (e.g. "Date of Death") not ILM field name
+      let lbl = '#'+(i+1)+' '+(a.form_label || a.label);
       if (a.text) lbl += ': '+a.text;
       ctx.font = ((act?13:11)/scale)+'px sans-serif';
       const tw = ctx.measureText(lbl).width;
@@ -573,17 +615,33 @@
 
     pan.innerHTML = anns.map(function(a,i){
       const isYear = a.label === 'EVENT_YEAR_ORIG';
+      const missing = !a.text;
+      const formLabels = FORM_LABELS[a.label] || [];
+      const flOptions = formLabels.map(fl =>
+        '<option value="'+fl.en+'"'+(a.form_label===fl.en?' selected':'')+'>'+fl.en+' / '+fl.af+'</option>'
+      ).join('');
+
       return '<div class="fi'+(a.id===activeId?' active':'')+'" data-id="'+a.id+'">' +
         '<div class="d-flex align-items-center mb-1">' +
           '<span class="dot me-1" style="background:'+a.color+'"></span>' +
-          '<strong class="small me-auto">'+(isYear ? 'Event Year' : 'Event Place')+'</strong>' +
+          '<strong class="small me-auto">'+(isYear ? 'Event Year' : 'Event Place')+
+            ' <span class="badge bg-danger ms-1">Required</span></strong>' +
           '<button class="btn btn-sm btn-link text-danger p-0" onclick="window._del('+a.id+')"><i class="fas fa-times"></i></button>' +
         '</div>' +
-        '<input type="text" class="form-control form-control-sm" data-role="txt" ' +
-          'placeholder="'+(isYear ? 'e.g. 1904' : 'e.g. Cape Province, South Africa')+'" ' +
-          'value="'+(a.text||'').replace(/"/g,'&quot;')+'" ' +
-          'onchange="window._sf('+a.id+',\'text\',this.value)" ' +
-          'onfocus="window._act('+a.id+')">' +
+        '<select class="form-select form-select-sm mb-1" style="font-size:.72rem;" onchange="window._sf('+a.id+',\'form_label\',this.value)">' +
+          flOptions +
+        '</select>' +
+        '<div class="position-relative">' +
+          '<input type="text" class="form-control form-control-sm'+(missing?' border-danger':'')+'" data-role="txt" ' +
+            'data-field="'+(isYear?'year':'place')+'" ' +
+            'placeholder="'+(isYear ? 'e.g. 1904 — Ctrl+Space to lookup' : 'e.g. Cape Province — Ctrl+Space to lookup')+'" ' +
+            'value="'+(a.text||'').replace(/"/g,'&quot;')+'" ' +
+            'oninput="window._input('+a.id+',this)" ' +
+            'onchange="window._sf('+a.id+',\'text\',this.value)" ' +
+            'onfocus="window._act('+a.id+')" ' +
+            'autocomplete="off">' +
+          '<div class="ac-dropdown" id="ac-'+a.id+'" style="display:none;"></div>' +
+        '</div>' +
       '</div>';
     }).join('');
   }
@@ -597,11 +655,380 @@
     });
   }
 
+  // ── SA Towns for autocomplete ──
+  let saTowns = [];
+  fetch('{{ route("admin.ai.htr.folderList") }}?path=towns')
+    .catch(() => {}); // preload attempt
+  // Load towns from inline data (generated server-side)
+  @php
+    $townsFile = '/opt/ahg-ai/htr/places_cache.json';
+    $towns = [];
+    if (file_exists($townsFile)) {
+        $data = json_decode(file_get_contents($townsFile), true);
+        $towns = array_map(fn($t) => ['n' => $t['name'], 'p' => $t['historical_province'] ?? $t['province'] ?? ''], $data['sa_towns'] ?? []);
+    }
+  @endphp
+  saTowns = @json($towns);
+
   // Globals
   window._del=function(id){anns=anns.filter(a=>a.id!==id);if(activeId===id)activeId=null;redraw();buildPanel();document.getElementById('btn-undo').disabled=!anns.length;};
-  window._sf=function(id,f,v){const a=anns.find(a=>a.id===id);if(a){a[f]=v;redraw();buildPanel();}};
+  window._sf=function(id,f,v){const a=anns.find(a=>a.id===id);if(a){a[f]=v;redraw();}};
   window._act=function(id){setActive(id);};
-  pan.addEventListener('click',function(e){const it=e.target.closest('.fi');if(it&&!e.target.closest('input,select,button'))setActive(parseInt(it.dataset.id));});
+
+  // Autocomplete for both fields
+  let acActiveIdx = -1;
+
+  // Common Dutch/Afrikaans month names for year field lookup
+  const MONTH_MAP = {
+    'januarie':'January','januarij':'January','januari':'January','februarie':'February',
+    'februarij':'February','februari':'February','maart':'March','april':'April',
+    'mei':'May','junie':'June','juni':'June','julie':'July','juli':'July',
+    'augustus':'August','september':'September','oktober':'October','okt':'October',
+    'november':'November','desember':'December','december':'December',
+    'mrt':'March','aug':'August','sept':'September','nov':'November',
+  };
+
+  function showDropdown(dd, id, items) {
+    if (!items.length) { dd.style.display='none'; acActiveIdx=-1; return; }
+    acActiveIdx = -1;
+    dd.innerHTML = items.map(it =>
+      '<div class="ac-item" data-val="'+it.val+'" data-id="'+id+'">'+it.html+'</div>'
+    ).join('');
+    dd.style.display = '';
+  }
+
+  function lookupYear(text) {
+    // Extract last word and look up Dutch/Afrikaans month or partial date
+    const words = text.trim().split(/\s+/);
+    const last = (words[words.length-1] || '').toLowerCase();
+    const results = [];
+
+    // Month name lookup
+    for (const [af, en] of Object.entries(MONTH_MAP)) {
+      if (af.startsWith(last) && last.length >= 2) {
+        // Build suggestion: replace last word with English
+        const prefix = words.slice(0, -1).join(' ');
+        const suggestion = (prefix ? prefix + ' ' : '') + en;
+        results.push({val: suggestion, html: suggestion + ' <span class="ac-prov">(' + af + ')</span>'});
+      }
+    }
+
+    // If text has a number, suggest common date patterns
+    const yearMatch = text.match(/\b(\d{2,4})\b/);
+    if (yearMatch) {
+      const num = yearMatch[1];
+      if (num.length === 2) {
+        // Suggest 18xx and 19xx
+        results.push({val: '18'+num, html: '18'+num});
+        results.push({val: '19'+num, html: '19'+num});
+      }
+    }
+
+    return results;
+  }
+
+  function lookupPlace(text) {
+    const q = text.toLowerCase().trim();
+    if (q.length < 1) return [];
+
+    // Get last word for Ctrl+Space context
+    const words = q.split(/\s+/);
+    const last = words[words.length-1];
+
+    return saTowns
+      .filter(t => t.n.toLowerCase().includes(last))
+      .slice(0, 15)
+      .map(m => ({
+        val: m.n,
+        html: m.n + (m.p ? ' <span class="ac-prov">('+m.p+')</span>' : ''),
+      }));
+  }
+
+  window._input=function(id, inp) {
+    const a = anns.find(a => a.id === id);
+    if (a) a.text = inp.value;
+    redraw();
+
+    // Auto-show place dropdown on typing (2+ chars)
+    if (inp.dataset.field === 'place') {
+      const dd = document.getElementById('ac-'+id);
+      if (!dd) return;
+      const q = inp.value.trim();
+      if (q.length < 2) { dd.style.display='none'; acActiveIdx=-1; return; }
+      showDropdown(dd, id, lookupPlace(q));
+    }
+  };
+
+  // Ctrl+Space — force open lookup dropdown for current field
+  function ctrlSpaceLookup(inp) {
+    const id = getAnnIdFromInput(inp);
+    if (id === null) return;
+    const dd = document.getElementById('ac-'+id);
+    if (!dd) return;
+
+    const text = inp.value.trim();
+    let items = [];
+
+    if (inp.dataset.field === 'year') {
+      items = lookupYear(text);
+      // If no specific matches, show month list
+      if (!items.length) {
+        items = Object.entries(MONTH_MAP)
+          .filter(([af,en], i, arr) => arr.findIndex(([a,e]) => e===en) === i) // unique English
+          .slice(0, 12)
+          .map(([af, en]) => ({val: (text ? text+' ':'') + en, html: en + ' <span class="ac-prov">('+af+')</span>'}));
+      }
+    } else {
+      items = lookupPlace(text || 'a'); // show all if empty
+      if (!text) {
+        // Show provinces first
+        items = [
+          {val:'Cape Province', html:'Cape Province <span class="ac-prov">(Kaap)</span>'},
+          {val:'Transvaal', html:'Transvaal <span class="ac-prov">(TVL)</span>'},
+          {val:'Natal', html:'Natal'},
+          {val:'Orange Free State', html:'Orange Free State <span class="ac-prov">(OVS)</span>'},
+        ].concat(items.slice(0, 10));
+      }
+    }
+
+    showDropdown(dd, id, items);
+  }
+
+  function getAnnIdFromInput(inp) {
+    const fi = inp.closest('.fi');
+    return fi ? parseInt(fi.dataset.id) : null;
+  }
+
+  // Click autocomplete item
+  document.addEventListener('click', function(e) {
+    const item = e.target.closest('.ac-item');
+    if (item) {
+      const id = parseInt(item.dataset.id);
+      const val = item.dataset.val;
+      const a = anns.find(a => a.id === id);
+      if (a) a.text = val;
+
+      // Close dropdown
+      const dd = item.parentElement;
+      if (dd) dd.style.display = 'none';
+
+      // Update the input directly (don't rebuild panel — keeps focus)
+      const fi = document.querySelector('.fi[data-id="'+id+'"]');
+      if (fi) {
+        const inp = fi.querySelector('input[data-role="txt"]');
+        if (inp) inp.value = val;
+      }
+
+      redraw();
+      return;
+    }
+    // Close all dropdowns on outside click
+    document.querySelectorAll('.ac-dropdown').forEach(d => d.style.display='none');
+  });
+
+  // Keyboard navigation in autocomplete
+  pan.addEventListener('keydown', function(e) {
+    const inp = e.target.closest('input[data-role="txt"]');
+    if (!inp) return;
+
+    // Ctrl+Space = force open lookup
+    if (e.key === ' ' && e.ctrlKey) {
+      e.preventDefault();
+      ctrlSpaceLookup(inp);
+      return;
+    }
+
+    // Enter = spellcheck current field first, then save if clean
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Close any open autocomplete first
+      const openAc = inp.parentElement.querySelector('.ac-dropdown');
+      if (openAc && openAc.style.display !== 'none') {
+        const active = openAc.querySelector('.ac-active');
+        if (active) { active.click(); return; }
+        openAc.style.display = 'none';
+      }
+      // Sync current input value
+      const a = anns.find(a => a.id === activeId);
+      if (a) a.text = inp.value;
+
+      // Run spellcheck on current field, then try save
+      const fi = inp.closest('.fi');
+      if (fi && inp.value.trim()) {
+        fetch('{{ route("admin.ai.htr.spellcheck") }}', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+          body: JSON.stringify({text: inp.value}),
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.errors && data.errors.length) {
+            // Errors found — show them, keep focus, don't save
+            showSpellErrors(fi, inp, data.errors);
+            inp.focus();
+          } else {
+            // Clean — proceed to save
+            showSpellErrors(fi, inp, []);
+            document.getElementById('btn-save').click();
+          }
+        })
+        .catch(() => {
+          // Network error — save anyway
+          document.getElementById('btn-save').click();
+        });
+      } else {
+        document.getElementById('btn-save').click();
+      }
+      return;
+    }
+
+    // Arrow keys for autocomplete
+    const dd = inp.parentElement.querySelector('.ac-dropdown');
+    if (!dd || dd.style.display === 'none') return;
+    const items = dd.querySelectorAll('.ac-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      acActiveIdx = Math.min(acActiveIdx + 1, items.length - 1);
+      items.forEach((it,i) => it.classList.toggle('ac-active', i === acActiveIdx));
+      items[acActiveIdx].scrollIntoView({block:'nearest'});
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      acActiveIdx = Math.max(acActiveIdx - 1, 0);
+      items.forEach((it,i) => it.classList.toggle('ac-active', i === acActiveIdx));
+    } else if (e.key === 'Tab') {
+      // Tab = accept highlighted suggestion
+      if (acActiveIdx >= 0 && items[acActiveIdx]) {
+        e.preventDefault();
+        items[acActiveIdx].click();
+      }
+    } else if (e.key === 'Escape') {
+      dd.style.display = 'none';
+      acActiveIdx = -1;
+    }
+  });
+
+  pan.addEventListener('click',function(e){const it=e.target.closest('.fi');if(it&&!e.target.closest('input,select,button,.ac-dropdown'))setActive(parseInt(it.dataset.id));});
+
+  // ── Spellcheck — runs on blur AND can be called directly ──
+  let spellTimers = {};
+
+  function renderSpellErrors(errors) {
+    return errors.map(function(err) {
+      const ew = err.word.replace(/'/g, "\\'");
+      const sugs = (err.suggestions || []).map(s =>
+        '<span class="spell-sug" onclick="window._spellFix(this,\'' + ew + '\',\'' + s.replace(/'/g, "\\'") + '\')" title="Replace with ' + s + '">' + s + '</span>'
+      ).join(' ');
+      return '<span class="spell-bad" onclick="window._spellAdd(\'' + ew + '\',this)" title="Click to add to dictionary">' + err.word + '</span> → ' +
+        (sugs || '<em>no suggestions</em>');
+    }).join('<br>');
+  }
+
+  function showSpellErrors(fi, inp, errors) {
+    const old = fi.querySelector('.spell-errors');
+    if (old) old.remove();
+
+    if (!errors || !errors.length) {
+      inp.classList.remove('border-danger');
+      inp.classList.add('border-success');
+      setTimeout(() => inp.classList.remove('border-success'), 2000);
+      return;
+    }
+
+    inp.classList.add('border-danger');
+    inp.classList.remove('border-success');
+
+    const div = document.createElement('div');
+    div.className = 'spell-errors';
+    div.innerHTML = renderSpellErrors(errors);
+    fi.appendChild(div);
+  }
+
+  function runSpellcheck(fi, inp) {
+    if (!inp || !inp.value.trim()) return;
+
+    const old = fi.querySelector('.spell-errors');
+    if (old) old.remove();
+
+    fetch('{{ route("admin.ai.htr.spellcheck") }}', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+      body: JSON.stringify({text: inp.value}),
+    })
+    .then(r => r.json())
+    .then(data => showSpellErrors(fi, inp, data.errors || []))
+    .catch(() => {});
+  }
+
+  // Spellcheck on blur
+  pan.addEventListener('focusout', function(e) {
+    const inp = e.target.closest('input[data-role="txt"]');
+    if (!inp) return;
+    const fi = inp.closest('.fi');
+    if (fi) runSpellcheck(fi, inp);
+  });
+
+  // Debounced spellcheck while typing (after 800ms pause)
+  pan.addEventListener('input', function(e) {
+    const inp = e.target.closest('input[data-role="txt"]');
+    if (!inp) return;
+    const fi = inp.closest('.fi');
+    if (!fi) return;
+    const id = fi.dataset.id;
+    clearTimeout(spellTimers[id]);
+    spellTimers[id] = setTimeout(() => runSpellcheck(fi, inp), 800);
+  });
+
+  // Replace misspelled word with clicked suggestion — auto-updates text input
+  window._spellFix = function(el, badWord, replacement) {
+    const fi = el.closest('.fi');
+    if (!fi) return;
+    const inp = fi.querySelector('input[data-role="txt"]');
+    if (!inp) return;
+    const id = parseInt(fi.dataset.id);
+    const a = anns.find(a => a.id === id);
+
+    if (badWord && a) {
+      // Replace the misspelled word in the text
+      const regex = new RegExp(badWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      a.text = a.text.replace(regex, replacement);
+      inp.value = a.text;
+      inp.classList.remove('border-danger');
+      redraw();
+    }
+
+    // Remove error display and re-run spellcheck
+    const errDiv = fi.querySelector('.spell-errors');
+    if (errDiv) errDiv.remove();
+    runSpellcheck(fi, inp);
+  };
+
+  // Add word to custom dictionary — no popup, just add and clear the error
+  window._spellAdd = function(word, el) {
+    fetch('{{ route("admin.ai.htr.addWord") }}', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+      body: JSON.stringify({word: word}),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Re-run spellcheck to clear the error
+        const fi = el.closest('.fi');
+        if (fi) {
+          const errDiv = fi.querySelector('.spell-errors');
+          if (errDiv) errDiv.remove();
+          const inp = fi.querySelector('input[data-role="txt"]');
+          if (inp) {
+            inp.classList.remove('border-danger');
+            runSpellcheck(fi, inp);
+          }
+        }
+      }
+    })
+    .catch(() => {});
+  };
 
   // ── Tools ──
   function setTool(t){
@@ -631,7 +1058,25 @@
     if (!imageInput.files.length && !sp) { alert('No image loaded.'); return; }
 
     const isNg = document.getElementById('non-gen-toggle').checked;
-    if (!isNg && anns.length === 0) { alert('Draw at least one field box, or mark as non-genealogical.'); return; }
+    if (!isNg) {
+      if (anns.length < 2) { alert('Both fields required: draw box 1 (year) and box 2 (place).'); return; }
+      const yearAnn = anns.find(a => a.label === 'EVENT_YEAR_ORIG');
+      const placeAnn = anns.find(a => a.label === 'EVENT_PLACE_ORIG');
+      if (!yearAnn || !yearAnn.text.trim()) { alert('Event Year is required. Type the year in box #1.'); return; }
+      if (!placeAnn || !placeAnn.text.trim()) { alert('Event Place is required. Type the place in box #2.'); return; }
+
+      // Check for unresolved spell errors — if any red errors visible, block save and focus the field
+      const errDivs = document.querySelectorAll('.spell-errors .spell-error');
+      if (errDivs.length > 0) {
+        const firstErr = errDivs[0].closest('.fi');
+        if (firstErr) {
+          const inp = firstErr.querySelector('input[data-role="txt"]');
+          if (inp) { inp.focus(); inp.classList.add('border-danger'); }
+          setActive(parseInt(firstErr.dataset.id));
+        }
+        return; // Block save — fix spelling first
+      }
+    }
 
     const btn = this; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
     const fd = new FormData();
@@ -671,7 +1116,7 @@
         EVENT_PLACE_ORIG: place,
         LOCALITY_ID: '',
         fields: anns.map((a,i) => ({
-          zone_id: i, label: a.label, text: a.text,
+          zone_id: i, label: a.label, form_label: a.form_label || '', text: a.text,
           bbox: {x:a.x, y:a.y, w:a.w, h:a.h},
         })),
       }];
@@ -716,6 +1161,61 @@
   document.addEventListener('keyup', function(e) {
     if('INPUT SELECT TEXTAREA'.includes(e.target.tagName)) return;
     if(e.key===' '&&tool==='hand')setTool(prev);
+  });
+
+  // ══════════════════════════════════════════════════════════════════
+  // Skip — move image to rework/ folder
+  // ══════════════════════════════════════════════════════════════════
+  document.getElementById('btn-skip').addEventListener('click', function() {
+    const sp = cvs.dataset.serverPath || '';
+    if (!sp) { alert('No server image loaded to skip.'); return; }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Skipping...';
+
+    fetch('{{ route("admin.ai.htr.skipImage") }}', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+      body: JSON.stringify({path: sp}),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Remove from file list and advance
+        if (files.length && fidx >= 0) {
+          files.splice(fidx, 1);
+          updBadges(null);
+          if (fidx >= files.length) fidx = files.length - 1;
+          if (files.length > 0) {
+            loadFolderImg();
+          } else {
+            // No more images
+            anns = []; activeId = null; img = null;
+            cvs.dataset.serverPath = '';
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            cvs.style.display = 'none'; ph.style.display = '';
+            ph.innerHTML = '<div><i class="fas fa-check-circle fa-3x mb-3 d-block text-success"></i>' +
+              '<p class="mb-1 fw-bold">All images processed!</p></div>';
+            buildPanel();
+            document.getElementById('btn-save').disabled = true;
+            document.getElementById('btn-skip').disabled = true;
+            document.getElementById('image-upload').value = '';
+          }
+        }
+        btn.innerHTML = '<i class="fas fa-forward me-1"></i>Skip';
+        btn.disabled = false;
+      } else {
+        alert('Error: ' + (data.error || 'Failed to skip.'));
+        btn.innerHTML = '<i class="fas fa-forward me-1"></i>Skip';
+        btn.disabled = false;
+      }
+    })
+    .catch(err => {
+      alert('Error: ' + err.message);
+      btn.innerHTML = '<i class="fas fa-forward me-1"></i>Skip';
+      btn.disabled = false;
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════
@@ -788,10 +1288,29 @@
       if(files[fidx])files[fidx].annotated=true;
       updBadges(null);
       setTimeout(function(){
-        if(fidx<files.length-1){
-          fidx++;
-          if(document.getElementById('skip-done').checked) while(fidx<files.length-1&&files[fidx].annotated)fidx++;
+        // Check if there are more unannotated images
+        let nextIdx = fidx + 1;
+        if(document.getElementById('skip-done').checked) {
+          while(nextIdx < files.length && files[nextIdx].annotated) nextIdx++;
+        }
+        if(nextIdx < files.length){
+          fidx = nextIdx;
           loadFolderImg();
+        } else {
+          // Last image — clear everything
+          anns = []; activeId = null; img = null;
+          cvs.dataset.serverPath = '';
+          ctx.clearRect(0, 0, cvs.width, cvs.height);
+          cvs.style.display = 'none';
+          ph.style.display = '';
+          ph.innerHTML = '<div><i class="fas fa-check-circle fa-3x mb-3 d-block text-success"></i>' +
+            '<p class="mb-1 fw-bold">All images in this folder are annotated!</p>' +
+            '<p class="small text-muted">Load another folder or upload an image to continue.</p></div>';
+          buildPanel();
+          document.getElementById('btn-save').disabled = true;
+          document.getElementById('btn-skip').disabled = true;
+          document.getElementById('image-upload').value = '';
+          updNav();
         }
       },800);
     }

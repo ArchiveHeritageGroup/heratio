@@ -179,10 +179,10 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">
+          <button type="button" class="btn atom-btn-outline-light" data-bs-dismiss="modal">
             {{ __('Cancel') }}
           </button>
-          <button type="button" class="btn atom-btn-white modal-submit">
+          <button type="button" class="btn atom-btn-outline-success modal-submit">
             {{ __('Submit') }}
           </button>
         </div>

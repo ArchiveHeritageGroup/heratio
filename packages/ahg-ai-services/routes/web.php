@@ -50,6 +50,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/admin/ai/htr/extract', [AiController::class, 'htrExtract'])->name('admin.ai.htr.extract');
     Route::post('/admin/ai/htr/extract', [AiController::class, 'htrDoExtract'])->name('admin.ai.htr.doExtract');
     Route::get('/admin/ai/htr/results/{jobId}', [AiController::class, 'htrResults'])->name('admin.ai.htr.results');
+    Route::get('/admin/ai/htr/extract-image/{jobId}', [AiController::class, 'htrExtractImage'])->name('admin.ai.htr.extractImage');
     Route::get('/admin/ai/htr/download/{jobId}/{fmt}', [AiController::class, 'htrDownload'])->name('admin.ai.htr.download');
     Route::get('/admin/ai/htr/batch', [AiController::class, 'htrBatch'])->name('admin.ai.htr.batch');
     Route::post('/admin/ai/htr/batch', [AiController::class, 'htrDoBatch'])->name('admin.ai.htr.doBatch');
@@ -59,5 +60,8 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/admin/ai/htr/annotate', [AiController::class, 'htrSaveAnnotation'])->name('admin.ai.htr.saveAnnotation');
     Route::get('/admin/ai/htr/folder-list', [AiController::class, 'htrFolderList'])->name('admin.ai.htr.folderList');
     Route::get('/admin/ai/htr/serve-image', [AiController::class, 'htrServeImage'])->name('admin.ai.htr.serveImage');
+    Route::post('/admin/ai/htr/skip-image', [AiController::class, 'htrSkipImage'])->name('admin.ai.htr.skipImage');
+    Route::post('/admin/ai/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
+    Route::post('/admin/ai/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/admin/ai/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');

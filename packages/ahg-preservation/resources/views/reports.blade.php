@@ -14,6 +14,44 @@
         </div>
         <p class="text-muted mb-3">Identify objects requiring preservation attention</p>
 
+        {{-- Summary Stats --}}
+        @php
+            $checksumCoverage = 0;
+            $totalObjects = \Illuminate\Support\Facades\DB::table('digital_object')->count();
+            if ($totalObjects > 0) {
+                $withChecksums = \Illuminate\Support\Facades\DB::table('preservation_checksum')->distinct('digital_object_id')->count('digital_object_id');
+                $checksumCoverage = round(($withChecksums / $totalObjects) * 100, 1);
+            }
+        @endphp
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ $checksumCoverage }}%</h3>
+                        <p class="mb-0">Checksum Coverage</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        @php $fixityFailures = \Illuminate\Support\Facades\DB::table('preservation_fixity_check')->where('status', 'fail')->count(); @endphp
+                        <h3 class="{{ $fixityFailures > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($fixityFailures) }}</h3>
+                        <p class="mb-0">Fixity Failures</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        @php $atRiskCount = \Illuminate\Support\Facades\DB::table('preservation_format')->whereIn('risk_level', ['high','critical'])->count(); @endphp
+                        <h3 class="{{ $atRiskCount > 0 ? 'text-warning' : 'text-success' }}">{{ number_format($atRiskCount) }}</h3>
+                        <p class="mb-0">At-Risk Formats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Objects Without Checksums --}}
         <div class="card mb-4">
             <div class="card-header bg-danger bg-opacity-10">
@@ -22,7 +60,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
+                    <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>ID</th>
@@ -36,10 +74,10 @@
                             @forelse($noChecksums as $obj)
                             <tr>
                                 <td>{{ $obj->id }}</td>
-                                <td>{{ Str::limit($obj->name, 50) }}</td>
-                                <td><code class="small">{{ Str::limit($obj->path, 40) }}</code></td>
+                                <td>{{ Str::limit($obj->name ?? '', 50) }}</td>
+                                <td><code class="small">{{ Str::limit($obj->path ?? '', 40) }}</code></td>
                                 <td><small>{{ $obj->mime_type ?? '-' }}</small></td>
-                                <td><small>{{ $obj->byte_size ? number_format($obj->byte_size / 1024, 1) . ' KB' : '-' }}</small></td>
+                                <td><small>{{ ($obj->byte_size ?? null) ? number_format($obj->byte_size / 1024, 1) . ' KB' : '-' }}</small></td>
                             </tr>
                             @empty
                             <tr><td colspan="5" class="text-center text-success py-3"><i class="fas fa-check-circle"></i> All objects have checksums</td></tr>
@@ -58,7 +96,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
+                    <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Checksum ID</th>
@@ -74,21 +112,21 @@
                             @forelse($staleFixity as $item)
                             <tr>
                                 <td>{{ $item->id }}</td>
-                                <td><small>{{ $item->file_name ?? 'Object #' . $item->digital_object_id }}</small></td>
-                                <td><code>{{ $item->algorithm }}</code></td>
-                                <td><code class="small">{{ Str::limit($item->checksum_value, 16) }}</code></td>
-                                <td class="text-nowrap"><small>{{ $item->generated_at }}</small></td>
+                                <td><small>{{ $item->file_name ?? 'Object #' . ($item->digital_object_id ?? '') }}</small></td>
+                                <td><code>{{ $item->algorithm ?? '' }}</code></td>
+                                <td><code class="small">{{ Str::limit($item->checksum_value ?? '', 16) }}</code></td>
+                                <td class="text-nowrap"><small>{{ $item->generated_at ?? '' }}</small></td>
                                 <td class="text-nowrap">
-                                    @if($item->verified_at)
+                                    @if($item->verified_at ?? null)
                                         <small class="text-warning">{{ $item->verified_at }}</small>
                                     @else
                                         <span class="badge bg-danger">Never verified</span>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($item->verification_status === 'verified')
+                                    @if(($item->verification_status ?? '') === 'verified')
                                         <span class="badge bg-success">Verified</span>
-                                    @elseif($item->verification_status === 'failed')
+                                    @elseif(($item->verification_status ?? '') === 'failed')
                                         <span class="badge bg-danger">Failed</span>
                                     @else
                                         <span class="badge bg-secondary">{{ ucfirst($item->verification_status ?? 'pending') }}</span>
@@ -112,7 +150,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0">
+                    <table class="table table-bordered table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>ID</th>
@@ -129,12 +167,12 @@
                             @forelse($highRisk as $item)
                             <tr>
                                 <td>{{ $item->id }}</td>
-                                <td><small>{{ $item->file_name ?? 'Object #' . $item->digital_object_id }}</small></td>
+                                <td><small>{{ $item->file_name ?? 'Object #' . ($item->digital_object_id ?? '') }}</small></td>
                                 <td>{{ $item->registry_format_name ?? $item->format_name ?? '-' }}</td>
                                 <td><small>{{ $item->mime_type ?? '-' }}</small></td>
                                 <td><code>{{ $item->puid ?? '-' }}</code></td>
                                 <td>
-                                    @if($item->risk_level === 'critical')
+                                    @if(($item->risk_level ?? '') === 'critical')
                                         <span class="badge bg-danger">Critical</span>
                                     @else
                                         <span class="badge bg-warning text-dark">High</span>

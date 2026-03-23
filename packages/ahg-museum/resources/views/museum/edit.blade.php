@@ -111,7 +111,7 @@
                 <label for="work_type">
                   Work type
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Required</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">2.1</span>
@@ -137,7 +137,7 @@
                 <label for="object_number">
                   Object number
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">2.3</span>
@@ -184,7 +184,7 @@
                 <label for="title">
                   Title
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Required</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">3.1</span>
@@ -213,7 +213,7 @@
                 <label for="title_type">
                   Title type
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Required</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">3.1.1</span>
@@ -264,7 +264,7 @@
                 <label for="creator_display">
                   Creator (Display)
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1</span>
@@ -290,7 +290,7 @@
                 <label for="creator">
                   Creator (Authority)
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1</span>
@@ -321,7 +321,7 @@
                 <label for="creator_role">
                   Creator role
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1.1</span>
@@ -345,7 +345,7 @@
             {{-- attribution_qualifier: optional, CCO 4.1.2, vocab CCO_ATTRIBUTION --}}
             <div class="cco-field level-recommended" data-field="attribution_qualifier">
               <div class="field-header">
-                <label for="attribution_qualifier">Attribution qualifier <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="attribution_qualifier">Attribution qualifier</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.1.2</span>
@@ -382,7 +382,7 @@
                 <label for="creation_date_display">
                   Creation date (display)
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Recommended</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">4.2</span>
@@ -407,7 +407,7 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_earliest">
                   <div class="field-header">
-                    <label for="creation_date_earliest">Creation date (earliest) <span class="badge bg-secondary ms-1">Recommended</span></label>
+                    <label for="creation_date_earliest">Creation date (earliest)</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.1</span>
@@ -430,7 +430,7 @@
               <div class="col-md-6">
                 <div class="cco-field level-recommended" data-field="creation_date_latest">
                   <div class="field-header">
-                    <label for="creation_date_latest">Creation date (latest) <span class="badge bg-secondary ms-1">Recommended</span></label>
+                    <label for="creation_date_latest">Creation date (latest)</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">4.2.2</span>
@@ -455,7 +455,7 @@
             {{-- creation_place: optional, CCO 4.3, vocab TGN --}}
             <div class="cco-field level-recommended" data-field="creation_place">
               <div class="field-header">
-                <label for="creation_place">Place of creation <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="creation_place">Place of creation</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">4.3</span>
@@ -479,7 +479,7 @@
             {{-- culture: optional, CCO 4.4, vocab AAT_CULTURES --}}
             <div class="cco-field level-optional" data-field="culture">
               <div class="field-header">
-                <label for="culture">Culture/People <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="culture">Culture/People</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">4.4</span>
@@ -519,7 +519,7 @@
             {{-- style: optional, CCO 5.1, vocab AAT_STYLES --}}
             <div class="cco-field level-recommended" data-field="style">
               <div class="field-header">
-                <label for="style">Style <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="style">Style</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">5.1</span>
@@ -543,7 +543,7 @@
             {{-- period: optional, CCO 5.2, vocab AAT_PERIODS --}}
             <div class="cco-field level-optional" data-field="period">
               <div class="field-header">
-                <label for="period">Period <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="period">Period</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">5.2</span>
@@ -586,7 +586,7 @@
                 <label for="dimensions_display">
                   Dimensions (Display)
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">6.1</span>
@@ -611,7 +611,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="height_value">
                   <div class="field-header">
-                    <label for="height_value">Height <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="height_value">Height</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -634,7 +634,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-recommended" data-field="width_value">
                   <div class="field-header">
-                    <label for="width_value">Width <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="width_value">Width</label>
                     <span class="field-badges">
                       <span class="badge badge-recommended">Recommended</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -657,7 +657,7 @@
               <div class="col-md-4">
                 <div class="cco-field level-optional" data-field="depth_value">
                   <div class="field-header">
-                    <label for="depth_value">Depth <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="depth_value">Depth</label>
                     <span class="field-badges">
                       <span class="badge badge-optional">Optional</span>
                       <span class="badge badge-cco" title="CCO Reference">6.2</span>
@@ -701,7 +701,7 @@
                 <label for="materials_display">
                   Medium (Display)
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">7.1</span>
@@ -724,7 +724,7 @@
             {{-- materials: optional, CCO 7.1.1, vocab AAT_MATERIALS --}}
             <div class="cco-field level-recommended" data-field="materials">
               <div class="field-header">
-                <label for="materials">Materials (Indexed) <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="materials">Materials (Indexed)</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.1.1</span>
@@ -747,7 +747,7 @@
             {{-- techniques: optional, CCO 7.2, vocab AAT_TECHNIQUES --}}
             <div class="cco-field level-recommended" data-field="techniques">
               <div class="field-header">
-                <label for="techniques">Techniques <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="techniques">Techniques</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">7.2</span>
@@ -773,7 +773,7 @@
                 <label for="support">
                   Support
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">7.3</span>
@@ -813,7 +813,7 @@
             {{-- subject_display: optional, CCO 8.1 --}}
             <div class="cco-field level-recommended" data-field="subject_display">
               <div class="field-header">
-                <label for="subject_display">Subject (Display) <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="subject_display">Subject (Display)</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.1</span>
@@ -835,7 +835,7 @@
             {{-- subjects_depicted: optional, CCO 8.2, vocab AAT_SUBJECTS --}}
             <div class="cco-field level-recommended" data-field="subjects_depicted">
               <div class="field-header">
-                <label for="subjects_depicted">Subjects depicted <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="subjects_depicted">Subjects depicted</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">8.2</span>
@@ -875,7 +875,7 @@
             {{-- inscriptions: optional, CCO 9.1 --}}
             <div class="cco-field level-optional" data-field="inscriptions">
               <div class="field-header">
-                <label for="inscriptions">Inscriptions <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="inscriptions">Inscriptions</label>
                 <span class="field-badges">
                   <span class="badge badge-optional">Optional</span>
                   <span class="badge badge-cco" title="CCO Reference">9.1</span>
@@ -897,7 +897,7 @@
             {{-- signature: optional, CCO 9.2 --}}
             <div class="cco-field level-recommended" data-field="signature">
               <div class="field-header">
-                <label for="signature">Signature <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="signature">Signature</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">9.2</span>
@@ -935,7 +935,7 @@
             {{-- description: optional, CCO 11.1 --}}
             <div class="cco-field level-recommended" data-field="description">
               <div class="field-header">
-                <label for="description">Description <span class="badge bg-secondary ms-1">Recommended</span></label>
+                <label for="description">Description</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">11.1</span>
@@ -973,7 +973,7 @@
             {{-- condition_summary: optional, CCO 12.1 --}}
             <div class="cco-field level-recommended" data-field="condition_summary">
               <div class="field-header">
-                <label for="condition_summary">Condition summary <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="condition_summary">Condition summary</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">12.1</span>
@@ -1019,7 +1019,7 @@
                 <label for="repository">
                   Repository
                   <span class="required">*</span>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
                 <span class="field-badges">
                   <span class="badge badge-required">Required</span>
                   <span class="badge badge-cco" title="CCO Reference">13.1</span>
@@ -1046,7 +1046,7 @@
             {{-- location_within_repository: optional, CCO 13.2 --}}
             <div class="cco-field level-recommended" data-field="location_within_repository">
               <div class="field-header">
-                <label for="location_within_repository">Location <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="location_within_repository">Location</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.2</span>
@@ -1069,7 +1069,7 @@
             {{-- credit_line: optional, CCO 13.3 --}}
             <div class="cco-field level-recommended" data-field="credit_line">
               <div class="field-header">
-                <label for="credit_line">Credit line <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="credit_line">Credit line</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">13.3</span>
@@ -1123,7 +1123,7 @@
             {{-- rights_statement: optional, CCO 15.1 --}}
             <div class="cco-field level-recommended" data-field="rights_statement">
               <div class="field-header">
-                <label for="rights_statement">Rights statement <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="rights_statement">Rights statement</label>
                 <span class="field-badges">
                   <span class="badge badge-recommended">Recommended</span>
                   <span class="badge badge-cco" title="CCO Reference">15.1</span>
@@ -1165,7 +1165,7 @@
 
             <div class="row mb-3">
               <div class="col-md-6">
-                <label class="form-label">Storage container <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Storage container</label>
                 <select name="item_physical_object_id" class="form-select">
                   <option value="">-- Select container --</option>
                   @foreach($physicalObjects ?? [] as $poId => $poName)
@@ -1175,7 +1175,7 @@
                 <small class="form-text text-muted">Link to a physical storage container</small>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Item barcode <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Item barcode</label>
                 <input type="text" name="item_barcode" class="form-control" value="{{ old('item_barcode', $itemLocation['barcode'] ?? '') }}">
               </div>
             </div>
@@ -1183,38 +1183,38 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-box me-2"></i>Location within container</h6>
             <div class="row mb-3">
               <div class="col-md-2">
-                <label class="form-label">Box <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Box</label>
                 <input type="text" name="item_box_number" class="form-control" value="{{ old('item_box_number', $itemLocation['box_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Folder <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Folder</label>
                 <input type="text" name="item_folder_number" class="form-control" value="{{ old('item_folder_number', $itemLocation['folder_number'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Shelf <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Shelf</label>
                 <input type="text" name="item_shelf" class="form-control" value="{{ old('item_shelf', $itemLocation['shelf'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Row <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Row</label>
                 <input type="text" name="item_row" class="form-control" value="{{ old('item_row', $itemLocation['row'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Position</label>
                 <input type="text" name="item_position" class="form-control" value="{{ old('item_position', $itemLocation['position'] ?? '') }}">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Item # <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Item #</label>
                 <input type="text" name="item_item_number" class="form-control" value="{{ old('item_item_number', $itemLocation['item_number'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Extent value <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Extent value</label>
                 <input type="number" step="0.01" name="item_extent_value" class="form-control" value="{{ old('item_extent_value', $itemLocation['extent_value'] ?? '') }}">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Extent unit <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Extent unit</label>
                 <select name="item_extent_unit" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['items' => 'Items', 'pages' => 'Pages', 'folders' => 'Folders', 'boxes' => 'Boxes', 'cm' => 'cm', 'm' => 'metres', 'cubic_m' => 'cubic metres'] as $val => $label)
@@ -1227,7 +1227,7 @@
             <h6 class="text-white py-2 px-3 mb-3" style="background-color: var(--ahg-primary, #005837);"><i class="fas fa-clipboard-check me-2"></i>Condition &amp; Status</h6>
             <div class="row mb-3">
               <div class="col-md-3">
-                <label class="form-label">Condition <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Condition</label>
                 <select name="item_condition_status" class="form-select">
                   <option value="">-- Select --</option>
                   @foreach(['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical'] as $val => $label)
@@ -1236,7 +1236,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Access status <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Access status</label>
                 <select name="item_access_status" class="form-select">
                   @foreach(['available' => 'Available', 'in_use' => 'In Use', 'restricted' => 'Restricted', 'offsite' => 'Offsite', 'missing' => 'Missing'] as $val => $label)
                     <option value="{{ $val }}" @selected(old('item_access_status', $itemLocation['access_status'] ?? 'available') == $val)>{{ $label }}</option>
@@ -1244,14 +1244,14 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Condition notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Condition notes</label>
                 <input type="text" name="item_condition_notes" class="form-control" value="{{ old('item_condition_notes', $itemLocation['condition_notes'] ?? '') }}">
               </div>
             </div>
 
             <div class="row mb-3">
               <div class="col-md-12">
-                <label class="form-label">Location notes <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label">Location notes</label>
                 <textarea name="item_location_notes" class="form-control" rows="2">{{ old('item_location_notes', $itemLocation['notes'] ?? '') }}</textarea>
               </div>
             </div>
@@ -1284,7 +1284,7 @@
                        style="width: 3em; height: 1.5em;">
                 <label class="form-check-label" for="watermark_enabled" style="margin-left: 10px;">
                   <strong>Enable watermark for this object</strong>
-                 <span class="badge bg-secondary ms-1">Optional</span></label>
+                </label>
               </div>
             </div>
 
@@ -1292,7 +1292,7 @@
 
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="watermark_type_id">System Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label for="watermark_type_id">System Watermark</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
@@ -1308,7 +1308,7 @@
               @if(($customWatermarks ?? collect())->count() > 0)
               <div class="cco-field">
                 <div class="field-header">
-                  <label for="custom_watermark_id">Or use Custom Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label for="custom_watermark_id">Or use Custom Watermark</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <div class="field-input">
@@ -1326,19 +1326,19 @@
 
               <div class="cco-field" style="background: #fff3cd; border-left-color: #ffc107;">
                 <div class="field-header">
-                  <label>Upload NEW Custom Watermark <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label>Upload NEW Custom Watermark</label>
                   <span class="field-badges"><span class="badge badge-optional">Optional</span></span>
                 </div>
                 <p class="text-muted small">Leave empty to keep existing selection above</p>
 
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label for="new_watermark_name" class="form-label">Watermark Name <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="new_watermark_name" class="form-label">Watermark Name</label>
                     <input type="text" class="form-control" id="new_watermark_name"
                            name="new_watermark_name" placeholder="e.g., Company Logo">
                   </div>
                   <div class="col-md-6">
-                    <label for="new_watermark_file" class="form-label">Watermark Image <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="new_watermark_file" class="form-label">Watermark Image</label>
                     <input type="file" class="form-control" id="new_watermark_file"
                            name="new_watermark_file" accept="image/png,image/gif">
                     <div class="form-text">PNG or GIF with transparency recommended</div>
@@ -1347,7 +1347,7 @@
 
                 <div class="row g-3 mt-2">
                   <div class="col-md-6">
-                    <label for="new_watermark_position" class="form-label">Position <span class="badge bg-secondary ms-1">Optional</span></label>
+                    <label for="new_watermark_position" class="form-label">Position</label>
                     @php $wmPosition = old('new_watermark_position', $watermarkSetting->position ?? 'center'); @endphp
                     <select name="new_watermark_position" id="new_watermark_position" class="form-select">
                       @foreach(['center' => 'Center', 'top left' => 'Top Left', 'top center' => 'Top Center', 'top right' => 'Top Right', 'left center' => 'Left Center', 'right center' => 'Right Center', 'bottom left' => 'Bottom Left', 'bottom center' => 'Bottom Center', 'bottom right' => 'Bottom Right', 'repeat' => 'Repeat/Tile'] as $val => $label)
@@ -1358,7 +1358,7 @@
                   <div class="col-md-6">
                     @php $wmOpacity = old('new_watermark_opacity', round(($watermarkSetting->opacity ?? 0.4) * 100)); @endphp
                     <label for="new_watermark_opacity" class="form-label">
-                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span> <span class="badge bg-secondary ms-1">Optional</span></label>
+                      Opacity: <span id="opacity-value">{{ $wmOpacity }}%</span></label>
                     <input type="range" class="form-range" id="new_watermark_opacity"
                            name="new_watermark_opacity" min="10" max="100" step="5"
                            value="{{ $wmOpacity }}">
@@ -1370,7 +1370,7 @@
                          name="new_watermark_global" value="1">
                   <label class="form-check-label" for="new_watermark_global">
                     Make available globally (for all records)
-                   <span class="badge bg-secondary ms-1">Optional</span></label>
+                  </label>
                 </div>
               </div>
 
@@ -1380,7 +1380,7 @@
                          name="regenerate_watermark" value="1">
                   <label class="form-check-label" for="regenerate_watermark">
                     <strong>Regenerate derivatives with new watermark</strong>
-                   <span class="badge bg-secondary ms-1">Optional</span></label>
+                  </label>
                   <div class="form-text">Check this to apply the new watermark to existing images. This may take a moment.</div>
                 </div>
               </div>
@@ -1407,13 +1407,13 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Source language <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label fw-bold">Source language</label>
                   <div>{{ $sourceCulture ?? 'English' }}</div>
                 </div>
 
                 @if(!$isNew && isset($museum->updated_at) && $museum->updated_at)
                 <div class="mb-3">
-                  <label class="form-label fw-bold">Last updated <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label fw-bold">Last updated</label>
                   <div>{{ \Carbon\Carbon::parse($museum->updated_at)->format('F j, Y, g:i a') }}</div>
                 </div>
                 @endif
@@ -1421,7 +1421,7 @@
 
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="displayStandard" class="form-label fw-bold">Display standard <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label for="displayStandard" class="form-label fw-bold">Display standard</label>
                   <select name="displayStandard" id="displayStandard" class="form-select">
                     @foreach($displayStandards ?? [] as $dsId => $dsName)
                       <option value="{{ $dsId }}" @selected(old('displayStandard', $currentDisplayStandard ?? '') == $dsId)>{{ $dsName }}</option>
@@ -1436,7 +1436,7 @@
                            name="displayStandardUpdateDescendants" value="1">
                     <label class="form-check-label" for="displayStandardUpdateDescendants">
                       Make this selection the new default for existing children
-                     <span class="badge bg-secondary ms-1">Optional</span></label>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1446,15 +1446,16 @@
       </div>
     </div>
 
-    <ul class="actions mb-3 nav gap-2">
-      @if(!$isNew)
-        <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
-      @else
-        <li><a href="{{ route('museum.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
-      @endif
-    </ul>
+    <section class="actions">
+      <ul>
+        @if(!$isNew)
+          <li><a href="{{ route('museum.show', $museum->slug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
+        @else
+          <li><a href="{{ route('museum.browse') }}" class="btn atom-btn-outline-light">Cancel</a></li>
+        @endif
+        <li><input type="submit" class="btn atom-btn-outline-success" value="Save"></li>
+      </ul>
+    </section>
 
   </form>
 

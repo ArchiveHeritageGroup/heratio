@@ -10,7 +10,7 @@
   </div>
 
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header">
       <h5 class="mb-0">Object: {{ $evaluation['object']->title ?? 'Untitled' }} (#{{ $objectId }})</h5>
     </div>
     <div class="card-body">

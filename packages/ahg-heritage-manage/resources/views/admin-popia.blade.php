@@ -1,47 +1,95 @@
 @extends('theme::layouts.1col')
-@section('title', 'POPIA Flags')
+@section('title', 'POPIA/Privacy Flags')
 @section('body-class', 'admin heritage')
+
+@php
+$flags = $flagData['flags'] ?? [];
+$total = $flagData['total'] ?? 0;
+@endphp
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-shield-alt me-2"></i>POPIA Flags</h1>
-    </div>
-    <p class="text-muted">Manage POPIA (Protection of Personal Information Act) flags.</p>
-
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-shield-alt me-2"></i>POPIA Flags</div>
+  <div class="col-md-3">
+    @include('ahg-heritage-manage::partials._admin-sidebar')
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Statistics</h6></div>
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead>
-              <tr>
-                @foreach($columns ?? ['ID','Name','Status','Date'] as $col)
-                  <th>{{ $col }}</th>
-                @endforeach
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($items ?? [] as $item)
-              <tr>
-                @foreach((array)$item as $val)
-                  <td>{{ Str::limit($val, 80) ?: '-' }}</td>
-                @endforeach
-              </tr>
-              @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Status','Date']) }}" class="text-center text-muted py-3">No records found</td></tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
+        <div class="d-flex justify-content-between mb-2"><span>Unresolved</span><span class="badge bg-warning">{{ $stats['unresolved'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>Critical</span><span class="badge bg-danger">{{ $stats['critical'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span>High</span><span class="badge bg-warning">{{ $stats['high'] ?? 0 }}</span></div>
+        <div class="d-flex justify-content-between"><span>Resolved (This Month)</span><span class="badge bg-success">{{ $stats['resolved_this_month'] ?? 0 }}</span></div>
       </div>
     </div>
+  </div>
+  <div class="col-md-9">
+    <h1><i class="fas fa-user-shield me-2"></i>POPIA/Privacy Flags</h1>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <form method="get" class="row g-3">
+          <div class="col-md-4">
+            <select class="form-select" name="severity">
+              <option value="">All Severities</option>
+              @foreach(['critical','high','medium','low'] as $sev)
+              <option value="{{ $sev }}" {{ request('severity') === $sev ? 'selected' : '' }}>{{ ucfirst($sev) }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select class="form-select" name="flag_type">
+              <option value="">All Types</option>
+              <option value="personal_info">Personal Information</option>
+              <option value="sensitive">Sensitive Data</option>
+              <option value="children">Children's Data</option>
+              <option value="health">Health Information</option>
+            </select>
+          </div>
+          <div class="col-md-4"><button type="submit" class="btn atom-btn-secondary w-100">Filter</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0">Unresolved Flags</h5>
+        <span class="badge bg-warning text-dark">{{ number_format($total) }} flags</span>
+      </div>
+      <div class="card-body p-0">
+        @if(empty($flags))
+        <div class="text-center text-muted py-5"><i class="fas fa-shield-alt fs-1 mb-3 d-block text-success"></i><p>No unresolved privacy flags.</p></div>
+        @else
+        <div class="list-group list-group-flush">
+          @foreach($flags as $flag)
+          @php $color = ['critical'=>'danger','high'=>'warning','medium'=>'info','low'=>'secondary'][$flag->severity] ?? 'secondary'; @endphp
+          <div class="list-group-item">
+            <div class="row align-items-center">
+              <div class="col-md-1"><span class="badge bg-{{ $color }} text-uppercase">{{ $flag->severity }}</span></div>
+              <div class="col-md-5">{{ $flag->object_title ?? 'Item' }}<br><small class="text-muted">{{ ucfirst(str_replace('_',' ',$flag->flag_type)) }}</small></div>
+              <div class="col-md-4">@if($flag->description)<small>{{ substr($flag->description,0,100) }}</small>@endif</div>
+              <div class="col-md-2 text-end">
+                <button class="btn btn-sm atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal" data-flag-id="{{ $flag->id }}"><i class="fas fa-check me-1"></i>Resolve</button>
+              </div>
+            </div>
+          </div>
+          @endforeach
+        </div>
+        @endif
+      </div>
+    </div>
+
+    <div class="modal fade" id="resolveModal" tabindex="-1">
+      <div class="modal-dialog"><div class="modal-content">
+        <form method="post" action="{{ route('heritage.admin-popia') }}">@csrf
+          <div class="modal-header bg-success text-white"><h5 class="modal-title">Resolve Privacy Flag</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <input type="hidden" name="form_action" value="resolve"><input type="hidden" name="flag_id" id="resolve_flag_id">
+            <div class="mb-3"><label for="resolution_notes" class="form-label">Resolution Notes</label><textarea class="form-control" name="resolution_notes" id="resolution_notes" rows="3" placeholder="Describe what action was taken..."></textarea></div>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn atom-btn-outline-success">Mark as Resolved</button></div>
+        </form>
+      </div></div>
+    </div>
+    <script>document.getElementById('resolveModal')?.addEventListener('show.bs.modal',function(e){document.getElementById('resolve_flag_id').value=e.relatedTarget.getAttribute('data-flag-id');});</script>
   </div>
 </div>
 @endsection

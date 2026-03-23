@@ -68,7 +68,7 @@
 
             {{-- Collection select --}}
             <div class="mb-4">
-              <label class="form-label"><strong>Top-Level Collection *</strong></label>
+              <label class="form-label"><strong>Top-Level Collection</strong> <span class="badge bg-danger ms-1">Required</span></label>
               <select name="collection_id" id="collection_id" class="form-select" required>
                 <option value="">Select collection...</option>
                 @if(!empty($collections))
@@ -87,7 +87,7 @@
 
             {{-- Type radio buttons --}}
             <div class="mb-4">
-              <label class="form-label"><strong>Object Type *</strong></label>
+              <label class="form-label"><strong>Object Type</strong> <span class="badge bg-danger ms-1">Required</span></label>
               @if(!empty($collectionTypes) && count($collectionTypes))
                 <div class="row">
                   @foreach($collectionTypes as $type)

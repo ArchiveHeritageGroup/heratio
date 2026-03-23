@@ -20,7 +20,7 @@
       <a href="@php echo url_for(
           ['module' => 'informationobject', 'slug' => $doc['slug']]
       ); @endphp">
-        @php echo image_tag($imagePath, [ 
+        @php echo image_tag($imagePath, [
             'alt' => $doc['digitalObject']['digitalObjectAltText'] ?: strip_markdown(
                 get_search_i18n(
                     $doc,
@@ -32,7 +32,7 @@
         ]); @endphp
       </a>
     </div>
-  @endforeach
+  @endif
 
   <div class="col-12@php echo empty($doc['hasDigitalObject']) ? '' : ' col-lg-9'; @endphp d-flex flex-column gap-1">
     <div class="d-flex align-items-center gap-2">
@@ -46,7 +46,6 @@
           ['class' => 'h5 mb-0 text-truncate'],
       ); @endphp
 
-      @php include_component('accessFilter', 'classificationBadge', ['objectId' => $hit->getId()]); @endphp
       @php echo get_component('clipboard', 'button', [
           'slug' => $doc['slug'],
           'type' => 'informationObject',
@@ -64,52 +63,52 @@
           )
             <span class="text-primary">@php echo $doc['referenceCode']; @endphp</span>
             @php $showDash = true; @endphp
-          @php } elseif (isset($doc['identifier']) && !empty($doc['identifier'])) { @endphp
+          @elseif(isset($doc['identifier']) && !empty($doc['identifier']))
             <span class="text-primary">@php echo $doc['identifier']; @endphp</span>
             @php $showDash = true; @endphp
-          @endforeach
+          @endif
 
           @if(
               isset($doc['levelOfDescriptionId'])
               && !empty($doc['levelOfDescriptionId'])
           )
             @if($showDash)
-              <span class="text-muted mx-2"> · </span>
-            @endforeach
+              <span class="text-muted mx-2"> &middot; </span>
+            @endif
             <span class="text-muted">
               @php echo render_value_inline(
                   \AtomExtensions\Services\CacheService::getLabel($doc['levelOfDescriptionId'], 'QubitTerm')
               ); @endphp
             </span>
             @php $showDash = true; @endphp
-          @endforeach
+          @endif
 
           @if(isset($doc['dates']))
             @php $date = render_search_result_date($doc['dates']); @endphp
             @if(!empty($date))
               @if($showDash)
-                <span class="text-muted mx-2"> · </span>
-              @endforeach
+                <span class="text-muted mx-2"> &middot; </span>
+              @endif
               <span class="text-muted">
                 @php echo render_value_inline($date); @endphp
               </span>
               @php $showDash = true; @endphp
-            @endforeach
-          @endforeach
+            @endif
+          @endif
 
           @if(
               isset($doc['publicationStatusId'])
               && QubitTerm::PUBLICATION_STATUS_DRAFT_ID == $doc['publicationStatusId']
           )
             @if($showDash)
-              <span class="text-muted mx-2"> · </span>
-            @endforeach
+              <span class="text-muted mx-2"> &middot; </span>
+            @endif
             <span class="text-muted">
               @php echo render_value_inline(
                   \AtomExtensions\Services\CacheService::getLabel($doc['publicationStatusId'], 'QubitTerm')
               ); @endphp
             </span>
-          @endforeach
+          @endif
         </div>
 
         @if(isset($doc['partOf']))
@@ -123,8 +122,8 @@
                 )),
                 ['slug' => $doc['partOf']['slug'], 'module' => 'informationobject']
             ); @endphp
-          </span> 
-        @endforeach
+          </span>
+        @endif
       </div>
 
       @if(null !== $scopeAndContent = get_search_i18n(
@@ -135,7 +134,7 @@
         <span class="text-block d-none">
           @php echo render_value($scopeAndContent); @endphp
         </span>
-      @endforeach
+      @endif
 
       @if(
           isset($doc['creators'])
@@ -144,7 +143,7 @@
         <span class="text-muted">
           @php echo render_value_inline($creationDetails); @endphp
         </span>
-      @endforeach
+      @endif
     </div>
   </div>
 </article>

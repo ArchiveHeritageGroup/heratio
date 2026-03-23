@@ -1,59 +1,73 @@
 @extends('theme::layouts.1col')
-@section('title', 'Search Analytics')
+@section('title', 'Search Insights')
 @section('body-class', 'admin heritage')
+
+@php
+$popularQueries = (array)($popularQueries ?? []);
+$zeroResultQueries = (array)($zeroResultQueries ?? []);
+$trendingQueries = (array)($trendingQueries ?? []);
+$conversion = (array)($conversion ?? []);
+$patterns = (array)($patterns ?? []);
+@endphp
 
 @section('content')
 <div class="row">
   <div class="col-md-3">@include('ahg-heritage-manage::partials._admin-sidebar')</div>
   <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-search me-2"></i>Search Analytics</h1>
-      <div>
-        <select class="form-select form-select-sm d-inline-block" style="width:auto" onchange="window.location.search='?days='+this.value">
-          <option value="7" {{ request('days',30)==7?'selected':'' }}>Last 7 days</option>
-          <option value="30" {{ request('days',30)==30?'selected':'' }}>Last 30 days</option>
-          <option value="90" {{ request('days')==90?'selected':'' }}>Last 90 days</option>
-        </select>
-      </div>
-    </div>
-    <p class="text-muted">Analyze search patterns, popular queries, and zero-result searches.</p>
+    <h1><i class="fas fa-search me-2"></i>Search Insights</h1>
 
-    <div class="row mb-4">
-      @foreach($stats ?? [] as $key => $value)
-      <div class="col-md-3 mb-3">
-        <div class="card border-primary h-100">
-          <div class="card-body text-center">
-            <h3 class="mb-0">{{ number_format($value) }}</h3>
-            <small class="text-muted">{{ ucwords(str_replace('_', ' ', $key)) }}</small>
-          </div>
-        </div>
-      </div>
+    <div class="row g-4 mb-4">
+      @foreach([['total_searches','Total Searches'],['result_rate','Result Rate'],['conversion_rate','Conversion Rate'],['avg_clicks','Avg Clicks/Search']] as [$key,$label])
+      <div class="col-md-3"><div class="card border-0 shadow-sm text-center"><div class="card-body"><h3 class="mb-0 {{ $key==='conversion_rate'?'text-success':'' }}">{{ $conversion[$key] ?? 0 }}{{ in_array($key,['result_rate','conversion_rate'])?'%':'' }}</h3><small class="text-muted">{{ $label }}</small></div></div></div>
       @endforeach
     </div>
 
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-search me-2"></i>Search Analytics Details</div>
-      <div class="card-body">
-        @if(!empty($records))
-        <div class="table-responsive">
-          <table class="table table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach(array_keys((array)($records[0] ?? [])) as $col)
-                <th>{{ ucwords(str_replace('_', ' ', $col)) }}</th>
-              @endforeach
-            </tr></thead>
-            <tbody>
-              @foreach($records as $row)
-              <tr>@foreach((array)$row as $val)<td>{{ Str::limit($val, 60) ?: '-' }}</td>@endforeach</tr>
-              @endforeach
-            </tbody>
-          </table>
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-fire me-2"></i>Popular Queries</h5></div>
+          <div class="card-body p-0">
+            @if(!empty($popularQueries))
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Query</th><th class="text-center">Searches</th><th class="text-center">Clicks</th></tr></thead><tbody>
+              @foreach(array_slice($popularQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td class="text-center">{{ number_format($query->total_clicks ?? 0) }}</td></tr>@endforeach
+            </tbody></table></div>
+            @else<p class="text-muted text-center py-4">No data available.</p>@endif
+          </div>
         </div>
-        @else
-        <p class="text-muted text-center py-4">No data for this period.</p>
-        @endif
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Zero Result Queries</h5></div>
+          <div class="card-body p-0">
+            @if(!empty($zeroResultQueries))
+            <div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Query</th><th class="text-center">Count</th><th>Last Searched</th></tr></thead><tbody>
+              @foreach(array_slice($zeroResultQueries,0,10) as $query)<tr><td>{{ $query->query_text ?? '' }}</td><td class="text-center">{{ number_format($query->search_count ?? 0) }}</td><td><small class="text-muted">{{ date('M d', strtotime($query->last_searched ?? 'now')) }}</small></td></tr>@endforeach
+            </tbody></table></div>
+            @else<p class="text-muted text-center py-4">No zero-result queries.</p>@endif
+          </div>
+        </div>
       </div>
     </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trending Queries</h5></div>
+      <div class="card-body">
+        @if(!empty($trendingQueries))
+        <div class="row">@foreach($trendingQueries as $trend)<div class="col-md-6 col-lg-4 mb-3"><div class="d-flex justify-content-between align-items-center p-2 bg-light rounded"><span>{{ $trend['query'] ?? '' }}</span><span class="badge bg-success">+{{ $trend['growth_percent'] ?? 0 }}%</span></div></div>@endforeach</div>
+        @else<p class="text-muted text-center">No trending queries this week.</p>@endif
+      </div>
+    </div>
+
+    @if(!empty($patterns['by_day_of_week'] ?? []))
+    <div class="card border-0 shadow-sm">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-clock me-2"></i>Search Patterns by Day</h5></div>
+      <div class="card-body">
+        @foreach((array)($patterns['by_day_of_week'] ?? []) as $day => $count)
+        <div class="d-flex justify-content-between mb-1"><span>{{ $day }}</span><span class="badge bg-secondary">{{ number_format($count) }}</span></div>
+        @endforeach
+      </div>
+    </div>
+    @endif
   </div>
 </div>
 @endsection

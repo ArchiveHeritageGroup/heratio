@@ -18,7 +18,7 @@
     {{-- Task Details --}}
     <div class="col-lg-8 mb-4">
       <div class="card">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Task Details</h5></div>
+        <div class="card-header"><h5 class="mb-0">Task Details</h5></div>
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-md-6">
@@ -144,7 +144,7 @@
       {{-- Action Buttons --}}
       @if($task->status !== 'completed')
         <div class="card mt-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Actions</h5></div>
+          <div class="card-header"><h5 class="mb-0">Actions</h5></div>
           <div class="card-body">
             @if($task->assigned_to === null && $task->pool_enabled)
               {{-- Claim --}}
@@ -192,7 +192,7 @@
 
       {{-- History Timeline --}}
       <div class="card mt-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-history"></i> Task History</h5></div>
+        <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> Task History</h5></div>
         <div class="card-body">
           @if(empty($task->history))
             <p class="text-muted mb-0">No history recorded.</p>
@@ -244,7 +244,7 @@
     {{-- Sidebar --}}
     <div class="col-lg-4">
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Timestamps</h6></div>
+        <div class="card-header"><h6 class="mb-0">Timestamps</h6></div>
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
@@ -278,7 +278,7 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Metadata</h6></div>
+        <div class="card-header"><h6 class="mb-0">Metadata</h6></div>
         <div class="card-body">
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
@@ -307,7 +307,7 @@
 
       @if($task->object_type === 'information_object')
         <div class="card">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0">Publish Readiness</h6></div>
+          <div class="card-header"><h6 class="mb-0">Publish Readiness</h6></div>
           <div class="card-body text-center">
             <a href="{{ route('workflow.publish-readiness', $task->object_id) }}" class="btn atom-btn-white">
               <i class="fas fa-clipboard-check"></i> Check Publish Gates

@@ -88,15 +88,15 @@
                   <div class="px-3 py-2">
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-all" value="allLabels" checked>
-                      <label class="form-check-label" for="qf-all">All labels <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-check-label" for="qf-all">All labels</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-preferred" value="preferredLabel">
-                      <label class="form-check-label" for="qf-preferred">Preferred label <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-check-label" for="qf-preferred">Preferred label</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-usefor" value="useForLabels">
-                      <label class="form-check-label" for="qf-usefor">'Use for' labels <span class="badge bg-secondary ms-1">Optional</span></label>
+                      <label class="form-check-label" for="qf-usefor">'Use for' labels</label>
                     </div>
                   </div>
                 </div>
@@ -110,31 +110,6 @@
         </div>
       </div>
 
-      {{-- Facets: Narrow your results --}}
-      @if($totalRelated > 0)
-        <h2 class="d-grid">
-          <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-aggregations" aria-expanded="false">
-            Narrow your results by:
-          </button>
-        </h2>
-        <div class="collapse" id="collapse-aggregations">
-          @if($term->taxonomy_id != 42)
-            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Places</div>
-              <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 42]) }}">Browse places</a></div>
-            </div>
-          @endif
-          @if($term->taxonomy_id != 35)
-            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Subjects</div>
-              <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 35]) }}">Browse subjects</a></div>
-            </div>
-          @endif
-          @if($term->taxonomy_id != 78)
-            <div class="card mb-2"><div class="card-header py-1 small" style="background:var(--ahg-primary);color:#fff">Genre</div>
-              <div class="card-body p-2 small"><a href="{{ route('term.browse', ['taxonomy' => 78]) }}">Browse genres</a></div>
-            </div>
-          @endif
-        </div>
-      @endif
     </div>
 
     {{-- MAIN CONTENT --}}
@@ -174,11 +149,13 @@
 
       {{-- ===== Elements area ===== --}}
       <section class="border-bottom mb-3">
-        <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          Elements area
-          @auth
-            <a href="{{ route('term.edit', $term->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-          @endauth
+        <h2 class="h5 mb-0 atom-section-header">
+          <div class="d-flex p-3 border-bottom text-primary">
+            Elements area
+            @auth
+              <a href="{{ route('term.edit', $term->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+            @endauth
+          </div>
         </h2>
         <div>
           <div class="field row g-0">
@@ -190,9 +167,6 @@
               <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Code</h3>
               <div class="col-9 p-2">
                 <code>{{ $term->code }}</code>
-                @if($mapApiKey && $term->taxonomy_id == 42)
-                  <img src="https://maps.googleapis.com/maps/api/staticmap?zoom=13&size=300x300&sensor=false&key={{ $mapApiKey }}&center={{ urlencode($term->code) }}" class="img-thumbnail d-block mt-2" alt="Map of {{ $term->name }}">
-                @endif
               </div>
             </div>
           @endif
@@ -351,12 +325,6 @@
 
       <h4 class="h5 mb-2">Results</h4>
       <ul class="list-unstyled"><li>{{ number_format($relatedDescriptionsCount) }}</li></ul>
-
-      <h4 class="h5 mb-2">Browse</h4>
-      <ul class="list-unstyled">
-        <li><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-list me-1"></i>All terms in {{ $taxonomyName }}</a></li>
-        <li><a href="{{ route('term.browse', ['taxonomy' => $term->taxonomy_id, 'subquery' => $term->name]) }}"><i class="fas fa-search me-1"></i>Search &ldquo;{{ Str::limit($term->name, 30) }}&rdquo;</a></li>
-      </ul>
 
       @if($broaderTerm)
         <h4 class="h5 mb-2">Broader term</h4>

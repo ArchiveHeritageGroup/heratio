@@ -69,10 +69,5 @@
 
   <section class="actions mb-3">
     <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">Add new</a>
-    @auth
-      @if(Route::has('accession.export-csv'))
-        <a href="{{ route('accession.export-csv', request()->query()) }}" class="btn atom-btn-outline-light">Export CSV</a>
-      @endif
-    @endauth
   </section>
 @endsection

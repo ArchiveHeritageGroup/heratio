@@ -22,11 +22,11 @@
     <div class="accordion mb-3">
       <div class="accordion-item">
         <h2 class="accordion-header" id="rename-heading">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#rename-collapse" aria-expanded="false" aria-controls="rename-collapse">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#rename-collapse" aria-expanded="true" aria-controls="rename-collapse">
             Rename
           </button>
         </h2>
-        <div id="rename-collapse" class="accordion-collapse collapse" aria-labelledby="rename-heading">
+        <div id="rename-collapse" class="accordion-collapse collapse show" aria-labelledby="rename-heading">
           <div class="accordion-body">
             <p>Use this interface to update the authorized form of name, slug (permalink), and/or digital object filename.</p>
             <hr />
@@ -35,11 +35,10 @@
             <div class="rename-form-field-toggle form-check mb-4">
               <input class="form-check-input" type="checkbox" id="rename_enable_authorizedFormOfName" name="update_name" value="1" checked>
               <label class="form-check-label" for="rename_enable_authorizedFormOfName">
-                Update authorized form of name <span class="badge bg-secondary ms-1">Optional</span>
-              </label>
+                Update authorized form of name              </label>
             </div>
             <div class="mb-3">
-              <label for="authorized_form_of_name" class="form-label">Authorized form of name <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="authorized_form_of_name" class="form-label">Authorized form of name</label>
               <input type="text" class="form-control" id="authorized_form_of_name" name="authorized_form_of_name" value="{{ old('authorized_form_of_name', $actor->authorized_form_of_name) }}">
               <div class="form-text">Editing the authorized form of name will automatically update the slug field if the "Update slug" checkbox is selected - you can still edit it after.</div>
             </div>
@@ -55,11 +54,10 @@
             <div class="rename-form-field-toggle form-check mb-4">
               <input class="form-check-input" type="checkbox" id="rename_enable_slug" name="update_slug" value="1" checked>
               <label class="form-check-label" for="rename_enable_slug">
-                Update slug <span class="badge bg-secondary ms-1">Optional</span>
-              </label>
+                Update slug              </label>
             </div>
             <div class="mb-3">
-              <label for="slug" class="form-label">Slug <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="slug" class="form-label">Slug</label>
               <input type="text" class="form-control" id="slug" name="slug" value="{{ old('slug', $actor->slug) }}">
               <div class="form-text">Do not use any special characters or spaces in the slug - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the slug will not automatically update the other fields.</div>
             </div>
@@ -71,8 +69,7 @@
               <div class="rename-form-field-toggle form-check mb-4">
                 <input class="form-check-input" type="checkbox" id="rename_enable_filename" name="update_filename" value="1" checked>
                 <label class="form-check-label" for="rename_enable_filename">
-                  Update filename <span class="badge bg-secondary ms-1">Optional</span>
-                </label>
+                  Update filename                </label>
               </div>
               <div class="mb-3">
                 <label for="filename" class="form-label">Filename <span class="badge bg-secondary ms-1">Optional</span></label>

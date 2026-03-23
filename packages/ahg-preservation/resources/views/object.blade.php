@@ -60,17 +60,74 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm mb-0">
-            <thead><tr><th>Algorithm</th><th>Value</th><th>Generated</th></tr></thead>
+            <thead><tr><th>Algorithm</th><th>Value</th><th>Status</th><th>Generated</th><th>Last Verified</th></tr></thead>
             <tbody>
               @forelse($checksums ?? [] as $cs)
-              <tr><td>{{ strtoupper($cs->algorithm ?? '') }}</td><td><code class="small">{{ $cs->value ?? '' }}</code></td><td><small>{{ $cs->created_at ?? '' }}</small></td></tr>
+              <tr>
+                <td><strong>{{ strtoupper($cs->algorithm ?? '') }}</strong></td>
+                <td><code class="small">{{ $cs->checksum_value ?? $cs->value ?? '' }}</code></td>
+                <td>
+                    @if(($cs->verification_status ?? '') === 'verified' || ($cs->verification_status ?? '') === 'valid')
+                        <span class="badge bg-success">Valid</span>
+                    @elseif(($cs->verification_status ?? '') === 'failed' || ($cs->verification_status ?? '') === 'invalid')
+                        <span class="badge bg-danger">Invalid</span>
+                    @else
+                        <span class="badge bg-secondary">{{ ucfirst($cs->verification_status ?? 'pending') }}</span>
+                    @endif
+                </td>
+                <td><small>{{ $cs->generated_at ?? $cs->created_at ?? '' }}</small></td>
+                <td><small>{{ $cs->verified_at ?? '-' }}</small></td>
+              </tr>
               @empty
-              <tr><td colspan="3" class="text-center text-muted py-3">No checksums generated</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-3">No checksums generated</td></tr>
               @endforelse
             </tbody>
           </table>
         </div>
       </div>
+    </div>
+
+    {{-- Fixity Check History --}}
+    <div class="card mb-4">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-check-double me-2"></i>Fixity Check History</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm table-striped mb-0">
+                    <thead><tr><th>Algorithm</th><th>Status</th><th>Expected</th><th>Actual</th><th>Checked By</th><th>Duration</th><th>Checked At</th></tr></thead>
+                    <tbody>
+                        @php $fixityHistory = $fixityHistory ?? collect(); @endphp
+                        @forelse($fixityHistory as $check)
+                        <tr>
+                            <td>{{ strtoupper($check->algorithm ?? '') }}</td>
+                            <td>
+                                @if($check->status === 'pass')
+                                    <span class="badge bg-success"><i class="fas fa-check"></i> Pass</span>
+                                @elseif($check->status === 'fail')
+                                    <span class="badge bg-danger"><i class="fas fa-times"></i> Fail</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">{{ ucfirst($check->status ?? '') }}</span>
+                                @endif
+                            </td>
+                            <td><code class="small">{{ Str::limit($check->expected_value ?? '', 16) }}</code></td>
+                            <td><code class="small">{{ ($check->actual_value ?? null) ? Str::limit($check->actual_value, 16) : '-' }}</code></td>
+                            <td>{{ $check->checked_by ?? '' }}</td>
+                            <td>{{ ($check->duration_ms ?? null) ? $check->duration_ms . 'ms' : '-' }}</td>
+                            <td><small>{{ $check->checked_at ?? '' }}</small></td>
+                        </tr>
+                        @if($check->error_message ?? null)
+                        <tr>
+                            <td colspan="7" class="bg-danger bg-opacity-10 border-0 py-1 ps-4">
+                                <small class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ $check->error_message }}</small>
+                            </td>
+                        </tr>
+                        @endif
+                        @empty
+                        <tr><td colspan="7" class="text-center text-muted py-3">No fixity checks performed yet</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     {{-- PREMIS Events --}}
@@ -79,7 +136,7 @@
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr><th>Date</th><th>Type</th><th>Outcome</th><th>Detail</th></tr></thead>
+            <thead><tr><th>Date</th><th>Type</th><th>Outcome</th><th>Detail</th><th>Agent</th></tr></thead>
             <tbody>
               @forelse($events ?? [] as $event)
               <tr>
@@ -91,9 +148,17 @@
                   @else <span class="badge bg-warning text-dark">{{ ucfirst($event->event_outcome ?? 'unknown') }}</span> @endif
                 </td>
                 <td><small class="text-muted">{{ Str::limit($event->event_detail ?? '', 80) }}</small></td>
+                <td><small>{{ $event->linking_agent_value ?? $event->linking_agent_type ?? '-' }}</small></td>
               </tr>
+              @if($event->event_outcome_detail ?? null)
+              <tr>
+                <td colspan="5" class="bg-light border-0 py-1 ps-4">
+                    <small class="text-muted"><i class="fas fa-info-circle"></i> {{ Str::limit($event->event_outcome_detail, 200) }}</small>
+                </td>
+              </tr>
+              @endif
               @empty
-              <tr><td colspan="4" class="text-center text-muted py-3">No events recorded</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-3">No events recorded</td></tr>
               @endforelse
             </tbody>
           </table>

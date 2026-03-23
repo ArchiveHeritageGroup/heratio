@@ -56,7 +56,7 @@
             <input class="form-check-input" type="checkbox" id="use_glam_browse" name="use_glam_browse"
                    value="1" {{ !empty($settings['use_glam_browse']) ? 'checked' : '' }}>
             <label class="form-check-label" for="use_glam_browse">
-              <strong>Use GLAM Browse as default</strong>
+              <strong>Use GLAM Browse as default</strong> <span class="badge bg-secondary ms-1">Optional</span>
             </label>
           </div>
           <div class="form-text ms-4">
@@ -70,7 +70,7 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_view">Default View</label>
+            <label class="form-label" for="default_view">Default View <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_view" id="default_view" class="form-select">
               <option value="list" {{ ($settings['default_view'] ?? 'list') === 'list' ? 'selected' : '' }}>List</option>
               <option value="card" {{ ($settings['default_view'] ?? '') === 'card' ? 'selected' : '' }}>Cards</option>
@@ -79,7 +79,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="items_per_page">Items Per Page</label>
+            <label class="form-label" for="items_per_page">Items Per Page <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="items_per_page" id="items_per_page" class="form-select">
               @foreach([10, 20, 30, 50, 100] as $n)
                 <option value="{{ $n }}" {{ ($settings['items_per_page'] ?? 30) == $n ? 'selected' : '' }}>{{ $n }}</option>
@@ -93,7 +93,7 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_sort_field">Sort By</label>
+            <label class="form-label" for="default_sort_field">Sort By <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_sort_field" id="default_sort_field" class="form-select">
               <option value="updated_at" {{ ($settings['default_sort_field'] ?? 'updated_at') === 'updated_at' ? 'selected' : '' }}>Last Updated</option>
               <option value="title" {{ ($settings['default_sort_field'] ?? '') === 'title' ? 'selected' : '' }}>Title</option>
@@ -104,7 +104,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_sort_direction">Direction</label>
+            <label class="form-label" for="default_sort_direction">Direction <span class="badge bg-secondary ms-1">Optional</span></label>
             <select name="default_sort_direction" id="default_sort_direction" class="form-select">
               <option value="desc" {{ ($settings['default_sort_direction'] ?? 'desc') === 'desc' ? 'selected' : '' }}>Descending (newest first)</option>
               <option value="asc" {{ ($settings['default_sort_direction'] ?? '') === 'asc' ? 'selected' : '' }}>Ascending (oldest first)</option>
@@ -120,7 +120,7 @@
             <input class="form-check-input" type="checkbox" id="show_facets" name="show_facets"
                    value="1" {{ ($settings['show_facets'] ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="show_facets">
-              Show filter sidebar (facets)
+              Show filter sidebar (facets) <span class="badge bg-secondary ms-1">Optional</span>
             </label>
           </div>
         </div>
@@ -130,7 +130,7 @@
             <input class="form-check-input" type="checkbox" id="remember_filters" name="remember_filters"
                    value="1" {{ ($settings['remember_filters'] ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="remember_filters">
-              Remember my last used filters
+              Remember my last used filters <span class="badge bg-secondary ms-1">Optional</span>
             </label>
           </div>
           <div class="form-text ms-4">

@@ -379,7 +379,7 @@
             <h5>Limit results to:</h5>
             <div class="criteria mb-4">
               <div class="mb-3">
-                <label class="form-label" for="repository">Repository <span class="badge bg-warning ms-1">Recommended</span></label>
+                <label class="form-label" for="repository">Repository</label>
                 <select name="repository" class="form-select" id="repository">
                   <option value=""></option>
                   @foreach($repositories as $repo)
@@ -395,7 +395,7 @@
             <div class="criteria row mb-2">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="hasDigitalObject">Digital object available <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="hasDigitalObject">Digital object available</label>
                   <select name="hasDigitalObject" class="form-select" id="hasDigitalObject">
                     <option value=""></option>
                     <option value="1" {{ ($params['hasDigitalObject'] ?? '') === '1' ? 'selected' : '' }}>Yes</option>
@@ -404,7 +404,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="entityTypeFilter">Entity type <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="entityTypeFilter">Entity type</label>
                   <select name="entityType" class="form-select" id="entityTypeFilter">
                     <option value=""></option>
                     @foreach($entityTypeFacets as $typeId => $facet)
@@ -417,7 +417,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label" for="emptyField">Empty field <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="emptyField">Empty field</label>
                   <select name="emptyField" class="form-select" id="emptyField">
                     <option value=""></option>
                     <option value="authorizedFormOfName" {{ ($params['emptyField'] ?? '') === 'authorizedFormOfName' ? 'selected' : '' }}>Name</option>
@@ -436,7 +436,7 @@
             <div class="criteria row mb-2">
               <div class="col-md-3">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedType">Relationship <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="relatedType">Relationship</label>
                   <select name="relatedType" class="form-select" id="relatedType">
                     <option value=""></option>
                     <option value="159" {{ ($params['relatedType'] ?? '') === '159' ? 'selected' : '' }}>Draft</option>
@@ -446,7 +446,7 @@
               </div>
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label class="form-label" for="relatedAuthority">Related Authority record <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <label class="form-label" for="relatedAuthority">Related Authority record</label>
                   <input type="text" class="form-control" name="relatedAuthority" id="relatedAuthority" value="{{ $params['relatedAuthority'] ?? '' }}" placeholder="Type to search authority records...">
                 </div>
               </div>
@@ -464,132 +464,55 @@
 @endsection
 
 @section('content')
-  {{-- Display mode toggle + Sort controls --}}
-  <div class="d-flex flex-wrap gap-2 mb-3">
-    @php
-      $displayMode = request('displayMode', 'list');
-      $baseQuery = request()->except(['displayMode', 'page']);
-    @endphp
-    <div class="btn-group" role="group" aria-label="Display mode">
-      <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
-         title="Thumbnail grid with cards">
-        <i class="fas fa-th" aria-hidden="true"></i>
-        <span class="visually-hidden">Grid</span>
-      </a>
-      <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
-         class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}"
-         title="Compact table/list view">
-        <i class="fas fa-list" aria-hidden="true"></i>
-        <span class="visually-hidden">List</span>
-      </a>
-    </div>
 
-    <div class="d-flex flex-wrap gap-2 ms-auto">
-      @include('ahg-core::components.sort-pickers', [
-          'options' => $sortOptions,
-          'default' => 'alphabetic',
-      ])
-
-      {{-- Sort direction --}}
-      @php
-        $currentSort = request('sort', 'alphabetic');
-        $currentDir = request('sortDir', ($currentSort === 'lastUpdated' ? 'desc' : 'asc'));
-        $dirQuery = request()->except(['sortDir', 'page']);
-      @endphp
-      <div class="dropdown d-inline-block">
-        <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
-          <li>
-            <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}"
-               class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a>
-          </li>
-          <li>
-            <a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}"
-               class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a>
-          </li>
-        </ul>
-      </div>
-    </div>
+  <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
+    @include('ahg-core::components.sort-pickers', [
+        'options' => $sortOptions,
+        'default' => 'alphabetic',
+    ])
   </div>
 
   @if($pager->getNbResults())
-    @if($displayMode === 'grid')
-      {{-- Grid/card view --}}
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 mb-3">
-        @foreach($pager->getResults() as $doc)
-          <div class="col">
-            <article class="card h-100">
-              <div class="card-body">
-                <h5 class="card-title text-truncate">
-                  <a href="{{ route('actor.show', $doc['slug']) }}">
-                    {{ $doc['name'] ?: '[Untitled]' }}
-                  </a>
-                </h5>
-                @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                  <span class="badge bg-secondary">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
-                @endif
+    <div id="content">
+      @foreach($pager->getResults() as $doc)
+        <article class="search-result row g-0 p-3 border-bottom">
+          <div class="col-12 d-flex flex-column gap-1">
+            <div class="d-flex align-items-center gap-2 mw-100">
+              <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
+                {{ $doc['name'] ?: '[Untitled]' }}
+              </a>
+              <button class="btn atom-btn-white ms-auto active-primary clipboard"
+                      data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
+                      data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
+                <span class="visually-hidden">Add to clipboard</span>
+              </button>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex flex-wrap">
                 @if(!empty($doc['identifier']))
-                  <p class="card-text small text-muted mt-1 mb-0">{{ $doc['identifier'] }}</p>
+                  <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
                 @endif
-              </div>
-            </article>
-          </div>
-        @endforeach
-      </div>
-    @else
-      {{-- List/table view --}}
-      <div id="content-results">
-        @foreach($pager->getResults() as $doc)
-          <article class="search-result row g-0 p-3 border-bottom">
-            <div class="col-12 d-flex flex-column gap-1">
-              <div class="d-flex align-items-center gap-2 mw-100">
-                <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
-                  {{ $doc['name'] ?: '[Untitled]' }}
-                </a>
-                <button class="btn atom-btn-white ms-auto active-primary clipboard"
-                        data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
-                        data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
-                  <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                  <span class="visually-hidden">Add to clipboard</span>
-                </button>
-              </div>
-              <div class="d-flex flex-column gap-2">
-                <div class="d-flex flex-wrap">
-                  @if(!empty($doc['identifier']))
-                    <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
-                  @endif
-                  @if(!empty($doc['identifier']) && !empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                    <span class="text-muted mx-2">&middot;</span>
-                  @endif
-                  @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                    <span class="text-muted">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
-                  @endif
-                  @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
-                    <span class="text-muted ms-2">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
-                  @endif
-                </div>
+                @if(!empty($doc['identifier']) && !empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                  <span class="text-muted mx-2">&middot;</span>
+                @endif
+                @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                  <span class="text-muted">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
+                @endif
+                @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
+                  <span class="text-muted ms-2">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
+                @endif
               </div>
             </div>
-          </article>
-        @endforeach
-      </div>
-    @endif
+          </div>
+        </article>
+      @endforeach
+    </div>
   @endif
 @endsection
 
 @section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
-
-  @auth
-    <section class="actions mb-3">
-      <ul class="actions mb-1 nav gap-2">
-        <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}" title="Add new">Add new</a></li>
-      </ul>
-    </section>
-  @endauth
 
   <script>
     (function() {

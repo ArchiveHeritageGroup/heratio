@@ -19,11 +19,13 @@
 
   {{-- ===== Identity area (ISDF 5.1) ===== --}}
   <section class="section border-bottom" id="identityArea">
-    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#identity-collapse">Identity area</a>
-      @auth
-        <a href="{{ route('function.edit', $function->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Identity area
+        @auth
+          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="identity-collapse">
 
@@ -79,11 +81,13 @@
 
   {{-- ===== Context area (ISDF 5.2) ===== --}}
   <section class="section border-bottom" id="contextArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#context-collapse">Context area</a>
-      @auth
-        <a href="{{ route('function.edit', $function->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Context area
+        @auth
+          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="context-collapse">
 
@@ -120,11 +124,13 @@
 
   {{-- ===== Relationships area (ISDF 5.3) ===== --}}
   <section class="section border-bottom" id="relationshipsArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#relationships-collapse">Relationships area</a>
-      @auth
-        <a href="{{ route('function.edit', $function->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Relationships area
+        @auth
+          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="relationships-collapse">
 
@@ -250,11 +256,13 @@
 
   {{-- ===== Control area (ISDF 5.4) ===== --}}
   <section class="section border-bottom" id="controlArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#control-collapse">Control area</a>
-      @auth
-        <a href="{{ route('function.edit', $function->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Control area
+        @auth
+          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="control-collapse">
 

@@ -28,7 +28,7 @@
           <div class="card-body">
 
             <div class="mb-3">
-              <label for="title" class="form-label required">Title <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="title" class="form-label required">Title <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                      value="{{ old('title', $item->title ?? '') }}" required>
               @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -61,7 +61,7 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label for="level_of_description_id" class="form-label required">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label for="level_of_description_id" class="form-label required">Level of description <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="level_of_description_id" id="level_of_description_id" class="form-select" required>
                   <option value="">-- Select --</option>
                   @foreach($formChoices['levels'] as $level)

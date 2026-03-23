@@ -5,9 +5,12 @@
 @endsection
 
 @section('content')
-  <div class="alert alert-warning">
-    This will permanently remove the user account <strong>{{ $user->username }}</strong> and all associated permissions.
-  </div>
+
+  @if(isset($noteCount) && $noteCount > 0)
+    <div id="content" class="p-3">
+      This user has {{ $noteCount }} note(s) in the system. These notes will not be deleted, but their association with this user will be removed.
+    </div>
+  @endif
 
   <form method="POST" action="{{ route('user.destroy', $user->slug) }}">
     @csrf

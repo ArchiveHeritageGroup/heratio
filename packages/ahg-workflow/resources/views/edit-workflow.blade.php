@@ -19,7 +19,7 @@
 
   {{-- Workflow Settings --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Workflow Settings</h5></div>
+    <div class="card-header"><h5 class="mb-0">Workflow Settings</h5></div>
     <div class="card-body">
       <form action="{{ route('workflow.admin.edit', $workflow->id) }}" method="POST">
         @csrf
@@ -118,7 +118,7 @@
 
   {{-- Steps --}}
   <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0"><i class="fas fa-list-ol"></i> Workflow Steps</h5>
       <button type="button" class="btn btn-sm atom-btn-outline-success" data-bs-toggle="collapse" data-bs-target="#addStepForm">
         <i class="fas fa-plus"></i> Add Step
