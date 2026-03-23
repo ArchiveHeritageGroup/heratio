@@ -1,9 +1,9 @@
 # Heratio
 
-**A standalone open-source Laravel framework for AI-assisted archival records management, with native AtoM integration via API.**
+**A standalone open-source Laravel framework for AI-assisted archival records management, operating directly on the AtoM database.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![AtoM Compatible](https://img.shields.io/badge/AtoM-2.10%2B-green)](https://www.accesstomemory.org)
+[![AtoM Compatible](https://img.shields.io/badge/AtoM-2.9%2B-green)](https://www.accesstomemory.org)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-10%2B-red)](https://laravel.com)
 
@@ -11,9 +11,9 @@
 
 ## Overview
 
-Heratio is developed by [The Archives and Heritage Group (The AHG)](https://www.theahg.co.za) as a standalone Laravel application for AI-assisted archival records management. It operates independently of AtoM's codebase — there is no Symfony dependency, no shared code, and no reliance on AtoM's internal architecture. Heratio communicates with AtoM and other archival platforms exclusively through defined API interfaces, making it platform-agnostic and deployable alongside any ECM or archival system that exposes an API.
+Heratio is developed by [The Archives and Heritage Group (The AHG)](https://www.theahg.co.za) as a standalone Laravel application for AI-assisted archival records management. It operates independently of AtoM's codebase — there is no Symfony dependency, no shared code, and no API calls to AtoM. Heratio connects directly to the AtoM MySQL database using Laravel's Eloquent ORM, reading and writing records data independently of AtoM's Symfony layer. AtoM and Heratio coexist on the same database; each operates through its own application stack without awareness of the other.
 
-Heratio addresses a critical challenge in public sector archives: the vast majority of organisational records reside outside formal records management control, making them inaccessible for compliance, audit, and institutional memory purposes. By providing AI-assisted metadata enrichment, a researcher self-description portal, and privacy-preserving digital object management as a fully independent system, Heratio enables institutions to transform large volumes of previously unmanaged, unstructured content into governed, accessible, and legislatively-compliant archival holdings — without being locked into any single archival platform.
+This architecture makes Heratio independently deployable and upgradeable alongside any AtoM instance without modification to AtoM's core, plugins, or configuration.
 
 This work is associated with doctoral research at the University of South Africa (UNISA):
 > Pieterse, J.J. & Jacobs, L. — *AI-Driven Digital Transformation of Unstructured Records in a South African State-Owned Company: A Socio-Technical Framework and Proof-of-Concept Implementation* (forthcoming, Information Systems Frontiers).
@@ -117,19 +117,15 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Edit `.env` to configure Heratio's own database and your archival platform API connections:
+Edit `.env` to point to the shared AtoM MySQL database:
 
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=heratio
+DB_DATABASE=atom
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
-
-# AtoM API integration (optional)
-ATOM_BASE_URL=https://your-atom-instance.example.com
-ATOM_API_KEY=your_atom_api_key
 ```
 
 ### 4. Run migrations
