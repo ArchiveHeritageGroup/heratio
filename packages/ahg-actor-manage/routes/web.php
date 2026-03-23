@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/actor/browse', [ActorController::class, 'browse'])->name('actor.browse');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/actor/add', [ActorController::class, 'create'])->name('actor.create');
+    Route::get('/actor/add', [ActorController::class, 'create'])->name('actor.add');
     Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store');
     Route::get('/actor/{slug}/edit', [ActorController::class, 'edit'])->name('actor.edit');
     Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
@@ -19,11 +19,8 @@ Route::middleware('admin')->group(function () {
     Route::delete('/actor/{slug}/delete', [ActorController::class, 'destroy'])->name('actor.destroy');
 });
 
+// Autocomplete (used by AJAX lookups)
+Route::get('/actor/autocomplete', [ActorController::class, 'autocomplete'])->name('actor.autocomplete');
+
 Route::get('/actor/{slug}/print', [ActorController::class, 'print'])->name('actor.print');
 Route::get('/actor/{slug}', [ActorController::class, 'show'])->name('actor.show');
-
-Route::middleware(['web'])->group(function () {
-
-// Auto-registered stub routes
-Route::match(['get','post'], '/informationobject/autocomplete', function() { return view('actormanage::autocomplete'); })->name('informationobject.autocomplete');
-});

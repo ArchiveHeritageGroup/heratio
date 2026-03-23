@@ -18,13 +18,13 @@
         {!! __('Apply to %1% selected items', ['%1%' => '<strong>' . $clipboardCount . '</strong>']) !!}
       </p>
       <div class="d-grid gap-2">
-        <a href="{{ route('extendedRights.batch') }}?object_ids={{ $objectIds }}" class="btn btn-outline-primary btn-sm">
+        <a href="{{ route('extended-rights.batch') }}?object_ids={{ $objectIds }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-layer-group me-1"></i>{{ __('Batch Assign Rights') }}
         </a>
-        <a href="{{ route('extendedRights.batch') }}?object_ids={{ $objectIds }}&batch_action=embargo" class="btn btn-outline-warning btn-sm">
+        <a href="{{ route('extended-rights.batch') }}?object_ids={{ $objectIds }}&batch_action=embargo" class="btn btn-outline-warning btn-sm">
           <i class="fas fa-lock me-1"></i>{{ __('Batch Apply Embargo') }}
         </a>
-        <a href="{{ route('extendedRights.export') }}?ids={{ $objectIds }}" class="btn btn-outline-success btn-sm">
+        <a href="{{ route('extended-rights.export') }}?ids={{ $objectIds }}" class="btn btn-outline-success btn-sm">
           <i class="fas fa-download me-1"></i>{{ __('Export Rights (JSON-LD)') }}
         </a>
       </div>

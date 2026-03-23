@@ -131,7 +131,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 function onBackupSelected() {
   var select = document.getElementById('backup-select');

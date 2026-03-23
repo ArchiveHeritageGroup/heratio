@@ -95,7 +95,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const nameInput = document.getElementById('authorized_form_of_name');

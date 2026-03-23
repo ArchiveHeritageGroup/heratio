@@ -482,7 +482,7 @@
   </ul>
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 (function() {
     // Select All checkbox

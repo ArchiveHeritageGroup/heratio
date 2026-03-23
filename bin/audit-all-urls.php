@@ -7,15 +7,29 @@
 
 $base = '/usr/share/nginx/heratio/packages';
 
-// Build route map
+// Build route map using JSON output to avoid terminal truncation
 $routeMap = [];
-$output = shell_exec('php artisan route:list 2>/dev/null');
-foreach (explode("\n", $output ?: '') as $line) {
-    if (preg_match('/^\s+(GET|POST|PUT|DELETE|PATCH)[^\s]*\s+(\S+)\s+(\S+)/', $line, $m)) {
-        $name = $m[3];
-        $uri = '/' . ltrim($m[2], '/');
-        if (strpos($name, '.') !== false && strpos($name, '›') === false) {
-            $routeMap[$name] = $uri;
+$output = shell_exec('php artisan route:list --json 2>/dev/null');
+$routes = json_decode($output ?: '[]', true);
+if (is_array($routes)) {
+    foreach ($routes as $route) {
+        $name = $route['name'] ?? null;
+        $uri = $route['uri'] ?? '';
+        if ($name) {
+            $routeMap[$name] = '/' . ltrim($uri, '/');
+        }
+    }
+}
+// Fallback: parse text output if JSON failed
+if (empty($routeMap)) {
+    $output = shell_exec('cd /usr/share/nginx/heratio && COLUMNS=500 php artisan route:list 2>/dev/null');
+    foreach (explode("\n", $output ?: '') as $line) {
+        if (preg_match('/^\s+(GET|POST|PUT|DELETE|PATCH)[^\s]*\s+(\S+)\s+(\S+)/', $line, $m)) {
+            $name = $m[3];
+            $uri = '/' . ltrim($m[2], '/');
+            if (strpos($name, '.') !== false && strpos($name, '›') === false) {
+                $routeMap[$name] = $uri;
+            }
         }
     }
 }

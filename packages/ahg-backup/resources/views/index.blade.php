@@ -295,7 +295,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 function testConnection() {
   var btn = document.getElementById('btn-test-connection');

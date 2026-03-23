@@ -15,7 +15,7 @@
       <li><a href="{{ route('user.confirmDelete', ['slug' => $user->slug]) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
     @endif
 
-    <li><a href="{{ route('user.create') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
+    <li><a href="{{ route('user.add') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
 
     <li><a href="{{ route('user.browse') }}" class="btn atom-btn-outline-light">{{ __('Return to user list') }}</a></li>
 

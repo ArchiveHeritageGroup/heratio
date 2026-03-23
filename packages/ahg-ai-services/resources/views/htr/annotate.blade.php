@@ -45,7 +45,7 @@
 </div>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 const typeAFields = ['form_number','deceased_name','sex','usual_residence','age','race','birthplace','marital_status','occupation','date_of_death','place_of_death','burial_place','cause_of_death','informant_name','date_registered'];
 const typeBFields = ['entry_number','name','date','event_type','notes'];

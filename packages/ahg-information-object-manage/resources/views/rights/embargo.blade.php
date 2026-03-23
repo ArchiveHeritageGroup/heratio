@@ -130,7 +130,7 @@
 </form>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.getElementById('is_perpetual').addEventListener('change', function() {
   document.getElementById('end_date').disabled = this.checked;

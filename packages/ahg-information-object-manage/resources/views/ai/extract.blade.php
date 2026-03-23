@@ -37,7 +37,7 @@
 </div>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 function extractEntities(objectId) {
     const btn = document.getElementById('nerExtractBtn');

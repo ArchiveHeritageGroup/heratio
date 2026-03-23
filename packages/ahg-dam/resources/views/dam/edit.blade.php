@@ -964,7 +964,7 @@
   </form>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const assetTypeSelect = document.getElementById('asset_type');

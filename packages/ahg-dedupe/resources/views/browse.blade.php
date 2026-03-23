@@ -161,7 +161,7 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

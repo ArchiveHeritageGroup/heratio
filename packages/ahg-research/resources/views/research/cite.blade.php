@@ -61,7 +61,7 @@
     </div>
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 function copyCitation(style) {
     var textarea = document.getElementById('citation-' + style);

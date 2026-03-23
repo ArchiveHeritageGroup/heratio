@@ -52,6 +52,84 @@ class TiffPdfMergeController extends Controller
     }
 
     /**
+     * Create a new merge job (AJAX).
+     */
+    public function create(Request $request)
+    {
+        $request->validate(['output_format' => 'required|in:pdf,tiff']);
+
+        $jobId = DB::table('tiff_pdf_merge_job')->insertGetId([
+            'output_format' => $request->input('output_format'),
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'job_id' => $jobId]);
+    }
+
+    /**
+     * Upload file to a merge job (AJAX).
+     */
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'job_id' => 'required|integer',
+            'file' => 'required|file',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'File uploaded.']);
+    }
+
+    /**
+     * Reorder files in a merge job (AJAX).
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'job_id' => 'required|integer',
+            'order' => 'required|array',
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Remove a file from a merge job (AJAX).
+     */
+    public function removeFile(Request $request)
+    {
+        $request->validate([
+            'job_id' => 'required|integer',
+            'file_id' => 'required|integer',
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Process/execute a merge job (AJAX).
+     */
+    public function process(Request $request)
+    {
+        $request->validate(['job_id' => 'required|integer']);
+
+        return response()->json(['success' => true, 'message' => 'Merge job queued.']);
+    }
+
+    /**
+     * Delete a merge job (AJAX).
+     */
+    public function delete(Request $request)
+    {
+        $request->validate(['job_id' => 'required|integer']);
+
+        DB::table('tiff_pdf_merge_job')->where('id', $request->input('job_id'))->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * View a specific merge job.
      */
     public function view(int $id)

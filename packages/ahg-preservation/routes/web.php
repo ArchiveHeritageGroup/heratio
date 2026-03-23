@@ -33,4 +33,12 @@ Route::middleware('admin')->group(function () {
         Route::post('/store', [TiffPdfMergeController::class, 'store'])->name('preservation.tiffpdfmerge.store');
         Route::get('/{id}', [TiffPdfMergeController::class, 'view'])->name('preservation.tiffpdfmerge.view');
     });
+
+    // TIFF/PDF Merge AJAX API routes (used by add-digital-object)
+    Route::post('/tiffpdfmerge/create', [TiffPdfMergeController::class, 'create'])->name('tiffpdfmerge.create');
+    Route::post('/tiffpdfmerge/upload', [TiffPdfMergeController::class, 'upload'])->name('tiffpdfmerge.upload');
+    Route::post('/tiffpdfmerge/reorder', [TiffPdfMergeController::class, 'reorder'])->name('tiffpdfmerge.reorder');
+    Route::post('/tiffpdfmerge/removeFile', [TiffPdfMergeController::class, 'removeFile'])->name('tiffpdfmerge.removeFile');
+    Route::post('/tiffpdfmerge/process', [TiffPdfMergeController::class, 'process'])->name('tiffpdfmerge.process');
+    Route::post('/tiffpdfmerge/delete', [TiffPdfMergeController::class, 'delete'])->name('tiffpdfmerge.delete');
 });

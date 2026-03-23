@@ -195,7 +195,7 @@
   </div>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var fileInput = document.getElementById('exchange_file');

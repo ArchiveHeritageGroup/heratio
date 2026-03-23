@@ -48,3 +48,4 @@ Route::get('/cart/browse', fn () => redirect('/cart'));
 
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/homepage', [App\Http\Controllers\HomeController::class, 'index'])->name('homepage'); // AtoM alias

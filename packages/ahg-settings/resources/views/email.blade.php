@@ -164,7 +164,7 @@
   </div>
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 document.getElementById('btnSendTest').addEventListener('click', function() {
     var email = document.getElementById('testEmailInput').value;

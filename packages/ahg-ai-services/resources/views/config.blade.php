@@ -422,7 +422,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 function updateNewConfigDefaults() {
     const provider = document.getElementById('newProvider').value;

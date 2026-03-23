@@ -380,7 +380,7 @@
   </form>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 // Live Preview
 document.getElementById('btnLivePreview').addEventListener('click', function() {

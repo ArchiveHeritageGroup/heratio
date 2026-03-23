@@ -197,7 +197,7 @@
         <li><a href="{{ route('user.confirmDelete', $user->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
       @endif
 
-      <li><a href="{{ route('user.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+      <li><a href="{{ route('user.add') }}" class="btn atom-btn-outline-light">Add new</a></li>
       <li><a href="{{ route('user.browse') }}" class="btn atom-btn-outline-light">Return to user list</a></li>
     </ul>
   @endauth

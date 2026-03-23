@@ -811,7 +811,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
   // Object search autocomplete
   (function() {

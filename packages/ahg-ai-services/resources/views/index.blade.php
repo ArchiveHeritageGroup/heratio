@@ -289,7 +289,7 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 function aiTest(action) {
     const text = document.getElementById('aiTestInput').value.trim();

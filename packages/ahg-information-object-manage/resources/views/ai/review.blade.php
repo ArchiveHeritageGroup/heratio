@@ -133,7 +133,7 @@
 </style>
 @endpush
 
-@push('scripts')
+@push('js')
 <script>
 var currentObjectId = null;
 var entityData = {};

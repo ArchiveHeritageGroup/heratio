@@ -148,7 +148,7 @@
 </form>
 @endsection
 
-@push('scripts')
+@push('js')
 <script src="/vendor/ahg-theme-b5/js/vendor/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

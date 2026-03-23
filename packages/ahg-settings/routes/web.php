@@ -36,6 +36,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/uploads', [SettingsController::class, 'uploads'])->name('settings.uploads');
     Route::match(['get', 'post'], '/admin/settings/visible-elements', [SettingsController::class, 'visibleElements'])->name('settings.visible-elements');
     Route::match(['get', 'post'], '/admin/settings/web-analytics', [SettingsController::class, 'webAnalytics'])->name('settings.web-analytics');
+    Route::match(['get', 'post'], '/admin/settings/analytics', [SettingsController::class, 'webAnalytics'])->name('settings.analytics'); // AtoM alias
     Route::get('/admin/settings/ai-condition', [SettingsController::class, 'aiCondition'])->name('settings.ai-condition');
     Route::match(['get', 'post'], '/admin/settings/ldap', [SettingsController::class, 'ldap'])->name('settings.ldap');
     Route::match(['get', 'post'], '/admin/settings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
@@ -74,9 +75,3 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');
 });
 
-Route::middleware(['web'])->group(function () {
-
-// Auto-registered stub routes
-Route::match(['get','post'], '/', function() { return view('settings::'); })->name('settings.');
-Route::match(['get','post'], '/analytics', function() { return view('settings::analytics'); })->name('settings.analytics');
-});

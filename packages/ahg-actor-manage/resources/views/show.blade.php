@@ -378,7 +378,7 @@
   <ul class="actions mb-3 nav gap-2">
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
     <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.create') }}">Add new</a></li>
+    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
     <li>
       <div class="dropup">

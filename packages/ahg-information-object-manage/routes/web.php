@@ -25,6 +25,7 @@ Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->n
 Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
+Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
 Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
 Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
@@ -85,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete');
 
     // Collections Management — Provenance
-    Route::get('/provenance/{slug}', [ProvenanceController::class, 'index'])->name('io.provenance');
+    Route::get('/informationobject/{slug}/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
     Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
     Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store');
     Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->where('id', '[0-9]+');

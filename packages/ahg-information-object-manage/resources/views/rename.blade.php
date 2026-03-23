@@ -106,7 +106,7 @@
   </div>
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var titleInput = document.getElementById('title');

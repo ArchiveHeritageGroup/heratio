@@ -18,7 +18,7 @@
     ])
 
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('user.create') }}" class="btn btn-sm atom-btn-outline-light">
+      <a href="{{ route('user.add') }}" class="btn btn-sm atom-btn-outline-light">
         Add new
       </a>
 
@@ -70,6 +70,6 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   <section class="actions mb-3">
-    <a class="btn atom-btn-outline-light" href="{{ route('user.create') }}">Add new</a>
+    <a class="btn atom-btn-outline-light" href="{{ route('user.add') }}">Add new</a>
   </section>
 @endsection

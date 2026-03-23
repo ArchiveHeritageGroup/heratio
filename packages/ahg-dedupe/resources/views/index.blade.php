@@ -214,7 +214,7 @@
   </div>
 @endsection
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-dismiss').forEach(function (btn) {

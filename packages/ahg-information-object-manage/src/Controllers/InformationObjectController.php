@@ -2086,4 +2086,28 @@ class InformationObjectController extends Controller
             ->route('informationobject.show', $slug)
             ->with('success', 'Dates calculated successfully from child descriptions.');
     }
+
+    public function autocomplete(Request $request)
+    {
+        $query = $request->get('query', '');
+        $culture = app()->getLocale();
+        $limit = (int) $request->get('limit', 10);
+
+        $results = DB::table('information_object')
+            ->join('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->join('slug', 'slug.object_id', '=', 'information_object.id')
+            ->where('information_object_i18n.title', 'LIKE', '%' . $query . '%')
+            ->select(
+                'information_object.id',
+                'information_object_i18n.title as name',
+                'slug.slug'
+            )
+            ->limit($limit)
+            ->get();
+
+        return response()->json($results);
+    }
 }

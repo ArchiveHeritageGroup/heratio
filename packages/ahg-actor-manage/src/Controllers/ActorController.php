@@ -552,4 +552,28 @@ class ActorController extends Controller
             ->route('actor.browse')
             ->with('success', 'Authority record deleted successfully.');
     }
+
+    public function autocomplete(Request $request)
+    {
+        $query = $request->get('query', '');
+        $culture = app()->getLocale();
+        $limit = (int) $request->get('limit', 10);
+
+        $results = DB::table('actor')
+            ->join('actor_i18n', function ($j) use ($culture) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                  ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->join('slug', 'slug.object_id', '=', 'actor.id')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $query . '%')
+            ->select(
+                'actor.id',
+                'actor_i18n.authorized_form_of_name as name',
+                'slug.slug'
+            )
+            ->limit($limit)
+            ->get();
+
+        return response()->json($results);
+    }
 }

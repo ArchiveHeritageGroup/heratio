@@ -194,7 +194,7 @@
 </style>
 @endpush
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var confirmCheck = document.getElementById('confirmMerge');
