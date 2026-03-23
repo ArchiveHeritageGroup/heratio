@@ -41,7 +41,7 @@
           @endif
         </div>
         <div class="col-md-6 text-md-end">
-          <a href="{{ url('/security/request-access') }}" class="btn atom-btn-white">
+          <a href="{{ route('accessRequest.create') }}" class="btn atom-btn-white">
             <i class="fas fa-arrow-up me-1"></i> Request Higher Clearance
           </a>
         </div>

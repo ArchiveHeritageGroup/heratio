@@ -98,7 +98,7 @@
     <h4 class="h5 mb-2">Export</h4>
     <ul class="list-unstyled mb-3">
       <li>
-        <a class="atom-icon-link" href="{{ url('/' . $actor->slug . '/sfEacPlugin') }}">
+        <a class="atom-icon-link" href="{{ route('export.authority') }}?slug={{ $actor->slug }}">
           <i class="fas fa-fw fa-upload me-1" aria-hidden="true"></i>EAC
         </a>
       </li>
@@ -282,9 +282,9 @@
         </button>
         <ul class="dropdown-menu mb-2">
           @if(isset($digitalObject) && $digitalObject)
-            <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
+            <li><a href="{{ route('actor.edit', $actor->slug) }}" class="dropdown-item">Edit digital object</a></li>
           @else
-            <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
+            <li><a href="{{ route('actor.edit', $actor->slug) }}" class="dropdown-item">Link digital object</a></li>
           @endif
         </ul>
       </div>
