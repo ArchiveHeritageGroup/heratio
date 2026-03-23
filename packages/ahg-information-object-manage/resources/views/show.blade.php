@@ -1210,8 +1210,8 @@
   {{-- ===== 9. Rights area (authenticated only) ===== --}}
   @auth
     <section id="rightsArea" class="border-bottom">
-      <h2 class="h6 mb-0 atom-section-header">
-        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#rights-collapse">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#rights-collapse">
           Rights area
         </a>
       </h2>
@@ -1328,8 +1328,8 @@
       $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
     @endphp
     <section class="border-bottom">
-      <h2 class="h6 mb-0 atom-section-header">
-        <a class="d-flex py-2 px-3 border-bottom text-primary text-decoration-none" href="#digital-object-collapse">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#digital-object-collapse">
           Digital object metadata
         </a>
       </h2>

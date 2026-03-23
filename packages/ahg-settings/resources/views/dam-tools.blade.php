@@ -24,7 +24,7 @@
             <i class="fas fa-images fa-3x text-success mb-3"></i>
             <h5>Digital Objects</h5>
             <p class="text-muted small">Browse and manage all digital objects in the system.</p>
-            <a href="{{ url('/digitalobject/browse') }}" class="btn btn-outline-success"><i class="fas fa-search me-1"></i>Browse</a>
+            <a href="{{ url('/digitalobject/browse') }}" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>Browse</a>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@
             <i class="fas fa-tasks fa-3x text-info mb-3"></i>
             <h5>Background Jobs</h5>
             <p class="text-muted small">View status of all processing jobs.</p>
-            <a href="{{ url('/admin/jobs') }}" class="btn btn-outline-info"><i class="fas fa-list me-1"></i>View Jobs</a>
+            <a href="{{ url('/admin/jobs') }}" class="btn atom-btn-outline-info"><i class="fas fa-list me-1"></i>View Jobs</a>
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
             <i class="fas fa-cube fa-3x text-warning mb-3"></i>
             <h5>3D Objects</h5>
             <p class="text-muted small">Manage 3D models and viewer settings.</p>
-            <a href="#" class="btn btn-outline-warning"><i class="fas fa-cog me-1"></i>Settings</a>
+            <a href="#" class="btn atom-btn-outline-warning"><i class="fas fa-cog me-1"></i>Settings</a>
           </div>
         </div>
       </div>

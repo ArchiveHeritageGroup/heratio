@@ -18,7 +18,7 @@
     @endif
 
     <div class="card mb-4">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-cloud me-2"></i>About AHG Central</h5></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-cloud me-2"></i>About AHG Central</h5></div>
       <div class="card-body">
         <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that enhances your instance with:</p>
         <ul class="mb-3">
@@ -33,7 +33,7 @@
     <form method="post" action="{{ route('settings.ahg-integration') }}">
       @csrf
       <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>Connection Settings</h5></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>Connection Settings</h5></div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
             <input type="hidden" name="settings[ahg_central_enabled]" value="0">
@@ -57,7 +57,7 @@
 
       <div class="d-flex gap-2">
         <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-        <button type="submit" name="action" value="test" class="btn btn-outline-info"><i class="fas fa-plug me-1"></i>Test Connection</button>
+        <button type="submit" name="action" value="test" class="btn atom-btn-outline-info"><i class="fas fa-plug me-1"></i>Test Connection</button>
         <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>

@@ -8,7 +8,7 @@
 
   @if($holdingsCount > 0)
     <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header">
         <h5 class="mb-0">Holdings</h5>
       </div>
       <div class="card-body">
@@ -70,69 +70,47 @@
     </ol>
   </nav>
 
-  <div class="mb-3">
-    @auth
-      <a href="{{ route('repository.edit', $repository->slug) }}" class="btn btn-sm atom-btn-white">Edit</a>
-      <a href="{{ route('repository.confirmDelete', $repository->slug) }}" class="btn btn-sm atom-btn-outline-danger">Delete</a>
-      <a href="{{ route('repository.create') }}" class="btn btn-sm atom-btn-outline-success">Add new</a>
-      <a href="{{ route('repository.edit', $repository->slug) }}?rename=1" class="btn atom-btn-outline-light" title="Rename"><i class="fas fa-i-cursor me-1"></i>Rename</a>
-    @endauth
-    <a href="{{ route('repository.print', $repository->slug) }}" class="btn btn-sm atom-btn-white" target="_blank">
-      <i class="fas fa-print me-1"></i> Print
-    </a>
-    <button class="btn atom-btn-white clipboard ms-2" data-clipboard-slug="{{ $repository->slug ?? '' }}" data-clipboard-type="repository" title="Add to clipboard">
-      <i class="fas fa-paperclip"></i>
-    </button>
-  </div>
-
   {{-- Identity area (ISDIAH 5.1) --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Identity area</h2>
+  <section id="identifyArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identity area</div></h2>
 
-    @if($repository->identifier)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Identifier</div>
-        <div class="col-md-9">{{ $repository->identifier }}</div>
-      </div>
-    @endif
-
-    @if($repository->authorized_form_of_name)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Authorized form of name</div>
-        <div class="col-md-9">{{ $repository->authorized_form_of_name }}</div>
-      </div>
-    @endif
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Identifier</h3><div class="col-9 p-2">{{ $repository->identifier ?? '' }}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3><div class="col-9 p-2">{{ $repository->authorized_form_of_name ?? '' }}</div></div>
 
     @if($otherNames->isNotEmpty())
       @php $parallelNames = $otherNames->where('type_id', 148); @endphp
       @if($parallelNames->isNotEmpty())
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Parallel form(s) of name</div>
-          <div class="col-md-9">
-            @foreach($parallelNames as $name)
-              <div>{{ $name->name }}</div>
-            @endforeach
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Parallel form(s) of name</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($parallelNames as $name)
+                <li>{{ $name->name }}</li>
+              @endforeach
+            </ul>
           </div>
         </div>
       @endif
 
       @php $otherFormNames = $otherNames->where('type_id', 149); @endphp
       @if($otherFormNames->isNotEmpty())
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Other form(s) of name</div>
-          <div class="col-md-9">
-            @foreach($otherFormNames as $name)
-              <div>{{ $name->name }}</div>
-            @endforeach
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Other form(s) of name</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($otherFormNames as $name)
+                <li>{{ $name->name }}</li>
+              @endforeach
+            </ul>
           </div>
         </div>
       @endif
     @endif
 
     @if($repositoryTypes->isNotEmpty())
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Type</div>
-        <div class="col-md-9">
+      <div class="field text-break row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type</h3>
+        <div class="col-9 p-2">
           @foreach($repositoryTypes as $type)
             <span class="badge bg-light text-dark me-1">{{ $type->name }}</span>
           @endforeach
@@ -142,203 +120,172 @@
   </section>
 
   {{-- Contact area (ISDIAH 5.2) --}}
-  @if($contacts->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Contact area</h2>
-      @foreach($contacts as $contact)
-        <div class="card mb-2">
-          <div class="card-body">
-            @if($contact->contact_person)
-              <div><strong>Contact person:</strong> {{ $contact->contact_person }}</div>
-            @endif
-            @if($contact->street_address)
-              <div>{{ $contact->street_address }}</div>
-            @endif
-            @if($contact->city)
-              <div>{{ $contact->city }}{{ $contact->region ? ', ' . $contact->region : '' }} {{ $contact->postal_code ?? '' }}</div>
-            @endif
-            @if($contact->country_code)
-              <div>{{ $contact->country_code }}</div>
-            @endif
-            @if($contact->telephone)
-              <div><strong>Telephone:</strong> {{ $contact->telephone }}</div>
-            @endif
-            @if($contact->fax)
-              <div><strong>Fax:</strong> {{ $contact->fax }}</div>
-            @endif
-            @if($contact->email)
-              <div><strong>Email:</strong> <a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a></div>
-            @endif
-            @if($contact->website)
-              <div><strong>Website:</strong> <a href="{{ $contact->website }}" target="_blank" rel="noopener">{{ $contact->website }}</a></div>
-            @endif
+  <section id="contactArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact area</div></h2>
+
+    @foreach($contacts as $contact)
+      <section class="contact-info">
+        @if($contact->contact_person)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">&nbsp;</h3>
+            <div class="col-9 p-2">
+              <span class="text-primary">{{ $contact->contact_person }}</span>
+              @if($contact->primary_contact)
+                <span class="badge bg-secondary ms-1">Primary contact</span>
+              @endif
+            </div>
           </div>
-        </div>
-      @endforeach
-    </section>
-  @endif
+        @endif
 
-  {{-- Description area (ISDIAH 5.3) — from actor_i18n --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Description area</h2>
+        @if($contact->contact_type ?? null)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type</h3>
+            <div class="col-9 p-2">{{ $contact->contact_type }}</div>
+          </div>
+        @endif
 
-    @foreach([
-      'history' => 'History',
-      'geocultural_context' => 'Geographical and cultural context',
-      'mandates' => 'Mandates/Sources of authority',
-      'internal_structures' => 'Administrative structure',
-      'collecting_policies' => 'Records management and collecting policies',
-      'buildings' => 'Buildings',
-      'holdings' => 'Holdings',
-      'finding_aids' => 'Finding aids, guides and publications',
-    ] as $field => $label)
-      @if($repository->$field)
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">{{ $label }}</div>
-          <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-        </div>
-      @endif
+        @if($contact->street_address || ($contact->city ?? null) || ($contact->region ?? null) || $contact->country_code || $contact->postal_code)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Address</h3>
+            <div class="col-9 p-2">
+              @if($contact->street_address)
+                <div class="field row g-0">
+                  <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Street address</h4>
+                  <div class="col-9 p-1">{{ $contact->street_address }}</div>
+                </div>
+              @endif
+              @if($contact->city ?? null)
+                <div class="field row g-0">
+                  <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Locality</h4>
+                  <div class="col-9 p-1">{{ $contact->city }}</div>
+                </div>
+              @endif
+              @if($contact->region ?? null)
+                <div class="field row g-0">
+                  <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Region</h4>
+                  <div class="col-9 p-1">{{ $contact->region }}</div>
+                </div>
+              @endif
+              @if($contact->country_code)
+                <div class="field row g-0">
+                  <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country name</h4>
+                  <div class="col-9 p-1">{{ $contact->country_code }}</div>
+                </div>
+              @endif
+              @if($contact->postal_code)
+                <div class="field row g-0">
+                  <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Postal code</h4>
+                  <div class="col-9 p-1">{{ $contact->postal_code }}</div>
+                </div>
+              @endif
+            </div>
+          </div>
+        @endif
+
+        @if($contact->telephone)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Telephone</h3>
+            <div class="col-9 p-2">{{ $contact->telephone }}</div>
+          </div>
+        @endif
+
+        @if($contact->fax)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Fax</h3>
+            <div class="col-9 p-2">{{ $contact->fax }}</div>
+          </div>
+        @endif
+
+        @if($contact->email)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Email</h3>
+            <div class="col-9 p-2">{{ $contact->email }}</div>
+          </div>
+        @endif
+
+        @if($contact->website)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">URL</h3>
+            <div class="col-9 p-2"><a href="{{ $contact->website }}" target="_blank" rel="noopener">{{ $contact->website }}</a></div>
+          </div>
+        @endif
+
+        @if($contact->note ?? null)
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
+            <div class="col-9 p-2">{{ $contact->note }}</div>
+          </div>
+        @endif
+      </section>
     @endforeach
+  </section>
+
+  {{-- Description area (ISDIAH 5.3) --}}
+  <section id="descriptionArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Description area</div></h2>
+
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">History</h3><div class="col-9 p-2">{!! ($repository->history ?? '') ? nl2br(e($repository->history)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Geographical and cultural context</h3><div class="col-9 p-2">{!! ($repository->geocultural_context ?? '') ? nl2br(e($repository->geocultural_context)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Mandates/Sources of authority</h3><div class="col-9 p-2">{!! ($repository->mandates ?? '') ? nl2br(e($repository->mandates)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Administrative structure</h3><div class="col-9 p-2">{!! ($repository->internal_structures ?? '') ? nl2br(e($repository->internal_structures)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Records management and collecting policies</h3><div class="col-9 p-2">{!! ($repository->collecting_policies ?? '') ? nl2br(e($repository->collecting_policies)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Buildings</h3><div class="col-9 p-2">{!! ($repository->buildings ?? '') ? nl2br(e($repository->buildings)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Holdings</h3><div class="col-9 p-2">{!! ($repository->holdings ?? '') ? nl2br(e($repository->holdings)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Finding aids, guides and publications</h3><div class="col-9 p-2">{!! ($repository->finding_aids ?? '') ? nl2br(e($repository->finding_aids)) : '' !!}</div></div>
   </section>
 
   {{-- Access area (ISDIAH 5.4) --}}
-  @if($repository->opening_times || $repository->access_conditions || $repository->disabled_access)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Access area</h2>
+  <section id="accessArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access area</div></h2>
 
-      @foreach([
-        'opening_times' => 'Opening times',
-        'access_conditions' => 'Access conditions and requirements',
-        'disabled_access' => 'Accessibility',
-      ] as $field => $label)
-        @if($repository->$field)
-          <div class="row mb-2">
-            <div class="col-md-3 fw-bold">{{ $label }}</div>
-            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-          </div>
-        @endif
-      @endforeach
-    </section>
-  @endif
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Opening times</h3><div class="col-9 p-2">{!! ($repository->opening_times ?? '') ? nl2br(e($repository->opening_times)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Access conditions and requirements</h3><div class="col-9 p-2">{!! ($repository->access_conditions ?? '') ? nl2br(e($repository->access_conditions)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accessibility</h3><div class="col-9 p-2">{!! ($repository->disabled_access ?? '') ? nl2br(e($repository->disabled_access)) : '' !!}</div></div>
+  </section>
 
   {{-- Services area (ISDIAH 5.5) --}}
-  @if($repository->research_services || $repository->reproduction_services || $repository->public_facilities)
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Services area</h2>
+  <section id="servicesArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Services area</div></h2>
 
-      @foreach([
-        'research_services' => 'Research services',
-        'reproduction_services' => 'Reproduction services',
-        'public_facilities' => 'Public areas',
-      ] as $field => $label)
-        @if($repository->$field)
-          <div class="row mb-2">
-            <div class="col-md-3 fw-bold">{{ $label }}</div>
-            <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-          </div>
-        @endif
-      @endforeach
-    </section>
-  @endif
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Research services</h3><div class="col-9 p-2">{!! ($repository->research_services ?? '') ? nl2br(e($repository->research_services)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Reproduction services</h3><div class="col-9 p-2">{!! ($repository->reproduction_services ?? '') ? nl2br(e($repository->reproduction_services)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Public areas</h3><div class="col-9 p-2">{!! ($repository->public_facilities ?? '') ? nl2br(e($repository->public_facilities)) : '' !!}</div></div>
+  </section>
 
   {{-- Control area (ISDIAH 5.6) --}}
-  <section class="mb-4">
-    <h2 class="fs-5 border-bottom pb-2">Control area</h2>
+  <section id="controlArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Control area</div></h2>
 
-    @if($repository->desc_identifier ?? null)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Description identifier</div>
-        <div class="col-md-9">{{ $repository->desc_identifier }}</div>
-      </div>
-    @endif
-
-    @foreach([
-      'desc_institution_identifier' => 'Institution identifier',
-      'desc_rules' => 'Rules and/or conventions used',
-      'desc_sources' => 'Sources',
-      'desc_revision_history' => 'Dates of creation, revision and deletion',
-    ] as $field => $label)
-      @if($repository->$field)
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">{{ $label }}</div>
-          <div class="col-md-9">{!! nl2br(e($repository->$field)) !!}</div>
-        </div>
-      @endif
-    @endforeach
-
-    @if($descStatusName ?? null)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Status</div>
-        <div class="col-md-9">{{ $descStatusName }}</div>
-      </div>
-    @endif
-
-    @if($descDetailName ?? null)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Level of detail</div>
-        <div class="col-md-9">{{ $descDetailName }}</div>
-      </div>
-    @endif
-
-    @if(!empty($languages))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Language(s)</div>
-        <div class="col-md-9">
-          @foreach($languages as $lang)
-            <span class="badge bg-light text-dark me-1">{{ $lang }}</span>
-          @endforeach
-        </div>
-      </div>
-    @endif
-
-    @if(!empty($scripts))
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Script(s)</div>
-        <div class="col-md-9">
-          @foreach($scripts as $scr)
-            <span class="badge bg-light text-dark me-1">{{ $scr }}</span>
-          @endforeach
-        </div>
-      </div>
-    @endif
-
-    @if($maintenanceNotes ?? null)
-      <div class="row mb-2">
-        <div class="col-md-3 fw-bold">Maintenance notes</div>
-        <div class="col-md-9">{!! nl2br(e($maintenanceNotes)) !!}</div>
-      </div>
-    @endif
-
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description identifier</h3><div class="col-9 p-2">{{ $repository->desc_identifier ?? '' }}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Institution identifier</h3><div class="col-9 p-2">{{ $repository->desc_institution_identifier ?? '' }}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rules and/or conventions used</h3><div class="col-9 p-2">{!! ($repository->desc_rules ?? '') ? nl2br(e($repository->desc_rules)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Status</h3><div class="col-9 p-2">{{ $descStatusName ?? '' }}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of detail</h3><div class="col-9 p-2">{{ $descDetailName ?? '' }}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of creation, revision and deletion</h3><div class="col-9 p-2">{!! ($repository->desc_revision_history ?? '') ? nl2br(e($repository->desc_revision_history)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language(s)</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach($languages ?? [] as $lang)<li>{{ $lang }}</li>@endforeach</ul></div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script(s)</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach($scripts ?? [] as $scr)<li>{{ $scr }}</li>@endforeach</ul></div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Sources</h3><div class="col-9 p-2">{!! ($repository->desc_sources ?? '') ? nl2br(e($repository->desc_sources)) : '' !!}</div></div>
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
   </section>
 
   {{-- Access points --}}
-  @if(($thematicAreas ?? collect())->isNotEmpty() || ($geographicSubregions ?? collect())->isNotEmpty())
-    <section class="mb-4">
-      <h2 class="fs-5 border-bottom pb-2">Access points</h2>
+  <section id="accessPointsArea" class="border-bottom">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access points</div></h2>
 
-      @if($thematicAreas->isNotEmpty())
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Thematic area(s)</div>
-          <div class="col-md-9">
-            @foreach($thematicAreas as $area)
-              <span class="badge bg-light text-dark me-1">{{ $area->name }}</span>
-            @endforeach
-          </div>
-        </div>
-      @endif
-
-      @if($geographicSubregions->isNotEmpty())
-        <div class="row mb-2">
-          <div class="col-md-3 fw-bold">Geographic subregion(s)</div>
-          <div class="col-md-9">
-            @foreach($geographicSubregions as $region)
-              <span class="badge bg-light text-dark me-1">{{ $region->name }}</span>
-            @endforeach
-          </div>
-        </div>
-      @endif
-    </section>
-  @endif
+    <div class="field text-break row g-0">
+      <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Access Points</h3>
+      <div class="col-9 p-2">
+        <ul class="m-0 ms-1 ps-3">
+          @foreach($thematicAreas ?? [] as $area)
+            <li>{{ $area->name }} (Thematic area)</li>
+          @endforeach
+          @foreach($geographicSubregions ?? [] as $region)
+            <li>{{ $region->name }} (Geographic subregion)</li>
+          @endforeach
+        </ul>
+      </div>
+    </div>
+  </section>
 
   {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth

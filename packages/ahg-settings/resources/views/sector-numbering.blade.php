@@ -17,7 +17,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header bg-secondary text-white"><i class="fas fa-globe me-2"></i>Current Global Identifier Settings (Reference)</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-globe me-2"></i>Current Global Identifier Settings (Reference)</div>
       <div class="card-body">
         <dl class="row small mb-0">
           <dt class="col-sm-3">Mask Enabled</dt>

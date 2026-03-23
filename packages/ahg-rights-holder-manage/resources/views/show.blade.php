@@ -173,7 +173,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm mb-0">
             <thead>
-              <tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+              <tr>
                 <th>Basis</th>
                 <th>Start date</th>
                 <th>End date</th>

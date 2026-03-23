@@ -53,7 +53,7 @@ try {
   <div class="d-flex align-items-center flex-wrap gap-2">
     @if(!empty($savedSearches))
     <div class="dropdown">
-      <button class="btn btn-sm btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn btn-sm atom-btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa fa-bookmark me-1"></i>{{ __('Saved Searches') }} (@php echo count($savedSearches); @endphp)
       </button>
       <ul class="dropdown-menu">

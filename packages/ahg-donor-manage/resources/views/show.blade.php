@@ -26,12 +26,7 @@
 
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
-    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#identity-collapse">Basic info</a>
-      @auth
-        <a href="{{ route('donor.edit', $donor->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
-    </h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Basic info</div></h2>
     <div id="identity-collapse">
 
       @if($donor->authorized_form_of_name)
@@ -46,12 +41,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#contact-collapse">Contact area</a>
-      @auth
-        <a href="{{ route('donor.edit', $donor->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
-    </h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact area</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -91,7 +81,7 @@
                   @endif
                   @if($contactItem->city ?? null)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">City</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Locality</h4>
                       <div class="col-9 p-1">{{ $contactItem->city }}</div>
                     </div>
                   @endif
@@ -103,7 +93,7 @@
                   @endif
                   @if($contactItem->country_code)
                     <div class="field row g-0">
-                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country</h4>
+                      <h4 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-1 ps-0" style="font-size:.85rem;">Country name</h4>
                       <div class="col-9 p-1">{{ $contactItem->country_code }}</div>
                     </div>
                   @endif
@@ -165,9 +155,7 @@
 
   {{-- ===== Accession area ===== --}}
   <section class="section" id="accessionArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      Accession area
-    </h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Accession area</div></h2>
     <div>
 
       @if(isset($accessions) && $accessions->isNotEmpty())

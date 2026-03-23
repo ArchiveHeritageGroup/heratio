@@ -14,7 +14,7 @@
     <form method="post" action="{{ route('settings.tts') }}">
       @csrf
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-cog me-2"></i>General</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>General</div>
         <div class="card-body">
           <div class="mb-3">
             <div class="form-check form-switch">
@@ -41,7 +41,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-sliders-h me-2"></i>Voice Settings</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sliders-h me-2"></i>Voice Settings</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Default Voice <span class="badge bg-secondary ms-1">Optional</span></label>

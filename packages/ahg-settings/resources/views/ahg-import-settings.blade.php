@@ -6,7 +6,7 @@
 <div class="row justify-content-center">
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header"><h4 class="mb-0"><i class="fas fa-upload me-2"></i>Import AHG Settings</h4></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h4 class="mb-0"><i class="fas fa-upload me-2"></i>Import AHG Settings</h4></div>
       <div class="card-body">
         <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Upload a previously exported AHG settings JSON file to restore settings.</div>
 

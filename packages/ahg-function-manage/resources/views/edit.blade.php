@@ -150,7 +150,7 @@
                         <td><input type="text" name="related_functions[{{ $loop->index }}][type]" class="form-control form-control-sm" value="{{ $rf->type ?? '' }}"></td>
                         <td><input type="text" name="related_functions[{{ $loop->index }}][description]" class="form-control form-control-sm" value="{{ $rf->description ?? '' }}"></td>
                         <td><input type="text" name="related_functions[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rf->dates ?? '' }}"></td>
-                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                        <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
                       </tr>
                     @endforeach
                   @endif
@@ -171,7 +171,7 @@
                         <td><input type="text" name="related_actors[{{ $loop->index }}][name]" class="form-control form-control-sm" value="{{ $ra->name ?? '' }}"></td>
                         <td><input type="text" name="related_actors[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $ra->nature ?? '' }}"></td>
                         <td><input type="text" name="related_actors[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $ra->dates ?? '' }}"></td>
-                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                        <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
                       </tr>
                     @endforeach
                   @endif
@@ -192,7 +192,7 @@
                         <td><input type="text" name="related_resources[{{ $loop->index }}][title]" class="form-control form-control-sm" value="{{ $rr->title ?? '' }}"></td>
                         <td><input type="text" name="related_resources[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $rr->nature ?? '' }}"></td>
                         <td><input type="text" name="related_resources[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rr->dates ?? '' }}"></td>
-                        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+                        <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
                       </tr>
                     @endforeach
                   @endif

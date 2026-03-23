@@ -15,7 +15,7 @@
       <div class="row">
         <div class="col-md-8">
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-info-circle me-2"></i>Basic Information</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Basic Information</div>
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
@@ -43,7 +43,7 @@
           </div>
 
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-code me-2"></i>Pattern Builder</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-code me-2"></i>Pattern Builder</div>
             <div class="card-body">
               <div class="mb-3">
                 <label class="form-label">Pattern <span class="badge bg-danger ms-1">Required</span></label>
@@ -54,7 +54,7 @@
                 <label class="form-label">Insert Token <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div class="d-flex flex-wrap gap-1">
                   @foreach(['{SEQ:4}', '{SEQ:5}', '{SEQ:6}', '{YEAR}', '{YY}', '{MONTH}', '{PREFIX}', '{REPO}', '{FONDS}', '{TYPE}', '{UUID}'] as $token)
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('pattern-field').value += '{{ $token }}'">{{ str_replace(['{','}'], '', $token) }}</button>
+                    <button type="button" class="btn btn-sm atom-btn-outline-secondary" onclick="document.getElementById('pattern-field').value += '{{ $token }}'">{{ str_replace(['{','}'], '', $token) }}</button>
                   @endforeach
                 </div>
               </div>
@@ -62,7 +62,7 @@
           </div>
 
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-cog me-2"></i>Options</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>Options</div>
             <div class="card-body">
               <div class="row">
                 <div class="col-md-4">
@@ -94,7 +94,7 @@
 
         <div class="col-md-4">
           <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-eye me-2"></i>Preview</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-eye me-2"></i>Preview</div>
             <div class="card-body">
               <p class="text-muted small">Save scheme to see numbering preview.</p>
               @if(isset($previews) && count($previews))

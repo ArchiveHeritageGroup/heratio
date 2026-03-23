@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const resultsHeader = document.querySelector('.search-results-header, .browse-header, h1');
   if (resultsHeader && window.location.search) {
     const btn = document.createElement('button');
-    btn.className = 'btn btn-outline-primary btn-sm ms-2';
+    btn.className = 'btn atom-btn-outline-primary btn-sm ms-2';
     btn.innerHTML = '<i class="fa fa-bookmark me-1"></i>{{ __('Save Search') }}';
     btn.setAttribute('data-bs-toggle', 'modal');
     btn.setAttribute('data-bs-target', '#saveSearchModal');

@@ -9,7 +9,7 @@
     <h1><i class="fas fa-server me-2"></i>System Information</h1>
 
     <div class="card mb-4">
-      <div class="card-header">Server environment</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Server environment</div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <tbody>
@@ -27,7 +27,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header">Database</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Database</div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <tbody>
@@ -39,7 +39,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header">PHP extensions ({{ count($info['extensions']) }})</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">PHP extensions ({{ count($info['extensions']) }})</div>
       <div class="card-body">
         <div class="row">
           @foreach(array_chunk($info['extensions'], (int) ceil(count($info['extensions']) / 4)) as $chunk)

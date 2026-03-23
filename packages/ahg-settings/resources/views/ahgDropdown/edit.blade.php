@@ -14,7 +14,7 @@
       @csrf
 
       <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-info-circle me-2"></i>Dropdown Details</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>Dropdown Details</div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
@@ -32,7 +32,7 @@
       </div>
 
       <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <span><i class="fas fa-list-ol me-2"></i>Values</span>
           <button type="button" class="btn btn-sm atom-btn-white" id="add-value-btn"><i class="fas fa-plus me-1"></i>Add Value</button>
         </div>
@@ -41,7 +41,7 @@
             @foreach($values ?? [] as $i => $value)
               <div class="input-group mb-2 dropdown-value-row">
                 <input type="text" name="values[]" class="form-control" value="{{ $value->value ?? $value }}" placeholder="Value">
-                <button type="button" class="btn btn-outline-danger remove-value-btn"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn atom-btn-outline-danger remove-value-btn"><i class="fas fa-times"></i></button>
               </div>
             @endforeach
           </div>
@@ -58,7 +58,7 @@
 document.getElementById('add-value-btn').addEventListener('click', function() {
   var row = document.createElement('div');
   row.className = 'input-group mb-2 dropdown-value-row';
-  row.innerHTML = '<input type="text" name="values[]" class="form-control" placeholder="Value"><button type="button" class="btn btn-outline-danger remove-value-btn"><i class="fas fa-times"></i></button>';
+  row.innerHTML = '<input type="text" name="values[]" class="form-control" placeholder="Value"><button type="button" class="btn atom-btn-outline-danger remove-value-btn"><i class="fas fa-times"></i></button>';
   document.getElementById('dropdown-values').appendChild(row);
   row.querySelector('.remove-value-btn').addEventListener('click', function() { row.remove(); });
 });

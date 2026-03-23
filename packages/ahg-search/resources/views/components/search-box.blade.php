@@ -14,7 +14,7 @@
       data-autocomplete-url="{{ route('search.autocomplete') }}"
       aria-label="Search"
     >
-    <button class="btn btn-outline-light" type="submit" aria-label="Search">
+    <button class="btn atom-btn-outline-light" type="submit" aria-label="Search">
       <i class="fas fa-search" aria-hidden="true"></i>
     </button>
   </div>

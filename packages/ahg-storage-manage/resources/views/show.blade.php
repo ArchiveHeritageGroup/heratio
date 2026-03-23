@@ -14,7 +14,7 @@
 
       {{-- Basic Information --}}
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>Physical Storage</h5>
         </div>
         <div class="card-body">
@@ -56,7 +56,7 @@
 
         @if(!empty($locationParts) || !empty($shelfParts) || !empty($extendedData['barcode']) || !empty($extendedData['reference_code']))
         <div class="card mb-4">
-          <div class="card-header bg-success text-white">
+          <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
             <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Details</h5>
           </div>
           <div class="card-body">
@@ -118,7 +118,7 @@
         {{-- Capacity --}}
         @if(!empty($extendedData['total_capacity']) || !empty($extendedData['total_linear_metres']))
         <div class="card mb-4">
-          <div class="card-header bg-info text-white">
+          <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
             <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Capacity</h5>
           </div>
           <div class="card-body">
@@ -240,7 +240,7 @@
       {{-- Related descriptions --}}
       @if($descriptions->isNotEmpty())
       <div class="card mb-4">
-        <div class="card-header bg-warning">
+        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related Resources</h5>
         </div>
         <div class="card-body">
@@ -285,7 +285,7 @@
       {{-- Actions --}}
       @auth
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
         </div>
         <div class="card-body">

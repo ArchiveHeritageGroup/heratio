@@ -22,11 +22,13 @@
 
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
-    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#basic-collapse">Basic info</a>
-      @auth
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Basic info
+        @auth
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="basic-collapse">
 
@@ -77,11 +79,13 @@
 
   {{-- ===== Donor/Transferring body area ===== --}}
   <section class="section border-bottom" id="donorArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#donor-collapse">Donor/Transferring body area</a>
-      @auth
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Donor/Transferring body area
+        @auth
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="donor-collapse">
 
@@ -174,11 +178,13 @@
 
   {{-- ===== Administrative area ===== --}}
   <section class="section border-bottom" id="administrativeArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#admin-collapse">Administrative area</a>
-      @auth
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Administrative area
+        @auth
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="admin-collapse">
 
@@ -330,8 +336,10 @@
 
   {{-- ===== Rights area ===== --}}
   <section class="section border-bottom" id="rightsArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      Rights area
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Rights area
+      </div>
     </h2>
     <div>
       @if(isset($rights) && count($rights) > 0)
@@ -351,11 +359,13 @@
 
   {{-- ===== Information object area ===== --}}
   <section class="section border-bottom" id="informationObjectArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#io-collapse">Archival description area</a>
-      @auth
-        <a href="{{ route('accession.edit', $accession->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Archival description area
+        @auth
+          <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
     </h2>
     <div id="io-collapse">
       @if(isset($informationObjects) && count($informationObjects) > 0)
@@ -373,8 +383,10 @@
 
   {{-- ===== Deaccession area ===== --}}
   <section class="section border-bottom" id="deaccessionArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      Deaccession area
+    <h2 class="h5 mb-0 atom-section-header">
+      <div class="d-flex p-3 border-bottom text-primary">
+        Deaccession area
+      </div>
     </h2>
     <div>
       @if(isset($deaccessions) && $deaccessions->isNotEmpty())
