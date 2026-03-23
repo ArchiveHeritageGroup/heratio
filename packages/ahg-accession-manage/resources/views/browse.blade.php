@@ -31,6 +31,8 @@
           <th>Accession number</th>
           <th>Title</th>
           <th>Acquisition date</th>
+          <th>Status</th>
+          <th>Priority</th>
           @if(request('sort') === 'lastUpdated')
             <th>Updated</th>
           @endif
@@ -52,6 +54,16 @@
             <td class="w-20">
               {{ $doc['accession_date'] ? \Carbon\Carbon::parse($doc['accession_date'])->format('Y-m-d') : '' }}
             </td>
+            <td>
+              @if(!empty($doc['processing_status_id']) && isset($termNames[$doc['processing_status_id']]))
+                <span class="badge bg-info text-dark">{{ $termNames[$doc['processing_status_id']] }}</span>
+              @endif
+            </td>
+            <td>
+              @if(!empty($doc['processing_priority_id']) && isset($termNames[$doc['processing_priority_id']]))
+                <span class="badge bg-warning text-dark">{{ $termNames[$doc['processing_priority_id']] }}</span>
+              @endif
+            </td>
             @if(request('sort') === 'lastUpdated')
               <td class="w-20">
                 {{ $doc['updated_at'] ? \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d H:i') : '' }}
@@ -67,7 +79,8 @@
 @section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
 
-  <section class="actions mb-3">
+  <section class="actions mb-3 d-flex flex-wrap gap-2">
     <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">Add new</a>
+    <a href="{{ route('accession.export-csv') }}" class="btn atom-btn-outline-light"><i class="fas fa-download me-1"></i>Export CSV</a>
   </section>
 @endsection

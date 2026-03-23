@@ -112,11 +112,22 @@ class RepositoryController extends Controller
         $thematicAreas = $this->service->getThematicAreas($repository->id);
         $geographicSubregions = $this->service->getGeographicSubregions($repository->id);
 
+        // Sidebar: paginated holdings list
+        $holdingsPage = (int) request('holdings_page', 1);
+        $holdingsPager = $this->service->getHoldingsPaginated($repository->id, 10, $holdingsPage);
+        $holdings = $holdingsPager->getCollection();
+
+        // Sidebar: maintained actors
+        $maintainedActorsList = $this->service->getMaintainedActors($repository->id, 10, (int) request('actors_page', 1));
+
         return view('ahg-repository-manage::show', [
             'repository' => $repository,
             'contacts' => $contacts,
             'digitalObjects' => $digitalObjects,
             'holdingsCount' => $holdingsCount,
+            'holdings' => $holdings,
+            'holdingsPager' => $holdingsPager,
+            'maintainedActorsList' => $maintainedActorsList,
             'descStatusName' => $descStatusName,
             'descDetailName' => $descDetailName,
             'otherNames' => $otherNames,

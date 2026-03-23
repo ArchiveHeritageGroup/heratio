@@ -6,19 +6,25 @@
 @section('sidebar')
   @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects])
 
-  @if($holdingsCount > 0)
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="mb-0">Holdings</h5>
-      </div>
-      <div class="card-body">
-        <p class="mb-0">
-          <a href="{{ route('informationobject.browse', ['repository' => $repository->id]) }}">
-            {{ number_format($holdingsCount) }} description{{ $holdingsCount !== 1 ? 's' : '' }}
-          </a>
-        </p>
-      </div>
-    </div>
+  {{-- Repository logo --}}
+  @include('ahg-repository-manage::_logo', ['resource' => $repository])
+
+  {{-- Holdings search box --}}
+  @include('ahg-repository-manage::_holdings', ['resource' => $repository])
+
+  {{-- Holdings list (paginated top-level IOs) --}}
+  @include('ahg-repository-manage::_holdings-list', [
+    'resource' => $repository,
+    'holdings' => $holdings ?? collect(),
+    'holdingsPager' => $holdingsPager ?? null,
+  ])
+
+  {{-- Upload limit widget --}}
+  @include('ahg-repository-manage::_upload-limit', ['resource' => $repository])
+
+  {{-- Maintained actors list --}}
+  @if(isset($maintainedActorsList) && $maintainedActorsList)
+    @include('ahg-repository-manage::_maintained-actors', ['list' => $maintainedActorsList])
   @endif
 @endsection
 

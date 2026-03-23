@@ -185,16 +185,56 @@
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related entity</h3>
         <div class="col-9 p-2">
           <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>
+
+          {{-- Identifier of related entity --}}
+          @if(!empty($related->identifier))
+            <div class="field row g-0 mt-1">
+              <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Identifier</h4>
+              <div class="col-8 p-1">{{ $related->identifier }}</div>
+            </div>
+          @endif
+
+          {{-- Category of relationship --}}
+          @if(!empty($related->type_id) && isset($relationCategoryNames[$related->type_id]))
+            <div class="field row g-0">
+              <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Category of relationship</h4>
+              <div class="col-8 p-1">{{ $relationCategoryNames[$related->type_id] }}</div>
+            </div>
+          @endif
+
+          {{-- Type of relationship (with converse term) --}}
           @if(!empty($related->type_id) && isset($relationTypeNames[$related->type_id]))
-            <br><small class="text-muted">{{ $relationTypeNames[$related->type_id] }}</small>
+            <div class="field row g-0">
+              <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Type of relationship</h4>
+              <div class="col-8 p-1">
+                {{ $relationTypeNames[$related->type_id] }}
+                @if(!empty($converseRelationTypeNames[$related->type_id]))
+                  <span class="text-muted">(converse: {{ $converseRelationTypeNames[$related->type_id] }})</span>
+                @endif
+              </div>
+            </div>
           @endif
+
+          {{-- Dates of relationship --}}
+          @if(!empty($related->relation_date) || !empty($related->start_date) || !empty($related->end_date))
+            <div class="field row g-0">
+              <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Dates of relationship</h4>
+              <div class="col-8 p-1">
+                @if(!empty($related->relation_date))
+                  {{ $related->relation_date }}
+                @elseif(!empty($related->start_date) || !empty($related->end_date))
+                  {{ $related->start_date ?? '?' }} - {{ $related->end_date ?? '?' }}
+                @endif
+              </div>
+            </div>
+          @endif
+
+          {{-- Description of relationship --}}
           @if(!empty($related->relation_description))
-            <br><small class="text-muted">{{ $related->relation_description }}</small>
-          @endif
-          @if(!empty($related->relation_date))
-            <br><small class="text-muted">Dates: {{ $related->relation_date }}</small>
-          @elseif(!empty($related->start_date) || !empty($related->end_date))
-            <br><small class="text-muted">Dates: {{ $related->start_date ?? '?' }} - {{ $related->end_date ?? '?' }}</small>
+            <div class="field row g-0">
+              <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Description of relationship</h4>
+              <div class="col-8 p-1">{{ $related->relation_description }}</div>
+            </div>
           @endif
         </div>
       </div>

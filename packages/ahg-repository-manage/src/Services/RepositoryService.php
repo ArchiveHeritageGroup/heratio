@@ -303,6 +303,87 @@ class RepositoryService
     }
 
     /**
+     * Get paginated top-level holdings (information objects) for a repository.
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getHoldingsPaginated(int $repoId, int $perPage = 10, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return DB::table('information_object')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('information_object.repository_id', $repoId)
+            ->where('information_object.parent_id', 1) // top-level only
+            ->where('information_object.id', '!=', 1)
+            ->select(
+                'information_object.id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->orderBy('information_object_i18n.title')
+            ->paginate($perPage, ['*'], 'holdings_page', $page);
+    }
+
+    /**
+     * Get maintained actors (authority records) for a repository,
+     * i.e. actors whose maintaining_repository_id = this repo.
+     *
+     * @return array  ['label' => string, 'moreUrl' => string, 'dataUrl' => string, 'pager' => LengthAwarePaginator, 'items' => Collection]
+     */
+    public function getMaintainedActors(int $repoId, int $perPage = 10, int $page = 1): ?array
+    {
+        $pager = DB::table('actor')
+            ->leftJoin('actor_i18n', function ($j) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->where('object.class_name', 'QubitActor')
+            ->where(function ($q) use ($repoId) {
+                // AtoM links maintained actors via a relation or via maintaining_repository_id property
+                // The property table stores 'maintainingRepositoryId' for actors
+                $q->whereIn('actor.id', function ($sub) use ($repoId) {
+                    $sub->select('id')
+                        ->from('actor')
+                        ->where('parent_id', $repoId);
+                })
+                ->orWhereIn('actor.id', function ($sub) use ($repoId) {
+                    $sub->select('object_id')
+                        ->from('property')
+                        ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                        ->where('property.name', 'maintainingRepositoryId')
+                        ->where('property_i18n.value', (string) $repoId);
+                });
+            })
+            ->where('actor.id', '!=', 3) // Exclude ROOT actor
+            ->select(
+                'actor.id',
+                'actor_i18n.authorized_form_of_name',
+                'slug.slug'
+            )
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->paginate($perPage, ['*'], 'actors_page', $page);
+
+        if ($pager->total() === 0) {
+            return null;
+        }
+
+        $slug = $this->getSlug($repoId);
+
+        return [
+            'label' => __('Maintained actors'),
+            'moreUrl' => route('actor.browse', ['repository' => $repoId]),
+            'dataUrl' => route('repository.show', ['slug' => $slug]),
+            'pager' => $pager,
+            'items' => $pager->getCollection(),
+        ];
+    }
+
+    /**
      * Get form dropdown choices for repository edit/create forms.
      */
     public function getFormChoices(): array

@@ -47,7 +47,7 @@ class FindingAidController extends Controller
 
         // Get repository for sidebar context menu (matching AtoM 2col layout)
         $repository = null;
-        if ($io->repository_id) {
+        if ($io->repository_id ?? null) {
             $repository = \Illuminate\Support\Facades\DB::table('repository')
                 ->join('slug', 'repository.id', '=', 'slug.object_id')
                 ->leftJoin('actor_i18n', function ($j) {
@@ -159,7 +159,7 @@ class FindingAidController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $slugRow->object_id)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.repository_id', 'i18n.title', 's.slug')
             ->first();
     }
 

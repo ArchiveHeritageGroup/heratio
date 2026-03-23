@@ -359,6 +359,7 @@
       <li><a href="{{ route('function.edit', $function->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
       <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
       <li><a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+      <li><a href="{{ route('function.browse') }}" class="btn atom-btn-outline-light">Return to function list</a></li>
     </ul>
   @endauth
 @endsection

@@ -198,6 +198,25 @@
     @endif
   @endauth
 
+  {{-- Translation links (other cultures available) --}}
+  @if(isset($translationLinks) && !empty($translationLinks))
+    <div class="dropdown d-inline-block mb-3 translation-links">
+      <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" id="translation-links-button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-globe-europe me-1" aria-hidden="true"></i>
+        Other languages available
+      </button>
+      <ul class="dropdown-menu mt-2" aria-labelledby="translation-links-button">
+        @foreach($translationLinks as $code => $translation)
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.show', $io->slug) }}?sf_culture={{ $code }}">
+              {{ $translation['language'] }} &raquo; {{ $translation['name'] }}
+            </a>
+          </li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+
 @endsection
 
 {{-- ============================================================ --}}
@@ -569,6 +588,11 @@
 {{-- MAIN CONTENT: ISAD(G) sections                              --}}
 {{-- ============================================================ --}}
 @section('content')
+
+  {{-- TTS (Text-to-Speech) controls — Web Speech API --}}
+  @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
+
+  <div data-tts-content>
 
   {{-- User action buttons (matching AtoM: TTS, Favorites, Cart, Loan) --}}
   <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
@@ -1207,6 +1231,83 @@
     </div>
   </section>
 
+  {{-- ===== 8b. Administration area (authenticated only, matching AtoM _adminInfo.php) ===== --}}
+  @auth
+    <section id="administrationArea" class="border-bottom">
+      <div class="accordion" id="adminAreaAccordion">
+        <div class="accordion-item border-0">
+          <h2 class="accordion-header" id="admin-heading">
+            <button
+              class="accordion-button collapsed h6 mb-0 py-2 px-3"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#admin-collapse"
+              aria-expanded="false"
+              aria-controls="admin-collapse"
+              style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+              Administration area
+            </button>
+          </h2>
+          <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+            <div class="accordion-body p-0">
+              <div class="row g-0">
+
+                <div class="col-md-6">
+                  {{-- Source language --}}
+                  @if(isset($sourceLanguageName) && $sourceLanguageName)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Source language</h3>
+                      <div class="col-8 p-2">
+                        @if($io->source_culture && $io->source_culture !== app()->getLocale())
+                          <div class="default-translation">
+                            <a href="{{ route('informationobject.show', $io->slug) }}?sf_culture={{ $io->source_culture }}">
+                              {{ $sourceLanguageName }}
+                            </a>
+                          </div>
+                        @else
+                          {{ $sourceLanguageName }}
+                        @endif
+                      </div>
+                    </div>
+                  @endif
+
+                  {{-- Last updated --}}
+                  @if($io->updated_at)
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Last updated</h3>
+                      <div class="col-8 p-2">{{ \Carbon\Carbon::parse($io->updated_at)->format('j F Y') }}</div>
+                    </div>
+                  @endif
+
+                  {{-- Source name (from keymap) --}}
+                  @if(isset($keymapEntries) && $keymapEntries->isNotEmpty())
+                    <div class="field row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Source name</h3>
+                      <div class="col-8 p-2">
+                        @foreach($keymapEntries as $keymap)
+                          <p class="mb-1">{{ $keymap->source_name }}</p>
+                        @endforeach
+                      </div>
+                    </div>
+                  @endif
+                </div>
+
+                <div class="col-md-6">
+                  {{-- Display standard --}}
+                  <div class="field row g-0">
+                    <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Display standard</h3>
+                    <div class="col-8 p-2">{{ $displayStandardName ?? 'ISAD(G)' }}</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  @endauth
+
   {{-- ===== 9. Rights area (authenticated only) ===== --}}
   @auth
     <section id="rightsArea" class="border-bottom">
@@ -1476,6 +1577,42 @@
     </section>
   @endif
 
+  {{-- ===== 10b. Digital object rights (matching AtoM digitalobject/_rights.php) ===== --}}
+  @auth
+    @if(isset($digitalObjectRights) && !empty($digitalObjectRights))
+      @foreach($digitalObjectRights as $usageKey => $doRightsData)
+        <section class="border-bottom digitalObjectRights">
+          <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+            <a class="text-decoration-none text-white" href="#do-rights-{{ $usageKey }}-collapse">
+              Digital object ({{ $doRightsData['usageName'] }}) rights area
+            </a>
+            @if(isset($digitalObjects) && $digitalObjects['master'])
+              <a href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit digital object">
+                <i class="fas fa-pencil-alt"></i>
+              </a>
+            @endif
+          </h2>
+          <div id="do-rights-{{ $usageKey }}-collapse">
+            @foreach($doRightsData['rights'] as $doRight)
+              <div class="field row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $doRight->basis ?? 'Right' }}</h3>
+                <div class="col-9 p-2">
+                  @if(isset($doRight->act)){{ $doRight->act }}@endif
+                  @if(isset($doRight->start_date) || isset($doRight->end_date))
+                    <br><small class="text-muted">{{ $doRight->start_date ?? '?' }} - {{ $doRight->end_date ?? '?' }}</small>
+                  @endif
+                  @if(isset($doRight->rights_note) && $doRight->rights_note)
+                    <br>{!! nl2br(e($doRight->rights_note)) !!}
+                  @endif
+                </div>
+              </div>
+            @endforeach
+          </div>
+        </section>
+      @endforeach
+    @endif
+  @endauth
+
   {{-- ===== 11. Accession area ===== --}}
   <section id="accessionArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
@@ -1706,6 +1843,8 @@
 
     </section>
   @endif
+
+  </div>{{-- /data-tts-content --}}
 
 @endsection
 
@@ -1999,6 +2138,13 @@
               <i class="fas fa-balance-scale me-2"></i>Create new rights
             </a>
           </li>
+          @if(isset($hasChildren) && $hasChildren)
+            <li>
+              <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/manage') }}">
+                <i class="fas fa-sitemap me-2"></i>Manage rights inheritance
+              </a>
+            </li>
+          @endif
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.export.ead', $io->slug) }}">

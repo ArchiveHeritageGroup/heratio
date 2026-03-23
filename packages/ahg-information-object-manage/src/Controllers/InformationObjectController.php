@@ -710,6 +710,81 @@ class InformationObjectController extends Controller
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->first();
 
+        // Display standard name (for Administration area)
+        $displayStandardName = null;
+        if ($io->display_standard_id) {
+            $displayStandardName = DB::table('term_i18n')
+                ->where('id', $io->display_standard_id)
+                ->where('culture', $culture)
+                ->value('name');
+        }
+
+        // Source language name (for Administration area)
+        $sourceLanguageName = null;
+        if ($io->source_culture) {
+            $sourceLanguageName = \Locale::getDisplayLanguage($io->source_culture, $culture);
+        }
+
+        // Keymap entries (for Administration area — source name from imports)
+        $keymapEntries = collect();
+        try {
+            $keymapEntries = DB::table('keymap')
+                ->where('target_id', $io->id)
+                ->whereNotNull('source_name')
+                ->select('source_name')
+                ->get();
+        } catch (\Exception $e) {
+            // keymap table may not exist
+        }
+
+        // Translation links: get available cultures for this IO (other than current)
+        $translationLinks = [];
+        $availableCultures = DB::table('information_object_i18n')
+            ->where('id', $io->id)
+            ->where('culture', '!=', $culture)
+            ->pluck('title', 'culture');
+        foreach ($availableCultures as $code => $title) {
+            $langName = \Locale::getDisplayLanguage($code, $culture);
+            $translationLinks[$code] = [
+                'language' => ucfirst($langName),
+                'name' => $title ?: ($io->title ?? '[Untitled]'),
+            ];
+        }
+
+        // Digital object rights (rights linked to each digital object via relation)
+        $digitalObjectRights = [];
+        if (auth()->check() && isset($digitalObjects) && $digitalObjects['master']) {
+            foreach (['master', 'reference', 'thumbnail'] as $usageKey) {
+                $doObj = $digitalObjects[$usageKey] ?? null;
+                if (!$doObj) {
+                    continue;
+                }
+                try {
+                    $doRights = DB::table('relation')
+                        ->join('rights', 'relation.object_id', '=', 'rights.id')
+                        ->join('rights_i18n', 'rights.id', '=', 'rights_i18n.id')
+                        ->where('relation.subject_id', $doObj->id)
+                        ->where('relation.type_id', 168)
+                        ->where('rights_i18n.culture', $culture)
+                        ->select('rights.*', 'rights_i18n.rights_note')
+                        ->get();
+                    if ($doRights->isNotEmpty()) {
+                        // Get usage name from term_i18n
+                        $usageName = DB::table('term_i18n')
+                            ->where('id', $doObj->usage_id ?? 0)
+                            ->where('culture', $culture)
+                            ->value('name') ?? ucfirst($usageKey);
+                        $digitalObjectRights[$usageKey] = [
+                            'usageName' => $usageName,
+                            'rights' => $doRights,
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    // rights table structure may vary
+                }
+            }
+        }
+
         return view('ahg-io-manage::show', [
             'io' => $io,
             'levelName' => $levelName,
@@ -751,6 +826,11 @@ class InformationObjectController extends Controller
             'museumMetadata' => $museumMetadata,
             'collectionRootId' => $collectionRootId,
             'hasChildren' => ($io->rgt - $io->lft) > 1,
+            'displayStandardName' => $displayStandardName,
+            'sourceLanguageName' => $sourceLanguageName,
+            'keymapEntries' => $keymapEntries,
+            'translationLinks' => $translationLinks,
+            'digitalObjectRights' => $digitalObjectRights,
         ]);
     }
 

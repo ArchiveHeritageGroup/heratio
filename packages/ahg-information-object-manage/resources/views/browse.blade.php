@@ -83,9 +83,9 @@
   @if(isset($pager) && $pager->getNbResults())
     <div class="d-flex flex-wrap gap-2 mb-3">
       @auth
-        @if(Route::has('informationobject.export.csv'))
+        @if(Route::has('export.csv'))
           <a class="btn btn-sm atom-btn-white"
-             href="{{ route('informationobject.export.csv', request()->query()) }}">
+             href="{{ route('export.csv', request()->query()) }}">
             <i class="fas fa-upload me-1" aria-hidden="true"></i>Export CSV
           </a>
         @endif

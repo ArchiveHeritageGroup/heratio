@@ -514,6 +514,49 @@ class ActorService
     }
 
     /**
+     * Get converse relation type names.
+     *
+     * In AtoM's actor relation taxonomy (55), relation types come in pairs
+     * under a shared parent (e.g. "is the superior of" / "is the subordinate of").
+     * The converse of a type is the other term with the same parent.
+     * For self-referential types (e.g. "is the sibling of"), the converse is itself.
+     */
+    public function getConverseRelationTypeNames(array $typeIds): array
+    {
+        if (empty($typeIds)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($typeIds as $typeId) {
+            $term = DB::table('term')->where('id', $typeId)->first();
+            if (!$term || !$term->parent_id) {
+                continue;
+            }
+
+            // Get all siblings under the same parent in taxonomy 55 (Actor relation type)
+            $siblings = DB::table('term')
+                ->join('term_i18n', function ($j) {
+                    $j->on('term.id', '=', 'term_i18n.id')
+                        ->where('term_i18n.culture', '=', $this->culture);
+                })
+                ->where('term.parent_id', $term->parent_id)
+                ->where('term.taxonomy_id', 55)
+                ->where('term.id', '!=', $typeId)
+                ->select('term.id', 'term_i18n.name')
+                ->orderBy('term.id')
+                ->get();
+
+            if ($siblings->isNotEmpty()) {
+                // Pick the first sibling as the converse
+                $result[$typeId] = $siblings->first()->name;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Get name type names (batch lookup).
      */
     public function getNameTypeNames(array $typeIds): array

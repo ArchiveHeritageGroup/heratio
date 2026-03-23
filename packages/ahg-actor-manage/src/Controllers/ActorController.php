@@ -118,6 +118,7 @@ class ActorController extends Controller
         $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
         $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
         $relationCategoryNames = $this->service->getRelationCategoryNames($relationTypeIds);
+        $converseRelationTypeNames = $this->service->getConverseRelationTypeNames($relationTypeIds);
 
         // Language(s) and Script(s) from property table
         $languages = $this->service->getLanguages($actor->id);
@@ -149,6 +150,7 @@ class ActorController extends Controller
             'relatedActors' => $relatedActors,
             'relationTypeNames' => $relationTypeNames,
             'relationCategoryNames' => $relationCategoryNames,
+            'converseRelationTypeNames' => $converseRelationTypeNames,
             'relatedResources' => $relatedResources,
             'relatedFunctions' => $relatedFunctions,
             'digitalObjects' => $digitalObjects,
@@ -197,6 +199,7 @@ class ActorController extends Controller
         $relationTypeIds = collect($relatedActors)->pluck('type_id')->filter()->unique()->values()->toArray();
         $relationTypeNames = $this->service->getRelationTypeNames($relationTypeIds);
         $relationCategoryNames = $this->service->getRelationCategoryNames($relationTypeIds);
+        $converseRelationTypeNames = $this->service->getConverseRelationTypeNames($relationTypeIds);
 
         $languages = $this->service->getLanguages($actor->id);
         $scripts = $this->service->getScripts($actor->id);
@@ -222,6 +225,7 @@ class ActorController extends Controller
             'relatedActors' => $relatedActors,
             'relationTypeNames' => $relationTypeNames,
             'relationCategoryNames' => $relationCategoryNames,
+            'converseRelationTypeNames' => $converseRelationTypeNames,
             'relatedResources' => $relatedResources,
             'relatedFunctions' => $relatedFunctions,
             'maintenanceNotes' => $maintenanceNotes,
