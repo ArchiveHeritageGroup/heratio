@@ -1,9 +1,8 @@
 # Heratio
 
-**A standalone open-source Laravel framework for AI-assisted archival records management, operating directly on the AtoM database.**
+**A standalone open-source Laravel framework for AI-assisted archival records management.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![AtoM Compatible](https://img.shields.io/badge/AtoM-2.9%2B-green)](https://www.accesstomemory.org)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-10%2B-red)](https://laravel.com)
 
@@ -11,12 +10,13 @@
 
 ## Overview
 
-Heratio is developed by [The Archives and Heritage Group (The AHG)](https://www.theahg.co.za) as a standalone Laravel application for AI-assisted archival records management. It operates independently of AtoM's codebase — there is no Symfony dependency, no shared code, and no API calls to AtoM. Heratio connects directly to the AtoM MySQL database using Laravel's Eloquent ORM, reading and writing records data independently of AtoM's Symfony layer. AtoM and Heratio coexist on the same database; each operates through its own application stack without awareness of the other.
+Heratio is designed and developed by **[Plain Sailing Information Systems](https://www.theahg.co.za)**. It is the intellectual property of Plain Sailing Information Systems, developed independently using company time and resources.
 
-This architecture makes Heratio independently deployable and upgradeable alongside any AtoM instance without modification to AtoM's core, plugins, or configuration.
+Heratio is a standalone Laravel application for AI-assisted archival records management. It connects directly to an archival MySQL database using Laravel's Eloquent ORM, operating entirely through its own independent application stack with no dependency on any third-party archival platform's codebase.
 
-This work is associated with doctoral research at the University of South Africa (UNISA):
-> Pieterse, J.J. & Jacobs, L. — *AI-Driven Digital Transformation of Unstructured Records in a South African State-Owned Company: A Socio-Technical Framework and Proof-of-Concept Implementation* (forthcoming, Information Systems Frontiers).
+Heratio addresses a critical challenge in public sector archives: the vast majority of organisational records reside outside formal records management control, making them inaccessible for compliance, audit, and institutional memory purposes. By providing AI-assisted metadata enrichment, a researcher self-description portal, and privacy-preserving digital object management, Heratio enables institutions to transform large volumes of previously unmanaged, unstructured content into governed, accessible, and legislatively-compliant archival holdings.
+
+A live demonstration instance is available at **[https://heratio.theahg.co.za](https://heratio.theahg.co.za)**.
 
 ---
 
@@ -24,7 +24,7 @@ This work is associated with doctoral research at the University of South Africa
 
 ### 🤖 AI-Assisted Metadata Enrichment
 - NLP-based Named Entity Recognition (NER) pipeline extracts persons, organisations, dates, geographic locations, and subjects from unstructured document text
-- Extracted entities are mapped to AtoM description fields and authority record structures
+- Extracted entities are mapped to archival description fields and authority record structures
 - Human-in-the-loop review interface — AI suggestions are presented for archivist approval before being committed to the authoritative description
 - Model-agnostic architecture supports locally hosted models via Ollama-compatible interfaces, ensuring data sovereignty compliance under POPIA
 
@@ -32,8 +32,8 @@ This work is associated with doctoral research at the University of South Africa
 - Dedicated portal for field researchers, subject matter experts, and contributing institutions to upload digital objects and describe their collections
 - Simplified ISAD(G)-mapped description forms accessible to non-archivists
 - Five-stage workflow: **Draft → Submitted → Under Review → Published → Returned for Revision**
-- Role-based access controls ensure researchers manage only their own submissions without access to broader archival holdings
-- Archivist review gate maintains description quality before public accessibility in AtoM
+- Role-based access controls ensure researchers manage only their own submissions
+- Archivist review gate maintains description quality before public accessibility
 
 ### 🔒 Privacy-Preserving Digital Object Management
 - Automated POPIA/GDPR sensitivity screening — NLP classifiers flag documents containing personal information categories prior to broader accessibility
@@ -42,17 +42,11 @@ This work is associated with doctoral research at the University of South Africa
 - On-the-fly decryption for authorised access with streaming delivery — no intermediate plaintext storage
 - Full audit logging of access and encryption events for compliance demonstration
 
-### 🔗 AtoM Integration Layer
-- Reads AtoM's MySQL database directly via Laravel's Illuminate Database (Capsule)
-- Extends AtoM's data model without modifying AtoM core — compatible with standard AtoM upgrades
-- Communicates with AtoM's Symfony layer through defined API interfaces
-- Supports multiple AtoM instances from a single Heratio deployment
-
 ---
 
 ## Architecture
 
-Heratio operates as a separate Laravel application alongside an existing AtoM installation, connected via shared database access and HTTP API interfaces. This separation maintains a clean process boundary that preserves AtoM's AGPL licensing integrity while allowing Heratio to be extended and integrated with proprietary or commercial components via its own API layer.
+Heratio is a fully standalone Laravel application. It connects directly to an archival MySQL database via Eloquent ORM with no dependency on any other application framework.
 
 ```
 ┌─────────────────────────────────────────┐
@@ -66,17 +60,10 @@ Heratio operates as a separate Laravel application alongside an existing AtoM in
 │  │  Encryption │  │  Audit / Access  │  │
 │  │  Service    │  │  Control         │  │
 │  └─────────────┘  └──────────────────┘  │
-│              │                          │
-│     Illuminate Database (Capsule)        │
-└──────────────┼──────────────────────────┘
-               │
+└──────────────┬──────────────────────────┘
+               │  Eloquent ORM
     ┌──────────▼──────────┐
-    │   AtoM MySQL DB      │
-    └──────────┬──────────┘
-               │
-    ┌──────────▼──────────┐
-    │   AtoM (Symfony)     │
-    │   Public Interface   │
+    │   Archival MySQL DB  │
     └─────────────────────┘
 ```
 
@@ -88,7 +75,6 @@ Heratio operates as a separate Laravel application alongside an existing AtoM in
 |---|---|
 | PHP | 8.1 or higher |
 | Laravel | 10 or higher |
-| AtoM | 2.9 or higher |
 | MySQL / MariaDB | 5.7+ / 10.3+ |
 | Nginx | 1.18+ |
 | Ollama (optional) | Latest stable |
@@ -117,13 +103,13 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Edit `.env` to point to the shared AtoM MySQL database:
+Edit `.env` to point to your archival MySQL database:
 
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=atom
+DB_DATABASE=your_archival_db
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 ```
@@ -171,7 +157,7 @@ Heratio is designed to support compliance with:
 - **POPIA** — Protection of Personal Information Act 4 of 2013 (South Africa)
 - **PAIA** — Promotion of Access to Information Act 2 of 2000 (South Africa)
 - **NARSSA** — National Archives and Records Service of South Africa Act 43 of 1996
-- **GDPR** — General Data Protection Regulation (EU) — via configurable privacy screening
+- **GDPR** — General Data Protection Regulation (EU)
 - **ISO 15489** — Records management principles
 - **ISO 23081** — Metadata for records
 
@@ -180,8 +166,6 @@ Heratio does not make compliance guarantees. Institutions are responsible for co
 ---
 
 ## Roadmap
-
-Planned features for upcoming releases:
 
 - [ ] Full NER pipeline integration with continuous learning feedback loop
 - [ ] Archivematica integration for preservation processing of ingested digital objects
@@ -196,19 +180,17 @@ Planned features for upcoming releases:
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting pull requests.
 
-Heratio is governed in alignment with the [AtoM Foundation](https://www.accesstomemory.org/en/foundation/) community principles. We encourage contributions from archives, libraries, and memory institutions across the African continent and globally.
-
 ---
 
 ## License
 
-Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE), consistent with AtoM's licensing. This means:
+Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
 
 - You may use, modify, and distribute Heratio freely
 - Modifications must be released under the same licence
 - If you run a modified version as a network service, you must make the source available to users
 
-Proprietary extensions that communicate with Heratio via its HTTP API are considered independent works and are not subject to AGPL copyleft requirements, provided they do not incorporate AGPL-licensed code directly.
+The AGPL-3.0 licence was selected for consistency with the broader open-source archival software ecosystem. Proprietary extensions that communicate with Heratio via its HTTP API are considered independent works and are not subject to AGPL copyleft requirements, provided they do not incorporate AGPL-licensed code directly.
 
 ---
 
@@ -232,9 +214,8 @@ If you use Heratio in your research, please cite:
 
 ## Contact
 
-**The Archives and Heritage Group (The AHG)**
+**Plain Sailing Information Systems**
 Johan Pieterse — johan@theahg.co.za
-[https://www.theahg.co.za](https://www.theahg.co.za)
 
 ---
 
