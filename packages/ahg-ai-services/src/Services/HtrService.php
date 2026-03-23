@@ -25,6 +25,10 @@ class HtrService
         }
     }
 
+    /**
+     * Extract handwriting from a document.
+     * @param string $format  One of: all, json, csv, ilm, gedcom
+     */
     public function extract(string $filePath, string $docType = 'auto', string $format = 'all'): ?array
     {
         try {
@@ -101,6 +105,54 @@ class HtrService
         } catch (\Exception $e) {
             Log::error('HTR trigger training failed: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    public function sources(): array
+    {
+        try {
+            $response = Http::timeout(15)->get("{$this->baseUrl}/sources");
+            return $response->successful() ? $response->json() : ['sources' => [], 'training_stats' => [], 'familysearch_configured' => false];
+        } catch (\Exception $e) {
+            Log::error('HTR sources failed: ' . $e->getMessage());
+            return ['sources' => [], 'training_stats' => ['type_a' => 0, 'type_b' => 0, 'type_c' => 0], 'familysearch_configured' => false];
+        }
+    }
+
+    public function downloadBatch(string $collectionId, int $count, string $docType = ''): ?array
+    {
+        try {
+            $response = Http::timeout(30)->post("{$this->baseUrl}/download-batch", [
+                'collection_id' => $collectionId,
+                'count' => $count,
+                'doc_type' => $docType,
+            ]);
+            return $response->successful() ? $response->json() : null;
+        } catch (\Exception $e) {
+            Log::error('HTR download-batch failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function downloadStatus(string $jobId): ?array
+    {
+        try {
+            $response = Http::timeout(10)->get("{$this->baseUrl}/download-status/{$jobId}");
+            return $response->successful() ? $response->json() : null;
+        } catch (\Exception $e) {
+            Log::error('HTR download-status failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function downloadJobs(): array
+    {
+        try {
+            $response = Http::timeout(10)->get("{$this->baseUrl}/download-jobs");
+            return $response->successful() ? $response->json() : ['jobs' => []];
+        } catch (\Exception $e) {
+            Log::error('HTR download-jobs failed: ' . $e->getMessage());
+            return ['jobs' => []];
         }
     }
 }

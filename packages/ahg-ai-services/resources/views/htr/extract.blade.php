@@ -37,6 +37,7 @@
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label">Output Format <span class="badge bg-secondary ms-1">Optional</span></label>
+          <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="ilm" id="fmt-ilm" checked><label class="form-check-label" for="fmt-ilm"><strong>ILM (FamilySearch)</strong></label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="json" id="fmt-json" checked><label class="form-check-label" for="fmt-json">JSON</label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="csv" id="fmt-csv" checked><label class="form-check-label" for="fmt-csv">CSV</label></div>
           <div class="form-check"><input class="form-check-input" type="checkbox" name="formats[]" value="gedcom" id="fmt-gedcom" checked><label class="form-check-label" for="fmt-gedcom">GEDCOM</label></div>

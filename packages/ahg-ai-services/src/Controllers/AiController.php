@@ -544,6 +544,53 @@ class AiController extends Controller
         return view('ahg-ai-services::htr.batch', compact('batchResults'));
     }
 
+    public function htrSources()
+    {
+        $data = $this->htrService->sources();
+
+        $sources = $data['sources'] ?? [];
+        $trainingStats = $data['training_stats'] ?? ['type_a' => 0, 'type_b' => 0, 'type_c' => 0];
+        $fsConfigured = $data['familysearch_configured'] ?? false;
+
+        // Get download jobs
+        $jobsData = $this->htrService->downloadJobs();
+        $jobs = $jobsData['jobs'] ?? [];
+
+        return view('ahg-ai-services::htr.sources', compact('sources', 'trainingStats', 'fsConfigured', 'jobs'));
+    }
+
+    public function htrSaveFsConfig(Request $request)
+    {
+        $request->validate([
+            'fs_client_id' => 'required|string|max:255',
+            'fs_username' => 'required|string|max:255',
+            'fs_password' => 'required|string|max:255',
+        ]);
+
+        // Update .env file
+        $envPath = base_path('.env');
+        $envContent = file_get_contents($envPath);
+
+        $mappings = [
+            'FAMILYSEARCH_CLIENT_ID' => $request->input('fs_client_id'),
+            'FAMILYSEARCH_USERNAME' => $request->input('fs_username'),
+            'FAMILYSEARCH_PASSWORD' => $request->input('fs_password'),
+        ];
+
+        foreach ($mappings as $key => $value) {
+            if (preg_match("/^{$key}=.*/m", $envContent)) {
+                $envContent = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $envContent);
+            } else {
+                $envContent .= "\n{$key}={$value}";
+            }
+        }
+
+        file_put_contents($envPath, $envContent);
+
+        return redirect()->route('admin.ai.htr.sources')
+            ->with('success', 'FamilySearch credentials saved to .env. Restart the HTR service to apply.');
+    }
+
     public function htrAnnotate()
     {
         return view('ahg-ai-services::htr.annotate');
@@ -558,12 +605,37 @@ class AiController extends Controller
         ]);
 
         $file    = $request->file('image');
-        $tmpPath = $file->store('htr-annotations', 'local');
-        $fullPath = storage_path('app/' . $tmpPath);
-
+        $type    = $request->input('type');
         $annotations = json_decode($request->input('annotations'), true) ?? [];
 
-        $result = $this->htrService->saveAnnotation($fullPath, $request->input('type'), $annotations);
+        // Try remote HTR service first
+        $tmpPath = $file->store('htr-annotations', 'local');
+        $fullPath = storage_path('app/' . $tmpPath);
+        $result = $this->htrService->saveAnnotation($fullPath, $type, $annotations);
+
+        // If service is offline, save locally as fallback
+        if ($result === null) {
+            $destDir = '/opt/ahg-ai/htr/training_data/' . $type . '/images';
+            $annDir  = '/opt/ahg-ai/htr/training_data/' . $type . '/annotations';
+
+            if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
+            if (!is_dir($annDir)) { mkdir($annDir, 0755, true); }
+
+            $timestamp = (int)(microtime(true) * 1000);
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = "annotated_{$timestamp}.{$ext}";
+
+            copy($fullPath, $destDir . '/' . $filename);
+            file_put_contents($annDir . '/' . $filename . '.json', json_encode([
+                'image' => $destDir . '/' . $filename,
+                'doc_type' => $type,
+                'annotations' => $annotations,
+                'created_at' => now()->toIso8601String(),
+                'saved_locally' => true,
+            ], JSON_PRETTY_PRINT));
+
+            $result = ['success' => true, 'saved_locally' => true];
+        }
 
         @unlink($fullPath);
 

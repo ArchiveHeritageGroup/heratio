@@ -38,6 +38,13 @@
   </div>
   <div class="col-md-3 mb-4">
     <div class="card h-100">
+      <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-database me-2"></i>Training Data Sources</div>
+      <div class="card-body"><p>Download SA vital record images from FamilySearch and Internet Archive.</p></div>
+      <div class="card-footer"><a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white w-100"><i class="fas fa-download me-1"></i>Sources</a></div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-4">
+    <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-pen-square me-2"></i>Annotate for Training</div>
       <div class="card-body"><p>Annotate document images to build training data for model fine-tuning.</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white w-100"><i class="fas fa-pen me-1"></i>Annotate</a></div>

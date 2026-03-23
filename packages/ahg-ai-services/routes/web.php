@@ -53,6 +53,8 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/admin/ai/htr/download/{jobId}/{fmt}', [AiController::class, 'htrDownload'])->name('admin.ai.htr.download');
     Route::get('/admin/ai/htr/batch', [AiController::class, 'htrBatch'])->name('admin.ai.htr.batch');
     Route::post('/admin/ai/htr/batch', [AiController::class, 'htrDoBatch'])->name('admin.ai.htr.doBatch');
+    Route::get('/admin/ai/htr/sources', [AiController::class, 'htrSources'])->name('admin.ai.htr.sources');
+    Route::post('/admin/ai/htr/save-fs-config', [AiController::class, 'htrSaveFsConfig'])->name('admin.ai.htr.saveFsConfig');
     Route::get('/admin/ai/htr/annotate', [AiController::class, 'htrAnnotate'])->name('admin.ai.htr.annotate');
     Route::post('/admin/ai/htr/annotate', [AiController::class, 'htrSaveAnnotation'])->name('admin.ai.htr.saveAnnotation');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');

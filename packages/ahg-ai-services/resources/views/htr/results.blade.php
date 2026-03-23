@@ -40,10 +40,43 @@
   </div>
 </div>
 
+@if(!empty($results['ilm']))
+<div class="card mb-4">
+  <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-tree me-2"></i>FamilySearch ILM Output</div>
+  <div class="card-body table-responsive">
+    <table class="table table-sm table-bordered mb-0">
+      <thead><tr><th>Field</th>@foreach($results['ilm'] as $idx => $ilm)<th>Entry {{ $idx + 1 }}</th>@endforeach</tr></thead>
+      <tbody>
+        @foreach(['EVENT_YEAR_ORIG','FS_RECORD_TYPE','FS_RECORD_TYPE_ID','EVENT_PLACE_ORIG','non_genealogical','non_genealogical_type_id','confidence','needs_review'] as $key)
+          <tr>
+            <td><strong>{{ $key }}</strong></td>
+            @foreach($results['ilm'] as $ilm)
+              <td>
+                @if(is_bool($ilm[$key] ?? null))
+                  <span class="badge {{ $ilm[$key] ? 'bg-warning' : 'bg-success' }}">{{ $ilm[$key] ? 'true' : 'false' }}</span>
+                @elseif(is_null($ilm[$key] ?? null))
+                  <span class="text-muted">null</span>
+                @elseif($key === 'confidence')
+                  <span class="badge {{ ($ilm[$key] ?? 0) >= 0.7 ? 'bg-success' : 'bg-warning' }}">{{ number_format(($ilm[$key] ?? 0) * 100, 1) }}%</span>
+                @else
+                  {{ $ilm[$key] ?? '' }}
+                @endif
+              </td>
+            @endforeach
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
+  </div>
+</div>
+@endif
+
 <div class="d-flex gap-2">
-  <a href="{{ route('admin.ai.htr.download', [$jobId, 'json']) }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>Download JSON</a>
-  <a href="{{ route('admin.ai.htr.download', [$jobId, 'csv']) }}" class="btn atom-btn-white"><i class="fas fa-file-csv me-1"></i>Download CSV</a>
-  <a href="{{ route('admin.ai.htr.download', [$jobId, 'gedcom']) }}" class="btn atom-btn-white"><i class="fas fa-sitemap me-1"></i>Download GEDCOM</a>
+  <a href="{{ route('admin.ai.htr.download', [$jobId, 'json']) }}" class="btn atom-btn-white"><i class="fas fa-download me-1"></i>JSON</a>
+  <a href="{{ route('admin.ai.htr.download', [$jobId, 'ilm']) }}" class="btn atom-btn-outline-success"><i class="fas fa-tree me-1"></i>ILM (FamilySearch)</a>
+  <a href="{{ route('admin.ai.htr.download', [$jobId, 'ilm-csv']) }}" class="btn atom-btn-white"><i class="fas fa-file-csv me-1"></i>ILM CSV</a>
+  <a href="{{ route('admin.ai.htr.download', [$jobId, 'csv']) }}" class="btn atom-btn-white"><i class="fas fa-file-csv me-1"></i>CSV</a>
+  <a href="{{ route('admin.ai.htr.download', [$jobId, 'gedcom']) }}" class="btn atom-btn-white"><i class="fas fa-sitemap me-1"></i>GEDCOM</a>
   <a href="{{ route('admin.ai.htr.extract') }}" class="btn atom-btn-white"><i class="fas fa-redo me-1"></i>Extract Another</a>
 </div>
 @endsection
