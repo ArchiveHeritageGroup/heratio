@@ -8,7 +8,7 @@
     @include('ahg-settings::_menu')
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-photo-video me-2"></i>Digital object derivatives</h1>
+    <h1>Digital object derivatives</h1>
 
     <form method="post" action="{{ route('settings.digital-objects') }}">
       @csrf
@@ -32,8 +32,9 @@
         </div>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
     </form>
   </div>
 </div>

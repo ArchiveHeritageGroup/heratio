@@ -32,12 +32,12 @@
         <div id="style-collapse" class="accordion-collapse collapse" aria-labelledby="style-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="backgroundColor" class="form-label">{{ __('Background color') }}</label>
+              <label for="backgroundColor" class="form-label">{{ __('Background color') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="color" class="form-control form-control-color" id="backgroundColor" name="backgroundColor" value="{{ old('backgroundColor', $repository->background_color ?? '#ffffff') }}">
             </div>
 
             <div class="mb-3">
-              <label for="banner" class="form-label">{{ __('Banner') }}</label>
+              <label for="banner" class="form-label">{{ __('Banner') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="file" class="form-control" id="banner" name="banner" accept="image/*">
               @if(!empty($repository->banner_path))
                 <div class="mt-2">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="logo" class="form-label">{{ __('Logo') }}</label>
+              <label for="logo" class="form-label">{{ __('Logo') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
               @if(!empty($repository->logo_path))
                 <div class="mt-2">
@@ -67,7 +67,7 @@
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="htmlSnippet" class="form-label">{{ __('Description') }}</label>
+              <label for="htmlSnippet" class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control resizable" id="htmlSnippet" name="htmlSnippet" rows="6">{{ old('htmlSnippet', $repository->html_snippet ?? '') }}</textarea>
               <div class="form-text">{{ __('Content in this area will appear below an uploaded banner and above the institution\'s description areas. It can be used to offer a summary of the institution\'s mandate, include a tag line or important information, etc. HTML and inline CSS can be used to style the contents.') }}</div>
             </div>

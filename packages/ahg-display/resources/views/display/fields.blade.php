@@ -43,7 +43,7 @@
       <i class="fas fa-3x fa-columns me-3 text-primary" aria-hidden="true"></i>
       <div>
         <h1 class="mb-0">Field Mappings</h1>
-        <span class="small text-muted">View field definitions, source mappings, and standard compliance</span>
+        <span class="small text-muted">These fields map display elements to existing database tables and columns</span>
       </div>
     </div>
     <a href="{{ route('glam.index') }}" class="btn atom-btn-white">
@@ -65,17 +65,17 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <table class="table table-bordered table-striped mb-0">
-            <thead>
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
               <tr>
-                <th>Field Name</th>
+                <th>Field</th>
                 <th>Code</th>
                 <th>Type</th>
                 <th>Source Table</th>
                 <th>Source Column</th>
-                <th class="text-center" title="ISAD(G)">ISAD</th>
-                <th class="text-center" title="Spectrum">Spectrum</th>
-                <th class="text-center" title="Dublin Core">DC</th>
+                <th>ISAD</th>
+                <th>Spectrum</th>
+                <th>DC</th>
               </tr>
             </thead>
             <tbody>
@@ -83,36 +83,12 @@
                 <tr>
                   <td><strong>{{ $field->name ?? $field->label ?? '-' }}</strong></td>
                   <td><code>{{ $field->code ?? '-' }}</code></td>
-                  <td>
-                    @php
-                      $fieldType = $field->type ?? 'text';
-                      $badgeClass = $typeBadges[strtolower($fieldType)] ?? 'bg-secondary';
-                    @endphp
-                    <span class="badge {{ $badgeClass }}">{{ $fieldType }}</span>
-                  </td>
+                  <td><span class="badge bg-secondary">{{ $field->type ?? $field->data_type ?? 'text' }}</span></td>
                   <td><code class="small">{{ $field->source_table ?? '-' }}</code></td>
                   <td><code class="small">{{ $field->source_column ?? '-' }}</code></td>
-                  <td class="text-center">
-                    @if(!empty($field->isad))
-                      <i class="fas fa-check text-success" title="{{ $field->isad }}"></i>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
-                  <td class="text-center">
-                    @if(!empty($field->spectrum))
-                      <i class="fas fa-check text-success" title="{{ $field->spectrum }}"></i>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
-                  <td class="text-center">
-                    @if(!empty($field->dc))
-                      <i class="fas fa-check text-success" title="{{ $field->dc }}"></i>
-                    @else
-                      <span class="text-muted">-</span>
-                    @endif
-                  </td>
+                  <td><small>{{ $field->isad ?? $field->isad_element ?? '-' }}</small></td>
+                  <td><small>{{ $field->spectrum ?? $field->spectrum_unit ?? '-' }}</small></td>
+                  <td><small>{{ $field->dc ?? $field->dc_element ?? '-' }}</small></td>
                 </tr>
               @endforeach
             </tbody>

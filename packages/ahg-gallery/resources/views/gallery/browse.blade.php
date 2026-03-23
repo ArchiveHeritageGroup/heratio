@@ -63,25 +63,44 @@
   </div>
 
   @if($pager->getNbResults())
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 mb-3">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-3">
       @foreach($pager->getResults() as $doc)
+        @php
+          $thumbUrl = null;
+          $is3D = false;
+          // Check for thumbnail derivative
+          if (!empty($doc['thumbnail'])) {
+              $thumbUrl = '/uploads/' . $doc['thumbnail']->path . '/' . $doc['thumbnail']->name;
+          }
+          // Fallback to master for images
+          elseif (!empty($doc['master_path']) && !empty($doc['master_name'])) {
+              $ext = strtolower(pathinfo($doc['master_name'], PATHINFO_EXTENSION));
+              if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                  $thumbUrl = '/uploads/' . $doc['master_path'] . '/' . $doc['master_name'];
+              }
+              $is3D = in_array($ext, ['glb', 'gltf', 'obj', 'stl', 'fbx', 'ply', 'dae']);
+          }
+        @endphp
         <div class="col">
           <div class="card h-100 shadow-sm">
-            @if(!empty($doc['thumbnail']))
-              <a href="{{ route('gallery.show', $doc['slug']) }}">
-                <img src="/uploads/{{ $doc['thumbnail']->path }}/{{ $doc['thumbnail']->name }}"
-                     class="card-img-top" alt="{{ $doc['name'] ?: 'Artwork' }}"
-                     style="height: 200px; object-fit: cover;">
-              </a>
-            @else
-              <a href="{{ route('gallery.show', $doc['slug']) }}" class="text-decoration-none">
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                  <i class="fas fa-image fa-3x text-muted"></i>
+            <a href="{{ route('gallery.show', $doc['slug']) }}"@if(!$thumbUrl) class="text-decoration-none"@endif>
+              @if($thumbUrl)
+                <img src="{{ e($thumbUrl) }}"
+                     class="card-img-top"
+                     alt="{{ e($doc['name'] ?? '') }}"
+                     style="height: 180px; object-fit: cover;">
+              @elseif($is3D)
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                  <i class="fas fa-cube fa-4x text-primary"></i>
                 </div>
-              </a>
-            @endif
+              @else
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                  <i class="fas fa-image fa-4x text-muted"></i>
+                </div>
+              @endif
+            </a>
             <div class="card-body p-2">
-              <h6 class="card-title mb-1">
+              <h6 class="card-title text-truncate mb-1">
                 <a href="{{ route('gallery.show', $doc['slug']) }}" class="text-decoration-none">
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>

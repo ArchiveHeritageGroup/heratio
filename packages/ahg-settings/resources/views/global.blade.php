@@ -8,7 +8,7 @@
     @include('ahg-settings::_menu')
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-globe me-2"></i>Global Settings</h1>
+    <h1>Global settings</h1>
 
 
     <form method="post" action="{{ route('settings.global') }}">
@@ -190,38 +190,11 @@
           </div>
         </div>
 
-        {{-- Enhancements --}}
-        <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#enhance-collapse">Enhancements</button></h2>
-          <div id="enhance-collapse" class="accordion-collapse collapse">
-            <div class="accordion-body">
-              <div class="form-check mb-3">
-                <input type="hidden" name="settings[enable_enhanced_search]" value="0">
-                <input class="form-check-input" type="checkbox" name="settings[enable_enhanced_search]" value="1" id="enable_enhanced_search" {{ ($settings['enable_enhanced_search'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_enhanced_search">Enable enhanced search <span class="badge bg-secondary ms-1">Optional</span></label>
-              </div>
-              <div class="form-check mb-3">
-                <input type="hidden" name="settings[enable_fulltext_search]" value="0">
-                <input class="form-check-input" type="checkbox" name="settings[enable_fulltext_search]" value="1" id="enable_fulltext_search" {{ ($settings['enable_fulltext_search'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_fulltext_search">Enable full-text search <span class="badge bg-secondary ms-1">Optional</span></label>
-              </div>
-              <div class="form-check mb-3">
-                <input type="hidden" name="settings[enable_batch_editing]" value="0">
-                <input class="form-check-input" type="checkbox" name="settings[enable_batch_editing]" value="1" id="enable_batch_editing" {{ ($settings['enable_batch_editing'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_batch_editing">Enable batch editing <span class="badge bg-secondary ms-1">Optional</span></label>
-              </div>
-              <div class="form-check mb-3">
-                <input type="hidden" name="settings[enable_advanced_filters]" value="0">
-                <input class="form-check-input" type="checkbox" name="settings[enable_advanced_filters]" value="1" id="enable_advanced_filters" {{ ($settings['enable_advanced_filters'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_advanced_filters">Enable advanced filters <span class="badge bg-secondary ms-1">Optional</span></label>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
     </form>
   </div>
 </div>

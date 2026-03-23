@@ -60,7 +60,7 @@
     <div class="col-md-8">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Set Object Type</h5>
+          <h5 class="mb-0">Select Collection and Type</h5>
         </div>
         <div class="card-body">
           <form method="POST" action="{{ route('glam.bulk.set.type') }}">
@@ -68,17 +68,18 @@
 
             {{-- Collection select --}}
             <div class="mb-4">
-              <label for="collection_id" class="form-label"><strong>Select Collection</strong> <span class="badge bg-danger ms-1">Required</span></label>
+              <label class="form-label"><strong>Top-Level Collection *</strong></label>
               <select name="collection_id" id="collection_id" class="form-select" required>
-                <option value="">-- Choose a collection --</option>
+                <option value="">Select collection...</option>
                 @if(!empty($collections))
                   @foreach($collections as $collection)
                     <option value="{{ $collection->id }}" {{ old('collection_id') == $collection->id ? 'selected' : '' }}>
-                      {{ $collection->title ?? $collection->name ?? 'Collection #' . $collection->id }}
+                      {{ !empty($collection->identifier) ? $collection->identifier . ' - ' : '' }}{{ $collection->title ?? $collection->name ?? 'Untitled' }}
                     </option>
                   @endforeach
                 @endif
               </select>
+              <small class="text-muted">This will set the type for this collection and ALL descendants</small>
               @error('collection_id')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
@@ -86,26 +87,23 @@
 
             {{-- Type radio buttons --}}
             <div class="mb-4">
-              <label class="form-label"><strong>Object Type</strong> <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label"><strong>Object Type *</strong></label>
               @if(!empty($collectionTypes) && count($collectionTypes))
-                <div class="row g-3">
+                <div class="row">
                   @foreach($collectionTypes as $type)
                     @php
                       $typeCode = $type->code ?? $type->name ?? '';
                       $icon = getTypeIcon($typeCode);
-                      $color = getTypeColor($typeCode);
                     @endphp
-                    <div class="col-6 col-lg-4">
-                      <div class="form-check card h-100 p-3 {{ old('type') === $typeCode ? 'border-' . $color . ' bg-light' : '' }}">
-                        <input class="form-check-input" type="radio" name="type" id="type_{{ $typeCode }}"
-                               value="{{ $typeCode }}" {{ old('type') === $typeCode ? 'checked' : '' }} required>
-                        <label class="form-check-label d-block text-center mt-2" for="type_{{ $typeCode }}">
-                          <i class="fas {{ $icon }} fa-2x text-{{ $color }} d-block mb-2"></i>
-                          <strong>{{ $type->name ?? ucfirst($typeCode) }}</strong>
-                          @if(!empty($type->description))
-                            <small class="d-block text-muted mt-1">{{ $type->description }}</small>
-                          @endif
-                         <span class="badge bg-secondary ms-1">Required</span></label>
+                    <div class="col-md-4 mb-2">
+                      <div class="form-check">
+                        <input type="radio" name="type" value="{{ $typeCode }}"
+                               class="form-check-input" id="type_{{ $typeCode }}"
+                               {{ old('type') === $typeCode ? 'checked' : '' }} required>
+                        <label class="form-check-label" for="type_{{ $typeCode }}">
+                          <i class="fas {{ $icon }} me-1"></i>
+                          {{ $type->name ?? ucfirst($typeCode) }}
+                        </label>
                       </div>
                     </div>
                   @endforeach
@@ -120,12 +118,14 @@
               @enderror
             </div>
 
+            <hr>
+
             {{-- Submit --}}
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn atom-btn-outline-success">
-                <i class="fas fa-check me-1"></i> Apply Type
-              </button>
+            <div class="d-flex justify-content-between">
               <a href="{{ route('glam.index') }}" class="btn atom-btn-white">Cancel</a>
+              <button type="submit" class="btn atom-btn-outline-success" onclick="return confirm('This will update ALL objects in this collection. Continue?')">
+                <i class="fas fa-save me-1"></i> Apply to Collection
+              </button>
             </div>
           </form>
         </div>
@@ -139,26 +139,18 @@
           <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Object Types</h5>
         </div>
         <div class="card-body">
-          <p>Object types determine how items are displayed and categorised within the system.</p>
-          <p>Each type has its own display profile, field mappings, and level hierarchy.</p>
-          <hr>
-          <h6>Available types:</h6>
-          <ul class="list-unstyled mb-0">
-            @if(!empty($collectionTypes))
-              @foreach($collectionTypes as $type)
-                @php
-                  $typeCode = $type->code ?? $type->name ?? '';
-                @endphp
-                <li class="mb-2">
-                  <i class="fas {{ getTypeIcon($typeCode) }} text-{{ getTypeColor($typeCode) }} me-2"></i>
-                  <strong>{{ $type->name ?? ucfirst($typeCode) }}</strong>
-                  @if(!empty($type->description))
-                    <br><small class="text-muted ms-4">{{ $type->description }}</small>
-                  @endif
-                </li>
-              @endforeach
-            @endif
+          <p>Object types determine how records are displayed:</p>
+          <ul class="small">
+            <li><strong>Archive:</strong> ISAD(G) hierarchical view</li>
+            <li><strong>Museum:</strong> Spectrum object records</li>
+            <li><strong>Gallery:</strong> Artwork/artist focus</li>
+            <li><strong>Book Collection:</strong> Bibliographic view</li>
+            <li><strong>Photo Archive:</strong> Visual grid/lightbox</li>
+            <li><strong>Audiovisual:</strong> Media player focus</li>
           </ul>
+          <p class="text-muted small mb-0">
+            Types are inherited by children. Setting a type on a fonds will apply to all series, files, and items within.
+          </p>
         </div>
       </div>
     </div>

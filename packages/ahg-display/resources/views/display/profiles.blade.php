@@ -55,9 +55,9 @@
   @endif
 
   @if(!empty($profiles) && count($profiles))
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="row">
       @foreach($profiles as $profile)
-        <div class="col">
+        <div class="col-md-4 mb-4">
           <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
               <div>
@@ -69,34 +69,22 @@
               </span>
             </div>
             <div class="card-body">
-              <table class="table table-bordered table-sm table-borderless mb-0">
+              <table class="table table-sm table-borderless mb-0">
                 <tbody>
                   <tr>
-                    <th class="text-muted" style="width: 40%;">Code</th>
-                    <td>{{ $profile->code ?? '-' }}</td>
+                    <th class="text-muted" width="120">Code:</th>
+                    <td><code>{{ $profile->code ?? '-' }}</code></td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Layout</th>
-                    <td>
-                      <i class="fas {{ getLayoutIcon($profile->layout ?? 'list') }} me-1"></i>
-                      {{ ucfirst($profile->layout ?? 'list') }}
-                    </td>
+                    <th class="text-muted">Layout:</th>
+                    <td>{{ ucfirst($profile->layout_mode ?? $profile->layout ?? 'list') }}</td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Thumbnail</th>
-                    <td>
-                      @if(!empty($profile->thumbnail_size) || !empty($profile->thumbnail_position))
-                        {{ $profile->thumbnail_size ?? 'default' }}
-                        @if(!empty($profile->thumbnail_position))
-                          / {{ $profile->thumbnail_position }}
-                        @endif
-                      @else
-                        -
-                      @endif
-                    </td>
+                    <th class="text-muted">Thumbnail:</th>
+                    <td>{{ ucfirst($profile->thumbnail_size ?? 'default') }} ({{ $profile->thumbnail_position ?? 'left' }})</td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Default</th>
+                    <th class="text-muted">Default:</th>
                     <td>
                       @if(!empty($profile->is_default))
                         <span class="badge bg-success">Yes</span>

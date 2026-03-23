@@ -87,10 +87,13 @@ class LibraryService
                 'library_item.series_title',
                 'library_item.series_number',
                 'library_item.pages',
+                'library_item.pagination',
                 'library_item.dimensions',
                 'library_item.physical_details',
                 'library_item.abstract',
+                'library_item.summary',
                 'library_item.table_of_contents',
+                'library_item.contents_note',
                 'library_item.general_note',
                 'library_item.bibliography_note',
                 'library_item.created_at as library_created_at',
@@ -149,6 +152,7 @@ class LibraryService
                 'library_item.publisher',
                 'library_item.responsibility_statement',
                 'library_item.cover_url',
+                'library_item.call_number',
                 'object.updated_at',
                 'slug.slug',
             ]);
@@ -186,6 +190,7 @@ class LibraryService
                     'publisher' => $row->publisher ?? '',
                     'responsibility_statement' => $row->responsibility_statement ?? '',
                     'cover_url' => $row->cover_url ?? '',
+                    'call_number' => $row->call_number ?? '',
                     'updated_at' => $row->updated_at ?? '',
                     'slug' => $row->slug ?? '',
                 ];
@@ -628,6 +633,45 @@ class LibraryService
             ->where('id', $termId)
             ->where('culture', $this->culture)
             ->value('name');
+    }
+
+    /**
+     * Get the parent information_object for a library item (if not root).
+     */
+    public function getParentItem(int $informationObjectId): ?object
+    {
+        $parentId = DB::table('information_object')
+            ->where('id', $informationObjectId)
+            ->value('parent_id');
+
+        // Root ID is 1 in AtoM
+        if (!$parentId || $parentId <= 1) {
+            return null;
+        }
+
+        return DB::table('information_object')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->where('information_object.id', $parentId)
+            ->select([
+                'information_object.id',
+                'information_object_i18n.title',
+                'slug.slug',
+            ])
+            ->first();
+    }
+
+    /**
+     * Count child information_objects for a library item.
+     */
+    public function getChildCount(int $informationObjectId): int
+    {
+        return DB::table('information_object')
+            ->where('parent_id', $informationObjectId)
+            ->count();
     }
 
     /**

@@ -9,6 +9,7 @@
     <li class="breadcrumb-item active">ILM Annotate</li>
   </ol>
 </nav>
+@include('ahg-ai-services::htr._nav')
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0"><i class="fas fa-pen-square me-2"></i>ILM Annotate</h1>
@@ -26,11 +27,17 @@
       <div class="col-md-4">
         <div class="input-group input-group-sm">
           <select id="folder-preset" class="form-select form-select-sm">
-            <option value="">— Select server folder —</option>
-            <option value="/tmp">Downloaded images (/tmp)</option>
-            <option value="type_a">Training: Type A (Death Certs)</option>
-            <option value="type_b">Training: Type B (Registers)</option>
-            <option value="type_c">Training: Type C (Narrative)</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch" selected>FamilySearch (all)</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1898">FamilySearch / 1898</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1904">FamilySearch / 1904</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1912">FamilySearch / 1912</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1920">FamilySearch / 1920</option>
+            <option value="/usr/share/nginx/heratio/FamilySearch/1930">FamilySearch / 1930</option>
+            <option value="/tmp">Temp (/tmp)</option>
+            <option value="type_a">Training: Type A</option>
+            <option value="type_b">Training: Type B</option>
+            <option value="type_c">Training: Type C</option>
+            <option value="">— Custom path —</option>
           </select>
           <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="/path/to/images" style="display:none;">
           <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>Load</button>
@@ -314,18 +321,59 @@
     return null;
   }
 
+  // Resize handle hit-test — returns which edge/corner to resize
+  // Returns: 'nw','n','ne','e','se','s','sw','w' or null
+  const HANDLE_SIZE = 8; // pixels in image coords
+  function handleHitTest(p, a) {
+    if (!a) return null;
+    const hs = HANDLE_SIZE / scale;
+    const nearL = Math.abs(p.x - a.x) < hs;
+    const nearR = Math.abs(p.x - (a.x + a.w)) < hs;
+    const nearT = Math.abs(p.y - a.y) < hs;
+    const nearB = Math.abs(p.y - (a.y + a.h)) < hs;
+    const inX = p.x >= a.x - hs && p.x <= a.x + a.w + hs;
+    const inY = p.y >= a.y - hs && p.y <= a.y + a.h + hs;
+
+    if (nearT && nearL && inX && inY) return 'nw';
+    if (nearT && nearR && inX && inY) return 'ne';
+    if (nearB && nearL && inX && inY) return 'sw';
+    if (nearB && nearR && inX && inY) return 'se';
+    if (nearT && inX) return 'n';
+    if (nearB && inX) return 's';
+    if (nearL && inY) return 'w';
+    if (nearR && inY) return 'e';
+    return null;
+  }
+
+  const CURSORS = {nw:'nw-resize',n:'n-resize',ne:'ne-resize',e:'e-resize',se:'se-resize',s:'s-resize',sw:'sw-resize',w:'w-resize'};
+  let resizing = false, resizeHandle = null, resizeAnn = null, resizeStart = {};
+
   cvs.addEventListener('mousedown', function(e) {
     // Hand tool — pan
     if (tool==='hand') { panning=true; px=e.clientX; py=e.clientY; psx=wrap.scrollLeft; psy=wrap.scrollTop; e.preventDefault(); return; }
 
     const p = pos(e);
 
-    // Select tool — click to select, drag to move
+    // Select tool — check resize handle first, then drag, then select
     if (tool==='select') {
+      // Check resize on active annotation
+      if (activeId) {
+        const active = anns.find(a => a.id === activeId);
+        const handle = handleHitTest(p, active);
+        if (handle) {
+          resizing = true;
+          resizeHandle = handle;
+          resizeAnn = active;
+          resizeStart = { x: active.x, y: active.y, w: active.w, h: active.h, mx: p.x, my: p.y };
+          cvs.style.cursor = CURSORS[handle];
+          return;
+        }
+      }
+
+      // Check drag (click inside any annotation)
       const hit = hitTest(p);
       if (hit) {
         setActive(hit.id);
-        // Start dragging
         dragging = true;
         dragAnn = hit;
         dragOffX = p.x - hit.x;
@@ -348,6 +396,31 @@
 
     const p = pos(e);
 
+    // Resizing annotation
+    if (resizing && resizeAnn) {
+      const dx = p.x - resizeStart.mx;
+      const dy = p.y - resizeStart.my;
+      const s = resizeStart;
+      const h = resizeHandle;
+
+      let nx=s.x, ny=s.y, nw=s.w, nh=s.h;
+      if (h.includes('w')) { nx = s.x + dx; nw = s.w - dx; }
+      if (h.includes('e')) { nw = s.w + dx; }
+      if (h.includes('n')) { ny = s.y + dy; nh = s.h - dy; }
+      if (h.includes('s')) { nh = s.h + dy; }
+
+      // Enforce minimum size
+      if (nw < 10) { nw = 10; if (h.includes('w')) nx = s.x + s.w - 10; }
+      if (nh < 10) { nh = 10; if (h.includes('n')) ny = s.y + s.h - 10; }
+
+      resizeAnn.x = Math.round(Math.max(0, nx));
+      resizeAnn.y = Math.round(Math.max(0, ny));
+      resizeAnn.w = Math.round(Math.min(nw, img.width - resizeAnn.x));
+      resizeAnn.h = Math.round(Math.min(nh, img.height - resizeAnn.y));
+      redraw();
+      return;
+    }
+
     // Dragging annotation
     if (dragging && dragAnn) {
       dragAnn.x = Math.max(0, Math.min(img.width - dragAnn.w, Math.round(p.x - dragOffX)));
@@ -356,8 +429,13 @@
       return;
     }
 
-    // Select tool hover cursor
-    if (tool==='select' && !dragging) {
+    // Select tool hover cursor — show resize cursor near edges of active
+    if (tool==='select' && !dragging && !resizing) {
+      if (activeId) {
+        const active = anns.find(a => a.id === activeId);
+        const handle = handleHitTest(p, active);
+        if (handle) { cvs.style.cursor = CURSORS[handle]; return; }
+      }
       const hit = hitTest(p);
       cvs.style.cursor = hit ? 'move' : 'pointer';
     }
@@ -372,6 +450,14 @@
 
   cvs.addEventListener('mouseup', function(e) {
     if (panning) { panning=false; return; }
+
+    // End resize
+    if (resizing) {
+      resizing=false; resizeAnn=null; resizeHandle=null;
+      cvs.style.cursor = 'pointer';
+      buildPanel();
+      return;
+    }
 
     // End drag
     if (dragging) {
@@ -410,6 +496,7 @@
   document.addEventListener('mouseup', function() {
     if (panning) panning=false;
     if (dragging) { dragging=false; dragAnn=null; buildPanel(); }
+    if (resizing) { resizing=false; resizeAnn=null; resizeHandle=null; buildPanel(); }
   });
 
   // Wheel zoom

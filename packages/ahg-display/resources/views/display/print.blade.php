@@ -1,76 +1,91 @@
+{{--
+  Print Preview – print.blade.php
+  Migrated from AtoM printSuccess.php (ahgDisplayPlugin)
+  Matches AtoM exactly: same styling, same table columns, same layout
+--}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Print Preview - {{ $parent->title ?? 'GLAM Browse Results' }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>GLAM Browse - Print Preview</title>
   <style>
-    body { font-size: 12px; }
+    body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; margin: 20px; }
+    h1 { font-size: 18px; border-bottom: 2px solid var(--ahg-primary, #1d6a52); padding-bottom: 10px; color: var(--ahg-primary, #1d6a52); }
+    .meta { color: #666; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+    th { background-color: var(--ahg-primary, #1d6a52); color: white; font-weight: bold; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .type-archive { color: #198754; }
+    .type-museum { color: #ffc107; }
+    .type-gallery { color: #0dcaf0; }
+    .type-library { color: #0d6efd; }
+    .type-dam { color: #dc3545; }
+    .scope { font-size: 11px; color: #666; max-width: 300px; }
     @media print {
-      .no-print { display: none !important; }
-      body { font-size: 10px; }
-      .table th, .table td { padding: 0.25rem 0.5rem; }
+      body { margin: 0; }
+      h1 { page-break-after: avoid; }
+      tr { page-break-inside: avoid; }
+      .no-print { display: none; }
     }
-    .print-header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+    .print-btn { background: var(--ahg-primary, #1d6a52); color: white; border: none; padding: 10px 20px; cursor: pointer; margin-right: 10px; margin-bottom: 20px; }
+    .print-btn:hover { opacity: 0.9; }
   </style>
 </head>
-<body class="p-4">
-
-  {{-- Action buttons --}}
-  <div class="no-print mb-4 d-flex gap-2">
-    <button type="button" class="btn atom-btn-white" onclick="window.print();">
-      <i class="fas fa-print me-1"></i> Print
-    </button>
-    <button type="button" class="btn atom-btn-white" onclick="window.close();">
-      <i class="fas fa-times me-1"></i> Close
-    </button>
+<body>
+  <div class="no-print">
+    <button class="print-btn" onclick="window.print()">Print this page</button>
+    <button class="print-btn" onclick="window.close()">Close</button>
   </div>
 
-  {{-- Header --}}
-  <div class="print-header">
-    <h2>{{ $parent->title ?? 'GLAM Browse Results' }}</h2>
-    <div class="text-muted">
-      <span class="me-3"><strong>Total:</strong> {{ number_format($total ?? 0) }} records</span>
-      <span class="me-3"><strong>Date:</strong> {{ now()->format('Y-m-d H:i') }}</span>
-      @if(!empty($typeFilter))
-        <span><strong>Type filter:</strong> {{ ucfirst($typeFilter) }}</span>
-      @endif
-    </div>
+  <h1>
+    @if(isset($parent) && $parent)
+      {{ e($parent->title ?? '') }} - Contents
+    @else
+      GLAM Browse Results
+    @endif
+  </h1>
+
+  <div class="meta">
+    <strong>Total:</strong> {{ $total ?? 0 }} records |
+    <strong>Generated:</strong> {{ now()->format('Y-m-d H:i:s') }}
+    @if(!empty($typeFilter))
+      | <strong>Type:</strong> {{ ucfirst($typeFilter) }}
+    @endif
   </div>
 
-  {{-- Results table --}}
-  @if(!empty($objects) && count($objects))
-    <table class="table table-bordered table-sm">
-      <thead>
-        <tr>
-          <th style="width: 15%;">Identifier</th>
-          <th style="width: 25%;">Title</th>
-          <th style="width: 10%;">Level</th>
-          <th style="width: 10%;">Type</th>
-          <th style="width: 40%;">Scope and Content</th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($objects as $object)
+  <table>
+    <thead>
+      <tr>
+        <th style="width:120px">Identifier</th>
+        <th>Title</th>
+        <th style="width:100px">Level</th>
+        <th style="width:80px">Type</th>
+        <th style="width:250px">Scope and Content</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if(!empty($objects) && count($objects))
+        @foreach($objects as $obj)
           <tr>
-            <td>{{ $object->identifier ?? '-' }}</td>
-            <td>{{ $object->title ?? '-' }}</td>
-            <td>{{ $object->level ?? $object->level_of_description ?? '-' }}</td>
-            <td>{{ $object->type ?? $object->collection_type ?? '-' }}</td>
-            <td>{{ $object->scope_and_content ?? $object->scopeAndContent ?? '-' }}</td>
+            <td>{{ e($obj->identifier ?? '-') }}</td>
+            <td><strong>{{ e($obj->title ?? '[Untitled]') }}</strong></td>
+            <td>{{ e($obj->level_name ?? $obj->level ?? $obj->level_of_description ?? '-') }}</td>
+            <td class="type-{{ $obj->object_type ?? $obj->type ?? $obj->collection_type ?? '' }}">{{ ucfirst($obj->object_type ?? $obj->type ?? $obj->collection_type ?? '-') }}</td>
+            <td class="scope">{{ e(mb_substr($obj->scope_and_content ?? $obj->scopeAndContent ?? '', 0, 200)) }}@if(strlen($obj->scope_and_content ?? $obj->scopeAndContent ?? '') > 200)...@endif</td>
           </tr>
         @endforeach
-      </tbody>
-    </table>
-  @else
-    <p class="text-muted">No records to display.</p>
-  @endif
+      @else
+        <tr>
+          <td colspan="5" style="text-align:center;color:#999;padding:20px;">No records to display.</td>
+        </tr>
+      @endif
+    </tbody>
+  </table>
 
-  {{-- Footer --}}
-  <div class="mt-4 text-muted text-center small">
-    Printed from Heratio on {{ now()->format('Y-m-d H:i:s') }}
+  <div class="meta" style="margin-top: 20px;">
+    <em>Printed from Heratio GLAM Display System</em>
   </div>
-
 </body>
 </html>

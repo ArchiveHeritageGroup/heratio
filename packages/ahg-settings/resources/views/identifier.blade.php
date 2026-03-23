@@ -6,8 +6,13 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
-    <h1>Identifier Settings</h1>
-    <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Configure global identifier and accession numbering. Clear the application cache and rebuild the search index if you change the reference code separator.</div>
+    <h1>Identifier-related</h1>
+
+    <div class="alert alert-info" role="alert">
+      <p>Please clear the application cache and rebuild the search index if you are changing the reference code separator setting.</p>
+      <pre>$ php artisan cache:clear</pre>
+      <pre>$ php artisan search:populate</pre>
+    </div>
 
     <form method="post" action="{{ route('settings.identifier') }}">
       @csrf
@@ -20,7 +25,6 @@
           </h2>
           <div id="collapseIdentifier" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
             <div class="accordion-body">
-              <h5>Accession numbering</h5>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[accession_mask_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[accession_mask_enabled]" value="1" id="accession_mask_enabled" {{ ($settings['accession_mask_enabled'] ?? '') == '1' ? 'checked' : '' }}>
@@ -36,9 +40,6 @@
                 <input type="number" name="settings[accession_counter]" class="form-control" value="{{ e($settings['accession_counter'] ?? '0') }}">
               </div>
 
-              <hr>
-
-              <h5>Identifier numbering</h5>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[identifier_mask_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[identifier_mask_enabled]" value="1" id="identifier_mask_enabled" {{ ($settings['identifier_mask_enabled'] ?? '') == '1' ? 'checked' : '' }}>
@@ -53,9 +54,6 @@
                 <input type="number" name="settings[identifier_counter]" class="form-control" value="{{ e($settings['identifier_counter'] ?? '0') }}">
               </div>
 
-              <hr>
-
-              <h5>Reference code options</h5>
               <div class="mb-3">
                 <label class="form-label">Reference code separator <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="text" name="settings[separator_character]" class="form-control" value="{{ e($settings['separator_character'] ?? '-') }}" maxlength="5">
@@ -80,14 +78,9 @@
         </div>
       </div>
 
-      <div class="alert alert-secondary mt-3 mb-4" role="alert">
-        <i class="fas fa-layer-group me-2"></i>
-        <strong>Sector-specific numbering?</strong>
-        Configure different numbering schemes per GLAM/DAM sector in the
-        <a href="{{ route('settings.ahg', 'accession') }}">AHG Settings (Accession section)</a>.
-      </div>
-
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
     </form>
   </div>
 </div>

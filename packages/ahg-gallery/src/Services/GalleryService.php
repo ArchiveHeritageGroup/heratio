@@ -188,21 +188,46 @@ class GalleryService
                 ->toArray();
         }
 
-        // Fetch thumbnails for each artwork
+        // Fetch master and thumbnail digital objects for each artwork (match AtoM pattern)
         $objectIds = $rows->pluck('id')->toArray();
         $thumbnails = [];
+        $masters = [];
         if (!empty($objectIds)) {
-            $thumbRows = DB::table('digital_object')
+            // Master digital objects (no parent_id)
+            $masterRows = DB::table('digital_object')
                 ->whereIn('object_id', $objectIds)
-                ->select('object_id', 'path', 'name', 'mime_type')
+                ->whereNull('parent_id')
+                ->select('id', 'object_id', 'path', 'name', 'mime_type')
                 ->get();
-            foreach ($thumbRows as $tr) {
-                $thumbnails[$tr->object_id] = $tr;
+            foreach ($masterRows as $mr) {
+                $masters[$mr->object_id] = $mr;
+            }
+
+            // Thumbnail derivatives (usage_id = 142 for Thumbnail)
+            $masterIds = $masterRows->pluck('id')->toArray();
+            if (!empty($masterIds)) {
+                $thumbRows = DB::table('digital_object')
+                    ->whereIn('parent_id', $masterIds)
+                    ->where('usage_id', 142)
+                    ->select('parent_id', 'path', 'name', 'mime_type')
+                    ->get();
+                // Map thumb by master's object_id
+                $masterIdToObjectId = [];
+                foreach ($masterRows as $mr) {
+                    $masterIdToObjectId[$mr->id] = $mr->object_id;
+                }
+                foreach ($thumbRows as $tr) {
+                    $objId = $masterIdToObjectId[$tr->parent_id] ?? null;
+                    if ($objId) {
+                        $thumbnails[$objId] = $tr;
+                    }
+                }
             }
         }
 
         $results = [];
         foreach ($rows as $row) {
+            $master = $masters[$row->id] ?? null;
             $results[] = [
                 'id' => $row->id,
                 'identifier' => $row->identifier,
@@ -216,6 +241,8 @@ class GalleryService
                 'techniques' => $row->techniques,
                 'creation_date_display' => $row->creation_date_display,
                 'thumbnail' => $thumbnails[$row->id] ?? null,
+                'master_path' => $master->path ?? null,
+                'master_name' => $master->name ?? null,
             ];
         }
 

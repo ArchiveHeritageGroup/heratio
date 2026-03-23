@@ -467,7 +467,7 @@ class AiController extends Controller
 
         $file    = $request->file('file');
         $tmpPath = $file->store('htr-uploads', 'local');
-        $fullPath = storage_path('app/' . $tmpPath);
+        $fullPath = storage_path('app/private/' . $tmpPath);
 
         $docType = $request->input('doc_type', 'auto');
         $format  = $request->input('formats') ? implode(',', $request->input('formats')) : 'all';
@@ -526,7 +526,7 @@ class AiController extends Controller
         $paths = [];
         foreach ($request->file('files') as $file) {
             $tmpPath = $file->store('htr-uploads', 'local');
-            $paths[] = storage_path('app/' . $tmpPath);
+            $paths[] = storage_path('app/private/' . $tmpPath);
         }
 
         $format = $request->input('format', 'csv');
@@ -619,20 +619,38 @@ class AiController extends Controller
         // List image files
         $exts = ['jpg','jpeg','png','tif','tiff','bmp','webp'];
         $files = [];
-        foreach (scandir($resolved) as $f) {
-            if ($f === '.' || $f === '..') continue;
-            $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-            if (in_array($ext, $exts)) {
-                $full = $resolved . '/' . $f;
-                // Check if already annotated
-                $annFile = preg_replace('/\/images\//', '/annotations/', $full) . '.json';
-                $files[] = [
-                    'name' => $f,
-                    'path' => $full,
-                    'size' => filesize($full),
-                    'annotated' => file_exists($annFile),
-                ];
+
+        // Recursive scan — includes subfolders but skips 'processed' folders
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($resolved, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+        foreach ($iterator as $fileInfo) {
+            // Skip processed folders
+            if (str_contains($fileInfo->getPathname(), '/processed/')) continue;
+
+            $ext = strtolower($fileInfo->getExtension());
+            if (!in_array($ext, $exts)) continue;
+
+            $full = $fileInfo->getPathname();
+            $rel = str_replace($resolved . '/', '', $full);
+
+            // Check if annotated (annotation JSON exists in training_data)
+            $basename = $fileInfo->getFilename();
+            $annotated = false;
+            foreach (['type_a','type_b','type_c'] as $t) {
+                if (file_exists("/opt/ahg-ai/htr/training_data/{$t}/annotations/{$basename}.json")) {
+                    $annotated = true;
+                    break;
+                }
             }
+
+            $files[] = [
+                'name' => $rel,
+                'path' => $full,
+                'size' => $fileInfo->getSize(),
+                'annotated' => $annotated,
+            ];
         }
 
         // Sort: unannotated first, then alphabetical
@@ -661,8 +679,8 @@ class AiController extends Controller
             abort(404, 'Image not found');
         }
 
-        // Security: only allow images from /opt/ahg-ai or /tmp or /mnt
-        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/'];
+        // Security: only allow images from known paths
+        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/', '/usr/share/nginx/heratio/FamilySearch/'];
         $ok = false;
         foreach ($allowed as $prefix) {
             if (str_starts_with(realpath($path), $prefix)) { $ok = true; break; }
@@ -696,7 +714,7 @@ class AiController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $tmpPath = $file->store('htr-annotations', 'local');
-            $fullPath = storage_path('app/' . $tmpPath);
+            $fullPath = storage_path('app/private/' . $tmpPath);
         } elseif ($serverPath && file_exists($serverPath)) {
             $fullPath = $serverPath;
             $isServerFile = true;
@@ -738,11 +756,28 @@ class AiController extends Controller
             ], JSON_PRETTY_PRINT));
 
             $result = ['success' => true, 'saved_locally' => true];
+
+            // Crop individual field regions for training
+            $cropsDir = '/opt/ahg-ai/htr/training_data/' . $type . '/crops';
+            if (!is_dir($cropsDir)) { mkdir($cropsDir, 0755, true); }
+            $imgPath = $destDir . '/' . $filename;
+            $this->cropAnnotatedFields($imgPath, $annotations, $cropsDir, $filename);
         }
 
         // Clean up temp file only if we uploaded one
         if ($tmpPath) {
             @unlink($fullPath);
+        }
+
+        // Move source image to processed/ folder so it's skipped on next load
+        if ($result && $isServerFile && $serverPath && file_exists($serverPath)) {
+            $sourceDir = dirname($serverPath);
+            $processedDir = $sourceDir . '/processed';
+            if (!is_dir($processedDir)) {
+                mkdir($processedDir, 0777, true);
+            }
+            $moved = rename($serverPath, $processedDir . '/' . basename($serverPath));
+            $result['moved_to'] = $moved ? $processedDir . '/' . basename($serverPath) : null;
         }
 
         return response()->json([
@@ -769,5 +804,77 @@ class AiController extends Controller
 
         return redirect()->route('admin.ai.htr.training')
             ->with('error', 'Failed to start training. The service may be offline.');
+    }
+
+    /**
+     * Crop annotated field regions from an image and save as separate files.
+     * Each crop is saved with its label and text in the filename for training.
+     */
+    private function cropAnnotatedFields(string $imagePath, array $annotations, string $cropsDir, string $sourceFilename): void
+    {
+        if (!file_exists($imagePath)) return;
+
+        $base = pathinfo($sourceFilename, PATHINFO_FILENAME);
+
+        // Parse annotations — handle both flat array and nested [{fields:[...]}] format
+        $fields = [];
+        foreach ($annotations as $ann) {
+            if (isset($ann['fields'])) {
+                foreach ($ann['fields'] as $f) {
+                    $fields[] = $f;
+                }
+            } elseif (isset($ann['bbox'])) {
+                $fields[] = $ann;
+            }
+        }
+
+        if (empty($fields)) return;
+
+        // Use Python/Pillow to crop — single script call for all fields
+        $crops = [];
+        foreach ($fields as $i => $field) {
+            $bbox = $field['bbox'] ?? [];
+            if (empty($bbox['x']) && ($bbox['x'] ?? null) !== 0) continue;
+
+            $label = $field['label'] ?? ('field_' . $i);
+            $text = preg_replace('/[^a-zA-Z0-9_-]/', '_', substr($field['text'] ?? '', 0, 40));
+            $cropName = "{$base}_{$i}_{$label}" . ($text ? "_{$text}" : '') . '.jpg';
+
+            $crops[] = [
+                'x' => (int)$bbox['x'],
+                'y' => (int)$bbox['y'],
+                'w' => (int)$bbox['w'],
+                'h' => (int)$bbox['h'],
+                'out' => $cropsDir . '/' . $cropName,
+                'label' => $label,
+                'text' => $field['text'] ?? '',
+            ];
+        }
+
+        if (empty($crops)) return;
+
+        $cropsJson = json_encode($crops);
+        $escapedImage = escapeshellarg($imagePath);
+        $escapedCrops = escapeshellarg($cropsJson);
+
+        // Python one-liner to crop all fields
+        $script = <<<'PY'
+import sys, json
+from PIL import Image
+img = Image.open(sys.argv[1])
+crops = json.loads(sys.argv[2])
+for c in crops:
+    box = (c['x'], c['y'], c['x']+c['w'], c['y']+c['h'])
+    box = (max(0,box[0]), max(0,box[1]), min(img.width,box[2]), min(img.height,box[3]))
+    if box[2]>box[0] and box[3]>box[1]:
+        crop = img.crop(box)
+        crop.save(c['out'], 'JPEG', quality=95)
+        print(c['out'])
+PY;
+
+        $tmpScript = tempnam('/tmp', 'crop_') . '.py';
+        file_put_contents($tmpScript, $script);
+        exec("python3 {$tmpScript} {$escapedImage} {$escapedCrops} 2>&1", $output);
+        @unlink($tmpScript);
     }
 }

@@ -1169,6 +1169,126 @@
         </div>
       </div>
 
+      {{-- ===== 9. State/Edition (CCO Ch 10) ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingStateEdition">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStateEdition" aria-expanded="false" aria-controls="collapseStateEdition">
+            State/Edition
+            <span class="cco-chapter">CCO Chapter 10</span>
+          </button>
+        </h2>
+        <div id="collapseStateEdition" class="accordion-collapse collapse" aria-labelledby="headingStateEdition" data-bs-parent="#galleryAccordion">
+          <div class="accordion-body">
+            <p class="category-description">For prints, photographs, and multiples.</p>
+
+            {{-- edition_number: optional, CCO 10.1 --}}
+            <div class="cco-field level-optional" data-field="edition_number">
+              <div class="field-header">
+                <label for="edition_number">
+                  Edition number
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-cco" title="CCO Reference">10.1</span>
+                </span>
+                <button type="button" class="btn-help" data-field="edition_number" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="edition_number" name="edition_number"
+                       value="{{ old('edition_number', $artwork->edition_number ?? '') }}">
+              </div>
+              <div class="field-help" id="help-edition_number" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">The specific number within an edition (e.g. "3/50"). (CCO 10.1)</p>
+                </div>
+              </div>
+            </div>
+
+            {{-- edition_size: optional, CCO 10.2 --}}
+            <div class="cco-field level-optional" data-field="edition_size">
+              <div class="field-header">
+                <label for="edition_size">
+                  Edition size
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-cco" title="CCO Reference">10.2</span>
+                </span>
+                <button type="button" class="btn-help" data-field="edition_size" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="edition_size" name="edition_size"
+                       value="{{ old('edition_size', $artwork->edition_size ?? '') }}">
+              </div>
+              <div class="field-help" id="help-edition_size" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">Total size of the edition. (CCO 10.2)</p>
+                </div>
+              </div>
+            </div>
+
+            {{-- state: optional, CCO 10.3 --}}
+            <div class="cco-field level-optional" data-field="state">
+              <div class="field-header">
+                <label for="state">
+                  State
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-cco" title="CCO Reference">10.3</span>
+                </span>
+                <button type="button" class="btn-help" data-field="state" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <input type="text" class="form-control" id="state" name="state"
+                       value="{{ old('state', $artwork->state ?? '') }}">
+              </div>
+              <div class="field-help" id="help-state" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">For prints: which state of the plate. (CCO 10.3)</p>
+                </div>
+              </div>
+            </div>
+
+            {{-- impression_quality: optional, CCO 10.4 --}}
+            <div class="cco-field level-optional" data-field="impression_quality">
+              <div class="field-header">
+                <label for="impression_quality">
+                  Impression quality
+                </label>
+                <span class="field-badges">
+                  <span class="badge badge-optional">Optional</span>
+                  <span class="badge badge-cco" title="CCO Reference">10.4</span>
+                </span>
+                <button type="button" class="btn-help" data-field="impression_quality" title="Help">
+                  <i class="fa fa-question-circle"></i>
+                </button>
+              </div>
+              <div class="field-input">
+                <select class="form-select" id="impression_quality" name="impression_quality">
+                  <option value="">-- Select --</option>
+                  @foreach(['excellent' => 'Excellent', 'very_good' => 'Very good', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor'] as $val => $label)
+                    <option value="{{ $val }}" @selected(old('impression_quality', $artwork->impression_quality ?? '') == $val)>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="field-help" id="help-impression_quality" style="display: none;">
+                <div class="help-content">
+                  <p class="help-text">Quality of the impression. (CCO 10.4)</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       {{-- ===== 10. Description (CCO Ch 11) ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingDescription">

@@ -10,7 +10,7 @@
 
   {{-- Library navigation --}}
   <div class="card mb-3">
-    <div class="card-header fw-bold">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-book me-1"></i> Library
     </div>
     <div class="list-group list-group-flush">
@@ -28,7 +28,7 @@
   {{-- Creators --}}
   @if($creators->isNotEmpty())
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
         <i class="fas fa-user me-1"></i> Creators
       </div>
       <div class="list-group list-group-flush">
@@ -47,7 +47,7 @@
   {{-- Subjects --}}
   @if($subjects->isNotEmpty())
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
         <i class="fas fa-tags me-1"></i> Subjects
       </div>
       <div class="list-group list-group-flush">
@@ -61,7 +61,7 @@
   {{-- External links --}}
   @if($item->openlibrary_url || $item->ebook_preview_url || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
     <div class="card mb-3">
-      <div class="card-header fw-bold">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
         <i class="fas fa-external-link-alt me-1"></i> External links
       </div>
       <div class="list-group list-group-flush">
@@ -96,7 +96,7 @@
 @endsection
 
 {{-- ============================================================ --}}
-{{-- MAIN CONTENT: Field sections                                 --}}
+{{-- MAIN CONTENT: Field sections (card-based like AtoM)          --}}
 {{-- ============================================================ --}}
 @section('content')
 
@@ -111,310 +111,260 @@
   @endif
 
   {{-- ===== Basic Information ===== --}}
-  <section id="basicInfoArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-      <a class="text-decoration-none text-white" href="#basic-collapse">
-        Basic information
-      </a>
-      @auth
-        <a href="{{ route('library.edit', $item->slug) }}" class="float-end text-white opacity-75 ms-auto" style="font-size:.75rem;" title="Edit">
-          <i class="fas fa-pencil-alt"></i>
-        </a>
-      @endauth
-    </h2>
-    <div id="basic-collapse">
+  <section class="card mb-4">
+    <div class="card-header text-white" style="background:var(--ahg-primary);">
+      <h5 class="mb-0"><i class="fas fa-book me-2"></i>Basic information</h5>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        @if($item->title)
+          <dt class="col-sm-4">Title</dt>
+          <dd class="col-sm-8">{{ $item->title }}</dd>
+        @endif
 
-      @if($item->title)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
-          <div class="col-9 p-2">{{ $item->title }}</div>
-        </div>
-      @endif
+        @if($item->subtitle)
+          <dt class="col-sm-4">Subtitle</dt>
+          <dd class="col-sm-8">{{ $item->subtitle }}</dd>
+        @endif
 
-      @if($item->subtitle)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subtitle</h3>
-          <div class="col-9 p-2">{{ $item->subtitle }}</div>
-        </div>
-      @endif
+        @if($item->responsibility_statement)
+          <dt class="col-sm-4">Statement of responsibility</dt>
+          <dd class="col-sm-8">{{ $item->responsibility_statement }}</dd>
+        @endif
 
-      @if($item->identifier)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Identifier</h3>
-          <div class="col-9 p-2">{{ $item->identifier }}</div>
-        </div>
-      @endif
+        @if($item->identifier)
+          <dt class="col-sm-4">Identifier</dt>
+          <dd class="col-sm-8">{{ $item->identifier }}</dd>
+        @endif
 
-      @if($item->responsibility_statement)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Statement of responsibility</h3>
-          <div class="col-9 p-2">{{ $item->responsibility_statement }}</div>
-        </div>
-      @endif
+        @if($levelName)
+          <dt class="col-sm-4">Level of description</dt>
+          <dd class="col-sm-8">{{ $levelName }}</dd>
+        @endif
 
-      @if($levelName)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of description</h3>
-          <div class="col-9 p-2">{{ $levelName }}</div>
-        </div>
-      @endif
+        @if($item->material_type)
+          <dt class="col-sm-4">Material type</dt>
+          <dd class="col-sm-8">{{ ucfirst($item->material_type) }}</dd>
+        @endif
 
-      @if($item->material_type)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Material type</h3>
-          <div class="col-9 p-2">{{ ucfirst($item->material_type) }}</div>
-        </div>
-      @endif
-
-      @if($item->language)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language</h3>
-          <div class="col-9 p-2">{{ $item->language }}</div>
-        </div>
-      @endif
-
+        @if($item->language)
+          <dt class="col-sm-4">Language</dt>
+          <dd class="col-sm-8">{{ $item->language }}</dd>
+        @endif
+      </dl>
     </div>
   </section>
 
   {{-- ===== Creators / Authors ===== --}}
   @if($creators->isNotEmpty())
-    <section id="creatorsArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#creators-collapse">
-          Creators / Authors
-        </a>
-      </h2>
-      <div id="creators-collapse">
-        @foreach($creators as $creator)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">
-              {{ ucfirst($creator->role ?? 'Author') }}
-            </h3>
-            <div class="col-9 p-2">
+    <section class="card mb-4">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Creators / Authors</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          @foreach($creators as $creator)
+            <li class="mb-2">
               <strong>{{ $creator->name ?? '[Unknown]' }}</strong>
+              <span class="badge bg-secondary ms-2">{{ ucfirst($creator->role ?? 'Author') }}</span>
               @if(!empty($creator->authority_uri))
                 <a href="{{ $creator->authority_uri }}" target="_blank" class="ms-2" title="View authority record">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
               @endif
-            </div>
-          </div>
-        @endforeach
+            </li>
+          @endforeach
+        </ul>
       </div>
     </section>
   @endif
 
   {{-- ===== Standard Identifiers ===== --}}
-  @if($item->isbn || $item->issn || $item->doi || $item->lccn || $item->oclc_number || $item->barcode || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
-    <section id="identifiersArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#identifiers-collapse">
-          Standard identifiers
-        </a>
-      </h2>
-      <div id="identifiers-collapse">
+  @if($item->isbn || $item->issn || $item->doi || $item->lccn || $item->oclc_number || $item->barcode || $item->openlibrary_id)
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard identifiers</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @if($item->isbn)
+            <dt class="col-sm-4">ISBN</dt>
+            <dd class="col-sm-8"><code>{{ $item->isbn }}</code></dd>
+          @endif
 
-        @if($item->isbn)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">ISBN</h3>
-            <div class="col-9 p-2"><code>{{ $item->isbn }}</code></div>
-          </div>
-        @endif
+          @if($item->issn)
+            <dt class="col-sm-4">ISSN</dt>
+            <dd class="col-sm-8"><code>{{ $item->issn }}</code></dd>
+          @endif
 
-        @if($item->issn)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">ISSN</h3>
-            <div class="col-9 p-2"><code>{{ $item->issn }}</code></div>
-          </div>
-        @endif
-
-        @if($item->doi)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">DOI</h3>
-            <div class="col-9 p-2">
+          @if($item->doi)
+            <dt class="col-sm-4">DOI</dt>
+            <dd class="col-sm-8">
               <a href="https://doi.org/{{ $item->doi }}" target="_blank">{{ $item->doi }}</a>
-            </div>
-          </div>
-        @endif
+            </dd>
+          @endif
 
-        @if($item->lccn)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">LCCN</h3>
-            <div class="col-9 p-2">{{ $item->lccn }}</div>
-          </div>
-        @endif
+          @if($item->lccn)
+            <dt class="col-sm-4">LCCN</dt>
+            <dd class="col-sm-8">{{ $item->lccn }}</dd>
+          @endif
 
-        @if($item->oclc_number)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">OCLC number</h3>
-            <div class="col-9 p-2">
+          @if($item->oclc_number)
+            <dt class="col-sm-4">OCLC</dt>
+            <dd class="col-sm-8">
               <a href="https://www.worldcat.org/oclc/{{ $item->oclc_number }}" target="_blank">{{ $item->oclc_number }}</a>
-            </div>
-          </div>
-        @endif
+            </dd>
+          @endif
 
-        @if($item->barcode)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Barcode</h3>
-            <div class="col-9 p-2"><code>{{ $item->barcode }}</code></div>
-          </div>
-        @endif
+          @if($item->barcode)
+            <dt class="col-sm-4">Barcode</dt>
+            <dd class="col-sm-8"><code>{{ $item->barcode }}</code></dd>
+          @endif
 
-        @if($item->openlibrary_id)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Open Library</h3>
-            <div class="col-9 p-2">
+          @if($item->openlibrary_id)
+            <dt class="col-sm-4">Open Library</dt>
+            <dd class="col-sm-8">
               <a href="https://openlibrary.org/books/{{ $item->openlibrary_id }}" target="_blank">{{ $item->openlibrary_id }}</a>
-            </div>
-          </div>
-        @endif
-
-        @if($item->goodreads_id)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Goodreads ID</h3>
-            <div class="col-9 p-2">
-              <a href="https://www.goodreads.com/book/show/{{ $item->goodreads_id }}" target="_blank">{{ $item->goodreads_id }}</a>
-            </div>
-          </div>
-        @endif
-
-        @if($item->librarything_id)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">LibraryThing ID</h3>
-            <div class="col-9 p-2">
-              <a href="https://www.librarything.com/work/{{ $item->librarything_id }}" target="_blank">{{ $item->librarything_id }}</a>
-            </div>
-          </div>
-        @endif
-
-        @if($item->openlibrary_url)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">OpenLibrary URL</h3>
-            <div class="col-9 p-2"><a href="{{ $item->openlibrary_url }}" target="_blank">{{ $item->openlibrary_url }}</a></div>
-          </div>
-        @endif
-
+            </dd>
+          @endif
+        </dl>
       </div>
     </section>
   @endif
 
   {{-- ===== Classification ===== --}}
-  @if($item->classification_scheme || $item->call_number || $item->dewey_decimal || $item->cutter_number || $item->shelf_location || $item->copy_number || $item->volume_designation)
-    <section id="classificationArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#classification-collapse">
-          Classification
-        </a>
-      </h2>
-      <div id="classification-collapse">
-
-        @foreach([
-          'classification_scheme' => 'Classification scheme',
-          'call_number' => 'Call number',
-          'classification_number' => 'Classification number',
-          'dewey_decimal' => 'Dewey Decimal number',
-          'cutter_number' => 'Cutter number',
-          'shelf_location' => 'Shelf location',
-          'copy_number' => 'Copy number',
-          'volume_designation' => 'Volume designation',
-        ] as $field => $label)
-          @if($item->$field)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $label }}</h3>
-              <div class="col-9 p-2">{{ $item->$field }}</div>
-            </div>
+  @if($item->call_number || $item->dewey_decimal || $item->shelf_location || $item->classification_scheme || $item->copy_number || $item->volume_designation || $item->classification_number || $item->cutter_number)
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Classification</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @if($item->call_number)
+            <dt class="col-sm-4">Call number</dt>
+            <dd class="col-sm-8"><code>{{ $item->call_number }}</code></dd>
           @endif
-        @endforeach
 
+          @if($item->dewey_decimal)
+            <dt class="col-sm-4">Dewey Decimal</dt>
+            <dd class="col-sm-8"><code>{{ $item->dewey_decimal }}</code></dd>
+          @endif
+
+          @if($item->classification_scheme)
+            <dt class="col-sm-4">Classification scheme</dt>
+            <dd class="col-sm-8">{{ strtoupper($item->classification_scheme) }}</dd>
+          @endif
+
+          @if($item->classification_number)
+            <dt class="col-sm-4">Classification number</dt>
+            <dd class="col-sm-8">{{ $item->classification_number }}</dd>
+          @endif
+
+          @if($item->cutter_number)
+            <dt class="col-sm-4">Cutter number</dt>
+            <dd class="col-sm-8">{{ $item->cutter_number }}</dd>
+          @endif
+
+          @if($item->shelf_location)
+            <dt class="col-sm-4">Shelf location</dt>
+            <dd class="col-sm-8">{{ $item->shelf_location }}</dd>
+          @endif
+
+          @if($item->copy_number)
+            <dt class="col-sm-4">Copy</dt>
+            <dd class="col-sm-8">{{ $item->copy_number }}</dd>
+          @endif
+
+          @if($item->volume_designation)
+            <dt class="col-sm-4">Volume</dt>
+            <dd class="col-sm-8">{{ $item->volume_designation }}</dd>
+          @endif
+        </dl>
       </div>
     </section>
   @endif
 
   {{-- ===== Publication ===== --}}
-  @if($item->publisher || $item->publication_place || $item->publication_date || $item->edition || $item->edition_statement || $item->series_title || $item->series_number)
-    <section id="publicationArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#publication-collapse">
-          Publication
-        </a>
-      </h2>
-      <div id="publication-collapse">
-
-        @foreach([
-          'publisher' => 'Publisher',
-          'publication_place' => 'Place of publication',
-          'publication_date' => 'Date of publication',
-          'edition' => 'Edition',
-          'edition_statement' => 'Edition statement',
-        ] as $field => $label)
-          @if($item->$field)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $label }}</h3>
-              <div class="col-9 p-2">{{ $item->$field }}</div>
-            </div>
+  @if($item->publisher || $item->publication_place || $item->publication_date || $item->edition || $item->edition_statement || $item->series_title)
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publication information</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @if($item->publisher)
+            <dt class="col-sm-4">Publisher</dt>
+            <dd class="col-sm-8">{{ $item->publisher }}</dd>
           @endif
-        @endforeach
 
-        @if($item->series_title)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Series</h3>
-            <div class="col-9 p-2">
+          @if($item->publication_place)
+            <dt class="col-sm-4">Place</dt>
+            <dd class="col-sm-8">{{ $item->publication_place }}</dd>
+          @endif
+
+          @if($item->publication_date)
+            <dt class="col-sm-4">Date</dt>
+            <dd class="col-sm-8">{{ $item->publication_date }}</dd>
+          @endif
+
+          @if($item->edition)
+            <dt class="col-sm-4">Edition</dt>
+            <dd class="col-sm-8">{{ $item->edition }}</dd>
+          @endif
+
+          @if($item->edition_statement)
+            <dt class="col-sm-4">Edition statement</dt>
+            <dd class="col-sm-8">{{ $item->edition_statement }}</dd>
+          @endif
+
+          @if($item->series_title)
+            <dt class="col-sm-4">Series</dt>
+            <dd class="col-sm-8">
               {{ $item->series_title }}
               @if($item->series_number)
                 <span class="text-muted">({{ $item->series_number }})</span>
               @endif
-            </div>
-          </div>
-        @endif
-
+            </dd>
+          @endif
+        </dl>
       </div>
     </section>
   @endif
 
   {{-- ===== Physical Description ===== --}}
   @if($item->pages || $item->pagination || $item->dimensions || $item->physical_details)
-    <section id="physicalArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#physical-collapse">
-          Physical description
-        </a>
-      </h2>
-      <div id="physical-collapse">
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical description</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @if($item->pages || $item->pagination)
+            <dt class="col-sm-4">Extent</dt>
+            <dd class="col-sm-8">{{ $item->pagination ?: $item->pages }}</dd>
+          @endif
 
-        @if($item->pages || $item->pagination)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Extent</h3>
-            <div class="col-9 p-2">{{ $item->pagination ?: $item->pages }}</div>
-          </div>
-        @endif
+          @if($item->dimensions)
+            <dt class="col-sm-4">Dimensions</dt>
+            <dd class="col-sm-8">{{ $item->dimensions }}</dd>
+          @endif
 
-        @if($item->dimensions)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dimensions</h3>
-            <div class="col-9 p-2">{{ $item->dimensions }}</div>
-          </div>
-        @endif
-
-        @if($item->physical_details)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical details</h3>
-            <div class="col-9 p-2">{{ $item->physical_details }}</div>
-          </div>
-        @endif
-
+          @if($item->physical_details)
+            <dt class="col-sm-4">Physical details</dt>
+            <dd class="col-sm-8">{{ $item->physical_details }}</dd>
+          @endif
+        </dl>
       </div>
     </section>
   @endif
 
   {{-- ===== Subjects ===== --}}
   @if($subjects->isNotEmpty())
-    <section id="subjectsArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#subjects-collapse">
-          Subjects
-        </a>
-      </h2>
-      <div id="subjects-collapse" class="p-3">
+    <section class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subjects</h5>
+      </div>
+      <div class="card-body">
         @foreach($subjects as $subject)
           @if($subject->slug ?? null)
             <a href="{{ route('term.show', $subject->slug) }}" class="badge bg-secondary me-1 mb-1 text-decoration-none">{{ $subject->name ?? '[Unknown]' }}</a>
@@ -427,84 +377,77 @@
   @endif
 
   {{-- ===== Content ===== --}}
-  @if($item->scope_and_content || $item->abstract || $item->summary || $item->table_of_contents || $item->contents_note || $item->general_note || $item->bibliography_note)
-    <section id="contentArea" class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-        <a class="text-decoration-none text-white" href="#content-show-collapse">
-          Content
-        </a>
-      </h2>
-      <div id="content-show-collapse">
-
-        @if($item->summary || $item->abstract)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Summary</h3>
-            <div class="col-9 p-2">{!! nl2br(e($item->summary ?: $item->abstract)) !!}</div>
-          </div>
+  @php
+    $summary = $item->summary ?? ($item->abstract ?? '');
+    $scopeAndContent = $item->scope_and_content ?? '';
+    $contentsNote = $item->table_of_contents ?? ($item->contents_note ?? '');
+  @endphp
+  @if(!empty($summary) || !empty($scopeAndContent) || !empty($contentsNote))
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>Content</h5>
+      </div>
+      <div class="card-body">
+        @if(!empty($summary))
+          <h6>Summary</h6>
+          <p>{!! nl2br(e($summary)) !!}</p>
         @endif
 
-        @if($item->scope_and_content)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
-            <div class="col-9 p-2">{!! nl2br(e($item->scope_and_content)) !!}</div>
-          </div>
+        @if(!empty($scopeAndContent))
+          <h6>Scope and content</h6>
+          <p>{!! nl2br(e($scopeAndContent)) !!}</p>
         @endif
 
-        @if($item->table_of_contents || $item->contents_note)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Table of contents</h3>
-            <div class="col-9 p-2">{!! nl2br(e($item->table_of_contents ?: $item->contents_note)) !!}</div>
-          </div>
+        @if(!empty($contentsNote))
+          <h6>Table of contents</h6>
+          <p>{!! nl2br(e($contentsNote)) !!}</p>
         @endif
+      </div>
+    </section>
+  @endif
 
+  {{-- ===== Notes ===== --}}
+  @if($item->general_note || $item->bibliography_note)
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+      </div>
+      <div class="card-body">
         @if($item->general_note)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">General note</h3>
-            <div class="col-9 p-2">{!! nl2br(e($item->general_note)) !!}</div>
-          </div>
+          <p>{!! nl2br(e($item->general_note)) !!}</p>
         @endif
 
         @if($item->bibliography_note)
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Bibliography note</h3>
-            <div class="col-9 p-2">{!! nl2br(e($item->bibliography_note)) !!}</div>
-          </div>
+          <p class="text-muted"><em>{!! nl2br(e($item->bibliography_note)) !!}</em></p>
         @endif
-
       </div>
     </section>
   @endif
 
   {{-- ===== Administration ===== --}}
-  <section id="adminArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">
-      <a class="text-decoration-none text-white" href="#admin-collapse">
-        Administration area
-      </a>
-    </h2>
-    <div id="admin-collapse">
+  <section class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Administration area</h5>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        @if($item->created_at)
+          <dt class="col-sm-4">Created</dt>
+          <dd class="col-sm-8">{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</dd>
+        @endif
 
-      @if($item->created_at)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Created</h3>
-          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i') }}</div>
-        </div>
-      @endif
-
-      @if($item->updated_at)
-        <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Updated</h3>
-          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($item->updated_at)->format('Y-m-d H:i') }}</div>
-        </div>
-      @endif
-
+        @if($item->updated_at)
+          <dt class="col-sm-4">Updated</dt>
+          <dd class="col-sm-8">{{ \Carbon\Carbon::parse($item->updated_at)->format('Y-m-d H:i') }}</dd>
+        @endif
+      </dl>
     </div>
   </section>
 
 @endsection
 
 {{-- ============================================================ --}}
-{{-- RIGHT SIDEBAR: Cover image, Actions, Print, Explore          --}}
+{{-- RIGHT SIDEBAR: Cover image, Actions, Barcode, Related, etc.  --}}
 {{-- ============================================================ --}}
 @section('right')
 
@@ -512,6 +455,9 @@
     {{-- Cover image --}}
     @if($item->cover_url)
       <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+          <i class="fas fa-image me-1"></i> Cover
+        </div>
         <div class="card-body text-center p-2">
           <a href="{{ $item->cover_url_original ?: $item->cover_url }}" target="_blank">
             <img src="{{ $item->cover_url }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:300px;">
@@ -533,7 +479,7 @@
     {{-- Actions (authenticated users) --}}
     @auth
     <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header fw-bold text-white" style="background:var(--ahg-primary);">
         <i class="fas fa-cog me-1"></i> Actions
       </div>
       <div class="card-body">
@@ -550,6 +496,9 @@
             <i class="fas fa-trash me-2"></i>Delete
           </button>
         </form>
+        <a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-white w-100 mb-2">
+          <i class="fas fa-arrows-alt me-2"></i>Move
+        </a>
         <a href="{{ route('library.browse') }}" class="btn atom-btn-white w-100 mb-2">
           <i class="fas fa-list me-2"></i>Browse library
         </a>
@@ -558,16 +507,17 @@
             <i class="fas fa-ellipsis-h me-2"></i>More
           </button>
           <ul class="dropdown-menu dropdown-menu-end w-100">
-            <li><a class="dropdown-item" href="{{ route('library.edit', $item->slug) }}"><i class="fas fa-i-cursor me-2"></i>Rename</a></li>
+            <li><a class="dropdown-item" href="{{ route('library.rename', $item->slug) }}"><i class="fas fa-i-cursor me-2"></i>Rename</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/informationobject/updatePublicationStatus') }}"><i class="fas fa-eye me-2"></i>Update publication status</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/editPhysicalObjects') }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
             <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/digitalobject/edit') }}"><i class="fas fa-edit me-2"></i>Edit digital object</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/editPhysicalObjects') }}"><i class="fas fa-box me-2"></i>Edit physical storage</a></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/default/move') }}"><i class="fas fa-arrows-alt me-2"></i>Move</a></li>
+            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/informationobject/updatePublicationStatus') }}"><i class="fas fa-globe me-2"></i>Update publication status</a></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-gavel me-2"></i>Edit rights</a></li>
+            <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>Generate label</a></li>
           </ul>
         </div>
       </div>
@@ -609,6 +559,28 @@
       </script>
     @endif
 
+    {{-- Related Records --}}
+    <div class="card mb-3">
+      <div class="card-header fw-bold">
+        <i class="fas fa-link me-1"></i> Related records
+      </div>
+      <div class="card-body">
+        @if($parentItem ?? null)
+          <a href="{{ route('library.show', $parentItem->slug) }}" class="btn btn-outline-secondary w-100 mb-2">
+            <i class="fas fa-level-up-alt me-2"></i>Parent record
+          </a>
+        @endif
+        @if(($childCount ?? 0) > 0)
+          <a href="{{ route('informationobject.browse', ['collection' => $item->id, 'topLod' => 0]) }}" class="btn btn-outline-secondary w-100">
+            <i class="fas fa-sitemap me-2"></i>{{ $childCount }} child records
+          </a>
+        @endif
+        @if(!($parentItem ?? null) && ($childCount ?? 0) === 0)
+          <p class="text-muted small mb-0">No related records found.</p>
+        @endif
+      </div>
+    </div>
+
     {{-- E-book Access --}}
     @if($item->ebook_preview_url)
       <div class="card mb-3">
@@ -623,17 +595,33 @@
       </div>
     @endif
 
-    {{-- Explore --}}
-    <div class="card mb-3">
-      <div class="card-header fw-bold">
-        <i class="fas fa-cogs me-1"></i> Explore
+    {{-- External Links --}}
+    @if($item->openlibrary_url || $item->goodreads_id || $item->librarything_id)
+      <div class="card mb-3">
+        <div class="card-header fw-bold">
+          <i class="fas fa-external-link-alt me-1"></i> External Links
+        </div>
+        <div class="card-body">
+          @if($item->openlibrary_url)
+            <a href="{{ $item->openlibrary_url }}" target="_blank" class="btn btn-outline-secondary w-100 mb-2">
+              <i class="fas fa-book me-2"></i>Open Library
+            </a>
+          @endif
+
+          @if($item->goodreads_id)
+            <a href="https://www.goodreads.com/book/show/{{ $item->goodreads_id }}" target="_blank" class="btn btn-outline-secondary w-100 mb-2">
+              <i class="fas fa-star me-2"></i>Goodreads
+            </a>
+          @endif
+
+          @if($item->librarything_id)
+            <a href="https://www.librarything.com/work/{{ $item->librarything_id }}" target="_blank" class="btn btn-outline-secondary w-100">
+              <i class="fas fa-bookmark me-2"></i>LibraryThing
+            </a>
+          @endif
+        </div>
       </div>
-      <div class="list-group list-group-flush">
-        <a href="{{ route('library.browse') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list me-1"></i> Browse all library items
-        </a>
-      </div>
-    </div>
+    @endif
 
     {{-- Print --}}
     <div class="card mb-3">
@@ -655,7 +643,7 @@
 {{-- ============================================================ --}}
 @section('after-content')
   @auth
-  <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
+  <section class="actions mb-3 nav gap-2">
     <li>
       <a href="{{ route('library.edit', $item->slug) }}" class="btn atom-btn-outline-light">Edit</a>
     </li>
@@ -677,6 +665,6 @@
         <i class="fas fa-upload me-1"></i>Add digital object
       </a>
     </li>
-  </ul>
+  </section>
   @endauth
 @endsection

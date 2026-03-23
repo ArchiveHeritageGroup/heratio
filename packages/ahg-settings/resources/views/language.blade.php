@@ -8,7 +8,7 @@
     @include('ahg-settings::_menu')
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-language me-2"></i>I18n languages</h1>
+    <h1>I18n language</h1>
 
     <div class="alert alert-info">
       <p>Please rebuild the search index if you are adding new languages.</p>

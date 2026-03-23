@@ -71,7 +71,7 @@ class RightsHolderController extends Controller
     {
         return view('ahg-rights-holder-manage::edit', [
             'rightsHolder' => null,
-            'contacts' => collect([$this->emptyContact()]),
+            'contacts' => collect(),
         ]);
     }
 
@@ -81,9 +81,6 @@ class RightsHolderController extends Controller
         if (!$rh) abort(404);
 
         $contacts = $this->service->getContacts($rh->id);
-        if ($contacts->isEmpty()) {
-            $contacts = collect([$this->emptyContact()]);
-        }
 
         return view('ahg-rights-holder-manage::edit', [
             'rightsHolder' => $rh,
@@ -124,14 +121,12 @@ class RightsHolderController extends Controller
 
     private function emptyContact(): object
     {
+        // Only fields that exist in contact_information + contact_information_i18n tables
         return (object) [
-            'id' => null, 'primary_contact' => 1, 'contact_person' => '', 'street_address' => '',
+            'id' => null, 'primary_contact' => 0, 'contact_person' => '', 'street_address' => '',
             'website' => '', 'email' => '', 'telephone' => '', 'fax' => '', 'postal_code' => '',
             'country_code' => '', 'longitude' => '', 'latitude' => '', 'contact_note' => '',
             'contact_type' => '', 'city' => '', 'region' => '', 'note' => '',
-            'title' => '', 'role' => '', 'department' => '', 'id_number' => '',
-            'preferred_contact_method' => '', 'language_preference' => '', 'cell' => '',
-            'alternative_email' => '', 'alternative_phone' => '',
         ];
     }
 

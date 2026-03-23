@@ -361,11 +361,23 @@ class ReportController extends Controller
 
         try {
             if (Schema::hasTable('physical_object_i18n')) {
+                // Strong rooms from physical object names (boxes/vaults)
                 $strongrooms = DB::table('physical_object_i18n')
+                    ->select('name')
+                    ->whereNotNull('name')
+                    ->where('name', '!=', '')
+                    ->distinct()
+                    ->orderBy('name')
+                    ->pluck('name')
+                    ->toArray();
+
+                // Locations from the location field
+                $locations = DB::table('physical_object_i18n')
                     ->select('location')
                     ->whereNotNull('location')
                     ->where('location', '!=', '')
                     ->distinct()
+                    ->orderBy('location')
                     ->pluck('location')
                     ->toArray();
             }

@@ -1,32 +1,43 @@
 @extends('theme::layouts.1col')
-@section('title', 'Digital Object Settings')
+@section('title', 'Digital object derivatives')
 @section('body-class', 'admin settings')
 
 @section('content')
 <div class="row">
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-photo-video me-2"></i>Digital Object Derivatives</h1>
+    <h1>Digital object derivatives</h1>
 
     <form method="post" action="{{ route('settings.digital-objects') }}">
       @csrf
-      <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Derivative settings</div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">PDF page number for reference image <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="number" name="settings[digital_object_derivatives_pdf_page_number]" class="form-control" value="{{ e($settings['digital_object_derivatives_pdf_page_number'] ?? '1') }}" min="1">
-            <small class="text-muted">Which page of a PDF to use when generating a reference image derivative</small>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Reference image maximum width (pixels) <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="number" name="settings[reference_image_maxwidth]" class="form-control" value="{{ e($settings['reference_image_maxwidth'] ?? '480') }}" min="100" max="2000">
-            <small class="text-muted">Maximum width in pixels for reference image derivatives</small>
+
+      <div class="accordion mb-3">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="derivatives-heading">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#derivatives-collapse" aria-expanded="true" aria-controls="derivatives-collapse">
+              Digital object derivatives settings
+            </button>
+          </h2>
+          <div id="derivatives-collapse" class="accordion-collapse collapse show" aria-labelledby="derivatives-heading">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <label class="form-label">PDF page number for image derivative</label>
+                <input type="number" name="settings[digital_object_derivatives_pdf_page_number]" class="form-control" value="{{ e($settings['digital_object_derivatives_pdf_page_number'] ?? '1') }}" min="1">
+                <small class="text-muted">If the page number does not exist, the derivative will be generated from the previous closest one.</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Maximum length on longest edge (pixels)</label>
+                <input type="number" name="settings[reference_image_maxwidth]" class="form-control" value="{{ e($settings['reference_image_maxwidth'] ?? '480') }}" min="100">
+                <small class="text-muted">The maximum number of pixels on the longest edge for derived reference images.</small>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
     </form>
   </div>
 </div>

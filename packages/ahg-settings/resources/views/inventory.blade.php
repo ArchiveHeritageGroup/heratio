@@ -37,9 +37,9 @@
         </div>
       </div>
 
-      <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
+      <section class="actions mb-3">
         <input class="btn atom-btn-outline-success" type="submit" value="Save">
-      </div>
+      </section>
 
     </form>
   </div>

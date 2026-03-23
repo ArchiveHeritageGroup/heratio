@@ -241,19 +241,19 @@
 
   {{-- View mode buttons --}}
   <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Card view" aria-label="Card view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'btn-success' : 'btn-outline-success' }}" title="Card view" aria-label="Card view">
     <i class="fas fa-th-large"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'grid']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Grid view" aria-label="Grid view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'grid' ? 'btn-success' : 'btn-outline-success' }}" title="Grid view" aria-label="Grid view">
     <i class="fas fa-th"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'table']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Table view" aria-label="Table view">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'table' ? 'btn-success' : 'btn-outline-success' }}" title="Table view" aria-label="Table view">
     <i class="fas fa-list"></i>
   </a>
   <a href="{{ glamBrowseUrl($fp, ['view' => 'full']) }}"
-     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}" title="Full width" aria-label="Full width">
+     class="btn btn-sm {{ ($viewMode ?? 'card') === 'full' ? 'btn-success' : 'btn-outline-success' }}" title="Full width" aria-label="Full width">
     <i class="fas fa-bars"></i>
   </a>
 
@@ -621,9 +621,9 @@
     <nav class="mt-4">
       <ul class="pagination justify-content-center">
         <li class="page-item {{ ($page ?? 1) <= 1 ? 'disabled' : '' }}">
-          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => max(0, $page - 1)]) }}">Previous</a>
+          <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => max(1, $page - 1)]) }}">Previous</a>
         </li>
-        @for($p = 1; $p <= min($totalPages, 4); $p++)
+        @for($p = max(1, $page - 3); $p <= min($totalPages, $page + 3); $p++)
           <li class="page-item {{ $p == $page ? 'active' : '' }}">
             <a class="page-link" href="{{ glamBrowseUrl($fp, ['page' => $p]) }}">{{ $p }}</a>
           </li>

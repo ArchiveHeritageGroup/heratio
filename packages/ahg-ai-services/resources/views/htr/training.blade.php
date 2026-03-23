@@ -3,6 +3,7 @@
 @section('body-class', 'admin ai-services htr')
 @section('content')
 <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item"><a href="{{ route('admin.ai.htr.dashboard') }}">HTR</a></li><li class="breadcrumb-item active">Training</li></ol></nav>
+@include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-graduation-cap me-2"></i>HTR Model Training</h1>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif

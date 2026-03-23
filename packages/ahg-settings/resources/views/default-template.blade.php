@@ -61,7 +61,7 @@
       </div>
 
       <section class="actions mb-3">
-        <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
       </section>
 
     </form>

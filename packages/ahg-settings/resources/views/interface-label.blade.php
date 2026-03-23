@@ -1,26 +1,29 @@
 @extends('theme::layouts.1col')
-@section('title', 'User interface labels')
+@section('title', 'User interface label')
 @section('body-class', 'admin settings')
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
+  <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-tags me-2"></i>User interface labels</h1>
+    <h1>User interface label</h1>
 
     <form method="post" action="{{ route('settings.interface-labels') }}">
       @csrf
+
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#labels-collapse">User interface labels</button></h2>
-          <div id="labels-collapse" class="accordion-collapse collapse show">
+          <h2 class="accordion-header" id="interface-label-heading">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#interface-label-collapse" aria-expanded="true" aria-controls="interface-label-collapse">
+              User interface labels
+            </button>
+          </h2>
+          <div id="interface-label-collapse" class="accordion-collapse collapse show" aria-labelledby="interface-label-heading">
             <div class="accordion-body">
               @foreach($settings as $setting)
                 <div class="mb-3">
-                  <label class="form-label"><code>{{ $setting->name }}</code> <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <input type="text" name="settings[{{ $setting->id }}]" class="form-control" value="{{ $setting->value ?? '' }}">
+                  <label class="form-label"><code>{{ $setting->name }}</code></label>
+                  <input type="text" name="settings[{{ $setting->id }}]" class="form-control" value="{{ e($setting->value ?? '') }}">
                 </div>
               @endforeach
             </div>
@@ -28,8 +31,10 @@
         </div>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
+
     </form>
   </div>
 </div>

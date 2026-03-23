@@ -1,42 +1,246 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.3col')
 @section('title', 'Reports Browse')
 @section('body-class', 'admin reports')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-reports::_menu')</div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-list me-2"></i>Browse Reports</h1>
-    <p class="text-muted">Select a report from the sidebar menu, or use the filters below to narrow your search.</p>
+@section('sidebar')
+<section id="advanced-search-filters">
 
-    <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>Strong Rooms / Location Filter</div>
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Strong Rooms <span class="badge bg-secondary ms-1">Optional</span></label>
-            <select name="strongroom" id="strongroomSelect" class="form-select form-select-sm">
-              <option value="">Select</option>
-              @foreach($strongrooms ?? [] as $room)
-                <option value="{{ $room }}">{{ $room }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Location <span class="badge bg-secondary ms-1">Optional</span></label>
-            <select name="location" id="locationSelect" class="form-select form-select-sm">
-              <option value="">Select</option>
-              @foreach($locations ?? [] as $loc)
-                <option value="{{ $loc }}">{{ $loc }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="col-md-4 d-flex align-items-end gap-2">
-            <a href="{{ route('reports.browse-publish') }}" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-eye me-1"></i>Publish</a>
-          </div>
-        </div>
-      </div>
+  <div class="card mb-3">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-chart-bar me-2"></i>Reports
     </div>
+    <div class="card-body">
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Strong Rooms:</label>
+        <select name="dropd" id="dropd" class="form-select form-select-sm" onchange="setStrongroomCookie()">
+          <option value="Select">Select</option>
+          @foreach($strongrooms ?? [] as $room)
+            <option value="{{ $room }}">{{ $room }}</option>
+          @endforeach
+          <option value="All">All</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Location:</label>
+        <select name="dropl" id="dropl" class="form-select form-select-sm" onchange="setLocationCookie()">
+          <option value="Select">Select</option>
+          @foreach($locations ?? [] as $loc)
+            <option value="{{ $loc }}">{{ $loc }}</option>
+          @endforeach
+          <option value="All">All</option>
+        </select>
+      </div>
+
+      <script>
+      function setStrongroomCookie() {
+        var x = document.getElementById("dropd");
+        createCookie('strongroom', x.value, 1, '/');
+      }
+
+      function setLocationCookie() {
+        var x = document.getElementById("dropl");
+        createCookie('strongroom2', x.value, 1, '/');
+      }
+
+      function createCookie(name, value, days2expire, path) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days2expire * 24 * 60 * 60 * 1000));
+        var expires = date.toUTCString();
+        document.cookie = name + '=' + value + ';expires=' + expires + ';path=' + path + ';';
+      }
+      </script>
+
+      <div class="d-grid gap-2">
+        <a href="{{ route('reports.browse', ['action' => 'search']) }}" class="btn btn-sm atom-btn-white">
+          <i class="fas fa-search me-1"></i>Search
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="list-group mb-3">
+    <a href="{{ route('reports.browse', ['export' => 'strongrooms']) }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-file-export me-2 text-muted"></i>Strongrooms Export
+    </a>
+    <a href="{{ url('/physicalobject/browse?booked_out=1') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-sign-out-alt me-2 text-muted"></i>Booked Out
+    </a>
+    <a href="{{ route('reports.browse-publish') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-eye me-2 text-muted"></i>Publish
+    </a>
+  </div>
+
+</section>
+@endsection
+
+@section('title-block')
+<h1><i class="fas fa-list me-2"></i>Browse Reports</h1>
+@endsection
+
+@section('content')
+<p class="text-muted mb-4">
+  Use the sidebar filters to select a strong room or location, then click Search to filter physical storage records.
+  You can also export strongroom data or view booked out items.
+</p>
+
+<div class="card mb-3">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <i class="fas fa-info-circle me-2"></i>Available Actions
+  </div>
+  <div class="card-body">
+    <table class="table table-sm table-bordered mb-0">
+      <thead>
+        <tr>
+          <th style="background:var(--ahg-primary);color:#fff">Action</th>
+          <th style="background:var(--ahg-primary);color:#fff">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><i class="fas fa-search me-1 text-muted"></i>Search</td>
+          <td>Filter physical storage records by the selected strong room and location</td>
+        </tr>
+        <tr>
+          <td><i class="fas fa-file-export me-1 text-muted"></i>Strongrooms Export</td>
+          <td>Export all strong room box labels as CSV</td>
+        </tr>
+        <tr>
+          <td><i class="fas fa-sign-out-alt me-1 text-muted"></i>Booked Out</td>
+          <td>Browse items that are currently booked out from physical storage</td>
+        </tr>
+        <tr>
+          <td><i class="fas fa-eye me-1 text-muted"></i>Publish</td>
+          <td>Manage publication status of archival descriptions</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+@endsection
+
+@section('right')
+<div class="card mb-3">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <i class="fas fa-link me-2"></i>Quick Links
+  </div>
+  <div class="list-group list-group-flush">
+    <a href="{{ route('reports.dashboard') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-tachometer-alt me-2" style="width:18px"></i>Dashboard
+    </a>
+    <a href="{{ route('reports.descriptions') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-file-alt me-2" style="width:18px"></i>Descriptions
+    </a>
+    <a href="{{ route('reports.authorities') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-user me-2" style="width:18px"></i>Authority Records
+    </a>
+    <a href="{{ route('reports.repositories') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-university me-2" style="width:18px"></i>Repositories
+    </a>
+    <a href="{{ route('reports.accessions') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-inbox me-2" style="width:18px"></i>Accessions
+    </a>
+    <a href="{{ route('reports.donors') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Donors
+    </a>
+    <a href="{{ route('reports.storage') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-box me-2" style="width:18px"></i>Physical Storage
+    </a>
+    <a href="{{ route('reports.taxonomy') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-tags me-2" style="width:18px"></i>Taxonomies
+    </a>
+    <a href="{{ route('reports.recent') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-clock me-2" style="width:18px"></i>Recent Updates
+    </a>
+    <a href="{{ route('reports.spatial') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>Spatial Analysis
+    </a>
+    <a href="{{ route('reports.activity') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-history me-2" style="width:18px"></i>User Activity
+    </a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <i class="fas fa-clipboard-check me-2"></i>Audit Reports
+  </div>
+  <div class="list-group list-group-flush">
+    <a href="{{ route('reports.audit.actor') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-user me-2" style="width:18px"></i>Audit Actors
+    </a>
+    <a href="{{ route('reports.audit.description') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-file-alt me-2" style="width:18px"></i>Audit Descriptions
+    </a>
+    <a href="{{ route('reports.audit.donor') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Audit Donors
+    </a>
+    <a href="{{ route('reports.audit.permissions') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-key me-2" style="width:18px"></i>Audit Permissions
+    </a>
+    <a href="{{ route('reports.audit.physical-storage') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-box me-2" style="width:18px"></i>Audit Physical Storage
+    </a>
+    <a href="{{ route('reports.audit.repository') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-university me-2" style="width:18px"></i>Audit Repository
+    </a>
+    <a href="{{ route('reports.audit.taxonomy') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-tags me-2" style="width:18px"></i>Audit Taxonomy
+    </a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+    <i class="fas fa-wrench me-2"></i>Tools
+  </div>
+  <div class="list-group list-group-flush">
+    <a href="{{ route('reports.select') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-file-export me-2" style="width:18px"></i>Report Select
+    </a>
+    <a href="{{ route('reports.report') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-chart-bar me-2" style="width:18px"></i>Generic Report
+    </a>
+    @if(Route::has('reports.builder.index'))
+    <a href="{{ route('reports.builder.index') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-tools me-2" style="width:18px"></i>Report Builder
+    </a>
+    @endif
+    <a href="{{ route('reports.report-access') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-shield-alt me-2" style="width:18px"></i>Access Report
+    </a>
+    <a href="{{ route('reports.report-accession') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-inbox me-2" style="width:18px"></i>Accession Report
+    </a>
+    <a href="{{ route('reports.report-authority-record') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-users me-2" style="width:18px"></i>Authority Record Report
+    </a>
+    <a href="{{ route('reports.report-donor') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-hand-holding-heart me-2" style="width:18px"></i>Donor Report
+    </a>
+    <a href="{{ route('reports.report-information-object') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-archive me-2" style="width:18px"></i>Information Object Report
+    </a>
+    <a href="{{ route('reports.report-physical-storage') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-boxes me-2" style="width:18px"></i>Physical Storage Report
+    </a>
+    <a href="{{ route('reports.report-repository') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-building me-2" style="width:18px"></i>Repository Report
+    </a>
+    <a href="{{ route('reports.report-spatial-analysis') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-map-marker-alt me-2" style="width:18px"></i>Spatial Analysis Report
+    </a>
+    <a href="{{ route('reports.report-taxonomy-audit') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-tags me-2" style="width:18px"></i>Taxonomy Audit Report
+    </a>
+    <a href="{{ route('reports.report-updates') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-sync me-2" style="width:18px"></i>Updates Report
+    </a>
+    <a href="{{ route('reports.report-user') }}" class="list-group-item list-group-item-action">
+      <i class="fas fa-user-clock me-2" style="width:18px"></i>User Report
+    </a>
   </div>
 </div>
 @endsection

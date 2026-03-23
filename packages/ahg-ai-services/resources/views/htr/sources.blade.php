@@ -9,6 +9,7 @@
     <li class="breadcrumb-item active">Training Data Sources</li>
   </ol>
 </nav>
+@include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-database me-2"></i>Training Data Sources</h1>
 
 {{-- Training Stats Summary --}}

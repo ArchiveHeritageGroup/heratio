@@ -81,13 +81,14 @@
 
   @if($pager->getNbResults())
     <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
+      <table class="table table-bordered table-striped mb-0 sticky-enabled">
         <thead>
           <tr>
             <th style="width:60px;">Cover</th>
             <th>Title</th>
             <th>Author</th>
             <th>Material type</th>
+            <th>Call number</th>
             <th>ISBN</th>
             <th>Publisher</th>
             @if(request('sort') === 'lastUpdated')
@@ -119,6 +120,11 @@
                   <span class="badge bg-secondary">{{ ucfirst($doc['material_type']) }}</span>
                 @endif
               </td>
+              <td>
+                @if(!empty($doc['call_number']))
+                  <code>{{ $doc['call_number'] }}</code>
+                @endif
+              </td>
               <td>{{ $doc['isbn'] ?? '' }}</td>
               <td>{{ $doc['publisher'] ?? '' }}</td>
               @if(request('sort') === 'lastUpdated')
@@ -141,15 +147,15 @@
 
   @include('ahg-core::components.pager', ['pager' => $pager])
 
-  {{-- Add new button --}}
+  {{-- Action bar --}}
   @auth
-    <div class="actions mb-3" style="background:#495057;border-radius:.375rem;padding:1rem;">
+    <section class="actions mb-3 nav gap-2">
       <a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">
         <i class="fas fa-plus me-1"></i>Add new
       </a>
-      <a href="{{ route('library.browse') }}?reports=1" class="btn atom-btn-outline-light ms-2">
+      <a href="{{ route('library.reports') }}" class="btn atom-btn-outline-light ms-2">
         <i class="fas fa-chart-bar me-1"></i>Library Reports
       </a>
-    </div>
+    </section>
   @endauth
 @endsection

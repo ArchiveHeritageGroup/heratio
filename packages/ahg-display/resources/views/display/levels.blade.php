@@ -48,8 +48,8 @@
           </select>
         </div>
         <div class="col-auto">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm">
-            <i class="fas fa-filter me-1"></i> Filter
+          <button type="submit" class="btn atom-btn-white btn-sm">
+            Filter
           </button>
         </div>
         @if(!empty($currentDomain))
@@ -79,10 +79,10 @@
     </div>
     <div class="card-body p-0">
       @if(!empty($levels) && count($levels))
-        <table class="table table-bordered table-striped mb-0">
-          <thead>
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
             <tr>
-              <th style="width: 40px;"></th>
+              <th width="50"></th>
               <th>Name</th>
               <th>Code</th>
               <th>Domain</th>
@@ -97,7 +97,7 @@
                   @if(!empty($level->icon))
                     <i class="fas {{ $level->icon }} text-muted"></i>
                   @else
-                    <i class="fas fa-folder text-muted"></i>
+                    <i class="fas fa-file text-muted"></i>
                   @endif
                 </td>
                 <td><strong>{{ $level->name ?? '-' }}</strong></td>
@@ -120,21 +120,31 @@
                   @endif
                 </td>
                 <td>
-                  @if(!empty($level->valid_parents))
-                    @foreach(is_array($level->valid_parents) ? $level->valid_parents : explode(',', $level->valid_parents) as $parent)
-                      <span class="badge bg-outline-secondary border text-dark me-1">{{ trim($parent) }}</span>
-                    @endforeach
+                  @php
+                    $parents = $level->valid_parents ?? $level->valid_parent_codes ?? null;
+                    if (is_string($parents)) {
+                      $decoded = json_decode($parents, true);
+                      $parents = is_array($decoded) ? $decoded : array_filter(explode(',', $parents));
+                    }
+                  @endphp
+                  @if(!empty($parents))
+                    <small>{{ implode(', ', array_map('trim', $parents)) }}</small>
                   @else
-                    <span class="text-muted">Any</span>
+                    <small class="text-muted">-</small>
                   @endif
                 </td>
                 <td>
-                  @if(!empty($level->valid_children))
-                    @foreach(is_array($level->valid_children) ? $level->valid_children : explode(',', $level->valid_children) as $child)
-                      <span class="badge bg-outline-secondary border text-dark me-1">{{ trim($child) }}</span>
-                    @endforeach
+                  @php
+                    $children = $level->valid_children ?? $level->valid_child_codes ?? null;
+                    if (is_string($children)) {
+                      $decoded = json_decode($children, true);
+                      $children = is_array($decoded) ? $decoded : array_filter(explode(',', $children));
+                    }
+                  @endphp
+                  @if(!empty($children))
+                    <small>{{ implode(', ', array_map('trim', $children)) }}</small>
                   @else
-                    <span class="text-muted">Any</span>
+                    <small class="text-muted">-</small>
                   @endif
                 </td>
               </tr>

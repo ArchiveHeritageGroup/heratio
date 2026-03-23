@@ -3,6 +3,7 @@
 @section('body-class', 'admin ai-services htr')
 @section('content')
 <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">AI Services</a></li><li class="breadcrumb-item active">Vital Records HTR</li></ol></nav>
+@include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-file-alt me-2"></i>Vital Records HTR</h1>
 
 @if($health)

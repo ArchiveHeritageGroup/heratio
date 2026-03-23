@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
-    <h1>Treeview Settings</h1>
+    <h1>Treeview settings</h1>
 
     <form method="post" action="{{ route('settings.treeview') }}">
       @csrf
@@ -107,7 +107,9 @@
         </div>
       </div>
 
-      <button type="submit" class="btn atom-btn-outline-success mt-3"><i class="fas fa-save me-1"></i>Save</button>
+      <section class="actions mb-3">
+        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+      </section>
     </form>
   </div>
 </div>

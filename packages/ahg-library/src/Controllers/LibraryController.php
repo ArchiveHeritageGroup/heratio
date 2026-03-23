@@ -57,11 +57,19 @@ class LibraryController extends Controller
             $subjects = $this->service->getSubjects($item->library_item_id);
         }
 
+        // Parent item for "Related records" sidebar card
+        $parentItem = $this->service->getParentItem($item->id);
+
+        // Child record count
+        $childCount = $this->service->getChildCount($item->id);
+
         return view('ahg-library::library.show', [
             'item' => $item,
             'levelName' => $levelName,
             'creators' => $creators,
             'subjects' => $subjects,
+            'parentItem' => $parentItem,
+            'childCount' => $childCount,
         ]);
     }
 

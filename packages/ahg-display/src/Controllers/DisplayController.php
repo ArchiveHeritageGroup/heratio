@@ -1366,7 +1366,15 @@ class DisplayController extends Controller
         }
     }
 
-    public function browseEmbedded(Request $request) { return view('ahg-display::browse-embedded', ['rows' => collect()]); }
+    public function browseEmbedded(Request $request)
+    {
+        // Reuse browse logic to populate all variables
+        $browseResponse = $this->browse($request);
+        $viewData = $browseResponse->getData();
+        $viewData['showSidebar'] = $request->input('showSidebar', '1') !== '0';
+
+        return view('ahg-display::browse-embedded', $viewData);
+    }
 
     public function reindex(Request $request) { return view('ahg-display::reindex'); }
 
