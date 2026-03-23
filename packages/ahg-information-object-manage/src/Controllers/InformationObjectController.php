@@ -25,10 +25,19 @@ class InformationObjectController extends Controller
             'subquery' => $request->get('subquery', ''),
         ];
 
-        // Optional repository filter
+        // Apply filters from request
         $repositoryId = $request->get('repository');
+        $levelsId = $request->get('levels');
+        $mediaTypeId = $request->get('mediatypes');
+
         if ($repositoryId) {
             $params['filters']['repository_id'] = $repositoryId;
+        }
+        if ($levelsId) {
+            $params['filters']['level_of_description_id'] = $levelsId;
+        }
+        if ($mediaTypeId) {
+            $params['filters']['media_type_id'] = $mediaTypeId;
         }
 
         $result = $service->browse($params);
@@ -43,12 +52,112 @@ class InformationObjectController extends Controller
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
             ->get();
 
+        // ── Facet aggregation queries ──
+
+        // Level of description facet
+        $levelFacets = DB::table('information_object')
+            ->join('term_i18n', 'information_object.level_of_description_id', '=', 'term_i18n.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('information_object.id', '!=', 1)
+            ->whereNotNull('information_object.level_of_description_id')
+            ->select(
+                'information_object.level_of_description_id as id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('information_object.level_of_description_id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        // Repository facet
+        $repoFacets = DB::table('information_object')
+            ->join('repository', 'information_object.repository_id', '=', 'repository.id')
+            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $culture)
+            ->where('information_object.id', '!=', 1)
+            ->whereNotNull('information_object.repository_id')
+            ->select(
+                'information_object.repository_id as id',
+                'actor_i18n.authorized_form_of_name as label',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('information_object.repository_id', 'actor_i18n.authorized_form_of_name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        // Media type facet
+        $mediaFacets = DB::table('digital_object')
+            ->join('term_i18n', 'digital_object.media_type_id', '=', 'term_i18n.id')
+            ->where('term_i18n.culture', $culture)
+            ->whereNotNull('digital_object.media_type_id')
+            ->select(
+                'digital_object.media_type_id as id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('digital_object.media_type_id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        $facets = [
+            'levels' => [
+                'label' => 'Level of description',
+                'terms' => $levelFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'repository' => [
+                'label' => 'Repository',
+                'terms' => $repoFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'mediatypes' => [
+                'label' => 'Media type',
+                'terms' => $mediaFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+        ];
+
+        // ── Filter tags (active filter pills) ──
+        $filterTags = [];
+
+        if ($levelsId) {
+            $levelName = DB::table('term_i18n')->where('id', $levelsId)->where('culture', $culture)->value('name');
+            if ($levelName) {
+                $filterTags[] = [
+                    'label' => 'Level: ' . $levelName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['levels', 'page'])),
+                ];
+            }
+        }
+
+        if ($repositoryId) {
+            $repoName = DB::table('actor_i18n')->where('id', $repositoryId)->where('culture', $culture)->value('authorized_form_of_name');
+            if ($repoName) {
+                $filterTags[] = [
+                    'label' => 'Repository: ' . $repoName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['repository', 'page'])),
+                ];
+            }
+        }
+
+        if ($mediaTypeId) {
+            $mediaName = DB::table('term_i18n')->where('id', $mediaTypeId)->where('culture', $culture)->value('name');
+            if ($mediaName) {
+                $filterTags[] = [
+                    'label' => 'Media type: ' . $mediaName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['mediatypes', 'page'])),
+                ];
+            }
+        }
+
         return view('ahg-io-manage::browse', [
             'pager' => $pager,
             'levelNames' => $result['levelNames'] ?? [],
             'repositoryNames' => $result['repositoryNames'] ?? [],
             'repositories' => $repositories,
             'selectedRepository' => $repositoryId,
+            'facets' => $facets,
+            'filterTags' => $filterTags,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Title',

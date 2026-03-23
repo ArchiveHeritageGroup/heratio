@@ -836,4 +836,80 @@ class RepositoryService
         }
         return true;
     }
+
+    /**
+     * Update repository theme settings (background color, HTML snippet, banner, logo).
+     */
+    public function updateTheme(int $id, array $data, $request = null): void
+    {
+        DB::transaction(function () use ($id, $data, $request) {
+            // Store background_color and html_snippet in the setting table
+            // AtoM stores these as settings scoped to the repository
+            if (isset($data['backgroundColor'])) {
+                $this->upsertSetting($id, 'background_color', $data['backgroundColor']);
+            }
+
+            if (isset($data['htmlSnippet'])) {
+                $this->upsertSetting($id, 'htmlSnippet', $data['htmlSnippet']);
+            }
+
+            // Handle file uploads (banner and logo) if present
+            if ($request && $request->hasFile('banner')) {
+                $path = $request->file('banner')->store('repository/' . $id, 'uploads');
+                $this->upsertSetting($id, 'banner', $path);
+            }
+
+            if ($request && $request->hasFile('logo')) {
+                $path = $request->file('logo')->store('repository/' . $id, 'uploads');
+                $this->upsertSetting($id, 'logo', $path);
+            }
+
+            // Touch the object record
+            DB::table('object')->where('id', $id)->update([
+                'updated_at' => now(),
+                'serial_number' => DB::raw('serial_number + 1'),
+            ]);
+        });
+    }
+
+    /**
+     * Upsert a setting scoped to a repository.
+     */
+    protected function upsertSetting(int $repositoryId, string $name, string $value): void
+    {
+        $existing = DB::table('setting')
+            ->where('name', $name)
+            ->where('scope', 'repository_' . $repositoryId)
+            ->first();
+
+        if ($existing) {
+            DB::table('setting_i18n')
+                ->where('id', $existing->id)
+                ->where('culture', $this->culture)
+                ->update(['value' => $value]);
+        } else {
+            // Create object + setting + setting_i18n
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitSetting',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'serial_number' => 0,
+            ]);
+
+            DB::table('setting')->insert([
+                'id' => $objectId,
+                'name' => $name,
+                'scope' => 'repository_' . $repositoryId,
+                'editable' => 1,
+                'deleteable' => 1,
+                'source_culture' => $this->culture,
+            ]);
+
+            DB::table('setting_i18n')->insert([
+                'id' => $objectId,
+                'culture' => $this->culture,
+                'value' => $value,
+            ]);
+        }
+    }
 }

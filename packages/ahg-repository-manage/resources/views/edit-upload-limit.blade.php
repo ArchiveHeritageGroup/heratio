@@ -1,3 +1,1 @@
-<?php
-
-include_component('repository', 'uploadLimit', ['resource' => $resource, 'noedit' => true]);
+@include('ahg-repository-manage::_upload-limit', ['resource' => $repository, 'noedit' => true])

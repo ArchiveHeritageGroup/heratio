@@ -134,7 +134,23 @@ class StorageController extends Controller
             abort(404);
         }
 
-        return view('ahg-storage-manage::delete', ['storage' => $storage]);
+        $culture = app()->getLocale();
+        $informationObjects = DB::table('relation')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $storage->id)
+            ->where('relation.type_id', 179)
+            ->select('information_object_i18n.title', 'slug.slug')
+            ->get();
+
+        return view('ahg-storage-manage::delete', [
+            'storage' => $storage,
+            'informationObjects' => $informationObjects,
+        ]);
     }
 
     public function destroy(string $slug)

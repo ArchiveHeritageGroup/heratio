@@ -1,16 +1,21 @@
+@php
+  $class = $class ?? 'QubitRepository';
+  $enableInstitutionalScoping = config('app.enable_institutional_scoping', false);
+@endphp
+
 @if('QubitRepository' !== $class)
-  @php include_component('repository', 'logo'); @endphp
-@php } else { @endphp
+  @include('ahg-repository-manage::_logo', ['resource' => $resource ?? $repository])
+@else
 
-  @if(sfConfig::get('app_enable_institutional_scoping'))
-    @php include_component('repository', 'holdingsInstitution', ['resource' => $resource]); @endphp
-    @php include_component('repository', 'holdingsList', ['resource' => $resource]); @endphp
-    @php include_component('repository', 'uploadLimit', ['resource' => $resource]); @endphp
-  @php } else { @endphp
-    @php include_component('repository', 'logo'); @endphp
-    @php include_component('repository', 'uploadLimit', ['resource' => $resource]); @endphp
-    @php include_component('repository', 'holdings', ['resource' => $resource]); @endphp
-    @php include_component('repository', 'holdingsList', ['resource' => $resource]); @endphp
-  @endforeach
+  @if($enableInstitutionalScoping)
+    @include('ahg-repository-manage::_holdings-institution', ['resource' => $resource ?? $repository])
+    @include('ahg-repository-manage::_holdings-list', ['resource' => $resource ?? $repository])
+    @include('ahg-repository-manage::_upload-limit', ['resource' => $resource ?? $repository])
+  @else
+    @include('ahg-repository-manage::_logo', ['resource' => $resource ?? $repository])
+    @include('ahg-repository-manage::_upload-limit', ['resource' => $resource ?? $repository])
+    @include('ahg-repository-manage::_holdings', ['resource' => $resource ?? $repository])
+    @include('ahg-repository-manage::_holdings-list', ['resource' => $resource ?? $repository])
+  @endif
 
-@endforeach
+@endif

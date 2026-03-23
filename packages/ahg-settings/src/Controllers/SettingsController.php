@@ -1242,19 +1242,81 @@ class SettingsController extends Controller
         $culture = app()->getLocale();
         $menu = $this->buildMenu('header-customizations');
 
+        $staticDir = public_path('uploads');
+
         $settingNames = [
-            'header_background_color',
-            'header_text_color',
-            'header_custom_css',
-            'header_custom_html',
+            'header_background_colour',
         ];
 
         if ($request->isMethod('post')) {
+            // Save header background colour
             foreach ($settingNames as $name) {
                 $value = $request->input("settings.{$name}", '');
                 $this->service->saveSetting($name, null, $value, $culture);
             }
-            return redirect()->route('settings.header-customizations')->with('success', 'Header customization settings saved.');
+
+            // Ensure uploads directory exists
+            if (!is_dir($staticDir)) {
+                mkdir($staticDir, 0755, true);
+            }
+
+            // Handle logo upload
+            if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
+                $logoFile = $request->file('logo');
+                if ($logoFile->getMimeType() === 'image/png') {
+                    $logoFile->move($staticDir, 'logo.png');
+                }
+            }
+
+            // Handle favicon upload
+            if ($request->hasFile('favicon') && $request->file('favicon')->isValid()) {
+                $faviconFile = $request->file('favicon');
+                $mime = $faviconFile->getMimeType();
+                if (in_array($mime, ['image/x-icon', 'image/vnd.microsoft.icon', 'image/ico', 'image/icon'])) {
+                    $faviconFile->move($staticDir, 'favicon.ico');
+                    // Also copy to public root for direct access
+                    copy($staticDir . DIRECTORY_SEPARATOR . 'favicon.ico', public_path('favicon.ico'));
+                }
+            }
+
+            // Handle restore default logo
+            if ($request->input('restore_logo')) {
+                $defaultLogoPath = public_path('vendor/ahg-theme-b5/images/logo.png');
+                $logoImgPath = $staticDir . DIRECTORY_SEPARATOR . 'logo.png';
+                if (file_exists($defaultLogoPath)) {
+                    copy($defaultLogoPath, $logoImgPath);
+                } else {
+                    return redirect()->route('settings.header-customizations')->with('error', 'Default logo not found.');
+                }
+            }
+
+            // Handle restore default favicon
+            if ($request->input('restore_favicon')) {
+                $defaultFaviconPath = resource_path('defaults/favicon.ico');
+                $faviconImgPath = $staticDir . DIRECTORY_SEPARATOR . 'favicon.ico';
+                // Try multiple fallback locations for the default favicon
+                $fallbackPaths = [
+                    $defaultFaviconPath,
+                    public_path('favicon.ico'),
+                ];
+                $restored = false;
+                foreach ($fallbackPaths as $path) {
+                    if (file_exists($path) && $path !== $faviconImgPath) {
+                        copy($path, $faviconImgPath);
+                        copy($faviconImgPath, public_path('favicon.ico'));
+                        $restored = true;
+                        break;
+                    }
+                }
+                if (!$restored) {
+                    // Remove custom favicon to fall back to default
+                    if (file_exists($faviconImgPath)) {
+                        unlink($faviconImgPath);
+                    }
+                }
+            }
+
+            return redirect()->route('settings.header-customizations')->with('success', 'Header customizations settings saved.');
         }
 
         $settings = [];

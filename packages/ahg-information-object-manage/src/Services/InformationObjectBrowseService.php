@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class InformationObjectBrowseService extends BrowseService
 {
+    protected array $activeFilters = [];
+
     protected function getTable(): string
     {
         return 'information_object';
@@ -37,16 +39,33 @@ class InformationObjectBrowseService extends BrowseService
 
     protected function getBaseJoins($query)
     {
-        return $query
+        $query = $query
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1); // Exclude root
+
+        // Apply active filters
+        if (!empty($this->activeFilters['repository_id'])) {
+            $query->where('information_object.repository_id', $this->activeFilters['repository_id']);
+        }
+        if (!empty($this->activeFilters['level_of_description_id'])) {
+            $query->where('information_object.level_of_description_id', $this->activeFilters['level_of_description_id']);
+        }
+        if (!empty($this->activeFilters['media_type_id'])) {
+            $query->join('digital_object', 'information_object.id', '=', 'digital_object.information_object_id')
+                  ->where('digital_object.media_type_id', $this->activeFilters['media_type_id']);
+        }
+
+        return $query;
     }
 
     public function browse(array $params): array
     {
+        // Store filters so getBaseJoins can apply them
+        $this->activeFilters = $params['filters'] ?? [];
+
         $result = parent::browse($params);
 
         if (!empty($result['hits'])) {

@@ -10,6 +10,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store');
     Route::get('/actor/{slug}/edit', [ActorController::class, 'edit'])->name('actor.edit');
     Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
+    Route::get('/actor/{slug}/rename', [ActorController::class, 'rename'])->name('actor.rename');
+    Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename');
 });
 
 Route::middleware('admin')->group(function () {
