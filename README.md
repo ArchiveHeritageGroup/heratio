@@ -3,7 +3,7 @@
 **A standalone open-source Laravel framework for AI-assisted archival records management, with native AtoM integration via API.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![AtoM Compatible](https://img.shields.io/badge/AtoM-2.9%2B-green)](https://www.accesstomemory.org)
+[![AtoM Compatible](https://img.shields.io/badge/AtoM-2.10%2B-green)](https://www.accesstomemory.org)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-10%2B-red)](https://laravel.com)
 
