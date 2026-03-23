@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success) {
           btn.innerHTML = '<i class="fas fa-check me-1"></i>Queued';
           btn.classList.remove('atom-btn-outline-success');
-          btn.classList.add('btn-success');
+          btn.classList.add('atom-btn-outline-success');
 
           // Show jobs card and add row
           document.getElementById('jobs-card').style.display = '';

@@ -37,7 +37,7 @@
 
             <div class="criteria row mb-2">
               <div class="col-md-6">
-                <label for="className" class="form-label">{{ __('Type') }}</label>
+                <label for="className" class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="className" id="className" class="form-select">
                   @foreach($entityTypes as $value => $label)
                     <option value="{{ $value }}" {{ $className === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -46,7 +46,7 @@
               </div>
 
               <fieldset class="col-md-6">
-                <legend class="fs-6">{{ __('Date of') }}</legend>
+                <legend class="fs-6">{{ __('Date of') }} <span class="badge bg-secondary ms-1">Optional</span></legend>
                 <div class="form-check d-inline-block me-2">
                   <input class="form-check-input" type="radio" name="dateOf" id="dateOf-created" value="CREATED_AT" {{ $dateOf === 'CREATED_AT' ? 'checked' : '' }}>
                   <label class="form-check-label" for="dateOf-created">{{ __('Creation') }}</label>
@@ -58,7 +58,7 @@
               </fieldset>
 
               <fieldset class="col-md-6 mt-2">
-                <legend class="fs-6">{{ __('Publication status') }}</legend>
+                <legend class="fs-6">{{ __('Publication status') }} <span class="badge bg-secondary ms-1">Optional</span></legend>
                 <div class="form-check d-inline-block me-2">
                   <input class="form-check-input" type="radio" name="publicationStatus" id="pubAll" value="" {{ $publicationStatus === '' ? 'checked' : '' }}>
                   <label class="form-check-label" for="pubAll">{{ __('All') }}</label>
@@ -78,12 +78,12 @@
 
             <div class="criteria row mb-2">
               <div class="col-md-6 start-date">
-                <label for="dateStart" class="form-label">{{ __('Start') }}</label>
+                <label for="dateStart" class="form-label">{{ __('Start') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" id="dateStart" name="dateStart" class="form-control" value="{{ $dateStart }}">
               </div>
 
               <div class="col-md-6 end-date">
-                <label for="dateEnd" class="form-label">{{ __('End') }}</label>
+                <label for="dateEnd" class="form-label">{{ __('End') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" id="dateEnd" name="dateEnd" class="form-control" value="{{ $dateEnd }}">
               </div>
             </div>

@@ -51,7 +51,7 @@
 
             <div class="criteria mb-4">
               <div class="mb-3">
-                <label for="adv-repository" class="form-label">{{ __('Repository') }}</label>
+                <label for="adv-repository" class="form-label">{{ __('Repository') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select id="adv-repository" name="repository" class="form-select">
                   <option value="">{{ __('-- Any repository --') }}</option>
                   @foreach($repositories as $id => $name)
@@ -66,7 +66,7 @@
             <div class="criteria mb-4">
               <div class="row">
                 <div class="col-md-4">
-                  <label for="adv-level" class="form-label">{{ __('Level of description') }}</label>
+                  <label for="adv-level" class="form-label">{{ __('Level of description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="adv-level" name="level" class="form-select">
                     <option value="">{{ __('-- Any level --') }}</option>
                     @foreach($levels as $id => $name)
@@ -76,7 +76,7 @@
                 </div>
 
                 <div class="col-md-4">
-                  <label for="adv-mediaType" class="form-label">{{ __('Digital object available') }}</label>
+                  <label for="adv-mediaType" class="form-label">{{ __('Digital object available') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                   <select id="adv-mediaType" name="hasDigitalObject" class="form-select">
                     <option value="">{{ __('No') }}</option>
                     <option value="1">{{ __('Yes') }}</option>
@@ -85,7 +85,7 @@
               </div>
 
               <fieldset class="mt-3">
-                <legend class="visually-hidden">{{ __('Top-level description filter') }}</legend>
+                <legend class="visually-hidden">{{ __('Top-level description filter') }} <span class="badge bg-secondary ms-1">Optional</span></legend>
                 <div class="d-grid d-sm-block">
                   <div class="form-check d-inline-block me-2">
                     <input class="form-check-input" type="radio" name="topLod" id="adv-search-top-lod-1" value="1">
@@ -103,17 +103,17 @@
 
             <div class="criteria row mb-2">
               <div class="col-md-4 start-date">
-                <label for="adv-dateFrom" class="form-label">{{ __('Start') }}</label>
+                <label for="adv-dateFrom" class="form-label">{{ __('Start') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" id="adv-dateFrom" name="dateFrom" class="form-control">
               </div>
 
               <div class="col-md-4 end-date">
-                <label for="adv-dateTo" class="form-label">{{ __('End') }}</label>
+                <label for="adv-dateTo" class="form-label">{{ __('End') }} <span class="badge bg-secondary ms-1">Optional</span></label>
                 <input type="date" id="adv-dateTo" name="dateTo" class="form-control">
               </div>
 
               <fieldset class="col-md-4 date-type">
-                <legend class="fs-6">{{ __('Results') }}</legend>
+                <legend class="fs-6">{{ __('Results') }} <span class="badge bg-secondary ms-1">Optional</span></legend>
                 <div class="d-grid d-sm-block">
                   <div class="form-check d-inline-block me-2">
                     <input class="form-check-input" type="radio" name="rangeType" id="adv-search-date-range-inclusive" value="inclusive" checked>

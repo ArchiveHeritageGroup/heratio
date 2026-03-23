@@ -61,6 +61,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/admin/ai/htr/folder-list', [AiController::class, 'htrFolderList'])->name('admin.ai.htr.folderList');
     Route::get('/admin/ai/htr/serve-image', [AiController::class, 'htrServeImage'])->name('admin.ai.htr.serveImage');
     Route::post('/admin/ai/htr/skip-image', [AiController::class, 'htrSkipImage'])->name('admin.ai.htr.skipImage');
+    Route::post('/admin/ai/htr/split-rows', [AiController::class, 'htrSplitRows'])->name('admin.ai.htr.splitRows');
     Route::post('/admin/ai/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
     Route::post('/admin/ai/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');

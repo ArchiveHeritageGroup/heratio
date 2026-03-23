@@ -51,8 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
     input.value = generatedId.textContent.trim();
     if (useBtn) {
       useBtn.innerHTML = '<i class="fas fa-check me-1"></i>{{ __('Applied') }}';
-      useBtn.classList.remove('btn-outline-primary');
-      useBtn.classList.add('btn-success');
+      useBtn.classList.remove('atom-btn-outline-light');
+      useBtn.classList.add('atom-btn-outline-success');
     }
   }
   @endif
@@ -65,13 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Visual feedback
         useBtn.innerHTML = '<i class="fas fa-check me-1"></i>{{ __('Applied') }}';
-        useBtn.classList.remove('btn-outline-primary');
-        useBtn.classList.add('btn-success');
+        useBtn.classList.remove('atom-btn-outline-light');
+        useBtn.classList.add('atom-btn-outline-success');
 
         setTimeout(function() {
           useBtn.innerHTML = '<i class="fas fa-check me-1"></i>{{ __('Use') }}';
-          useBtn.classList.remove('btn-success');
-          useBtn.classList.add('btn-outline-primary');
+          useBtn.classList.remove('atom-btn-outline-success');
+          useBtn.classList.add('atom-btn-outline-light');
         }, 2000);
       }
     });

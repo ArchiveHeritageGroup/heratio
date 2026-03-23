@@ -19,7 +19,7 @@
     <div class="criteria mb-4">
       <div class="row">
         <div class="col-md-4">
-          <label for="column" class="form-label">{{ __('Column') }}</label>
+          <label for="column" class="form-label">{{ __('Column') }} <span class="badge bg-danger ms-1">Required</span></label>
           <select name="column" id="column" class="form-select" required>
             <option value="">{{ __('-- Select a field --') }}</option>
             @foreach($columns as $value => $label)
@@ -29,19 +29,19 @@
         </div>
 
         <div class="col-md-4">
-          <label for="pattern" class="form-label">{{ __('Search') }}</label>
+          <label for="pattern" class="form-label">{{ __('Search') }} <span class="badge bg-danger ms-1">Required</span></label>
           <input type="text" name="pattern" id="pattern" class="form-control" value="{{ old('pattern', $pattern ?? '') }}" required>
         </div>
 
         <div class="col-md-4">
-          <label for="replacement" class="form-label">{{ __('Replace') }}</label>
+          <label for="replacement" class="form-label">{{ __('Replace') }} <span class="badge bg-secondary ms-1">Optional</span></label>
           <input type="text" name="replacement" id="replacement" class="form-control" value="{{ old('replacement', $replacement ?? '') }}">
         </div>
       </div>
 
       <div class="form-check mt-2">
         <input class="form-check-input" type="checkbox" name="caseSensitive" id="caseSensitive" value="1" {{ old('caseSensitive', $caseSensitive ?? true) ? 'checked' : '' }}>
-        <label class="form-check-label" for="caseSensitive">{{ __('Case sensitive') }}</label>
+        <label class="form-check-label" for="caseSensitive">{{ __('Case sensitive') }} <span class="badge bg-secondary ms-1">Optional</span></label>
       </div>
     </div>
 

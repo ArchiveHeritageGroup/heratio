@@ -658,6 +658,71 @@ PY;
     /**
      * Skip an image — move it to a rework/ folder for later review.
      */
+    /**
+     * Split a register page into individual row images for annotation.
+     * Takes the image path + array of row bounding boxes.
+     * Crops each row and saves to a temp folder, returns paths.
+     */
+    public function htrSplitRows(Request $request)
+    {
+        $path = $request->input('path', '');
+        $rows = $request->input('rows', []);
+
+        if (!$path || !file_exists($path)) {
+            return response()->json(['success' => false, 'error' => 'Image not found.']);
+        }
+        if (empty($rows)) {
+            return response()->json(['success' => false, 'error' => 'No row boxes provided.']);
+        }
+
+        $basename = pathinfo($path, PATHINFO_FILENAME);
+        $splitDir = dirname($path) . '/row_splits';
+        if (!is_dir($splitDir)) {
+            @mkdir($splitDir, 0777, true);
+        }
+
+        $cropsJson = json_encode($rows);
+        $escapedImage = escapeshellarg($path);
+        $escapedCrops = escapeshellarg($cropsJson);
+        $escapedDir = escapeshellarg($splitDir);
+        $escapedBase = escapeshellarg($basename);
+
+        $script = <<<'PY'
+import sys, json
+from PIL import Image
+img = Image.open(sys.argv[1])
+rows = json.loads(sys.argv[2])
+out_dir = sys.argv[3]
+base = sys.argv[4]
+PAD = 10
+results = []
+for i, r in enumerate(rows):
+    box = (max(0, r['x']-PAD), max(0, r['y']-PAD),
+           min(img.width, r['x']+r['w']+PAD), min(img.height, r['y']+r['h']+PAD))
+    if box[2]<=box[0] or box[3]<=box[1]: continue
+    crop = img.crop(box)
+    fname = f"{base}_row{i+1:02d}.jpg"
+    out_path = f"{out_dir}/{fname}"
+    crop.save(out_path, 'JPEG', quality=95)
+    results.append({'index': i, 'name': fname, 'path': out_path, 'width': crop.width, 'height': crop.height})
+print(json.dumps(results))
+PY;
+
+        $tmpScript = tempnam('/tmp', 'split_') . '.py';
+        file_put_contents($tmpScript, $script);
+        $output = shell_exec("python3 {$tmpScript} {$escapedImage} {$escapedCrops} {$escapedDir} {$escapedBase} 2>&1");
+        @unlink($tmpScript);
+
+        $results = json_decode(trim($output ?: '[]'), true) ?: [];
+
+        return response()->json([
+            'success' => true,
+            'rows' => $results,
+            'split_dir' => $splitDir,
+            'total' => count($results),
+        ]);
+    }
+
     public function htrSkipImage(Request $request)
     {
         $path = $request->input('path', '');

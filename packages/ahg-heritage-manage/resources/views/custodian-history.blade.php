@@ -27,9 +27,9 @@ $total = $historyData['total'] ?? 0;
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body">
         <form method="get" class="row g-3">
-          <div class="col-md-4"><label class="form-label">Search</label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="User, object, or action..."></div>
-          <div class="col-md-3"><label class="form-label">From Date</label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
-          <div class="col-md-3"><label class="form-label">To Date</label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
+          <div class="col-md-4"><label class="form-label">Search <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="search" value="{{ request('search','') }}" placeholder="User, object, or action..."></div>
+          <div class="col-md-3"><label class="form-label">From Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_from" value="{{ request('date_from','') }}"></div>
+          <div class="col-md-3"><label class="form-label">To Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="date_to" value="{{ request('date_to','') }}"></div>
           <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn atom-btn-secondary w-100"><i class="fas fa-search me-1"></i>Filter</button></div>
         </form>
       </div>
@@ -55,7 +55,7 @@ $total = $historyData['total'] ?? 0;
                 <td><span class="badge bg-{{ $color }}">{{ ucfirst($log->action) }}</span></td>
                 <td>@if($log->object_id){{ mb_strimwidth($log->object_title ?? "Object #{$log->object_id}", 0, 40, '...') }}@else -@endif</td>
                 <td>@if($log->field_name)<small><strong>{{ $log->field_name }}</strong>: @if($log->old_value)<span class="text-danger text-decoration-line-through">{{ mb_strimwidth($log->old_value, 0, 20, '...') }}</span>@endif &rarr; <span class="text-success">{{ mb_strimwidth($log->new_value ?? '', 0, 20, '...') }}</span></small>@else -@endif</td>
-                <td><button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye"></i></button></td>
+                <td><button type="button" class="btn btn-sm atom-btn-white"><i class="fas fa-eye"></i></button></td>
               </tr>
               @endforeach
             </tbody>

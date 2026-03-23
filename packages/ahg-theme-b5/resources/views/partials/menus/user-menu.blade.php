@@ -195,7 +195,7 @@
 
     <hr class="my-3">
     <div class="text-center">
-      <a href="{{ route('register') }}" class="btn btn-sm btn-primary w-100 mb-2">
+      <a href="{{ route('register') }}" class="btn btn-sm atom-btn-secondary w-100 mb-2">
         <i class="fas fa-user-plus me-1"></i>Register
       </a>
       <a href="{{ route('researcher.register') }}" class="btn btn-sm atom-btn-white w-100 mb-1">

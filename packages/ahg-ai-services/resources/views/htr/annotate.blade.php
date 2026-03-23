@@ -102,6 +102,13 @@
           <label class="form-check-label small" for="non-gen-toggle">Non-genealogical image</label>
         </div>
       </div>
+      <div class="col-auto border-start ps-2" id="row-split-tools" style="display:none;">
+        <div class="btn-group btn-group-sm">
+          <button class="btn atom-btn-white" id="btn-auto-rows" title="Auto-detect rows"><i class="fas fa-grip-lines me-1"></i>Auto Rows</button>
+          <input type="number" class="form-control form-control-sm" id="row-count" value="7" min="1" max="20" style="width:50px;" title="Number of rows">
+          <button class="btn atom-btn-white" id="btn-split-go" title="Split into row images"><i class="fas fa-cut me-1"></i>Split &amp; Annotate</button>
+        </div>
+      </div>
       <div class="col-auto ms-auto">
         <button class="btn atom-btn-white btn-sm" id="btn-skip" disabled title="Skip — move to rework folder"><i class="fas fa-forward me-1"></i>Skip</button>
         <button class="btn atom-btn-outline-success btn-sm" id="btn-save" disabled><i class="fas fa-save me-1"></i>Save</button>
@@ -204,17 +211,25 @@
         <i class="fas fa-question-circle me-1"></i>How to Annotate
       </div>
       <div class="card-body py-2 small">
-        <ol class="mb-0 ps-3" style="line-height:1.8;">
+        <div class="fw-bold mb-1">Type A — Single Form (Death Cert):</div>
+        <ol class="mb-2 ps-3" style="line-height:1.7;">
           <li>Select <strong>server folder</strong> → click <strong>Load</strong></li>
           <li>Set <strong>Record Type</strong> (top-right)</li>
-          <li>Press <strong>R</strong> → draw box around the <strong>event year</strong> → type the year</li>
-          <li>Press <strong>R</strong> → draw box around the <strong>event place</strong> → type place or click Quick Place (country appended automatically)</li>
-          <li>Only <strong>2 boxes</strong> allowed — Record Type is set at document level</li>
-          <li>Use <strong>V</strong> to drag/reposition boxes</li>
-          <li>Click <strong>Save</strong> → auto-advances to next image</li>
+          <li>Press <strong>R</strong> → draw box around <strong>event year</strong> → type year</li>
+          <li>Press <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
+          <li>Press <strong>Enter</strong> to save → auto-advances</li>
         </ol>
-        <hr class="my-2">
-        <div class="text-muted" style="font-size:.75rem;">
+        <div class="fw-bold mb-1">Type B — Register (Multiple Records):</div>
+        <ol class="mb-2 ps-3" style="line-height:1.7;">
+          <li>Select <strong>Type B — Register</strong> from Doc Type</li>
+          <li>Load image → click <strong>Auto Rows</strong> (set row count first)</li>
+          <li>Use <strong>V</strong> to drag/resize row boxes to fit entries</li>
+          <li><strong>Delete</strong> empty rows, <strong>R</strong> to add missed ones</li>
+          <li>Click <strong>Split &amp; Annotate</strong> → crops each row</li>
+          <li>Switches to Type A → annotate each row (year + place)</li>
+        </ol>
+        <hr class="my-1">
+        <div class="text-muted" style="font-size:.7rem;">
           <strong>Keys:</strong> H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo
         </div>
       </div>
@@ -310,11 +325,17 @@
     document.getElementById('btn-save').disabled = !img;
   });
 
-  // ── Doc type → record type sync ──
+  // ── Doc type → record type sync + show/hide row split tools ──
   document.getElementById('doc-type').addEventListener('change', function() {
     const m = {type_a:'Death Records', type_b:'Church Records', type_c:'Other Records'};
     document.getElementById('record-type').value = m[this.value] || 'Other Records';
+    // Show row split tools for Type B (registers with multiple records per page)
+    document.getElementById('row-split-tools').style.display = this.value === 'type_b' ? '' : 'none';
+    // Type B has no max annotations limit (multiple rows)
+    if (this.value === 'type_b') { rowSplitMode = true; } else { rowSplitMode = false; }
   });
+  let rowSplitMode = false;
+  let rowBoxes = []; // [{id, x, y, w, h, color}] — row regions before splitting
 
   // ── Image loading ──
   function loadImg(src) {
@@ -421,7 +442,7 @@
     }
 
     // Rect tool — draw new box (max 2)
-    if (anns.length >= MAX_ANNS) { return; }
+    if (!rowSplitMode && anns.length >= MAX_ANNS) { return; }
     drawing=true; sx=p.x; sy=p.y;
   });
 
@@ -526,7 +547,7 @@
     document.getElementById('btn-undo').disabled=false;
 
     // Auto-switch to hand after 2 boxes (done drawing)
-    if (anns.length >= MAX_ANNS) setTool('hand');
+    if (!rowSplitMode && anns.length >= MAX_ANNS) setTool('hand');
 
     // Auto-focus the text input
     setTimeout(function() {
@@ -1262,7 +1283,7 @@
     document.getElementById('btn-next').disabled=fidx>=files.length-1;
     const f=files[fidx];
     const ct=document.getElementById('btn-counter');
-    ct.classList.toggle('btn-success',f&&f.annotated);
+    ct.classList.toggle('atom-btn-outline-success',f&&f.annotated);
     ct.classList.toggle('atom-btn-white',!(f&&f.annotated));
   }
   function loadFolderImg() {
@@ -1316,6 +1337,109 @@
     }
   });
   obs.observe(saveBtn,{childList:true,subtree:true,characterData:true});
+
+  // ══════════════════════════════════════════════════════════════════
+  // Row Split Mode — for Type B register pages with multiple records
+  // ══════════════════════════════════════════════════════════════════
+
+  // Auto Rows — divide image into N equal horizontal rows
+  document.getElementById('btn-auto-rows').addEventListener('click', function() {
+    if (!img) return;
+    const n = parseInt(document.getElementById('row-count').value) || 7;
+
+    // Clear existing annotations and switch to row-drawing mode
+    anns = []; activeId = null;
+
+    // Skip top ~10% (header) and bottom ~5% (footer)
+    const headerPct = 0.08;
+    const footerPct = 0.03;
+    const startY = Math.round(img.height * headerPct);
+    const endY = Math.round(img.height * (1 - footerPct));
+    const rowH = Math.round((endY - startY) / n);
+    const pad = 5;
+
+    for (let i = 0; i < n; i++) {
+      anns.push({
+        id: Date.now() + i,
+        x: pad,
+        y: startY + i * rowH,
+        w: img.width - pad * 2,
+        h: rowH - 2,
+        label: 'ROW_' + (i + 1),
+        form_label: 'Row ' + (i + 1),
+        text: '',
+        color: COLORS[i % COLORS.length],
+      });
+    }
+
+    redraw(); buildPanel();
+    document.getElementById('btn-undo').disabled = false;
+    setTool('select'); // So user can adjust rows
+  });
+
+  // Split & Annotate — crop each row box and load them as separate images
+  document.getElementById('btn-split-go').addEventListener('click', function() {
+    const sp = cvs.dataset.serverPath || '';
+    if (!sp) { alert('Load a server image first.'); return; }
+    if (anns.length === 0) { alert('Draw or auto-detect rows first.'); return; }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Splitting...';
+
+    const rows = anns.map(a => ({x: a.x, y: a.y, w: a.w, h: a.h}));
+
+    fetch('{{ route("admin.ai.htr.splitRows") }}', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}'},
+      body: JSON.stringify({path: sp, rows: rows}),
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.innerHTML = '<i class="fas fa-cut me-1"></i>Split & Annotate';
+      btn.disabled = false;
+
+      if (!data.success || !data.rows || !data.rows.length) {
+        alert('Split failed: ' + (data.error || 'No rows created'));
+        return;
+      }
+
+      // Load the split directory as a new folder — each row becomes a separate image to annotate
+      const splitDir = data.split_dir;
+      files = data.rows.map(r => ({
+        name: r.name,
+        path: r.path,
+        size: 0,
+        annotated: false,
+      }));
+      fidx = 0;
+
+      // Switch to Type A mode for individual row annotation (2 fields per row)
+      document.getElementById('doc-type').value = 'type_a';
+      document.getElementById('record-type').value = 'Death Records';
+      document.getElementById('row-split-tools').style.display = 'none';
+      rowSplitMode = false;
+
+      // Show folder nav
+      document.getElementById('folder-nav').style.display = '';
+      document.getElementById('folder-stats').style.display = '';
+      document.getElementById('skip-wrap').style.display = '';
+      updBadges({total: files.length, annotated: 0});
+
+      // Load first row
+      loadFolderImg();
+
+      alert('Split into ' + data.rows.length + ' rows. Now annotate each row (year + place).');
+    })
+    .catch(err => {
+      alert('Error: ' + err.message);
+      btn.innerHTML = '<i class="fas fa-cut me-1"></i>Split & Annotate';
+      btn.disabled = false;
+    });
+  });
+
+  // Override MAX_ANNS check when in row split mode — allow unlimited row boxes
+  // (The mousedown handler already checks MAX_ANNS for rect tool)
 
 })();
 </script>

@@ -24,17 +24,17 @@
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Access Request Details</h5></div>
         <div class="card-body">
-          <div class="mb-3"><label for="purpose_id" class="form-label">Purpose of Access <span class="text-danger">*</span></label><select class="form-select" name="purpose_id" required><option value="">Select a purpose...</option>@foreach($purposes ?? [] as $purpose)<option value="{{ $purpose->id }}">{{ $purpose->name }}@if($purpose->requires_approval) (Requires Approval)@endif</option>@endforeach</select></div>
-          <div class="mb-3"><label for="institution_affiliation" class="form-label">Institution/Organization</label><input type="text" class="form-control" name="institution_affiliation" placeholder="e.g., University of Cape Town"></div>
-          <div class="mb-3"><label for="research_description" class="form-label">Research Project/Description</label><textarea class="form-control" name="research_description" rows="3" placeholder="Briefly describe your research project..."></textarea></div>
-          <div class="mb-3"><label for="justification" class="form-label">Justification <span class="text-danger">*</span></label><textarea class="form-control" name="justification" rows="4" required placeholder="Explain why you need access..."></textarea><div class="form-text">Please provide sufficient detail to help us evaluate your request.</div></div>
+          <div class="mb-3"><label for="purpose_id" class="form-label">Purpose of Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><select class="form-select" name="purpose_id" required><option value="">Select a purpose...</option>@foreach($purposes ?? [] as $purpose)<option value="{{ $purpose->id }}">{{ $purpose->name }}@if($purpose->requires_approval) (Requires Approval)@endif</option>@endforeach</select></div>
+          <div class="mb-3"><label for="institution_affiliation" class="form-label">Institution/Organization <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="institution_affiliation" placeholder="e.g., University of Cape Town"></div>
+          <div class="mb-3"><label for="research_description" class="form-label">Research Project/Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="research_description" rows="3" placeholder="Briefly describe your research project..."></textarea></div>
+          <div class="mb-3"><label for="justification" class="form-label">Justification <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><textarea class="form-control" name="justification" rows="4" required placeholder="Explain why you need access..."></textarea><div class="form-text">Please provide sufficient detail to help us evaluate your request.</div></div>
         </div>
       </div>
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Terms & Conditions</h5></div>
         <div class="card-body">
-          <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="agree_terms" required><label class="form-check-label" for="agree_terms">I agree to use this material only for the stated purpose and will comply with any usage restrictions.</label></div>
-          <div class="form-check"><input class="form-check-input" type="checkbox" id="agree_attribution" required><label class="form-check-label" for="agree_attribution">I agree to provide proper attribution when using or citing this material.</label></div>
+          <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="agree_terms" required><label class="form-check-label" for="agree_terms">I agree to use this material only for the stated purpose and will comply with any usage restrictions. <span class="badge bg-danger ms-1">Required</span></label></div>
+          <div class="form-check"><input class="form-check-input" type="checkbox" id="agree_attribution" required><label class="form-check-label" for="agree_attribution">I agree to provide proper attribution when using or citing this material. <span class="badge bg-danger ms-1">Required</span></label></div>
         </div>
       </div>
       <div class="d-flex justify-content-between">

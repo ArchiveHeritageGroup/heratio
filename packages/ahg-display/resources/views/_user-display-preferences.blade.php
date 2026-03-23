@@ -208,11 +208,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.success) {
                     submitBtn.innerHTML = '<i class="bi bi-check-lg"></i> Saved!';
                     submitBtn.classList.remove('atom-btn-white');
-                    submitBtn.classList.add('btn-success');
+                    submitBtn.classList.add('atom-btn-outline-success');
                     
                     setTimeout(() => {
                         submitBtn.innerHTML = originalText;
-                        submitBtn.classList.remove('btn-success');
+                        submitBtn.classList.remove('atom-btn-outline-success');
                         submitBtn.classList.add('atom-btn-white');
                         submitBtn.disabled = false;
                     }, 2000);

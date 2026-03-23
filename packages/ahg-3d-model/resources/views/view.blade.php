@@ -121,7 +121,7 @@
                   <p>{{ e($hotspot->hotspot_description) }}</p>
                 @endif
                 @if(!empty($hotspot->link_url))
-                  <a href="{{ $hotspot->link_url }}" target="{{ $hotspot->link_target ?? '_blank' }}" class="btn btn-sm btn-primary mt-1">
+                  <a href="{{ $hotspot->link_url }}" target="{{ $hotspot->link_target ?? '_blank' }}" class="btn btn-sm atom-btn-secondary mt-1">
                     <i class="fas fa-external-link-alt"></i> Learn More
                   </a>
                 @endif
