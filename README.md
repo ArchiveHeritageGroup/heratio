@@ -46,25 +46,36 @@ A live demonstration instance is available at **[https://heratio.theahg.co.za](h
 
 ## Architecture
 
-Heratio is a fully standalone Laravel application. It connects directly to an archival MySQL database via Eloquent ORM with no dependency on any other application framework.
+Heratio is designed to operate alongside [AtoM (Access to Memory)](https://www.accesstomemory.org), the widely-deployed open-source archival description platform. Heratio connects directly to the AtoM MySQL database via Laravel's Eloquent ORM, coexisting with AtoM as an independent application on the same database. AtoM and Heratio each operate through their own application stack with no code dependency between them — AtoM through its Symfony/Propel layer, Heratio through Laravel/Eloquent.
+
+This coexistence model means that metadata enriched by Heratio's AI pipeline is immediately surfaced through AtoM's standard public discovery interface without any synchronisation step or middleware layer.
+
+AtoM is an independent open-source project governed by the [AtoM Foundation](https://www.accesstomemory.org/en/foundation/) and released under AGPL-3.0. Heratio is released under the same licence in the spirit of open-source archival community collaboration.
 
 ```
-┌─────────────────────────────────────────┐
-│              Heratio (Laravel)           │
-│                                         │
-│  ┌─────────────┐  ┌──────────────────┐  │
-│  │  AI/NER     │  │  Researcher      │  │
-│  │  Pipeline   │  │  Portal          │  │
-│  └─────────────┘  └──────────────────┘  │
-│  ┌─────────────┐  ┌──────────────────┐  │
-│  │  Encryption │  │  Audit / Access  │  │
-│  │  Service    │  │  Control         │  │
-│  └─────────────┘  └──────────────────┘  │
-└──────────────┬──────────────────────────┘
-               │  Eloquent ORM
-    ┌──────────▼──────────┐
-    │   Archival MySQL DB  │
-    └─────────────────────┘
+┌─────────────────────────┐   ┌─────────────────────────┐
+│    Heratio (Laravel)     │   │      AtoM (Symfony)      │
+│                         │   │                         │
+│  ┌───────────────────┐  │   │  Archival description   │
+│  │ AI / NER Pipeline │  │   │  Public discovery       │
+│  └───────────────────┘  │   │  User management        │
+│  ┌───────────────────┐  │   │                         │
+│  │ Researcher Portal │  │   │                         │
+│  └───────────────────┘  │   │                         │
+│  ┌───────────────────┐  │   │                         │
+│  │ Encryption Service│  │   │                         │
+│  └───────────────────┘  │   │                         │
+│  ┌───────────────────┐  │   │                         │
+│  │ Audit / Access    │  │   │                         │
+│  └───────────────────┘  │   │                         │
+└────────────┬────────────┘   └────────────┬────────────┘
+             │  Eloquent ORM               │  Propel ORM
+             │                             │
+             └──────────────┬──────────────┘
+                            │
+               ┌────────────▼────────────┐
+               │      AtoM MySQL DB       │
+               └─────────────────────────┘
 ```
 
 ---
@@ -75,6 +86,7 @@ Heratio is a fully standalone Laravel application. It connects directly to an ar
 |---|---|
 | PHP | 8.1 or higher |
 | Laravel | 10 or higher |
+| AtoM | 2.9 or higher |
 | MySQL / MariaDB | 5.7+ / 10.3+ |
 | Nginx | 1.18+ |
 | Ollama (optional) | Latest stable |
@@ -190,7 +202,7 @@ Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)
 - Modifications must be released under the same licence
 - If you run a modified version as a network service, you must make the source available to users
 
-The AGPL-3.0 licence was selected for consistency with the broader open-source archival software ecosystem. Proprietary extensions that communicate with Heratio via its HTTP API are considered independent works and are not subject to AGPL copyleft requirements, provided they do not incorporate AGPL-licensed code directly.
+The AGPL-3.0 licence was selected in alignment with AtoM, which is also released under AGPL-3.0, supporting open community collaboration across the archival software ecosystem. Proprietary extensions that communicate with Heratio via its HTTP API are considered independent works and are not subject to AGPL copyleft requirements, provided they do not incorporate AGPL-licensed code directly.
 
 ---
 
