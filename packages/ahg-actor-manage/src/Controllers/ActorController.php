@@ -8,6 +8,7 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActorController extends Controller
 {
@@ -431,6 +432,99 @@ class ActorController extends Controller
         return redirect()
             ->route('actor.show', $slug)
             ->with('success', 'Authority record updated successfully.');
+    }
+
+    public function rename(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        // Get the first digital object linked to this actor (if any)
+        $digitalObject = DB::table('digital_object')
+            ->where('object_id', $actor->id)
+            ->first();
+
+        return view('ahg-actor-manage::rename', [
+            'actor' => $actor,
+            'digitalObject' => $digitalObject,
+        ]);
+    }
+
+    public function processRename(Request $request, string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $request->validate([
+            'authorized_form_of_name' => 'nullable|string|max:1024',
+            'slug' => 'nullable|string|max:255',
+            'filename' => 'nullable|string|max:1024',
+        ]);
+
+        $newSlug = $slug;
+
+        DB::transaction(function () use ($request, $actor, &$newSlug) {
+            $culture = app()->getLocale();
+
+            // Update authorized form of name
+            if ($request->has('update_name') && $request->filled('authorized_form_of_name')) {
+                DB::table('actor_i18n')
+                    ->where('id', $actor->id)
+                    ->where('culture', $culture)
+                    ->update(['authorized_form_of_name' => $request->input('authorized_form_of_name')]);
+            }
+
+            // Update slug
+            if ($request->has('update_slug') && $request->filled('slug')) {
+                $desiredSlug = \Illuminate\Support\Str::slug($request->input('slug'));
+                if (empty($desiredSlug)) {
+                    $desiredSlug = 'untitled';
+                }
+
+                // Check for duplicate slugs (excluding the current actor)
+                $existingSlug = DB::table('slug')
+                    ->where('slug', $desiredSlug)
+                    ->where('object_id', '!=', $actor->id)
+                    ->exists();
+
+                if ($existingSlug) {
+                    // Pad with a number to make unique
+                    $counter = 2;
+                    while (DB::table('slug')->where('slug', $desiredSlug . '-' . $counter)->exists()) {
+                        $counter++;
+                    }
+                    $desiredSlug = $desiredSlug . '-' . $counter;
+                }
+
+                DB::table('slug')
+                    ->where('object_id', $actor->id)
+                    ->update(['slug' => $desiredSlug]);
+
+                $newSlug = $desiredSlug;
+            }
+
+            // Update filename
+            if ($request->has('update_filename') && $request->filled('filename')) {
+                $filename = $request->input('filename');
+                // Sanitize filename: keep only lowercase alphanumeric, dashes
+                $filename = preg_replace('/[^a-z0-9\-]/', '', strtolower($filename));
+                if (empty($filename)) {
+                    $filename = 'untitled';
+                }
+
+                DB::table('digital_object')
+                    ->where('object_id', $actor->id)
+                    ->update(['name' => $filename]);
+            }
+        });
+
+        return redirect()
+            ->route('actor.show', $newSlug)
+            ->with('success', 'Authority record renamed successfully.');
     }
 
     public function confirmDelete(string $slug)

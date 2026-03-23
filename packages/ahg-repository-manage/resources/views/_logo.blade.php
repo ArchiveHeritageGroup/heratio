@@ -1,23 +1,26 @@
-@php use_helper('Text'); @endphp
+@php
+  $resource = $resource ?? $repository ?? null;
+  $repoName = $resource->authorized_form_of_name ?? $resource->name ?? '[Untitled]';
+  $repoUrl = route('repository.show', ['slug' => $resource->slug]);
+  $logoPath = $resource->logo_path ?? null;
+  $hasLogo = !empty($logoPath);
+@endphp
 
-@if($resource->existsLogo())
+@if($hasLogo)
   <div class="repository-logo mb-3 mx-auto">
-    <a class="text-decoration-none" href="@php echo url_for([$resource, 'module' => 'repository']); @endphp">
-      @php echo image_tag(
-        $resource->getLogoPath(),
-        [
-            'alt' => __('Go to %1%', ['%1%' => truncate_text(strip_markdown($resource), 100)]),
-            'class' => 'img-fluid img-thumbnail border-4 shadow-sm bg-white',
-        ],
-      ); @endphp
+    <a class="text-decoration-none" href="{{ $repoUrl }}">
+      <img
+        src="{{ $logoPath }}"
+        alt="{{ __('Go to :name', ['name' => \Illuminate\Support\Str::limit($repoName, 100)]) }}"
+        class="img-fluid img-thumbnail border-4 shadow-sm bg-white">
     </a>
   </div>
-@php } else { @endphp
+@else
   <div class="repository-logo-text mb-3">
-    <a class="text-decoration-none" href="@php echo url_for([$resource, 'module' => 'repository']); @endphp">
+    <a class="text-decoration-none" href="{{ $repoUrl }}">
       <h2 class="h4 p-2 text-muted text-start border border-4 shadow-sm bg-white mx-auto">
-        @php echo render_title($resource); @endphp
+        {{ $repoName }}
       </h2>
     </a>
   </div>
-@endforeach
+@endif

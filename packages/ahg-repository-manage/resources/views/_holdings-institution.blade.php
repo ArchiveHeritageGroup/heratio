@@ -1,18 +1,24 @@
+@php
+  $institutionSearchLabel = \AhgCore\Services\SettingHelper::get('ui_label_institutionSearchHoldings', 'Search holdings');
+@endphp
+
 <section class="card mb-3">
   <div class="card-body">
-    @php include_component('repository', 'logo', ['resource' => $resource]); @endphp
+    @include('ahg-repository-manage::_logo', ['resource' => $resource])
 
-    <form class="mb-3" role="search" aria-label="@php echo sfConfig::get('app_ui_label_institutionSearchHoldings'); @endphp" action="@php echo url_for('@glam_browse'); @endphp">
-      <input type="hidden" name="repos" value="@php echo $resource->id; @endphp">
-      <label for="institution-search-query" class="h5 mb-2 form-label">@php echo sfConfig::get('app_ui_label_institutionSearchHoldings'); @endphp <span class="badge bg-danger ms-1">Required</span></label>
+    <form class="mb-3" role="search" aria-label="{{ $institutionSearchLabel }}" action="{{ route('informationobject.browse') }}">
+      <input type="hidden" name="repos" value="{{ $resource->id }}">
+      <label for="institution-search-query" class="h5 mb-2 form-label">{{ $institutionSearchLabel }}</label>
       <div class="input-group">
-        <input type="text" class="form-control" id="institution-search-query" name="query" value="@php echo $sf_request->query; @endphp" placeholder="{{ __('Search') }}" required>
-        <button class="btn atom-btn-white" type="submit" aria-label={{ __('Search') }}>
+        <input type="text" class="form-control" id="institution-search-query" name="query" value="{{ request('query') }}" placeholder="{{ __('Search') }}" required>
+        <button class="btn atom-btn-white" type="submit" aria-label="{{ __('Search') }}">
           <i aria-hidden="true" class="fas fa-search"></i>
         </button>
       </div>
     </form>
 
-    @php echo get_component('menu', 'browseMenuInstitution', ['sf_cache_key' => 'dominion-b5'.$sf_user->getCulture().$sf_user->getUserID()]); @endphp
+    @if(View::exists('ahg-menu-manage::_browse-menu-institution'))
+      @include('ahg-menu-manage::_browse-menu-institution')
+    @endif
   </div>
 </section>

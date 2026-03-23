@@ -1,17 +1,17 @@
-@if(\AtomExtensions\Services\AclService::check($resource, ['create', 'update', 'delete', 'list']))
+{{-- CAS show actions (same as ext-auth) --}}
+@auth
   <ul class="actions mb-3 nav gap-2">
 
-    @if(\AtomExtensions\Services\AclService::check($resource, 'update'))
-      <li>@php echo link_to(__('Edit'), [$resource, 'module' => 'user', 'action' => str_replace('index', 'edit', $sf_context->getActionName())], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
-    @endforeach
+    <li>
+      @php
+        $currentRoute = \Illuminate\Support\Facades\Route::currentRouteName();
+        $editAction = str_replace('index', 'edit', $currentRoute);
+        $editRoute = \Illuminate\Support\Facades\Route::has($editAction) ? $editAction : 'user.edit';
+      @endphp
+      <a href="{{ route($editRoute, ['slug' => $user->slug]) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a>
+    </li>
 
-    @if($sf_user->user != $resource && 0 == count($resource->notes) && \AtomExtensions\Services\AclService::check($resource, 'delete'))
-      <li>@php echo link_to(__('Delete'), [$resource, 'module' => 'user', 'action' => 'delete'], ['class' => 'btn atom-btn-outline-danger']); @endphp</li>
-    @endforeach
-
-    @if(\AtomExtensions\Services\AclService::check($resource, 'list'))
-      <li>@php echo link_to(__('Return to user list'), ['module' => 'user', 'action' => 'list'], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
-    @endforeach
+    <li><a href="{{ route('user.browse') }}" class="btn atom-btn-outline-light">{{ __('Return to user list') }}</a></li>
 
   </ul>
-@endforeach
+@endauth

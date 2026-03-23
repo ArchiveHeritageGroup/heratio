@@ -1,21 +1,35 @@
+@extends('theme::layouts.1col')
+
+@section('title', __('Upload limit exceeded'))
+@section('body-class', 'repository upload-limit-exceeded')
+
+@section('content')
+
 <h1>{{ __('Upload limit exceeded') }}</h1>
 
 <div class="alert alert-danger" role="alert">
-  {{ __('The upload limit of %1% GB for <a href="%2%">%3%</a> has been exceeded (%4% GB currently used)', [
-      '%1%' => $resource->uploadLimit,
-      '%2%' => url_for([$resource, 'module' => 'repository']),
-      '%3%' => $resource->getAuthorizedFormOfName(['cultureFallback' => true]),
-      '%4%' => $resource->getDiskUsage(['units' => 'G']), ]) }}
+  {!! __('The upload limit of :limit GB for <a href=":url">:name</a> has been exceeded (:usage GB currently used)', [
+      'limit' => $repository->upload_limit ?? 0,
+      'url' => route('repository.show', ['slug' => $repository->slug]),
+      'name' => e($repository->authorized_form_of_name ?? ''),
+      'usage' => round(($repository->disk_usage ?? 0) / 1000000000, 2),
+  ]) !!}
 </div>
 
+@php
+  $digitalObjectLabel = \AhgCore\Services\SettingHelper::get('ui_label_digitalobject', 'Digital object');
+@endphp
+
 <div>
-  {{ __('To upload a new %1%', ['%1%' => strtolower(sfConfig::get('app_ui_label_digitalobject'))]) }}
+  {{ __('To upload a new :type', ['type' => strtolower($digitalObjectLabel)]) }}
   <ul>
-    <li>{{ __('Email your <a href="mailto:%1%">system administrator</a> and request a larger upload limit', ['%1%' => QubitUser::getSystemAdmin()->email]) }}</li>
-    <li>{{ __('Delete an existing %1% to reduce disk usage', ['%1%' => strtolower(sfConfig::get('app_ui_label_digitalobject'))]) }}</li>
+    <li>{!! __('Email your <a href="mailto::email">system administrator</a> and request a larger upload limit', ['email' => $adminEmail ?? '']) !!}</li>
+    <li>{{ __('Delete an existing :type to reduce disk usage', ['type' => strtolower($digitalObjectLabel)]) }}</li>
   </ul>
 </div>
 
 <section class="actions mb-3">
-  <a class="btn atom-btn-outline-light" href="#" onClick="history.back(); return false;">{{ __('Back') }}</a>
+  <a class="btn atom-btn-outline-light" href="#" onclick="history.back(); return false;">{{ __('Back') }}</a>
 </section>
+
+@endsection

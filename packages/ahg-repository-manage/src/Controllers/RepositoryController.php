@@ -8,6 +8,7 @@ use AhgRepositoryManage\Services\RepositoryBrowseService;
 use AhgRepositoryManage\Services\RepositoryService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RepositoryController extends Controller
 {
@@ -270,6 +271,135 @@ class RepositoryController extends Controller
         return redirect()
             ->route('repository.browse')
             ->with('success', 'Repository deleted successfully.');
+    }
+
+    /**
+     * Edit theme form (GET).
+     */
+    public function editTheme(string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        return view('ahg-repository-manage::edit-theme', [
+            'repository' => $repository,
+        ]);
+    }
+
+    /**
+     * Update theme (POST).
+     */
+    public function updateTheme(Request $request, string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $request->validate([
+            'backgroundColor' => 'nullable|string|max:7',
+            'htmlSnippet' => 'nullable|string',
+            'banner' => 'nullable|image|max:5120',
+            'logo' => 'nullable|image|max:5120',
+        ]);
+
+        $data = $request->only(['backgroundColor', 'htmlSnippet']);
+
+        $this->service->updateTheme($repository->id, $data, $request);
+
+        return redirect()
+            ->route('repository.show', $slug)
+            ->with('success', 'Theme updated successfully.');
+    }
+
+    /**
+     * Edit upload limit (POST via AJAX modal).
+     */
+    public function editUploadLimit(Request $request, string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        $request->validate([
+            'uploadLimit.type' => 'required|in:disabled,limited,unlimited',
+            'uploadLimit.value' => 'nullable|numeric|min:0',
+        ]);
+
+        $type = $request->input('uploadLimit.type');
+        $value = $request->input('uploadLimit.value');
+
+        if ($type === 'disabled') {
+            $uploadLimit = 0;
+        } elseif ($type === 'unlimited') {
+            $uploadLimit = -1;
+        } else {
+            $uploadLimit = max(0, (float) $value);
+        }
+
+        DB::table('repository')
+            ->where('id', $repository->id)
+            ->update(['upload_limit' => $uploadLimit]);
+
+        return redirect()
+            ->route('repository.show', $slug)
+            ->with('success', 'Upload limit updated successfully.');
+    }
+
+    /**
+     * Upload limit exceeded page (GET).
+     */
+    public function uploadLimitExceeded(string $slug)
+    {
+        $repository = $this->service->getBySlug($slug);
+        if (!$repository) {
+            abort(404);
+        }
+
+        // Get system admin email
+        $adminEmail = DB::table('user')
+            ->join('actor_i18n', function ($j) {
+                $j->on('user.id', '=', 'actor_i18n.id')
+                  ->where('actor_i18n.culture', '=', app()->getLocale());
+            })
+            ->orderBy('user.id')
+            ->value('user.email') ?? '';
+
+        return view('ahg-repository-manage::upload-limit-exceeded', [
+            'repository' => $repository,
+            'adminEmail' => $adminEmail,
+        ]);
+    }
+
+    /**
+     * Autocomplete for repository names (JSON).
+     */
+    public function autocomplete(Request $request)
+    {
+        $query = $request->get('query', '');
+        $culture = app()->getLocale();
+        $limit = $request->get('limit', 10);
+
+        $results = DB::table('actor')
+            ->join('actor_i18n', function ($j) use ($culture) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                  ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->join('repository', 'repository.id', '=', 'actor.id')
+            ->join('slug', 'slug.object_id', '=', 'actor.id')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $query . '%')
+            ->select(
+                'actor.id',
+                'actor_i18n.authorized_form_of_name as name',
+                'slug.slug'
+            )
+            ->limit($limit)
+            ->get();
+
+        return response()->json($results);
     }
 
     /**

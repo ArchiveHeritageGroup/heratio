@@ -1,19 +1,26 @@
-@php decorate_with('layout_2col'); @endphp
+@extends('theme::layouts.2col')
 
-@php slot('sidebar'); @endphp
-  @php echo get_component('repository', 'contextMenu'); @endphp
-@php end_slot(); @endphp
+@section('title', ($repository->authorized_form_of_name ?? '[Untitled]'))
+@section('body-class', 'edit repository')
 
-@php slot('title'); @endphp
-  <h1>@php echo render_title($resource); @endphp</h1>
-@php end_slot(); @endphp
+@section('sidebar')
+  @include('ahg-repository-manage::_context-menu', ['resource' => $repository, 'class' => 'QubitRepository'])
+@endsection
 
-@php slot('content'); @endphp
-  @php echo $form->renderGlobalErrors(); @endphp
+@section('content')
 
-  @php echo $form->renderFormTag(url_for([$resource, 'module' => 'repository', 'action' => 'editTheme'])); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
-    @php echo $form->renderHiddenFields(); @endphp
+  <form method="POST" action="{{ route('repository.editTheme.update', ['slug' => $repository->slug]) }}" enctype="multipart/form-data">
+    @csrf
 
     <div class="accordion mb-3">
       <div class="accordion-item">
@@ -24,11 +31,30 @@
         </h2>
         <div id="style-collapse" class="accordion-collapse collapse" aria-labelledby="style-heading">
           <div class="accordion-body">
-            @php echo render_field($form->backgroundColor); @endphp
+            <div class="mb-3">
+              <label for="backgroundColor" class="form-label">{{ __('Background color') }}</label>
+              <input type="color" class="form-control form-control-color" id="backgroundColor" name="backgroundColor" value="{{ old('backgroundColor', $repository->background_color ?? '#ffffff') }}">
+            </div>
 
-            @php echo render_field($form->banner); @endphp
+            <div class="mb-3">
+              <label for="banner" class="form-label">{{ __('Banner') }}</label>
+              <input type="file" class="form-control" id="banner" name="banner" accept="image/*">
+              @if(!empty($repository->banner_path))
+                <div class="mt-2">
+                  <img src="{{ $repository->banner_path }}" class="img-fluid img-thumbnail" alt="{{ __('Current banner') }}" style="max-height:100px">
+                </div>
+              @endif
+            </div>
 
-            @php echo render_field($form->logo); @endphp
+            <div class="mb-3">
+              <label for="logo" class="form-label">{{ __('Logo') }}</label>
+              <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+              @if(!empty($repository->logo_path))
+                <div class="mt-2">
+                  <img src="{{ $repository->logo_path }}" class="img-fluid img-thumbnail" alt="{{ __('Current logo') }}" style="max-height:100px">
+                </div>
+              @endif
+            </div>
           </div>
         </div>
       </div>
@@ -40,18 +66,20 @@
         </h2>
         <div id="content-collapse" class="accordion-collapse collapse" aria-labelledby="content-heading">
           <div class="accordion-body">
-            @php echo render_field($form->htmlSnippet
-                ->label(__('Description'))
-                ->help(__('Content in this area will appear below an uploaded banner and above the institution\'s description areas. It can be used to offer a summary of the institution\'s mandate, include a tag line or important information, etc. HTML and inline CSS can be used to style the contents.')), $resource, ['class' => 'resizable']); @endphp
+            <div class="mb-3">
+              <label for="htmlSnippet" class="form-label">{{ __('Description') }}</label>
+              <textarea class="form-control resizable" id="htmlSnippet" name="htmlSnippet" rows="6">{{ old('htmlSnippet', $repository->html_snippet ?? '') }}</textarea>
+              <div class="form-text">{{ __('Content in this area will appear below an uploaded banner and above the institution\'s description areas. It can be used to offer a summary of the institution\'s mandate, include a tag line or important information, etc. HTML and inline CSS can be used to style the contents.') }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'repository'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.show', ['slug' => $repository->slug]) }}" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
     </ul>
 
   </form>
-@php end_slot(); @endphp
+@endsection

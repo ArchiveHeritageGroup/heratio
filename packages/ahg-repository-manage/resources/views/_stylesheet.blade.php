@@ -1,6 +1,8 @@
-<style {{ __(sfConfig::get('csp_nonce', '')) }}>
+@if(!empty($backgroundColor))
+<style>
   html, body {
     background-image: none !important;
-    background-color: @php echo $backgroundColor; @endphp !important;
+    background-color: {{ $backgroundColor }} !important;
   }
 </style>
+@endif

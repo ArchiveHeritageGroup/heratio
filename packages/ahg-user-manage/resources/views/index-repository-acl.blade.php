@@ -1,66 +1,78 @@
-<h1>{{ __('User %1%', ['%1%' => render_title($resource)]) }}</h1>
+@extends('theme::layouts.1col')
 
-@php echo get_component('user', 'aclMenu'); @endphp
+@section('title', __('User %1% - Repository permissions', ['%1%' => $user->username ?? '']))
+@section('body-class', 'view user-acl')
 
-<div class="section">
+@section('title-block')
+  <h1>{{ __('User %1%', ['%1%' => $user->username ?? '']) }}</h1>
+@endsection
 
-  @if(0 < count($acl))
+@section('content')
 
-    <table id="userPermissions" class="table table-bordered sticky-enabled">
-      <thead>
-        <tr>
-          <th colspan="2">&nbsp;</th>
-          @foreach($userGroups as $item)
-            @if(null !== $group = QubitAclGroup::getById($item))
-              <th>@php echo esc_entities($group->__toString()); @endphp</th>
-            @php } elseif ($resource->username == $item) { @endphp
-              <th>@php echo $resource->username; @endphp</th>
+  @include('ahg-user-manage::_acl-menu')
+
+  <div class="section">
+    @if(isset($acl) && count($acl) > 0)
+      <table id="userPermissions" class="table table-bordered">
+        <thead>
+          <tr>
+            <th colspan="2">&nbsp;</th>
+            @foreach($userGroups as $item)
+              @if(isset($groupNames[$item]))
+                <th>{{ $groupNames[$item] }}</th>
+              @elseif($user->username == $item)
+                <th>{{ $user->username }}</th>
+              @endif
+            @endforeach
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($acl as $objectId => $actions)
+            <tr>
+              <td colspan="{{ $tableCols }}"><strong>
+                @if($objectId > 1 && isset($repositoryNames[$objectId]))
+                  {{ $repositoryNames[$objectId] }}
+                @else
+                  <em>{{ __('All %1%', ['%1%' => lcfirst(config('app.ui_label_repository', 'repositories'))]) }}</em>
+                @endif
+              </strong></td>
+            </tr>
+            @foreach($actions as $action => $groupPermission)
+              <tr>
+                <td>&nbsp;</td>
+                <td>
+                  @if($action !== '')
+                    {{ $aclActions[$action] ?? ucfirst($action) }}
+                  @else
+                    <em>{{ __('All privileges') }}</em>
+                  @endif
+                </td>
+                @foreach($userGroups as $groupId)
+                  <td>
+                    @if(isset($groupPermission[$groupId]))
+                      @php $permission = $groupPermission[$groupId]; @endphp
+                      @if($permission->action === 'translate' && !empty($permission->languages))
+                        {{ $permission->access_label ?? ($permission->grant_deny ? 'Grant' : 'Deny') }}: {{ implode(', ', $permission->languages) }}
+                      @else
+                        {{ $permission->access_label ?? ($permission->grant_deny ? 'Grant' : 'Deny') }}
+                      @endif
+                    @else
+                      -
+                    @endif
+                  </td>
+                @endforeach
+              </tr>
             @endforeach
           @endforeach
-        </tr>
-      </thead><tbody>
-        @foreach($acl as $objectId => $actions)
-          <tr>
-            <td colspan="@php echo $tableCols; @endphp"><strong>
-              @if(1 < $objectId)
-                @php echo esc_entities(render_title(QubitRepository::getById($objectId))); @endphp
-              @php } else { @endphp
-                <em>{{ __('All %1%', ['%1%' => lcfirst(sfConfig::get('app_ui_label_repository'))]) }}</em>
-              @endforeach
-            </strong></td>
-          </tr>
-          @foreach($actions as $action => $groupPermission)
-            <tr>
-              <td>&nbsp;</td>
-              <td>
-                @if('' != $action)
-                  @php echo QubitAcl::$ACTIONS[$action]; @endphp
-                @php } else { @endphp
-                  <em>{{ __('All privileges') }}</em>
-                @endforeach
-              </td>
-              @foreach($sf_data->getRaw('userGroups') as $groupId)
-                <td>
-                  @if(isset($groupPermission[$groupId]) && $permission = $groupPermission[$groupId])
-                    @if('translate' == $permission->action && null !== $permission->getConstants(['name' => 'languages']))
-                      @php $permission = sfOutputEscaper::unescape($permission); @endphp
-                      @php echo $permission->renderAccess().': '.implode(',', $permission->getConstants(['name' => 'languages'])); @endphp
-                    @php } else { @endphp
-                      @php echo $permission->renderAccess(); @endphp
-                    @endforeach
-                  @php } else { @endphp
-                    @php echo '-'; @endphp
-                  @endforeach
-                </td>
-              @endforeach
-            </tr>
-          @endforeach
-        @endforeach
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    @else
+      <p class="text-muted p-3">{{ __('No repository permissions defined for this user.') }}</p>
+    @endif
+  </div>
 
-  @endforeach
+@endsection
 
-</div>
-
-@php echo get_partial('showActions', ['resource' => $resource]); @endphp
+@section('after-content')
+  @include('ahg-user-manage::_show-actions')
+@endsection
