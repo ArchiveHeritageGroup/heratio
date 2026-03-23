@@ -596,21 +596,115 @@ class AiController extends Controller
         return view('ahg-ai-services::htr.annotate');
     }
 
+    /**
+     * List image files in a folder for the annotation tool.
+     * Accepts ?path=/tmp or ?path=type_a (shortcut for training_data/type_a/images).
+     */
+    public function htrFolderList(Request $request)
+    {
+        $path = $request->get('path', '');
+
+        // Shortcuts for training_data folders
+        $shortcuts = [
+            'type_a' => '/opt/ahg-ai/htr/training_data/type_a/images',
+            'type_b' => '/opt/ahg-ai/htr/training_data/type_b/images',
+            'type_c' => '/opt/ahg-ai/htr/training_data/type_c/images',
+        ];
+        $resolved = $shortcuts[$path] ?? $path;
+
+        if (!$resolved || !is_dir($resolved)) {
+            return response()->json(['success' => false, 'error' => 'Folder not found: ' . $resolved]);
+        }
+
+        // List image files
+        $exts = ['jpg','jpeg','png','tif','tiff','bmp','webp'];
+        $files = [];
+        foreach (scandir($resolved) as $f) {
+            if ($f === '.' || $f === '..') continue;
+            $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+            if (in_array($ext, $exts)) {
+                $full = $resolved . '/' . $f;
+                // Check if already annotated
+                $annFile = preg_replace('/\/images\//', '/annotations/', $full) . '.json';
+                $files[] = [
+                    'name' => $f,
+                    'path' => $full,
+                    'size' => filesize($full),
+                    'annotated' => file_exists($annFile),
+                ];
+            }
+        }
+
+        // Sort: unannotated first, then alphabetical
+        usort($files, function ($a, $b) {
+            if ($a['annotated'] !== $b['annotated']) return $a['annotated'] ? 1 : -1;
+            return strcmp($a['name'], $b['name']);
+        });
+
+        return response()->json([
+            'success' => true,
+            'folder' => $resolved,
+            'files' => $files,
+            'total' => count($files),
+            'annotated' => count(array_filter($files, fn($f) => $f['annotated'])),
+        ]);
+    }
+
+    /**
+     * Serve an image file from disk for the annotation canvas.
+     */
+    public function htrServeImage(Request $request)
+    {
+        $path = $request->get('path', '');
+
+        if (!$path || !file_exists($path)) {
+            abort(404, 'Image not found');
+        }
+
+        // Security: only allow images from /opt/ahg-ai or /tmp or /mnt
+        $allowed = ['/opt/ahg-ai/', '/tmp/', '/mnt/'];
+        $ok = false;
+        foreach ($allowed as $prefix) {
+            if (str_starts_with(realpath($path), $prefix)) { $ok = true; break; }
+        }
+        if (!$ok) {
+            abort(403, 'Access denied');
+        }
+
+        return response()->file($path);
+    }
+
     public function htrSaveAnnotation(Request $request)
     {
-        $request->validate([
-            'image'       => 'required|file|mimes:jpg,jpeg,png,tiff,tif|max:20480',
-            'type'        => 'required|string|in:type_a,type_b,type_c',
-            'annotations' => 'required|string',
-        ]);
+        $type = $request->input('type');
+        $annotationsJson = $request->input('annotations', '{}');
+        $annotations = json_decode($annotationsJson, true) ?? [];
 
-        $file    = $request->file('image');
-        $type    = $request->input('type');
-        $annotations = json_decode($request->input('annotations'), true) ?? [];
+        if (!$type || !in_array($type, ['type_a', 'type_b', 'type_c'])) {
+            return response()->json(['success' => false, 'error' => 'Invalid type.']);
+        }
+        if (empty($annotations)) {
+            return response()->json(['success' => false, 'error' => 'No annotations provided.']);
+        }
+
+        // Determine image source: uploaded file OR server_path (folder mode)
+        $serverPath = $request->input('server_path', '');
+        $fullPath = null;
+        $tmpPath = null;
+        $isServerFile = false;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $tmpPath = $file->store('htr-annotations', 'local');
+            $fullPath = storage_path('app/' . $tmpPath);
+        } elseif ($serverPath && file_exists($serverPath)) {
+            $fullPath = $serverPath;
+            $isServerFile = true;
+        } else {
+            return response()->json(['success' => false, 'error' => 'No image provided.']);
+        }
 
         // Try remote HTR service first
-        $tmpPath = $file->store('htr-annotations', 'local');
-        $fullPath = storage_path('app/' . $tmpPath);
         $result = $this->htrService->saveAnnotation($fullPath, $type, $annotations);
 
         // If service is offline, save locally as fallback
@@ -621,11 +715,20 @@ class AiController extends Controller
             if (!is_dir($destDir)) { mkdir($destDir, 0755, true); }
             if (!is_dir($annDir)) { mkdir($annDir, 0755, true); }
 
-            $timestamp = (int)(microtime(true) * 1000);
-            $ext = $file->getClientOriginalExtension() ?: 'jpg';
-            $filename = "annotated_{$timestamp}.{$ext}";
+            if ($isServerFile) {
+                // Image already in training folder — just save annotation alongside
+                $filename = basename($fullPath);
+                // Copy image to training dir if not already there
+                if (realpath(dirname($fullPath)) !== realpath($destDir)) {
+                    copy($fullPath, $destDir . '/' . $filename);
+                }
+            } else {
+                $timestamp = (int)(microtime(true) * 1000);
+                $ext = pathinfo($fullPath, PATHINFO_EXTENSION) ?: 'jpg';
+                $filename = "annotated_{$timestamp}.{$ext}";
+                copy($fullPath, $destDir . '/' . $filename);
+            }
 
-            copy($fullPath, $destDir . '/' . $filename);
             file_put_contents($annDir . '/' . $filename . '.json', json_encode([
                 'image' => $destDir . '/' . $filename,
                 'doc_type' => $type,
@@ -637,7 +740,10 @@ class AiController extends Controller
             $result = ['success' => true, 'saved_locally' => true];
         }
 
-        @unlink($fullPath);
+        // Clean up temp file only if we uploaded one
+        if ($tmpPath) {
+            @unlink($fullPath);
+        }
 
         return response()->json([
             'success' => $result !== null,

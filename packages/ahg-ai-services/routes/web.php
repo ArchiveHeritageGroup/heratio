@@ -57,5 +57,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/admin/ai/htr/save-fs-config', [AiController::class, 'htrSaveFsConfig'])->name('admin.ai.htr.saveFsConfig');
     Route::get('/admin/ai/htr/annotate', [AiController::class, 'htrAnnotate'])->name('admin.ai.htr.annotate');
     Route::post('/admin/ai/htr/annotate', [AiController::class, 'htrSaveAnnotation'])->name('admin.ai.htr.saveAnnotation');
+    Route::get('/admin/ai/htr/folder-list', [AiController::class, 'htrFolderList'])->name('admin.ai.htr.folderList');
+    Route::get('/admin/ai/htr/serve-image', [AiController::class, 'htrServeImage'])->name('admin.ai.htr.serveImage');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/admin/ai/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
