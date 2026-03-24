@@ -336,6 +336,7 @@
   });
   let rowSplitMode = false;
   let rowBoxes = []; // [{id, x, y, w, h, color}] — row regions before splitting
+  let preSplitState = null; // Saved folder state before split, so we can restore after last row
 
   // ── Image loading ──
   function loadImg(src) {
@@ -1317,8 +1318,48 @@
         if(nextIdx < files.length){
           fidx = nextIdx;
           loadFolderImg();
+        } else if (preSplitState) {
+          // Last split row done — restore original folder and advance to next Type B image
+          files = preSplitState.files;
+          // Mark the image we just split as annotated
+          if (preSplitState.fidx >= 0 && preSplitState.fidx < files.length) {
+            files[preSplitState.fidx].annotated = true;
+          }
+          fidx = preSplitState.fidx;
+          preSplitState = null;
+
+          // Switch back to Type B mode
+          document.getElementById('doc-type').value = 'type_b';
+          document.getElementById('doc-type').dispatchEvent(new Event('change'));
+
+          // Advance to next unannotated image in original folder
+          let nextOrigIdx = fidx + 1;
+          if (document.getElementById('skip-done').checked) {
+            while (nextOrigIdx < files.length && files[nextOrigIdx].annotated) nextOrigIdx++;
+          }
+          if (nextOrigIdx < files.length) {
+            fidx = nextOrigIdx;
+            updBadges(null);
+            loadFolderImg();
+          } else {
+            // Truly all done in original folder
+            anns = []; activeId = null; img = null;
+            cvs.dataset.serverPath = '';
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            cvs.style.display = 'none';
+            ph.style.display = '';
+            ph.innerHTML = '<div><i class="fas fa-check-circle fa-3x mb-3 d-block text-success"></i>' +
+              '<p class="mb-1 fw-bold">All images in this folder are annotated!</p>' +
+              '<p class="small text-muted">Load another folder or upload an image to continue.</p></div>';
+            buildPanel();
+            document.getElementById('btn-save').disabled = true;
+            document.getElementById('btn-skip').disabled = true;
+            document.getElementById('image-upload').value = '';
+            updBadges(null);
+            updNav();
+          }
         } else {
-          // Last image — clear everything
+          // Last image — clear everything (no split state to restore)
           anns = []; activeId = null; img = null;
           cvs.dataset.serverPath = '';
           ctx.clearRect(0, 0, cvs.width, cvs.height);
@@ -1403,6 +1444,13 @@
         alert('Split failed: ' + (data.error || 'No rows created'));
         return;
       }
+
+      // Save current folder state so we can restore after all rows are annotated
+      preSplitState = {
+        files: JSON.parse(JSON.stringify(files)),
+        fidx: fidx,
+        folderPath: document.getElementById('folder-preset').value || document.getElementById('folder-custom').value || '',
+      };
 
       // Load the split directory as a new folder — each row becomes a separate image to annotate
       const splitDir = data.split_dir;
