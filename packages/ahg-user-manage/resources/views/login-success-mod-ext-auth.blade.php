@@ -1,28 +1,37 @@
-@php decorate_with('layout_1col'); @endphp
-@php use_helper('Javascript'); @endphp
+{{-- External auth / OIDC login variant - ported from AtoM ahgThemeB5Plugin/modules/user/templates/loginSuccess.mod_ext_auth.php --}}
+@extends('theme::layouts.1col')
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
-    @if($sf_context->getConfiguration()->isPluginEnabled('arCasPlugin'))
-      @php echo $form->renderFormTag(route('cas.login')); @endphp
-    @php } elseif ($sf_context->getConfiguration()->isPluginEnabled('arOidcPlugin')) { @endphp
-      @php echo $form->renderFormTag(route('oidc.login')); @endphp
-    @endforeach
+  @php
+    $authMode = config('auth.external_mode', 'cas'); // 'cas' or 'oidc'
+  @endphp
 
-    @php echo $form->renderHiddenFields(); @endphp
+  @if($authMode === 'cas')
+    <form action="{{ route('cas.login') }}" method="POST">
+  @else
+    <form action="{{ route('oidc.login') }}" method="POST">
+  @endif
+    @csrf
 
     <ul class="actions mb-3 nav gap-2">
-      <button type="submit" class="btn atom-btn-outline-success">
-      @if($sf_context->getConfiguration()->isPluginEnabled('arCasPlugin'))
-        {{ __('Log in with CAS') }}
-      @php } elseif ($sf_context->getConfiguration()->isPluginEnabled('arOidcPlugin')) { @endphp
-        {{ __('Log in with SSO') }}
-      @endforeach
-      </button>
+      @if($authMode === 'cas')
+        <button type="submit" class="btn atom-btn-outline-success">{{ __('Log in with CAS') }}</button>
+      @else
+        <button type="submit" class="btn atom-btn-outline-success">{{ __('Log in with SSO') }}</button>
+      @endif
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

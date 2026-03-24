@@ -121,6 +121,38 @@
     updateAllButtons(items);
     updateMenuBadge(items);
 
+    // Fetch server-side clipboard and merge (for logged-in users)
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+      fetch('/clipboard/count', {
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.items) {
+          // Merge server items into localStorage
+          var localItems = getItems();
+          var changed = false;
+          TYPES.forEach(function(t) {
+            if (Array.isArray(data.items[t])) {
+              data.items[t].forEach(function(slug) {
+                if (localItems[t].indexOf(slug) === -1) {
+                  localItems[t].push(slug);
+                  changed = true;
+                }
+              });
+            }
+          });
+          if (changed) {
+            saveItems(localItems);
+            updateAllButtons(localItems);
+            updateMenuBadge(localItems);
+          }
+        }
+      })
+      .catch(function() { /* silent — not logged in or endpoint unavailable */ });
+    }
+
     // Toggle clipboard item on button click
     document.addEventListener('click', function (e) {
       var btn = e.target.closest('button.clipboard');

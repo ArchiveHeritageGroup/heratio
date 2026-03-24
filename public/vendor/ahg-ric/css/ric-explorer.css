@@ -1,0 +1,563 @@
+/**
+ * RiC Explorer Styles
+ * Ported from AtoM ahgRicExplorerPlugin
+ */
+
+/* Constrain RiC Explorer panel to content width */
+#ric-explorer-panel {
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#ric-mini-graph-container {
+  height: 200px !important;
+  max-height: 200px;
+}
+
+.ric-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1a1a2e;
+  z-index: 9999;
+}
+
+.ric-fullscreen-controls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10001;
+}
+
+.ric-fullscreen-legend {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: rgba(255,255,255,0.9);
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  z-index: 10001;
+}
+
+.ric-fullscreen-legend div {
+  margin: 3px 0;
+}
+
+.ric-fullscreen-legend span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.ric-view-btn.active {
+  background-color: var(--ahg-success, #28a745) !important;
+  border-color: var(--ahg-success, #28a745) !important;
+  color: white !important;
+}
+
+.ric-fs-view-btn.active {
+  background-color: var(--ahg-success, #28a745) !important;
+  border-color: var(--ahg-success, #28a745) !important;
+  color: white !important;
+}
+
+/* Smaller card header */
+#ric-explorer-panel .card-header {
+  padding: 0.5rem 1rem;
+}
+
+#ric-explorer-panel .card-header h5 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+#ric-explorer-panel .card-body {
+  padding: 0.75rem;
+}
+
+.ric-creators, .ric-related {
+  font-size: 0.875rem;
+}
+
+.ric-creators h6, .ric-related h6 {
+  font-size: 0.8rem;
+}
+
+/* Force graph container to stay within card bounds */
+#ric-explorer-panel .card-body {
+  overflow: hidden;
+}
+
+#ric-mini-graph-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+#ric-mini-graph-container > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#ric-graph-2d, #ric-graph-3d {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Force 3D canvas to fit */
+#ric-graph-3d canvas {
+  max-width: 100% !important;
+}
+
+/* ============================================
+   RiC Explorer Full Page Styles
+   ============================================ */
+
+.ric-explorer-page {
+  min-height: 600px;
+}
+
+.ric-explorer-page .ric-graph-main {
+  position: relative;
+  background: #1a1a2e;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.ric-explorer-page .ric-graph-main #ric-explorer-graph {
+  width: 100%;
+  height: 500px;
+}
+
+.ric-explorer-page .ric-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ric-explorer-page .ric-legend {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255,255,255,0.9);
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.ric-explorer-page .ric-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0;
+}
+
+.ric-explorer-page .ric-legend-color {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.ric-node-info {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ============================================
+   RiC Semantic Search Page Styles
+   ============================================ */
+
+.ric-search-widget {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.ric-search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ric-search-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ahg-primary, #1B4F72);
+}
+
+.ric-search-header h4 i {
+  margin-right: 8px;
+  color: #2E86AB;
+}
+
+.ric-search-badge {
+  background: linear-gradient(135deg, var(--ahg-primary, #1B4F72), #2E86AB);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ric-search-input-wrapper {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ric-search-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ric-search-input:focus {
+  border-color: #2E86AB;
+  box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.15);
+}
+
+.ric-search-input::placeholder {
+  color: #999;
+  font-size: 13px;
+}
+
+.ric-search-button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--ahg-primary, #1B4F72), #2E86AB);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.ric-search-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 79, 114, 0.3);
+}
+
+.ric-search-button:active {
+  transform: translateY(0);
+}
+
+.ric-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 60px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ric-suggestion-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ric-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.ric-suggestion-item:hover {
+  background: #f8f9fa;
+}
+
+.ric-suggestion-type {
+  font-size: 10px;
+  background: #e8f4f8;
+  color: #2E86AB;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.ric-search-examples {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ric-examples-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.ric-example-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #f0f4f8;
+  color: var(--ahg-primary, #1B4F72);
+  border: 1px solid #d0dce8;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ric-example-btn:hover {
+  background: var(--ahg-primary, #1B4F72);
+  color: white;
+  border-color: var(--ahg-primary, #1B4F72);
+}
+
+.ric-results-container {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.ric-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ric-results-header span {
+  font-size: 14px;
+  color: #666;
+}
+
+.ric-clear-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ric-clear-btn:hover {
+  background: #e9ecef;
+}
+
+.ric-results-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ric-result-item {
+  padding: 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ric-result-item:hover {
+  border-color: #2E86AB;
+  box-shadow: 0 2px 8px rgba(46, 134, 171, 0.1);
+}
+
+.ric-result-title {
+  font-weight: 600;
+  color: var(--ahg-primary, #1B4F72);
+  margin-bottom: 4px;
+  text-decoration: none;
+  display: block;
+}
+
+.ric-result-title:hover {
+  text-decoration: underline;
+}
+
+.ric-result-meta {
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ric-result-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ric-result-type {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.ric-type-recordset { background: #e3f2fd; color: #1565c0; }
+.ric-type-record { background: #e8f5e9; color: #2e7d32; }
+.ric-type-person { background: #fff3e0; color: #e65100; }
+.ric-type-corporatebody { background: #fce4ec; color: #c2185b; }
+.ric-type-family { background: #f3e5f5; color: #7b1fa2; }
+.ric-type-place { background: #e0f7fa; color: #00838f; }
+
+.ric-facets {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.ric-facet-group {
+  margin-bottom: 8px;
+}
+
+.ric-facet-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.ric-facet-values {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ric-facet-item {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  color: #555;
+}
+
+.ric-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.ric-loading i {
+  margin-right: 8px;
+  color: #2E86AB;
+}
+
+.ric-advanced-toggle {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.ric-sparql-toggle {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: transparent;
+  color: #888;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ric-sparql-toggle:hover {
+  background: #f8f9fa;
+  color: #555;
+}
+
+.ric-sparql-code {
+  margin-top: 10px;
+  padding: 12px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 11px;
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* No results */
+.ric-no-results {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+}
+
+.ric-no-results i {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+  color: #ccc;
+}
+
+/* Sidebar widget */
+.ric-sidebar-widget {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.ric-sidebar-widget .ric-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, var(--ahg-primary, #1B4F72), #2E86AB);
+  color: white;
+}
+
+.ric-sidebar-widget .ric-widget-header h5 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ric-sidebar-widget .ric-widget-body {
+  padding: 12px;
+}
+
+.ric-sidebar-widget .ric-widget-footer {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.ric-sidebar-widget .ric-widget-footer a {
+  font-size: 11px;
+  color: #666;
+}
+
+.ric-sidebar-widget .ric-widget-footer a:hover {
+  color: var(--ahg-primary, #1B4F72);
+}

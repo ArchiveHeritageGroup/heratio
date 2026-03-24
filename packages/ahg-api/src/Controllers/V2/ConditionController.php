@@ -208,6 +208,43 @@ class ConditionController extends BaseApiController
         ], 201);
     }
 
+    /**
+     * DELETE /api/v2/conditions/{id}/photos/{photoId}
+     */
+    public function deletePhoto(int $id, int $photoId): JsonResponse
+    {
+        if (!$this->tableExists()) {
+            return $this->error('Not Available', 'Condition assessment module not installed.', 501);
+        }
+
+        $condition = DB::table($this->table)->where('id', $id)->first();
+        if (!$condition) {
+            return $this->error('Not Found', 'Condition not found.', 404);
+        }
+
+        if (!$this->tableExists('ahg_condition_photo')) {
+            return $this->error('Not Available', 'Condition photo module not installed.', 501);
+        }
+
+        $photo = DB::table('ahg_condition_photo')
+            ->where('id', $photoId)
+            ->where('condition_id', $id)
+            ->first();
+
+        if (!$photo) {
+            return $this->error('Not Found', 'Photo not found.', 404);
+        }
+
+        // Delete physical file
+        if (!empty($photo->path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($photo->path);
+        }
+
+        DB::table('ahg_condition_photo')->where('id', $photoId)->delete();
+
+        return $this->success(['message' => 'Photo deleted.']);
+    }
+
     protected function tableExists(?string $table = null): bool
     {
         $table = $table ?? $this->table;

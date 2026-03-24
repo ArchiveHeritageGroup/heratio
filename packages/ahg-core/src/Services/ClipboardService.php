@@ -26,7 +26,39 @@ class ClipboardService
      */
     public function getItems(?int $userId): array
     {
-        return Session::get('clipboard_items', []);
+        $items = Session::get('clipboard_items', []);
+
+        // If session is empty but user has a saved clipboard in DB, auto-load it
+        if ($userId && empty(array_filter($items))) {
+            $latestSave = \Illuminate\Support\Facades\DB::table('clipboard_save')
+                ->where('user_id', $userId)
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($latestSave) {
+                $savedItems = \Illuminate\Support\Facades\DB::table('clipboard_save_item')
+                    ->where('save_id', $latestSave->id)
+                    ->get();
+
+                $items = [
+                    'informationObject' => [],
+                    'actor'             => [],
+                    'repository'        => [],
+                ];
+
+                foreach ($savedItems as $si) {
+                    $type = lcfirst(str_replace('Qubit', '', $si->item_class_name));
+                    if (isset($items[$type])) {
+                        $items[$type][] = $si->slug;
+                    }
+                }
+
+                // Cache in session so we don't hit DB every request
+                Session::put('clipboard_items', $items);
+            }
+        }
+
+        return $items;
     }
 
     /**

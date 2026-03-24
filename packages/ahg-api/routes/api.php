@@ -26,6 +26,7 @@ use AhgApi\Controllers\V2\SearchController;
 use AhgApi\Controllers\V2\SyncController;
 use AhgApi\Controllers\V2\TaxonomyController as V2TaxonomyController;
 use AhgApi\Controllers\V2\UploadController;
+use AhgApi\Controllers\V2\IdentifierController;
 use AhgApi\Controllers\V2\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -163,6 +164,7 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::get('descriptions/{slug}/conditions', [ConditionController::class, 'forDescription']);
     Route::get('conditions/{id}/photos', [ConditionController::class, 'photos'])->where('id', '[0-9]+');
     Route::post('conditions/{id}/photos', [ConditionController::class, 'uploadPhoto'])->where('id', '[0-9]+')->middleware('api.auth:write');
+    Route::delete('conditions/{id}/photos/{photoId}', [ConditionController::class, 'deletePhoto'])->where(['id' => '[0-9]+', 'photoId' => '[0-9]+'])->middleware('api.auth:delete');
 
     // Heritage Assets & Valuations
     Route::get('assets', [AssetController::class, 'index']);
@@ -185,6 +187,14 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     // Mobile Sync
     Route::get('sync/changes', [SyncController::class, 'changes']);
     Route::post('sync/batch', [SyncController::class, 'batch'])->middleware('api.auth:write');
+
+    // Identifier API (ISBN/ISSN lookup, validation, barcode generation)
+    Route::get('identifiers/lookup', [IdentifierController::class, 'lookup']);
+    Route::get('identifiers/validate', [IdentifierController::class, 'validate']);
+    Route::get('identifiers/detect', [IdentifierController::class, 'detect']);
+    Route::get('identifiers/barcode/{objectId}', [IdentifierController::class, 'barcode'])->where('objectId', '[0-9]+');
+    Route::get('identifiers/types/{objectId}', [IdentifierController::class, 'types'])->where('objectId', '[0-9]+');
+    Route::get('identifiers/all/{objectId}', [IdentifierController::class, 'all'])->where('objectId', '[0-9]+');
 });
 
 /*

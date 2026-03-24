@@ -128,9 +128,18 @@ class LegacyApiController extends Controller
 
     /**
      * GET /api/export-preview — Export statistics.
+     *
+     * If ?collection= is provided, returns collection-specific stats + hierarchy.
+     * Otherwise returns global counts.
      */
-    public function exportPreview(): JsonResponse
+    public function exportPreview(Request $request): JsonResponse
     {
+        $collectionId = $request->get('collection');
+
+        if ($collectionId) {
+            return $this->collectionExportPreview((int) $collectionId);
+        }
+
         $ioCount = DB::table('information_object')->where('id', '!=', 1)->count();
         $actorCount = DB::table('actor')->join('object', 'actor.id', '=', 'object.id')
             ->where('object.class_name', 'QubitActor')->where('actor.parent_id', '!=', 0)->count();
@@ -151,6 +160,124 @@ class LegacyApiController extends Controller
             'authority_records' => $actorCount,
             'repositories' => $repoCount,
         ]);
+    }
+
+    /**
+     * Collection-specific export preview with hierarchy.
+     */
+    protected function collectionExportPreview(int $collectionId): JsonResponse
+    {
+        $collection = DB::table('information_object')->where('id', $collectionId)->first();
+        if (!$collection) {
+            return response()->json(['error' => 'Collection not found'], 404);
+        }
+
+        // Count descendants
+        $totalDescriptions = DB::table('information_object')
+            ->where('lft', '>=', $collection->lft)
+            ->where('rgt', '<=', $collection->rgt)
+            ->count();
+
+        // Count digital objects
+        $digitalObjects = DB::table('digital_object')
+            ->join('information_object as io', 'digital_object.object_id', '=', 'io.id')
+            ->where('io.lft', '>=', $collection->lft)
+            ->where('io.rgt', '<=', $collection->rgt)
+            ->count();
+
+        // Estimate sizes
+        $totalSize = DB::table('digital_object')
+            ->join('information_object as io', 'digital_object.object_id', '=', 'io.id')
+            ->where('io.lft', '>=', $collection->lft)
+            ->where('io.rgt', '<=', $collection->rgt)
+            ->sum('digital_object.byte_size') ?? 0;
+
+        $csvSize = $totalDescriptions * 500;
+        $estimatedSize = $totalSize + $csvSize;
+
+        // Get hierarchy (limited depth for preview)
+        $hierarchy = $this->getHierarchy($collectionId, $collection->lft, $collection->rgt, 3);
+
+        return response()->json([
+            'totalDescriptions' => number_format($totalDescriptions),
+            'digitalObjects' => number_format($digitalObjects),
+            'estimatedSize' => $this->formatBytes($estimatedSize),
+            'hierarchy' => $hierarchy,
+        ]);
+    }
+
+    /**
+     * Build hierarchy tree for preview.
+     */
+    protected function getHierarchy(int $parentId, int $parentLft, int $parentRgt, int $maxDepth, int $currentDepth = 0): array
+    {
+        if ($currentDepth >= $maxDepth) {
+            return [];
+        }
+
+        $children = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', function ($j) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $this->culture);
+            })
+            ->leftJoin('term_i18n as lod', function ($j) {
+                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', $this->culture);
+            })
+            ->where('io.parent_id', $parentId)
+            ->select('io.id', 'io.identifier', 'io.lft', 'io.rgt', 'ioi.title', 'lod.name as level')
+            ->orderBy('io.lft')
+            ->limit(11) // Fetch one extra to detect truncation
+            ->get();
+
+        $hierarchy = [];
+        $count = 0;
+
+        foreach ($children as $child) {
+            if ($count >= 10) {
+                $remaining = DB::table('information_object')->where('parent_id', $parentId)->count() - 10;
+                if ($remaining > 0) {
+                    $hierarchy[] = [
+                        'title' => sprintf('... and %d more', $remaining),
+                        'count' => null,
+                        'children' => [],
+                    ];
+                }
+                break;
+            }
+
+            $childCount = (int) (($child->rgt - $child->lft - 1) / 2);
+
+            $hierarchy[] = [
+                'title' => $child->title,
+                'identifier' => $child->identifier,
+                'level' => $child->level,
+                'count' => $childCount > 0 ? $childCount : null,
+                'children' => $childCount > 0
+                    ? $this->getHierarchy($child->id, $child->lft, $child->rgt, $maxDepth, $currentDepth + 1)
+                    : [],
+            ];
+
+            $count++;
+        }
+
+        return $hierarchy;
+    }
+
+    /**
+     * Format bytes to human-readable string.
+     */
+    protected function formatBytes(int $bytes): string
+    {
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        }
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        }
+        if ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        }
+
+        return $bytes . ' bytes';
     }
 
     /**

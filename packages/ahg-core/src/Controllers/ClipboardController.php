@@ -227,13 +227,17 @@ class ClipboardController extends Controller
     }
 
     /**
-     * Get clipboard count (AJAX).
+     * Get clipboard count + items (AJAX).
      * GET /clipboard/count
      */
     public function count()
     {
+        $userId = $this->getUserId();
+        $items = $this->service->getItems($userId);
+
         return response()->json([
-            'count' => $this->service->count($this->getUserId()),
+            'count' => $this->service->count($userId),
+            'items' => $items,
         ]);
     }
 

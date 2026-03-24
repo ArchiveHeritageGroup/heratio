@@ -1,40 +1,32 @@
+{{-- CAS user list variant - ported from AtoM ahgThemeB5Plugin/modules/user/templates/listSuccess.mod_cas.php --}}
+{{-- No "Add new" button since CAS manages user creation externally --}}
+
 <h1>{{ __('List users') }}</h1>
 
 <div class="d-inline-block mb-3">
-  @php echo get_component('search', 'inlineSearch', [
-      'label' => __('Search users'),
-      'landmarkLabel' => __('User'),
-      'route' => route('user.list'),
-  ]); @endphp
+  <form action="{{ route('user.browse') }}" method="GET" class="d-flex gap-2">
+    <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="{{ __('Search users') }}" aria-label="{{ __('Search users') }}">
+    <button type="submit" class="btn btn-sm atom-btn-white">
+      <i class="fas fa-search"></i>
+    </button>
+  </form>
 </div>
 
 <nav>
   <ul class="nav nav-pills mb-3 d-flex gap-2">
-    @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('onlyInactive' != $sf_request->filter)
-      @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
     <li class="nav-item">
-      @php echo link_to(
-          __('Show active only'),
-          ['filter' => 'onlyActive']
-          + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-          $options
-      ); @endphp
+      <a href="{{ route('user.browse', array_merge(request()->except('filter'), ['filter' => 'onlyActive'])) }}"
+         class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}"
+         @if(request('filter', 'onlyActive') !== 'onlyInactive') aria-current="page" @endif>
+        {{ __('Show active only') }}
+      </a>
     </li>
-    @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('onlyInactive' == $sf_request->filter)
-      @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
     <li class="nav-item">
-      @php echo link_to(
-          __('Show inactive only'),
-          ['filter' => 'onlyInactive']
-          + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-          $options
-      ); @endphp
+      <a href="{{ route('user.browse', array_merge(request()->except('filter'), ['filter' => 'onlyInactive'])) }}"
+         class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}"
+         @if(request('filter') === 'onlyInactive') aria-current="page" @endif>
+        {{ __('Show inactive only') }}
+      </a>
     </li>
   </ul>
 </nav>
@@ -43,39 +35,43 @@
   <table class="table table-bordered mb-0">
     <thead>
       <tr>
-        <th>
-          {{ __('User name') }}
-        </th><th>
-          {{ __('Email') }}
-        </th><th>
-          {{ __('User groups') }}
-        </th>
+        <th>{{ __('User name') }}</th>
+        <th>{{ __('Email') }}</th>
+        <th>{{ __('User groups') }}</th>
       </tr>
     </thead>
     <tbody>
-      @foreach($users as $item)
+      @forelse($users as $item)
         <tr>
           <td>
-            @php echo link_to($item->username, [$item, 'module' => 'user']); @endphp
+            <a href="{{ route('user.show', ['slug' => $item->slug]) }}">{{ $item->username }}</a>
             @if(!$item->active)
               ({{ __('inactive') }})
-            @endforeach
-            @if($sf_user->user === $item)
+            @endif
+            @if(auth()->check() && auth()->user()->id === $item->id)
               ({{ __('you') }})
-            @endforeach
-          </td><td>
-            @php echo $item->email; @endphp
-          </td><td>
-            <ul>
-              @foreach($item->getAclGroups() as $group)
-                <li>@php echo render_title($group); @endphp</li>
-              @endforeach
-            </ul>
+            @endif
+          </td>
+          <td>{{ $item->email }}</td>
+          <td>
+            @if(!empty($item->groups))
+              <ul class="mb-0">
+                @foreach($item->groups as $group)
+                  <li>{{ $group->name }}</li>
+                @endforeach
+              </ul>
+            @endif
           </td>
         </tr>
-      @endforeach
+      @empty
+        <tr>
+          <td colspan="3" class="text-muted text-center">{{ __('No users found.') }}</td>
+        </tr>
+      @endforelse
     </tbody>
   </table>
 </div>
 
-@php echo get_partial('default/pager', ['pager' => $pager]); @endphp
+@if(is_object($users) && method_exists($users, 'links'))
+  {{ $users->links() }}
+@endif

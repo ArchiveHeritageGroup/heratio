@@ -1,23 +1,28 @@
-@php decorate_with('layout_1col.php'); @endphp
+{{-- CAS user edit variant - ported from AtoM ahgThemeB5Plugin/modules/user/templates/editSuccess.mod_cas.php --}}
+{{-- CAS users cannot change username/password, only groups + access control --}}
+@extends('theme::layouts.1col')
 
-@php slot('title'); @endphp
-  <h1>{{ __('User %1%', ['%1%' => render_title($resource)]) }}</h1>
-@php end_slot(); @endphp
+@section('title')
+  <h1>{{ __('User :name', ['name' => $user->username ?? '']) }}</h1>
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
-  @if(isset($sf_request->getAttribute('sf_route')->resource))
-    @php echo $form->renderFormTag(url_for([$resource, 'module' => 'user', 'action' => 'edit']), ['id' => 'editForm']); @endphp
-  @php } else { @endphp
-    @php echo $form->renderFormTag(route('user.add'), ['id' => 'editForm']); @endphp
-  @endforeach
-
-    @php echo $form->renderHiddenFields(); @endphp
+  <form action="{{ route('user.update', ['slug' => $user->slug]) }}" method="POST" id="editForm">
+    @csrf
 
     <div class="accordion mb-3">
-      @if($sf_user->user != $resource)
+      @if(auth()->user()->id !== $user->id)
         <div class="accordion-item">
           <h2 class="accordion-header" id="basic-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#basic-collapse" aria-expanded="false" aria-controls="basic-collapse">
@@ -26,11 +31,18 @@
           </h2>
           <div id="basic-collapse" class="accordion-collapse collapse" aria-labelledby="basic-heading">
             <div class="accordion-body">
-              @php echo render_field($form->active->label(__('Active'))); @endphp
+              <div class="mb-3">
+                <label class="form-label">{{ __('Active') }}</label>
+                <select name="active" class="form-select">
+                  <option value="1" @selected(old('active', $user->active ?? 1) == 1)>{{ __('Yes') }}</option>
+                  <option value="0" @selected(old('active', $user->active ?? 1) == 0)>{{ __('No') }}</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
-      @endforeach
+      @endif
+
       <div class="accordion-item">
         <h2 class="accordion-header" id="access-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#access-collapse" aria-expanded="false" aria-controls="access-collapse">
@@ -39,43 +51,61 @@
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
-            @php echo render_field(
-                $form->groups->label(__('User groups')),
-                null,
-                ['class' => 'form-autocomplete']
-            ); @endphp
+            <div class="mb-3">
+              <label class="form-label">{{ __('User groups') }}</label>
+              <select name="groups[]" class="form-select" multiple>
+                @foreach($allGroups ?? [] as $group)
+                  <option value="{{ $group->id }}" @selected(in_array($group->id, $userGroupIds ?? []))>{{ $group->name }}</option>
+                @endforeach
+              </select>
+            </div>
 
-            @php echo render_field(
-                $form->translate->label(__('Allowed languages for translation')),
-                null,
-                ['class' => 'form-autocomplete']
-            ); @endphp
+            <div class="mb-3">
+              <label class="form-label">{{ __('Allowed languages for translation') }}</label>
+              <select name="translate[]" class="form-select" multiple>
+                @foreach($languages ?? [] as $lang)
+                  <option value="{{ $lang->id }}" @selected(in_array($lang->id, $userLanguages ?? []))>{{ $lang->name }}</option>
+                @endforeach
+              </select>
+            </div>
 
-            @if($restEnabled)
-              @php echo render_field($form->restApiKey->label(
-                  __('REST API access key'.((isset($restApiKey)) ? ': <code class="ms-2">'.$restApiKey.'</code>' : ''))
-              )); @endphp
-            @endforeach
+            @if($restEnabled ?? false)
+              <div class="mb-3">
+                <label class="form-label">
+                  {{ __('REST API access key') }}
+                  @if(isset($restApiKey))
+                    : <code class="ms-2">{{ $restApiKey }}</code>
+                  @endif
+                </label>
+                <div>
+                  <button type="button" name="regenerateRestApiKey" class="btn btn-sm atom-btn-white">{{ __('Regenerate') }}</button>
+                </div>
+              </div>
+            @endif
 
-            @if($oaiEnabled)
-              @php echo render_field($form->oaiApiKey->label(
-                  __('OAI-PMH API access key'.((isset($oaiApiKey)) ? ': <code class="ms-2">'.$oaiApiKey.'</code>' : ''))
-              )); @endphp
-            @endforeach
+            @if($oaiEnabled ?? false)
+              <div class="mb-3">
+                <label class="form-label">
+                  {{ __('OAI-PMH API access key') }}
+                  @if(isset($oaiApiKey))
+                    : <code class="ms-2">{{ $oaiApiKey }}</code>
+                  @endif
+                </label>
+                <div>
+                  <button type="button" name="regenerateOaiApiKey" class="btn btn-sm atom-btn-white">{{ __('Regenerate') }}</button>
+                </div>
+              </div>
+            @endif
           </div>
         </div>
       </div>
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      @if(isset($sf_request->getAttribute('sf_route')->resource))
-        <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'user'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
-      @php } else { @endphp
-        <li>@php echo link_to(__('Cancel'), ['module' => 'user', 'action' => 'list'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
-      @endforeach
+      <li><a href="{{ route('user.show', ['slug' => $user->slug]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
+      <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection
