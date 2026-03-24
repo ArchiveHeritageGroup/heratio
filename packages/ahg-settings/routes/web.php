@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 // Dynamic theme CSS — public, no auth needed
 Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss'])->name('settings.dynamic-css');
 
+// Legacy AtoM URL aliases
+Route::get('/ahgSettings', fn () => redirect('/admin/settings'));
+Route::get('/ahgSettings/{action}', fn (string $action) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($action)));
+
 Route::middleware('admin')->group(function () {
     // Dedicated settings pages (alphabetical, BEFORE catch-all)
     Route::match(['get', 'post'], '/admin/settings/clipboard', [SettingsController::class, 'clipboard'])->name('settings.clipboard');

@@ -16,14 +16,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/menu/{id}', [MenuController::class, 'show'])->name('menu.show')->whereNumber('id');
 });
 
+// Legacy AtoM URL aliases — redirect to real Laravel auth routes
 Route::middleware(['web'])->group(function () {
-
-// Auto-registered stub routes
-Route::match(['get','post'], '/cas/login', function() { return view('menumanage::login'); })->name('cas.login');
-Route::match(['get','post'], '/oidc/login', function() { return view('menumanage::login'); })->name('oidc.login');
-Route::match(['get','post'], '/user/login', function() { return view('menumanage::login'); })->name('user.login');
-Route::match(['get','post'], '/user/password-reset', function() { return view('menumanage::password-reset'); })->name('user.passwordReset');
-Route::match(['get','post'], '/user/password-edit', function() { return view('menumanage::password-edit'); })->name('user.passwordEdit');
-Route::match(['get','post'], '/user/logout', function() { return view('menumanage::logout'); })->name('user.logout');
-Route::match(['get','post'], '/donor/dashboard', function() { return view('menumanage::dashboard'); })->name('donor.dashboard');
+    Route::get('/cas/login', fn () => redirect()->route('login'));
+    Route::get('/oidc/login', fn () => redirect()->route('login'));
+    Route::get('/user/login', fn () => redirect()->route('login'));
+    Route::get('/user/logout', fn () => redirect()->route('logout'));
+    Route::get('/donor/dashboard', fn () => redirect('/'));
 });
