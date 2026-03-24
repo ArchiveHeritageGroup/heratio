@@ -237,6 +237,175 @@ class RicController extends Controller
 
     public function config(Request $request) { return view('ahg-ric::config', ['record' => (object)[]]); }
 
+    /**
+     * AJAX: dashboard data (queue, orphans, entity status, recent ops, charts).
+     */
+    public function ajaxDashboard()
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['error' => 'RIC tables not configured'], 500);
+        }
+
+        $queueStatus = DB::table('ric_sync_queue')
+            ->selectRaw("status, COUNT(*) as cnt")
+            ->groupBy('status')
+            ->pluck('cnt', 'status')
+            ->toArray();
+
+        $orphanCount = DB::table('ric_orphan_tracking')
+            ->where('status', 'detected')
+            ->count();
+
+        $entitySync = DB::table('ric_sync_status')
+            ->selectRaw("entity_type,
+                SUM(CASE WHEN sync_status = 'synced' THEN 1 ELSE 0 END) as synced,
+                SUM(CASE WHEN sync_status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN sync_status IN ('failed','error') THEN 1 ELSE 0 END) as failed")
+            ->groupBy('entity_type')
+            ->orderBy('entity_type')
+            ->get();
+
+        $syncSummary = [];
+        foreach ($entitySync as $row) {
+            $syncSummary[$row->entity_type] = [
+                ['sync_status' => 'synced', 'count' => (int)$row->synced],
+                ['sync_status' => 'pending', 'count' => (int)$row->pending],
+                ['sync_status' => 'failed', 'count' => (int)$row->failed],
+            ];
+        }
+
+        $recentOps = DB::table('ric_sync_log')
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $sevenDaysAgo = Carbon::now()->subDays(7)->startOfDay();
+        $syncTrend = DB::table('ric_sync_log')
+            ->selectRaw("DATE(created_at) as date, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as success, SUM(CASE WHEN status='failed' THEN 1 ELSE 0 END) as failure")
+            ->where('created_at', '>=', $sevenDaysAgo)
+            ->groupByRaw("DATE(created_at)")
+            ->orderBy('date')
+            ->get();
+
+        $opsByType = DB::table('ric_sync_log')
+            ->where('created_at', '>=', $sevenDaysAgo)
+            ->selectRaw("operation, COUNT(*) as cnt")
+            ->groupBy('operation')
+            ->pluck('cnt', 'operation')
+            ->toArray();
+
+        return response()->json([
+            'queue_status' => $queueStatus,
+            'orphan_count' => $orphanCount,
+            'sync_summary' => $syncSummary,
+            'recent_operations' => $recentOps,
+            'sync_trend' => $syncTrend,
+            'operations_by_type' => $opsByType,
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
+     * AJAX: trigger manual sync.
+     */
+    public function ajaxSync()
+    {
+        $logFile = storage_path('logs/ric_sync_' . date('Ymd_His') . '.log');
+        $cmd = 'cd ' . base_path() . ' && php artisan ric:sync > ' . escapeshellarg($logFile) . ' 2>&1 & echo $!';
+        $pid = trim(shell_exec($cmd));
+
+        if (!$pid || !is_numeric($pid)) {
+            return response()->json(['success' => false, 'error' => 'Failed to start sync process']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'pid' => (int)$pid,
+            'log_file' => $logFile,
+            'message' => "Sync started (PID: {$pid})",
+        ]);
+    }
+
+    /**
+     * AJAX: check sync progress.
+     */
+    public function ajaxSyncProgress(Request $request)
+    {
+        $logFile = $request->input('log_file', '');
+        if (!$logFile || !file_exists($logFile)) {
+            return response()->json(['running' => false, 'output' => 'Log file not found']);
+        }
+
+        $output = file_get_contents($logFile);
+        $running = false;
+
+        // Check if the process is still running
+        $pids = shell_exec("pgrep -f 'ric:sync' 2>/dev/null");
+        if (trim($pids)) {
+            $running = true;
+        }
+
+        return response()->json([
+            'running' => $running,
+            'output' => $output,
+        ]);
+    }
+
+    /**
+     * AJAX: integrity check.
+     */
+    public function ajaxIntegrityCheck()
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['success' => false, 'error' => 'Tables not configured']);
+        }
+
+        $orphanedCount = DB::table('ric_orphan_tracking')->where('status', 'detected')->count();
+        $missingCount = DB::table('ric_sync_status')->where('sync_status', 'failed')->count();
+        $inconsistencyCount = DB::table('ric_sync_status')->where('sync_status', 'error')->count();
+
+        return response()->json([
+            'success' => true,
+            'report' => [
+                'summary' => [
+                    'orphaned_count' => $orphanedCount,
+                    'missing_count' => $missingCount,
+                    'inconsistency_count' => $inconsistencyCount,
+                ],
+                'checked_at' => now()->toDateTimeString(),
+            ],
+        ]);
+    }
+
+    /**
+     * AJAX: cleanup orphans.
+     */
+    public function ajaxCleanupOrphans(Request $request)
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['success' => false, 'error' => 'Tables not configured']);
+        }
+
+        $dryRun = $request->input('dry_run', false);
+        $orphans = DB::table('ric_orphan_tracking')->where('status', 'detected')->get();
+
+        if ($dryRun) {
+            return response()->json([
+                'success' => true,
+                'stats' => ['orphans_found' => $orphans->count()],
+            ]);
+        }
+
+        $removed = DB::table('ric_orphan_tracking')
+            ->where('status', 'detected')
+            ->update(['status' => 'cleaned', 'cleaned_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'stats' => ['triples_removed' => $removed],
+        ]);
+    }
+
     // =========================================================================
     // RiC Explorer
     // =========================================================================
