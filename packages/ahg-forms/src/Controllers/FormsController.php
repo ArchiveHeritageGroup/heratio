@@ -255,4 +255,97 @@ class FormsController extends Controller
 
         return redirect()->back()->with('error', 'Invalid action.');
     }
+
+    /**
+     * API: Autosave form draft (AJAX).
+     * POST /api/forms/autosave
+     */
+    public function apiAutosave(Request $request)
+    {
+        $data = $request->json()->all();
+
+        if (empty($data['template_id']) || empty($data['object_type']) || empty($data['form_data'])) {
+            return response()->json(['error' => 'Missing required fields: template_id, object_type, form_data']);
+        }
+
+        $draftId = \Illuminate\Support\Facades\DB::table('ahg_form_draft')->updateOrInsert(
+            [
+                'template_id' => (int) $data['template_id'],
+                'object_type' => $data['object_type'],
+                'object_id' => $data['object_id'] ?? null,
+                'user_id' => auth()->id(),
+            ],
+            [
+                'form_data' => json_encode($data['form_data']),
+                'updated_at' => now(),
+            ]
+        );
+
+        // Get the actual draft ID
+        $draft = \Illuminate\Support\Facades\DB::table('ahg_form_draft')
+            ->where('template_id', (int) $data['template_id'])
+            ->where('object_type', $data['object_type'])
+            ->where('user_id', auth()->id())
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'draft_id' => $draft->id ?? null,
+            'saved_at' => now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
+     * API: Get resolved form template (AJAX).
+     * GET /api/forms/template?type=informationobject&id=123
+     */
+    public function apiGetForm(Request $request)
+    {
+        $type = $request->query('type', 'informationobject');
+        $objectId = (int) $request->query('id', 0);
+
+        $repositoryId = null;
+        $levelId = null;
+
+        if ($type === 'informationobject' && $objectId) {
+            $obj = \Illuminate\Support\Facades\DB::table('information_object')
+                ->where('id', $objectId)
+                ->first();
+            if ($obj) {
+                $repositoryId = $obj->repository_id;
+                $levelId = $obj->level_of_description_id;
+            }
+        }
+
+        $formType = ($type === 'informationobject') ? 'information_object' : $type;
+
+        // Find a template matching the context
+        $query = \Illuminate\Support\Facades\DB::table('ahg_form_template')
+            ->where('form_type', $formType);
+
+        if ($repositoryId) {
+            $query->where(function ($q) use ($repositoryId) {
+                $q->whereNull('repository_id')
+                  ->orWhere('repository_id', $repositoryId);
+            });
+        }
+
+        $template = $query->orderByDesc('is_default')->first();
+
+        if (!$template) {
+            return response()->json(['error' => 'No template found']);
+        }
+
+        $fields = \Illuminate\Support\Facades\DB::table('ahg_form_field')
+            ->where('template_id', $template->id)
+            ->orderBy('sort_order')
+            ->get();
+
+        return response()->json([
+            'template_id' => $template->id,
+            'template_name' => $template->name,
+            'config' => json_decode($template->config ?? '{}', true),
+            'fields' => $fields,
+        ]);
+    }
 }

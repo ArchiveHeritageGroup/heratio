@@ -692,4 +692,50 @@ class DedupeController extends Controller
     public function split(Request $request, int $id) { $authority = DB::table('actor')->join('actor_i18n','actor.id','=','actor_i18n.id')->where('actor.id',$id)->where('actor_i18n.culture','en')->first(); return view('ahg-dedupe::split', ['authority' => $authority ?? (object)[]]); }
 
     public function workqueue(Request $request) { return view('ahg-dedupe::workqueue', ['rows' => collect()]); }
+
+    /**
+     * API: Real-time duplicate check during data entry.
+     * GET /api/dedupe/realtime?title=...
+     */
+    public function apiRealtime(Request $request)
+    {
+        $title = $request->query('title', '');
+
+        if (strlen($title) < 5) {
+            return response()->json(['matches' => []]);
+        }
+
+        if (!$this->tablesExist()) {
+            return response()->json(['matches' => []]);
+        }
+
+        $culture = app()->getLocale();
+
+        // Search for similar titles using LIKE
+        $matches = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', function ($join) use ($culture) {
+                $join->on('io.id', '=', 'ioi.id')
+                    ->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+            ->where('ioi.title', 'LIKE', '%' . $title . '%')
+            ->select([
+                'io.id',
+                'io.identifier',
+                'ioi.title',
+                'slug.slug',
+            ])
+            ->limit(10)
+            ->get()
+            ->map(function ($row) use ($title) {
+                // Calculate simple similarity score
+                similar_text(strtolower($title), strtolower($row->title ?? ''), $percent);
+                $row->similarity_score = round($percent, 1);
+                return $row;
+            })
+            ->sortByDesc('similarity_score')
+            ->values();
+
+        return response()->json(['matches' => $matches]);
+    }
 }

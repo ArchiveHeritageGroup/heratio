@@ -15,3 +15,9 @@ Route::middleware(['auth', 'admin'])->prefix('federation')->group(function () {
     Route::post('/peers/{id}/test', [FederationController::class, 'testPeer'])->name('federation.testPeer');
 });
 
+// Legacy AtoM URL aliases (AJAX endpoints used by JS widgets)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/admin/federation/api/test-peer', [FederationController::class, 'testPeer'])->name('federation.api.testPeer');
+    Route::post('/admin/federation/harvest', [FederationController::class, 'runHarvest'])->name('federation.api.harvest');
+});
+

@@ -1,7 +1,15 @@
 <?php
 
 use AhgCore\Controllers\ClipboardController;
+use AhgCore\Controllers\TtsController;
 use Illuminate\Support\Facades\Route;
+
+// TTS (Text-to-Speech) API endpoints — AJAX, used by TTS widget
+Route::get('/tts/settings', [TtsController::class, 'settings'])->name('tts.settings');
+Route::get('/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText');
+// Legacy AtoM URL aliases (JS widgets may use /index.php/tts/...)
+Route::get('/index.php/tts/settings', [TtsController::class, 'settings'])->name('tts.settings.legacy');
+Route::get('/index.php/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText.legacy');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {

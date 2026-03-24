@@ -20,9 +20,14 @@ use Illuminate\Support\Facades\Route;
 // Media routes (transcription, metadata extraction, snippets)
 Route::get('/media/transcription/{id}/vtt', [MediaController::class, 'transcriptionVtt'])->name('media.transcription.vtt')->where('id', '[0-9]+');
 Route::get('/media/transcription/{id}/srt', [MediaController::class, 'transcriptionSrt'])->name('media.transcription.srt')->where('id', '[0-9]+');
+Route::get('/media/transcription/{id}', [MediaController::class, 'transcriptionJson'])->name('media.transcription.json')->where('id', '[0-9]+');
+Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->where('id', '[0-9]+');
 Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
 Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
+Route::get('/media/snippets/{id}', [MediaController::class, 'snippetsList'])->name('media.snippets.list')->where('id', '[0-9]+');
 Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
+Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->where('id', '[0-9]+');
+Route::get('/media/export-snippet', [MediaController::class, 'exportSnippet'])->name('media.export-snippet');
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');

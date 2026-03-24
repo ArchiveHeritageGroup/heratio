@@ -4,6 +4,9 @@ use AhgProvenance\Controllers\ProvenanceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('provenance')->group(function () {
+    // AJAX: Search agents for autocomplete (must be before {slug} catch-all)
+    Route::get('/searchAgents', [ProvenanceController::class, 'searchAgents'])->name('provenance.searchAgents');
+
     Route::get('/', [ProvenanceController::class, 'index'])->name('provenance.index');
     Route::get('/{slug}', [ProvenanceController::class, 'view'])->name('provenance.view');
     Route::get('/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('provenance.timeline');

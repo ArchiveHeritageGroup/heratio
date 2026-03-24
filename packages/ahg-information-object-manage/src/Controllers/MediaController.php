@@ -168,7 +168,7 @@ class MediaController extends Controller
             'end_time' => 'required|numeric',
         ]);
 
-        DB::table('media_snippets')->insert([
+        $id = DB::table('media_snippets')->insertGetId([
             'digital_object_id' => $request->input('digital_object_id'),
             'title' => $request->input('title'),
             'start_time' => $request->input('start_time'),
@@ -178,7 +178,106 @@ class MediaController extends Controller
             'created_at' => now(),
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'id' => $id]);
+    }
+
+    /**
+     * List snippets for a digital object (AJAX GET).
+     * GET /media/snippets/{id}
+     */
+    public function snippetsList(int $id)
+    {
+        try {
+            $snippets = DB::table('media_snippets')
+                ->where('digital_object_id', $id)
+                ->orderBy('start_time')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->toArray();
+
+            return response()->json(['snippets' => $snippets]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete a media snippet (AJAX DELETE).
+     * DELETE /media/snippets/{id}
+     */
+    public function snippetDelete(int $id)
+    {
+        try {
+            DB::table('media_snippets')->where('id', $id)->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export a snippet as a downloadable clip reference (AJAX).
+     * GET /media/export-snippet?id=<snippet_id>
+     */
+    public function exportSnippet(Request $request)
+    {
+        $snippetId = (int) $request->query('id');
+        $snippet = DB::table('media_snippets')->where('id', $snippetId)->first();
+
+        if (!$snippet) {
+            return response()->json(['error' => 'Snippet not found'], 404);
+        }
+
+        return response()->json([
+            'id' => $snippet->id,
+            'digital_object_id' => $snippet->digital_object_id,
+            'title' => $snippet->title,
+            'start_time' => $snippet->start_time,
+            'end_time' => $snippet->end_time,
+            'notes' => $snippet->notes ?? '',
+            'duration' => round($snippet->end_time - $snippet->start_time, 3),
+        ]);
+    }
+
+    /**
+     * Get transcription data as JSON (AJAX GET).
+     * GET /media/transcription/{id}
+     */
+    public function transcriptionJson(int $id)
+    {
+        $transcription = DB::table('media_transcription')
+            ->where('digital_object_id', $id)
+            ->first();
+
+        if (!$transcription) {
+            return response()->json(['error' => 'No transcription found'], 404);
+        }
+
+        $segments = json_decode($transcription->segments ?? '[]', true);
+        $data = json_decode($transcription->transcription_data ?? '{}', true);
+
+        return response()->json([
+            'full_text' => $transcription->full_text ?? '',
+            'language' => $transcription->language ?? 'en',
+            'confidence' => $transcription->confidence ?? null,
+            'segments' => !empty($data['segments']) ? $data['segments'] : $segments,
+            'segment_count' => $transcription->segment_count ?? count($segments),
+            'duration' => $transcription->duration ?? null,
+        ]);
+    }
+
+    /**
+     * Delete transcription data (AJAX DELETE).
+     * DELETE /media/transcription/{id}
+     */
+    public function transcriptionDelete(int $id)
+    {
+        try {
+            DB::table('media_transcription')->where('digital_object_id', $id)->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     private function resolveFilePath(object $do): ?string

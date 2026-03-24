@@ -79,3 +79,32 @@ Route::middleware('admin')->group(function () {
 Route::get('/iiif/3d/{id}/manifest.json', [Model3dController::class, 'iiifManifest'])
     ->whereNumber('id')
     ->name('iiif.3d.manifest');
+
+// Public API aliases (used by JS viewers on public pages)
+Route::get('/api/3d/models/{objectId}', [Model3dController::class, 'apiModels'])
+    ->whereNumber('objectId')
+    ->name('api.3d.models');
+
+Route::get('/api/3d/hotspots/{modelId}', [Model3dController::class, 'apiHotspots'])
+    ->whereNumber('modelId')
+    ->name('api.3d.hotspots');
+
+// Legacy AtoM URL aliases (JS widgets reference these paths)
+Route::middleware('auth')->group(function () {
+    Route::post('/index.php/ar3DModel/addHotspot/{modelId}', [Model3dController::class, 'addHotspot'])
+        ->whereNumber('modelId')
+        ->name('legacy.3d.addHotspot');
+
+    Route::post('/index.php/ar3DModel/deleteHotspot/{hotspotId}', [Model3dController::class, 'deleteHotspot'])
+        ->whereNumber('hotspotId')
+        ->name('legacy.3d.deleteHotspot');
+
+    // Also handle without index.php prefix
+    Route::post('/ar3DModel/addHotspot/{modelId}', [Model3dController::class, 'addHotspot'])
+        ->whereNumber('modelId')
+        ->name('ar3d.addHotspot');
+
+    Route::post('/ar3DModel/deleteHotspot/{hotspotId}', [Model3dController::class, 'deleteHotspot'])
+        ->whereNumber('hotspotId')
+        ->name('ar3d.deleteHotspot');
+});

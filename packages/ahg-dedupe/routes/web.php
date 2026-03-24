@@ -35,3 +35,6 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/dedupe/occupations', [DedupeController::class, 'occupations'])->name('dedupe.occupations');
     Route::match(['get','post'], '/admin/dedupe/split/{id}', [DedupeController::class, 'split'])->name('dedupe.split')->whereNumber('id');
     Route::get('/admin/dedupe/workqueue', [DedupeController::class, 'workqueue'])->name('dedupe.workqueue');
+
+// API: Real-time duplicate check (AJAX, used by JS widgets during data entry)
+Route::get('/api/dedupe/realtime', [DedupeController::class, 'apiRealtime'])->name('dedupe.api.realtime');

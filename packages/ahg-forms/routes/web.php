@@ -20,3 +20,9 @@ Route::middleware(['auth', 'admin'])->prefix('forms')->group(function () {
     Route::post('/field/delete', [FormsController::class, 'fieldDelete'])->name('forms.field.delete');
     Route::post('/field/reorder', [FormsController::class, 'fieldReorder'])->name('forms.field.reorder');
 });
+
+// API: Forms autosave + template resolution (AJAX, used by JS widgets)
+Route::middleware('auth')->group(function () {
+    Route::post('/api/forms/autosave', [FormsController::class, 'apiAutosave'])->name('forms.api.autosave');
+    Route::get('/api/forms/template', [FormsController::class, 'apiGetForm'])->name('forms.api.template');
+});
