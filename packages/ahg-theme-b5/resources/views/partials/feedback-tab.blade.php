@@ -94,6 +94,23 @@
     background: var(--ahg-primary-dark, #1e4d38);
     padding: 14px 10px;
   }
+  #feedback-tab-dismiss {
+    position: absolute;
+    top: -28px;
+    left: 0;
+    background: var(--ahg-primary, #2c6b4f);
+    color: #fff;
+    border: none;
+    border-radius: 0 6px 6px 0;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  #feedback-tab-dismiss:hover {
+    opacity: 1;
+  }
   #feedback-panel {
     position: fixed;
     left: 0;
@@ -155,6 +172,7 @@
 <script>
 (function() {
   const btn = document.getElementById('feedback-tab-btn');
+  const dismissBtn = document.getElementById('feedback-tab-dismiss');
   const panel = document.getElementById('feedback-panel');
   const closeBtn = document.getElementById('feedback-panel-close');
   const form = document.getElementById('feedback-panel-form');
@@ -162,8 +180,27 @@
   const ratingInput = document.getElementById('feedback-rating');
   const subjectInput = document.getElementById('feedback-subject');
 
+  // Show dismiss arrow on hover
+  btn.addEventListener('mouseenter', function() { dismissBtn.classList.remove('d-none'); });
+  document.getElementById('feedback-tab-wrap').addEventListener('mouseleave', function() {
+    if (panel.classList.contains('d-none')) dismissBtn.classList.add('d-none');
+  });
+
+  // Dismiss — hide the tab for this session
+  dismissBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('feedback-tab-wrap').style.display = 'none';
+    sessionStorage.setItem('feedback-tab-dismissed', '1');
+  });
+
+  // Restore dismissed state
+  if (sessionStorage.getItem('feedback-tab-dismissed') === '1') {
+    document.getElementById('feedback-tab-wrap').style.display = 'none';
+  }
+
   // Toggle panel
   btn.addEventListener('click', function() {
+    dismissBtn.classList.add('d-none');
     panel.classList.toggle('d-none');
     btn.style.display = panel.classList.contains('d-none') ? '' : 'none';
   });
