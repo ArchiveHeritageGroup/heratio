@@ -81,5 +81,8 @@
     <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommands.js') }}"></script>
 
     @stack('js')
+
+    {{-- Floating Feedback Tab --}}
+    @include('theme::partials.feedback-tab')
   </body>
 </html>
