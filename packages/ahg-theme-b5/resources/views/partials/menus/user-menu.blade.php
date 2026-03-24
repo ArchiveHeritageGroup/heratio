@@ -173,12 +173,12 @@
     <form method="POST" action="{{ route('login') }}" class="mt-2">
       @csrf
       <div class="mb-3">
-        <label class="form-label" for="email">Email<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
-        <input type="text" name="email" class="form-control-sm form-control" id="email" required>
+        <label class="form-label" for="nav-email">Email<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
+        <input type="text" name="email" class="form-control-sm form-control" id="nav-email" required>
       </div>
       <div class="mb-3">
-        <label class="form-label" for="password">Password<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
-        <input type="password" name="password" class="form-control-sm form-control" id="password" required autocomplete="off">
+        <label class="form-label" for="nav-password">Password<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
+        <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="off">
       </div>
       <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">Log in</button>
     </form>
