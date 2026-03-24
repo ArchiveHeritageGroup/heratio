@@ -3,6 +3,9 @@
 use AhgRic\Controllers\RicController;
 use Illuminate\Support\Facades\Route;
 
+// Legacy AtoM alias
+Route::get('/ric', fn () => redirect('/admin/ric/explorer'));
+
 Route::middleware('admin')->group(function () {
     Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');
     Route::get('/admin/ric/sync-status', [RicController::class, 'syncStatus'])->name('ric.sync-status');
@@ -12,12 +15,12 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');
 
     // RIC Explorer
-    Route::get('/ric', [RicController::class, 'explorer'])->name('ric.explorer');
-    Route::get('/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
-    Route::get('/ric/data', [RicController::class, 'getData'])->name('ric.data');
+    Route::get('/admin/ric/explorer', [RicController::class, 'explorer'])->name('ric.explorer');
+    Route::get('/admin/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
+    Route::get('/admin/ric/data', [RicController::class, 'getData'])->name('ric.data');
 
     // RIC Semantic Search
-    Route::get('/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');
+    Route::get('/admin/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');
 
     // AJAX endpoints for dashboard
     Route::get('/admin/ric/ajax-dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.ajax-dashboard');
