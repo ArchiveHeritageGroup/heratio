@@ -102,12 +102,16 @@ class DescriptionController extends BaseApiController
 
         $data = $this->buildShowData($io);
 
-        // If ?full=true, include relations
+        // If ?full=true, include relations (matches AtoM getFullDescription)
         if ($request->boolean('full', true)) {
             $data['events'] = $this->getEvents($io->id);
             $data['creators'] = $this->getCreators($io->id);
             $data['access_points'] = $this->getAccessPoints($io->id);
             $data['notes'] = $this->getNotes($io->id);
+            $data['digital_objects'] = $this->getDigitalObjects($io->id);
+            $data['properties'] = $this->getProperties($io->id);
+            $data['hierarchy'] = $this->getHierarchy($io->id);
+            $data['children_count'] = $this->getChildrenCount($io->id);
         }
 
         return $this->success($data);
@@ -493,6 +497,103 @@ class DescriptionController extends BaseApiController
             'type' => $typeNames[$n->type_id] ?? null,
             'content' => $n->content,
         ])->values()->toArray();
+    }
+
+    /**
+     * Get digital objects attached to an information object.
+     * Ported from AtoM ApiRepository::getDigitalObjects().
+     */
+    protected function getDigitalObjects(int $objectId): array
+    {
+        $objects = DB::table('digital_object')
+            ->where('object_id', $objectId)
+            ->select('id', 'name', 'path', 'mime_type', 'byte_size', 'checksum', 'usage_id')
+            ->get();
+
+        return $objects->map(function ($row) {
+            $thumbnailPath = null;
+            if ($row->path) {
+                $pathInfo = pathinfo($row->path);
+                $thumbnailPath = '/uploads/' . $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_142.' . ($pathInfo['extension'] ?? 'jpg');
+            }
+            return [
+                'id' => $row->id,
+                'name' => $row->name,
+                'mime_type' => $row->mime_type,
+                'byte_size' => $row->byte_size,
+                'checksum' => $row->checksum,
+                'thumbnail_url' => $thumbnailPath,
+                'master_url' => $row->path ? '/uploads/' . $row->path : null,
+            ];
+        })->values()->toArray();
+    }
+
+    /**
+     * Get custom properties for an information object.
+     * Ported from AtoM ApiRepository::getProperties().
+     */
+    protected function getProperties(int $objectId): array
+    {
+        $props = DB::table('property as p')
+            ->leftJoin('property_i18n as pi', function ($j) {
+                $j->on('p.id', '=', 'pi.id')->where('pi.culture', $this->culture);
+            })
+            ->where('p.object_id', $objectId)
+            ->select('p.name', 'pi.value')
+            ->get();
+
+        $result = [];
+        foreach ($props as $prop) {
+            if ($prop->name && $prop->value) {
+                $result[$prop->name] = $prop->value;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get ancestor hierarchy (breadcrumb) for an information object.
+     * Ported from AtoM ApiRepository::getHierarchy().
+     */
+    protected function getHierarchy(int $objectId): array
+    {
+        $current = DB::table('information_object')
+            ->where('id', $objectId)
+            ->select('parent_id', 'lft', 'rgt')
+            ->first();
+
+        if (!$current || $current->parent_id == 1) {
+            return [];
+        }
+
+        $ancestors = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', function ($j) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $this->culture);
+            })
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+            ->where('io.lft', '<', $current->lft)
+            ->where('io.rgt', '>', $current->rgt)
+            ->where('io.id', '!=', 1)
+            ->select('io.id', 'slug.slug', 'ioi.title', 'io.lft')
+            ->orderBy('io.lft', 'asc')
+            ->get();
+
+        return $ancestors->map(fn ($row) => [
+            'id' => $row->id,
+            'slug' => $row->slug,
+            'title' => $row->title,
+        ])->values()->toArray();
+    }
+
+    /**
+     * Get direct children count for an information object.
+     * Ported from AtoM ApiRepository::getChildrenCount().
+     */
+    protected function getChildrenCount(int $objectId): int
+    {
+        return DB::table('information_object')
+            ->where('parent_id', $objectId)
+            ->count();
     }
 
     protected function resolveTermNames($ids): array

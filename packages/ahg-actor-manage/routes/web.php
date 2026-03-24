@@ -12,6 +12,85 @@ Route::middleware('auth')->group(function () {
     Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
     Route::get('/actor/{slug}/rename', [ActorController::class, 'rename'])->name('actor.rename');
     Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename');
+
+    // =========================================================================
+    // Authority Dashboard & Workqueue
+    // =========================================================================
+    Route::get('/actor/authority/dashboard', [ActorController::class, 'dashboard'])->name('actor.dashboard');
+    Route::get('/actor/authority/workqueue', [ActorController::class, 'workqueue'])->name('actor.workqueue');
+
+    // =========================================================================
+    // External Identifiers
+    // =========================================================================
+    Route::get('/actor/authority/identifiers/{actorId}', [ActorController::class, 'identifiers'])->name('actor.identifiers');
+    Route::post('/api/authority/identifier/save', [ActorController::class, 'apiIdentifierSave'])->name('actor.api.identifier.save');
+    Route::post('/api/authority/identifier/{id}/delete', [ActorController::class, 'apiIdentifierDelete'])->name('actor.api.identifier.delete');
+    Route::post('/api/authority/identifier/{id}/verify', [ActorController::class, 'apiIdentifierVerify'])->name('actor.api.identifier.verify');
+
+    // =========================================================================
+    // External Authority Lookup
+    // =========================================================================
+    Route::get('/api/authority/wikidata/search', [ActorController::class, 'apiWikidataSearch'])->name('actor.api.wikidata.search');
+    Route::get('/api/authority/viaf/search', [ActorController::class, 'apiViafSearch'])->name('actor.api.viaf.search');
+    Route::get('/api/authority/ulan/search', [ActorController::class, 'apiUlanSearch'])->name('actor.api.ulan.search');
+    Route::get('/api/authority/lcnaf/search', [ActorController::class, 'apiLcnafSearch'])->name('actor.api.lcnaf.search');
+
+    // =========================================================================
+    // Completeness
+    // =========================================================================
+    Route::post('/api/authority/completeness/{actorId}/recalc', [ActorController::class, 'apiCompletenessRecalc'])->name('actor.api.completeness.recalc');
+    Route::post('/api/authority/completeness/batch-assign', [ActorController::class, 'apiCompletenessBatchAssign'])->name('actor.api.completeness.batch-assign');
+
+    // =========================================================================
+    // Relationship Graph
+    // =========================================================================
+    Route::get('/api/authority/graph/{actorId}', [ActorController::class, 'apiGraphData'])->name('actor.api.graph.data');
+
+    // =========================================================================
+    // Merge / Split
+    // =========================================================================
+    Route::get('/actor/authority/merge/{id}', [ActorController::class, 'merge'])->name('actor.merge');
+    Route::get('/actor/authority/split/{id}', [ActorController::class, 'split'])->name('actor.split');
+    Route::post('/api/authority/merge/preview', [ActorController::class, 'apiMergePreview'])->name('actor.api.merge.preview');
+    Route::post('/api/authority/merge/execute', [ActorController::class, 'apiMergeExecute'])->name('actor.api.merge.execute');
+    Route::post('/api/authority/split/execute', [ActorController::class, 'apiSplitExecute'])->name('actor.api.split.execute');
+
+    // =========================================================================
+    // Occupations
+    // =========================================================================
+    Route::get('/actor/authority/occupations/{actorId}', [ActorController::class, 'occupations'])->name('actor.occupations');
+    Route::post('/api/authority/occupation/save', [ActorController::class, 'apiOccupationSave'])->name('actor.api.occupation.save');
+    Route::post('/api/authority/occupation/{id}/delete', [ActorController::class, 'apiOccupationDelete'])->name('actor.api.occupation.delete');
+
+    // =========================================================================
+    // Functions
+    // =========================================================================
+    Route::get('/actor/authority/functions/{actorId}', [ActorController::class, 'functions'])->name('actor.functions');
+    Route::get('/actor/authority/function-browse', [ActorController::class, 'functionBrowse'])->name('actor.function.browse');
+    Route::post('/api/authority/function/save', [ActorController::class, 'apiFunctionSave'])->name('actor.api.function.save');
+    Route::post('/api/authority/function/{id}/delete', [ActorController::class, 'apiFunctionDelete'])->name('actor.api.function.delete');
+
+    // =========================================================================
+    // Deduplication
+    // =========================================================================
+    Route::get('/actor/authority/dedup', [ActorController::class, 'dedupIndex'])->name('actor.dedup');
+    Route::match(['get', 'post'], '/actor/authority/dedup/scan', [ActorController::class, 'dedupScan'])->name('actor.dedup.scan');
+    Route::get('/actor/authority/dedup/compare/{id}', [ActorController::class, 'dedupCompare'])->name('actor.dedup.compare');
+    Route::post('/api/authority/dedup/{id}/dismiss', [ActorController::class, 'apiDedupDismiss'])->name('actor.api.dedup.dismiss');
+    Route::post('/api/authority/dedup/{id}/merge', [ActorController::class, 'apiDedupMerge'])->name('actor.api.dedup.merge');
+
+    // =========================================================================
+    // NER Pipeline
+    // =========================================================================
+    Route::get('/actor/authority/ner', [ActorController::class, 'nerIndex'])->name('actor.ner');
+    Route::post('/api/authority/ner/create-stub', [ActorController::class, 'apiNerCreateStub'])->name('actor.api.ner.create-stub');
+    Route::post('/api/authority/ner/{id}/promote', [ActorController::class, 'apiNerPromote'])->name('actor.api.ner.promote');
+    Route::post('/api/authority/ner/{id}/reject', [ActorController::class, 'apiNerReject'])->name('actor.api.ner.reject');
+
+    // =========================================================================
+    // Configuration (admin only)
+    // =========================================================================
+    Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config');
 });
 
 Route::middleware('admin')->group(function () {

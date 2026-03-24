@@ -282,6 +282,10 @@ class LegacyApiController extends Controller
 
     /**
      * GET /api/reports/pending-counts — Counts for UI badges.
+     *
+     * Ported from AtoM apiReportsPendingCountsAction — returns counts for
+     * access requests, loans, condition alerts, valuation alerts, pending
+     * approvals, clearance expiry, draft descriptions, and failed jobs.
      */
     public function pendingCounts(): JsonResponse
     {
@@ -302,9 +306,82 @@ class LegacyApiController extends Controller
             // Table may not exist
         }
 
+        // Pending access requests
+        $accessRequests = 0;
+        try {
+            $accessRequests = (int) DB::table('access_request')
+                ->where('status', 'pending')
+                ->count();
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
+        // Pending/overdue loans (due within 30 days)
+        $pendingLoans = 0;
+        try {
+            $pendingLoans = (int) DB::table('spectrum_loan_out')
+                ->whereIn('status', ['active', 'overdue'])
+                ->whereRaw('loan_end_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
+                ->count();
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
+        // Condition alerts (items with poor condition or needing check)
+        $conditionAlerts = 0;
+        try {
+            $conditionAlerts = (int) DB::table('spectrum_condition_check')
+                ->where(function ($query) {
+                    $query->where('overall_condition', '>=', 4)
+                        ->orWhereRaw('(next_check_date IS NOT NULL AND next_check_date <= CURDATE())');
+                })
+                ->distinct()
+                ->count('information_object_id');
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
+        // Valuation alerts (valuations due for renewal within 60 days)
+        $valuationAlerts = 0;
+        try {
+            $valuationAlerts = (int) DB::table('spectrum_valuation')
+                ->where('is_current', 1)
+                ->whereRaw('next_valuation_date <= DATE_ADD(CURDATE(), INTERVAL 60 DAY)')
+                ->count();
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
+        // Pending workflow approvals
+        $pendingApprovals = 0;
+        try {
+            $pendingApprovals = (int) DB::table('workflow_state')
+                ->whereIn('current_state', ['pending_approval', 'under_review', 'submitted'])
+                ->count();
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
+        // Clearance expiry warnings (within 60 days)
+        $clearanceExpiry = 0;
+        try {
+            $clearanceExpiry = (int) DB::table('user_security_clearance')
+                ->where('is_active', 1)
+                ->whereRaw('expiry_date <= DATE_ADD(CURDATE(), INTERVAL 60 DAY)')
+                ->count();
+        } catch (\Throwable $e) {
+            // Table may not exist
+        }
+
         return response()->json([
             'draft_descriptions' => $draftCount,
             'failed_jobs' => $failedJobs,
+            'accessRequests' => $accessRequests,
+            'pendingLoans' => $pendingLoans,
+            'conditionAlerts' => $conditionAlerts,
+            'valuationAlerts' => $valuationAlerts,
+            'pendingApprovals' => $pendingApprovals,
+            'clearanceExpiry' => $clearanceExpiry,
         ]);
     }
 }

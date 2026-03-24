@@ -31,6 +31,7 @@ class ApiRootController extends BaseApiController
                 'assets' => ['GET /api/v2/assets', 'POST /api/v2/assets', 'GET /api/v2/assets/{id}', 'PUT /api/v2/assets/{id}', 'GET /api/v2/descriptions/{slug}/asset', 'GET /api/v2/valuations', 'POST /api/v2/valuations', 'GET /api/v2/assets/{id}/valuations'],
                 'privacy' => ['GET /api/v2/privacy/dsars', 'POST /api/v2/privacy/dsars', 'GET /api/v2/privacy/dsars/{id}', 'PUT /api/v2/privacy/dsars/{id}', 'GET /api/v2/privacy/breaches', 'POST /api/v2/privacy/breaches'],
                 'sync' => ['GET /api/v2/sync/changes', 'POST /api/v2/sync/batch'],
+                'identifiers' => ['GET /api/v2/identifiers/lookup', 'GET /api/v2/identifiers/validate', 'GET /api/v2/identifiers/detect', 'GET /api/v2/identifiers/barcode/{objectId}', 'GET /api/v2/identifiers/types/{objectId}', 'GET /api/v2/identifiers/all/{objectId}'],
             ],
             'authentication' => [
                 'methods' => ['X-API-Key header', 'Authorization: Bearer', 'Session (cookie)'],

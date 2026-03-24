@@ -10,7 +10,7 @@
       <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
       <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
     </div>
-    <a href="{{ route('ric.explorer') }}" target="_blank" class="btn btn-outline-info btn-sm">
+    <a href="/ric/index.html" target="_blank" class="btn btn-outline-info btn-sm">
       <i class="fas fa-external-link-alt"></i> RIC Explorer
     </a>
   </div>

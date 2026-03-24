@@ -232,6 +232,8 @@ class LandingPageController extends Controller
             return back()->withErrors(['error' => $result['error']]);
         }
 
-        return view('ahg-landing-page::my-dashboard-create');
+        $hasDashboards = $this->service->getUserDashboards(auth()->id())->isNotEmpty();
+
+        return view('ahg-landing-page::my-dashboard-create', compact('hasDashboards'));
     }
 }

@@ -151,12 +151,23 @@
     {{-- Logout --}}
     <li><hr class="dropdown-divider"></li>
     <li>
-      <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="dropdown-item text-danger">
+      @php $authMode = config('auth.external_mode'); @endphp
+      @if ($authMode === 'cas')
+        <a href="{{ route('cas.logout') }}" class="dropdown-item text-danger">
           <i class="fas fa-sign-out-alt me-2"></i>Logout
-        </button>
-      </form>
+        </a>
+      @elseif ($authMode === 'oidc')
+        <a href="{{ route('oidc.logout') }}" class="dropdown-item text-danger">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+      @else
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="dropdown-item text-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </button>
+        </form>
+      @endif
     </li>
 
   </ul>
@@ -164,47 +175,92 @@
 
 @else
 {{-- Unauthenticated: login dropdown --}}
-<div class="dropdown my-2">
-  <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-    <i class="fas fa-sign-in-alt me-1"></i>Log in
-  </button>
-  <div class="dropdown-menu dropdown-menu-lg-end mt-2 p-3" aria-labelledby="user-menu" style="min-width: 280px;">
-    <h6 class="dropdown-header px-0">Have an account?</h6>
-    <form method="POST" action="{{ route('login') }}" class="mt-2">
-      @csrf
-      <div class="mb-3">
-        <label class="form-label" for="nav-email">Email<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
-        <input type="text" name="email" class="form-control-sm form-control" id="nav-email" required>
+@php
+  $authMode = config('auth.external_mode'); // null, 'cas', or 'oidc'
+@endphp
+
+@if ($authMode === 'cas')
+  {{-- CAS login mode - ported from ahgThemeB5Plugin/_userMenu.mod_cas.php --}}
+  <div class="dropdown my-2">
+    <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+      <i class="fas fa-sign-in-alt me-1"></i>Log in
+    </button>
+    <div class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
+      <div>
+        <h6 class="dropdown-header">{{ __('Have an account?') }}</h6>
       </div>
-      <div class="mb-3">
-        <label class="form-label" for="nav-password">Password<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
-        <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="off">
-      </div>
-      <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">Log in</button>
-    </form>
-
-    <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">
-      <strong>Demo:</strong> <code>louise@theahg.co.za</code> / <code>Password@123</code>
-    </div>
-
-    <div class="text-center mt-2">
-      <a href="{{ route('password.reset') }}" class="small text-muted">
-        <i class="fas fa-key me-1"></i>Forgot password?
-      </a>
-    </div>
-
-    <hr class="my-3">
-    <div class="text-center">
-      <a href="{{ route('register') }}" class="btn btn-sm atom-btn-secondary w-100 mb-2">
-        <i class="fas fa-user-plus me-1"></i>Register
-      </a>
-      <a href="{{ route('researcher.register') }}" class="btn btn-sm atom-btn-white w-100 mb-1">
-        <i class="fas fa-user-graduate me-1"></i>Register as Researcher
-      </a>
-      <a href="{{ url('/research/dashboard') }}" class="small text-muted d-block mt-1">
-        <i class="fas fa-book-reader me-1"></i>View Research Services
-      </a>
+      <form method="POST" action="{{ route('cas.login') }}" class="mx-3 my-2">
+        @csrf
+        <button class="btn btn-sm atom-btn-secondary" type="submit">
+          {{ __('Log in with CAS') }}
+        </button>
+      </form>
     </div>
   </div>
-</div>
+
+@elseif ($authMode === 'oidc')
+  {{-- OIDC/SSO login mode - ported from ahgThemeB5Plugin/_userMenu.mod_ext_auth.php --}}
+  <div class="dropdown my-2">
+    <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+      <i class="fas fa-sign-in-alt me-1"></i>Log in
+    </button>
+    <div class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
+      <div>
+        <h6 class="dropdown-header">{{ __('Have an account?') }}</h6>
+      </div>
+      <form method="POST" action="{{ route('oidc.login') }}" class="mx-3 my-2">
+        @csrf
+        <button class="btn btn-sm atom-btn-secondary" type="submit">
+          {{ __('Log in with SSO') }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+@else
+  {{-- Standard login mode --}}
+  <div class="dropdown my-2">
+    <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+      <i class="fas fa-sign-in-alt me-1"></i>Log in
+    </button>
+    <div class="dropdown-menu dropdown-menu-lg-end mt-2 p-3" aria-labelledby="user-menu" style="min-width: 280px;">
+      <h6 class="dropdown-header px-0">Have an account?</h6>
+      <form method="POST" action="{{ route('login') }}" class="mt-2">
+        @csrf
+        <div class="mb-3">
+          <label class="form-label" for="nav-email">Email<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
+          <input type="text" name="email" class="form-control-sm form-control" id="nav-email" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="nav-password">Password<span aria-hidden="true" class="text-primary ms-1" title="This field is required."><strong>*</strong></span><span class="visually-hidden">This field is required.</span></label>
+          <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="off">
+        </div>
+        <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">Log in</button>
+      </form>
+
+      <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">
+        <strong>Demo:</strong> <code>louise@theahg.co.za</code> / <code>Password@123</code>
+      </div>
+
+      <div class="text-center mt-2">
+        <a href="{{ route('password.reset') }}" class="small text-muted">
+          <i class="fas fa-key me-1"></i>Forgot password?
+        </a>
+      </div>
+
+      <hr class="my-3">
+      <div class="text-center">
+        <a href="{{ route('register') }}" class="btn btn-sm atom-btn-secondary w-100 mb-2">
+          <i class="fas fa-user-plus me-1"></i>Register
+        </a>
+        <a href="{{ route('researcher.register') }}" class="btn btn-sm atom-btn-white w-100 mb-1">
+          <i class="fas fa-user-graduate me-1"></i>Register as Researcher
+        </a>
+        <a href="{{ url('/research/dashboard') }}" class="small text-muted d-block mt-1">
+          <i class="fas fa-book-reader me-1"></i>View Research Services
+        </a>
+      </div>
+    </div>
+  </div>
+@endif
 @endif

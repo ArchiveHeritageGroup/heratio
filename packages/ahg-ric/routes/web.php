@@ -3,8 +3,8 @@
 use AhgRic\Controllers\RicController;
 use Illuminate\Support\Facades\Route;
 
-// Legacy AtoM alias
-Route::get('/ric', fn () => redirect('/admin/ric/explorer'));
+// /ric/ is a static SPA in public/ric/index.html — no Laravel route needed
+// The /admin/ric/explorer route still exists as a Blade-based fallback
 
 Route::middleware('admin')->group(function () {
     Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');

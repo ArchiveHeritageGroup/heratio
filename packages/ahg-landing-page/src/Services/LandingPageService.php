@@ -8,7 +8,11 @@ class LandingPageService
 {
     public function getAllPages(): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_landing_page')->orderBy('name')->get();
+        return DB::table('ahg_landing_page as p')
+            ->leftJoin(DB::raw('(SELECT page_id, COUNT(*) as block_count FROM ahg_landing_block GROUP BY page_id) as bc'), 'p.id', '=', 'bc.page_id')
+            ->select('p.*', DB::raw('COALESCE(bc.block_count, 0) as block_count'))
+            ->orderBy('p.name')
+            ->get();
     }
 
     public function getPage(int $id): ?object

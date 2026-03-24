@@ -209,3 +209,18 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
     Route::get('export-preview', [LegacyApiController::class, 'exportPreview']);
     Route::get('reports/pending-counts', [LegacyApiController::class, 'pendingCounts']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| API 404 Fallback — catch unmatched /api/* requests
+|--------------------------------------------------------------------------
+*/
+
+Route::any('api/{any}', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'success' => false,
+        'error' => 'Not Found',
+        'message' => 'API endpoint not found: /' . $request->path(),
+        'timestamp' => now()->toIso8601String(),
+    ], 404);
+})->where('any', '.*')->middleware('api.cors');

@@ -4,6 +4,15 @@ namespace AhgActorManage\Controllers;
 
 use AhgActorManage\Services\ActorBrowseService;
 use AhgActorManage\Services\ActorService;
+use AhgActorManage\Services\AuthorityCompletenessService;
+use AhgActorManage\Services\AuthorityDedupeService;
+use AhgActorManage\Services\AuthorityFunctionService;
+use AhgActorManage\Services\AuthorityGraphService;
+use AhgActorManage\Services\AuthorityIdentifierService;
+use AhgActorManage\Services\AuthorityLookupService;
+use AhgActorManage\Services\AuthorityMergeService;
+use AhgActorManage\Services\AuthorityNerPipelineService;
+use AhgActorManage\Services\AuthorityOccupationService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -579,5 +588,591 @@ class ActorController extends Controller
             ->get();
 
         return response()->json($results);
+    }
+
+    // =========================================================================
+    // DASHBOARD & WORKQUEUE
+    // =========================================================================
+
+    public function dashboard()
+    {
+        $completenessService = new AuthorityCompletenessService();
+        $identifierService = new AuthorityIdentifierService();
+
+        $stats = $completenessService->getDashboardStats();
+        $identifierStats = $identifierService->getStats();
+
+        return view('ahg-actor-manage::authority.dashboard', [
+            'stats' => $stats,
+            'identifierStats' => $identifierStats,
+        ]);
+    }
+
+    public function workqueue(Request $request)
+    {
+        $completenessService = new AuthorityCompletenessService();
+
+        $filters = [
+            'level'       => $request->get('level', ''),
+            'assigned_to' => $request->get('assigned_to', ''),
+            'unassigned'  => $request->get('unassigned', ''),
+            'min_score'   => $request->get('min_score', ''),
+            'max_score'   => $request->get('max_score', ''),
+            'sort'        => $request->get('sort', 'completeness_score'),
+            'sortDir'     => $request->get('sortDir', 'asc'),
+            'page'        => $request->get('page', 1),
+            'limit'       => $request->get('limit', 50),
+        ];
+
+        $workqueue = $completenessService->getWorkqueue($filters);
+        $levels = array_keys(AuthorityCompletenessService::LEVELS);
+
+        $users = DB::table('user')
+            ->join('actor_i18n', function ($j) {
+                $j->on('user.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', 'en');
+            })
+            ->select('user.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->get()
+            ->all();
+
+        return view('ahg-actor-manage::authority.workqueue', [
+            'workqueue' => $workqueue,
+            'filters' => $filters,
+            'levels' => $levels,
+            'users' => $users,
+        ]);
+    }
+
+    // =========================================================================
+    // EXTERNAL IDENTIFIERS
+    // =========================================================================
+
+    public function identifiers(int $actorId)
+    {
+        $identifierService = new AuthorityIdentifierService();
+
+        $actor = $this->getActorById($actorId);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $identifiers = $identifierService->getIdentifiers($actorId);
+        $uriPatterns = AuthorityIdentifierService::URI_PATTERNS;
+
+        return view('ahg-actor-manage::authority.identifiers', [
+            'actor' => $actor,
+            'identifiers' => $identifiers,
+            'uriPatterns' => $uriPatterns,
+        ]);
+    }
+
+    public function apiIdentifierSave(Request $request)
+    {
+        $identifierService = new AuthorityIdentifierService();
+
+        $actorId = (int) $request->input('actor_id');
+        $data = [
+            'identifier_type'  => $request->input('identifier_type', ''),
+            'identifier_value' => $request->input('identifier_value', ''),
+            'uri'              => $request->input('uri') ?: null,
+            'label'            => $request->input('label') ?: null,
+            'source'           => $request->input('source', 'manual'),
+        ];
+
+        $id = $identifierService->save($actorId, $data);
+
+        return response()->json(['success' => true, 'id' => $id]);
+    }
+
+    public function apiIdentifierDelete(int $id)
+    {
+        $identifierService = new AuthorityIdentifierService();
+        $result = $identifierService->delete($id);
+
+        return response()->json(['success' => $result]);
+    }
+
+    public function apiIdentifierVerify(int $id)
+    {
+        $identifierService = new AuthorityIdentifierService();
+        $userId = (int) auth()->id();
+        $result = $identifierService->verify($id, $userId);
+
+        return response()->json(['success' => $result]);
+    }
+
+    // =========================================================================
+    // EXTERNAL AUTHORITY LOOKUP
+    // =========================================================================
+
+    public function apiWikidataSearch(Request $request)
+    {
+        $lookupService = new AuthorityLookupService();
+        $result = $lookupService->searchWikidata($request->get('q', ''));
+
+        return response()->json($result);
+    }
+
+    public function apiViafSearch(Request $request)
+    {
+        $lookupService = new AuthorityLookupService();
+        $result = $lookupService->searchViaf($request->get('q', ''));
+
+        return response()->json($result);
+    }
+
+    public function apiUlanSearch(Request $request)
+    {
+        $lookupService = new AuthorityLookupService();
+        $result = $lookupService->searchUlan($request->get('q', ''));
+
+        return response()->json($result);
+    }
+
+    public function apiLcnafSearch(Request $request)
+    {
+        $lookupService = new AuthorityLookupService();
+        $result = $lookupService->searchLcnaf($request->get('q', ''));
+
+        return response()->json($result);
+    }
+
+    // =========================================================================
+    // COMPLETENESS
+    // =========================================================================
+
+    public function apiCompletenessRecalc(int $actorId)
+    {
+        $completenessService = new AuthorityCompletenessService();
+        $result = $completenessService->calculateScore($actorId);
+
+        return response()->json(['success' => true, 'result' => $result]);
+    }
+
+    public function apiCompletenessBatchAssign(Request $request)
+    {
+        $completenessService = new AuthorityCompletenessService();
+
+        $actorIds = $request->input('actor_ids', []);
+        $assigneeId = (int) $request->input('assignee_id');
+
+        if (!is_array($actorIds)) {
+            $actorIds = explode(',', $actorIds);
+        }
+        $actorIds = array_map('intval', $actorIds);
+
+        $count = $completenessService->batchAssign($actorIds, $assigneeId);
+
+        return response()->json(['success' => true, 'count' => $count]);
+    }
+
+    // =========================================================================
+    // RELATIONSHIP GRAPH
+    // =========================================================================
+
+    public function apiGraphData(Request $request, int $actorId)
+    {
+        $graphService = new AuthorityGraphService();
+
+        $depth = (int) $request->get('depth', 1);
+        $depth = min($depth, 3);
+
+        $data = $graphService->getGraphData($actorId, $depth);
+
+        return response()->json($data);
+    }
+
+    // =========================================================================
+    // MERGE / SPLIT
+    // =========================================================================
+
+    public function merge(int $id)
+    {
+        $mergeService = new AuthorityMergeService();
+
+        $actor = $this->getActorById($id);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $mergeHistory = $mergeService->getMergeHistory($id);
+
+        return view('ahg-actor-manage::authority.merge', [
+            'actor' => $actor,
+            'mergeHistory' => $mergeHistory,
+        ]);
+    }
+
+    public function split(int $id)
+    {
+        $actor = $this->getActorById($id);
+        if (!$actor) {
+            abort(404);
+        }
+
+        return view('ahg-actor-manage::authority.split', [
+            'actor' => $actor,
+        ]);
+    }
+
+    public function apiMergePreview(Request $request)
+    {
+        $mergeService = new AuthorityMergeService();
+
+        $primaryId = (int) $request->input('primary_id');
+        $secondaryId = (int) $request->input('secondary_id');
+
+        $comparison = $mergeService->compareActors($primaryId, $secondaryId);
+
+        return response()->json(['success' => true, 'comparison' => $comparison]);
+    }
+
+    public function apiMergeExecute(Request $request)
+    {
+        $mergeService = new AuthorityMergeService();
+
+        $primaryId = (int) $request->input('primary_id');
+        $secondaryIds = $request->input('secondary_ids', []);
+        $fieldChoices = $request->input('field_choices', []);
+        $notes = $request->input('notes', '');
+        $userId = (int) auth()->id();
+
+        if (!is_array($secondaryIds)) {
+            $secondaryIds = explode(',', $secondaryIds);
+        }
+        $secondaryIds = array_map('intval', $secondaryIds);
+
+        $mergeId = $mergeService->createMergeRequest(
+            $primaryId,
+            $secondaryIds,
+            is_array($fieldChoices) ? $fieldChoices : [],
+            $userId,
+            $notes
+        );
+
+        return response()->json(['success' => true, 'merge_id' => $mergeId]);
+    }
+
+    public function apiSplitExecute(Request $request)
+    {
+        $mergeService = new AuthorityMergeService();
+
+        $sourceId = (int) $request->input('source_id');
+        $fieldsToMove = $request->input('fields_to_move', []);
+        $relationsToMove = $request->input('relations_to_move', []);
+        $notes = $request->input('notes', '');
+        $userId = (int) auth()->id();
+
+        $splitId = $mergeService->createSplitRequest(
+            $sourceId,
+            is_array($fieldsToMove) ? $fieldsToMove : [],
+            is_array($relationsToMove) ? $relationsToMove : [],
+            $userId,
+            $notes
+        );
+
+        return response()->json(['success' => true, 'split_id' => $splitId]);
+    }
+
+    // =========================================================================
+    // OCCUPATIONS
+    // =========================================================================
+
+    public function occupations(int $actorId)
+    {
+        $occupationService = new AuthorityOccupationService();
+
+        $actor = $this->getActorById($actorId);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $occupations = $occupationService->getOccupations($actorId);
+
+        return view('ahg-actor-manage::authority.occupations', [
+            'actor' => $actor,
+            'occupations' => $occupations,
+        ]);
+    }
+
+    public function apiOccupationSave(Request $request)
+    {
+        $occupationService = new AuthorityOccupationService();
+
+        $actorId = (int) $request->input('actor_id');
+        $occupationId = (int) $request->input('occupation_id', 0);
+
+        $data = [
+            'term_id'         => $request->input('term_id') ?: null,
+            'occupation_text' => $request->input('occupation_text', ''),
+            'date_from'       => $request->input('date_from') ?: null,
+            'date_to'         => $request->input('date_to') ?: null,
+            'notes'           => $request->input('notes', ''),
+            'sort_order'      => (int) $request->input('sort_order', 0),
+        ];
+
+        $id = $occupationService->save($actorId, $data, $occupationId);
+
+        return response()->json(['success' => true, 'id' => $id]);
+    }
+
+    public function apiOccupationDelete(int $id)
+    {
+        $occupationService = new AuthorityOccupationService();
+        $result = $occupationService->delete($id);
+
+        return response()->json(['success' => $result]);
+    }
+
+    // =========================================================================
+    // FUNCTIONS
+    // =========================================================================
+
+    public function functions(int $actorId)
+    {
+        $functionService = new AuthorityFunctionService();
+
+        $actor = $this->getActorById($actorId);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $functionLinks = $functionService->getFunctionLinks($actorId);
+        $relationTypes = AuthorityFunctionService::RELATION_TYPES;
+
+        return view('ahg-actor-manage::authority.functions', [
+            'actor' => $actor,
+            'functionLinks' => $functionLinks,
+            'relationTypes' => $relationTypes,
+        ]);
+    }
+
+    public function functionBrowse()
+    {
+        $functionService = new AuthorityFunctionService();
+        $functions = $functionService->browseFunctions();
+
+        return view('ahg-actor-manage::authority.function-browse', [
+            'functions' => $functions,
+        ]);
+    }
+
+    public function apiFunctionSave(Request $request)
+    {
+        $functionService = new AuthorityFunctionService();
+
+        $actorId = (int) $request->input('actor_id');
+        $linkId = (int) $request->input('link_id', 0);
+
+        $data = [
+            'function_id'   => $request->input('function_id'),
+            'relation_type' => $request->input('relation_type', 'responsible'),
+            'date_from'     => $request->input('date_from') ?: null,
+            'date_to'       => $request->input('date_to') ?: null,
+            'notes'         => $request->input('notes', ''),
+            'sort_order'    => (int) $request->input('sort_order', 0),
+        ];
+
+        $id = $functionService->save($actorId, $data, $linkId);
+
+        return response()->json(['success' => true, 'id' => $id]);
+    }
+
+    public function apiFunctionDelete(int $id)
+    {
+        $functionService = new AuthorityFunctionService();
+        $result = $functionService->delete($id);
+
+        return response()->json(['success' => $result]);
+    }
+
+    // =========================================================================
+    // DEDUPLICATION
+    // =========================================================================
+
+    public function dedupIndex()
+    {
+        $dedupeService = new AuthorityDedupeService();
+        $stats = $dedupeService->getStats();
+
+        return view('ahg-actor-manage::authority.dedup-index', [
+            'stats' => $stats,
+        ]);
+    }
+
+    public function dedupScan(Request $request)
+    {
+        $dedupeService = new AuthorityDedupeService();
+        $pairs = [];
+
+        if ($request->isMethod('post')) {
+            $limit = (int) $request->input('limit', 500);
+            $pairs = $dedupeService->scan($limit);
+        }
+
+        return view('ahg-actor-manage::authority.dedup-scan', [
+            'pairs' => $pairs,
+        ]);
+    }
+
+    public function dedupCompare(Request $request, int $id)
+    {
+        $mergeService = new AuthorityMergeService();
+
+        $secondaryId = (int) $request->get('secondary_id');
+        if (!$secondaryId) {
+            abort(404);
+        }
+
+        $comparison = $mergeService->compareActors($id, $secondaryId);
+
+        return view('ahg-actor-manage::authority.dedup-compare', [
+            'comparison' => $comparison,
+        ]);
+    }
+
+    public function apiDedupDismiss(int $id)
+    {
+        $mergeService = new AuthorityMergeService();
+        $merge = $mergeService->getMerge($id);
+
+        if ($merge) {
+            DB::table('ahg_actor_merge')
+                ->where('id', $id)
+                ->update(['status' => 'rejected']);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function apiDedupMerge(int $id)
+    {
+        $mergeService = new AuthorityMergeService();
+        $userId = (int) auth()->id();
+        $result = $mergeService->executeMerge($id, $userId);
+
+        return response()->json(['success' => $result]);
+    }
+
+    // =========================================================================
+    // NER PIPELINE
+    // =========================================================================
+
+    public function nerIndex(Request $request)
+    {
+        $nerService = new AuthorityNerPipelineService();
+        $stats = $nerService->getStats();
+
+        $filters = [
+            'status'      => $request->get('status', 'stub'),
+            'entity_type' => $request->get('entity_type', ''),
+            'search'      => $request->get('search', ''),
+            'sort'        => $request->get('sort', 's.created_at'),
+            'sortDir'     => $request->get('sortDir', 'desc'),
+            'page'        => $request->get('page', 1),
+            'limit'       => $request->get('limit', 50),
+        ];
+
+        $stubs = $nerService->getStubs($filters);
+
+        $pendingFilters = [
+            'entity_type'    => $request->get('entity_type', ''),
+            'min_confidence' => $request->get('min_confidence', ''),
+            'search'         => $request->get('search', ''),
+            'sort'           => 'ne.confidence',
+            'sortDir'        => 'desc',
+            'page'           => 1,
+            'limit'          => 20,
+        ];
+
+        $pendingEntities = $nerService->getPendingEntities($pendingFilters);
+
+        return view('ahg-actor-manage::authority.ner-index', [
+            'stats' => $stats,
+            'stubs' => $stubs,
+            'pendingEntities' => $pendingEntities,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function apiNerCreateStub(Request $request)
+    {
+        $nerService = new AuthorityNerPipelineService();
+        $userId = (int) auth()->id();
+        $nerEntityId = (int) $request->input('ner_entity_id');
+
+        $actorId = $nerService->createStub($nerEntityId, $userId);
+
+        if ($actorId) {
+            return response()->json(['success' => true, 'actor_id' => $actorId]);
+        }
+
+        return response()->json(['success' => false, 'error' => 'Failed to create stub']);
+    }
+
+    public function apiNerPromote(int $id)
+    {
+        $nerService = new AuthorityNerPipelineService();
+        $userId = (int) auth()->id();
+        $result = $nerService->promoteStub($id, $userId);
+
+        return response()->json(['success' => $result]);
+    }
+
+    public function apiNerReject(int $id)
+    {
+        $nerService = new AuthorityNerPipelineService();
+        $userId = (int) auth()->id();
+        $result = $nerService->rejectStub($id, $userId);
+
+        return response()->json(['success' => $result]);
+    }
+
+    // =========================================================================
+    // CONFIGURATION
+    // =========================================================================
+
+    public function config(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $settings = $request->input('config', []);
+            foreach ($settings as $key => $value) {
+                DB::table('ahg_authority_config')
+                    ->updateOrInsert(
+                        ['config_key' => $key],
+                        ['config_value' => $value, 'updated_at' => date('Y-m-d H:i:s')]
+                    );
+            }
+
+            return redirect()->route('actor.config')->with('success', 'Configuration saved.');
+        }
+
+        $config = DB::table('ahg_authority_config')
+            ->get()
+            ->keyBy('config_key')
+            ->all();
+
+        return view('ahg-actor-manage::authority.config', [
+            'config' => $config,
+        ]);
+    }
+
+    // =========================================================================
+    // HELPER
+    // =========================================================================
+
+    protected function getActorById(int $actorId): ?object
+    {
+        return DB::table('actor as a')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('a.id', '=', 'ai.id')
+                    ->where('ai.culture', '=', 'en');
+            })
+            ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
+            ->where('a.id', $actorId)
+            ->select('a.id', 'a.entity_type_id', 'ai.authorized_form_of_name as name', 'slug.slug')
+            ->first();
     }
 }

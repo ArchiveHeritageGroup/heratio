@@ -24,7 +24,7 @@
       <a href="{{ $fusekiAdmin }}" target="_blank" class="btn btn-outline-dark">
         <i class="fas fa-database"></i> Fuseki Admin
       </a>
-      <a href="{{ route('ric.explorer') }}" target="_blank" class="btn btn-outline-success">
+      <a href="/ric/index.html" target="_blank" class="btn btn-outline-success">
         <i class="fas fa-project-diagram"></i> RIC Explorer
       </a>
       <a href="{{ route('ric.semantic-search') }}" class="btn btn-outline-secondary">
