@@ -38,3 +38,8 @@ Route::middleware('admin')->group(function () {
 
 // API: Real-time duplicate check (AJAX, used by JS widgets during data entry)
 Route::get('/api/dedupe/realtime', [DedupeController::class, 'apiRealtime'])->name('dedupe.api.realtime');
+
+// Legacy base-path alias: /admin/dedupe/dismiss/ without ID (JSON error response)
+Route::middleware('admin')->match(['get', 'post'], '/admin/dedupe/dismiss', function () {
+    return response()->json(['success' => false, 'error' => 'Detection ID required. Use POST /admin/dedupe/dismiss/{id}'], 400);
+})->name('dedupe.dismiss.base');

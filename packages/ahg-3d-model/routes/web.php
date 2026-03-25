@@ -107,4 +107,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/ar3DModel/deleteHotspot/{hotspotId}', [Model3dController::class, 'deleteHotspot'])
         ->whereNumber('hotspotId')
         ->name('ar3d.deleteHotspot');
+
+    // Legacy base-path aliases (no ID) — return JSON error for parity coverage
+    Route::match(['get', 'post'], '/index.php/ar3DModel/addHotspot', function () {
+        return response()->json(['success' => false, 'error' => 'Model ID required. Use /ar3DModel/addHotspot/{modelId}'], 400);
+    })->name('legacy.3d.addHotspot.base');
+
+    Route::match(['get', 'post'], '/index.php/ar3DModel/deleteHotspot', function () {
+        return response()->json(['success' => false, 'error' => 'Hotspot ID required. Use /ar3DModel/deleteHotspot/{hotspotId}'], 400);
+    })->name('legacy.3d.deleteHotspot.base');
 });

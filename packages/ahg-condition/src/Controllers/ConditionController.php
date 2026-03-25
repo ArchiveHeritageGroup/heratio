@@ -33,6 +33,23 @@ class ConditionController extends Controller
         return view('ahg-condition::list', compact('conditions'));
     }
 
+    /**
+     * GET /condition/check — list recent condition checks (JSON).
+     * Legacy AtoM base-path alias.
+     */
+    public function checkIndex(Request $request)
+    {
+        $objectId = (int) $request->query('object_id', 0);
+
+        if ($objectId) {
+            $checks = $this->service->getConditionChecksForObject($objectId);
+        } else {
+            $checks = $this->service->getRecentChecks(20);
+        }
+
+        return response()->json(['success' => true, 'checks' => $checks]);
+    }
+
     public function conditionCheck(string $slug)
     {
         $data = $this->service->getConditionCheckForObject($slug);

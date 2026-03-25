@@ -383,8 +383,20 @@ class AclController extends Controller
     public function securityAuditIndex(Request $request)
     {
         $logs = DB::table('security_audit_log')->orderByDesc('created_at')->limit(100)->get();
+        // Map DB column names to what the view expects
+        $logs->transform(function ($log) {
+            $log->username = $log->user_name ?? '';
+            $log->category = $log->action_category ?? '';
+            $log->object_title = '';
+            if (!empty($log->details)) {
+                $details = is_string($log->details) ? json_decode($log->details, true) : (array) $log->details;
+                $log->object_title = $details['object_title'] ?? $details['title'] ?? '';
+            }
+            $log->details = is_string($log->details) ? $log->details : json_encode($log->details);
+            return $log;
+        });
         $actions = DB::table('security_audit_log')->distinct()->pluck('action')->filter()->values()->toArray();
-        $categories = DB::table('security_audit_log')->distinct()->pluck('category')->filter()->values()->toArray();
+        $categories = DB::table('security_audit_log')->distinct()->pluck('action_category')->filter()->values()->toArray();
         $total = DB::table('security_audit_log')->count();
         return view('ahg-acl::security-audit.index', compact('logs', 'actions', 'categories', 'total'));
     }
@@ -395,9 +407,9 @@ class AclController extends Controller
         $since = now()->sub(\DateInterval::createFromDateString($period));
         $stats = [
             'total_events' => DB::table('security_audit_log')->where('created_at', '>=', $since)->count(),
-            'security_events' => DB::table('security_audit_log')->where('created_at', '>=', $since)->where('category', 'security')->count(),
-            'by_user' => DB::table('security_audit_log')->where('created_at', '>=', $since)->select('username', DB::raw('COUNT(*) as count'))->groupBy('username')->orderByDesc('count')->limit(10)->get(),
-            'top_objects' => DB::table('security_audit_log')->where('created_at', '>=', $since)->whereNotNull('object_title')->select('object_title', DB::raw('COUNT(*) as count'))->groupBy('object_title')->orderByDesc('count')->limit(10)->get(),
+            'security_events' => DB::table('security_audit_log')->where('created_at', '>=', $since)->where('action_category', 'security')->count(),
+            'by_user' => DB::table('security_audit_log')->where('created_at', '>=', $since)->select('user_name as username', DB::raw('COUNT(*) as count'))->groupBy('user_name')->orderByDesc('count')->limit(10)->get(),
+            'top_objects' => collect(),
             'since' => $since->format('M j, Y H:i'),
         ];
         return view('ahg-acl::security-audit.dashboard', compact('stats', 'period'));

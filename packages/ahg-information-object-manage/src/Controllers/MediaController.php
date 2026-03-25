@@ -182,6 +182,21 @@ class MediaController extends Controller
     }
 
     /**
+     * List snippets by digital_object_id query parameter (legacy AtoM URL).
+     * GET /media/snippets?digital_object_id=X
+     */
+    public function snippetsListByQuery(Request $request)
+    {
+        $doId = (int) $request->query('digital_object_id', $request->query('id', 0));
+
+        if (!$doId) {
+            return response()->json(['error' => 'digital_object_id query parameter required'], 400);
+        }
+
+        return $this->snippetsList($doId);
+    }
+
+    /**
      * List snippets for a digital object (AJAX GET).
      * GET /media/snippets/{id}
      */

@@ -85,7 +85,7 @@ class Model3dController extends Controller
                     $q->orWhere('do.name', 'LIKE', "%.{$ext}");
                 }
             })
-            ->groupBy('do.id')
+            ->groupBy('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size', 'do.object_id', 'ioi.title', 'slug.slug')
             ->orderBy('do.id', 'desc')
             ->offset($offset)
             ->limit($perPage)

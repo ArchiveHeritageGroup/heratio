@@ -35,6 +35,17 @@ class ConditionService
             ->get();
     }
 
+    /**
+     * Get condition checks for a specific information object.
+     */
+    public function getConditionChecksForObject(int $objectId): \Illuminate\Support\Collection
+    {
+        return DB::table('spectrum_condition_check')
+            ->where('object_id', $objectId)
+            ->orderByDesc('check_date')
+            ->get();
+    }
+
     public function getByConditionBreakdown(): \Illuminate\Support\Collection
     {
         return DB::table('spectrum_condition_check')

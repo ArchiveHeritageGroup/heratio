@@ -25,6 +25,8 @@ Route::delete('/media/transcription/{id}', [MediaController::class, 'transcripti
 Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
 Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
 Route::get('/media/snippets/{id}', [MediaController::class, 'snippetsList'])->name('media.snippets.list')->where('id', '[0-9]+');
+// GET /media/snippets — list snippets by digital_object_id query param (legacy AtoM URL)
+Route::get('/media/snippets', [MediaController::class, 'snippetsListByQuery'])->name('media.snippets.listByQuery');
 Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
 Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->where('id', '[0-9]+');
 Route::get('/media/export-snippet', [MediaController::class, 'exportSnippet'])->name('media.export-snippet');

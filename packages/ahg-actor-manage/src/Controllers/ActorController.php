@@ -1075,7 +1075,12 @@ class ActorController extends Controller
             'limit'       => $request->get('limit', 50),
         ];
 
-        $stubs = $nerService->getStubs($filters);
+        $stubs = [];
+        try {
+            $stubs = $nerService->getStubs($filters);
+        } catch (\Exception $e) {
+            // ahg_ner_authority_stub table may not exist yet
+        }
 
         $pendingFilters = [
             'entity_type'    => $request->get('entity_type', ''),
@@ -1087,7 +1092,12 @@ class ActorController extends Controller
             'limit'          => 20,
         ];
 
-        $pendingEntities = $nerService->getPendingEntities($pendingFilters);
+        $pendingEntities = [];
+        try {
+            $pendingEntities = $nerService->getPendingEntities($pendingFilters);
+        } catch (\Exception $e) {
+            // ner_entity table may not exist yet
+        }
 
         return view('ahg-actor-manage::authority.ner-index', [
             'stats' => $stats,

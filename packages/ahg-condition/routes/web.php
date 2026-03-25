@@ -23,3 +23,17 @@ Route::middleware(['auth', 'admin'])->prefix('condition')->group(function () {
     Route::get('/admin', [ConditionController::class, 'admin'])->name('condition.admin');
     Route::get('/list', [ConditionController::class, 'list'])->name('condition.list');
 });
+
+// Legacy AtoM base-path aliases (AJAX JSON responses)
+Route::middleware('auth')->group(function () {
+    // GET /condition/check — base path returns JSON listing of recent condition checks
+    Route::get('/condition/check', [ConditionController::class, 'checkIndex'])->name('condition.check.index');
+    // POST /condition/photo — base path for photo upload (alias to upload route)
+    Route::post('/condition/photo', [ConditionController::class, 'upload'])->name('condition.photo.base');
+    // GET /condition/photo — base path returns JSON error directing to proper endpoint
+    Route::get('/condition/photo', function () {
+        return response()->json([
+            'error' => 'Specify a photo action: /condition/photo/upload, /condition/photo/{id}/annotate, /condition/photo/{id}/delete',
+        ], 400);
+    })->name('condition.photo.index');
+});
