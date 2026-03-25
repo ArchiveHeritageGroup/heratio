@@ -31,8 +31,10 @@ class InformationObjectController extends Controller
         }
 
         // Top-level filter: default browse shows only top-level descriptions (matching AtoM)
-        $topLevel = $request->get('topLevelDescription', $request->get('topLevel', '1'));
-        if ($topLevel === '1' || $topLevel === 'true') {
+        // Disabled when a search query is present (AtoM searches all levels)
+        $hasQuery = !empty($params['subquery']);
+        $topLevel = $request->get('topLevelDescription', $request->get('topLevel', $hasQuery ? '0' : '1'));
+        if (($topLevel === '1' || $topLevel === 'true') && !$hasQuery) {
             $params['filters']['top_level'] = true;
         }
 
