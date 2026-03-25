@@ -120,7 +120,14 @@ class InformationObjectBrowseService extends BrowseService
         if ($subquery !== '') {
             $query->where(function ($q) use ($subquery) {
                 $q->where('information_object_i18n.title', 'LIKE', "%{$subquery}%")
-                  ->orWhere('information_object.identifier', 'LIKE', "%{$subquery}%");
+                  ->orWhere('information_object.identifier', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.scope_and_content', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.archival_history', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.arrangement', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.access_conditions', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.location_of_originals', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.related_units_of_description', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.sources', 'LIKE', "%{$subquery}%");
             });
         }
 
