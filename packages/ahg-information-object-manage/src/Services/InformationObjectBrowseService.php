@@ -2,6 +2,7 @@
 
 namespace AhgInformationObjectManage\Services;
 
+use AhgCore\Models\QubitTerm;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 
@@ -63,14 +64,14 @@ class InformationObjectBrowseService extends BrowseService
             $query->where('information_object.parent_id', 1);
         }
 
-        // Publication status filter: only show published records (status_id=160)
+        // Publication status filter: only show published records
         if (!empty($this->activeFilters['publication_status'])) {
             $query->whereExists(function ($sub) {
                 $sub->select(DB::raw(1))
                     ->from('status')
                     ->whereColumn('status.object_id', 'information_object.id')
-                    ->where('status.type_id', 158)
-                    ->where('status.status_id', 160);
+                    ->where('status.type_id', QubitTerm::STATUS_TYPE_PUBLICATION_ID)
+                    ->where('status.status_id', QubitTerm::PUBLICATION_STATUS_PUBLISHED_ID);
             });
         }
 
