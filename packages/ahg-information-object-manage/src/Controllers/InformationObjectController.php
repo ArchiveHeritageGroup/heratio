@@ -22,8 +22,19 @@ class InformationObjectController extends Controller
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
-            'subquery' => $request->get('subquery', ''),
+            'subquery' => $request->get('query', $request->get('subquery', '')),
         ];
+
+        // Publication status filter: non-admin users only see published records
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            $params['filters']['publication_status'] = 'published';
+        }
+
+        // Top-level filter: default browse shows only top-level descriptions (matching AtoM)
+        $topLevel = $request->get('topLevelDescription', $request->get('topLevel', '1'));
+        if ($topLevel === '1' || $topLevel === 'true') {
+            $params['filters']['top_level'] = true;
+        }
 
         // Apply filters from request
         $repositoryId = $request->get('repository');

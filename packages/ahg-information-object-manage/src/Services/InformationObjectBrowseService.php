@@ -58,6 +58,22 @@ class InformationObjectBrowseService extends BrowseService
                   ->where('digital_object.media_type_id', $this->activeFilters['media_type_id']);
         }
 
+        // Top-level filter: only show top-level descriptions (parent_id=1)
+        if (!empty($this->activeFilters['top_level'])) {
+            $query->where('information_object.parent_id', 1);
+        }
+
+        // Publication status filter: only show published records (status_id=160)
+        if (!empty($this->activeFilters['publication_status'])) {
+            $query->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('status')
+                    ->whereColumn('status.object_id', 'information_object.id')
+                    ->where('status.type_id', 158)
+                    ->where('status.status_id', 160);
+            });
+        }
+
         return $query;
     }
 

@@ -38,7 +38,7 @@ class ActorController extends Controller
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
             'sortDir' => $request->get('sortDir', ''),
-            'subquery' => $request->get('subquery', ''),
+            'subquery' => $request->get('query', $request->get('subquery', '')),
             'entityType' => $request->get('entityType', ''),
             'repository' => $request->get('repository', ''),
             'hasDigitalObject' => $request->get('hasDigitalObject', ''),
