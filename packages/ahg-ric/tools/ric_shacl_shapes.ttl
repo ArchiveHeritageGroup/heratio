@@ -1,0 +1,558 @@
+# RiC-O SHACL Validation Shapes
+# ==============================
+# Data quality validation for Records in Context Ontology
+#
+# Usage:
+#   pyshacl -s ric_shacl_shapes.ttl -d data.jsonld -f human
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix spectrum: <https://collectionstrust.org.uk/spectrum#> .
+@prefix grap: <https://www.asb.co.za/grap#> .
+@prefix : <https://archives.theahg.co.za/ric/shapes#> .
+
+
+# ============================================================================
+# RECORD SHAPES
+# ============================================================================
+
+:RecordSetShape a sh:NodeShape ;
+    sh:targetClass rico:RecordSet ;
+    sh:name "RecordSet Validation" ;
+    sh:description "Validates RecordSet entities (fonds, series, files)" ;
+    
+    # Required: title
+    sh:property [
+        sh:path rico:title ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "RecordSet must have exactly one non-empty title"
+    ] ;
+    
+    # Recommended: identifier
+    sh:property [
+        sh:path rico:identifier ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "RecordSet should have an identifier (reference code)"
+    ] ;
+    
+    # Recommended: scopeAndContent
+    sh:property [
+        sh:path rico:scopeAndContent ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "RecordSet should have scope and content description"
+    ] ;
+    
+    # Optional but structured: hierarchy
+    sh:property [
+        sh:path rico:isOrWasPartOf ;
+        sh:class rico:RecordSet ;
+        sh:severity sh:Info ;
+        sh:message "Parent should be a RecordSet"
+    ] ;
+    
+    # Recommended: held by repository
+    sh:property [
+        sh:path rico:isOrWasHeldBy ;
+        sh:class rico:CorporateBody ;
+        sh:severity sh:Warning ;
+        sh:message "RecordSet should be held by a repository (CorporateBody)"
+    ] .
+
+
+:RecordShape a sh:NodeShape ;
+    sh:targetClass rico:Record ;
+    sh:name "Record Validation" ;
+    sh:description "Validates Record entities (items)" ;
+    
+    sh:property [
+        sh:path rico:title ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Record must have a title"
+    ] ;
+    
+    sh:property [
+        sh:path rico:isOrWasPartOf ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Record should be part of a RecordSet"
+    ] .
+
+
+# ============================================================================
+# AGENT SHAPES
+# ============================================================================
+
+:PersonShape a sh:NodeShape ;
+    sh:targetClass rico:Person ;
+    sh:name "Person Validation" ;
+    sh:description "Validates Person entities" ;
+    
+    sh:property [
+        sh:path rico:hasAgentName ;
+        sh:minCount 1 ;
+        sh:message "Person must have at least one name"
+    ] ;
+    
+    sh:property [
+        sh:path rico:hasAgentName ;
+        sh:node :AgentNameShape ;
+        sh:message "Agent name must be properly structured"
+    ] .
+
+
+:CorporateBodyShape a sh:NodeShape ;
+    sh:targetClass rico:CorporateBody ;
+    sh:name "CorporateBody Validation" ;
+    sh:description "Validates CorporateBody entities" ;
+    
+    sh:property [
+        sh:path rico:hasAgentName ;
+        sh:minCount 1 ;
+        sh:message "CorporateBody must have at least one name"
+    ] ;
+    
+    sh:property [
+        sh:path rico:hasAgentName ;
+        sh:node :AgentNameShape ;
+        sh:message "Agent name must be properly structured"
+    ] .
+
+
+:FamilyShape a sh:NodeShape ;
+    sh:targetClass rico:Family ;
+    sh:name "Family Validation" ;
+    
+    sh:property [
+        sh:path rico:hasAgentName ;
+        sh:minCount 1 ;
+        sh:message "Family must have at least one name"
+    ] .
+
+
+:AgentNameShape a sh:NodeShape ;
+    sh:name "AgentName Structure" ;
+    
+    sh:property [
+        sh:path rico:textualValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "AgentName must have exactly one non-empty textualValue"
+    ] .
+
+
+# ============================================================================
+# ACTIVITY SHAPES
+# ============================================================================
+
+:ProductionShape a sh:NodeShape ;
+    sh:targetClass rico:Production ;
+    sh:name "Production Activity Validation" ;
+    sh:description "Validates creation/production activities" ;
+    
+    # Must link to a record
+    sh:property [
+        sh:path rico:resultsOrResultedIn ;
+        sh:minCount 1 ;
+        sh:message "Production must result in at least one record"
+    ] ;
+    
+    # Should have participant
+    sh:property [
+        sh:path rico:hasOrHadParticipant ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Production should have at least one participant (creator)"
+    ] ;
+    
+    # Should have date
+    sh:property [
+        sh:path rico:isOrWasAssociatedWithDate ;
+        sh:severity sh:Warning ;
+        sh:message "Production should have an associated date"
+    ] .
+
+
+:AccumulationShape a sh:NodeShape ;
+    sh:targetClass rico:Accumulation ;
+    sh:name "Accumulation Activity Validation" ;
+    
+    sh:property [
+        sh:path rico:resultsOrResultedIn ;
+        sh:minCount 1 ;
+        sh:message "Accumulation must result in at least one record"
+    ] .
+
+
+:ActivityShape a sh:NodeShape ;
+    sh:targetClass rico:Activity ;
+    sh:name "General Activity Validation" ;
+    
+    sh:property [
+        sh:path rico:hasActivityType ;
+        sh:maxCount 1 ;
+        sh:severity sh:Info ;
+        sh:message "Activity should have an activity type"
+    ] .
+
+
+# ============================================================================
+# DATE SHAPES
+# ============================================================================
+
+:DateRangeShape a sh:NodeShape ;
+    sh:targetClass rico:DateRange ;
+    sh:name "DateRange Validation" ;
+    
+    # Should have at least one date property
+    sh:or (
+        [ sh:property [ sh:path rico:beginningDate ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path rico:endDate ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path rico:expressedDate ; sh:minCount 1 ] ]
+    ) ;
+    
+    # Date format validation
+    sh:property [
+        sh:path rico:beginningDate ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d{4}(-\\d{2}(-\\d{2})?)?$" ;
+        sh:severity sh:Warning ;
+        sh:message "Beginning date should be in ISO format (YYYY, YYYY-MM, or YYYY-MM-DD)"
+    ] ;
+    
+    sh:property [
+        sh:path rico:endDate ;
+        sh:maxCount 1 ;
+        sh:pattern "^\\d{4}(-\\d{2}(-\\d{2})?)?$" ;
+        sh:severity sh:Warning ;
+        sh:message "End date should be in ISO format"
+    ] .
+
+
+# ============================================================================
+# PLACE SHAPES
+# ============================================================================
+
+:PlaceShape a sh:NodeShape ;
+    sh:targetClass rico:Place ;
+    sh:name "Place Validation" ;
+    
+    sh:property [
+        sh:path rico:hasPlaceName ;
+        sh:minCount 1 ;
+        sh:message "Place must have at least one name"
+    ] ;
+    
+    sh:property [
+        sh:path rico:hasPlaceName ;
+        sh:node :PlaceNameShape
+    ] .
+
+
+:PlaceNameShape a sh:NodeShape ;
+    sh:property [
+        sh:path rico:textualValue ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "PlaceName must have a textual value"
+    ] .
+
+
+# ============================================================================
+# INSTANTIATION SHAPES
+# ============================================================================
+
+:InstantiationShape a sh:NodeShape ;
+    sh:targetClass rico:Instantiation ;
+    sh:name "Instantiation (Digital Object) Validation" ;
+    
+    # Should have MIME type for digital objects
+    sh:property [
+        sh:path rico:hasMimeType ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-z]+/[a-z0-9.+-]+$" ;
+        sh:severity sh:Warning ;
+        sh:message "Digital instantiation should have a valid MIME type"
+    ] ;
+    
+    # Should be linked from a record
+    sh:sparql [
+        sh:message "Instantiation should be linked from a Record via rico:hasInstantiation" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a rico:Instantiation .
+                FILTER NOT EXISTS {
+                    ?record rico:hasInstantiation $this .
+                }
+            }
+        """
+    ] .
+
+
+# ============================================================================
+# RULE SHAPES
+# ============================================================================
+
+:RuleShape a sh:NodeShape ;
+    sh:targetClass rico:Rule ;
+    sh:name "Rule Validation" ;
+    
+    sh:property [
+        sh:path rico:ruleType ;
+        sh:severity sh:Warning ;
+        sh:message "Rule should have a rule type"
+    ] ;
+    
+    sh:or (
+        [ sh:property [ sh:path rico:descriptiveNote ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path rico:ruleType ; sh:minCount 1 ] ]
+    ) .
+
+
+# ============================================================================
+# FUNCTION SHAPES
+# ============================================================================
+
+:FunctionShape a sh:NodeShape ;
+    sh:targetClass rico:Function ;
+    sh:name "Function Validation" ;
+    
+    sh:property [
+        sh:path rico:hasOrHadName ;
+        sh:severity sh:Warning ;
+        sh:message "Function should have a name"
+    ] .
+
+
+# ============================================================================
+# RELATION VALIDATION
+# ============================================================================
+
+:RelationConsistencyShape a sh:NodeShape ;
+    sh:targetSubjectsOf rico:isOrWasPartOf ;
+    sh:name "Hierarchy Consistency" ;
+    
+    # Parent should exist and be a record type
+    sh:property [
+        sh:path rico:isOrWasPartOf ;
+        sh:class rico:RecordSet ;
+        sh:severity sh:Warning ;
+        sh:message "Parent (isOrWasPartOf target) should be a RecordSet"
+    ] .
+
+
+:CreatorLinkShape a sh:NodeShape ;
+    sh:targetSubjectsOf rico:hasCreator ;
+    sh:name "Creator Link Validation" ;
+    
+    sh:property [
+        sh:path rico:hasCreator ;
+        sh:or (
+            [ sh:class rico:Person ]
+            [ sh:class rico:CorporateBody ]
+            [ sh:class rico:Family ]
+        ) ;
+        sh:message "Creator must be a Person, CorporateBody, or Family"
+    ] .
+
+
+# ============================================================================
+# SPECTRUM EXTENSION SHAPES
+# ============================================================================
+
+:ConditionCheckShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a rico:Activity ;
+                      rico:hasActivityType "ConditionCheck" .
+            }
+        """
+    ] ;
+    sh:name "Condition Check Validation" ;
+    
+    sh:property [
+        sh:path rico:resultsOrResultedIn ;
+        sh:minCount 1 ;
+        sh:message "Condition check must be associated with a record"
+    ] ;
+    
+    sh:property [
+        sh:path spectrum:overallCondition ;
+        sh:in ( "Excellent" "Good" "Fair" "Poor" "Critical" "Unacceptable" ) ;
+        sh:severity sh:Warning ;
+        sh:message "Condition rating should use standard values"
+    ] .
+
+
+:ValuationShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a rico:Activity ;
+                      rico:hasActivityType "Valuation" .
+            }
+        """
+    ] ;
+    sh:name "Valuation Validation" ;
+    
+    sh:property [
+        sh:path spectrum:valuationAmount ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Valuation should have an amount"
+    ] ;
+    
+    sh:property [
+        sh:path rico:isOrWasAssociatedWithDate ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Valuation should have a date"
+    ] .
+
+
+:LoanOutShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a rico:Activity ;
+                      rico:hasActivityType "LoanOut" .
+            }
+        """
+    ] ;
+    sh:name "Loan Out Validation" ;
+    
+    sh:property [
+        sh:path spectrum:loanNumber ;
+        sh:minCount 1 ;
+        sh:message "Loan must have a loan number"
+    ] ;
+    
+    sh:property [
+        sh:path spectrum:borrower ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Loan should have borrower information"
+    ] ;
+    
+    sh:property [
+        sh:path rico:isOrWasAssociatedWithDate ;
+        sh:minCount 1 ;
+        sh:message "Loan must have dates"
+    ] .
+
+
+# ============================================================================
+# GRAP EXTENSION SHAPES
+# ============================================================================
+
+:GRAPHeritageAssetShape a sh:NodeShape ;
+    sh:targetClass grap:HeritageAsset ;
+    sh:name "GRAP Heritage Asset Validation" ;
+    
+    # Must link to a record
+    sh:property [
+        sh:path grap:relatedRecord ;
+        sh:minCount 1 ;
+        sh:message "GRAP asset must be linked to a record"
+    ] ;
+    
+    # Should have asset class
+    sh:property [
+        sh:path grap:assetClass ;
+        sh:in ( "Immovable" "Movable" "Natural" "Documentary" "Intangible" ) ;
+        sh:severity sh:Warning ;
+        sh:message "GRAP asset should have a valid asset class"
+    ] ;
+    
+    # Should have recognition status
+    sh:property [
+        sh:path grap:recognitionStatus ;
+        sh:severity sh:Warning ;
+        sh:message "GRAP asset should have recognition status"
+    ] ;
+    
+    # Valuation data
+    sh:property [
+        sh:path grap:currentCarryingAmount ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Info ;
+        sh:message "Carrying amount should be a decimal number"
+    ] .
+
+
+# ============================================================================
+# CROSS-ENTITY VALIDATION (SPARQL-based)
+# ============================================================================
+
+:OrphanedRecordShape a sh:NodeShape ;
+    sh:targetClass rico:Record ;
+    sh:name "Orphaned Record Detection" ;
+    sh:sparql [
+        sh:message "Record has no parent and is not a top-level fonds" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a rico:Record .
+                FILTER NOT EXISTS { $this rico:isOrWasPartOf ?parent }
+            }
+        """
+    ] .
+
+
+:UnlinkedAgentShape a sh:NodeShape ;
+    sh:targetClass rico:Person, rico:CorporateBody, rico:Family ;
+    sh:name "Unlinked Agent Detection" ;
+    sh:sparql [
+        sh:message "Agent is not linked to any records or activities" ;
+        sh:severity sh:Info ;
+        sh:select """
+            SELECT $this WHERE {
+                { $this a rico:Person } UNION 
+                { $this a rico:CorporateBody } UNION 
+                { $this a rico:Family }
+                FILTER NOT EXISTS {
+                    { ?record rico:hasCreator $this }
+                    UNION
+                    { ?record rico:hasAccumulator $this }
+                    UNION
+                    { ?activity rico:hasOrHadParticipant $this }
+                }
+            }
+        """
+    ] .
+
+
+:DuplicateIdentifierShape a sh:NodeShape ;
+    sh:targetClass rico:RecordSet, rico:Record ;
+    sh:name "Duplicate Identifier Detection" ;
+    sh:sparql [
+        sh:message "Multiple records share the same identifier" ;
+        sh:severity sh:Warning ;
+        sh:select """
+            SELECT $this WHERE {
+                $this rico:identifier ?id .
+                ?other rico:identifier ?id .
+                FILTER($this != ?other)
+            }
+        """
+    ] .

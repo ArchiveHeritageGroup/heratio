@@ -235,7 +235,60 @@ class RicController extends Controller
         ));
     }
 
-    public function config(Request $request) { return view('ahg-ric::config', ['record' => (object)[]]); }
+    /**
+     * Config — show/save Fuseki settings.
+     */
+    public function config(Request $request)
+    {
+        // Load current config from ahg_settings (setting_group = 'fuseki')
+        $config = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $config = DB::table('ahg_settings')
+                ->where('setting_group', 'fuseki')
+                ->pluck('setting_value', 'setting_key')
+                ->toArray();
+        }
+
+        // Handle POST — save settings
+        if ($request->isMethod('post')) {
+            $incoming = $request->input('config', []);
+
+            // Checkboxes: if not present in POST, they are unchecked => '0'
+            $allKeys = ['fuseki_endpoint', 'fuseki_username', 'fuseki_password', 'sync_enabled', 'queue_enabled', 'cascade_delete', 'batch_size'];
+            $checkboxKeys = ['sync_enabled', 'queue_enabled', 'cascade_delete'];
+
+            foreach ($allKeys as $key) {
+                $value = $incoming[$key] ?? (in_array($key, $checkboxKeys) ? '0' : null);
+                if ($value === null) {
+                    continue;
+                }
+
+                $exists = DB::table('ahg_settings')
+                    ->where('setting_group', 'fuseki')
+                    ->where('setting_key', $key)
+                    ->exists();
+
+                if ($exists) {
+                    DB::table('ahg_settings')
+                        ->where('setting_group', 'fuseki')
+                        ->where('setting_key', $key)
+                        ->update(['setting_value' => $value, 'updated_at' => now()]);
+                } else {
+                    DB::table('ahg_settings')->insert([
+                        'setting_group' => 'fuseki',
+                        'setting_key'   => $key,
+                        'setting_value' => $value,
+                        'created_at'    => now(),
+                        'updated_at'    => now(),
+                    ]);
+                }
+            }
+
+            return redirect()->route('ric.config')->with('notice', 'Configuration saved successfully.');
+        }
+
+        return view('ahg-ric::config', compact('config'));
+    }
 
     /**
      * AJAX: dashboard data (queue, orphans, entity status, recent ops, charts).
@@ -404,6 +457,187 @@ class RicController extends Controller
             'success' => true,
             'stats' => ['triples_removed' => $removed],
         ]);
+    }
+
+    /**
+     * AJAX: re-sync a specific entity (re-queue for sync).
+     */
+    public function ajaxResync(Request $request)
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['success' => false, 'error' => 'Tables not configured']);
+        }
+
+        $entityType = $request->input('entity_type');
+        $entityId = (int) $request->input('entity_id');
+
+        if (!$entityType || !$entityId) {
+            return response()->json(['success' => false, 'error' => 'entity_type and entity_id are required']);
+        }
+
+        // Update sync status to pending
+        DB::table('ric_sync_status')
+            ->where('entity_type', $entityType)
+            ->where('entity_id', $entityId)
+            ->update(['sync_status' => 'pending', 'updated_at' => now()]);
+
+        // Queue for re-sync
+        DB::table('ric_sync_queue')->insert([
+            'entity_type'  => $entityType,
+            'entity_id'    => $entityId,
+            'operation'    => 'resync',
+            'status'       => 'queued',
+            'priority'     => 1,
+            'attempts'     => 0,
+            'scheduled_at' => now(),
+            'created_at'   => now(),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * AJAX: clear/retry/cancel a queue item.
+     */
+    public function ajaxClearQueueItem(Request $request)
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['success' => false, 'error' => 'Tables not configured']);
+        }
+
+        $id = (int) $request->input('id');
+        $action = $request->input('queue_action', 'cancel');
+
+        if (!$id) {
+            return response()->json(['success' => false, 'error' => 'Queue item id is required']);
+        }
+
+        if ($action === 'retry') {
+            DB::table('ric_sync_queue')
+                ->where('id', $id)
+                ->update(['status' => 'queued', 'attempts' => 0]);
+        } elseif ($action === 'cancel') {
+            DB::table('ric_sync_queue')
+                ->where('id', $id)
+                ->update(['status' => 'cancelled']);
+        } elseif ($action === 'delete') {
+            DB::table('ric_sync_queue')->where('id', $id)->delete();
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * AJAX: update orphan status (reviewed, retained, cleaned).
+     */
+    public function ajaxUpdateOrphan(Request $request)
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['success' => false, 'error' => 'Tables not configured']);
+        }
+
+        $id = (int) $request->input('id');
+        $status = $request->input('orphan_status');
+        $validStatuses = ['reviewed', 'retained', 'cleaned'];
+
+        if (!$id) {
+            return response()->json(['success' => false, 'error' => 'Orphan id is required']);
+        }
+
+        if (!in_array($status, $validStatuses)) {
+            return response()->json(['success' => false, 'error' => 'Invalid status. Valid: ' . implode(', ', $validStatuses)]);
+        }
+
+        DB::table('ric_orphan_tracking')
+            ->where('id', $id)
+            ->update([
+                'status'      => $status,
+                'resolved_at' => $status === 'cleaned' ? now() : null,
+            ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * AJAX: stats summary (sync, queue, orphans, fuseki status).
+     */
+    public function ajaxStats()
+    {
+        if (! $this->tablesExist()) {
+            return response()->json(['error' => 'RIC tables not configured'], 500);
+        }
+
+        $syncSummary = DB::table('ric_sync_status')
+            ->selectRaw("entity_type, sync_status, COUNT(*) as `count`")
+            ->groupBy('entity_type', 'sync_status')
+            ->get()
+            ->groupBy('entity_type')
+            ->toArray();
+
+        $queueStatus = DB::table('ric_sync_queue')
+            ->selectRaw("status, COUNT(*) as cnt")
+            ->groupBy('status')
+            ->pluck('cnt', 'status')
+            ->toArray();
+
+        $orphanCount = DB::table('ric_orphan_tracking')
+            ->where('status', 'detected')
+            ->count();
+
+        $recentOps = DB::table('ric_sync_log')
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        // Fuseki status check
+        $fusekiStatus = $this->checkFusekiStatusQuick();
+
+        return response()->json([
+            'sync_summary'      => $syncSummary,
+            'queue_status'      => $queueStatus,
+            'orphan_count'      => $orphanCount,
+            'fuseki_status'     => $fusekiStatus,
+            'recent_operations' => $recentOps,
+            'timestamp'         => now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
+     * Quick Fuseki connectivity check via ASK query.
+     */
+    protected function checkFusekiStatusQuick(): array
+    {
+        $config = $this->getFusekiConfig();
+        $endpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
+        $username = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
+        $password = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+
+        try {
+            $ch = curl_init($endpoint);
+            $curlOpts = [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => 'ASK { ?s ?p ?o }',
+                CURLOPT_HTTPHEADER     => ['Content-Type: application/sparql-query', 'Accept: application/json'],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_CONNECTTIMEOUT => 3,
+            ];
+            if (!empty($password)) {
+                $curlOpts[CURLOPT_USERPWD] = "{$username}:{$password}";
+            }
+            curl_setopt_array($ch, $curlOpts);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                $data = json_decode($response, true);
+                return ['online' => true, 'has_data' => $data['boolean'] ?? false];
+            }
+            return ['online' => false, 'error' => 'HTTP ' . $httpCode];
+        } catch (\Exception $e) {
+            return ['online' => false, 'error' => $e->getMessage()];
+        }
     }
 
     // =========================================================================

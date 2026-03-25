@@ -1812,6 +1812,9 @@
     </section>
   @endif
 
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
+
   </div>{{-- /data-tts-content --}}
 
 @endsection
