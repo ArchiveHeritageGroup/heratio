@@ -124,22 +124,29 @@ class UserService
     {
         $row = DB::table('acl_permission')
             ->where('user_id', $userId)
-            ->where('action_id', 6) // translate action
+            ->where('action', 'translate')
             ->first();
 
-        if (!$row || empty($row->conditional)) {
+        if (!$row) {
             return [];
         }
 
-        // Conditional stores serialized array like a:2:{i:0;s:2:"en";i:1;s:2:"af";}
-        $data = @unserialize($row->conditional);
+        // Languages stored in constants as serialized array: a:1:{s:9:"languages";a:1:{i:0;s:2:"af";}}
+        $source = $row->constants ?: $row->conditional;
+        if (empty($source)) {
+            return [];
+        }
+
+        $data = @unserialize($source);
+        if (is_array($data) && isset($data['languages'])) {
+            return $data['languages'];
+        }
         if (is_array($data)) {
             return $data;
         }
 
-        // Try JSON
-        $data = json_decode($row->conditional, true);
-        return is_array($data) ? $data : [];
+        $data = json_decode($source, true);
+        return is_array($data) ? ($data['languages'] ?? $data) : [];
     }
 
     /**
@@ -431,7 +438,7 @@ class UserService
         // Remove existing translate permission
         DB::table('acl_permission')
             ->where('user_id', $userId)
-            ->where('action_id', 6)
+            ->where('action', 'translate')
             ->delete();
 
         if (!empty($languages)) {
@@ -439,12 +446,13 @@ class UserService
                 'user_id' => $userId,
                 'group_id' => null,
                 'object_id' => null,
-                'action_id' => 6,
+                'action' => 'translate',
                 'grant_deny' => 1,
-                'conditional' => serialize($languages),
-                'constants' => 0,
+                'conditional' => 'in_array(%p[language], %k[languages])',
+                'constants' => serialize(['languages' => $languages]),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'serial_number' => 0,
             ]);
         }
     }
