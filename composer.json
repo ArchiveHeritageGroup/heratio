@@ -110,7 +110,8 @@
         "ahg/vendor": "@dev",
         "ahg/workflow": "@dev",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "phpoffice/phpspreadsheet": "^5.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
