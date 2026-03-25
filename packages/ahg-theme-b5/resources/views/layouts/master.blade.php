@@ -82,6 +82,23 @@
 
     @stack('js')
 
+    {{-- Auto-open first accordion block on every page --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.accordion').forEach(function(acc) {
+        var firstCollapse = acc.querySelector('.accordion-collapse');
+        var firstButton = acc.querySelector('.accordion-button');
+        if (firstCollapse && !firstCollapse.classList.contains('show')) {
+          firstCollapse.classList.add('show');
+          if (firstButton) {
+            firstButton.classList.remove('collapsed');
+            firstButton.setAttribute('aria-expanded', 'true');
+          }
+        }
+      });
+    });
+    </script>
+
     {{-- Floating Feedback Tab --}}
     @include('theme::partials.feedback-tab')
   </body>
