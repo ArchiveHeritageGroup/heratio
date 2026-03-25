@@ -735,7 +735,8 @@ PY;
             $headers = array_shift($rows);
             $fnameCol = null;
             foreach ($headers as $col => $val) {
-                if (stripos($val ?? '', 'fname') !== false || stripos($val ?? '', 'file') !== false || stripos($val ?? '', 'image') !== false) {
+                $lower = strtolower(trim($val ?? ''));
+                if (in_array($lower, ['fname', 'filename', 'file', 'image', 'docname', 'doc_name', 'imagename', 'image_name'])) {
                     $fnameCol = $col;
                     break;
                 }
@@ -750,12 +751,22 @@ PY;
             }
 
             foreach ($rows as $row) {
-                $fname = $row[$fnameCol] ?? '';
+                $fname = trim($row[$fnameCol] ?? '');
                 if (!$fname) continue;
 
+                // Try exact name, then with common extensions
                 $imagePath = "{$folder}/{$fname}";
+                if (!file_exists($imagePath)) {
+                    foreach (['.jpg', '.jpeg', '.png', '.tif', '.JPG'] as $ext) {
+                        if (file_exists("{$folder}/{$fname}{$ext}")) {
+                            $fname = $fname . $ext;
+                            $imagePath = "{$folder}/{$fname}";
+                            break;
+                        }
+                    }
+                }
                 if (!file_exists($imagePath)) continue;
-                if (in_array($fname, $processedFiles)) continue; // Skip already processed
+                if (in_array($fname, $processedFiles)) continue;
 
                 $fields = [];
                 foreach ($headers as $col => $header) {
@@ -777,9 +788,18 @@ PY;
             return response()->json(['success' => false, 'error' => 'Spreadsheet parse error: ' . $e->getMessage()]);
         }
 
+        // Build column list from headers (excluding filename column)
+        $columns = [];
+        foreach ($headers as $col => $val) {
+            if ($col !== $fnameCol && $val) {
+                $columns[] = $val;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'images' => $images,
+            'columns' => $columns,
             'spreadsheet' => basename($spreadsheet),
             'total' => count($images),
         ]);
@@ -903,7 +923,7 @@ PY;
         $processedDir = $folder . '/processed';
         @mkdir($processedDir, 0777, true);
         if (file_exists($imagePath)) {
-            rename($imagePath, "{$processedDir}/{$fname}");
+            @rename($imagePath, "{$processedDir}/{$fname}");
         }
 
         return response()->json([

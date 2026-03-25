@@ -5,7 +5,11 @@
 
 @push('css')
 <style>
-  .ba-wrap { position: relative; overflow: auto; background: #1a1a2e; border-radius: 4px; cursor: crosshair; max-height: 75vh; }
+  .ba-wrap { position: relative; overflow: scroll; background: #1a1a2e; border-radius: 4px; height: 75vh; }
+  .ba-wrap.tool-hand { cursor: grab; }
+  .ba-wrap.tool-hand.panning { cursor: grabbing; }
+  .ba-wrap.tool-draw { cursor: crosshair; }
+  .ba-wrap.tool-select { cursor: default; }
   .ba-wrap canvas { display: block; }
   .ba-sidebar { max-height: 75vh; overflow-y: auto; }
   .ba-field { padding: 6px 10px; border-left: 3px solid #ccc; margin-bottom: 4px; cursor: pointer; }
@@ -14,6 +18,12 @@
   .ba-field .ba-label { font-weight: 600; font-size: 0.8rem; color: #666; }
   .ba-field .ba-value { font-size: 0.95rem; }
   .ba-field .ba-coords { font-size: 0.7rem; color: #999; }
+  .ba-field.skipped { border-left-color: #adb5bd; background: #f8f9fa; opacity: 0.6; }
+  .ba-field.skipped .ba-value { text-decoration: line-through; }
+  .ba-field .ba-skip-btn { float: right; font-size: 0.7rem; padding: 0 6px; }
+  .ba-field .ba-edit-input { font-size: 0.85rem; padding: 2px 4px; width: 100%; border: 1px solid #dee2e6; border-radius: 3px; }
+  .ba-field .ba-edit-input:focus { border-color: #0d6efd; outline: none; }
+  .ba-wrap.dragging { cursor: move !important; }
   .ba-progress { height: 4px; }
   kbd { font-size: 0.75rem; }
 </style>
@@ -63,6 +73,11 @@
         <span id="ba-image-name" class="small">No image loaded</span>
         <span>
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
+          <div class="btn-group btn-group-sm me-2">
+            <button class="btn btn-light active" id="ba-tool-hand" title="Pan (H)" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
+            <button class="btn btn-light" id="ba-tool-draw" title="Draw (R)" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
+            <button class="btn btn-light" id="ba-tool-select" title="Select/Move (V)" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
+          </div>
           <button class="btn btn-sm btn-light" onclick="baZoomIn()"><i class="fas fa-search-plus"></i></button>
           <button class="btn btn-sm btn-light" onclick="baZoomOut()"><i class="fas fa-search-minus"></i></button>
           <button class="btn btn-sm btn-light" onclick="baZoomFit()"><i class="fas fa-expand"></i></button>
@@ -91,7 +106,7 @@
       <div class="progress-bar bg-success" id="ba-progress" style="width:0%"></div>
     </div>
     <div class="mt-2 small text-muted">
-      <kbd>R</kbd> draw box · <kbd>Enter</kbd> confirm & next field · <kbd>Backspace</kbd> undo last · <kbd>→</kbd> skip field · <kbd>Ctrl+S</kbd> save & next image
+      <kbd>Draw</kbd> box around field · <kbd>Enter</kbd> confirm & next · <kbd>→</kbd> skip field (not on form) · <kbd>Backspace</kbd> undo · <kbd>Ctrl+S</kbd> save & next image · Click <i class="fas fa-forward"></i> to toggle skip
     </div>
 
     {{-- Session stats --}}
@@ -121,8 +136,8 @@
 @push('js')
 <script>
 (function() {
-  const COLUMNS = ['Name', 'Sex', 'Age', 'Birth Year (Estimated)', 'Residence Place',
-                    'Relationship to Head of Household', 'Event Type', 'Event Date', 'Event Place'];
+  // Dynamic columns — populated from spreadsheet headers on load
+  let COLUMNS = [];
   const COLORS = ['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dfe6e9','#fd79a8','#6c5ce7','#00b894'];
 
   let images = [];       // [{fname, fields: {Name: 'x', Sex: 'y', ...}}]
@@ -131,8 +146,50 @@
   let annotations = [];  // [{label, value, x, y, w, h}]
   let img = null;
   let scale = 1;
+  let currentTool = 'hand'; // 'hand', 'draw', 'select'
   let drawing = false, sx = 0, sy = 0;
+  let dragging = false, dragIdx = -1, dragOffX = 0, dragOffY = 0;
+  let resizing = false, resizeIdx = -1, resizeHandle = '';
+  let panning = false, panStartX = 0, panStartY = 0, panScrollX = 0, panScrollY = 0;
+  let offsetX = 0, offsetY = 0; // Canvas translate offset for panning
+
+  window.baSetTool = function(t) {
+    currentTool = t;
+    document.getElementById('ba-tool-hand').classList.toggle('active', t === 'hand');
+    document.getElementById('ba-tool-draw').classList.toggle('active', t === 'draw');
+    document.getElementById('ba-tool-select').classList.toggle('active', t === 'select');
+    // Set cursor directly
+    cvs.style.setProperty('cursor', t === 'hand' ? 'grab' : (t === 'draw' ? 'crosshair' : 'default'), 'important');
+    console.log('Tool set to:', t);
+  };
+  let skipped = [];     // indices of skipped fields
   let sessionDone = 0, sessionFields = 0;
+
+  function hitTest(px, py) {
+    // Check if point is inside any annotation box (return index or -1)
+    for (let i = annotations.length - 1; i >= 0; i--) {
+      const a = annotations[i];
+      if (!a) continue;
+      if (px >= a.x && px <= a.x + a.w && py >= a.y && py <= a.y + a.h) return i;
+    }
+    return -1;
+  }
+
+  function hitResize(px, py) {
+    // Check if near edge of any annotation (for resize)
+    const margin = 8 / scale;
+    for (let i = annotations.length - 1; i >= 0; i--) {
+      const a = annotations[i];
+      if (!a) continue;
+      // Right edge
+      if (Math.abs(px - (a.x + a.w)) < margin && py >= a.y && py <= a.y + a.h) return {idx: i, handle: 'right'};
+      // Bottom edge
+      if (Math.abs(py - (a.y + a.h)) < margin && px >= a.x && px <= a.x + a.w) return {idx: i, handle: 'bottom'};
+      // Bottom-right corner
+      if (Math.abs(px - (a.x + a.w)) < margin && Math.abs(py - (a.y + a.h)) < margin) return {idx: i, handle: 'br'};
+    }
+    return null;
+  }
 
   const cvs = document.getElementById('ba-canvas');
   const ctx = cvs.getContext('2d');
@@ -159,9 +216,16 @@
       if (!data.success) { alert(data.error || 'Load failed'); return; }
 
       images = data.images;
+      COLUMNS = data.columns || [];
       imgIdx = -1;
       document.getElementById('ba-workspace').style.display = '';
       document.getElementById('ba-remaining-count').textContent = images.length;
+
+      // Show column list for confirmation
+      if (COLUMNS.length === 0 && images.length > 0) {
+        COLUMNS = Object.keys(images[0].fields);
+      }
+
       nextImage();
     })
     .catch(err => {
@@ -179,6 +243,7 @@
     }
     fieldIdx = 0;
     annotations = [];
+    skipped = [];
     loadImage();
     buildFieldList();
     updateCounters();
@@ -191,7 +256,10 @@
 
     img = new Image();
     img.onload = function() {
-      scale = Math.min(wrap.clientWidth / img.width, 1.5);
+      // Reset pan offset
+      offsetX = 0; offsetY = 0; cvs.style.transform = '';
+      // Start at full width
+      scale = wrap.clientWidth / img.width;
       cvs.width = img.width * scale;
       cvs.height = img.height * scale;
       redraw();
@@ -209,21 +277,79 @@
       const div = document.createElement('div');
       div.className = 'ba-field' + (i === fieldIdx ? ' active' : '');
       div.dataset.idx = i;
-      div.innerHTML = '<div class="ba-label">' + (i + 1) + '. ' + col + '</div>' +
-                       '<div class="ba-value">' + (val || '<em class="text-muted">empty</em>') + '</div>' +
+
+      // Skip button
+      const skipBtn = '<button class="btn btn-sm btn-outline-secondary ba-skip-btn" onclick="event.stopPropagation(); baSkipField(' + i + ')" title="Skip / unskip">' +
+                       '<i class="fas fa-forward"></i></button>';
+
+      const escapedVal = (val || '').replace(/"/g, '&quot;');
+      div.innerHTML = skipBtn +
+                       '<div class="ba-label">' + (i + 1) + '. ' + col + '</div>' +
+                       '<input class="ba-edit-input" type="text" value="' + escapedVal + '" data-field-idx="' + i + '" placeholder="Type value..." onclick="event.stopPropagation()">' +
                        '<div class="ba-coords" id="ba-coords-' + i + '"></div>';
-      div.onclick = function() { fieldIdx = i; highlightField(); };
+
+      // Update value when edited
+      const input = div.querySelector('.ba-edit-input');
+      input.addEventListener('change', function() {
+        const idx = parseInt(this.dataset.fieldIdx);
+        entry.fields[COLUMNS[idx]] = this.value;
+        if (annotations[idx]) annotations[idx].value = this.value;
+      });
+      input.addEventListener('keydown', function(e) {
+        e.stopPropagation(); // Don't trigger global shortcuts while typing
+        if (e.key === 'Enter') {
+          this.blur();
+          advanceToNextField();
+          highlightField();
+        }
+      });
+      div.onclick = function() {
+        if (!skipped.includes(i)) { fieldIdx = i; highlightField(); }
+      };
       container.appendChild(div);
+    });
+
+    // Auto-skip fields with empty values
+    COLUMNS.forEach(function(col, i) {
+      const val = entry.fields[col] || '';
+      if (!val) skipped.push(i);
     });
 
     highlightField();
     updateProgress();
   }
 
+  window.baSkipField = function(idx) {
+    if (!skipped.includes(idx)) {
+      skipped.push(idx);
+      // Remove annotation if one was drawn
+      annotations[idx] = null;
+    } else {
+      // Unskip
+      skipped = skipped.filter(function(i) { return i !== idx; });
+    }
+    // Advance to next non-skipped field
+    if (skipped.includes(fieldIdx)) {
+      advanceToNextField();
+    }
+    highlightField();
+    updateProgress();
+    redraw();
+  };
+
+  function advanceToNextField() {
+    let next = fieldIdx + 1;
+    while (next < COLUMNS.length && skipped.includes(next)) next++;
+    if (next < COLUMNS.length) {
+      fieldIdx = next;
+    }
+  }
+
   function highlightField() {
     document.querySelectorAll('.ba-field').forEach(function(el, i) {
-      el.classList.toggle('active', i === fieldIdx);
-      el.classList.toggle('done', i < annotations.length);
+      el.classList.toggle('active', i === fieldIdx && !skipped.includes(i));
+      el.classList.toggle('done', annotations[i] && annotations[i] !== null);
+      el.classList.toggle('skipped', skipped.includes(i));
     });
     // Scroll active into view
     const active = document.querySelector('.ba-field.active');
@@ -231,9 +357,11 @@
   }
 
   function updateProgress() {
-    const pct = COLUMNS.length > 0 ? (annotations.length / COLUMNS.length * 100) : 0;
+    const active = COLUMNS.length - skipped.length;
+    const done = annotations.filter(function(a) { return a !== null && a !== undefined; }).length;
+    const pct = active > 0 ? (done / active * 100) : 100;
     document.getElementById('ba-progress').style.width = pct + '%';
-    document.getElementById('ba-save-btn').disabled = annotations.length < 2; // need at least year + place
+    document.getElementById('ba-save-btn').disabled = done < 1; // need at least 1 annotated field
   }
 
   function updateCounters() {
@@ -252,23 +380,142 @@
   cvs.addEventListener('mousedown', function(e) {
     if (e.button !== 0) return;
     const p = pos(e);
-    drawing = true;
-    sx = p.x; sy = p.y;
+
+    // ── Hand tool: pan by translating canvas ──
+    if (currentTool === 'hand') {
+      panning = true;
+      panStartX = e.clientX;
+      panStartY = e.clientY;
+      panScrollX = offsetX;
+      panScrollY = offsetY;
+      cvs.style.cursor = 'grabbing';
+      e.preventDefault();
+      return;
+    }
+
+    // ── Select tool: move/resize existing boxes ──
+    if (currentTool === 'select') {
+      const rh = hitResize(p.x, p.y);
+      if (rh) {
+        resizing = true;
+        resizeIdx = rh.idx;
+        resizeHandle = rh.handle;
+        return;
+      }
+      const hit = hitTest(p.x, p.y);
+      if (hit >= 0) {
+        dragging = true;
+        dragIdx = hit;
+        dragOffX = p.x - annotations[hit].x;
+        dragOffY = p.y - annotations[hit].y;
+        fieldIdx = hit;
+        highlightField();
+        return;
+      }
+      return;
+    }
+
+    // ── Draw tool: new box ──
+    if (currentTool === 'draw') {
+      drawing = true;
+      sx = p.x; sy = p.y;
+    }
+  });
+
+  // Mousemove on document so pan works even when cursor leaves canvas
+  document.addEventListener('mousemove', function(e) {
+    if (panning) {
+      offsetX = panScrollX + (e.clientX - panStartX);
+      offsetY = panScrollY + (e.clientY - panStartY);
+      cvs.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px)';
+    }
+  });
+  document.addEventListener('mouseup', function(e) {
+    if (panning) { panning = false; cvs.style.cursor = 'grab'; }
   });
 
   cvs.addEventListener('mousemove', function(e) {
-    if (!drawing) return;
+    if (panning) return; // handled by document listener
+
     const p = pos(e);
-    redraw();
-    ctx.save();
-    ctx.strokeStyle = COLORS[fieldIdx % COLORS.length];
-    ctx.lineWidth = 2 / scale;
-    ctx.setLineDash([4 / scale, 4 / scale]);
-    ctx.strokeRect(sx * scale, sy * scale, (p.x - sx) * scale, (p.y - sy) * scale);
-    ctx.restore();
+
+    // Resize
+    if (resizing && annotations[resizeIdx]) {
+      const a = annotations[resizeIdx];
+      if (resizeHandle === 'right' || resizeHandle === 'br') a.w = Math.max(10, p.x - a.x);
+      if (resizeHandle === 'bottom' || resizeHandle === 'br') a.h = Math.max(10, p.y - a.y);
+      redraw();
+      return;
+    }
+
+    // Drag
+    if (dragging && annotations[dragIdx]) {
+      annotations[dragIdx].x = Math.max(0, p.x - dragOffX);
+      annotations[dragIdx].y = Math.max(0, p.y - dragOffY);
+      redraw();
+      return;
+    }
+
+    // Drawing new box
+    if (drawing) {
+      redraw();
+      ctx.save();
+      ctx.strokeStyle = COLORS[fieldIdx % COLORS.length];
+      ctx.lineWidth = 2 / scale;
+      ctx.setLineDash([4 / scale, 4 / scale]);
+      ctx.strokeRect(sx * scale, sy * scale, (p.x - sx) * scale, (p.y - sy) * scale);
+      ctx.restore();
+      return;
+    }
+
+    // Cursor hint
+    const rh = hitResize(p.x, p.y);
+    if (rh) {
+      cvs.style.cursor = rh.handle === 'right' ? 'ew-resize' : (rh.handle === 'bottom' ? 'ns-resize' : 'nwse-resize');
+    } else if (hitTest(p.x, p.y) >= 0) {
+      cvs.style.cursor = 'move';
+    } else {
+      cvs.style.cursor = 'crosshair';
+    }
   });
 
   cvs.addEventListener('mouseup', function(e) {
+    // End pan
+    if (panning) {
+      panning = false;
+      wrap.classList.remove('panning');
+      return;
+    }
+
+    // End resize
+    if (resizing) {
+      resizing = false;
+      wrap.classList.remove('dragging');
+      const a = annotations[resizeIdx];
+      if (a) {
+        const coordsEl = document.getElementById('ba-coords-' + resizeIdx);
+        if (coordsEl) coordsEl.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
+      }
+      redraw();
+      return;
+    }
+
+    // End drag
+    if (dragging) {
+      dragging = false;
+      wrap.classList.remove('dragging');
+      const a = annotations[dragIdx];
+      if (a) {
+        a.x = Math.round(a.x);
+        a.y = Math.round(a.y);
+        const coordsEl = document.getElementById('ba-coords-' + dragIdx);
+        if (coordsEl) coordsEl.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
+      }
+      redraw();
+      return;
+    }
+
+    // End drawing
     if (!drawing) return;
     drawing = false;
     const p = pos(e);
@@ -292,7 +539,7 @@
     if (coordsEl) coordsEl.textContent = Math.round(x) + ',' + Math.round(y) + ' ' + Math.round(w) + '×' + Math.round(h);
 
     sessionFields++;
-    fieldIdx = Math.min(fieldIdx + 1, COLUMNS.length - 1);
+    advanceToNextField();
     highlightField();
     updateProgress();
     updateCounters();
@@ -334,8 +581,8 @@
   document.addEventListener('keydown', function(e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-    if (e.key === 'Enter') { // Confirm current field, move to next
-      if (fieldIdx < COLUMNS.length - 1) fieldIdx++;
+    if (e.key === 'Enter') { // Confirm current field, move to next non-skipped
+      advanceToNextField();
       highlightField();
       e.preventDefault();
     }
@@ -349,9 +596,15 @@
       }
       e.preventDefault();
     }
-    if (e.key === 'ArrowRight') { // Skip field
-      fieldIdx = Math.min(fieldIdx + 1, COLUMNS.length - 1);
+    if (e.key === 'ArrowRight') { // Skip current field and advance
+      if (!skipped.includes(fieldIdx)) {
+        skipped.push(fieldIdx);
+        annotations[fieldIdx] = null;
+      }
+      advanceToNextField();
       highlightField();
+      updateProgress();
+      redraw();
       e.preventDefault();
     }
     if (e.key === 'ArrowLeft') { // Previous field
@@ -367,8 +620,41 @@
 
   // ── Zoom ──
   window.baZoomIn = function() { scale *= 1.2; cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
-  window.baZoomOut = function() { scale /= 1.2; cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
-  window.baZoomFit = function() { scale = Math.min(wrap.clientWidth / img.width, 1.5); cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
+  window.baZoomOut = function() { scale = Math.max(0.1, scale / 1.2); cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
+  window.baZoomFit = function() { scale = wrap.clientWidth / img.width; cvs.width = img.width * scale; cvs.height = img.height * scale; offsetX = 0; offsetY = 0; cvs.style.transform = ''; redraw(); };
+
+  // ── Mouse wheel zoom (zoom at cursor position) ──
+  wrap.addEventListener('wheel', function(e) {
+    if (!img) return;
+    e.preventDefault();
+    const rect = wrap.getBoundingClientRect();
+    const mx = e.clientX - rect.left + wrap.scrollLeft;
+    const my = e.clientY - rect.top + wrap.scrollTop;
+    const oldScale = scale;
+
+    if (e.deltaY < 0) {
+      scale = Math.min(scale * 1.15, 10);
+    } else {
+      scale = Math.max(scale / 1.15, 0.1);
+    }
+
+    cvs.width = img.width * scale;
+    cvs.height = img.height * scale;
+    redraw();
+
+    // Keep zoom centered on cursor
+    const ratio = scale / oldScale;
+    wrap.scrollLeft = mx * ratio - (e.clientX - rect.left);
+    wrap.scrollTop = my * ratio - (e.clientY - rect.top);
+  }, { passive: false });
+
+  // ── Keyboard tool switching (matching annotate page) ──
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'h' || e.key === 'H') baSetTool('hand');
+    if (e.key === 'r' || e.key === 'R') baSetTool('draw');
+    if (e.key === 'v' || e.key === 'V') baSetTool('select');
+  });
 
   // ── Navigation ──
   window.baPrev = function() {

@@ -54,10 +54,10 @@
       @foreach($breadcrumb as $crumb)
         @if(!$loop->last)
           <li class="breadcrumb-item">
-            <a href="{{ glamBrowseUrl($fp, ['parent' => $crumb['id'] ?? '']) }}">{{ $crumb['title'] ?? '[Untitled]' }}</a>
+            <a href="{{ glamBrowseUrl($fp, ['parent' => is_array($crumb) ? ($crumb['id'] ?? '') : ($crumb->id ?? '')]) }}">{{ is_array($crumb) ? ($crumb['title'] ?? '[Untitled]') : ($crumb->title ?? '[Untitled]') }}</a>
           </li>
         @else
-          <li class="breadcrumb-item active" aria-current="page">{{ $crumb['title'] ?? '[Untitled]' }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ is_array($crumb) ? ($crumb['title'] ?? '[Untitled]') : ($crumb->title ?? '[Untitled]') }}</li>
         @endif
       @endforeach
     </ol>
@@ -135,7 +135,7 @@
 
     @if(!empty($parentId))
       <a href="{{ glamBrowseUrl($fp, [], ['parent', 'topLevelOnly']) }}" class="badge bg-dark text-decoration-none">
-        <i class="fas fa-folder-open me-1"></i> In: {{ e($parent['title'] ?? 'Parent #'.$parentId) }} <i class="fas fa-times ms-1"></i>
+        <i class="fas fa-folder-open me-1"></i> In: {{ e(is_array($parent) ? ($parent['title'] ?? 'Parent #'.$parentId) : ($parent->title ?? 'Parent #'.$parentId)) }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
 

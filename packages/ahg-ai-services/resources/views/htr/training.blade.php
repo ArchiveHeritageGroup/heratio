@@ -48,6 +48,7 @@
   <form method="POST" action="{{ route('admin.ai.htr.startTraining') }}">@csrf
     <button type="submit" class="btn atom-btn-outline-success" {{ $canTrain ? '' : 'disabled' }}><i class="fas fa-play me-1"></i>Start Fine-tuning</button>
   </form>
-  <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>Add Annotations</a>
+  <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>Annotate</a>
+  <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
 </div>
 @endsection

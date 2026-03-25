@@ -15,6 +15,7 @@
   <h1 class="mb-0"><i class="fas fa-pen-square me-2"></i>ILM Annotate</h1>
   <div class="d-flex gap-2">
     <a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-database me-1"></i>Sources</a>
+    <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
     <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-graduation-cap me-1"></i>Training</a>
   </div>
 </div>
