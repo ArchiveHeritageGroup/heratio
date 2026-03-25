@@ -693,6 +693,227 @@ PY;
     }
 
     /**
+     * Bulk Annotate — page view.
+     */
+    public function htrBulkAnnotate()
+    {
+        return view('ahg-ai-services::htr.bulk-annotate');
+    }
+
+    /**
+     * Bulk Annotate — load folder + spreadsheet data.
+     * Scans for .xlsx/.csv in folder, parses, matches with images.
+     */
+    public function htrBulkAnnotateLoad(Request $request)
+    {
+        $folder = $request->input('folder', '');
+        if (!$folder || !is_dir($folder)) {
+            return response()->json(['success' => false, 'error' => 'Folder not found']);
+        }
+
+        // Find spreadsheet
+        $spreadsheets = glob("{$folder}/*.xlsx") + glob("{$folder}/*.csv") + glob("{$folder}/*.xls");
+        if (empty($spreadsheets)) {
+            return response()->json(['success' => false, 'error' => 'No spreadsheet found in folder']);
+        }
+
+        $spreadsheet = $spreadsheets[0];
+        $images = [];
+
+        try {
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($spreadsheet);
+            $reader->setReadDataOnly(true);
+            $wb = $reader->load($spreadsheet);
+            $ws = $wb->getActiveSheet();
+            $rows = $ws->toArray(null, true, true, true);
+
+            if (empty($rows)) {
+                return response()->json(['success' => false, 'error' => 'Spreadsheet is empty']);
+            }
+
+            // First row is headers
+            $headers = array_shift($rows);
+            $fnameCol = null;
+            foreach ($headers as $col => $val) {
+                if (stripos($val ?? '', 'fname') !== false || stripos($val ?? '', 'file') !== false || stripos($val ?? '', 'image') !== false) {
+                    $fnameCol = $col;
+                    break;
+                }
+            }
+            if (!$fnameCol) $fnameCol = 'A'; // Default to first column
+
+            // Build processed list to skip already-done images
+            $processedDir = $folder . '/processed';
+            $processedFiles = [];
+            if (is_dir($processedDir)) {
+                $processedFiles = array_map('basename', glob("{$processedDir}/*.{jpg,jpeg,png,tif}", GLOB_BRACE));
+            }
+
+            foreach ($rows as $row) {
+                $fname = $row[$fnameCol] ?? '';
+                if (!$fname) continue;
+
+                $imagePath = "{$folder}/{$fname}";
+                if (!file_exists($imagePath)) continue;
+                if (in_array($fname, $processedFiles)) continue; // Skip already processed
+
+                $fields = [];
+                foreach ($headers as $col => $header) {
+                    if ($col === $fnameCol) continue;
+                    $val = $row[$col] ?? '';
+                    if ($val instanceof \DateTime) {
+                        $val = $val->format('j F Y');
+                    }
+                    $fields[$header] = (string) $val;
+                }
+
+                $images[] = [
+                    'fname' => $fname,
+                    'path' => $imagePath,
+                    'fields' => $fields,
+                ];
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Spreadsheet parse error: ' . $e->getMessage()]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'images' => $images,
+            'spreadsheet' => basename($spreadsheet),
+            'total' => count($images),
+        ]);
+    }
+
+    /**
+     * Bulk Annotate — save annotation + move image to processed.
+     */
+    public function htrBulkAnnotateSave(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        $fname = $request->input('fname', '');
+        $fields = $request->input('fields', []);
+        $annotations = $request->input('annotations', []);
+        $folder = $request->input('folder', '');
+
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found']);
+        }
+
+        // Determine record type from fields
+        $eventType = strtolower($fields['Event Type'] ?? 'death');
+        $rtMap = [
+            'death' => ['type' => 'Death Records', 'id' => '1000015'],
+            'birth' => ['type' => 'Birth Records', 'id' => '1000001'],
+            'marriage' => ['type' => 'Marriage Records', 'id' => '1000006'],
+        ];
+        $rt = $rtMap[$eventType] ?? ['type' => 'Death Records', 'id' => '1000015'];
+        $docType = str_contains($eventType, 'death') ? 'type_a' : (str_contains($eventType, 'birth') ? 'type_a' : 'type_b');
+
+        // Extract year from Event Date
+        $eventDate = $fields['Event Date'] ?? '';
+        $year = '';
+        if (preg_match('/\b(1[6-9]\d{2}|20[0-2]\d)\b/', $eventDate, $m)) {
+            $year = $m[1];
+        }
+
+        // Build ILM annotation
+        $annData = [
+            'image' => $imagePath,
+            'doc_type' => $docType,
+            'source' => [
+                'spreadsheet' => true,
+                'folder' => $folder,
+                'annotated_at' => now()->toIso8601String(),
+            ],
+            'annotations' => [[
+                'non_genealogical' => false,
+                'non_genealogical_type_id' => null,
+                'FS_RECORD_TYPE' => $rt['type'],
+                'FS_RECORD_TYPE_ID' => $rt['id'],
+                'EVENT_YEAR_ORIG' => $year ?: ($fields['Event Date'] ?? ''),
+                'EVENT_PLACE_ORIG' => $fields['Event Place'] ?? '',
+                'LOCALITY_ID' => '',
+                'person_name' => $fields['Name'] ?? '',
+                'person_sex' => $fields['Sex'] ?? '',
+                'person_age' => $fields['Age'] ?? '',
+                'fields' => [],
+            ]],
+        ];
+
+        // Add bounding box fields from annotations
+        foreach ($annotations as $i => $ann) {
+            if (!$ann || empty($ann['label'])) continue;
+            $annData['annotations'][0]['fields'][] = [
+                'zone_id' => $i,
+                'label' => $ann['label'],
+                'form_label' => $ann['label'],
+                'text' => $ann['value'] ?? '',
+                'bbox' => [
+                    'x' => (int) ($ann['x'] ?? 0),
+                    'y' => (int) ($ann['y'] ?? 0),
+                    'w' => (int) ($ann['w'] ?? 0),
+                    'h' => (int) ($ann['h'] ?? 0),
+                ],
+            ];
+        }
+
+        // Save to training data
+        $trainingDir = '/opt/ahg-ai/htr/training_data/' . $docType;
+        $imgDir = $trainingDir . '/images';
+        $annDir = $trainingDir . '/annotations';
+        $cropDir = $trainingDir . '/crops';
+        @mkdir($imgDir, 0777, true);
+        @mkdir($annDir, 0777, true);
+        @mkdir($cropDir, 0777, true);
+
+        // Copy image to training images
+        $baseName = pathinfo($fname, PATHINFO_FILENAME);
+        copy($imagePath, "{$imgDir}/{$fname}");
+
+        // Save annotation JSON
+        file_put_contents("{$annDir}/{$fname}.json", json_encode($annData, JSON_PRETTY_PRINT));
+
+        // Crop each annotated region and save
+        try {
+            $im = imagecreatefromjpeg($imagePath);
+            if ($im) {
+                foreach ($annotations as $i => $ann) {
+                    if (!$ann || empty($ann['x'])) continue;
+                    $x = max(0, (int) $ann['x']);
+                    $y = max(0, (int) $ann['y']);
+                    $w = max(1, (int) $ann['w']);
+                    $h = max(1, (int) $ann['h']);
+                    $crop = imagecrop($im, ['x' => $x, 'y' => $y, 'width' => $w, 'height' => $h]);
+                    if ($crop) {
+                        $safeLabel = preg_replace('/[^a-zA-Z0-9_]/', '_', $ann['label'] ?? 'field');
+                        $safeVal = preg_replace('/[^a-zA-Z0-9_]/', '_', substr($ann['value'] ?? '', 0, 30));
+                        $cropName = "{$baseName}_{$i}_{$safeLabel}_{$safeVal}.jpg";
+                        imagejpeg($crop, "{$cropDir}/{$cropName}", 95);
+                        imagedestroy($crop);
+                    }
+                }
+                imagedestroy($im);
+            }
+        } catch (\Exception $e) {
+            // Crop failure is non-fatal
+        }
+
+        // Move original image to processed folder
+        $processedDir = $folder . '/processed';
+        @mkdir($processedDir, 0777, true);
+        if (file_exists($imagePath)) {
+            rename($imagePath, "{$processedDir}/{$fname}");
+        }
+
+        return response()->json([
+            'success' => true,
+            'saved' => "{$annDir}/{$fname}.json",
+            'crops' => count(array_filter($annotations)),
+        ]);
+    }
+
+    /**
      * Split a register page into individual row images for annotation.
      * Takes the image path + array of row bounding boxes.
      * Crops each row and saves to a temp folder, returns paths.

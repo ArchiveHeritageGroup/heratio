@@ -63,6 +63,9 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/admin/ai/htr/skip-image', [AiController::class, 'htrSkipImage'])->name('admin.ai.htr.skipImage');
     Route::post('/admin/ai/htr/split-rows', [AiController::class, 'htrSplitRows'])->name('admin.ai.htr.splitRows');
     Route::post('/admin/ai/htr/crop-ocr', [AiController::class, 'htrCropOcr'])->name('admin.ai.htr.cropOcr');
+    Route::get('/admin/ai/htr/bulk-annotate', [AiController::class, 'htrBulkAnnotate'])->name('admin.ai.htr.bulkAnnotate');
+    Route::post('/admin/ai/htr/bulk-annotate/load', [AiController::class, 'htrBulkAnnotateLoad'])->name('admin.ai.htr.bulkAnnotateLoad');
+    Route::post('/admin/ai/htr/bulk-annotate/save', [AiController::class, 'htrBulkAnnotateSave'])->name('admin.ai.htr.bulkAnnotateSave');
     Route::post('/admin/ai/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
     Route::post('/admin/ai/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');

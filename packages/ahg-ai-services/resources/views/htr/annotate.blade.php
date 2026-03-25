@@ -551,19 +551,22 @@
     // Auto-switch to hand after 2 boxes (done drawing)
     if (!rowSplitMode && anns.length >= MAX_ANNS) setTool('hand');
 
-    // Auto-focus the text input
+    // Auto-focus the text input AND trigger hybrid OCR
+    const serverPath = cvs.dataset.serverPath || '';
     setTimeout(function() {
       const inp = document.querySelector('.fi.active input[data-role="txt"]');
-      if (inp) inp.focus();
+      if (inp) {
+        inp.focus();
+        // ── Hybrid OCR: auto-recognize text in the drawn box ──
+        if (serverPath) {
+          inp.placeholder = 'Recognizing...';
+          inp.classList.add('border-warning');
+        }
+      }
     }, 50);
 
-    // ── Hybrid OCR: auto-recognize text in the drawn box ──
-    const serverPath = cvs.dataset.serverPath || '';
     if (serverPath) {
       const annId = newAnn.id;
-      // Show loading indicator on the input
-      const ocrInp = document.querySelector('.fi.active input[data-role="txt"]');
-      if (ocrInp) ocrInp.placeholder = 'Recognizing...';
 
       fetch('{{ url("/admin/ai/htr/crop-ocr") }}', {
         method: 'POST',
