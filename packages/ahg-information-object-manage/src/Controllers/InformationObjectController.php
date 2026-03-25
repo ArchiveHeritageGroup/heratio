@@ -1486,18 +1486,27 @@ class InformationObjectController extends Controller
         $ioId = $io->id;
 
         // Update information_object table
+        $ioUpdate = [
+            'identifier' => $request->input('identifier'),
+            'level_of_description_id' => $request->input('level_of_description_id') ?: null,
+            'repository_id' => $request->input('repository_id') ?: null,
+            'description_status_id' => $request->input('description_status_id') ?: null,
+            'description_detail_id' => $request->input('description_detail_id') ?: null,
+            'description_identifier' => $request->input('description_identifier'),
+        ];
+
+        // Only update source_standard and display_standard_id when explicitly submitted
+        // (AtoM only sets these conditionally — writing them unconditionally causes DB delta mismatches)
+        if ($request->has('source_standard')) {
+            $ioUpdate['source_standard'] = $request->input('source_standard');
+        }
+        if ($request->has('display_standard_id')) {
+            $ioUpdate['display_standard_id'] = $request->input('display_standard_id') ?: null;
+        }
+
         DB::table('information_object')
             ->where('id', $ioId)
-            ->update([
-                'identifier' => $request->input('identifier'),
-                'level_of_description_id' => $request->input('level_of_description_id') ?: null,
-                'repository_id' => $request->input('repository_id') ?: null,
-                'description_status_id' => $request->input('description_status_id') ?: null,
-                'description_detail_id' => $request->input('description_detail_id') ?: null,
-                'description_identifier' => $request->input('description_identifier'),
-                'source_standard' => $request->input('source_standard'),
-                'display_standard_id' => $request->input('display_standard_id') ?: null,
-            ]);
+            ->update($ioUpdate);
 
         // Update information_object_i18n table
         DB::table('information_object_i18n')

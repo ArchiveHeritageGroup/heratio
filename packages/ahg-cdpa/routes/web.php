@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/cdpa')->middleware(['web'])->group(function () {
+Route::prefix('admin/cdpa')->middleware(['web', 'admin'])->group(function () {
     Route::get('/breach-create', [\AhgCdpa\Controllers\CdpaController::class, 'breachCreate'])->name('ahgcdpa.breach-create');
     Route::get('/breach-view', [\AhgCdpa\Controllers\CdpaController::class, 'breachView'])->name('ahgcdpa.breach-view');
     Route::get('/breaches', [\AhgCdpa\Controllers\CdpaController::class, 'breaches'])->name('ahgcdpa.breaches');
