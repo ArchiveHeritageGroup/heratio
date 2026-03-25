@@ -794,6 +794,240 @@ CREATE TABLE rm_disposal_batch_item (
 
 ---
 
+## Disposal Stub (Ghost Record)
+
+After a record is destroyed or transferred, the record content is removed but a **disposal stub** (also called a ghost record) must remain permanently in the system. This is a non-negotiable requirement across ISO 15489, MoReq2010, DoD 5015.02, NARSSA, NARA, and TNA.
+
+### Why stubs exist
+
+- **Accountability** — proves the organisation disposed of the record properly, under authority, following due process
+- **Audit** — external auditors, the National Archivist, and courts can verify what was destroyed, when, by whom, and under what authority
+- **Completeness** — the file plan tree remains intact; gaps where records once existed are explained, not silent
+- **Legal defence** — if a record is requested in litigation or PAIA/FOI and it no longer exists, the stub proves lawful destruction (not spoliation)
+- **Chain of custody** — for transferred records, the stub links to the receiving institution and accession number
+
+### Stub fields
+
+The stub retains metadata only — **no record content, no attachments, no binary files**.
+
+#### 1. Record Identification
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `record_identifier` | Original unique reference number | ISO 15489, MoReq2010, DoD 5015.02, NARSSA |
+| `title` | Title / description of the record | ISO 15489, MoReq2010, TNA |
+| `file_plan_reference` | Classification / file plan node at time of disposal | MoReq2010, DoD 5015.02, NARSSA |
+| `record_category` | RM record category / folder | MoReq2010, DoD 5015.02 |
+| `series_reference` | Series / aggregation reference | NARA, TNA, NARSSA |
+| `record_type` | Type and format (physical, digital, hybrid) | MoReq2010, DoD 5015.02 |
+| `date_range_start` | Coverage start date | NARSSA, TNA, NARA |
+| `date_range_end` | Coverage end date | NARSSA, TNA, NARA |
+| `volume_description` | Quantity (items, linear metres, file size) | NARSSA, TNA, NARA |
+| `creator` | Originating office / person | ISO 15489, NARA, TNA, NARSSA |
+| `original_system` | System of origin (if migrated) | MoReq2010, NARA |
+
+#### 2. Disposition Action
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `disposition_action` | `destroyed` or `transferred` | All standards |
+| `disposition_date` | Date the action was executed | All standards |
+| `disposal_authority_number` | NARSSA / NARA authority reference | NARSSA, NARA, TNA, DoD 5015.02 |
+| `standing_authority_number` | Standing authority if applicable | NARSSA |
+| `retention_schedule_applied` | Retention rule that governed this record | ISO 15489, MoReq2010, DoD 5015.02 |
+| `retention_period` | Original retention period | MoReq2010, DoD 5015.02 |
+| `retention_trigger_event` | Event that started the retention clock | MoReq2010, DoD 5015.02, ISO 15489 |
+| `retention_expired_date` | Date retention period expired | MoReq2010, DoD 5015.02 |
+| `disposal_batch_reference` | Link to the disposal batch this record was part of | MoReq2010, Alfresco RM |
+
+#### 3. Authorization & Approval
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `authorizing_officer` | Name of person who approved the disposal | All standards |
+| `authorizing_officer_role` | Role / title of approver | NARSSA, TNA, NARA, DoD 5015.02 |
+| `authorization_date` | Date approval was given | All standards |
+| `external_authority` | NARSSA / National Archivist approval (for SA government) | NARSSA (mandatory), NARA |
+| `a20_reference` | NARSSA A20 form reference | NARSSA |
+| `disposal_certificate_number` | Certificate of destruction reference | NARSSA, TNA, MoReq2010 |
+
+#### 4. Execution Details (Destruction)
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `executed_by` | Person / agent who carried out the action | ISO 15489, MoReq2010, DoD 5015.02 |
+| `destruction_method` | Shredding, incineration, secure deletion, degaussing | DoD 5015.02, NARSSA, TNA |
+| `destruction_service_provider` | Outsourced provider (if applicable) | NARSSA, TNA |
+| `destruction_witness` | Witness name and role | NARSSA, DoD 5015.02 |
+| `destruction_certificate_path` | Path to stored certificate document | NARSSA, TNA, MoReq2010 |
+| `all_copies_confirmed_destroyed` | Confirmation that all copies (including backups) addressed | DoD 5015.02, MoReq2010 |
+
+#### 5. Execution Details (Transfer)
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `receiving_institution` | Archives / repository that received the records | NARSSA, NARA, TNA |
+| `receiving_officer` | Name and role of person who accepted the records | NARSSA, NARA, TNA |
+| `accession_number` | Accession number assigned by the receiving institution | NARA, TNA, NARSSA |
+| `transfer_agreement_reference` | Transfer agreement document reference | NARSSA, TNA, NARA |
+| `transfer_date` | Date of physical / digital transfer | All standards |
+| `chain_of_custody_note` | Custody chain summary | ISO 15489, NARA, TNA |
+| `condition_at_transfer` | Condition / integrity at time of transfer | NARSSA, TNA |
+| `access_restrictions_transferred` | Access restrictions that travel with the records | NARA, TNA, NARSSA |
+| `finding_aid_reference` | Finding aid / inventory reference at receiving institution | NARA, TNA |
+
+#### 6. Legal & Compliance
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `legal_basis` | Legal authority for the disposition | ISO 15489, NARSSA |
+| `popia_compliance_note` | POPIA/GDPR personal data disposal note | NARSSA (POPIA), ISO 15489 |
+| `litigation_hold_check` | Confirmation no active hold at time of disposal | DoD 5015.02, MoReq2010 |
+| `foi_paia_check` | Confirmation no active PAIA/FOI request pending | TNA, NARA |
+| `vital_record_flag` | Whether this was a vital record | DoD 5015.02, NARA |
+| `security_classification` | Security classification at time of disposal | DoD 5015.02, TNA, NARSSA |
+
+#### 7. Audit Trail
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `record_created_date` | Original creation date of the record | ISO 15489, MoReq2010 |
+| `record_captured_date` | Date captured into RM system | MoReq2010, DoD 5015.02 |
+| `previous_custodians` | Prior custodians before this office | ISO 15489, NARA |
+| `hold_history` | All holds applied and released, with dates | MoReq2010, DoD 5015.02 |
+| `event_log` | Immutable system event history (frozen at disposal) | MoReq2010, Alfresco RM |
+
+#### 8. Stub System Fields
+
+| Field | Description | Source |
+|-------|-------------|--------|
+| `is_stub` | Flag: this is a disposal stub, not a live record | MoReq2010, Alfresco RM |
+| `stub_created_at` | Date the stub was generated | Alfresco RM, MoReq2010 |
+| `content_purged` | Confirms binary content has been removed | Alfresco RM |
+| `stub_retention` | How long to keep the stub (permanent recommended) | MoReq2010 |
+| `office_of_record` | Business unit responsible at time of disposal | DoD 5015.02, NARSSA |
+| `copy_status_at_disposal` | Record / reference / working / transitory / duplicate | DoD 5015.02, MoReq2010 |
+
+### SQL table
+
+```sql
+CREATE TABLE rm_disposal_stub (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+
+    -- 1. Record identification
+    record_identifier VARCHAR(255) NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    description TEXT,
+    file_plan_reference VARCHAR(255),
+    record_category VARCHAR(255),
+    series_reference VARCHAR(255),
+    record_type VARCHAR(100),
+    date_range_start DATE,
+    date_range_end DATE,
+    volume_description TEXT,
+    creator VARCHAR(255),
+    original_system VARCHAR(255),
+
+    -- 2. Disposition action
+    disposition_action VARCHAR(50) NOT NULL COMMENT 'destroyed, transferred',
+    disposition_date DATE NOT NULL,
+    disposal_authority_number VARCHAR(100),
+    standing_authority_number VARCHAR(100),
+    retention_schedule_applied VARCHAR(255),
+    retention_period VARCHAR(100),
+    retention_trigger_event VARCHAR(255),
+    retention_expired_date DATE,
+    disposal_batch_id INT COMMENT 'FK to rm_disposal_batch',
+
+    -- 3. Authorization
+    authorizing_officer VARCHAR(255),
+    authorizing_officer_role VARCHAR(255),
+    authorization_date DATE,
+    external_authority VARCHAR(255) COMMENT 'NARSSA / National Archivist approval',
+    a20_reference VARCHAR(100),
+    disposal_certificate_number VARCHAR(100),
+
+    -- 4. Destruction details (null if transferred)
+    destruction_method VARCHAR(100) COMMENT 'shredding, incineration, secure_deletion, degaussing',
+    destruction_service_provider VARCHAR(255),
+    destruction_witness VARCHAR(255),
+    destruction_certificate_path VARCHAR(500),
+    all_copies_confirmed_destroyed BOOLEAN DEFAULT FALSE,
+    executed_by VARCHAR(255),
+
+    -- 5. Transfer details (null if destroyed)
+    receiving_institution VARCHAR(255),
+    receiving_officer VARCHAR(255),
+    accession_number VARCHAR(100),
+    transfer_agreement_reference VARCHAR(255),
+    transfer_date DATE,
+    chain_of_custody_note TEXT,
+    condition_at_transfer TEXT,
+    access_restrictions_transferred TEXT,
+    finding_aid_reference VARCHAR(255),
+
+    -- 6. Legal & compliance
+    legal_basis TEXT,
+    popia_compliance_note TEXT,
+    litigation_hold_check BOOLEAN DEFAULT FALSE,
+    foi_paia_check BOOLEAN DEFAULT FALSE,
+    vital_record_flag BOOLEAN DEFAULT FALSE,
+    security_classification VARCHAR(100),
+
+    -- 7. Audit trail (frozen at disposal)
+    record_created_date DATE,
+    record_captured_date DATE,
+    previous_custodians TEXT,
+    hold_history TEXT COMMENT 'JSON: all holds applied/released with dates',
+    event_log TEXT COMMENT 'JSON: immutable event history frozen at disposal',
+
+    -- 8. Stub system fields
+    is_stub BOOLEAN DEFAULT TRUE,
+    content_purged BOOLEAN DEFAULT TRUE,
+    stub_retention VARCHAR(50) DEFAULT 'permanent',
+    office_of_record VARCHAR(255),
+    copy_status_at_disposal VARCHAR(50) COMMENT 'record, reference, working, transitory, duplicate',
+
+    -- Original record FK (set to NULL after content purge, but ID preserved in record_identifier)
+    original_information_object_id INT COMMENT 'Original AtoM/Heratio information_object.id',
+
+    created_at DATETIME,
+    updated_at DATETIME,
+
+    INDEX idx_disposition_action (disposition_action),
+    INDEX idx_disposal_authority (disposal_authority_number),
+    INDEX idx_disposal_batch (disposal_batch_id),
+    INDEX idx_file_plan (file_plan_reference),
+    INDEX idx_disposition_date (disposition_date)
+);
+```
+
+### Stub behaviour in Heratio
+
+1. **On destruction**: After NARSSA authority is received and destruction is executed, the system purges all binary content and attachments, then creates a stub with all fields above populated. The stub remains in the file plan tree at its original position.
+
+2. **On transfer**: After records are transferred to archives, the system creates a stub with the transfer details (receiving institution, accession number, finding aid). The stub acts as a pointer: "this record now lives at [institution] under accession [number]."
+
+3. **Stub visibility**: Stubs appear in the file plan tree with a distinct visual indicator (e.g., greyed out with a "disposed" badge). They are searchable by Records Managers but hidden from business user views by default.
+
+4. **Stub permanence**: Stubs are retained permanently (MoReq2010 requirement). They cannot be deleted except by a system administrator with explicit justification logged.
+
+5. **Stub in browse/show**: When a user navigates to a disposed record, they see the stub metadata and a clear notice: "This record was [destroyed/transferred] on [date] under disposal authority [number]."
+
+### Standards compliance matrix
+
+| Standard | Stub requirement | Heratio compliance |
+|----------|-----------------|-------------------|
+| ISO 15489 | Disposition metadata must be retained as records themselves | `rm_disposal_stub` table + event_log |
+| MoReq2010 | Residual metadata entity must persist after content destruction; event history immutable | Stub with `content_purged=true`, frozen `event_log` JSON |
+| DoD 5015.02 | Destruction certification, all-copies confirmation, method of destruction | `destruction_certificate_path`, `all_copies_confirmed_destroyed`, `destruction_method` |
+| NARSSA | Disposal authority number, A20 reference, certificate, witness | `disposal_authority_number`, `a20_reference`, `disposal_certificate_number`, `destruction_witness` |
+| NARA | SF 115 authority, accession number at receiving archives | `disposal_authority_number`, `accession_number` |
+| TNA | Destruction log as permanent record, condition at transfer | Stub is permanent, `condition_at_transfer` field |
+| Alfresco RM | Ghost record with `rma:ghosted` flag, metadata retained | `is_stub=true`, `content_purged=true` |
+
+---
+
 ## Final Position
 
 The best Heratio pattern is:
