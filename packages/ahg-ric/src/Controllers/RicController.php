@@ -938,6 +938,13 @@ SELECT ?subject ?predicate ?object WHERE {
 } LIMIT 150
 SPARQL;
 
+        // Always use DB fallback first (fast + reliable), then try SPARQL enrichment
+        $dbGraph = $this->buildGraphFromDatabase($recordId, $baseUri, $instanceId);
+        if (!empty($dbGraph['nodes'])) {
+            return $dbGraph;
+        }
+
+        // DB returned nothing — try SPARQL
         $result = $this->executeSparql($query, $endpoint, $username, $password);
 
         if ($result && isset($result['results']['bindings']) && count($result['results']['bindings']) > 0) {
@@ -1040,6 +1047,100 @@ SPARQL;
             ->first();
 
         if (!$record) {
+            // Try digital_object (Instantiation)
+            $digObj = DB::table('digital_object as d')
+                ->leftJoin('information_object as io', 'd.object_id', '=', 'io.id')
+                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+                })
+                ->where('d.id', $recordId)
+                ->select('d.*', 'ioi.title as parent_title', 'io.id as parent_id')
+                ->first();
+
+            if ($digObj) {
+                // Build graph: instantiation → parent IO
+                $instUri = $this->buildRecordUri('instantiation', $recordId, $baseUri, $instanceId);
+                $nodes[] = ['id' => $instUri, 'label' => $digObj->name ?: 'Digital Object ' . $recordId, 'type' => 'Instantiation'];
+                $nodeIndex[$instUri] = true;
+
+                if ($digObj->parent_id) {
+                    $parentUri = $this->buildRecordUri('recordset', $digObj->parent_id, $baseUri, $instanceId);
+                    $nodes[] = ['id' => $parentUri, 'label' => $digObj->parent_title ?: 'Record ' . $digObj->parent_id, 'type' => 'RecordSet'];
+                    $edges[] = ['source' => $parentUri, 'target' => $instUri, 'label' => 'has instantiation'];
+
+                    // Now build the parent's full graph
+                    $parentGraph = $this->buildGraphFromDatabase($digObj->parent_id, $baseUri, $instanceId);
+                    foreach ($parentGraph['nodes'] as $n) {
+                        if (!isset($nodeIndex[$n['id']])) { $nodes[] = $n; $nodeIndex[$n['id']] = true; }
+                    }
+                    $edges = array_merge($edges, $parentGraph['edges']);
+                }
+
+                $nodes = $this->enrichNodesWithSlugs($nodes);
+                return ['nodes' => $nodes, 'edges' => $edges];
+            }
+
+            // Try actor
+            $actor = DB::table('actor_i18n')->where('id', $recordId)->where('culture', $culture)->first();
+            if ($actor) {
+                $actorUri = $this->buildRecordUri('person', $recordId, $baseUri, $instanceId);
+                $nodes[] = ['id' => $actorUri, 'label' => $actor->authorized_form_of_name ?: 'Actor ' . $recordId, 'type' => 'Person'];
+                $nodeIndex[$actorUri] = true;
+
+                // Find records linked to this actor via events
+                $events = DB::table('event as e')
+                    ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                        $j->on('e.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+                    })
+                    ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
+                        $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+                    })
+                    ->where('e.actor_id', $recordId)
+                    ->select('e.object_id', 'ioi.title', 'ti.name as event_type')
+                    ->limit(20)
+                    ->get();
+                foreach ($events as $ev) {
+                    $recUri = $this->buildRecordUri('recordset', $ev->object_id, $baseUri, $instanceId);
+                    if (!isset($nodeIndex[$recUri])) {
+                        $nodeIndex[$recUri] = true;
+                        $nodes[] = ['id' => $recUri, 'label' => $ev->title ?: 'Record ' . $ev->object_id, 'type' => 'RecordSet'];
+                    }
+                    $edges[] = ['source' => $actorUri, 'target' => $recUri, 'label' => $ev->event_type ?: 'related'];
+                }
+
+                $nodes = $this->enrichNodesWithSlugs($nodes);
+                return ['nodes' => $nodes, 'edges' => $edges];
+            }
+
+            // Try term/concept (taxonomy term)
+            $term = DB::table('term_i18n')->where('id', $recordId)->where('culture', $culture)->first();
+            if ($term) {
+                $termUri = $this->buildRecordUri('term', $recordId, $baseUri, $instanceId);
+                $nodes[] = ['id' => $termUri, 'label' => $term->name ?: 'Term ' . $recordId, 'type' => 'Concept'];
+                $nodeIndex[$termUri] = true;
+
+                // Find records linked to this term via object_term_relation
+                $linked = DB::table('object_term_relation as otr')
+                    ->join('information_object_i18n as ioi', function ($j) use ($culture) {
+                        $j->on('otr.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+                    })
+                    ->where('otr.term_id', $recordId)
+                    ->select('otr.object_id', 'ioi.title')
+                    ->limit(20)
+                    ->get();
+                foreach ($linked as $link) {
+                    $recUri = $this->buildRecordUri('recordset', $link->object_id, $baseUri, $instanceId);
+                    if (!isset($nodeIndex[$recUri])) {
+                        $nodeIndex[$recUri] = true;
+                        $nodes[] = ['id' => $recUri, 'label' => $link->title ?: 'Record ' . $link->object_id, 'type' => 'RecordSet'];
+                    }
+                    $edges[] = ['source' => $recUri, 'target' => $termUri, 'label' => 'about'];
+                }
+
+                $nodes = $this->enrichNodesWithSlugs($nodes);
+                return ['nodes' => $nodes, 'edges' => $edges];
+            }
+
             return ['nodes' => $nodes, 'edges' => $edges];
         }
 
@@ -1196,13 +1297,22 @@ SPARQL;
             }
         }
 
-        // RiC-O: isAssociatedWith — from relation table
+        // RiC-O: isAssociatedWith — from relation table (only actors and IOs, skip feedback/requests)
         $relations = DB::table('relation as r')
+            ->join('object as o_other', function ($j) use ($recordId) {
+                $j->on(DB::raw("CASE WHEN r.subject_id = {$recordId} THEN r.object_id ELSE r.subject_id END"), '=', 'o_other.id');
+            })
             ->leftJoin('actor_i18n as ai_s', function ($j) use ($culture) {
                 $j->on('r.subject_id', '=', 'ai_s.id')->where('ai_s.culture', '=', $culture);
             })
             ->leftJoin('actor_i18n as ai_o', function ($j) use ($culture) {
                 $j->on('r.object_id', '=', 'ai_o.id')->where('ai_o.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_s', function ($j) use ($culture) {
+                $j->on('r.subject_id', '=', 'ioi_s.id')->where('ioi_s.culture', '=', $culture);
+            })
+            ->leftJoin('information_object_i18n as ioi_o', function ($j) use ($culture) {
+                $j->on('r.object_id', '=', 'ioi_o.id')->where('ioi_o.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as ti_r', function ($j) use ($culture) {
                 $j->on('r.type_id', '=', 'ti_r.id')->where('ti_r.culture', '=', $culture);
@@ -1211,10 +1321,14 @@ SPARQL;
                 $q->where('r.subject_id', $recordId)
                   ->orWhere('r.object_id', $recordId);
             })
+            ->whereIn('o_other.class_name', ['QubitActor', 'QubitInformationObject', 'QubitRepository', 'QubitTerm'])
             ->select(
                 'r.subject_id', 'r.object_id', 'r.type_id',
+                'o_other.class_name as other_class',
                 'ai_s.authorized_form_of_name as subject_name',
                 'ai_o.authorized_form_of_name as object_name',
+                'ioi_s.title as subject_title',
+                'ioi_o.title as object_title',
                 'ti_r.name as relation_type'
             )
             ->limit(30)
@@ -1223,9 +1337,11 @@ SPARQL;
         foreach ($relations as $rel) {
             $otherId = ($rel->subject_id == $recordId) ? $rel->object_id : $rel->subject_id;
             $otherName = ($rel->subject_id == $recordId)
-                ? ($rel->object_name ?: 'Entity ' . $rel->object_id)
-                : ($rel->subject_name ?: 'Entity ' . $rel->subject_id);
-            $otherUri = $this->buildRecordUri('person', $otherId, $baseUri, $instanceId);
+                ? ($rel->object_name ?: $rel->object_title ?: null)
+                : ($rel->subject_name ?: $rel->subject_title ?: null);
+            if (!$otherName) continue; // Skip unresolvable entities
+            $type = str_contains($rel->other_class ?? '', 'Actor') ? 'Person' : 'RecordSet';
+            $otherUri = $this->buildRecordUri(strtolower($type === 'Person' ? 'person' : 'recordset'), $otherId, $baseUri, $instanceId);
 
             if (!isset($nodeIndex[$otherUri])) {
                 $nodeIndex[$otherUri] = true;
