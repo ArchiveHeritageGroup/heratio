@@ -44,16 +44,4 @@ class QubitTerm extends Model
     }
 
     const ROOT_ID = 110;
-
-    // Publication status (taxonomy_id=60 "Publication Status")
-    const PUBLICATION_STATUS_DRAFT_ID = 159;
-    const PUBLICATION_STATUS_PUBLISHED_ID = 160;
-
-    // Status types (taxonomy_id=59 "Status Types")
-    const STATUS_TYPE_PUBLICATION_ID = 158;
-
-    // Job statuses
-    const JOB_STATUS_IN_PROGRESS_ID = 183;
-    const JOB_STATUS_COMPLETED_ID = 184;
-    const JOB_STATUS_ERROR_ID = 185;
 }

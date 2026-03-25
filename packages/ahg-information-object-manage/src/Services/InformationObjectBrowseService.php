@@ -2,7 +2,7 @@
 
 namespace AhgInformationObjectManage\Services;
 
-use AhgCore\Models\QubitTerm;
+use AhgCore\Constants\TermId;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 
@@ -70,8 +70,8 @@ class InformationObjectBrowseService extends BrowseService
                 $sub->select(DB::raw(1))
                     ->from('status')
                     ->whereColumn('status.object_id', 'information_object.id')
-                    ->where('status.type_id', QubitTerm::STATUS_TYPE_PUBLICATION_ID)
-                    ->where('status.status_id', QubitTerm::PUBLICATION_STATUS_PUBLISHED_ID);
+                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
+                    ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
             });
         }
 
