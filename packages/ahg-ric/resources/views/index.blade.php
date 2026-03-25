@@ -10,7 +10,7 @@
       <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
       <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
     </div>
-    <a href="/ric/index.html" target="_blank" class="btn btn-outline-info btn-sm">
+    <a href="https://ric.theahg.co.za/explorer" target="_blank" class="btn btn-outline-info btn-sm">
       <i class="fas fa-external-link-alt"></i> RIC Explorer
     </a>
   </div>
@@ -168,6 +168,9 @@
             <i class="fas fa-trash"></i> Execute Cleanup
           </button>
           <hr>
+          <button type="button" class="btn btn-outline-info w-100 mb-2" onclick="runShaclValidation()" id="shacl-btn">
+            <i class="fas fa-shield-alt"></i> SHACL Validate
+          </button>
           <a href="{{ route('ric.logs') }}" class="btn btn-outline-secondary w-100">
             <i class="fas fa-list"></i> View Logs
           </a>
@@ -181,6 +184,12 @@
       <div class="card mt-3" id="integrity-results" style="display: none;">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Integrity Check Results</h5></div>
         <div class="card-body" id="integrity-content"></div>
+      </div>
+
+      {{-- SHACL Validation Results --}}
+      <div class="card mt-3" id="shacl-results" style="display: none;">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>SHACL Validation Results</h5></div>
+        <div class="card-body" id="shacl-content"></div>
       </div>
     </div>
   </div>
@@ -432,6 +441,72 @@ function executeCleanup() {
         alert('Cleanup complete. Removed ' + data.stats.triples_removed + ' triples.');
         loadDashboardData();
       }
+    });
+}
+
+function runShaclValidation() {
+  var btn = document.getElementById('shacl-btn');
+  var resultsCard = document.getElementById('shacl-results');
+  var content = document.getElementById('shacl-content');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Validating...';
+  resultsCard.style.display = 'block';
+  content.innerHTML = '<div class="text-center py-3"><div class="spinner-border"></div><p class="mt-2">Running SHACL validation against RiC data...</p></div>';
+
+  fetch('{{ route("ric.shacl-validate") }}')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-shield-alt"></i> SHACL Validate';
+
+      if (!data.success) {
+        content.innerHTML = '<div class="alert alert-danger">' + (data.error || 'Validation failed') + '</div>';
+        return;
+      }
+
+      var html = '<div class="mb-2"><small class="text-muted">Method: ' + (data.method || 'unknown') + '</small></div>';
+
+      if (data.note) {
+        html += '<div class="alert alert-info py-1 small mb-2">' + data.note + '</div>';
+      }
+
+      var results = data.results || {};
+
+      if (results.conforms !== undefined) {
+        var badge = results.conforms
+          ? '<span class="badge bg-success fs-6"><i class="fas fa-check me-1"></i>Data Conforms</span>'
+          : '<span class="badge bg-warning fs-6"><i class="fas fa-exclamation-triangle me-1"></i>Issues Found</span>';
+        html += '<div class="mb-3">' + badge;
+        if (results.total_violations !== undefined) html += ' <span class="badge bg-danger">' + results.total_violations + ' violation(s)</span>';
+        if (results.total_warnings !== undefined) html += ' <span class="badge bg-warning text-dark">' + results.total_warnings + ' warning(s)</span>';
+        html += '</div>';
+      }
+
+      if (results.details && results.details.length > 0) {
+        html += '<table class="table table-sm table-striped mb-0"><thead><tr><th>Severity</th><th>Shape</th><th>Message</th><th>Count</th></tr></thead><tbody>';
+        results.details.forEach(function(v) {
+          var sevClass = v.severity === 'Violation' ? 'text-danger fw-bold' : (v.severity === 'Warning' ? 'text-warning' : 'text-info');
+          html += '<tr><td class="' + sevClass + '">' + v.severity + '</td><td><code>' + v.shape + '</code></td><td>' + v.message + '</td><td>' + v.count + '</td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+
+      if (results.validated_at) {
+        html += '<small class="text-muted d-block mt-2">Validated at: ' + results.validated_at + '</small>';
+      }
+
+      // Handle raw results from Fuseki SHACL endpoint
+      if (data.results_raw) {
+        html += '<pre class="bg-dark text-light p-2 mt-2 small" style="max-height:300px;overflow:auto;">' + data.results_raw.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+      }
+
+      content.innerHTML = html;
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-shield-alt"></i> SHACL Validate';
+      content.innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
     });
 }
 </script>

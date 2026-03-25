@@ -791,11 +791,15 @@ class RicController extends Controller
      */
     protected function buildOverviewGraph(string $endpoint, string $username, string $password): array
     {
+        // Main query: RecordSets and their relations including new RiC-O predicates
         $query = <<<'SPARQL'
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
-  ?s a rico:RecordSet .
-  ?s rico:title ?label .
+  {
+    ?s a rico:RecordSet .
+    ?s rico:title ?label .
+    BIND("RecordSet" AS ?type)
+  }
   OPTIONAL {
     ?s ?pred ?related .
     FILTER(isURI(?related) && ?pred != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
@@ -838,6 +842,71 @@ SPARQL;
             }
         }
 
+        // Also query Mandate, Rule, Mechanism entities from triplestore
+        $mandateQuery = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT ?s ?label ?type WHERE {
+  { ?s a rico:Mandate . BIND("Mandate" AS ?type) }
+  UNION { ?s a rico:Rule . BIND("Rule" AS ?type) }
+  UNION { ?s a rico:Mechanism . BIND("Mechanism" AS ?type) }
+  OPTIONAL { ?s rico:title ?label }
+} LIMIT 50
+SPARQL;
+
+        $mandateResult = $this->executeSparql($mandateQuery, $endpoint, $username, $password);
+        if ($mandateResult && isset($mandateResult['results']['bindings'])) {
+            foreach ($mandateResult['results']['bindings'] as $row) {
+                $uri = $row['s']['value'];
+                if (!isset($nodeIndex[$uri])) {
+                    $nodeIndex[$uri] = true;
+                    $nodes[] = [
+                        'id'    => $uri,
+                        'label' => isset($row['label']) ? $row['label']['value'] : $this->extractLabel($uri),
+                        'type'  => $row['type']['value'] ?? 'Mandate',
+                    ];
+                }
+            }
+        }
+
+        // Query FindingAid and AuthorityRecord entities
+        $docTypeQuery = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT ?s ?label ?type ?described WHERE {
+  { ?s a rico:FindingAid . BIND("FindingAid" AS ?type) }
+  UNION { ?s a rico:AuthorityRecord . BIND("AuthorityRecord" AS ?type) }
+  OPTIONAL { ?s rico:title ?label }
+  OPTIONAL { ?s rico:describesOrDescribed ?described }
+} LIMIT 50
+SPARQL;
+
+        $docTypeResult = $this->executeSparql($docTypeQuery, $endpoint, $username, $password);
+        if ($docTypeResult && isset($docTypeResult['results']['bindings'])) {
+            foreach ($docTypeResult['results']['bindings'] as $row) {
+                $uri = $row['s']['value'];
+                if (!isset($nodeIndex[$uri])) {
+                    $nodeIndex[$uri] = true;
+                    $nodes[] = [
+                        'id'    => $uri,
+                        'label' => isset($row['label']) ? $row['label']['value'] : $this->extractLabel($uri),
+                        'type'  => $row['type']['value'] ?? 'FindingAid',
+                    ];
+                }
+                // Link finding aids to records they describe
+                if (isset($row['described'])) {
+                    $descUri = $row['described']['value'];
+                    if (!isset($nodeIndex[$descUri])) {
+                        $nodeIndex[$descUri] = true;
+                        $nodes[] = [
+                            'id'    => $descUri,
+                            'label' => $this->extractLabel($descUri),
+                            'type'  => $this->extractTypeFromUri($descUri),
+                        ];
+                    }
+                    $edges[] = ['source' => $uri, 'target' => $descUri, 'label' => 'describes Or Described'];
+                }
+            }
+        }
+
         $nodes = $this->enrichNodesWithSlugs($nodes);
 
         return ['nodes' => $nodes, 'edges' => $edges];
@@ -858,12 +927,15 @@ SPARQL;
         $uriFilter = '<' . implode('>, <', $recordUris) . '>';
 
         $query = <<<SPARQL
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 SELECT ?subject ?predicate ?object WHERE {
-  { ?subject ?predicate ?object . FILTER(?subject IN ({$uriFilter})) FILTER(isURI(?object)) }
-  UNION
-  { ?subject ?predicate ?object . FILTER(?object IN ({$uriFilter})) FILTER(isURI(?subject)) }
+  {
+    { ?subject ?predicate ?object . FILTER(?subject IN ({$uriFilter})) FILTER(isURI(?object)) }
+    UNION
+    { ?subject ?predicate ?object . FILTER(?object IN ({$uriFilter})) FILTER(isURI(?subject)) }
+  }
   FILTER(?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-} LIMIT 100
+} LIMIT 150
 SPARQL;
 
         $result = $this->executeSparql($query, $endpoint, $username, $password);
@@ -1064,6 +1136,134 @@ SPARQL;
             }
         }
 
+        // RiC-O: hasCreationDate / hasAccumulationDate — temporal date modelling (rico:Date nodes)
+        $dateEvents = DB::table('event as e')
+            ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
+                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
+                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+            })
+            ->where('e.object_id', $recordId)
+            ->select('e.id as event_id', 'e.type_id', 'e.start_date', 'e.end_date', 'ei.date as date_display', 'ti.name as event_type_name')
+            ->get();
+
+        foreach ($dateEvents as $de) {
+            $dateValue = $de->date_display ?: ($de->start_date ? substr($de->start_date, 0, 10) : null);
+            if (!$dateValue) {
+                continue;
+            }
+            $dateUri = $this->buildRecordUri('date', $de->event_id, $baseUri, $instanceId);
+            if (!isset($nodeIndex[$dateUri])) {
+                $nodeIndex[$dateUri] = true;
+                $nodes[] = [
+                    'id'    => $dateUri,
+                    'label' => $dateValue,
+                    'type'  => 'Date',
+                ];
+            }
+            // Creation events (type_id 111) => hasCreationDate; Accumulation (type_id 112) => hasAccumulationDate
+            $predicate = 'has Creation Date';
+            if ($de->type_id == 112) {
+                $predicate = 'has Accumulation Date';
+            } elseif ($de->event_type_name) {
+                $predicate = 'has ' . $de->event_type_name . ' Date';
+            }
+            $edges[] = ['source' => $recordUri, 'target' => $dateUri, 'label' => $predicate];
+        }
+
+        // RiC-O: hasOrHadHolder — map from repository_id
+        if (isset($record->repository_id) && $record->repository_id) {
+            $repo = DB::table('repository as r')
+                ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
+                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
+                })
+                ->where('r.id', $record->repository_id)
+                ->select('r.id', 'ai.authorized_form_of_name')
+                ->first();
+
+            if ($repo) {
+                $repoUri = $this->buildRecordUri('corporatebody', $repo->id, $baseUri, $instanceId);
+                if (!isset($nodeIndex[$repoUri])) {
+                    $nodeIndex[$repoUri] = true;
+                    $nodes[] = [
+                        'id'    => $repoUri,
+                        'label' => $repo->authorized_form_of_name ?: 'Repository ' . $repo->id,
+                        'type'  => 'CorporateBody',
+                    ];
+                }
+                $edges[] = ['source' => $recordUri, 'target' => $repoUri, 'label' => 'has Or Had Holder'];
+            }
+        }
+
+        // RiC-O: isAssociatedWith — from relation table
+        $relations = DB::table('relation as r')
+            ->leftJoin('actor_i18n as ai_s', function ($j) use ($culture) {
+                $j->on('r.subject_id', '=', 'ai_s.id')->where('ai_s.culture', '=', $culture);
+            })
+            ->leftJoin('actor_i18n as ai_o', function ($j) use ($culture) {
+                $j->on('r.object_id', '=', 'ai_o.id')->where('ai_o.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as ti_r', function ($j) use ($culture) {
+                $j->on('r.type_id', '=', 'ti_r.id')->where('ti_r.culture', '=', $culture);
+            })
+            ->where(function ($q) use ($recordId) {
+                $q->where('r.subject_id', $recordId)
+                  ->orWhere('r.object_id', $recordId);
+            })
+            ->select(
+                'r.subject_id', 'r.object_id', 'r.type_id',
+                'ai_s.authorized_form_of_name as subject_name',
+                'ai_o.authorized_form_of_name as object_name',
+                'ti_r.name as relation_type'
+            )
+            ->limit(30)
+            ->get();
+
+        foreach ($relations as $rel) {
+            $otherId = ($rel->subject_id == $recordId) ? $rel->object_id : $rel->subject_id;
+            $otherName = ($rel->subject_id == $recordId)
+                ? ($rel->object_name ?: 'Entity ' . $rel->object_id)
+                : ($rel->subject_name ?: 'Entity ' . $rel->subject_id);
+            $otherUri = $this->buildRecordUri('person', $otherId, $baseUri, $instanceId);
+
+            if (!isset($nodeIndex[$otherUri])) {
+                $nodeIndex[$otherUri] = true;
+                $nodes[] = [
+                    'id'    => $otherUri,
+                    'label' => $otherName,
+                    'type'  => 'Person',
+                ];
+            }
+            $edges[] = [
+                'source' => $recordUri,
+                'target' => $otherUri,
+                'label'  => $rel->relation_type ?: 'is Associated With',
+            ];
+        }
+
+        // RiC-O: describesOrDescribed — finding aid references
+        if (Schema::hasTable('finding_aid')) {
+            $findingAids = DB::table('finding_aid')
+                ->where('information_object_id', $recordId)
+                ->select('id', 'name')
+                ->limit(10)
+                ->get();
+
+            foreach ($findingAids as $fa) {
+                $faUri = $this->buildRecordUri('findingaid', $fa->id, $baseUri, $instanceId);
+                if (!isset($nodeIndex[$faUri])) {
+                    $nodeIndex[$faUri] = true;
+                    $nodes[] = [
+                        'id'    => $faUri,
+                        'label' => $fa->name ?: 'Finding Aid ' . $fa->id,
+                        'type'  => 'FindingAid',
+                    ];
+                }
+                $edges[] = ['source' => $faUri, 'target' => $recordUri, 'label' => 'describes Or Described'];
+            }
+        }
+
         $nodes = $this->enrichNodesWithSlugs($nodes);
 
         return ['nodes' => $nodes, 'edges' => $edges];
@@ -1074,7 +1274,7 @@ SPARQL;
      */
     protected function extractLabel(string $uri): string
     {
-        $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
+        $cultures = $this->getLabelCultures();
 
         // Ontology predicate URIs (e.g., https://...#hasOrHadSubject)
         if (preg_match('/#(\w+)$/', $uri, $m)) {
@@ -1082,18 +1282,24 @@ SPARQL;
         }
         // Term-based URIs
         if (preg_match('/\/(place|term|concept|documentaryformtype|carriertype|contenttype|recordstate|language)\/(\d+)$/', $uri, $m)) {
-            $term = DB::table('term_i18n')->where('id', $m[2])->where('culture', $culture)->value('name');
-            if ($term) return $term;
+            foreach ($cultures as $c) {
+                $term = DB::table('term_i18n')->where('id', $m[2])->where('culture', $c)->value('name');
+                if ($term) return $term;
+            }
         }
         // Actor URIs
         if (preg_match('/\/(person|actor|corporatebody|family)\/(\d+)$/', $uri, $m)) {
-            $name = DB::table('actor_i18n')->where('id', $m[2])->where('culture', $culture)->value('authorized_form_of_name');
-            if ($name) return $name;
+            foreach ($cultures as $c) {
+                $name = DB::table('actor_i18n')->where('id', $m[2])->where('culture', $c)->value('authorized_form_of_name');
+                if ($name) return $name;
+            }
         }
         // Record URIs
         if (preg_match('/\/(record|recordset)\/(\d+)$/', $uri, $m)) {
-            $title = DB::table('information_object_i18n')->where('id', $m[2])->where('culture', $culture)->value('title');
-            if ($title) return $title;
+            foreach ($cultures as $c) {
+                $title = DB::table('information_object_i18n')->where('id', $m[2])->where('culture', $c)->value('title');
+                if ($title) return $title;
+            }
         }
         // Event URIs
         if (preg_match('/\/(production|accumulation|activity|event)\/(\d+)$/', $uri, $m)) {
@@ -1165,6 +1371,7 @@ SPARQL;
                 'recordset'          => 'RecordSet',
                 'record'             => 'Record',
                 'recordpart'         => 'RecordPart',
+                'recordresource'     => 'RecordResource',
                 'person'             => 'Person',
                 'family'             => 'Family',
                 'corporatebody'      => 'CorporateBody',
@@ -1181,6 +1388,12 @@ SPARQL;
                 'contenttype'        => 'ContentType',
                 'recordstate'        => 'RecordState',
                 'language'           => 'Language',
+                'mandate'            => 'Mandate',
+                'rule'               => 'Rule',
+                'mechanism'          => 'Mechanism',
+                'date'               => 'Date',
+                'authorityrecord'    => 'AuthorityRecord',
+                'findingaid'         => 'FindingAid',
             ];
             return $map[strtolower($m[1])] ?? ucfirst($m[1]);
         }
@@ -1248,5 +1461,466 @@ SPARQL;
         $searchApiUrl = $config['ric_search_api'] ?? config('services.ric.search_api', 'http://localhost:5001/api');
 
         return view('ahg-ric::semantic-search', compact('searchApiUrl'));
+    }
+
+    // =========================================================================
+    // RiC-O Community Features: SHACL, JSON-LD, External Linking, Multilingual
+    // =========================================================================
+
+    /**
+     * Get ordered list of cultures for multilingual label resolution.
+     * Tries the current locale first, then English, then other available cultures.
+     */
+    protected function getLabelCultures(): array
+    {
+        $primary = app()->getLocale() ?: 'en';
+        $cultures = [$primary];
+        if ($primary !== 'en') {
+            $cultures[] = 'en';
+        }
+        // Additional cultures commonly used in archives
+        foreach (['af', 'fr', 'de', 'nl', 'pt', 'es', 'it'] as $c) {
+            if (!in_array($c, $cultures)) {
+                $cultures[] = $c;
+            }
+        }
+        return $cultures;
+    }
+
+    /**
+     * SHACL Validation — validates RiC data against SHACL shapes via Fuseki.
+     * GET /admin/ric/shacl-validate
+     */
+    public function shaclValidate()
+    {
+        $config = $this->getFusekiConfig();
+        $fusekiEndpoint = $config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric');
+        $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
+        $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+
+        // Read SHACL shapes file
+        $shapesPath = base_path('packages/ahg-ric/tools/ric_shacl_shapes.ttl');
+        if (!file_exists($shapesPath)) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'SHACL shapes file not found at ' . $shapesPath,
+            ], 404);
+        }
+
+        $shapesData = file_get_contents($shapesPath);
+
+        // First, try Fuseki's built-in SHACL validation endpoint
+        $shaclEndpoint = rtrim($fusekiEndpoint, '/') . '/shacl?graph=default';
+
+        $ch = curl_init();
+        $opts = [
+            CURLOPT_URL            => $shaclEndpoint,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $shapesData,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: text/turtle',
+                'Accept: application/ld+json, application/json, text/turtle',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_CONNECTTIMEOUT => 5,
+        ];
+        if (!empty($fusekiPassword)) {
+            $opts[CURLOPT_USERPWD] = "{$fusekiUsername}:{$fusekiPassword}";
+        }
+        curl_setopt_array($ch, $opts);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $response) {
+            // Try to parse as JSON
+            $parsed = json_decode($response, true);
+            if ($parsed !== null) {
+                return response()->json([
+                    'success' => true,
+                    'method'  => 'fuseki-shacl-endpoint',
+                    'results' => $parsed,
+                ]);
+            }
+
+            // Return raw Turtle/text response
+            return response()->json([
+                'success'      => true,
+                'method'       => 'fuseki-shacl-endpoint',
+                'content_type' => $contentType,
+                'results_raw'  => $response,
+            ]);
+        }
+
+        // Fallback: use SPARQL-based lightweight validation
+        $validationResults = $this->sparqlBasedValidation($fusekiEndpoint . '/query', $fusekiUsername, $fusekiPassword);
+
+        return response()->json([
+            'success' => true,
+            'method'  => 'sparql-based',
+            'note'    => 'Fuseki SHACL endpoint returned HTTP ' . $httpCode . ($curlError ? ' (' . $curlError . ')' : '') . '. Using SPARQL-based validation fallback.',
+            'results' => $validationResults,
+        ]);
+    }
+
+    /**
+     * Lightweight SPARQL-based validation checking common SHACL-like constraints.
+     */
+    protected function sparqlBasedValidation(string $endpoint, string $username, string $password): array
+    {
+        $violations = [];
+
+        // Check: RecordSets without title
+        $q1 = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT (COUNT(?s) AS ?count) WHERE {
+  ?s a rico:RecordSet .
+  FILTER NOT EXISTS { ?s rico:title ?t }
+}
+SPARQL;
+        $r1 = $this->executeSparql($q1, $endpoint, $username, $password);
+        $count1 = (int)($r1['results']['bindings'][0]['count']['value'] ?? 0);
+        if ($count1 > 0) {
+            $violations[] = [
+                'severity'    => 'Violation',
+                'shape'       => 'RecordSetShape',
+                'constraint'  => 'rico:title required',
+                'count'       => $count1,
+                'message'     => "{$count1} RecordSet(s) missing required rico:title",
+            ];
+        }
+
+        // Check: Persons without title/name
+        $q2 = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT (COUNT(?s) AS ?count) WHERE {
+  ?s a rico:Person .
+  FILTER NOT EXISTS { ?s rico:title ?t }
+  FILTER NOT EXISTS { ?s rico:name ?n }
+}
+SPARQL;
+        $r2 = $this->executeSparql($q2, $endpoint, $username, $password);
+        $count2 = (int)($r2['results']['bindings'][0]['count']['value'] ?? 0);
+        if ($count2 > 0) {
+            $violations[] = [
+                'severity'    => 'Warning',
+                'shape'       => 'PersonShape',
+                'constraint'  => 'rico:title or rico:name recommended',
+                'count'       => $count2,
+                'message'     => "{$count2} Person(s) missing title or name",
+            ];
+        }
+
+        // Check: RecordSets without creator
+        $q3 = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT (COUNT(?s) AS ?count) WHERE {
+  ?s a rico:RecordSet .
+  FILTER NOT EXISTS { ?s rico:hasCreator ?c }
+  FILTER NOT EXISTS { ?s rico:hasOrHadHolder ?h }
+}
+SPARQL;
+        $r3 = $this->executeSparql($q3, $endpoint, $username, $password);
+        $count3 = (int)($r3['results']['bindings'][0]['count']['value'] ?? 0);
+        if ($count3 > 0) {
+            $violations[] = [
+                'severity'    => 'Warning',
+                'shape'       => 'RecordSetShape',
+                'constraint'  => 'rico:hasCreator or rico:hasOrHadHolder recommended',
+                'count'       => $count3,
+                'message'     => "{$count3} RecordSet(s) without creator or holder",
+            ];
+        }
+
+        // Check: Records without date
+        $q4 = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT (COUNT(?s) AS ?count) WHERE {
+  ?s a rico:RecordSet .
+  FILTER NOT EXISTS { ?s rico:hasCreationDate ?d }
+  FILTER NOT EXISTS { ?s rico:hasAccumulationDate ?d2 }
+}
+SPARQL;
+        $r4 = $this->executeSparql($q4, $endpoint, $username, $password);
+        $count4 = (int)($r4['results']['bindings'][0]['count']['value'] ?? 0);
+        if ($count4 > 0) {
+            $violations[] = [
+                'severity'    => 'Info',
+                'shape'       => 'RecordSetShape',
+                'constraint'  => 'rico:hasCreationDate or rico:hasAccumulationDate recommended',
+                'count'       => $count4,
+                'message'     => "{$count4} RecordSet(s) without creation or accumulation date",
+            ];
+        }
+
+        $totalViolations = array_sum(array_column(
+            array_filter($violations, fn($v) => $v['severity'] === 'Violation'),
+            'count'
+        ));
+        $totalWarnings = array_sum(array_column(
+            array_filter($violations, fn($v) => $v['severity'] === 'Warning'),
+            'count'
+        ));
+
+        return [
+            'conforms'         => $totalViolations === 0,
+            'total_violations' => $totalViolations,
+            'total_warnings'   => $totalWarnings,
+            'details'          => $violations,
+            'validated_at'     => now()->toDateTimeString(),
+        ];
+    }
+
+    /**
+     * JSON-LD Export for a specific record.
+     * GET /admin/ric/export/jsonld?id={recordId}
+     */
+    public function exportJsonLd(Request $request)
+    {
+        $recordId = $request->input('id');
+        if (!$recordId) {
+            return response()->json(['error' => 'Record ID is required'], 400);
+        }
+
+        $config = $this->getFusekiConfig();
+        $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
+        $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
+        $fusekiPassword  = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+        $baseUri         = $config['ric_base_uri'] ?? config('services.ric.base_uri', 'https://archives.theahg.co.za/ric');
+        $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
+
+        // Build graph data
+        $graphData = $this->buildGraphData(
+            $recordId, $fusekiEndpoint, $fusekiUsername, $fusekiPassword, $baseUri, $instanceId
+        );
+
+        // Convert graph to JSON-LD structure
+        $context = [
+            'rico'   => 'https://www.ica.org/standards/RiC/ontology#',
+            'rdf'    => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            'rdfs'   => 'http://www.w3.org/2000/01/rdf-schema#',
+            'owl'    => 'http://www.w3.org/2002/07/owl#',
+            'xsd'    => 'http://www.w3.org/2001/XMLSchema#',
+            'title'  => 'rico:title',
+            'hasCreator'          => ['@id' => 'rico:hasCreator', '@type' => '@id'],
+            'hasOrHadHolder'      => ['@id' => 'rico:hasOrHadHolder', '@type' => '@id'],
+            'hasCreationDate'     => ['@id' => 'rico:hasCreationDate', '@type' => '@id'],
+            'hasAccumulationDate' => ['@id' => 'rico:hasAccumulationDate', '@type' => '@id'],
+            'describesOrDescribed'=> ['@id' => 'rico:describesOrDescribed', '@type' => '@id'],
+            'isAssociatedWith'    => ['@id' => 'rico:isAssociatedWith', '@type' => '@id'],
+            'hasProvenanceOf'     => ['@id' => 'rico:hasProvenanceOf', '@type' => '@id'],
+            'isEquivalentTo'      => ['@id' => 'rico:isEquivalentTo', '@type' => '@id'],
+            'resultsOrResultedFrom' => ['@id' => 'rico:resultsOrResultedFrom', '@type' => '@id'],
+            'isPartOf'            => ['@id' => 'rico:isPartOf', '@type' => '@id'],
+            'hasOrHadSubject'     => ['@id' => 'rico:hasOrHadSubject', '@type' => '@id'],
+        ];
+
+        // Build @graph array from nodes and edges
+        $graph = [];
+        $nodeMap = [];
+        foreach ($graphData['nodes'] as $node) {
+            $nodeMap[$node['id']] = $node;
+            $entity = [
+                '@id'   => $node['id'],
+                '@type' => 'rico:' . ($node['type'] ?? 'RecordResource'),
+                'title' => $node['label'] ?? null,
+            ];
+            $graph[] = $entity;
+        }
+
+        // Merge edge data into graph entities
+        foreach ($graphData['edges'] as $edge) {
+            $predicate = $this->labelToPredicate($edge['label'] ?? '');
+            foreach ($graph as &$entity) {
+                if ($entity['@id'] === $edge['source']) {
+                    if (!isset($entity[$predicate])) {
+                        $entity[$predicate] = [];
+                    }
+                    $entity[$predicate][] = ['@id' => $edge['target']];
+                    break;
+                }
+            }
+            unset($entity);
+        }
+
+        $jsonLd = [
+            '@context' => $context,
+            '@graph'   => $graph,
+        ];
+
+        return response()->json($jsonLd, 200, [
+            'Content-Type' => 'application/ld+json; charset=utf-8',
+        ]);
+    }
+
+    /**
+     * Convert a readable edge label back to a RiC-O predicate name.
+     */
+    protected function labelToPredicate(string $label): string
+    {
+        $map = [
+            'has Creator'              => 'hasCreator',
+            'has Or Had Holder'        => 'hasOrHadHolder',
+            'has Creation Date'        => 'hasCreationDate',
+            'has Accumulation Date'    => 'hasAccumulationDate',
+            'describes Or Described'   => 'describesOrDescribed',
+            'is Associated With'       => 'isAssociatedWith',
+            'has Provenance Of'        => 'hasProvenanceOf',
+            'is Equivalent To'         => 'isEquivalentTo',
+            'results Or Resulted From' => 'resultsOrResultedFrom',
+            'part of'                  => 'isPartOf',
+            'about'                    => 'hasOrHadSubject',
+        ];
+
+        // Check exact match first
+        if (isset($map[$label])) {
+            return $map[$label];
+        }
+        // Check case-insensitive
+        foreach ($map as $key => $value) {
+            if (strcasecmp($key, $label) === 0) {
+                return $value;
+            }
+        }
+        // Convert readable label to camelCase predicate
+        $words = explode(' ', $label);
+        $camel = lcfirst(implode('', array_map('ucfirst', $words)));
+        return $camel;
+    }
+
+    /**
+     * Lookup external authority records from Wikidata and VIAF.
+     * GET /admin/ric/lookup-external?name={name}&type={person|place|organization}
+     */
+    public function lookupExternal(Request $request)
+    {
+        $name = trim($request->input('name', ''));
+        $type = $request->input('type', 'person');
+
+        if (mb_strlen($name) < 2) {
+            return response()->json(['error' => 'Name must be at least 2 characters'], 400);
+        }
+
+        $results = [
+            'query'    => $name,
+            'type'     => $type,
+            'wikidata' => [],
+            'viaf'     => [],
+        ];
+
+        // Wikidata search
+        $wikidataResults = $this->searchWikidata($name, $type);
+        $results['wikidata'] = $wikidataResults;
+
+        // VIAF search
+        $viafResults = $this->searchViaf($name, $type);
+        $results['viaf'] = $viafResults;
+
+        return response()->json($results);
+    }
+
+    /**
+     * Search Wikidata API for matching entities.
+     */
+    protected function searchWikidata(string $name, string $type): array
+    {
+        $wdType = match ($type) {
+            'person'       => 'Q5',            // human
+            'place'        => 'Q515',          // city (broad match)
+            'organization' => 'Q43229',        // organization
+            default        => '',
+        };
+
+        $url = 'https://www.wikidata.org/w/api.php?' . http_build_query([
+            'action'   => 'wbsearchentities',
+            'search'   => $name,
+            'language' => 'en',
+            'limit'    => 10,
+            'format'   => 'json',
+        ]);
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_USERAGENT      => 'Heratio/1.0 (https://archives.theahg.co.za; mailto:johan@theahg.co.za)',
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || !$response) {
+            return [];
+        }
+
+        $data = json_decode($response, true);
+        $items = [];
+
+        foreach ($data['search'] ?? [] as $item) {
+            $items[] = [
+                'id'          => $item['id'] ?? '',
+                'uri'         => $item['concepturi'] ?? ('https://www.wikidata.org/wiki/' . ($item['id'] ?? '')),
+                'label'       => $item['label'] ?? '',
+                'description' => $item['description'] ?? '',
+                'source'      => 'wikidata',
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Search VIAF API for authority records.
+     */
+    protected function searchViaf(string $name, string $type): array
+    {
+        $viafIndex = match ($type) {
+            'person'       => 'local.personalNames',
+            'organization' => 'local.corporateNames',
+            'place'        => 'local.geographicNames',
+            default        => 'local.names',
+        };
+
+        $url = 'https://www.viaf.org/viaf/AutoSuggest?' . http_build_query([
+            'query' => $name,
+        ]);
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_USERAGENT      => 'Heratio/1.0 (https://archives.theahg.co.za)',
+            CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || !$response) {
+            return [];
+        }
+
+        $data = json_decode($response, true);
+        $items = [];
+
+        foreach ($data['result'] ?? [] as $item) {
+            $viafId = $item['viafid'] ?? '';
+            $items[] = [
+                'id'          => $viafId,
+                'uri'         => $viafId ? 'https://viaf.org/viaf/' . $viafId : '',
+                'label'       => $item['term'] ?? '',
+                'description' => $item['nametype'] ?? '',
+                'source'      => 'viaf',
+            ];
+        }
+
+        return array_slice($items, 0, 10);
     }
 }

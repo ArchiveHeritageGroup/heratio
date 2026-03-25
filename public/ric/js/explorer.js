@@ -14,11 +14,15 @@
 
     var COLORS = {
         RecordSet: '#17a2b8', Record: '#45b7d1', RecordPart: '#96ceb4',
+        RecordResource: '#0dcaf0',
         Person: '#dc3545', Family: '#dc3545',
         CorporateBody: '#ffc107',
         Production: '#6f42c1', Accumulation: '#6f42c1', Activity: '#6f42c1', Function: '#6f42c1',
         Place: '#fd7e14', Thing: '#20c997', Concept: '#20c997',
         Instantiation: '#6c757d',
+        Mandate: '#e83e8c', Rule: '#e83e8c', Mechanism: '#ab47bc',
+        Date: '#795548',
+        AuthorityRecord: '#00bcd4', FindingAid: '#009688',
         default: '#6c757d'
     };
 
@@ -707,7 +711,13 @@
             all_types: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?type (COUNT(?entity) AS ?count) WHERE {\n  ?entity a ?type .\n  FILTER(STRSTARTS(STR(?type), "https://www.ica.org/standards/RiC/ontology#"))\n}\nGROUP BY ?type\nORDER BY DESC(?count)',
             creators: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?creator ?creatorLabel ?record ?recordLabel WHERE {\n  ?record rico:hasCreator ?creator .\n  OPTIONAL { ?creator rico:title ?creatorLabel }\n  OPTIONAL { ?record rico:title ?recordLabel }\n}\nLIMIT 50',
             places: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?place ?placeLabel ?record ?recordLabel WHERE {\n  ?record rico:hasOrHadPlaceRelation ?pr .\n  ?pr rico:hasOrHadPlace ?place .\n  OPTIONAL { ?place rico:title ?placeLabel }\n  OPTIONAL { ?record rico:title ?recordLabel }\n}\nLIMIT 50',
-            recent: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT ?entity ?type ?label WHERE {\n  ?entity a ?type .\n  OPTIONAL { ?entity rico:title ?label }\n  FILTER(STRSTARTS(STR(?type), "https://www.ica.org/standards/RiC/ontology#"))\n}\nORDER BY DESC(?entity)\nLIMIT 25'
+            recent: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT ?entity ?type ?label WHERE {\n  ?entity a ?type .\n  OPTIONAL { ?entity rico:title ?label }\n  FILTER(STRSTARTS(STR(?type), "https://www.ica.org/standards/RiC/ontology#"))\n}\nORDER BY DESC(?entity)\nLIMIT 25',
+            mandates_rules: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?entity ?type ?label WHERE {\n  { ?entity a rico:Mandate } UNION { ?entity a rico:Rule } UNION { ?entity a rico:Mechanism }\n  ?entity a ?type .\n  OPTIONAL { ?entity rico:title ?label }\n  FILTER(STRSTARTS(STR(?type), "https://www.ica.org/standards/RiC/ontology#"))\n}\nLIMIT 50',
+            creation_dates: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?record ?recordLabel ?date ?dateValue WHERE {\n  ?record rico:hasCreationDate ?date .\n  OPTIONAL { ?record rico:title ?recordLabel }\n  OPTIONAL { ?date rico:normalizedDateValue ?dateValue }\n}\nLIMIT 50',
+            holders: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?record ?recordLabel ?holder ?holderLabel WHERE {\n  ?record rico:hasOrHadHolder ?holder .\n  OPTIONAL { ?record rico:title ?recordLabel }\n  OPTIONAL { ?holder rico:title ?holderLabel }\n}\nLIMIT 50',
+            provenance_chains: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?record ?recordLabel ?agent ?agentLabel WHERE {\n  ?agent rico:hasProvenanceOf ?record .\n  OPTIONAL { ?record rico:title ?recordLabel }\n  OPTIONAL { ?agent rico:title ?agentLabel }\n}\nLIMIT 50',
+            equivalences: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\nPREFIX owl: <http://www.w3.org/2002/07/owl#>\n\nSELECT ?entity ?label ?equivalent WHERE {\n  { ?entity rico:isEquivalentTo ?equivalent } UNION { ?entity owl:sameAs ?equivalent }\n  OPTIONAL { ?entity rico:title ?label }\n}\nLIMIT 50',
+            finding_aids: 'PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n\nSELECT ?findingAid ?label ?described WHERE {\n  ?findingAid a rico:FindingAid .\n  OPTIONAL { ?findingAid rico:title ?label }\n  OPTIONAL { ?findingAid rico:describesOrDescribed ?described }\n}\nLIMIT 50'
         };
         if (presets[preset]) editor.value = presets[preset];
     };

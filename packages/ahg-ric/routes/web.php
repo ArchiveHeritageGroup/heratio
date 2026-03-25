@@ -3,8 +3,13 @@
 use AhgRic\Controllers\RicController;
 use Illuminate\Support\Facades\Route;
 
-// /ric/ is a static SPA in public/ric/index.html — no Laravel route needed
-// The /admin/ric/explorer route still exists as a Blade-based fallback
+// Public RiC API — no auth required (for standalone ric.theahg.co.za)
+Route::prefix('ric-api')->group(function () {
+    Route::get('/data', [RicController::class, 'getData'])->name('ric.public-data');
+    Route::get('/autocomplete', [RicController::class, 'autocomplete'])->name('ric.public-autocomplete');
+    Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');
+    Route::get('/stats', [RicController::class, 'ajaxStats'])->name('ric.public-stats');
+});
 
 Route::middleware('admin')->group(function () {
     Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');
@@ -21,6 +26,11 @@ Route::middleware('admin')->group(function () {
 
     // RIC Semantic Search
     Route::get('/admin/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');
+
+    // RiC-O Community Features: SHACL validation, JSON-LD export, external authority linking
+    Route::get('/admin/ric/shacl-validate', [RicController::class, 'shaclValidate'])->name('ric.shacl-validate');
+    Route::get('/admin/ric/export/jsonld', [RicController::class, 'exportJsonLd'])->name('ric.export-jsonld');
+    Route::get('/admin/ric/lookup-external', [RicController::class, 'lookupExternal'])->name('ric.lookup-external');
 
     // AJAX endpoints for dashboard
     Route::get('/admin/ric/ajax-dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.ajax-dashboard');
