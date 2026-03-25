@@ -538,13 +538,14 @@
       ? (docType === 'type_a' ? 'Date of Death' : 'Date of Birth')
       : (docType === 'type_a' ? 'Place of Death' : 'Place of Birth');
 
-    anns.push({
+    const newAnn = {
       id: Date.now(), x:Math.round(x), y:Math.round(y), w:Math.round(w), h:Math.round(h),
       label: label, text: '',
       form_label: defaultFormLabel,
       color: COLORS[anns.length%COLORS.length],
-    });
-    setActive(anns[anns.length-1].id); redraw(); buildPanel();
+    };
+    anns.push(newAnn);
+    setActive(newAnn.id); redraw(); buildPanel();
     document.getElementById('btn-undo').disabled=false;
 
     // Auto-switch to hand after 2 boxes (done drawing)
@@ -555,6 +556,51 @@
       const inp = document.querySelector('.fi.active input[data-role="txt"]');
       if (inp) inp.focus();
     }, 50);
+
+    // ── Hybrid OCR: auto-recognize text in the drawn box ──
+    const serverPath = cvs.dataset.serverPath || '';
+    if (serverPath) {
+      const annId = newAnn.id;
+      // Show loading indicator on the input
+      const ocrInp = document.querySelector('.fi.active input[data-role="txt"]');
+      if (ocrInp) ocrInp.placeholder = 'Recognizing...';
+
+      fetch('{{ url("/admin/ai/htr/crop-ocr") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+        body: JSON.stringify({
+          image_path: serverPath,
+          bbox: {x: newAnn.x, y: newAnn.y, w: newAnn.w, h: newAnn.h},
+        }),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success && data.text) {
+          // Pre-fill the recognized text
+          const ann = anns.find(function(a) { return a.id === annId; });
+          if (ann && !ann.text) {
+            ann.text = data.text;
+            // Update the input field
+            const inp = document.querySelector('.fi[data-id="' + annId + '"] input[data-role="txt"]');
+            if (inp) {
+              inp.value = data.text;
+              inp.placeholder = '';
+              inp.classList.add('border-success');
+              setTimeout(function() { inp.classList.remove('border-success'); }, 2000);
+            }
+            buildPanel();
+          }
+        } else {
+          // OCR failed or empty — just clear placeholder
+          const inp = document.querySelector('.fi.active input[data-role="txt"]');
+          if (inp) inp.placeholder = 'Type text...';
+        }
+      })
+      .catch(function() {
+        const inp = document.querySelector('.fi.active input[data-role="txt"]');
+        if (inp) inp.placeholder = 'Type text...';
+      });
+    }
   });
 
   document.addEventListener('mouseup', function() {

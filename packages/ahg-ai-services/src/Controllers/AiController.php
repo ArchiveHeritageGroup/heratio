@@ -659,6 +659,40 @@ PY;
      * Skip an image — move it to a rework/ folder for later review.
      */
     /**
+     * Crop OCR — recognize text in a bounding box region of an image.
+     * Used by the annotate UI for hybrid pre-fill.
+     */
+    public function htrCropOcr(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        $bbox = $request->input('bbox', []);
+
+        if (!$imagePath || empty($bbox)) {
+            return response()->json(['success' => false, 'error' => 'image_path and bbox required'], 400);
+        }
+
+        if (!file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found'], 404);
+        }
+
+        try {
+            $htrUrl = config('services.htr.url', 'http://localhost:5006');
+            $response = \Illuminate\Support\Facades\Http::timeout(30)->post("{$htrUrl}/crop-ocr", [
+                'image_path' => $imagePath,
+                'bbox' => $bbox,
+            ]);
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json(['success' => false, 'error' => 'HTR service error: ' . $response->status()], 502);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Split a register page into individual row images for annotation.
      * Takes the image path + array of row bounding boxes.
      * Crops each row and saves to a temp folder, returns paths.
