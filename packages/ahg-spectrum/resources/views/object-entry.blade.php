@@ -1,20 +1,41 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Back')
+@section('title', __('Object Entry Report'))
 
 @section('content')
-<h1>Back</h1>
 
-<div class="table-responsive">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>#</th><th>Name</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="3" class="text-muted text-center">No records found.</td></tr>
-    </tbody>
-  </table>
+<h1><i class="fas fa-sign-in-alt"></i> {{ __('Object Entry Report') }}</h1>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-footer">
+                <a href="{{ route('ahgspectrum.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        @if(empty($entries))
+        <div class="alert alert-info">{{ __('No object entries recorded.') }}</div>
+        @else
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Entry Date') }}</th><th>{{ __('Entry Number') }}</th><th>{{ __('Depositor') }}</th><th>{{ __('Reason') }}</th></tr></thead>
+                <tbody>
+                @foreach($entries as $e)
+                <tr>
+                    <td>@if($e->slug)<a href="/{{ $e->slug }}">{{ $e->title ?? 'Untitled' }}</a>@else - @endif</td>
+                    <td>{{ $e->entry_date ?? '-' }}</td>
+                    <td>{{ $e->entry_number ?? '-' }}</td>
+                    <td>{{ $e->depositor ?? '-' }}</td>
+                    <td>{{ $e->entry_reason ?? '-' }}</td>
+                </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+    </div>
 </div>
+
 @endsection

@@ -1,20 +1,102 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Security Compliance Dashboard')
+@section('title', __('Security Compliance Dashboard'))
 
 @section('content')
-<h1>Security Compliance Dashboard</h1>
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="h3 mb-4">
+            <i class="fas fa-shield-alt me-2"></i>
+            {{ __('Security Compliance Dashboard') }}
+        </h1>
+    </div>
+</div>
 
-<div class="table-responsive">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th>#</th><th>Name</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="3" class="text-muted text-center">No records found.</td></tr>
-    </tbody>
-  </table>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h4 class="mb-0">{{ $stats['classified_objects'] ?? 0 }}</h4>
+                <small>{{ __('Classified Objects') }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body">
+                <h4 class="mb-0">{{ $stats['pending_reviews'] ?? 0 }}</h4>
+                <small>{{ __('Pending Reviews') }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h4 class="mb-0">{{ $stats['cleared_users'] ?? 0 }}</h4>
+                <small>{{ __('Cleared Users') }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body">
+                <h4 class="mb-0">{{ $stats['access_logs_today'] ?? 0 }}</h4>
+                <small>{{ __('Access Logs Today') }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">{{ __('Recent Audit Logs') }}</h5>
+            </div>
+            <div class="card-body">
+                @if(!empty($recentLogs))
+                    <table class="table table-sm">
+                        <thead><tr><th>Action</th><th>User</th><th>Time</th></tr></thead>
+                        <tbody>
+                        @foreach($recentLogs as $log)
+                            <tr>
+                                <td>{{ $log->action ?? '' }}</td>
+                                <td>{{ $log->username ?? '' }}</td>
+                                <td><small>{{ $log->created_at ?? '' }}</small></td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p class="text-muted text-center">{{ __('No recent logs') }}</p>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{{ __('Retention Schedules (NARSSA)') }}</h5>
+            </div>
+            <div class="card-body">
+                @if(!empty($retentionSchedules))
+                    <table class="table table-sm">
+                        <thead><tr><th>Ref</th><th>Type</th><th>Period</th></tr></thead>
+                        <tbody>
+                        @foreach($retentionSchedules as $s)
+                            <tr>
+                                <td><code>{{ $s->narssa_ref ?? '' }}</code></td>
+                                <td>{{ $s->record_type ?? '' }}</td>
+                                <td>{{ $s->retention_period ?? '' }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p class="text-muted text-center">{{ __('No retention schedules') }}</p>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
