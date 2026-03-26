@@ -5,7 +5,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Relay "start capture" from popup to the active tab's content script
   if (msg.action === 'startCapture') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!tabs[0]) return;
+      if (!tabs[0]) { sendResponse({ ok: false }); return; }
       const tabId = tabs[0].id;
       // Try sending to existing content script first
       chrome.tabs.sendMessage(tabId, { action: 'showPanel' }, (resp) => {
@@ -21,26 +21,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }, () => {
               setTimeout(() => {
                 chrome.tabs.sendMessage(tabId, { action: 'showPanel' });
+                sendResponse({ ok: true });
               }, 200);
             });
           });
+        } else {
+          sendResponse({ ok: true });
         }
       });
     });
-    sendResponse({ ok: true });
-    return false;
-  }
-
-  // Download a file via chrome.downloads API (can download cross-origin)
-  if (msg.action === 'downloadFile') {
-    chrome.downloads.download({
-      url: msg.url,
-      filename: msg.filename,
-      conflictAction: 'uniquify',
-    }, (downloadId) => {
-      sendResponse({ ok: true, downloadId });
-    });
-    return true;
+    return true; // async response
   }
 
   // Save a row to session storage

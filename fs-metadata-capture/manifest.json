@@ -3,7 +3,7 @@
   "name": "FS Metadata Capture",
   "version": "2.0.0",
   "description": "Scrape FamilySearch metadata, download full document images, export CSV.",
-  "permissions": ["activeTab", "scripting", "storage", "downloads"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"
   },

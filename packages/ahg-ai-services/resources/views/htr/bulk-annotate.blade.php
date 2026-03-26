@@ -37,6 +37,7 @@
   </div>
   <div class="btn-group btn-group-sm">
     <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pencil-alt me-1"></i>Manual Annotate</a>
+    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
     <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white"><i class="fas fa-graduation-cap me-1"></i>Training</a>
   </div>
 </div>

@@ -191,26 +191,111 @@
     return result;
   }
 
-  // Find full-resolution document image URL
-  function getFullImageUrl() {
-    const imgs = document.querySelectorAll('img');
-    for (const img of imgs) {
-      const src = img.src || '';
-      if (src.includes('/das/') || src.includes('/dgs/') || src.includes('/recapi/')) {
-        return src;
+  // ── Deep Zoom tile stitching ──────────────────────────────
+  // FS uses Deep Zoom tiles: .../dz/v1/{IMAGE_ARK}/image_files/{level}/{col}_{row}.jpg
+  // We find the tile URLs, determine the grid size, fetch all tiles, stitch on canvas
+
+  function getDeepZoomInfo() {
+    // Find tile images on the page
+    const tiles = document.querySelectorAll('img[src*="deepzoomcloud"], img[src*="/dz/"]');
+    if (tiles.length === 0) return null;
+
+    // Parse the first tile URL to get base URL and zoom level
+    const firstSrc = tiles[0].src;
+    // Pattern: https://sg30p0.familysearch.org/service/records/storage/deepzoomcloud/dz/v1/3:1:XXXX/image_files/10/0_0.jpg
+    const match = firstSrc.match(/(https?:\/\/.+\/dz\/v1\/[^/]+)\/image_files\/(\d+)\/(\d+)_(\d+)\.jpg/);
+    if (!match) return null;
+
+    const baseUrl = match[1];
+    const level = parseInt(match[2]);
+
+    // Find the maximum column and row indices from all tiles
+    let maxCol = 0, maxRow = 0;
+    for (const tile of tiles) {
+      const m = tile.src.match(/\/(\d+)_(\d+)\.jpg$/);
+      if (m) {
+        maxCol = Math.max(maxCol, parseInt(m[1]));
+        maxRow = Math.max(maxRow, parseInt(m[2]));
       }
     }
-    // Fallback: largest image
-    let biggest = null, biggestArea = 0;
-    for (const img of imgs) {
-      const area = (img.naturalWidth || 0) * (img.naturalHeight || 0);
-      if (area > biggestArea && img.src && !img.src.includes('icon') && !img.src.includes('logo') && !img.src.includes('avatar')) {
-        biggest = img;
-        biggestArea = area;
+
+    // Get the container dimensions (the full image size at this zoom level)
+    const container = tiles[0].closest('.deepZoomImageCss_d13xiw9e, [class*="deepZoom"]');
+    let totalW = 2376, totalH = 2967; // defaults
+    if (container) {
+      totalW = container.offsetWidth || parseInt(container.style.width) || totalW;
+      totalH = container.offsetHeight || parseInt(container.style.height) || totalH;
+    }
+
+    return {
+      baseUrl,
+      level,
+      cols: maxCol + 1,
+      rows: maxRow + 1,
+      totalW,
+      totalH,
+    };
+  }
+
+  async function downloadStitchedImage(arkId) {
+    const info = getDeepZoomInfo();
+    if (!info) {
+      console.warn('[FS Capture] No Deep Zoom tiles found');
+      return;
+    }
+
+    console.log('[FS Capture] Stitching', info.cols, 'x', info.rows, 'tiles at level', info.level, '(', info.totalW, 'x', info.totalH, ')');
+
+    // Create canvas at full size
+    const canvas = document.createElement('canvas');
+    canvas.width = info.totalW;
+    canvas.height = info.totalH;
+    const ctx = canvas.getContext('2d');
+
+    // Use the EXISTING tile <img> elements from the page (already loaded, no CORS issue)
+    const tiles = document.querySelectorAll('img[src*="deepzoomcloud"], img[src*="/dz/"]');
+    for (const tile of tiles) {
+      const m = tile.src.match(/\/(\d+)_(\d+)\.jpg$/);
+      if (!m) continue;
+      const col = parseInt(m[1]);
+      const row = parseInt(m[2]);
+
+      // Get position from the tile's CSS style (percentage-based)
+      const leftPct = parseFloat(tile.style.left) || 0;
+      const topPct = parseFloat(tile.style.top) || 0;
+      const x = Math.round(leftPct / 100 * info.totalW);
+      const y = Math.round(topPct / 100 * info.totalH);
+
+      // Get size from CSS
+      const widthPct = parseFloat(tile.style.width) || (100 / info.cols);
+      const heightPct = parseFloat(tile.style.height) || (100 / info.rows);
+      const w = Math.round(widthPct / 100 * info.totalW);
+      const h = Math.round(heightPct / 100 * info.totalH);
+
+      ctx.drawImage(tile, x, y, w, h);
+    }
+
+    // Convert to data URL and use chrome.downloads (avoids tainted canvas issues)
+    try {
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      // Use chrome.downloads via background
+      chrome.runtime.sendMessage({
+        action: 'downloadFile',
+        url: dataUrl,
+        filename: 'FamilySearch/' + (arkId || 'fs-image') + '.jpg',
+      });
+      console.log('[FS Capture] Downloaded stitched image:', arkId + '.jpg', info.totalW + 'x' + info.totalH);
+    } catch(e) {
+      console.error('[FS Capture] Canvas tainted, falling back to individual tile download');
+      // Fallback: download the first (largest) tile via chrome.downloads
+      if (tiles.length > 0) {
+        chrome.runtime.sendMessage({
+          action: 'downloadFile',
+          url: tiles[0].src,
+          filename: 'FamilySearch/' + (arkId || 'fs-image') + '.jpg',
+        });
       }
     }
-    if (biggest && biggestArea > 50000) return biggest.src;
-    return null;
   }
 
   // Click Next Image
@@ -228,7 +313,7 @@
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === 'showPanel') {
-      autoMode = true;
+      autoMode = false;
       autoStartImage = parseInt(getImageNumber(), 10) || 1;
       lastProcessedArk = '';
       showPanel();
@@ -281,9 +366,8 @@
       <div class="fs-rp-body">
         <div class="fs-rp-fields">${fieldsHtml}</div>
         <div class="fs-rp-actions">
-          <button id="fs-rp-save-next" class="fs-btn-save-next">Save + Download + Next &rarr;</button>
+          <button id="fs-rp-save-next" class="fs-btn-save-next">Save + Next &rarr;</button>
           <button id="fs-rp-save" class="fs-btn-save">Save only</button>
-          <button id="fs-rp-download" class="fs-btn-download">Download image</button>
           <button id="fs-rp-stop" class="fs-btn-cancel">${autoMode ? 'Stop auto (Esc)' : 'Close'}</button>
         </div>
       </div>
@@ -292,7 +376,7 @@
     document.addEventListener('keydown', onEscape);
 
     // Save + Download + Next
-    panel.querySelector('#fs-rp-save-next').addEventListener('click', () => doSaveDownloadNext());
+    panel.querySelector('#fs-rp-save-next').addEventListener('click', () => { doSaveDownloadNext(); });
 
     // Save only
     panel.querySelector('#fs-rp-save').addEventListener('click', () => {
@@ -303,11 +387,6 @@
         btn.disabled = true;
         btn.style.opacity = '0.6';
       });
-    });
-
-    // Download image only
-    panel.querySelector('#fs-rp-download').addEventListener('click', () => {
-      downloadFullImage(extractArkId());
     });
 
     // Stop / Close
@@ -346,7 +425,7 @@
         if (autoSpan) { autoSpan.textContent = 'DONE'; autoSpan.style.background = '#27ae60'; autoSpan.style.animation = 'none'; }
       } else {
         const btn = panel.querySelector('#fs-rp-save-next');
-        btn.textContent = `Auto: ${currentImg}/${totalImg} (${processed} done) — saving in 2s (Esc to stop)`;
+        btn.textContent = `Auto: ${currentImg}/${totalImg} (${processed} done) — next in 2s (Esc to stop)`;
         autoTimer = setTimeout(() => {
           if (autoMode) doSaveDownloadNext();
         }, 2000);
@@ -363,16 +442,13 @@
     }
     const currentArkId = extractArkId();
 
-    // Prevent downloading the same image twice (happens on last image)
     if (currentArkId && currentArkId !== lastProcessedArk) {
       lastProcessedArk = currentArkId;
-      downloadFullImage(currentArkId);
       saveCurrentRow(currentArkId, () => {
         clickNextImage();
         setTimeout(() => showPanel(), 3000);
       });
     } else {
-      // Same image as last — stop
       autoMode = false;
       if (btn) btn.textContent = 'Already processed — stopped';
     }
@@ -384,16 +460,7 @@
     removePanel();
   }
 
-  function downloadFullImage(arkId) {
-    const imgUrl = getFullImageUrl();
-    if (!imgUrl) return;
-    const ext = (imgUrl.includes('.jpg') || imgUrl.includes('jpeg')) ? '.jpg' : '.png';
-    chrome.runtime.sendMessage({
-      action: 'downloadFile',
-      url: imgUrl,
-      filename: 'FamilySearch/' + (arkId || 'fs-image') + ext,
-    });
-  }
+  // No image download — user downloads manually via FS viewer
 
   function saveCurrentRow(arkId, cb) {
     // Read all field values from the panel inputs

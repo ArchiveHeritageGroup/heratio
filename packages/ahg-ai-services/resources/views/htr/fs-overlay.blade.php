@@ -201,6 +201,47 @@
   const ctx = cvs.getContext('2d');
   const wrap = document.getElementById('ba-wrap');
 
+  // ── Auto-refresh spreadsheet dropdown when folder changes ──
+  let folderRefreshTimer = null;
+  document.getElementById('ba-folder').addEventListener('change', refreshSpreadsheets);
+  document.getElementById('ba-folder').addEventListener('blur', refreshSpreadsheets);
+  document.getElementById('ba-folder').addEventListener('keyup', function() {
+    clearTimeout(folderRefreshTimer);
+    folderRefreshTimer = setTimeout(refreshSpreadsheets, 500);
+  });
+
+  function refreshSpreadsheets() {
+    const folder = document.getElementById('ba-folder').value.trim();
+    if (!folder) return;
+    const ssSelect = document.getElementById('ba-spreadsheet');
+
+    fetch('{{ route("admin.ai.htr.fsOverlayLoad") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({ folder: folder }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.needsSelection && data.spreadsheets) {
+        ssSelect.innerHTML = '<option value="">Select spreadsheet...</option>';
+        data.spreadsheets.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          ssSelect.appendChild(opt);
+        });
+        // Auto-select if only one
+        if (data.spreadsheets.length === 1) {
+          ssSelect.value = data.spreadsheets[0];
+        }
+      }
+    })
+    .catch(() => {});
+  }
+
+  // Load spreadsheets on page load
+  refreshSpreadsheets();
+
   // ── Load data (two-step: list spreadsheets → select → load) ──
   window.loadBulkData = function() {
     const folder = document.getElementById('ba-folder').value.trim();

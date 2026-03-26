@@ -16,6 +16,7 @@
   <div class="d-flex gap-2">
     <a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-database me-1"></i>Sources</a>
     <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
+    <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
     <a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-graduation-cap me-1"></i>Training</a>
   </div>
 </div>

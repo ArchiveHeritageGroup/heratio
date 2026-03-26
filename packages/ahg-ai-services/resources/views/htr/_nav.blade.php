@@ -6,6 +6,8 @@
       'admin.ai.htr.batch' => ['icon' => 'fa-layer-group', 'label' => 'Batch'],
       'admin.ai.htr.sources' => ['icon' => 'fa-database', 'label' => 'Sources'],
       'admin.ai.htr.annotate' => ['icon' => 'fa-pen-square', 'label' => 'Annotate'],
+      'admin.ai.htr.bulkAnnotate' => ['icon' => 'fa-th', 'label' => 'Bulk Annotate'],
+      'admin.ai.htr.fsOverlay' => ['icon' => 'fa-layer-group', 'label' => 'FS Overlay'],
       'admin.ai.htr.training' => ['icon' => 'fa-graduation-cap', 'label' => 'Training'],
   ];
 @endphp

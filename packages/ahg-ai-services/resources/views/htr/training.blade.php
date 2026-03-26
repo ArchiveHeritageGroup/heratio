@@ -50,5 +50,6 @@
   </form>
   <a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white"><i class="fas fa-pen me-1"></i>Annotate</a>
   <a href="{{ route('admin.ai.htr.bulkAnnotate') }}" class="btn atom-btn-white"><i class="fas fa-magic me-1"></i>Bulk Annotate</a>
+  <a href="{{ route('admin.ai.htr.fsOverlay') }}" class="btn atom-btn-white"><i class="fas fa-layer-group me-1"></i>FS Overlay</a>
 </div>
 @endsection
