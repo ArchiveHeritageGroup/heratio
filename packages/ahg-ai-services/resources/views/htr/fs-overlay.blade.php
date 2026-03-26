@@ -183,6 +183,95 @@
   const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Residence Place'];
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
 
+  // ── Auto-fix date spelling ──
+  // Corrects common OCR/handwriting misreads in dates
+  function autoFixDate(text) {
+    if (!text) return text;
+    let s = text.trim();
+
+    // Fix month names (common OCR errors + Afrikaans variants)
+    const monthFixes = {
+      // January
+      'januray':'January','janury':'January','januery':'January','janaury':'January',
+      'janauray':'January','januarie':'January','jan':'January',
+      // February
+      'febuary':'February','feburary':'February','februray':'February','febriary':'February',
+      'februari':'February','feb':'February',
+      // March
+      'marck':'March','mach':'March','maart':'March','mar':'March',
+      // April
+      'apirl':'April','aprile':'April','apr':'April',
+      // May
+      'mei':'May',
+      // June
+      'juen':'June','jnue':'June','junie':'June','jun':'June',
+      // July
+      'jully':'July','juley':'July','julie':'July','jul':'July',
+      // August
+      'augst':'August','agust':'August','auguts':'August','augustus':'August','aug':'August',
+      // September
+      'septmber':'September','setember':'September','septemer':'September',
+      'sept':'September','sep':'September',
+      // October
+      'ocotber':'October','octber':'October','oktober':'October','oct':'October',
+      // November
+      'novmber':'November','noveber':'November','novemeber':'November',
+      'nov':'November',
+      // December
+      'decmber':'December','deceber':'December','desember':'December','dec':'December',
+    };
+
+    // Fix ordinal words (common on SA death certs)
+    const ordinalFixes = {
+      'frist':'First','forst':'First','firat':'First',
+      'secnd':'Second','secord':'Second','seccond':'Second',
+      'thrid':'Third','thirc':'Third','thrd':'Third',
+      'foruth':'Fourth','fouth':'Fourth','fourht':'Fourth',
+      'fith':'Fifth','fifht':'Fifth',
+      'sxith':'Sixth','sixht':'Sixth',
+      'sevnth':'Seventh','sevenh':'Seventh',
+      'eigth':'Eighth','eightb':'Eighth','eigthh':'Eighth',
+      'nineth':'Ninth','ninth':'Ninth','nith':'Ninth',
+      'teth':'Tenth','tenht':'Tenth',
+      'elevnth':'Eleventh','elevenh':'Eleventh',
+      'twelfth':'Twelfth','twelvth':'Twelfth','twelth':'Twelfth',
+      'therteenth':'Thirteenth','thirteeth':'Thirteenth',
+      'fourteeth':'Fourteenth','fourtheenth':'Fourteenth',
+      'fifteeth':'Fifteenth','fiftheenth':'Fifteenth',
+      'sixteeth':'Sixteenth',
+      'seventeeth':'Seventeenth',
+      'eighteeth':'Eighteenth',
+      'nineteeth':'Nineteenth',
+      'twenteth':'Twentieth','twentieh':'Twentieth',
+      'twentyfirst':'Twenty First','twenty-first':'Twenty First',
+      'twentysecond':'Twenty Second','twenty-second':'Twenty Second',
+      'twentythird':'Twenty Third','twenty-third':'Twenty Third',
+      'twentyfourth':'Twenty Fourth','twenty-fourth':'Twenty Fourth',
+      'twentyfifth':'Twenty Fifth','twenty-fifth':'Twenty Fifth',
+      'twentysixth':'Twenty Sixth','twenty-sixth':'Twenty Sixth',
+      'twentyseventh':'Twenty Seventh','twenty-seventh':'Twenty Seventh',
+      'twentyeighth':'Twenty Eighth','twenty-eighth':'Twenty Eighth',
+      'twentyninth':'Twenty Ninth','twenty-ninth':'Twenty Ninth',
+      'thirteth':'Thirtieth','thirtyeth':'Thirtieth',
+      'thirtyfirst':'Thirty First','thirty-first':'Thirty First',
+    };
+
+    // Apply fixes word by word
+    const words = s.split(/\s+/);
+    const fixed = words.map(w => {
+      const lower = w.toLowerCase().replace(/[.,;:]/g, '');
+      // Check month fixes
+      if (monthFixes[lower]) return monthFixes[lower];
+      // Check ordinal fixes
+      if (ordinalFixes[lower]) return ordinalFixes[lower];
+      // Capitalise first letter if it looks like a name/month/ordinal
+      if (w.length > 2 && /^[a-z]/.test(w)) return w.charAt(0).toUpperCase() + w.slice(1);
+      return w;
+    });
+
+    return fixed.join(' ');
+  }
+
   // Convert "6 months" → "Six Months", "45 years" → "Forty Five Years", "0 days" → "Nought Days"
   function numberToWords(ageStr) {
     if (!ageStr) return '';
@@ -933,18 +1022,21 @@
           if (prev) prev.remove();
 
           if (text) {
+            // Auto-fix spelling on the recognised text
+            const fixedText = autoFixDate(text);
             const recogDiv = document.createElement('div');
             recogDiv.className = 'ba-recog';
             recogDiv.style.cssText = 'font-size:0.75rem; color:#c00; cursor:pointer; padding:2px 0; border-top:1px dashed #ddd; margin-top:2px;';
             recogDiv.title = 'Click to use this value';
             recogDiv.innerHTML = '<i class="fas fa-robot" style="font-size:0.6rem"></i> ' +
-              '<span style="text-decoration:underline dotted">' + text.replace(/</g,'&lt;') + '</span>';
+              '<span style="text-decoration:underline dotted">' + fixedText.replace(/</g,'&lt;') + '</span>' +
+              (fixedText !== text ? ' <span style="font-size:0.6rem;color:#999">(was: ' + text.replace(/</g,'&lt;') + ')</span>' : '');
             recogDiv.addEventListener('click', function() {
               const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
               if (inp) {
-                inp.value = text;
-                entry.fields[label] = text;
-                if (annotations[idx]) annotations[idx].value = text;
+                inp.value = fixedText;
+                entry.fields[label] = fixedText;
+                if (annotations[idx]) annotations[idx].value = fixedText;
                 redraw();
                 this.style.color = '#198754';
                 this.innerHTML = '<i class="fas fa-check"></i> Accepted';
