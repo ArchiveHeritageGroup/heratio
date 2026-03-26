@@ -289,15 +289,57 @@
       'thirtyfirst':'Thirty First','thirty-first':'Thirty First',
     };
 
+    // All valid date words for fuzzy matching
+    const validMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const validOrdinals = [
+      'First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth',
+      'Eleventh','Twelfth','Thirteenth','Fourteenth','Fifteenth','Sixteenth','Seventeenth',
+      'Eighteenth','Nineteenth','Twentieth','Twenty','Thirty','One','Two','Three','Four',
+      'Five','Six','Seven','Eight','Nine',
+    ];
+    const allValidWords = [...validMonths, ...validOrdinals];
+
+    // Levenshtein distance
+    function levenshtein(a, b) {
+      const m = a.length, n = b.length;
+      const dp = Array.from({length: m + 1}, (_, i) => Array(n + 1).fill(0));
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+          dp[i][j] = Math.min(
+            dp[i-1][j] + 1, dp[i][j-1] + 1,
+            dp[i-1][j-1] + (a[i-1].toLowerCase() !== b[j-1].toLowerCase() ? 1 : 0)
+          );
+      return dp[m][n];
+    }
+
+    // Find closest valid word (max distance = 40% of word length)
+    function fuzzyMatch(word) {
+      if (!word || word.length < 3) return word;
+      let best = null, bestDist = Infinity;
+      const maxDist = Math.max(2, Math.floor(word.length * 0.4));
+      for (const valid of allValidWords) {
+        const d = levenshtein(word, valid);
+        if (d < bestDist) { bestDist = d; best = valid; }
+      }
+      return (bestDist <= maxDist) ? best : word;
+    }
+
     // Apply fixes word by word
     const words = s.split(/\s+/);
     const fixed = words.map(w => {
-      const lower = w.toLowerCase().replace(/[.,;:]/g, '');
-      // Check month fixes
+      const clean = w.replace(/[.,;:]/g, '');
+      // Skip pure numbers (years like 1920)
+      if (/^\d+$/.test(clean)) return w;
+      // Check exact month fixes first
+      const lower = clean.toLowerCase();
       if (monthFixes[lower]) return monthFixes[lower];
-      // Check ordinal fixes
       if (ordinalFixes[lower]) return ordinalFixes[lower];
-      // Capitalise first letter if it looks like a name/month/ordinal
+      // Fuzzy match against valid date words
+      const matched = fuzzyMatch(clean);
+      if (matched !== clean) return matched;
+      // Capitalise first letter
       if (w.length > 2 && /^[a-z]/.test(w)) return w.charAt(0).toUpperCase() + w.slice(1);
       return w;
     });
@@ -1074,8 +1116,8 @@
           if (text) {
             // De-duplicate repeated text (TrOCR loop bug)
             let cleanText = dedupeRepeats(text);
-            // Auto-fix spelling on the recognised text
-            const fixedText = autoFixDate(cleanText);
+            // Auto-fix spelling only on date fields
+            const fixedText = (label === 'Event Date') ? autoFixDate(cleanText) : cleanText;
 
             // If field is empty, auto-populate it directly
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
