@@ -102,7 +102,8 @@
       <div>
         <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baManualCrop()" id="ba-crop-btn" title="Draw crop area to remove borders"><i class="fas fa-crop-alt me-1"></i>Crop</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="Draw crop rectangle"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
+        <button class="btn btn-sm btn-outline-dark d-none" onclick="baDoCrop()" id="ba-crop-do-btn" title="Crop to marked area"><i class="fas fa-cut me-1"></i>Crop now</button>
         <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
         <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="Push browser positions to server"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
@@ -803,46 +804,79 @@
     redraw();
   };
 
-  // ── Manual crop: draw rectangle to remove borders ──
+  // ── Manual crop: mark area, then crop ──
   let cropMode = false;
-  let cropStartX = 0, cropStartY = 0;
+  let cropRect = null; // {x, y, w, h} in image coords
 
-  window.baManualCrop = function() {
+  window.baStartCropDraw = function() {
     cropMode = true;
-    baSetTool('draw'); // use draw tool for the crop rectangle
-    const btn = document.getElementById('ba-crop-btn');
-    btn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Draw crop area...';
-    btn.classList.add('active');
+    cropRect = null;
+    baSetTool('draw');
+    const drawBtn = document.getElementById('ba-crop-draw-btn');
+    drawBtn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Drawing...';
+    drawBtn.classList.add('active');
+    document.getElementById('ba-crop-do-btn').classList.add('d-none');
     document.getElementById('ba-image-name').textContent += ' — DRAW CROP RECTANGLE';
   };
 
-  // Hook into the draw mouseup — if cropMode, do the crop instead of creating annotation
+  // Called from draw mouseup when cropMode is on — just stores the rect and shows it
   function handleCropDraw(x, y, w, h) {
     cropMode = false;
-    const btn = document.getElementById('ba-crop-btn');
-    btn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Crop';
-    btn.classList.remove('active');
-    btn.disabled = true;
+    cropRect = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
+
+    const drawBtn = document.getElementById('ba-crop-draw-btn');
+    drawBtn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Mark area';
+    drawBtn.classList.remove('active');
+
+    // Show the "Crop now" button
+    const doBtn = document.getElementById('ba-crop-do-btn');
+    doBtn.classList.remove('d-none');
+    doBtn.innerHTML = '<i class="fas fa-cut me-1"></i>Crop now (' + cropRect.w + '×' + cropRect.h + ')';
+
+    // Draw the crop rect on canvas
+    redraw();
+    ctx.save();
+    // Dim everything outside the crop rect
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, cvs.width, cropRect.y * scale);
+    ctx.fillRect(0, (cropRect.y + cropRect.h) * scale, cvs.width, cvs.height);
+    ctx.fillRect(0, cropRect.y * scale, cropRect.x * scale, cropRect.h * scale);
+    ctx.fillRect((cropRect.x + cropRect.w) * scale, cropRect.y * scale, cvs.width, cropRect.h * scale);
+    // Green border on crop rect
+    ctx.strokeStyle = '#00ff00';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeRect(cropRect.x * scale, cropRect.y * scale, cropRect.w * scale, cropRect.h * scale);
+    ctx.restore();
+
+    baSetTool('select');
+  };
+
+  window.baDoCrop = function() {
+    if (!cropRect) { alert('Draw a crop area first'); return; }
 
     const entry = images[imgIdx];
-    document.getElementById('ba-image-name').textContent = entry.fname + ' — Cropping...';
+    const doBtn = document.getElementById('ba-crop-do-btn');
+    doBtn.disabled = true;
+    doBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cropping...';
 
     fetch('{{ route("admin.ai.htr.fsOverlayManualCrop") }}', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
       body: JSON.stringify({
         image_path: entry.path,
-        x: Math.round(x),
-        y: Math.round(y),
-        w: Math.round(w),
-        h: Math.round(h),
+        x: cropRect.x,
+        y: cropRect.y,
+        w: cropRect.w,
+        h: cropRect.h,
       }),
     })
     .then(r => r.json())
     .then(data => {
-      btn.disabled = false;
+      doBtn.disabled = false;
+      doBtn.classList.add('d-none');
+      cropRect = null;
       if (data.success) {
-        // Reload the image (now cropped)
         loadImage();
         buildFieldList();
       } else {
@@ -850,10 +884,10 @@
       }
     })
     .catch(err => {
-      btn.disabled = false;
+      doBtn.disabled = false;
       alert('Crop error: ' + err.message);
     });
-  }
+  };
 
   // ── Recognise: send field crops to HTR service ──
   window.baRecognise = function() {
