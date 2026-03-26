@@ -727,7 +727,7 @@ PY;
             $all = json_decode(file_get_contents($file), true) ?: [];
         }
 
-        $all[$formType] = $positions;
+        $all[$formType] = !empty($positions) ? (object)$positions : new \stdClass();
         file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT));
 
         return response()->json(['success' => true]);
