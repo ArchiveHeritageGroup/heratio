@@ -710,6 +710,48 @@ PY;
     }
 
     /**
+     * FS Overlay — save field positions per form type (server-side, shared across PCs).
+     */
+    public function htrFsOverlaySavePositions(Request $request)
+    {
+        $formType = $request->input('form_type', '');
+        $positions = $request->input('positions', []);
+
+        if (!$formType) {
+            return response()->json(['success' => false, 'error' => 'No form type']);
+        }
+
+        $file = storage_path('app/fs-overlay-positions.json');
+        $all = [];
+        if (file_exists($file)) {
+            $all = json_decode(file_get_contents($file), true) ?: [];
+        }
+
+        $all[$formType] = $positions;
+        file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT));
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * FS Overlay — load field positions for a form type.
+     */
+    public function htrFsOverlayLoadPositions(Request $request)
+    {
+        $formType = $request->input('form_type', '');
+
+        $file = storage_path('app/fs-overlay-positions.json');
+        $all = [];
+        if (file_exists($file)) {
+            $all = json_decode(file_get_contents($file), true) ?: [];
+        }
+
+        $positions = $all[$formType] ?? [];
+
+        return response()->json(['success' => true, 'positions' => $positions]);
+    }
+
+    /**
      * FS Overlay — OCR the form labels to find their positions on the image.
      * Runs Tesseract with TSV output, matches words against field names.
      */

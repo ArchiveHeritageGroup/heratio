@@ -176,7 +176,7 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Place'];
+  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Place', 'Residence Place'];
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
 
   // ── Known form templates (positions as % of image width/height) ──
@@ -188,6 +188,7 @@
       detect: ['informasievorm', 'sterfgeval'],
       fields: {
         'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },  // 1. Christian Names & Surname
+        'Residence Place':{ x: 0.25, y: 0.15, w: 0.55, h: 0.04 },  // 2. Usual place of Residence
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },  // 3. Sex / Geslag
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },  // 4. Age / Ouderdom
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },  // 8. Date of Death / Datum
@@ -195,10 +196,11 @@
       }
     },
     'sa-death-1894': {
-      label: 'SA Death — Form of Information (Act 7 of 1894)',
-      detect: ['1894', 'act no', 'deceased'],
+      label: 'SA Death — Form of Information / Kennisgewing (Act/Wet 7 of 1894)',
+      detect: ['1894', 'act no', 'deceased', 'kennisgewing', 'oorledene', 'wet no'],
       fields: {
         'Name':           { x: 0.51, y: 0.22, w: 0.42, h: 0.05 },  // 1. Christian Names and Surname
+        'Residence Place':{ x: 0.51, y: 0.27, w: 0.42, h: 0.03 },  // 2. Usual place of Residence
         'Age':            { x: 0.51, y: 0.30, w: 0.20, h: 0.03 },  // 3. Age
         'Sex':            { x: 0.51, y: 0.33, w: 0.15, h: 0.03 },  // 4. Race — Sex often here
         'Event Date':     { x: 0.51, y: 0.38, w: 0.40, h: 0.03 },  // 8. Date of Death
@@ -210,6 +212,7 @@
       detect: ['death', 'dood', 'form of information'],
       fields: {
         'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },
+        'Residence Place':{ x: 0.25, y: 0.15, w: 0.55, h: 0.04 },
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
@@ -236,9 +239,10 @@
       if (img && images[imgIdx]) {
         const newType = this.value === 'auto' ? 'sa-death-generic' : this.value;
         currentFormType = newType;
-        loadSavedPositions(); // load saved positions for this form type
-        applyFormTemplate(newType);
-        redraw();
+        loadSavedPositions(() => {
+          applyFormTemplate(newType);
+          redraw();
+        });
       }
     });
   })();
@@ -451,7 +455,7 @@
       const tpl = FORM_TEMPLATES[tplKey];
       if (tpl && tpl.fields) {
         for (const fieldName of Object.keys(tpl.fields)) {
-          if (SKIP_FIELDS.includes(fieldName)) continue;
+          if (shouldSkip(fieldName)) continue;
           if (!COLUMNS.includes(fieldName)) {
             COLUMNS.push(fieldName);
             // Add empty field value to all images
@@ -470,12 +474,12 @@
         currentFormType = 'sa-death-generic'; // will be refined by auto-detect
       }
 
-      // Load saved positions for current form type
-      loadSavedPositions();
-      console.log('[FS Overlay] Starting with form type:', currentFormType, 'saved fields:', Object.keys(savedPositions));
-
-      nextImage();
-      baSetTool('hand');
+      // Load saved positions for current form type from server
+      loadSavedPositions(() => {
+        console.log('[FS Overlay] Starting with form type:', currentFormType, 'saved fields:', Object.keys(savedPositions));
+        nextImage();
+        baSetTool('hand');
+      });
     })
     .catch(err => {
       btn.disabled = false;
@@ -530,14 +534,17 @@
           if (data.success && data.words) {
             const formType = detectFormType(data.words);
             currentFormType = formType;
-            loadSavedPositions(); // load any previously saved positions for this form type
-            applyFormTemplate(formType);
+            loadSavedPositions(() => {
+              applyFormTemplate(formType);
+              redraw();
+            });
           } else {
             currentFormType = 'sa-death-generic';
-            loadSavedPositions();
-            applyFormTemplate('sa-death-generic');
+            loadSavedPositions(() => {
+              applyFormTemplate('sa-death-generic');
+              redraw();
+            });
           }
-          redraw();
         })
         .catch(() => { applyFormTemplate('sa-death-generic'); redraw(); });
       }
@@ -682,7 +689,7 @@
   window.baResetPositions = function() {
     if (!confirm('Clear all saved field positions? You will need to reposition on the next image.')) return;
     savedPositions = {};
-    localStorage.removeItem(posKey());
+    persistPositions(); // clear on server too
     autoPlaceFields();
     redraw();
   };
@@ -728,7 +735,7 @@
       container.appendChild(div);
     });
 
-    // Only auto-skip SKIP_FIELDS (not empty fields — user may need to draw those)
+    // Auto-skip non-allowed fields
     COLUMNS.forEach(function(col, i) {
       if (shouldSkip(col)) skipped.push(i);
     });
@@ -921,19 +928,27 @@
     redraw();
   });
 
-  function posKey() { return 'fs-overlay-pos-' + (currentFormType || 'default').replace(/[^a-zA-Z0-9-]/g, '_'); }
-
   function persistPositions() {
-    try { localStorage.setItem(posKey(), JSON.stringify(savedPositions)); } catch(e) {}
+    if (!currentFormType) return;
+    fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({ form_type: currentFormType, positions: savedPositions }),
+    }).catch(() => {});
   }
 
-  function loadSavedPositions() {
-    try {
-      const key = posKey();
-      const saved = localStorage.getItem(key);
-      savedPositions = saved ? JSON.parse(saved) : {};
-      console.log('[FS Overlay] Loaded positions for key:', key, 'fields:', Object.keys(savedPositions));
-    } catch(e) { savedPositions = {}; }
+  function loadSavedPositions(cb) {
+    if (!currentFormType) { savedPositions = {}; if (cb) cb(); return; }
+    fetch('{{ route("admin.ai.htr.fsOverlayLoadPositions") }}?form_type=' + encodeURIComponent(currentFormType), {
+      credentials: 'same-origin',
+    })
+    .then(r => r.json())
+    .then(data => {
+      savedPositions = data.positions || {};
+      console.log('[FS Overlay] Loaded server positions for:', currentFormType, 'fields:', Object.keys(savedPositions));
+      if (cb) cb();
+    })
+    .catch(() => { savedPositions = {}; if (cb) cb(); });
   }
 
   function redraw() {
