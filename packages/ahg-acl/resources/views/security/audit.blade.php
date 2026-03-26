@@ -1,7 +1,124 @@
+{{-- Security Audit Log - Migrated from AtoM: ahgSecurityClearancePlugin/modules/securityClearance/templates/auditSuccess.php --}}
 @extends('theme::layouts.1col')
-@section('title', 'Security Audit Trail')
+
+@section('title', 'Security Audit Log')
+
 @section('content')
-<div class="container py-4">
-<h1><i class="fas fa-history me-2"></i>Security Audit Trail</h1><div class="card"><div class="card-body p-0"><table class="table table-striped mb-0"><thead><tr><th>Date</th><th>User</th><th>Action</th><th>Target</th><th>Details</th></tr></thead><tbody>@forelse($auditEntries??[] as $e)<tr><td><small>{{ $e->created_at??"" }}</small></td><td>{{ e($e->username??"") }}</td><td><span class="badge bg-secondary">{{ e($e->action??"") }}</span></td><td>{{ e($e->target??"") }}</td><td><small>{{ \Illuminate\Support\Str::limit($e->details??"",80) }}</small></td></tr>@empty<tr><td colspan="5" class="text-center text-muted py-3">No entries.</td></tr>@endforelse</tbody></table></div></div>
+
+<h1><i class="fas fa-history"></i> Security Audit Log</h1>
+
+{{-- Filters --}}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="">
+      <div class="row">
+        <div class="col-md-2">
+          <label class="form-label">Date From</label>
+          <input type="date" name="date_from" class="form-control" value="{{ e($filters['date_from'] ?? '') }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Date To</label>
+          <input type="date" name="date_to" class="form-control" value="{{ e($filters['date_to'] ?? '') }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Action</label>
+          <select name="form_action" class="form-select">
+            <option value="">All</option>
+            <option value="view" {{ (($filters['form_action'] ?? '') === 'view') ? 'selected' : '' }}>View</option>
+            <option value="download" {{ (($filters['form_action'] ?? '') === 'download') ? 'selected' : '' }}>Download</option>
+            <option value="print" {{ (($filters['form_action'] ?? '') === 'print') ? 'selected' : '' }}>Print</option>
+            <option value="classify" {{ (($filters['form_action'] ?? '') === 'classify') ? 'selected' : '' }}>Classify</option>
+            <option value="access_denied" {{ (($filters['form_action'] ?? '') === 'access_denied') ? 'selected' : '' }}>Denied</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Result</label>
+          <select name="access_granted" class="form-select">
+            <option value="">All</option>
+            <option value="granted" {{ (($filters['access_granted'] ?? '') === 'granted') ? 'selected' : '' }}>Granted</option>
+            <option value="denied" {{ (($filters['access_granted'] ?? '') === 'denied') ? 'selected' : '' }}>Denied</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Classification</label>
+          <select name="classification_id" class="form-select">
+            <option value="">All</option>
+            @foreach($classifications ?? [] as $c)
+            <option value="{{ $c->id }}" {{ ($c->id == ($filters['classification_id'] ?? '')) ? 'selected' : '' }}>
+              {{ e($c->name) }}
+            </option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
+
+{{-- Export --}}
+<div class="mb-3">
+  <a href="{{ route('acl.security-report') }}?export=csv&date_from={{ urlencode($filters['date_from'] ?? '') }}&date_to={{ urlencode($filters['date_to'] ?? '') }}"
+     class="btn btn-success">
+    <i class="fas fa-download"></i> Export CSV
+  </a>
+</div>
+
+{{-- Log Table --}}
+<div class="card">
+  <div class="card-body">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th>Date/Time</th>
+          <th>User</th>
+          <th>Object</th>
+          <th>Classification</th>
+          <th>Action</th>
+          <th>Result</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($logs ?? [] as $log)
+        <tr class="{{ ($log->access_granted ?? true) ? '' : 'table-danger' }}">
+          <td>{{ date('Y-m-d H:i:s', strtotime($log->created_at)) }}</td>
+          <td>
+            <a href="{{ route('acl.user-security', ['id' => $log->user_id]) }}">{{ e($log->username ?? '') }}</a>
+          </td>
+          <td>
+            @if($log->object_id ?? null)
+              <a href="{{ route('acl.object-view', ['id' => $log->object_id]) }}">{{ e($log->object_title ?? 'ID: ' . $log->object_id) }}</a>
+            @else
+              -
+            @endif
+          </td>
+          <td>{{ e($log->classification_name ?? '-') }}</td>
+          <td>
+            <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $log->action ?? '')) }}</span>
+          </td>
+          <td>
+            @if($log->access_granted ?? false)
+              <span class="badge bg-success">Granted</span>
+            @else
+              <span class="badge bg-danger">Denied</span>
+              @if($log->denial_reason ?? null)
+                <br><small class="text-muted">{{ e($log->denial_reason) }}</small>
+              @endif
+            @endif
+          </td>
+          <td><small>{{ e($log->ip_address ?? '') }}</small></td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+
+    @if(empty($logs) || (is_countable($logs) && count($logs) === 0))
+    <p class="text-muted text-center">No audit entries found.</p>
+    @endif
+  </div>
+</div>
+
 @endsection

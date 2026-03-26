@@ -701,6 +701,15 @@ PY;
     }
 
     /**
+     * FS Overlay Annotate — overlay field labels on document images.
+     * Cloned from bulk-annotate for overlay positioning tests.
+     */
+    public function htrFsOverlay()
+    {
+        return view('ahg-ai-services::htr.fs-overlay');
+    }
+
+    /**
      * Bulk Annotate — load folder + spreadsheet data.
      * Scans for .xlsx/.csv in folder, parses, matches with images.
      */

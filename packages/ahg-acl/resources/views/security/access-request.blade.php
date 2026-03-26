@@ -1,7 +1,119 @@
+{{-- Access Request Form - Migrated from AtoM: ahgSecurityClearancePlugin/modules/securityClearance/templates/accessRequestSuccess.php --}}
 @extends('theme::layouts.1col')
-@section('title', 'Access Request')
+
+@section('title', 'Request Access')
+
 @section('content')
-<div class="container py-4">
-<h1><i class="fas fa-hand-paper me-2"></i>Request Access</h1><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Requested Resource</h5></div><div class="card-body"><p><strong>Title:</strong> {{ e($object->title??"Untitled") }}</p>@if($classification??null)<p><strong>Classification:</strong> <span class="badge" style="background-color:{{ $classification->color??"#999" }}">{{ e($classification->name) }}</span></p>@endif</div></div><div class="card"><div class="card-header"><h5 class="mb-0">Access Request Details</h5></div><div class="card-body"><form method="post" action="{{ route("acl.submit-access-request") }}">@csrf<input type="hidden" name="object_id" value="{{ $object->id??"" }}"><div class="mb-3"><label class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><textarea name="reason" class="form-control" rows="4" required></textarea></div><div class="mb-3"><label class="form-label">Duration <span class="badge bg-secondary ms-1">Optional</span></label><select name="duration" class="form-select"><option value="24h">24 Hours</option><option value="7d">7 Days</option><option value="30d">30 Days</option><option value="permanent">Permanent</option></select></div><button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane me-1"></i>Submit</button></form></div></div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h1><i class="fas fa-hand-paper"></i> Request Access</h1>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Requested Resource</h5>
+      </div>
+      <div class="card-body">
+        <p>
+          <strong>Title:</strong>
+          {{ e($object->title ?? 'Untitled') }}
+        </p>
+        @if($object->identifier ?? null)
+        <p>
+          <strong>Identifier:</strong>
+          {{ e($object->identifier) }}
+        </p>
+        @endif
+
+        @if($classification ?? null)
+        <p>
+          <strong>Classification:</strong>
+          <span class="badge" style="background-color: {{ $classification->color ?? '#666' }}">
+            <i class="fas {{ $classification->icon ?? 'fa-lock' }}"></i>
+            {{ e($classification->name ?? '') }}
+          </span>
+        </p>
+        @endif
+      </div>
+    </div>
+
+    @if($userClearance ?? null)
+    <div class="alert alert-info">
+      <strong>Your Current Clearance:</strong>
+      <span class="badge" style="background-color: {{ $userClearance->color ?? '#666' }}">
+        {{ e($userClearance->name ?? '') }}
+      </span>
+      (Level {{ $userClearance->level ?? 0 }})
+    </div>
+    @else
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      You do not currently have a security clearance. Your request will need to be approved by a security officer.
+    </div>
+    @endif
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Access Request Details</h5>
+      </div>
+      <div class="card-body">
+        <form action="{{ route('acl.submit-access-request') }}" method="post">
+          @csrf
+          <input type="hidden" name="object_id" value="{{ $object->id ?? '' }}">
+          @if($classification ?? null)
+          <input type="hidden" name="classification_id" value="{{ $classification->classification_id ?? $classification->id ?? '' }}">
+          @endif
+
+          <div class="mb-3">
+            <label class="form-label">Type of Access *</label>
+            <select name="request_type" class="form-select" required>
+              <option value="view">View Only</option>
+              <option value="download">Download</option>
+              <option value="print">Print</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-select">
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+              <option value="immediate">Immediate</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Duration Required (hours)</label>
+            <select name="duration_hours" class="form-select">
+              <option value="1">1 hour</option>
+              <option value="4">4 hours</option>
+              <option value="8">8 hours (1 day)</option>
+              <option value="24" selected>24 hours</option>
+              <option value="72">72 hours (3 days)</option>
+              <option value="168">168 hours (1 week)</option>
+              <option value="720">720 hours (30 days)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Justification *</label>
+            <textarea name="justification" class="form-control" rows="5" required
+                      minlength="20" placeholder="Please provide a detailed justification for your access request. Include the purpose, project name, and any relevant authorization."></textarea>
+            <div class="form-text">Minimum 20 characters required.</div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+            <a href="{{ route('security.my-requests') }}" class="btn btn-outline-secondary">
+              View My Requests
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
 @endsection

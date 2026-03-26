@@ -66,6 +66,11 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/admin/ai/htr/bulk-annotate', [AiController::class, 'htrBulkAnnotate'])->name('admin.ai.htr.bulkAnnotate');
     Route::post('/admin/ai/htr/bulk-annotate/load', [AiController::class, 'htrBulkAnnotateLoad'])->name('admin.ai.htr.bulkAnnotateLoad');
     Route::post('/admin/ai/htr/bulk-annotate/save', [AiController::class, 'htrBulkAnnotateSave'])->name('admin.ai.htr.bulkAnnotateSave');
+
+    // FS Overlay Annotate — cloned from bulk-annotate for overlay positioning tests
+    Route::get('/admin/ai/htr/fs-overlay', [AiController::class, 'htrFsOverlay'])->name('admin.ai.htr.fsOverlay');
+    Route::post('/admin/ai/htr/fs-overlay/load', [AiController::class, 'htrBulkAnnotateLoad'])->name('admin.ai.htr.fsOverlayLoad');
+    Route::post('/admin/ai/htr/fs-overlay/save', [AiController::class, 'htrBulkAnnotateSave'])->name('admin.ai.htr.fsOverlaySave');
     Route::post('/admin/ai/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
     Route::post('/admin/ai/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');

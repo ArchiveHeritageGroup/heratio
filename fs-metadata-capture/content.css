@@ -1,0 +1,176 @@
+/* FS Metadata Capture — content styles */
+
+/* Panel — compact strip at bottom */
+#fs-capture-result-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  z-index: 999999;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+  border-top: 3px solid #1D9E75;
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #333;
+}
+
+.fs-rp-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 12px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+
+.fs-rp-title { font-weight: 700; font-size: 13px; color: #1D9E75; }
+
+.fs-rp-ark {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+  background: #e8f5f0;
+  color: #1D9E75;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.fs-rp-img-num { font-size: 11px; color: #888; }
+
+.fs-rp-auto {
+  font-size: 10px;
+  font-weight: 700;
+  background: #e74c3c;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  animation: fs-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fs-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.fs-rp-collection {
+  font-size: 10px;
+  color: #666;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fs-rp-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.fs-rp-close:hover { color: #c00; }
+
+.fs-rp-body {
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 12px;
+  gap: 12px;
+}
+
+/* Dynamic fields grid */
+.fs-rp-fields {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 4px 8px;
+  min-width: 0;
+}
+
+.fs-rp-field label {
+  display: block;
+  font-weight: 600;
+  font-size: 10px;
+  color: #888;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fs-rp-field input {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.fs-rp-field input:focus {
+  outline: none;
+  border-color: #1D9E75;
+  box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
+}
+
+/* Buttons */
+.fs-rp-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fs-btn-save-next {
+  background: #1D9E75;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fs-btn-save-next:hover { background: #178a66; }
+
+.fs-btn-save {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fs-btn-save:hover { background: #e0e0e0; }
+
+.fs-btn-download {
+  background: #f0f0f0;
+  color: #2c7be5;
+  border: 1px solid #ccc;
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fs-btn-download:hover { background: #e0e0e0; }
+
+.fs-btn-cancel {
+  background: none;
+  border: 1px solid #ddd;
+  color: #999;
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fs-btn-cancel:hover { color: #c00; border-color: #c00; }

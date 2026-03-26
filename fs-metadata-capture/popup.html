@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>FS Metadata Capture</h1>
+    <span id="badge" class="badge">0</span>
+  </div>
+
+  <button id="btn-capture" class="btn-primary">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="vertical-align:-2px;margin-right:4px">
+      <rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <rect x="5" y="5" width="6" height="6" rx="1" fill="currentColor"/>
+    </svg>
+    Capture region
+  </button>
+
+  <div id="rows-container">
+    <table id="rows-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ARK ID</th>
+          <th>Name</th>
+          <th>Event</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="rows-body"></tbody>
+    </table>
+    <p id="empty-msg">No captures yet.</p>
+  </div>
+
+  <div class="footer-actions">
+    <button id="btn-download" class="btn-download" disabled>Download CSV</button>
+    <button id="btn-clear" class="btn-clear" disabled>Clear all</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
