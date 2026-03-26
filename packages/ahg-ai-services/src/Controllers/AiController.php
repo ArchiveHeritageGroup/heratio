@@ -779,58 +779,69 @@ PY;
 
             $w = imagesx($im);
             $h = imagesy($im);
-            $threshold = 150; // brightness threshold (0-255)
+            $threshold = 140; // brightness threshold (0-255)
+            $samples = 20;    // more sample points for accuracy
 
-            // Scan from left: find first column where median brightness > threshold
+            // Helper: get brightness at a pixel (works for both grayscale and RGB)
+            $getBrightness = function($im, $x, $y) {
+                $rgb = imagecolorat($im, $x, $y);
+                $r = ($rgb >> 16) & 0xFF;
+                $g = ($rgb >> 8) & 0xFF;
+                $b = $rgb & 0xFF;
+                return (int)(($r + $g + $b) / 3); // average for RGB, same value for grayscale
+            };
+
+            // Helper: get median brightness of sample points along a line
+            $getMedian = function($values) {
+                sort($values);
+                $n = count($values);
+                return $values[(int)($n / 2)];
+            };
+
+            // Scan from left
             $left = 0;
             for ($x = 0; $x < $w; $x++) {
                 $bright = [];
-                for ($s = 0; $s < 10; $s++) {
-                    $y = (int)($h * 0.1 + ($h * 0.8 / 10) * $s);
-                    $rgb = imagecolorat($im, $x, min($y, $h - 1));
-                    $bright[] = ($rgb >> 16) & 0xFF; // grayscale: R channel
+                for ($s = 0; $s < $samples; $s++) {
+                    $sy = (int)($h * 0.1 + ($h * 0.8 / $samples) * $s);
+                    $bright[] = $getBrightness($im, $x, min($sy, $h - 1));
                 }
-                sort($bright);
-                if ($bright[5] > $threshold) { $left = $x; break; } // median
+                if ($getMedian($bright) > $threshold) { $left = $x; break; }
             }
 
             // Scan from right
             $right = $w - 1;
             for ($x = $w - 1; $x > $left; $x--) {
                 $bright = [];
-                for ($s = 0; $s < 10; $s++) {
-                    $y = (int)($h * 0.1 + ($h * 0.8 / 10) * $s);
-                    $rgb = imagecolorat($im, $x, min($y, $h - 1));
-                    $bright[] = ($rgb >> 16) & 0xFF;
+                for ($s = 0; $s < $samples; $s++) {
+                    $sy = (int)($h * 0.1 + ($h * 0.8 / $samples) * $s);
+                    $bright[] = $getBrightness($im, $x, min($sy, $h - 1));
                 }
-                sort($bright);
-                if ($bright[5] > $threshold) { $right = $x; break; }
+                if ($getMedian($bright) > $threshold) { $right = $x; break; }
             }
 
-            // Scan from top
+            // Scan from top (sample from the middle of the detected width)
+            $midLeft = $left + (int)(($right - $left) * 0.2);
+            $midRight = $left + (int)(($right - $left) * 0.8);
             $top = 0;
             for ($y = 0; $y < $h; $y++) {
                 $bright = [];
-                for ($s = 0; $s < 10; $s++) {
-                    $x = (int)($w * 0.3 + ($w * 0.4 / 10) * $s);
-                    $rgb = imagecolorat($im, min($x, $w - 1), $y);
-                    $bright[] = ($rgb >> 16) & 0xFF;
+                for ($s = 0; $s < $samples; $s++) {
+                    $sx = (int)($midLeft + ($midRight - $midLeft) / $samples * $s);
+                    $bright[] = $getBrightness($im, min($sx, $w - 1), $y);
                 }
-                sort($bright);
-                if ($bright[5] > $threshold) { $top = $y; break; }
+                if ($getMedian($bright) > $threshold) { $top = $y; break; }
             }
 
             // Scan from bottom
             $bottom = $h - 1;
             for ($y = $h - 1; $y > $top; $y--) {
                 $bright = [];
-                for ($s = 0; $s < 10; $s++) {
-                    $x = (int)($w * 0.3 + ($w * 0.4 / 10) * $s);
-                    $rgb = imagecolorat($im, min($x, $w - 1), $y);
-                    $bright[] = ($rgb >> 16) & 0xFF;
+                for ($s = 0; $s < $samples; $s++) {
+                    $sx = (int)($midLeft + ($midRight - $midLeft) / $samples * $s);
+                    $bright[] = $getBrightness($im, min($sx, $w - 1), $y);
                 }
-                sort($bright);
-                if ($bright[5] > $threshold) { $bottom = $y; break; }
+                if ($getMedian($bright) > $threshold) { $bottom = $y; break; }
             }
 
             // Add small padding
