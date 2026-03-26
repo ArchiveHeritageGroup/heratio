@@ -1136,9 +1136,28 @@ PY;
             @rename($imagePath, "{$processedDir}/{$fname}");
         }
 
+        // Check if all images are processed — if so, move CSV too
+        $remainingImages = glob("{$folder}/*.{jpg,jpeg,png,tif}", GLOB_BRACE);
+        $csvMoved = false;
+        if (empty($remainingImages)) {
+            // Move all CSVs and spreadsheets to processed
+            $spreadsheets = array_merge(
+                glob("{$folder}/*.csv") ?: [],
+                glob("{$folder}/*.xlsx") ?: [],
+                glob("{$folder}/*.xls") ?: []
+            );
+            foreach ($spreadsheets as $ss) {
+                $ssName = basename($ss);
+                @rename($ss, "{$processedDir}/{$ssName}");
+            }
+            $csvMoved = !empty($spreadsheets);
+        }
+
         return response()->json([
             'success' => true,
             'saved' => "{$annDir}/{$fname}.json",
+            'csv_moved' => $csvMoved,
+            'remaining' => count($remainingImages ?? []),
             'crops' => count(array_filter($annotations)),
         ]);
     }

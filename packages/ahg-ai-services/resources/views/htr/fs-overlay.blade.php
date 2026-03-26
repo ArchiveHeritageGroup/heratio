@@ -178,48 +178,50 @@
   const SKIP_FIELDS = ['Event Type', 'Birth Year', 'Relationship to Head of Household'];
 
   // ── Known form templates (positions as % of image width/height) ──
+  // Form templates — positions as % of image width/height
+  // Calibrated from actual scanned SA death certificates
   const FORM_TEMPLATES = {
     'sa-death-1923': {
-      label: 'SA Death Certificate (Act 1923 — Bilingual EN/AF)',
-      detect: ['informasievorm', 'sterfgeval', 'form of information', 'death'],
+      label: 'SA Death — Informasievorm (1923 Act, EN/AF bilingual)',
+      detect: ['informasievorm', 'sterfgeval'],
       fields: {
-        'Name':        { x: 0.30, y: 0.22, w: 0.55, h: 0.03 },
-        'Sex':         { x: 0.30, y: 0.27, w: 0.20, h: 0.03 },
-        'Age':         { x: 0.30, y: 0.30, w: 0.20, h: 0.03 },
-        'Event Date':  { x: 0.30, y: 0.47, w: 0.40, h: 0.03 },
-        'Event Place': { x: 0.30, y: 0.50, w: 0.55, h: 0.05 },
-        'Occupation':  { x: 0.30, y: 0.35, w: 0.40, h: 0.03 },
-        'Cause of Death': { x: 0.30, y: 0.55, w: 0.55, h: 0.05 },
+        'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },  // 1. Christian Names & Surname
+        'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },  // 3. Sex / Geslag
+        'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },  // 4. Age / Ouderdom
+        'Occupation':     { x: 0.25, y: 0.30, w: 0.40, h: 0.03 },  // 6. Occupation / Beroep
+        'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },  // 8. Date of Death / Datum
+        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },  // 9-11. Place of Death / Plaats
+        'Cause of Death': { x: 0.25, y: 0.50, w: 0.55, h: 0.06 },  // 13. Cause of Death / Doodsoorzaak
       }
     },
     'sa-death-1894': {
-      label: 'SA Death Certificate (Act 1894)',
-      detect: ['act no', '1894', 'form of information'],
+      label: 'SA Death — Form of Information (1894 Act)',
+      detect: ['1894', 'act no'],
       fields: {
-        'Name':        { x: 0.45, y: 0.20, w: 0.45, h: 0.04 },
-        'Sex':         { x: 0.45, y: 0.32, w: 0.20, h: 0.03 },
-        'Age':         { x: 0.45, y: 0.35, w: 0.20, h: 0.03 },
-        'Event Date':  { x: 0.45, y: 0.40, w: 0.40, h: 0.03 },
-        'Event Place': { x: 0.45, y: 0.43, w: 0.45, h: 0.05 },
-        'Occupation':  { x: 0.45, y: 0.37, w: 0.40, h: 0.03 },
-        'Cause of Death': { x: 0.45, y: 0.48, w: 0.45, h: 0.05 },
+        'Name':           { x: 0.40, y: 0.15, w: 0.40, h: 0.05 },
+        'Sex':            { x: 0.40, y: 0.28, w: 0.15, h: 0.03 },
+        'Age':            { x: 0.40, y: 0.31, w: 0.20, h: 0.03 },
+        'Occupation':     { x: 0.40, y: 0.34, w: 0.35, h: 0.03 },
+        'Event Date':     { x: 0.40, y: 0.40, w: 0.40, h: 0.03 },
+        'Event Place':    { x: 0.40, y: 0.43, w: 0.45, h: 0.05 },
+        'Cause of Death': { x: 0.40, y: 0.50, w: 0.45, h: 0.05 },
       }
     },
     'sa-death-generic': {
-      label: 'SA Death Certificate (Generic)',
-      detect: ['death', 'sterfgeval', 'dood'],
+      label: 'SA Death — Generic (fallback)',
+      detect: ['death', 'dood', 'form of information'],
       fields: {
-        'Name':        { x: 0.35, y: 0.22, w: 0.50, h: 0.04 },
-        'Sex':         { x: 0.35, y: 0.28, w: 0.20, h: 0.03 },
-        'Age':         { x: 0.35, y: 0.32, w: 0.20, h: 0.03 },
-        'Event Date':  { x: 0.35, y: 0.42, w: 0.40, h: 0.03 },
-        'Event Place': { x: 0.35, y: 0.46, w: 0.50, h: 0.05 },
-        'Occupation':  { x: 0.35, y: 0.36, w: 0.40, h: 0.03 },
-        'Cause of Death': { x: 0.35, y: 0.52, w: 0.50, h: 0.05 },
+        'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },
+        'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
+        'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
+        'Occupation':     { x: 0.25, y: 0.30, w: 0.40, h: 0.03 },
+        'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
+        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },
+        'Cause of Death': { x: 0.25, y: 0.50, w: 0.55, h: 0.06 },
       }
     },
     'manual': {
-      label: 'Manual positioning',
+      label: 'Manual positioning (no template)',
       detect: [],
       fields: {}
     }
@@ -236,8 +238,10 @@
     }
     sel.addEventListener('change', function() {
       if (img && images[imgIdx]) {
-        savedPositions = {}; // clear overrides when switching type
-        applyFormTemplate(this.value === 'auto' ? 'sa-death-generic' : this.value);
+        const newType = this.value === 'auto' ? 'sa-death-generic' : this.value;
+        currentFormType = newType;
+        loadSavedPositions(); // load saved positions for this form type
+        applyFormTemplate(newType);
         redraw();
       }
     });
@@ -275,7 +279,7 @@
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
-      if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+      if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
 
       // Check saved positions first (user overrides), then template, then default
       if (savedPositions[col]) {
@@ -436,12 +440,19 @@
         COLUMNS = Object.keys(images[0].fields);
       }
 
-      // Load saved positions from localStorage
-      try {
-        currentFolder = folder;
-        const saved = localStorage.getItem(posKey());
-        if (saved) savedPositions = JSON.parse(saved);
-      } catch(e) {}
+      currentFolder = folder;
+
+      // Form type: use dropdown selection or default
+      const selType = document.getElementById('ba-form-type').value;
+      if (selType && selType !== 'auto') {
+        currentFormType = selType;
+      } else {
+        currentFormType = 'sa-death-generic'; // will be refined by auto-detect
+      }
+
+      // Load saved positions for current form type
+      loadSavedPositions();
+      console.log('[FS Overlay] Starting with form type:', currentFormType, 'saved fields:', Object.keys(savedPositions));
 
       nextImage();
       baSetTool('select');
@@ -498,8 +509,12 @@
         .then(data => {
           if (data.success && data.words) {
             const formType = detectFormType(data.words);
+            currentFormType = formType;
+            loadSavedPositions(); // load any previously saved positions for this form type
             applyFormTemplate(formType);
           } else {
+            currentFormType = 'sa-death-generic';
+            loadSavedPositions();
             applyFormTemplate('sa-death-generic');
           }
           redraw();
@@ -532,8 +547,7 @@
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
-      // Skip empty fields and excluded fields
-      if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+      if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
 
       // Use saved position if we have one for this column
       if (savedPositions[col]) {
@@ -592,7 +606,7 @@
         annotations = [];
         COLUMNS.forEach(function(col, i) {
           const val = entry.fields[col] || '';
-          if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+          if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
 
           if (positions[col]) {
             const p = positions[col];
@@ -694,9 +708,9 @@
       container.appendChild(div);
     });
 
-    // Auto-skip empty fields
+    // Only auto-skip SKIP_FIELDS (not empty fields — user may need to draw those)
     COLUMNS.forEach(function(col, i) {
-      if (!(entry.fields[col] || '')) skipped.push(i);
+      if (SKIP_FIELDS.includes(col)) skipped.push(i);
     });
 
     highlightField();
@@ -887,9 +901,19 @@
     redraw();
   });
 
-  function posKey() { return 'fs-overlay-pos-' + (currentFormType || currentFolder).replace(/[^a-zA-Z0-9-]/g, '_'); }
+  function posKey() { return 'fs-overlay-pos-' + (currentFormType || 'default').replace(/[^a-zA-Z0-9-]/g, '_'); }
+
   function persistPositions() {
     try { localStorage.setItem(posKey(), JSON.stringify(savedPositions)); } catch(e) {}
+  }
+
+  function loadSavedPositions() {
+    try {
+      const key = posKey();
+      const saved = localStorage.getItem(key);
+      savedPositions = saved ? JSON.parse(saved) : {};
+      console.log('[FS Overlay] Loaded positions for key:', key, 'fields:', Object.keys(savedPositions));
+    } catch(e) { savedPositions = {}; }
   }
 
   function redraw() {
