@@ -710,16 +710,17 @@
 
       const selectedType = document.getElementById('ba-form-type').value;
 
+      function afterFieldsPlaced() {
+        redraw();
+        if (autoRecogEnabled) setTimeout(baRecognise, 500);
+      }
+
       if (selectedType && selectedType !== 'auto') {
-        // User selected a specific form type — use its template
         applyFormTemplate(selectedType);
-        redraw();
-        if (autoRecogEnabled) setTimeout(baRecognise, 500);
+        afterFieldsPlaced();
       } else if (COLUMNS.some(col => savedPositions[col])) {
-        // Have saved positions from previous manual adjustments
         autoPlaceFields();
-        redraw();
-        if (autoRecogEnabled) setTimeout(baRecognise, 500);
+        afterFieldsPlaced();
       } else {
         // Auto-detect: quick OCR to identify form type, then apply template
         document.getElementById('ba-image-name').textContent += ' — detecting form type...';
@@ -736,20 +737,18 @@
             currentFormType = formType;
             loadSavedPositions(() => {
               applyFormTemplate(formType, detectedAnchor);
-              redraw();
-              if (autoRecogEnabled) setTimeout(baRecognise, 500);
+              afterFieldsPlaced();
             });
           } else {
             currentFormType = 'sa-death-generic';
             detectedAnchor = null;
             loadSavedPositions(() => {
               applyFormTemplate('sa-death-generic');
-              redraw();
-              if (autoRecogEnabled) setTimeout(baRecognise, 500);
+              afterFieldsPlaced();
             });
           }
         })
-        .catch(() => { applyFormTemplate('sa-death-generic'); redraw(); });
+        .catch(() => { applyFormTemplate('sa-death-generic'); afterFieldsPlaced(); });
       }
     };
     img.src = '{{ route("admin.ai.htr.serveCroppedImage") }}?path=' + encodeURIComponent(entry.path) + '&_=' + Date.now();
