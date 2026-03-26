@@ -167,6 +167,7 @@
   let fieldIdx = 0;
   let annotations = [];
   let img = null;
+  let imgNatW = 0, imgNatH = 0; // store natural dimensions explicitly
   let scale = 1;
   let currentTool = 'select'; // default to select/move
   let drawing = false, sx = 0, sy = 0;
@@ -287,15 +288,36 @@
       'twentyninth':'Twenty Ninth','twenty-ninth':'Twenty Ninth',
       'thirteth':'Thirtieth','thirtyeth':'Thirtieth',
       'thirtyfirst':'Thirty First','thirty-first':'Thirty First',
+      // Afrikaans ordinals
+      'eerste':'Eerste','tweede':'Tweede','derde':'Derde','vierde':'Vierde',
+      'vyfde':'Vyfde','sesde':'Sesde','sewende':'Sewende','agste':'Agste',
+      'negende':'Negende','tiende':'Tiende','elfde':'Elfde','twaalfde':'Twaalfde',
+      'dertiende':'Dertiende','veertiende':'Veertiende','vyftiende':'Vyftiende',
+      'sestiende':'Sestiende','sewentiende':'Sewentiende','agtiende':'Agtiende',
+      'negentiende':'Negentiende','twintigste':'Twintigste',
+      'een-en-twintigste':'Een-en-twintigste','twee-en-twintigste':'Twee-en-twintigste',
+      'drie-en-twintigste':'Drie-en-twintigste','vier-en-twintigste':'Vier-en-twintigste',
+      'vyf-en-twintigste':'Vyf-en-twintigste','ses-en-twintigste':'Ses-en-twintigste',
+      'sewe-en-twintigste':'Sewe-en-twintigste','ag-en-twintigste':'Ag-en-twintigste',
+      'nege-en-twintigste':'Nege-en-twintigste','dertigste':'Dertigste',
+      'een-en-dertigste':'Een-en-dertigste',
+      // Afrikaans months
+      'januarie':'Januarie','februarie':'Februarie','maart':'Maart','april':'April',
+      'mei':'Mei','junie':'Junie','julie':'Julie','augustus':'Augustus',
+      'september':'September','oktober':'Oktober','november':'November','desember':'Desember',
     };
 
     // All valid date words for fuzzy matching
-    const validMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const validMonths = ['January','February','March','April','May','June','July','August','September','October','November','December',
+      'Januarie','Februarie','Maart','April','Mei','Junie','Julie','Augustus','September','Oktober','November','Desember'];
     const validOrdinals = [
       'First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth',
       'Eleventh','Twelfth','Thirteenth','Fourteenth','Fifteenth','Sixteenth','Seventeenth',
       'Eighteenth','Nineteenth','Twentieth','Twenty','Thirty','One','Two','Three','Four',
       'Five','Six','Seven','Eight','Nine',
+      'Eerste','Tweede','Derde','Vierde','Vyfde','Sesde','Sewende','Agste','Negende','Tiende',
+      'Elfde','Twaalfde','Dertiende','Veertiende','Vyftiende','Sestiende','Sewentiende',
+      'Agtiende','Negentiende','Twintigste','Dertigste',
     ];
     const allValidWords = [...validMonths, ...validOrdinals];
 
@@ -332,11 +354,25 @@
       const clean = w.replace(/[.,;:]/g, '');
       // Skip pure numbers (years like 1920)
       if (/^\d+$/.test(clean)) return w;
-      // Check exact month fixes first
       const lower = clean.toLowerCase();
+      // Check exact fixes first
       if (monthFixes[lower]) return monthFixes[lower];
       if (ordinalFixes[lower]) return ordinalFixes[lower];
-      // Fuzzy match against valid date words
+      // Fuzzy match against fix keys (e.g. "twentyfirstl" → "twentyfirst" → "Twenty First")
+      let bestFixKey = null, bestFixDist = Infinity;
+      for (const key of Object.keys(ordinalFixes)) {
+        const d = levenshtein(lower, key);
+        if (d < bestFixDist) { bestFixDist = d; bestFixKey = key; }
+      }
+      for (const key of Object.keys(monthFixes)) {
+        const d = levenshtein(lower, key);
+        if (d < bestFixDist) { bestFixDist = d; bestFixKey = key; }
+      }
+      const maxFixDist = Math.max(2, Math.floor(lower.length * 0.4));
+      if (bestFixKey && bestFixDist <= maxFixDist && bestFixDist > 0) {
+        return ordinalFixes[bestFixKey] || monthFixes[bestFixKey];
+      }
+      // Fuzzy match against valid single date words
       const matched = fuzzyMatch(clean);
       if (matched !== clean) return matched;
       // Capitalise first letter
@@ -516,8 +552,8 @@
       if (savedPositions[col]) {
         const sp = savedPositions[col];
         annotations.push({ label: col, value: val,
-          x: Math.round(sp.x * img.width), y: Math.round(sp.y * img.height),
-          w: Math.round(sp.w * img.width), h: Math.round(sp.h * img.height),
+          x: Math.round(sp.x * imgNatW), y: Math.round(sp.y * imgNatH),
+          w: Math.round(sp.w * imgNatW), h: Math.round(sp.h * imgNatH),
         });
       } else if (tpl.fields[col]) {
         const f = tpl.fields[col];
@@ -528,20 +564,20 @@
         const adjH = f.h * scaleY;
         annotations.push({
           label: col, value: val,
-          x: Math.round(adjX * img.width),
-          y: Math.round(adjY * img.height),
-          w: Math.round(adjW * img.width),
-          h: Math.round(adjH * img.height),
+          x: Math.round(adjX * imgNatW),
+          y: Math.round(adjY * imgNatH),
+          w: Math.round(adjW * imgNatW),
+          h: Math.round(adjH * imgNatH),
         });
       } else {
         // No template position — stack below others
         const activeIdx = annotations.filter(a => a).length;
         annotations.push({
           label: col, value: val,
-          x: Math.round(img.width * 0.05),
-          y: Math.round(img.height * 0.08) + activeIdx * Math.round(img.height / 15),
-          w: Math.round(img.width * 0.45),
-          h: Math.round(img.height * 0.04),
+          x: Math.round(imgNatW * 0.05),
+          y: Math.round(imgNatH * 0.08) + activeIdx * Math.round(imgNatH / 15),
+          w: Math.round(imgNatW * 0.45),
+          h: Math.round(imgNatH * 0.04),
         });
       }
     });
@@ -745,14 +781,22 @@
 
     img = new Image();
     img.onload = function() {
+      imgNatW = img.naturalWidth || img.width;
+      imgNatH = img.naturalHeight || img.height;
       offsetX = 0; offsetY = 0; cvs.style.transform = '';
-      scale = wrap.clientWidth / img.width;
-      cvs.width = img.width * scale;
-      cvs.height = img.height * scale;
+      scale = wrap.clientWidth / imgNatW;
+      cvs.width = imgNatW * scale;
+      cvs.height = imgNatH * scale;
 
       const selectedType = document.getElementById('ba-form-type').value;
 
       function afterFieldsPlaced() {
+        // Debug: show what we have
+        const annCount = annotations.filter(a => a).length;
+        console.log('[FS Overlay] COLUMNS:', COLUMNS, 'annotations:', annCount, 'skipped:', skipped.length, 'img:', img.width, 'x', img.height, 'savedPos:', Object.keys(savedPositions));
+        if (annCount === 0) {
+          alert('[DEBUG] No annotations created!\nCOLUMNS: ' + COLUMNS.join(', ') + '\nForm type: ' + currentFormType + '\nSaved positions: ' + Object.keys(savedPositions).join(', ') + '\nTemplate fields: ' + (FORM_TEMPLATES[currentFormType] ? Object.keys(FORM_TEMPLATES[currentFormType].fields).join(', ') : 'none'));
+        }
         redraw();
         if (autoRecogEnabled) setTimeout(baRecognise, 500);
       }
@@ -826,10 +870,10 @@
         annotations.push({
           label: col,
           value: val,
-          x: Math.round(sp.x * img.width),
-          y: Math.round(sp.y * img.height),
-          w: Math.round(sp.w * img.width),
-          h: Math.round(sp.h * img.height),
+          x: Math.round(sp.x * imgNatW),
+          y: Math.round(sp.y * imgNatH),
+          w: Math.round(sp.w * imgNatW),
+          h: Math.round(sp.h * imgNatH),
         });
       } else {
         // Smart default: distribute evenly down the page
@@ -892,7 +936,7 @@
             };
             annotations.push(ann);
             // Save as reference for next images
-            savedPositions[col] = { x: p.x / img.width, y: p.y / img.height, w: p.w / img.width, h: p.h / img.height };
+            savedPositions[col] = { x: p.x / imgNatW, y: p.y / imgNatH, w: p.w / imgNatW, h: p.h / imgNatH };
           } else {
             // No OCR match — use default position
             const activeIdx = annotations.filter(a => a).length;
@@ -900,8 +944,8 @@
               label: col,
               value: val,
               x: 20,
-              y: 50 + activeIdx * Math.round(img.height / (activeFields.length + 2)),
-              w: Math.round(img.width * 0.45),
+              y: 50 + activeIdx * Math.round(imgNatH / (activeFields.length + 2)),
+              w: Math.round(imgNatW * 0.45),
               h: 40,
             });
           }
@@ -1363,7 +1407,7 @@
       resizing = false;
       const a = annotations[resizeIdx];
       if (a) {
-        savedPositions[a.label] = { x: a.x / img.width, y: a.y / img.height, w: a.w / img.width, h: a.h / img.height };
+        savedPositions[a.label] = { x: a.x / imgNatW, y: a.y / imgNatH, w: a.w / imgNatW, h: a.h / imgNatH };
         const c = document.getElementById('ba-coords-' + resizeIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
@@ -1379,7 +1423,7 @@
       const a = annotations[dragIdx];
       if (a) {
         a.x = Math.round(a.x); a.y = Math.round(a.y);
-        savedPositions[a.label] = { x: a.x / img.width, y: a.y / img.height, w: a.w / img.width, h: a.h / img.height };
+        savedPositions[a.label] = { x: a.x / imgNatW, y: a.y / imgNatH, w: a.w / imgNatW, h: a.h / imgNatH };
         const c = document.getElementById('ba-coords-' + dragIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
@@ -1409,7 +1453,7 @@
     const val = entry.fields[col] || '';
 
     annotations[fieldIdx] = { label: col, value: val, x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
-    savedPositions[col] = { x: x / img.width, y: y / img.height, w: w / img.width, h: h / img.height };
+    savedPositions[col] = { x: x / imgNatW, y: y / imgNatH, w: w / imgNatW, h: h / imgNatH };
 
     const coordsEl = document.getElementById('ba-coords-' + fieldIdx);
     if (coordsEl) coordsEl.textContent = Math.round(x) + ',' + Math.round(y) + ' ' + Math.round(w) + '×' + Math.round(h);
@@ -1528,9 +1572,9 @@
   });
 
   // ── Zoom ──
-  window.baZoomIn = function() { scale *= 1.2; cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
-  window.baZoomOut = function() { scale = Math.max(0.1, scale / 1.2); cvs.width = img.width * scale; cvs.height = img.height * scale; redraw(); };
-  window.baZoomFit = function() { scale = wrap.clientWidth / img.width; cvs.width = img.width * scale; cvs.height = img.height * scale; offsetX = 0; offsetY = 0; cvs.style.transform = ''; redraw(); };
+  window.baZoomIn = function() { scale *= 1.2; cvs.width = imgNatW * scale; cvs.height = imgNatH * scale; redraw(); };
+  window.baZoomOut = function() { scale = Math.max(0.1, scale / 1.2); cvs.width = imgNatW * scale; cvs.height = imgNatH * scale; redraw(); };
+  window.baZoomFit = function() { scale = wrap.clientWidth / imgNatW; cvs.width = imgNatW * scale; cvs.height = imgNatH * scale; offsetX = 0; offsetY = 0; cvs.style.transform = ''; redraw(); };
 
   wrap.addEventListener('wheel', function(e) {
     if (!img) return;
@@ -1540,7 +1584,7 @@
     const my = e.clientY - rect.top + wrap.scrollTop;
     const oldScale = scale;
     scale = e.deltaY < 0 ? Math.min(scale * 1.15, 10) : Math.max(scale / 1.15, 0.1);
-    cvs.width = img.width * scale; cvs.height = img.height * scale;
+    cvs.width = imgNatW * scale; cvs.height = imgNatH * scale;
     redraw();
     const ratio = scale / oldScale;
     wrap.scrollLeft = mx * ratio - (e.clientX - rect.left);
@@ -1569,13 +1613,14 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
 
     // Update savedPositions from ALL current annotations — save as % of image
+    console.log('[FS Overlay] Saving positions, image size:', imgNatW, 'x', imgNatH);
     annotations.forEach(function(ann) {
-      if (ann && img) {
+      if (ann && imgNatW > 0 && imgNatH > 0) {
         savedPositions[ann.label] = {
-          x: ann.x / img.width,
-          y: ann.y / img.height,
-          w: ann.w / img.width,
-          h: ann.h / img.height,
+          x: ann.x / imgNatW,
+          y: ann.y / imgNatH,
+          w: ann.w / imgNatW,
+          h: ann.h / imgNatH,
         };
       }
     });
