@@ -873,6 +873,92 @@ PY;
     }
 
     /**
+     * FS Overlay — recognise text in annotated field regions using the fine-tuned HTR model.
+     * Crops each field from the image, sends to HTR service, returns recognised text.
+     */
+    public function htrFsOverlayRecognise(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        $annotations = $request->input('annotations', []); // [{label, x, y, w, h}, ...]
+
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found']);
+        }
+
+        if (empty($annotations)) {
+            return response()->json(['success' => false, 'error' => 'No annotations to recognise']);
+        }
+
+        // Load the image (use cropped version if available)
+        $cacheDir = storage_path('app/cropped-cache');
+        $cacheKey = md5($imagePath . filemtime($imagePath));
+        $cachePath = "{$cacheDir}/{$cacheKey}.jpg";
+        $srcPath = file_exists($cachePath) ? $cachePath : $imagePath;
+
+        $im = @imagecreatefromjpeg($srcPath) ?: @imagecreatefrompng($srcPath);
+        if (!$im) {
+            return response()->json(['success' => false, 'error' => 'Cannot load image']);
+        }
+
+        $results = [];
+        $htrUrl = 'http://192.168.0.115:5006/ocr-finetuned';
+
+        foreach ($annotations as $ann) {
+            $label = $ann['label'] ?? '';
+            $x = max(0, (int)($ann['x'] ?? 0));
+            $y = max(0, (int)($ann['y'] ?? 0));
+            $w = max(1, (int)($ann['w'] ?? 1));
+            $h = max(1, (int)($ann['h'] ?? 1));
+
+            // Crop the field region
+            $crop = imagecrop($im, ['x' => $x, 'y' => $y, 'width' => $w, 'height' => $h]);
+            if (!$crop) {
+                $results[$label] = ['text' => '', 'error' => 'Crop failed'];
+                continue;
+            }
+
+            // Save crop to temp file
+            $tmpFile = tempnam(sys_get_temp_dir(), 'htr_') . '.jpg';
+            imagejpeg($crop, $tmpFile, 95);
+            imagedestroy($crop);
+
+            // Send to HTR service
+            try {
+                $ch = curl_init($htrUrl);
+                $cFile = new \CURLFile($tmpFile, 'image/jpeg', 'crop.jpg');
+                curl_setopt_array($ch, [
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => ['file' => $cFile],
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                ]);
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($httpCode === 200) {
+                    $data = json_decode($response, true);
+                    $text = $data['text'] ?? $data['result'] ?? '';
+                    $results[$label] = ['text' => trim($text)];
+                } else {
+                    $results[$label] = ['text' => '', 'error' => "HTR returned {$httpCode}"];
+                }
+            } catch (\Exception $e) {
+                $results[$label] = ['text' => '', 'error' => $e->getMessage()];
+            }
+
+            @unlink($tmpFile);
+        }
+
+        imagedestroy($im);
+
+        return response()->json([
+            'success' => true,
+            'results' => $results,
+        ]);
+    }
+
+    /**
      * FS Overlay — OCR the form labels to find their positions on the image.
      * Runs Tesseract with TSV output, matches words against field names.
      */

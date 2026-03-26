@@ -100,6 +100,7 @@
     <div class="d-flex justify-content-between mt-2">
       <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
       <div>
+        <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
         <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
@@ -799,6 +800,63 @@
     persistPositions(); // clear on server too
     autoPlaceFields();
     redraw();
+  };
+
+  // ── Recognise: send field crops to HTR service ──
+  window.baRecognise = function() {
+    const entry = images[imgIdx];
+    const btn = document.getElementById('ba-recognise-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Recognising...';
+
+    // Build annotations list with current positions
+    const anns = annotations.filter(a => a).map(a => ({
+      label: a.label, x: a.x, y: a.y, w: a.w, h: a.h,
+    }));
+
+    fetch('{{ route("admin.ai.htr.fsOverlayRecognise") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({
+        image_path: entry.path,
+        annotations: anns,
+      }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
+
+      if (data.success && data.results) {
+        // Fill in recognised text into sidebar fields
+        let filled = 0;
+        for (const [label, result] of Object.entries(data.results)) {
+          if (!result.text) continue;
+          // Find the field index
+          const idx = COLUMNS.indexOf(label);
+          if (idx < 0) continue;
+          // Update the input
+          const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
+          if (inp && !inp.value.trim()) {
+            // Only fill if currently empty
+            inp.value = result.text;
+            entry.fields[label] = result.text;
+            if (annotations[idx]) annotations[idx].value = result.text;
+            filled++;
+          }
+        }
+        redraw();
+        btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognised (' + filled + ')';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise'; }, 3000);
+      } else {
+        alert(data.error || 'Recognition failed');
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
+      alert('Error: ' + err.message);
+    });
   };
 
   window.baAutoPlace = function() {
