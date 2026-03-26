@@ -148,19 +148,18 @@
       // First 2 headers (Attach to Tree, Name) map to junk cells (More, Attach).
       // Real data starts at header index 2 → cell index 2.
 
-      // Extract person name from last header (if it doesn't match a known field name)
+      // Extract person name from last header (FS puts the name as the last <th> text)
       const lastHeader = headers[headers.length - 1] || '';
       const lastHeaderLower = lastHeader.toLowerCase();
       const knownFieldWords = ['name','sex','age','birth','event','place','date','type','more','attach','year','race','occupation','marital','father','mother','spouse','residence','relationship'];
       const isPersonName = lastHeader.length > 0 && !knownFieldWords.some(w => lastHeaderLower.includes(w));
 
-      if (isPersonName) {
-        result.fields.push({
-          header: 'Name',
-          stdName: 'Name',
-          value: lastHeader,
-        });
-      }
+      // Always add Name field — with person name if detected, empty otherwise
+      result.fields.push({
+        header: 'Name',
+        stdName: 'Name',
+        value: isPersonName ? lastHeader : '',
+      });
 
       // Map remaining headers (skip first 2: "Attach to Tree" and "Name") to cells (skip first 2: "More" and "Attach")
       for (let i = 2; i < headers.length; i++) {
@@ -329,6 +328,12 @@
     const imgNum = getImageNumber();
     const imgTotal = getImageTotal();
     const scraped = scrapeMetadataTable();
+
+    // Ensure Name is always present in fields
+    const hasName = scraped.fields.some(f => f.stdName === 'Name');
+    if (!hasName) {
+      scraped.fields.unshift({ header: 'Name', stdName: 'Name', value: '' });
+    }
 
     // Build dynamic field inputs
     let fieldsHtml = '';

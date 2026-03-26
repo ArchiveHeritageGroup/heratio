@@ -760,7 +760,7 @@ PY;
         }
 
         // Fields to skip entirely — not useful for annotation
-        $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household'];
+        $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Occupation', 'Cause of Death'];
 
         // Build a map of field label keywords → positions
         // For each CSV field name, find the matching printed label on the form

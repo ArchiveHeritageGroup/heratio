@@ -49,7 +49,7 @@
     <div class="row align-items-end">
       <div class="col-md-5">
         <label class="form-label small fw-bold">Folder with images + CSV</label>
-        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/renaldo" placeholder="/path/to/images">
+        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="/path/to/images">
       </div>
       <div class="col-md-5">
         <label class="form-label small fw-bold">Spreadsheet (in same folder)</label>
@@ -84,7 +84,7 @@
           <span id="ba-counter" class="badge bg-light text-dark me-2">0/0</span>
           <span id="ba-auto-status" class="ba-auto-badge d-none">AUTO</span>
           <div class="btn-group btn-group-sm me-2">
-            <button class="btn btn-light active" id="ba-tool-hand" title="Pan (H)" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
+            <button class="btn btn-light" id="ba-tool-hand" title="Pan (H)" onclick="baSetTool('hand')"><i class="fas fa-hand-paper"></i></button>
             <button class="btn btn-light" id="ba-tool-draw" title="Draw (R)" onclick="baSetTool('draw')"><i class="fas fa-vector-square"></i></button>
             <button class="btn btn-light" id="ba-tool-select" title="Select/Move (V)" onclick="baSetTool('select')"><i class="fas fa-mouse-pointer"></i></button>
           </div>
@@ -160,7 +160,7 @@
   let annotations = [];
   let img = null;
   let scale = 1;
-  let currentTool = 'select'; // default to select for overlay positioning
+  let currentTool = 'hand'; // default to pan
   let drawing = false, sx = 0, sy = 0;
   let dragging = false, dragIdx = -1, dragOffX = 0, dragOffY = 0;
   let resizing = false, resizeIdx = -1, resizeHandle = '';
@@ -175,7 +175,9 @@
   let currentFormType = '';
 
   // Fields to always skip
-  const SKIP_FIELDS = ['Event Type', 'Birth Year', 'Relationship to Head of Household'];
+  // Only these 5 fields are used — everything else is skipped
+  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Place'];
+  function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
 
   // ── Known form templates (positions as % of image width/height) ──
   // Form templates — positions as % of image width/height
@@ -188,23 +190,19 @@
         'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },  // 1. Christian Names & Surname
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },  // 3. Sex / Geslag
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },  // 4. Age / Ouderdom
-        'Occupation':     { x: 0.25, y: 0.30, w: 0.40, h: 0.03 },  // 6. Occupation / Beroep
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },  // 8. Date of Death / Datum
         'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },  // 9-11. Place of Death / Plaats
-        'Cause of Death': { x: 0.25, y: 0.50, w: 0.55, h: 0.06 },  // 13. Cause of Death / Doodsoorzaak
       }
     },
     'sa-death-1894': {
-      label: 'SA Death — Form of Information (1894 Act)',
-      detect: ['1894', 'act no'],
+      label: 'SA Death — Form of Information (Act 7 of 1894)',
+      detect: ['1894', 'act no', 'deceased'],
       fields: {
-        'Name':           { x: 0.40, y: 0.15, w: 0.40, h: 0.05 },
-        'Sex':            { x: 0.40, y: 0.28, w: 0.15, h: 0.03 },
-        'Age':            { x: 0.40, y: 0.31, w: 0.20, h: 0.03 },
-        'Occupation':     { x: 0.40, y: 0.34, w: 0.35, h: 0.03 },
-        'Event Date':     { x: 0.40, y: 0.40, w: 0.40, h: 0.03 },
-        'Event Place':    { x: 0.40, y: 0.43, w: 0.45, h: 0.05 },
-        'Cause of Death': { x: 0.40, y: 0.50, w: 0.45, h: 0.05 },
+        'Name':           { x: 0.51, y: 0.22, w: 0.42, h: 0.05 },  // 1. Christian Names and Surname
+        'Age':            { x: 0.51, y: 0.30, w: 0.20, h: 0.03 },  // 3. Age
+        'Sex':            { x: 0.51, y: 0.33, w: 0.15, h: 0.03 },  // 4. Race — Sex often here
+        'Event Date':     { x: 0.51, y: 0.38, w: 0.40, h: 0.03 },  // 8. Date of Death
+        'Event Place':    { x: 0.51, y: 0.41, w: 0.42, h: 0.05 },  // 9. Place of Death
       }
     },
     'sa-death-generic': {
@@ -214,10 +212,8 @@
         'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
-        'Occupation':     { x: 0.25, y: 0.30, w: 0.40, h: 0.03 },
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
         'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },
-        'Cause of Death': { x: 0.25, y: 0.50, w: 0.55, h: 0.06 },
       }
     },
     'manual': {
@@ -261,6 +257,14 @@
       }
       if (score > bestScore) { bestScore = score; bestType = key; }
     }
+
+    if (bestScore === 0) {
+      document.getElementById('ba-image-name').textContent += ' — UNRECOGNISED FORM (using generic, select form type manually)';
+    } else {
+      const tpl = FORM_TEMPLATES[bestType];
+      document.getElementById('ba-image-name').textContent += ' — Detected: ' + (tpl ? tpl.label : bestType);
+    }
+
     return bestType;
   }
 
@@ -279,7 +283,7 @@
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
-      if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+      if (shouldSkip(col)) { skipped.push(i); annotations.push(null); return; }
 
       // Check saved positions first (user overrides), then template, then default
       if (savedPositions[col]) {
@@ -440,6 +444,22 @@
         COLUMNS = Object.keys(images[0].fields);
       }
 
+      // Ensure all template fields are in COLUMNS (even if not in CSV)
+      // So user can always draw boxes for Name, Cause of Death, etc.
+      const selFormType = document.getElementById('ba-form-type').value;
+      const tplKey = (selFormType && selFormType !== 'auto') ? selFormType : 'sa-death-generic';
+      const tpl = FORM_TEMPLATES[tplKey];
+      if (tpl && tpl.fields) {
+        for (const fieldName of Object.keys(tpl.fields)) {
+          if (SKIP_FIELDS.includes(fieldName)) continue;
+          if (!COLUMNS.includes(fieldName)) {
+            COLUMNS.push(fieldName);
+            // Add empty field value to all images
+            images.forEach(img => { if (!img.fields[fieldName]) img.fields[fieldName] = ''; });
+          }
+        }
+      }
+
       currentFolder = folder;
 
       // Form type: use dropdown selection or default
@@ -455,7 +475,7 @@
       console.log('[FS Overlay] Starting with form type:', currentFormType, 'saved fields:', Object.keys(savedPositions));
 
       nextImage();
-      baSetTool('select');
+      baSetTool('hand');
     })
     .catch(err => {
       btn.disabled = false;
@@ -547,7 +567,7 @@
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
-      if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+      if (shouldSkip(col)) { skipped.push(i); annotations.push(null); return; }
 
       // Use saved position if we have one for this column
       if (savedPositions[col]) {
@@ -606,7 +626,7 @@
         annotations = [];
         COLUMNS.forEach(function(col, i) {
           const val = entry.fields[col] || '';
-          if (SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+          if (shouldSkip(col)) { skipped.push(i); annotations.push(null); return; }
 
           if (positions[col]) {
             const p = positions[col];
@@ -710,7 +730,7 @@
 
     // Only auto-skip SKIP_FIELDS (not empty fields — user may need to draw those)
     COLUMNS.forEach(function(col, i) {
-      if (SKIP_FIELDS.includes(col)) skipped.push(i);
+      if (shouldSkip(col)) skipped.push(i);
     });
 
     highlightField();
