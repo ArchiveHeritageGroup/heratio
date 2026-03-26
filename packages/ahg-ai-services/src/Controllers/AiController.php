@@ -903,7 +903,7 @@ PY;
 
         // Find anchor text position (the form title)
         // Look for key title words and compute the bounding box spanning all of them
-        $anchorKeywords = ['form', 'information', 'death', 'informasievorm', 'sterfgeval', 'kennisgewing'];
+        $anchorKeywords = ['death', 'act', 'informasievorm', 'sterfgeval', 'kennisgewing', 'wet'];
         $anchorWords = [];
         foreach ($words as $word) {
             $wLower = strtolower($word['text']);

@@ -177,7 +177,7 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Place', 'Residence Place'];
+  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Residence Place'];
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
 
   // ── Known form templates (positions as % of image width/height) ──
@@ -200,21 +200,19 @@
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
-        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },
       }
     },
     'sa-death-1894': {
       label: 'SA Death — Form of Information / Kennisgewing (Act/Wet 7 of 1894)',
       detect: ['1894', 'act no', 'deceased', 'kennisgewing', 'oorledene', 'wet no'],
-      anchor: ['form', 'information', 'death'],
-      anchorRef: { x: 0.23, y: 0.04, w: 0.55, h: 0.02 }, // "FORM OF INFORMATION OF A DEATH"
+      anchor: ['death:', 'act'],  // "DEATH: ACT No. 7 OF 1894" — compact, consistent
+      anchorRef: { x: 0.63, y: 0.09, w: 0.19, h: 0.01 },
       fields: {
-        'Name':           { x: 0.51, y: 0.22, w: 0.42, h: 0.05 },
-        'Residence Place':{ x: 0.51, y: 0.27, w: 0.42, h: 0.03 },
-        'Age':            { x: 0.51, y: 0.30, w: 0.20, h: 0.03 },
-        'Sex':            { x: 0.51, y: 0.33, w: 0.15, h: 0.03 },
-        'Event Date':     { x: 0.51, y: 0.38, w: 0.40, h: 0.03 },
-        'Event Place':    { x: 0.51, y: 0.41, w: 0.42, h: 0.05 },
+        'Name':           { x: 0.51, y: 0.19, w: 0.42, h: 0.04 },  // 1. Christian Names and Surname
+        'Residence Place':{ x: 0.51, y: 0.22, w: 0.42, h: 0.03 },  // 2. Usual place of Residence
+        'Age':            { x: 0.51, y: 0.24, w: 0.20, h: 0.02 },  // 3. Age
+        'Sex':            { x: 0.51, y: 0.26, w: 0.15, h: 0.02 },  // 4. Race(a) — Sex
+        'Event Date':     { x: 0.51, y: 0.32, w: 0.40, h: 0.03 },  // 8. Date of Death
       }
     },
     'sa-death-generic': {
@@ -228,7 +226,6 @@
         'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
         'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
-        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },
       }
     },
     'manual': {
@@ -704,7 +701,6 @@
           }
         });
 
-        persistPositions();
         highlightField();
         updateProgress();
         annotations.forEach(function(ann, i) {
@@ -954,9 +950,7 @@
       resizing = false;
       const a = annotations[resizeIdx];
       if (a) {
-        // Save position for this column
         savedPositions[a.label] = { x: a.x, y: a.y, w: a.w, h: a.h };
-        persistPositions();
         const c = document.getElementById('ba-coords-' + resizeIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
@@ -968,9 +962,7 @@
       const a = annotations[dragIdx];
       if (a) {
         a.x = Math.round(a.x); a.y = Math.round(a.y);
-        // Save position for this column so next image uses it
         savedPositions[a.label] = { x: a.x, y: a.y, w: a.w, h: a.h };
-        persistPositions();
         const c = document.getElementById('ba-coords-' + dragIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
@@ -990,7 +982,6 @@
 
     annotations[fieldIdx] = { label: col, value: val, x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
     savedPositions[col] = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
-    persistPositions();
 
     const coordsEl = document.getElementById('ba-coords-' + fieldIdx);
     if (coordsEl) coordsEl.textContent = Math.round(x) + ',' + Math.round(y) + ' ' + Math.round(w) + '×' + Math.round(h);
@@ -1124,6 +1115,16 @@
     const btn = document.getElementById('ba-save-btn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+
+    // Update savedPositions from ALL current annotations (coordinates + sizes)
+    annotations.forEach(function(ann) {
+      if (ann) {
+        savedPositions[ann.label] = { x: ann.x, y: ann.y, w: ann.w, h: ann.h };
+      }
+    });
+
+    // Save positions to server, then save annotation
+    persistPositions();
 
     fetch('{{ route("admin.ai.htr.fsOverlaySave") }}', {
       method: 'POST',
