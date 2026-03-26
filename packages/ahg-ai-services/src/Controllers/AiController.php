@@ -759,18 +759,20 @@ PY;
             ];
         }
 
+        // Fields to skip entirely — not useful for annotation
+        $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Event Date'];
+
         // Build a map of field label keywords → positions
-        // For each CSV field name, find matching printed label on the form
+        // For each CSV field name, find the matching printed label on the form
+        // The FIRST keyword is the primary anchor (e.g. "Date" for Event Date, not "Death")
         $labelMap = [
             'Name' => ['name', 'names', 'deceased', 'surname', 'christian'],
             'Sex' => ['sex', 'gender'],
             'Age' => ['age'],
-            'Birth Year' => ['birth', 'born'],
-            'Birth Date' => ['birth', 'born', 'date'],
+            'Birth Date' => ['birth', 'born'],
             'Birth Place' => ['birthplace', 'born'],
-            'Event Type' => ['death', 'birth', 'marriage'],
-            'Event Date' => ['date', 'death', 'died'],
-            'Event Place' => ['place', 'death', 'died', 'district'],
+            'Event Date' => ['date'],            // anchor on "Date" (in "Date of Death")
+            'Event Place' => ['place'],           // anchor on "Place" (in "Place of Death")
             'Cause of Death' => ['cause', 'causes'],
             'Father' => ['father'],
             'Mother' => ['mother', 'maiden'],
@@ -785,20 +787,33 @@ PY;
             'Registrar' => ['registrar'],
         ];
 
+        // Get image dimensions for smart width calculation
+        $imgInfo = @getimagesize($imagePath);
+        $imgWidth = $imgInfo ? $imgInfo[0] : 1800;
+
         $positions = [];
         foreach ($fields as $fieldName) {
+            // Skip excluded fields
+            if (in_array($fieldName, $skipFields)) continue;
+
             $keywords = $labelMap[$fieldName] ?? [strtolower($fieldName)];
             $bestMatch = null;
             $bestConf = 0;
 
             foreach ($words as $word) {
+                // Skip tiny words (likely noise/artifacts)
+                if ($word['width'] < 15 || $word['height'] < 8) continue;
+                // Skip very short OCR text (1-2 chars rarely match real labels)
+                if (strlen($word['text']) < 3) continue;
+
                 $wLower = strtolower($word['text']);
                 foreach ($keywords as $kw) {
-                    // Match if word contains the keyword (or keyword contains the word for short words)
                     if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false)) {
-                        if ($word['conf'] > $bestConf) {
+                        // Score: prefer higher confidence AND larger words
+                        $score = $word['conf'] + ($word['width'] * 0.1);
+                        if ($score > $bestConf) {
                             $bestMatch = $word;
-                            $bestConf = $word['conf'];
+                            $bestConf = $score;
                         }
                         break;
                     }
@@ -806,17 +821,36 @@ PY;
             }
 
             if ($bestMatch) {
-                // Position the annotation box to the right of the label (where the value is written)
+                // Start position: right after the label
+                $startX = $bestMatch['left'] + $bestMatch['width'] + 5;
+                $startY = $bestMatch['top'] - 5;
+
+                // Default box width: from label end to ~85% of image width
+                $boxW = max(200, (int)($imgWidth * 0.85) - $startX);
+                $boxH = max(35, $bestMatch['height'] + 15);
+
+                // Special handling for "Event Place" — starts at the label, covers wide area
+                if ($fieldName === 'Event Place') {
+                    $startX = $bestMatch['left']; // start at the label itself
+                    $boxW = max(400, (int)($imgWidth * 0.9) - $startX);
+                    $boxH = max(50, $bestMatch['height'] + 30); // taller for multi-line places
+                }
+
+                // Special handling for "Event Date" — start right at the label
+                if ($fieldName === 'Event Date') {
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + 3;
+                    $boxW = max(300, (int)($imgWidth * 0.7) - $startX);
+                }
+
                 $positions[$fieldName] = [
                     'label_x' => $bestMatch['left'],
                     'label_y' => $bestMatch['top'],
                     'label_w' => $bestMatch['width'],
                     'label_h' => $bestMatch['height'],
-                    // Value box: starts right of label, extends to ~60% of image width
-                    'x' => $bestMatch['left'] + $bestMatch['width'] + 10,
-                    'y' => $bestMatch['top'] - 5,
-                    'w' => 400,
-                    'h' => max(30, $bestMatch['height'] + 10),
+                    'x' => $startX,
+                    'y' => $startY,
+                    'w' => $boxW,
+                    'h' => $boxH,
                 ];
             }
         }
@@ -839,13 +873,32 @@ PY;
             return response()->json(['success' => false, 'error' => 'Folder not found']);
         }
 
-        // Find spreadsheet
-        $spreadsheets = glob("{$folder}/*.xlsx") + glob("{$folder}/*.csv") + glob("{$folder}/*.xls");
+        // Find spreadsheets
+        $spreadsheets = array_merge(
+            glob("{$folder}/*.xlsx") ?: [],
+            glob("{$folder}/*.csv") ?: [],
+            glob("{$folder}/*.xls") ?: []
+        );
         if (empty($spreadsheets)) {
             return response()->json(['success' => false, 'error' => 'No spreadsheet found in folder']);
         }
 
-        $spreadsheet = $spreadsheets[0];
+        // If only listing spreadsheets (no specific one selected), return the list
+        $selectedSpreadsheet = $request->input('spreadsheet', '');
+        if (!$selectedSpreadsheet) {
+            // Return list of available spreadsheets for the dropdown
+            $ssNames = array_map('basename', $spreadsheets);
+            return response()->json([
+                'success' => true,
+                'spreadsheets' => $ssNames,
+                'needsSelection' => true,
+            ]);
+        }
+
+        $spreadsheet = "{$folder}/{$selectedSpreadsheet}";
+        if (!file_exists($spreadsheet)) {
+            return response()->json(['success' => false, 'error' => "Spreadsheet not found: {$selectedSpreadsheet}"]);
+        }
         $images = [];
 
         try {
@@ -862,14 +915,34 @@ PY;
             // First row is headers
             $headers = array_shift($rows);
             $fnameCol = null;
+            $isFsCsv = false;
+
+            // Detect FS Capture CSV format (has "ARK ID" column)
             foreach ($headers as $col => $val) {
                 $lower = strtolower(trim($val ?? ''));
-                if (in_array($lower, ['fname', 'filename', 'file', 'image', 'docname', 'doc_name', 'imagename', 'image_name'])) {
+                if ($lower === 'ark id') {
                     $fnameCol = $col;
+                    $isFsCsv = true;
                     break;
                 }
             }
+
+            // Standard spreadsheet: look for filename column
+            if (!$fnameCol) {
+                foreach ($headers as $col => $val) {
+                    $lower = strtolower(trim($val ?? ''));
+                    if (in_array($lower, ['fname', 'filename', 'file', 'image', 'docname', 'doc_name', 'imagename', 'image_name'])) {
+                        $fnameCol = $col;
+                        break;
+                    }
+                }
+            }
             if (!$fnameCol) $fnameCol = 'A'; // Default to first column
+
+            // Columns to ignore in the FS CSV format
+            $ignoreColumns = $isFsCsv
+                ? ['row', 'image #', 'image', 'page url', 'timestamp', 'ark id']
+                : [];
 
             // Build processed list to skip already-done images
             $processedDir = $folder . '/processed';
@@ -899,11 +972,14 @@ PY;
                 $fields = [];
                 foreach ($headers as $col => $header) {
                     if ($col === $fnameCol) continue;
+                    $headerLower = strtolower(trim($header ?? ''));
+                    if (in_array($headerLower, $ignoreColumns)) continue;
+                    if (!$header) continue;
                     $val = $row[$col] ?? '';
                     if ($val instanceof \DateTime) {
                         $val = $val->format('j F Y');
                     }
-                    $fields[$header] = (string) $val;
+                    $fields[trim($header)] = (string) $val;
                 }
 
                 $images[] = [
@@ -916,12 +992,13 @@ PY;
             return response()->json(['success' => false, 'error' => 'Spreadsheet parse error: ' . $e->getMessage()]);
         }
 
-        // Build column list from headers (excluding filename column)
+        // Build column list from headers (excluding filename + ignored columns)
         $columns = [];
         foreach ($headers as $col => $val) {
-            if ($col !== $fnameCol && $val) {
-                $columns[] = $val;
-            }
+            if ($col === $fnameCol || !$val) continue;
+            $valLower = strtolower(trim($val));
+            if (in_array($valLower, $ignoreColumns)) continue;
+            $columns[] = trim($val);
         }
 
         return response()->json([

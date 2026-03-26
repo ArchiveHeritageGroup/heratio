@@ -49,7 +49,7 @@
     <div class="row align-items-end">
       <div class="col-md-5">
         <label class="form-label small fw-bold">Folder with images + CSV</label>
-        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/stefan" placeholder="/path/to/images">
+        <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/renaldo" placeholder="/path/to/images">
       </div>
       <div class="col-md-5">
         <label class="form-label small fw-bold">Spreadsheet (in same folder)</label>
@@ -165,6 +165,9 @@
   // Saved positions — remember where each field was placed, keyed by column name
   let savedPositions = {};
 
+  // Fields to always skip (not useful for overlay annotation)
+  const SKIP_FIELDS = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Event Date'];
+
   window.baSetTool = function(t) {
     currentTool = t;
     document.getElementById('ba-tool-hand').classList.toggle('active', t === 'hand');
@@ -198,19 +201,22 @@
   const ctx = cvs.getContext('2d');
   const wrap = document.getElementById('ba-wrap');
 
-  // ── Load data ──
+  // ── Load data (two-step: list spreadsheets → select → load) ──
   window.loadBulkData = function() {
     const folder = document.getElementById('ba-folder').value.trim();
     if (!folder) { alert('Enter folder path'); return; }
 
     const btn = document.getElementById('ba-load-btn');
+    const ssSelect = document.getElementById('ba-spreadsheet');
+    const selectedSS = ssSelect.value;
+
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
 
     fetch('{{ route("admin.ai.htr.fsOverlayLoad") }}', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-      body: JSON.stringify({ folder: folder }),
+      body: JSON.stringify({ folder: folder, spreadsheet: selectedSS }),
     })
     .then(r => r.json())
     .then(data => {
@@ -218,6 +224,24 @@
       btn.innerHTML = '<i class="fas fa-upload me-1"></i>Load';
       if (!data.success) { alert(data.error || 'Load failed'); return; }
 
+      // Step 1: populate spreadsheet dropdown
+      if (data.needsSelection) {
+        ssSelect.innerHTML = '<option value="">Select spreadsheet...</option>';
+        (data.spreadsheets || []).forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          ssSelect.appendChild(opt);
+        });
+        // Auto-select if only one
+        if (data.spreadsheets.length === 1) {
+          ssSelect.value = data.spreadsheets[0];
+          loadBulkData(); // re-call with selection
+        }
+        return;
+      }
+
+      // Step 2: data loaded
       images = data.images;
       COLUMNS = data.columns || [];
       imgIdx = -1;
@@ -235,7 +259,7 @@
       } catch(e) {}
 
       nextImage();
-      baSetTool('select'); // Default to select tool for repositioning
+      baSetTool('select');
     })
     .catch(err => {
       btn.disabled = false;
@@ -302,7 +326,8 @@
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
-      if (!val) { skipped.push(i); annotations.push(null); return; }
+      // Skip empty fields and excluded fields
+      if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
 
       // Use saved position if we have one for this column
       if (savedPositions[col]) {
@@ -361,7 +386,7 @@
         annotations = [];
         COLUMNS.forEach(function(col, i) {
           const val = entry.fields[col] || '';
-          if (!val) { skipped.push(i); annotations.push(null); return; }
+          if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
 
           if (positions[col]) {
             const p = positions[col];
