@@ -58,6 +58,13 @@
         </select>
       </div>
       <div class="col-md-2">
+        <label class="form-label small fw-bold">Form type</label>
+        <select id="ba-form-type" class="form-select form-select-sm">
+          <option value="auto">Auto-detect</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <label class="form-label small fw-bold">&nbsp;</label>
         <button id="ba-load-btn" class="btn btn-sm atom-btn-outline-success w-100" onclick="loadBulkData()">
           <i class="fas fa-upload me-1"></i>Load
         </button>
@@ -162,11 +169,147 @@
   let skipped = [];
   let sessionDone = 0, sessionFields = 0;
 
-  // Saved positions — remember where each field was placed, keyed by column name
+  // Saved positions — per form type
   let savedPositions = {};
+  let currentFolder = '';
+  let currentFormType = '';
 
-  // Fields to always skip (not useful for overlay annotation)
-  const SKIP_FIELDS = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Event Date'];
+  // Fields to always skip
+  const SKIP_FIELDS = ['Event Type', 'Birth Year', 'Relationship to Head of Household'];
+
+  // ── Known form templates (positions as % of image width/height) ──
+  const FORM_TEMPLATES = {
+    'sa-death-1923': {
+      label: 'SA Death Certificate (Act 1923 — Bilingual EN/AF)',
+      detect: ['informasievorm', 'sterfgeval', 'form of information', 'death'],
+      fields: {
+        'Name':        { x: 0.30, y: 0.22, w: 0.55, h: 0.03 },
+        'Sex':         { x: 0.30, y: 0.27, w: 0.20, h: 0.03 },
+        'Age':         { x: 0.30, y: 0.30, w: 0.20, h: 0.03 },
+        'Event Date':  { x: 0.30, y: 0.47, w: 0.40, h: 0.03 },
+        'Event Place': { x: 0.30, y: 0.50, w: 0.55, h: 0.05 },
+        'Occupation':  { x: 0.30, y: 0.35, w: 0.40, h: 0.03 },
+        'Cause of Death': { x: 0.30, y: 0.55, w: 0.55, h: 0.05 },
+      }
+    },
+    'sa-death-1894': {
+      label: 'SA Death Certificate (Act 1894)',
+      detect: ['act no', '1894', 'form of information'],
+      fields: {
+        'Name':        { x: 0.45, y: 0.20, w: 0.45, h: 0.04 },
+        'Sex':         { x: 0.45, y: 0.32, w: 0.20, h: 0.03 },
+        'Age':         { x: 0.45, y: 0.35, w: 0.20, h: 0.03 },
+        'Event Date':  { x: 0.45, y: 0.40, w: 0.40, h: 0.03 },
+        'Event Place': { x: 0.45, y: 0.43, w: 0.45, h: 0.05 },
+        'Occupation':  { x: 0.45, y: 0.37, w: 0.40, h: 0.03 },
+        'Cause of Death': { x: 0.45, y: 0.48, w: 0.45, h: 0.05 },
+      }
+    },
+    'sa-death-generic': {
+      label: 'SA Death Certificate (Generic)',
+      detect: ['death', 'sterfgeval', 'dood'],
+      fields: {
+        'Name':        { x: 0.35, y: 0.22, w: 0.50, h: 0.04 },
+        'Sex':         { x: 0.35, y: 0.28, w: 0.20, h: 0.03 },
+        'Age':         { x: 0.35, y: 0.32, w: 0.20, h: 0.03 },
+        'Event Date':  { x: 0.35, y: 0.42, w: 0.40, h: 0.03 },
+        'Event Place': { x: 0.35, y: 0.46, w: 0.50, h: 0.05 },
+        'Occupation':  { x: 0.35, y: 0.36, w: 0.40, h: 0.03 },
+        'Cause of Death': { x: 0.35, y: 0.52, w: 0.50, h: 0.05 },
+      }
+    },
+    'manual': {
+      label: 'Manual positioning',
+      detect: [],
+      fields: {}
+    }
+  };
+
+  // Populate form type dropdown + change handler
+  (function() {
+    const sel = document.getElementById('ba-form-type');
+    for (const [key, tpl] of Object.entries(FORM_TEMPLATES)) {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = tpl.label;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener('change', function() {
+      if (img && images[imgIdx]) {
+        savedPositions = {}; // clear overrides when switching type
+        applyFormTemplate(this.value === 'auto' ? 'sa-death-generic' : this.value);
+        redraw();
+      }
+    });
+  })();
+
+  // Auto-detect form type from first image OCR
+  function detectFormType(ocrWords) {
+    const allText = ocrWords.map(w => w.toLowerCase()).join(' ');
+    let bestType = 'sa-death-generic';
+    let bestScore = 0;
+
+    for (const [key, tpl] of Object.entries(FORM_TEMPLATES)) {
+      if (!tpl.detect.length) continue;
+      let score = 0;
+      for (const kw of tpl.detect) {
+        if (allText.includes(kw)) score++;
+      }
+      if (score > bestScore) { bestScore = score; bestType = key; }
+    }
+    return bestType;
+  }
+
+  // Apply form template — positions fields based on % of image dimensions
+  function applyFormTemplate(templateKey) {
+    const tpl = FORM_TEMPLATES[templateKey];
+    if (!tpl) return;
+
+    currentFormType = templateKey;
+    document.getElementById('ba-form-type').value = templateKey;
+
+    // Convert % positions to absolute pixel positions
+    const entry = images[imgIdx];
+    annotations = [];
+    skipped = [];
+
+    COLUMNS.forEach(function(col, i) {
+      const val = entry.fields[col] || '';
+      if (!val || SKIP_FIELDS.includes(col)) { skipped.push(i); annotations.push(null); return; }
+
+      // Check saved positions first (user overrides), then template, then default
+      if (savedPositions[col]) {
+        annotations.push({ label: col, value: val, x: savedPositions[col].x, y: savedPositions[col].y, w: savedPositions[col].w, h: savedPositions[col].h });
+      } else if (tpl.fields[col]) {
+        const f = tpl.fields[col];
+        annotations.push({
+          label: col, value: val,
+          x: Math.round(f.x * img.width),
+          y: Math.round(f.y * img.height),
+          w: Math.round(f.w * img.width),
+          h: Math.round(f.h * img.height),
+        });
+      } else {
+        // No template position — stack below others
+        const activeIdx = annotations.filter(a => a).length;
+        annotations.push({
+          label: col, value: val,
+          x: Math.round(img.width * 0.05),
+          y: Math.round(img.height * 0.08) + activeIdx * Math.round(img.height / 15),
+          w: Math.round(img.width * 0.45),
+          h: Math.round(img.height * 0.04),
+        });
+      }
+    });
+
+    highlightField();
+    updateProgress();
+    annotations.forEach(function(ann, i) {
+      if (!ann) return;
+      const c = document.getElementById('ba-coords-' + i);
+      if (c) c.textContent = Math.round(ann.x) + ',' + Math.round(ann.y) + ' ' + Math.round(ann.w) + '×' + Math.round(ann.h);
+    });
+  }
 
   window.baSetTool = function(t) {
     currentTool = t;
@@ -295,7 +438,8 @@
 
       // Load saved positions from localStorage
       try {
-        const saved = localStorage.getItem('fs-overlay-positions');
+        currentFolder = folder;
+        const saved = localStorage.getItem(posKey());
         if (saved) savedPositions = JSON.parse(saved);
       } catch(e) {}
 
@@ -332,14 +476,35 @@
       cvs.width = img.width * scale;
       cvs.height = img.height * scale;
 
-      // If we have saved positions, use those. Otherwise OCR the labels.
-      const hasSaved = COLUMNS.some(col => savedPositions[col]);
-      if (hasSaved) {
+      const selectedType = document.getElementById('ba-form-type').value;
+
+      if (selectedType && selectedType !== 'auto') {
+        // User selected a specific form type — use its template
+        applyFormTemplate(selectedType);
+        redraw();
+      } else if (COLUMNS.some(col => savedPositions[col])) {
+        // Have saved positions from previous manual adjustments
         autoPlaceFields();
         redraw();
       } else {
-        // OCR the form to find printed label positions
-        ocrAndPlace(entry);
+        // Auto-detect: quick OCR to identify form type, then apply template
+        document.getElementById('ba-image-name').textContent += ' — detecting form type...';
+        fetch('{{ route("admin.ai.htr.fsOverlayOcr") }}', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+          body: JSON.stringify({ image_path: entry.path, fields: [] }),
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.words) {
+            const formType = detectFormType(data.words);
+            applyFormTemplate(formType);
+          } else {
+            applyFormTemplate('sa-death-generic');
+          }
+          redraw();
+        })
+        .catch(() => { applyFormTemplate('sa-death-generic'); redraw(); });
       }
     };
     img.src = '{{ route("admin.ai.htr.serveImage") }}?path=' + encodeURIComponent(entry.path);
@@ -483,7 +648,7 @@
   window.baResetPositions = function() {
     if (!confirm('Clear all saved field positions? You will need to reposition on the next image.')) return;
     savedPositions = {};
-    localStorage.removeItem('fs-overlay-positions');
+    localStorage.removeItem(posKey());
     autoPlaceFields();
     redraw();
   };
@@ -722,8 +887,9 @@
     redraw();
   });
 
+  function posKey() { return 'fs-overlay-pos-' + (currentFormType || currentFolder).replace(/[^a-zA-Z0-9-]/g, '_'); }
   function persistPositions() {
-    try { localStorage.setItem('fs-overlay-positions', JSON.stringify(savedPositions)); } catch(e) {}
+    try { localStorage.setItem(posKey(), JSON.stringify(savedPositions)); } catch(e) {}
   }
 
   function redraw() {

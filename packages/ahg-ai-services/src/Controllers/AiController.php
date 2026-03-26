@@ -760,31 +760,32 @@ PY;
         }
 
         // Fields to skip entirely — not useful for annotation
-        $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household', 'Event Date'];
+        $skipFields = ['Event Type', 'Birth Year', 'Relationship to Head of Household'];
 
         // Build a map of field label keywords → positions
         // For each CSV field name, find the matching printed label on the form
         // The FIRST keyword is the primary anchor (e.g. "Date" for Event Date, not "Death")
+        // Bilingual SA death certificate labels (English / Afrikaans)
         $labelMap = [
-            'Name' => ['name', 'names', 'deceased', 'surname', 'christian'],
-            'Sex' => ['sex', 'gender'],
-            'Age' => ['age'],
-            'Birth Date' => ['birth', 'born'],
-            'Birth Place' => ['birthplace', 'born'],
-            'Event Date' => ['date'],            // anchor on "Date" (in "Date of Death")
-            'Event Place' => ['place'],           // anchor on "Place" (in "Place of Death")
-            'Cause of Death' => ['cause', 'causes'],
-            'Father' => ['father'],
-            'Mother' => ['mother', 'maiden'],
-            'Spouse' => ['spouse', 'married', 'husband', 'wife'],
-            'Occupation' => ['occupation', 'profession'],
-            'Race' => ['race', 'colour', 'color'],
-            'Marital Status' => ['married', 'marital', 'single', 'widow'],
-            'Residence' => ['residence', 'address', 'abode'],
-            'District' => ['district', 'division'],
-            'Registration No' => ['registration', 'register', 'entry'],
-            'Informant' => ['informant', 'informants'],
-            'Registrar' => ['registrar'],
+            'Name' => ['christian', 'voornamen', 'familienaam', 'surname', 'names'],
+            'Sex' => ['sex', 'geslacht', 'geslag', 'gender'],
+            'Age' => ['age', 'ouderdom'],
+            'Birth Date' => ['birth', 'born', 'geboorte'],
+            'Birth Place' => ['birthplace', 'geboorteplek'],
+            'Event Date' => ['date', 'datum'],           // "Date of Death" / "Datum van Overleden"
+            'Event Place' => ['place', 'plaats', 'plek'], // "Place of Death" / "Plaats waar Overleden"
+            'Cause of Death' => ['cause', 'causes', 'oorzaak', 'doodsoorzaak'],
+            'Father' => ['father', 'vader'],
+            'Mother' => ['mother', 'moeder', 'maiden'],
+            'Spouse' => ['spouse', 'married', 'husband', 'wife', 'eggenoot', 'eggenote', 'getroud'],
+            'Occupation' => ['occupation', 'profession', 'beroep'],
+            'Race' => ['race', 'colour', 'color', 'ras', 'kleur'],
+            'Marital Status' => ['married', 'marital', 'single', 'widow', 'huwelikstaat', 'getroud', 'ongetroud'],
+            'Residence' => ['residence', 'address', 'abode', 'woonplek', 'adres'],
+            'District' => ['district', 'division', 'distrik', 'afdeling'],
+            'Registration No' => ['registration', 'register', 'entry', 'registrasie'],
+            'Informant' => ['informant', 'informants', 'aangewer'],
+            'Registrar' => ['registrar', 'registrateur'],
         ];
 
         // Get image dimensions for smart width calculation
@@ -855,9 +856,13 @@ PY;
             }
         }
 
+        // Return word texts for form type detection
+        $wordTexts = array_column($words, 'text');
+
         return response()->json([
             'success' => true,
             'positions' => $positions,
+            'words' => $wordTexts,
             'word_count' => count($words),
         ]);
     }
