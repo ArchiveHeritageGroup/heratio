@@ -100,6 +100,10 @@
     <div class="d-flex justify-content-between mt-2">
       <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
       <div>
+        <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
+          <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
+          <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">Auto</label>
+        </div>
         <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="Draw crop rectangle"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
@@ -182,6 +186,35 @@
   // Only these 5 fields are used — everything else is skipped
   const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Residence Place'];
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
+
+  // ── De-duplicate repeated text (TrOCR decoder loop bug) ──
+  // "Femalefemalefemalefemale" → "Female"
+  // "John SmithJohn SmithJohn Smith" → "John Smith"
+  function dedupeRepeats(text) {
+    if (!text || text.length < 4) return text;
+    const s = text.trim();
+    // Try pattern lengths from 1 to half the string
+    for (let len = 1; len <= Math.floor(s.length / 2); len++) {
+      const pattern = s.substring(0, len);
+      // Check if the entire string is just this pattern repeated (case-insensitive)
+      const regex = new RegExp('^(' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')+$', 'i');
+      if (regex.test(s)) {
+        return pattern;
+      }
+    }
+    // Also try: "Value value value" with spaces
+    const words = s.split(/\s+/);
+    if (words.length >= 2) {
+      for (let wLen = 1; wLen <= Math.floor(words.length / 2); wLen++) {
+        const chunk = words.slice(0, wLen).join(' ');
+        const repeated = Array(Math.ceil(words.length / wLen)).fill(chunk).join(' ');
+        if (repeated.toLowerCase().startsWith(s.toLowerCase()) || s.toLowerCase().startsWith(repeated.toLowerCase())) {
+          return chunk;
+        }
+      }
+    }
+    return s;
+  }
 
   // ── Auto-fix date spelling ──
   // Corrects common OCR/handwriting misreads in dates
@@ -681,10 +714,12 @@
         // User selected a specific form type — use its template
         applyFormTemplate(selectedType);
         redraw();
+        if (autoRecogEnabled) setTimeout(baRecognise, 500);
       } else if (COLUMNS.some(col => savedPositions[col])) {
         // Have saved positions from previous manual adjustments
         autoPlaceFields();
         redraw();
+        if (autoRecogEnabled) setTimeout(baRecognise, 500);
       } else {
         // Auto-detect: quick OCR to identify form type, then apply template
         document.getElementById('ba-image-name').textContent += ' — detecting form type...';
@@ -702,6 +737,7 @@
             loadSavedPositions(() => {
               applyFormTemplate(formType, detectedAnchor);
               redraw();
+              if (autoRecogEnabled) setTimeout(baRecognise, 500);
             });
           } else {
             currentFormType = 'sa-death-generic';
@@ -709,6 +745,7 @@
             loadSavedPositions(() => {
               applyFormTemplate('sa-death-generic');
               redraw();
+              if (autoRecogEnabled) setTimeout(baRecognise, 500);
             });
           }
         })
@@ -978,6 +1015,20 @@
     });
   };
 
+  // ── Auto-recognise toggle ──
+  let autoRecogEnabled = localStorage.getItem('fs-overlay-auto-recog') === 'true';
+
+  // Set initial state
+  (function() {
+    const cb = document.getElementById('ba-auto-recog');
+    if (cb) cb.checked = autoRecogEnabled;
+  })();
+
+  window.baToggleAutoRecog = function(on) {
+    autoRecogEnabled = on;
+    localStorage.setItem('fs-overlay-auto-recog', on ? 'true' : 'false');
+  };
+
   // ── Recognise: send field crops to HTR service ──
   window.baRecognise = function() {
     const entry = images[imgIdx];
@@ -1022,8 +1073,20 @@
           if (prev) prev.remove();
 
           if (text) {
+            // De-duplicate repeated text (TrOCR loop bug)
+            let cleanText = dedupeRepeats(text);
             // Auto-fix spelling on the recognised text
-            const fixedText = autoFixDate(text);
+            const fixedText = autoFixDate(cleanText);
+
+            // If field is empty, auto-populate it directly
+            const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
+            if (inp && !inp.value.trim()) {
+              inp.value = fixedText;
+              entry.fields[label] = fixedText;
+              if (annotations[idx]) annotations[idx].value = fixedText;
+            }
+
+            // Always show the recognised text below for reference / click to replace
             const recogDiv = document.createElement('div');
             recogDiv.className = 'ba-recog';
             recogDiv.style.cssText = 'font-size:0.75rem; color:#c00; cursor:pointer; padding:2px 0; border-top:1px dashed #ddd; margin-top:2px;';
@@ -1032,7 +1095,6 @@
               '<span style="text-decoration:underline dotted">' + fixedText.replace(/</g,'&lt;') + '</span>' +
               (fixedText !== text ? ' <span style="font-size:0.6rem;color:#999">(was: ' + text.replace(/</g,'&lt;') + ')</span>' : '');
             recogDiv.addEventListener('click', function() {
-              const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
               if (inp) {
                 inp.value = fixedText;
                 entry.fields[label] = fixedText;
