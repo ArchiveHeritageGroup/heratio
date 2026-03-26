@@ -877,6 +877,19 @@ PY;
      */
     public function htrFsOverlayManualCrop(Request $request)
     {
+        // Handle skip → move to rework folder
+        if ($request->input('action') === 'skip') {
+            $imagePath = $request->input('image_path', '');
+            $folder = $request->input('folder', '');
+            if (!$folder) $folder = dirname($imagePath);
+            if ($imagePath && file_exists($imagePath)) {
+                $reworkDir = $folder . '/rework';
+                @mkdir($reworkDir, 0777, true);
+                @rename($imagePath, $reworkDir . '/' . basename($imagePath));
+            }
+            return response()->json(['success' => true]);
+        }
+
         $imagePath = $request->input('image_path', '');
         $x = (int)$request->input('x', 0);
         $y = (int)$request->input('y', 0);

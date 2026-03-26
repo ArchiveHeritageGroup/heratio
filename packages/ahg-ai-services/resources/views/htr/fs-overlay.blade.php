@@ -1354,7 +1354,17 @@
 
   // ── Navigation ──
   window.baPrev = function() { if (imgIdx > 0) { imgIdx -= 2; nextImage(); } };
-  window.baSkip = function() { nextImage(); };
+  window.baSkip = function() {
+    const entry = images[imgIdx];
+    const folder = document.getElementById('ba-folder').value.trim();
+    // Move to rework folder
+    fetch('{{ route("admin.ai.htr.fsOverlayManualCrop") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({ action: 'skip', image_path: entry.path, folder: folder }),
+    }).catch(() => {});
+    nextImage();
+  };
 
   // ── Save ──
   window.baSaveAndNext = function() {
