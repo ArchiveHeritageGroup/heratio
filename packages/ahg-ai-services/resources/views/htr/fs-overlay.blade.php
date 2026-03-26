@@ -103,6 +103,7 @@
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
         <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="Push browser positions to server"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
         <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip</button>
       </div>
       <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>
@@ -686,6 +687,39 @@
   }
 
   // Reset saved positions (start fresh)
+  // Migrate all localStorage positions to server (one-time sync)
+  window.baMigrateToServer = function() {
+    let count = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key.startsWith('fs-overlay-pos-')) continue;
+      try {
+        const positions = JSON.parse(localStorage.getItem(key));
+        // Extract form type from key: fs-overlay-pos-sa-death-1894 → sa-death-1894
+        const formType = key.replace('fs-overlay-pos-', '').replace(/_/g, '-');
+        fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+          body: JSON.stringify({ form_type: formType, positions }),
+        });
+        count++;
+      } catch(e) {}
+    }
+    // Also save current positions
+    if (currentFormType && Object.keys(savedPositions).length) {
+      fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+        body: JSON.stringify({ form_type: currentFormType, positions: savedPositions }),
+      });
+      count++;
+    }
+    const btn = document.getElementById('ba-migrate-btn');
+    btn.innerHTML = '<i class="fas fa-check me-1"></i>Synced (' + count + ')';
+    btn.disabled = true;
+    alert('Synced ' + count + ' form type position(s) to server.');
+  };
+
   window.baResetPositions = function() {
     if (!confirm('Clear all saved field positions? You will need to reposition on the next image.')) return;
     savedPositions = {};
