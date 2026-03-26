@@ -93,8 +93,9 @@
     <div class="d-flex justify-content-between mt-2">
       <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
       <div>
-        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Auto-place all fields in a column"><i class="fas fa-magic me-1"></i>Auto-place fields</button>
-        <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip Image</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset positions</button>
+        <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip</button>
       </div>
       <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>
     </div>
@@ -112,7 +113,7 @@
       <div class="progress-bar bg-success" id="ba-progress" style="width:0%"></div>
     </div>
     <div class="mt-2 small text-muted">
-      <kbd>Auto-place</kbd> positions all fields · <kbd>V</kbd> select tool to drag/resize · <kbd>R</kbd> draw new box · <kbd>Ctrl+S</kbd> save & next
+      <kbd>V</kbd> select & drag boxes to correct positions · Positions are <strong>remembered</strong> for next images · <kbd>R</kbd> draw new box · <kbd>Ctrl+S</kbd> save & next
     </div>
 
     {{-- Session stats --}}
@@ -273,10 +274,24 @@
   }
 
   // ── Auto-place: position all field boxes on the image ──
-  // Uses saved positions from previous images, or stacks them vertically
+  // Priority: 1) saved positions from previous images, 2) smart defaults
   function autoPlaceFields() {
     const entry = images[imgIdx];
     annotations = [];
+
+    // Count non-empty fields to calculate spacing
+    const activeFields = COLUMNS.filter(col => entry.fields[col]);
+    const fieldCount = activeFields.length;
+
+    // Smart default sizing — spread fields vertically across the document
+    const imgW = img.width;
+    const imgH = img.height;
+    const boxW = Math.round(imgW * 0.45);  // ~45% of image width
+    const boxH = Math.round(Math.min(60, imgH / (fieldCount + 2))); // tall enough to read
+    const startX = Math.round(imgW * 0.05); // 5% margin from left
+    const startY = Math.round(imgH * 0.08); // start 8% from top
+    const spacing = Math.round((imgH * 0.85) / Math.max(fieldCount, 1)); // even vertical spacing
+    let activeIdx = 0;
 
     COLUMNS.forEach(function(col, i) {
       const val = entry.fields[col] || '';
@@ -293,23 +308,38 @@
           h: savedPositions[col].h,
         });
       } else {
-        // Default: stack vertically on the left side
-        const y = 50 + i * 35;
-        const boxW = Math.min(300, img.width * 0.4);
+        // Smart default: distribute evenly down the page
         annotations.push({
           label: col,
           value: val,
-          x: 20,
-          y: y,
+          x: startX,
+          y: startY + activeIdx * spacing,
           w: boxW,
-          h: 28,
+          h: boxH,
         });
       }
+      activeIdx++;
     });
 
     highlightField();
     updateProgress();
+
+    // Update coord displays
+    annotations.forEach(function(ann, i) {
+      if (!ann) return;
+      const c = document.getElementById('ba-coords-' + i);
+      if (c) c.textContent = Math.round(ann.x) + ',' + Math.round(ann.y) + ' ' + Math.round(ann.w) + '×' + Math.round(ann.h);
+    });
   }
+
+  // Reset saved positions (start fresh)
+  window.baResetPositions = function() {
+    if (!confirm('Clear all saved field positions? You will need to reposition on the next image.')) return;
+    savedPositions = {};
+    localStorage.removeItem('fs-overlay-positions');
+    autoPlaceFields();
+    redraw();
+  };
 
   window.baAutoPlace = function() {
     autoPlaceFields();
@@ -571,27 +601,27 @@
       ctx.lineWidth = isActive ? 3 : 1.5;
       ctx.strokeRect(ann.x * scale, ann.y * scale, ann.w * scale, ann.h * scale);
 
-      // Label background
+      // Label background (bigger, bolder)
       const labelText = (i + 1) + '. ' + ann.label;
-      ctx.font = (isActive ? 'bold ' : '') + '11px sans-serif';
-      const tw = ctx.measureText(labelText).width + 8;
+      ctx.font = (isActive ? 'bold 14px' : '13px') + ' sans-serif';
+      const tw = ctx.measureText(labelText).width + 12;
       ctx.fillStyle = color;
-      ctx.globalAlpha = 0.9;
-      ctx.fillRect(ann.x * scale, ann.y * scale - 16, tw, 16);
+      ctx.globalAlpha = 0.92;
+      ctx.fillRect(ann.x * scale, ann.y * scale - 20, tw, 20);
 
       // Label text
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#fff';
-      ctx.fillText(labelText, ann.x * scale + 4, ann.y * scale - 4);
+      ctx.fillText(labelText, ann.x * scale + 5, ann.y * scale - 5);
 
-      // Value preview below box
+      // Value preview below box (bigger)
       if (ann.value) {
-        ctx.font = '10px sans-serif';
-        const vw = ctx.measureText(ann.value).width + 6;
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.fillRect(ann.x * scale, (ann.y + ann.h) * scale + 1, vw, 13);
+        ctx.font = 'bold 12px sans-serif';
+        const vw = ctx.measureText(ann.value).width + 10;
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.fillRect(ann.x * scale, (ann.y + ann.h) * scale + 2, vw, 16);
         ctx.fillStyle = '#333';
-        ctx.fillText(ann.value, ann.x * scale + 3, (ann.y + ann.h) * scale + 11);
+        ctx.fillText(ann.value, ann.x * scale + 4, (ann.y + ann.h) * scale + 14);
       }
 
       ctx.restore();
