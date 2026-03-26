@@ -901,10 +901,56 @@ PY;
         // Return word texts for form type detection
         $wordTexts = array_column($words, 'text');
 
+        // Find anchor text position (the form title)
+        // Look for key title words and compute the bounding box spanning all of them
+        $anchorKeywords = ['form', 'information', 'death', 'informasievorm', 'sterfgeval', 'kennisgewing'];
+        $anchorWords = [];
+        foreach ($words as $word) {
+            $wLower = strtolower($word['text']);
+            foreach ($anchorKeywords as $kw) {
+                if (stripos($wLower, $kw) !== false && $word['width'] > 20) {
+                    $anchorWords[] = $word;
+                    break;
+                }
+            }
+        }
+
+        $anchor = null;
+        if (!empty($anchorWords)) {
+            // Find words that are on the same line (similar Y position, within 30px)
+            // Group by Y position
+            usort($anchorWords, fn($a, $b) => $a['top'] - $b['top']);
+            $titleLine = [$anchorWords[0]];
+            $baseY = $anchorWords[0]['top'];
+            foreach ($anchorWords as $w) {
+                if (abs($w['top'] - $baseY) < 40) {
+                    $titleLine[] = $w;
+                }
+            }
+
+            // Compute bounding box spanning all title words
+            $minX = min(array_column($titleLine, 'left'));
+            $minY = min(array_column($titleLine, 'top'));
+            $maxX = max(array_map(fn($w) => $w['left'] + $w['width'], $titleLine));
+            $maxY = max(array_map(fn($w) => $w['top'] + $w['height'], $titleLine));
+
+            $anchor = [
+                'x' => $minX,
+                'y' => $minY,
+                'w' => $maxX - $minX,
+                'h' => $maxY - $minY,
+                'x_pct' => $imgWidth > 0 ? round($minX / $imgWidth, 4) : 0,
+                'y_pct' => $imgInfo ? round($minY / $imgInfo[1], 4) : 0,
+                'w_pct' => $imgWidth > 0 ? round(($maxX - $minX) / $imgWidth, 4) : 0,
+                'h_pct' => $imgInfo ? round(($maxY - $minY) / $imgInfo[1], 4) : 0,
+            ];
+        }
+
         return response()->json([
             'success' => true,
             'positions' => $positions,
             'words' => $wordTexts,
+            'anchor' => $anchor,
             'word_count' => count($words),
         ]);
     }

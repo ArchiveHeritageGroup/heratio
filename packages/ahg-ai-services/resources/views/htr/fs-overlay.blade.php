@@ -183,34 +183,45 @@
   // ── Known form templates (positions as % of image width/height) ──
   // Form templates — positions as % of image width/height
   // Calibrated from actual scanned SA death certificates
+  // Form templates with anchor-relative positioning:
+  // - anchor: keywords to find the form title via OCR
+  // - anchorRef: expected position of the anchor on the reference/calibration image (as % of image)
+  // - fields: positions relative to the anchor reference
+  // On each image, OCR finds the anchor, computes offset + scale vs anchorRef, then shifts all fields
   const FORM_TEMPLATES = {
     'sa-death-1923': {
       label: 'SA Death — Informasievorm (1923 Act, EN/AF bilingual)',
       detect: ['informasievorm', 'sterfgeval'],
+      anchor: ['informasievorm', 'sterfgeval'],
+      anchorRef: { x: 0.22, y: 0.04, w: 0.56, h: 0.02 }, // title position on reference image
       fields: {
-        'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },  // 1. Christian Names & Surname
-        'Residence Place':{ x: 0.25, y: 0.15, w: 0.55, h: 0.04 },  // 2. Usual place of Residence
-        'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },  // 3. Sex / Geslag
-        'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },  // 4. Age / Ouderdom
-        'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },  // 8. Date of Death / Datum
-        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },  // 9-11. Place of Death / Plaats
+        'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },
+        'Residence Place':{ x: 0.25, y: 0.15, w: 0.55, h: 0.04 },
+        'Sex':            { x: 0.25, y: 0.22, w: 0.15, h: 0.03 },
+        'Age':            { x: 0.25, y: 0.25, w: 0.20, h: 0.03 },
+        'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
+        'Event Place':    { x: 0.25, y: 0.41, w: 0.55, h: 0.06 },
       }
     },
     'sa-death-1894': {
       label: 'SA Death — Form of Information / Kennisgewing (Act/Wet 7 of 1894)',
       detect: ['1894', 'act no', 'deceased', 'kennisgewing', 'oorledene', 'wet no'],
+      anchor: ['form', 'information', 'death'],
+      anchorRef: { x: 0.23, y: 0.04, w: 0.55, h: 0.02 }, // "FORM OF INFORMATION OF A DEATH"
       fields: {
-        'Name':           { x: 0.51, y: 0.22, w: 0.42, h: 0.05 },  // 1. Christian Names and Surname
-        'Residence Place':{ x: 0.51, y: 0.27, w: 0.42, h: 0.03 },  // 2. Usual place of Residence
-        'Age':            { x: 0.51, y: 0.30, w: 0.20, h: 0.03 },  // 3. Age
-        'Sex':            { x: 0.51, y: 0.33, w: 0.15, h: 0.03 },  // 4. Race — Sex often here
-        'Event Date':     { x: 0.51, y: 0.38, w: 0.40, h: 0.03 },  // 8. Date of Death
-        'Event Place':    { x: 0.51, y: 0.41, w: 0.42, h: 0.05 },  // 9. Place of Death
+        'Name':           { x: 0.51, y: 0.22, w: 0.42, h: 0.05 },
+        'Residence Place':{ x: 0.51, y: 0.27, w: 0.42, h: 0.03 },
+        'Age':            { x: 0.51, y: 0.30, w: 0.20, h: 0.03 },
+        'Sex':            { x: 0.51, y: 0.33, w: 0.15, h: 0.03 },
+        'Event Date':     { x: 0.51, y: 0.38, w: 0.40, h: 0.03 },
+        'Event Place':    { x: 0.51, y: 0.41, w: 0.42, h: 0.05 },
       }
     },
     'sa-death-generic': {
       label: 'SA Death — Generic (fallback)',
       detect: ['death', 'dood', 'form of information'],
+      anchor: ['form', 'death'],
+      anchorRef: { x: 0.22, y: 0.04, w: 0.56, h: 0.02 },
       fields: {
         'Name':           { x: 0.25, y: 0.08, w: 0.45, h: 0.06 },
         'Residence Place':{ x: 0.25, y: 0.15, w: 0.55, h: 0.04 },
@@ -273,15 +284,38 @@
     return bestType;
   }
 
-  // Apply form template — positions fields based on % of image dimensions
-  function applyFormTemplate(templateKey) {
+  // Current anchor detection result (set by OCR)
+  let detectedAnchor = null;
+
+  // Apply form template — positions fields relative to detected anchor
+  function applyFormTemplate(templateKey, anchor) {
     const tpl = FORM_TEMPLATES[templateKey];
     if (!tpl) return;
 
     currentFormType = templateKey;
     document.getElementById('ba-form-type').value = templateKey;
 
-    // Convert % positions to absolute pixel positions
+    // If we have a detected anchor AND the template has an anchor reference,
+    // compute offset + scale to adjust all field positions
+    // Anchor-relative adjustment: shift field positions based on where the title was found
+    let offsetXPct = 0, offsetYPct = 0, scaleX = 1, scaleY = 1;
+    if (anchor && tpl.anchorRef && anchor.w_pct > 0.1) {
+      // Only trust anchor if it's wide enough (>10% of image = real title, not a stray word)
+      offsetXPct = anchor.x_pct - tpl.anchorRef.x;
+      offsetYPct = anchor.y_pct - tpl.anchorRef.y;
+      if (tpl.anchorRef.w > 0) {
+        scaleX = anchor.w_pct / tpl.anchorRef.w;
+        scaleY = scaleX;
+      }
+      // Sanity check: if offset or scale is too extreme, ignore anchor
+      if (Math.abs(offsetXPct) > 0.3 || Math.abs(offsetYPct) > 0.3 || scaleX < 0.5 || scaleX > 2) {
+        console.log('[FS Overlay] Anchor unreliable, ignoring. offset=(' + offsetXPct.toFixed(3) + ',' + offsetYPct.toFixed(3) + ') scale=' + scaleX.toFixed(3));
+        offsetXPct = 0; offsetYPct = 0; scaleX = 1; scaleY = 1;
+      } else {
+        console.log('[FS Overlay] Anchor adjustment: offset=(' + offsetXPct.toFixed(3) + ',' + offsetYPct.toFixed(3) + ') scale=' + scaleX.toFixed(3));
+      }
+    }
+
     const entry = images[imgIdx];
     annotations = [];
     skipped = [];
@@ -290,17 +324,22 @@
       const val = entry.fields[col] || '';
       if (shouldSkip(col)) { skipped.push(i); annotations.push(null); return; }
 
-      // Check saved positions first (user overrides), then template, then default
+      // Priority: 1) server-saved positions, 2) anchor-adjusted template, 3) raw template, 4) default
       if (savedPositions[col]) {
         annotations.push({ label: col, value: val, x: savedPositions[col].x, y: savedPositions[col].y, w: savedPositions[col].w, h: savedPositions[col].h });
       } else if (tpl.fields[col]) {
         const f = tpl.fields[col];
+        // Apply anchor offset + scale
+        const adjX = (f.x + offsetXPct) * scaleX + (1 - scaleX) * tpl.anchorRef.x;
+        const adjY = (f.y + offsetYPct) * scaleY + (1 - scaleY) * tpl.anchorRef.y;
+        const adjW = f.w * scaleX;
+        const adjH = f.h * scaleY;
         annotations.push({
           label: col, value: val,
-          x: Math.round(f.x * img.width),
-          y: Math.round(f.y * img.height),
-          w: Math.round(f.w * img.width),
-          h: Math.round(f.h * img.height),
+          x: Math.round(adjX * img.width),
+          y: Math.round(adjY * img.height),
+          w: Math.round(adjW * img.width),
+          h: Math.round(adjH * img.height),
         });
       } else {
         // No template position — stack below others
@@ -534,13 +573,15 @@
         .then(data => {
           if (data.success && data.words) {
             const formType = detectFormType(data.words);
+            detectedAnchor = data.anchor || null;
             currentFormType = formType;
             loadSavedPositions(() => {
-              applyFormTemplate(formType);
+              applyFormTemplate(formType, detectedAnchor);
               redraw();
             });
           } else {
             currentFormType = 'sa-death-generic';
+            detectedAnchor = null;
             loadSavedPositions(() => {
               applyFormTemplate('sa-death-generic');
               redraw();
