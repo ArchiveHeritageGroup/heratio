@@ -347,7 +347,11 @@
 
       // Priority: 1) server-saved positions, 2) anchor-adjusted template, 3) raw template, 4) default
       if (savedPositions[col]) {
-        annotations.push({ label: col, value: val, x: savedPositions[col].x, y: savedPositions[col].y, w: savedPositions[col].w, h: savedPositions[col].h });
+        const sp = savedPositions[col];
+        annotations.push({ label: col, value: val,
+          x: Math.round(sp.x * img.width), y: Math.round(sp.y * img.height),
+          w: Math.round(sp.w * img.width), h: Math.round(sp.h * img.height),
+        });
       } else if (tpl.fields[col]) {
         const f = tpl.fields[col];
         // Apply anchor offset + scale
@@ -641,13 +645,14 @@
 
       // Use saved position if we have one for this column
       if (savedPositions[col]) {
+        const sp = savedPositions[col];
         annotations.push({
           label: col,
           value: val,
-          x: savedPositions[col].x,
-          y: savedPositions[col].y,
-          w: savedPositions[col].w,
-          h: savedPositions[col].h,
+          x: Math.round(sp.x * img.width),
+          y: Math.round(sp.y * img.height),
+          w: Math.round(sp.w * img.width),
+          h: Math.round(sp.h * img.height),
         });
       } else {
         // Smart default: distribute evenly down the page
@@ -710,7 +715,7 @@
             };
             annotations.push(ann);
             // Save as reference for next images
-            savedPositions[col] = { x: p.x, y: p.y, w: p.w, h: p.h };
+            savedPositions[col] = { x: p.x / img.width, y: p.y / img.height, w: p.w / img.width, h: p.h / img.height };
           } else {
             // No OCR match — use default position
             const activeIdx = annotations.filter(a => a).length;
@@ -979,10 +984,14 @@
       resizing = false;
       const a = annotations[resizeIdx];
       if (a) {
-        savedPositions[a.label] = { x: a.x, y: a.y, w: a.w, h: a.h };
+        savedPositions[a.label] = { x: a.x / img.width, y: a.y / img.height, w: a.w / img.width, h: a.h / img.height };
         const c = document.getElementById('ba-coords-' + resizeIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
+      fieldIdx = resizeIdx;
+      highlightField();
+      const inp = document.querySelector('.ba-edit-input[data-field-idx="' + resizeIdx + '"]');
+      if (inp) { inp.focus(); inp.select(); }
       redraw(); return;
     }
 
@@ -991,7 +1000,7 @@
       const a = annotations[dragIdx];
       if (a) {
         a.x = Math.round(a.x); a.y = Math.round(a.y);
-        savedPositions[a.label] = { x: a.x, y: a.y, w: a.w, h: a.h };
+        savedPositions[a.label] = { x: a.x / img.width, y: a.y / img.height, w: a.w / img.width, h: a.h / img.height };
         const c = document.getElementById('ba-coords-' + dragIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
@@ -1015,12 +1024,11 @@
     const val = entry.fields[col] || '';
 
     annotations[fieldIdx] = { label: col, value: val, x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
-    savedPositions[col] = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
+    savedPositions[col] = { x: x / img.width, y: y / img.height, w: w / img.width, h: h / img.height };
 
     const coordsEl = document.getElementById('ba-coords-' + fieldIdx);
     if (coordsEl) coordsEl.textContent = Math.round(x) + ',' + Math.round(y) + ' ' + Math.round(w) + '×' + Math.round(h);
 
-    sessionFields++;
     advanceToNextField();
     highlightField();
     updateProgress();
@@ -1165,10 +1173,15 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
 
-    // Update savedPositions from ALL current annotations (coordinates + sizes)
+    // Update savedPositions from ALL current annotations — save as % of image
     annotations.forEach(function(ann) {
-      if (ann) {
-        savedPositions[ann.label] = { x: ann.x, y: ann.y, w: ann.w, h: ann.h };
+      if (ann && img) {
+        savedPositions[ann.label] = {
+          x: ann.x / img.width,
+          y: ann.y / img.height,
+          w: ann.w / img.width,
+          h: ann.h / img.height,
+        };
       }
     });
 
@@ -1192,6 +1205,7 @@
       btn.disabled = false;
       if (data.success) {
         sessionDone++;
+        sessionFields += annotations.filter(a => a).length;
         updateCounters();
         nextImage();
       } else {

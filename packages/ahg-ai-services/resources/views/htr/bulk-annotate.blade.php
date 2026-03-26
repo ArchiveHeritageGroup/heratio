@@ -139,6 +139,7 @@
 (function() {
   // Dynamic columns — populated from spreadsheet headers on load
   let COLUMNS = [];
+  const HIDE_COLUMNS = ['Birth Year (Estimated)', 'Birth Year', 'Event Type'];
   const COLORS = ['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dfe6e9','#fd79a8','#6c5ce7','#00b894'];
 
   let images = [];       // [{fname, fields: {Name: 'x', Sex: 'y', ...}}]
@@ -196,6 +197,41 @@
   const ctx = cvs.getContext('2d');
   const wrap = document.getElementById('ba-wrap');
 
+  // ── Auto-refresh spreadsheet dropdown on folder change ──
+  let baFolderTimer = null;
+  document.getElementById('ba-folder').addEventListener('change', baRefreshSpreadsheets);
+  document.getElementById('ba-folder').addEventListener('blur', baRefreshSpreadsheets);
+  document.getElementById('ba-folder').addEventListener('keyup', function() {
+    clearTimeout(baFolderTimer);
+    baFolderTimer = setTimeout(baRefreshSpreadsheets, 500);
+  });
+
+  function baRefreshSpreadsheets() {
+    const folder = document.getElementById('ba-folder').value.trim();
+    if (!folder) return;
+    fetch('{{ route("admin.ai.htr.bulkAnnotateLoad") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({ folder: folder }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.needsSelection && data.spreadsheets) {
+        const sel = document.getElementById('ba-spreadsheet');
+        sel.innerHTML = '<option value="">Select spreadsheet...</option>';
+        data.spreadsheets.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          sel.appendChild(opt);
+        });
+        if (data.spreadsheets.length === 1) sel.value = data.spreadsheets[0];
+      }
+    })
+    .catch(() => {});
+  }
+  baRefreshSpreadsheets(); // load on page open
+
   // ── Load data ──
   window.loadBulkData = function() {
     const folder = document.getElementById('ba-folder').value.trim();
@@ -234,14 +270,14 @@
       }
 
       images = data.images;
-      COLUMNS = data.columns || [];
+      COLUMNS = (data.columns || []).filter(c => !HIDE_COLUMNS.includes(c));
       imgIdx = -1;
       document.getElementById('ba-workspace').style.display = '';
       document.getElementById('ba-remaining-count').textContent = images.length;
 
       // Show column list for confirmation
       if (COLUMNS.length === 0 && images.length > 0) {
-        COLUMNS = Object.keys(images[0].fields);
+        COLUMNS = Object.keys(images[0].fields).filter(c => !HIDE_COLUMNS.includes(c));
       }
 
       nextImage();
