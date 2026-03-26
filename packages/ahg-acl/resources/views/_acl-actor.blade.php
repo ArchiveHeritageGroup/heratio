@@ -1,28 +1,26 @@
 <h1>
   {{ __('Edit %1% permissions of %2%', [
-      '%1%' => lcfirst(sfConfig::get('app_ui_label_actor')),
-      '%2%' => render_title($resource),
+      '%1%' => lcfirst(__('Authority record')),
+      '%2%' => $resource->authorized_form_of_name ?? $resource->title ?? '',
   ]) }}
 </h1>
 
-@php echo get_partial('aclGroup/aclModal', [
+@include('ahg-acl::_acl-modal', [
     'entityType' => 'actor',
-    'label' => sfConfig::get('app_ui_label_actor'),
+    'label' => __('Authority record'),
     'basicActions' => $basicActions,
-]); @endphp
+])
 
-@php echo $form->renderGlobalErrors(); @endphp
+@if($errors->any())
+  <div class="alert alert-danger">
+    @foreach($errors->all() as $error)
+      <p>{{ $error }}</p>
+    @endforeach
+  </div>
+@endif
 
-@php echo $form->renderFormTag(
-    url_for([
-        $resource,
-        'module' => $sf_context->getModuleName(),
-        'action' => 'editActorAcl',
-    ]),
-    ['id' => 'editForm']
-); @endphp
-
-  @php echo $form->renderHiddenFields(); @endphp
+<form id="editForm" method="POST" action="{{ route('acl.editActorAcl', ['id' => $resource->id]) }}">
+  @csrf
 
   <div class="accordion mb-3">
     <div class="accordion-item">
@@ -36,7 +34,7 @@
           aria-controls="all-collapse">
           {{ __(
               'Permissions for all %1%',
-              ['%1%' => lcfirst(sfConfig::get('app_ui_label_actor'))]
+              ['%1%' => lcfirst(__('Authority record'))]
           ) }}
         </button>
       </h2>
@@ -45,11 +43,13 @@
         class="accordion-collapse collapse"
         aria-labelledby="all-heading">
         <div class="accordion-body">
-          @php echo get_component('aclGroup', 'aclTable', [
-              'object' => QubitActor::getById(QubitActor::ROOT_ID),
-              'permissions' => $actors[QubitActor::ROOT_ID],
+          @include('ahg-acl::_acl-table', [
+              'object' => $rootActor,
+              'permissions' => $actors[$rootActor->id ?? 0] ?? [],
               'actions' => $basicActions,
-          ]); @endphp
+              'module' => 'actor',
+              'moduleLabel' => __('Authority record'),
+          ])
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@
           aria-controls="actor-collapse">
           {{ __(
               'Permissions by %1%',
-              ['%1%' => lcfirst(sfConfig::get('app_ui_label_actor'))]
+              ['%1%' => lcfirst(__('Authority record'))]
           ) }}
         </button>
       </h2>
@@ -74,12 +74,14 @@
         aria-labelledby="actor-heading">
         <div class="accordion-body">
           @foreach($actors as $key => $item)
-            @if(QubitActor::ROOT_ID != $key)
-              @php echo get_component('aclGroup', 'aclTable', [
-                  'object' => QubitActor::getById($key),
+            @if(($rootActor->id ?? null) != $key)
+              @include('ahg-acl::_acl-table', [
+                  'object' => $actorObjects[$key] ?? (object)['id' => $key, 'slug' => $key],
                   'permissions' => $item,
                   'actions' => $basicActions,
-              ]); @endphp
+                  'module' => 'actor',
+                  'moduleLabel' => __('Authority record'),
+              ])
             @endif
           @endforeach
 
@@ -92,7 +94,7 @@
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
                 'Add permissions by %1%',
-                ['%1%' => lcfirst(sfConfig::get('app_ui_label_actor'))]
+                ['%1%' => lcfirst(__('Authority record'))]
             ) }}
           </button>
         </div>
@@ -102,11 +104,9 @@
 
   <ul class="actions mb-3 nav gap-2">
     <li>
-      @php echo link_to(
-          __('Cancel'),
-          [$resource, 'module' => $sf_context->getModuleName(), 'action' => 'indexActorAcl'],
-          ['class' => 'btn atom-btn-outline-light', 'role' => 'button']
-      ); @endphp
+      <a href="{{ route('acl.groups') }}" class="btn atom-btn-outline-light" role="button">
+        {{ __('Cancel') }}
+      </a>
     </li>
     <li>
       <input

@@ -1,23 +1,22 @@
-@php decorate_with('layout_2col'); @endphp
+@extends('ahg-theme-b5::layout_2col')
 
-@php slot('sidebar'); @endphp
-  @php include_component('informationobject', 'contextMenu'); @endphp
-@php end_slot(); @endphp
+@section('sidebar')
+  @include('ahg-information-object-manage::_context-menu')
+@endsection
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Calculate dates - Error') }}</h1>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
-  @php echo $form->renderFormTag(url_for([
-      $resource, 'module' => 'informationobject', 'action' => 'calculateDates', ]
-  )); @endphp
-    @if(1 == $resource->rgt - $resource->lft || 0 == count($descendantEventTypes))
+@section('content')
+  <form action="{{ route('informationobject.calculateDates', $resource->slug) }}" method="post">
+    @csrf
+    @if(1 == ($resource->rgt ?? 0) - ($resource->lft ?? 0) || 0 == count($descendantEventTypes ?? []))
       <div id="content" class="p-3">
-        @if(1 == $resource->rgt - $resource->lft)
+        @if(1 == ($resource->rgt ?? 0) - ($resource->lft ?? 0))
             {{ __(
                 'Cannot calculate accumulated dates because this %1% has no children',
-                ['%1%' => sfConfig::get('app_ui_label_informationobject')]
+                ['%1%' => config('app.ui_label_informationobject', 'archival description')]
             ) }}
         @else
           {{ __('Cannot calculate accumulated dates because no lower level dates exist') }}
@@ -26,11 +25,7 @@
     @endif
 
     <section class="actions mb-3">
-      @php echo link_to(
-          __('Cancel'),
-          [$resource, 'module' => 'informationobject'],
-          ['class' => 'btn atom-btn-outline-light', 'role' => 'button']
-      ); @endphp
+      <a href="{{ route('informationobject.show', $resource->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
     </section>
   </form>
-@php end_slot(); @endphp
+@endsection

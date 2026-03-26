@@ -6,7 +6,7 @@
           {{ __('Filename') }}
         </h3>
         <span class="text-muted">
-          @php echo render_value_inline($representation->name); @endphp
+          {{ $representation->name }}
         </span>
       </div>
     @endif
@@ -17,39 +17,47 @@
           {{ __('Filesize') }}
         </h3>
         <span class="text-muted">
-          @php echo hr_filesize($representation->byteSize); @endphp
+          @php
+            $bytes = $representation->byteSize;
+            if ($bytes >= 1073741824) {
+                $size = number_format($bytes / 1073741824, 2) . ' GB';
+            } elseif ($bytes >= 1048576) {
+                $size = number_format($bytes / 1048576, 2) . ' MB';
+            } elseif ($bytes >= 1024) {
+                $size = number_format($bytes / 1024, 2) . ' KB';
+            } else {
+                $size = $bytes . ' B';
+            }
+          @endphp
+          {{ $size }}
         </span>
       </div>
     @endif
 
-    @if(QubitTerm::CHAPTERS_ID == $representation->usageId)
+    @if(config('atom.term.CHAPTERS_ID') == ($representation->usageId ?? null))
       <a
-        href="@php echo $representation->getFullPath(); @endphp"
+        href="{{ $representation->getFullPath() }}"
         class="btn atom-btn-white me-2">
         <i class="fas fa-fw fa-eye me-1" aria-hidden="true"></i>
         {{ __('View file') }}
       </a>
     @endif
     <a
-      href="@php echo url_for([
-          $representation,
-          'module' => 'digitalobject',
-          'action' => 'delete',
-      ]); @endphp"
+      href="{{ route('io.digitalobject.delete', $representation->id) }}"
       class="btn atom-btn-white">
       <i class="fas fa-fw fa-times me-1" aria-hidden="true"></i>
       {{ __('Delete') }}
     </a>
   </div>
-  @if(QubitTerm::CHAPTERS_ID != $representation->usageId)
+  @if(config('atom.term.CHAPTERS_ID') != ($representation->usageId ?? null))
     <div class="col-md-6 mt-3 mt-md-0">
-      @php echo get_component('digitalobject', 'show', [
+      @include('ahg-information-object-manage::_show-image', [
           'iconOnly' => true,
-          'link' => public_path($representation->getFullPath()),
+          'link' => asset($representation->getFullPath()),
           'resource' => $resource,
-          'usageType' => QubitTerm::THUMBNAIL_ID,
-          'editForm' => true,
-      ]); @endphp
+          'usageType' => config('atom.term.THUMBNAIL_ID'),
+          'representation' => $representation,
+      ])
     </div>
   @endif
 </div>

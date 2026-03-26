@@ -5,9 +5,9 @@
       @foreach($ancestor->getCreators() as $item)
         <li>
           @if(0 < count($resource->getCreators()))
-            @php echo link_to(render_title($item), [$item]); @endphp
+            <a href="{{ route('actor.show', $item->slug ?? $item->id) }}">{{ $item->authorized_form_of_name ?? $item->title ?? '' }}</a>
           @else
-            @php echo link_to(render_title($item), [$item], ['title' => __('Inherited from %1%', ['%1%' => $ancestor])]); @endphp
+            <a href="{{ route('actor.show', $item->slug ?? $item->id) }}" title="{{ __('Inherited from %1%', ['%1%' => $ancestor->authorized_form_of_name ?? $ancestor->title ?? '']) }}">{{ $item->authorized_form_of_name ?? $item->title ?? '' }}</a>
           @endif
         </li>
       @endforeach

@@ -4,7 +4,7 @@
 
 <div
   class="atom-table-modal"
-  data-current-resource="@php echo isset($resource->id) ? url_for([$resource, 'module' => 'accession']) : ''; @endphp"
+  data-current-resource="{{ isset($resource->id) ? route('accession.show', ['slug' => $resource->slug]) : '' }}"
   data-required-fields="@php echo $form->resource->renderId(); @endphp"
   data-delete-field-name="deleteRelations"
   data-iframe-error="{{ __('The following resources could not be created:') }}">
@@ -39,9 +39,9 @@
           </td>
         </tr>
         @foreach($relatedDonorRecord as $item)
-          <tr id="@php echo url_for([$item, 'module' => 'accession', 'action' => 'relatedDonor']); @endphp">
+          <tr id="{{ route('accession.relatedDonor', ['slug' => $item->slug]) }}">
             <td data-field-id="@php echo $form->resource->renderId(); @endphp">
-              @php echo render_title($item->object); @endphp
+              {{ $item->object->authorized_form_of_name ?? $item->object->title ?? '' }}
             </td>
             <td class="text-nowrap">
               <button type="button" class="btn atom-btn-white me-1 edit-row">

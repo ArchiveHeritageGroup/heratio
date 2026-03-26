@@ -1,20 +1,20 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Search error encountered') }}</h1>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
   <div class="messages error">
     <div>
-      <strong>@php echo $reason; @endphp</strong>
+      <strong>{{ $reason }}</strong>
       @if(!empty($error))
-        <pre>@php echo $error; @endphp</pre>
-      @endforeach
+        <pre>{{ $error }}</pre>
+      @endif
     </div>
   </div>
 
   <p><a href="javascript:history.go(-1)">{{ __('Back to previous page.') }}</a></p>
 
-@php end_slot(); @endphp
+@endsection

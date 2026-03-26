@@ -1,3 +1,1 @@
-<?php
-
-echo get_partial('term/format', ['resource' => $resource]);
+@include('ahg-term-taxonomy::_format', ['resource' => $resource])

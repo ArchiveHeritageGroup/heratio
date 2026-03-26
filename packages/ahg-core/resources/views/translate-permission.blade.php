@@ -4,7 +4,7 @@
       <i class="fas fa-fw fa-lg fa-exclamation-triangle me-3" aria-hidden="true"></i>
       {{ __(
           'Sorry, you do not have permission to make %1% language translations',
-          ['%1%' => format_language($sf_user->getCulture())]
+          ['%1%' => locale_get_display_language(app()->getLocale(), app()->getLocale())]
       ) }}
     </h1>
 
@@ -13,7 +13,7 @@
         <a href="javascript:history.go(-1)">
           {{ __('Back to previous page.') }}
         </a><br>
-        @php echo link_to(__('Go to homepage.'), '@homepage'); @endphp
+        <a href="{{ url('/') }}">{{ __('Go to homepage.') }}</a>
       </p>
     </div>
   </div>

@@ -1,6 +1,6 @@
-@if($pager->getNbResults())
-  @foreach($pager->getResults() as $hit)
-    @php echo get_partial('search/searchResult', ['hit' => $hit, 'culture' => $selectedCulture]); @endphp
+@if($pager->total() > 0)
+  @foreach($pager->items() as $hit)
+    @include('ahg-core::partials._search-result', ['hit' => $hit, 'culture' => $selectedCulture ?? app()->getLocale()])
   @endforeach
 @else
   <section id="no-search-results">

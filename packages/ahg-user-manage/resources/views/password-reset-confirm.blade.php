@@ -1,67 +1,49 @@
-@php decorate_with('layout_1col.php'); @endphp
-@php use_helper('Javascript'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Reset Your Password') }}</h1>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $error)
+        <p>{{ $error }}</p>
+      @endforeach
+    </div>
+  @endif
 
-  @php echo $form->renderFormTag(url_for(['module' => 'user', 'action' => 'passwordResetConfirm', 'token' => $sf_request->getParameter('token')]), ['id' => 'passwordResetConfirmForm']); @endphp
-
-    @php echo $form->renderHiddenFields(); @endphp
+  <form method="post" action="{{ route('user.passwordResetConfirm', ['token' => request('token')]) }}" id="passwordResetConfirmForm">
+    @csrf
 
     <section id="content">
       <fieldset class="collapsible">
         <legend>{{ __('Enter your new password') }}</legend>
 
-        @php $settings = json_encode([
-            'password' => [
-                'strengthTitle' => __('Password strength:'),
-                'hasWeaknesses' => __('To make your password stronger:'),
-                'tooShort' => __('Make it at least six characters'),
-                'addLowerCase' => __('Add lowercase letters'),
-                'addUpperCase' => __('Add uppercase letters'),
-                'addNumbers' => __('Add numbers'),
-                'addPunctuation' => __('Add punctuation'),
-                'confirmSuccess' => __('Yes'),
-                'confirmFailure' => __('No'),
-                'confirmTitle' => __('Passwords match:'),
-            ], ]); @endphp
-
-        @php echo javascript_tag(<<<EOF
-jQuery.extend(Drupal.settings, {$settings});
-EOF
-); @endphp
-
-        @php echo $form->password->renderError(); @endphp
-
         <div class="form-item password-parent">
-          @php echo $form->password
-              ->label(__('New Password'))
-              ->renderLabel(); @endphp
-          @php echo $form->password->render(['class' => 'password-field']); @endphp
+          <label for="password" class="form-label">{{ __('New Password') }}</label>
+          <input type="password" name="password" id="password" class="form-control password-field" required>
+          @error('password')
+            <div class="text-danger">{{ $message }}</div>
+          @enderror
         </div>
 
-        <div class="form-item confirm-parent">
-          @php echo $form->confirmPassword
-              ->label(__('Confirm Password'))
-              ->renderLabel(); @endphp
-          @php echo $form->confirmPassword->render(['class' => 'password-confirm']); @endphp
+        <div class="form-item confirm-parent mt-3">
+          <label for="confirmPassword" class="form-label">{{ __('Confirm Password') }}</label>
+          <input type="password" name="confirmPassword" id="confirmPassword" class="form-control password-confirm" required>
         </div>
 
       </fieldset>
     </section>
 
-    <section class="actions">
-      <ul>
-        @php echo link_to(__('Cancel'), ['module' => 'user', 'action' => 'login'], ['class' => 'c-btn']); @endphp
-        <input class="c-btn c-btn-submit" type="submit" value="{{ __('Reset Password') }}"/>
+    <section class="actions mt-3">
+      <ul class="nav gap-2">
+        <li><a href="{{ route('user.login') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Reset Password') }}"></li>
       </ul>
     </section>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

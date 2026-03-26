@@ -1,9 +1,9 @@
 @php // Resolve parent record title for display
   $parentTitle = '';
   if ($submission->parent_object_id) {
-    $parentTitle = \Illuminate\Database\Capsule\Manager::table('information_object_i18n')
+    $parentTitle = \Illuminate\Support\Facades\DB::table('information_object_i18n')
       ->where('id', $submission->parent_object_id)
-      ->where('culture', \AtomExtensions\Helpers\CultureHelper::getCulture())
+      ->where('culture', app()->getLocale())
       ->value('title') ?? ('ID: ' . $submission->parent_object_id);
   } @endphp
 
@@ -12,7 +12,7 @@
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
-      <li class="breadcrumb-item"><a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp">@php echo htmlspecialchars($submission->title) @endphp</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
       <li class="breadcrumb-item active">Edit</li>
     </ol>
   </nav>
@@ -77,7 +77,7 @@
             <hr>
 
             <div class="d-flex justify-content-between">
-              <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp" class="btn btn-outline-secondary">
+              <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>Cancel
               </a>
               <button type="submit" class="btn atom-btn-white">

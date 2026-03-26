@@ -1,21 +1,28 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
       {{ __('Update digital object titles') }}
     </h1>
     <span class="small" id="heading-label">
-      @php echo render_title(new sfIsadPlugin($resource)); @endphp
+      {{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}
     </span>
   </div>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $digitalObjectTitleForm->renderGlobalErrors(); @endphp
-  @php echo $digitalObjectTitleForm->renderFormTag(url_for([$resource, 'module' => 'informationobject', 'action' => 'multiFileUpdate', 'items' => $sf_request->items]), ['method' => 'post', 'id' => 'bulk-title-update-form']); @endphp
-    @php echo $digitalObjectTitleForm->renderHiddenFields(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $e)
+        <p>{{ $e }}</p>
+      @endforeach
+    </div>
+  @endif
+
+  <form method="post" action="{{ route('informationobject.multiFileUpdate', ['slug' => $resource->slug, 'items' => request('items')]) }}" id="bulk-title-update-form">
+    @csrf
 
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
@@ -26,40 +33,35 @@
           </tr>
         </thead>
         <tbody>
-          @foreach($digitalObjectTitleForm->getInformationObjects() as $io)
+          @foreach($informationObjects ?? [] as $io)
             <tr>
               <td class="thumbnail-container">
-                @foreach($io->digitalObjectsRelatedByobjectId as $do)
-                  @if(
-                      (null !== $thumbnail = $do->getRepresentationByUsage(QubitTerm::THUMBNAIL_ID))
-                      && QubitAcl::check($io, 'readThumbnail')
-                  )
-                    @php echo image_tag($thumbnail->getFullPath(), ['alt' => __($do->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-                  @else
-                    @php echo image_tag(QubitDigitalObject::getGenericIconPathByMediaTypeId($do->mediaTypeId), ['alt' => __($do->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-                  @endif
-                @endforeach
+                @if(isset($io->thumbnail))
+                  <img src="{{ $io->thumbnail }}" alt="{{ __($io->digitalObjectAltText ?: 'Original %1% not accessible', ['%1%' => config('app.ui_label_digitalobject', 'digital object')]) }}" class="img-thumbnail">
+                @elseif(isset($io->genericIcon))
+                  <img src="{{ $io->genericIcon }}" alt="{{ __($io->digitalObjectAltText ?: 'Original %1% not accessible', ['%1%' => config('app.ui_label_digitalobject', 'digital object')]) }}" class="img-thumbnail">
+                @endif
               </td>
               <td>
-                @if($sf_user->getCulture() != $io->getSourceCulture() && !strlen($io->title))
+                @if(!empty($io->defaultTranslation))
                   <div class="default-translation">
-                    @php echo render_value_inline($digitalObjectTitleForm[$io->id]->getValue(), $io); @endphp
+                    {{ $io->defaultTranslation }}
                   </div>
                 @endif
 
-                @php echo render_field(
-                    $digitalObjectTitleForm[$io->id],
-                    null,
-                    ['onlyInputs' => true, 'aria-labelledby' => 'title-label', 'class' => 'mb-3']
-                ); @endphp
+                <div class="mb-3">
+                  <input type="text" class="form-control" name="titles[{{ $io->id }}]"
+                    value="{{ old("titles.{$io->id}", $io->title ?? '') }}"
+                    aria-labelledby="title-label">
+                </div>
 
-                @if(isset($io->digitalObjectsRelatedByobjectId[0]->name))
+                @if(isset($io->digitalObjectName))
                   <div class="mb-3">
                     <h3 class="fs-6 mb-2">
                       {{ __('Filename') }}
                     </h3>
                     <span class="text-muted">
-                      @php echo $io->digitalObjectsRelatedByobjectId[0]->name; @endphp
+                      {{ $io->digitalObjectName }}
                     </span>
                   </div>
                 @endif
@@ -70,7 +72,7 @@
                       {{ __('Level of description') }}
                     </h3>
                     <span class="text-muted">
-                      @php echo render_value_inline($io->levelOfDescription); @endphp
+                      {{ $io->levelOfDescription }}
                     </span>
                   </div>
                 @endif
@@ -86,4 +88,4 @@
     </section>
   </form>
 
-@php end_slot(); @endphp
+@endsection

@@ -1,12 +1,11 @@
-@php /* DROPDOWN VERSION 2025-01-14 */ @endphp
-@php error_log("PARTIAL LOADED: _advancedSearchEnhancements.php");
+@php /* DROPDOWN VERSION 2025-01-14 */
 /**
  * Advanced Search Enhancements - Simplified
  */
 
-$user = sfContext::getInstance()->getUser();
-$isAuthenticated = $user->isAuthenticated();
-$isAdmin = $user->isAdministrator();
+$user = Auth::user();
+$isAuthenticated = Auth::check();
+$isAdmin = $isAuthenticated && $user->hasRole('administrator');
 
 // Get saved searches directly with simple query
 $savedSearches = [];
@@ -14,8 +13,8 @@ $templates = [];
 
 try {
     if ($isAuthenticated) {
-        $userId = $user->getAttribute('user_id');
-        $savedSearches = \Illuminate\Database\Capsule\Manager::table('saved_search')
+        $userId = $user->id;
+        $savedSearches = \Illuminate\Support\Facades\DB::table('saved_search')
             ->where('user_id', $userId)
             ->orderBy('updated_at', 'desc')
             ->limit(10)
@@ -23,7 +22,7 @@ try {
             ->toArray();
     }
 
-    $templates = \Illuminate\Database\Capsule\Manager::table('search_template')
+    $templates = \Illuminate\Support\Facades\DB::table('search_template')
         ->where('is_active', 1)
         ->where('is_featured', 1)
         ->orderBy('sort_order')
@@ -38,14 +37,14 @@ try {
   @if(!empty($templates))
   <div class="mb-2">
     <span class="text-muted small me-2"><i class="fa fa-bolt me-1"></i>{{ __('Quick Searches') }}</span>
-    @php foreach ($templates as $template): @endphp
+    @foreach($templates as $template)
     @php $params = json_decode($template->search_params, true) ?: []; @endphp
-    <a href="@php echo url_for('@glam_browse') . '?' . http_build_query($params); @endphp"
-       class="btn btn-sm btn-outline-@php echo esc_entities($template->color ?: 'secondary'); @endphp py-0 px-2">
-      <i class="fa @php echo esc_entities($template->icon ?: 'fa-search'); @endphp me-1"></i>
-      @php echo esc_entities($template->name); @endphp
+    <a href="{{ route('glam.browse') . '?' . http_build_query($params) }}"
+       class="btn btn-sm btn-outline-{{ e($template->color ?: 'secondary') }} py-0 px-2">
+      <i class="fa {{ e($template->icon ?: 'fa-search') }} me-1"></i>
+      {{ e($template->name) }}
     </a>
-    @php endforeach; @endphp
+    @endforeach
   </div>
   @endif
 
@@ -54,23 +53,23 @@ try {
     @if(!empty($savedSearches))
     <div class="dropdown">
       <button class="btn btn-sm atom-btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="fa fa-bookmark me-1"></i>{{ __('Saved Searches') }} (@php echo count($savedSearches); @endphp)
+        <i class="fa fa-bookmark me-1"></i>{{ __('Saved Searches') }} ({{ count($savedSearches) }})
       </button>
       <ul class="dropdown-menu">
-        @php foreach ($savedSearches as $saved): @endphp
+        @foreach($savedSearches as $saved)
         @php $params = json_decode($saved->search_params, true) ?: []; @endphp
-        <li><a class="dropdown-item" href="@php echo url_for('@glam_browse') . '?' . http_build_query($params); @endphp">
-          <i class="fa fa-search me-2 text-muted"></i>@php echo esc_entities($saved->name); @endphp
+        <li><a class="dropdown-item" href="{{ route('glam.browse') . '?' . http_build_query($params) }}">
+          <i class="fa fa-search me-2 text-muted"></i>{{ e($saved->name) }}
         </a></li>
-        @php endforeach; @endphp
+        @endforeach
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="/index.php/searchEnhancement/savedSearches">
+        <li><a class="dropdown-item" href="{{ route('searchEnhancement.savedSearches') }}">
           <i class="fa fa-cog me-2 text-muted"></i>{{ __('Manage Saved Searches') }}
         </a></li>
       </ul>
     </div>
     @endif
-    
+
     @if(!empty($_GET))
     <button type="button" class="btn btn-sm atom-btn-white py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveSearchModal">
       <i class="fa fa-bookmark me-1"></i>{{ __('Save Search') }}
@@ -119,7 +118,7 @@ try {
     </div>
   </div>
 </div>
-<script @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<script nonce="{{ csp_nonce() }}">
 function saveCurrentSearch() {
   var name = document.getElementById('save-search-name').value;
   if (!name) { alert('Please enter a name'); return; }
@@ -129,8 +128,9 @@ function saveCurrentSearch() {
   var params = window.location.search.substring(1);
 
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', '/index.php/searchEnhancement/saveSearch', true);
+  xhr.open('POST', '{{ route('searchEnhancement.saveSearch') }}', true);
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
   xhr.onload = function() {
     if (xhr.status === 200) {
       try {

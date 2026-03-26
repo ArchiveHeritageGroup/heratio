@@ -1,36 +1,31 @@
-@php decorate_with('layout_2col.php'); @endphp
+@extends('ahg-theme-b5::layout_2col')
 
-@php slot('sidebar'); @endphp
+@section('sidebar')
+  @include('ahg-information-object-manage::_context-menu')
+@endsection
 
-  @php include_component('repository', 'contextMenu'); @endphp
+@section('title')
 
-@php end_slot(); @endphp
+  <h1>{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}</h1>
 
-@php slot('title'); @endphp
+@endsection
 
-  <h1>@php echo render_title($resource); @endphp</h1>
+@section('content')
 
-@php end_slot(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $e)
+        <p>{{ $e }}</p>
+      @endforeach
+    </div>
+  @endif
 
-@php slot('content'); @endphp
-
-  @php echo $form->renderGlobalErrors(); @endphp
-
-  @php echo $form->renderFormTag(
-    url_for(
-      [
-          $resource,
-          'module' => 'informationobject',
-          'action' => 'updatePublicationStatus',
-      ]
-    ),
-    [
-        'id' => 'update-publication-status-form',
-        'data-cy' => 'update-publication-status-form',
-    ]
-  ); @endphp
-
-    @php echo $form->renderHiddenFields(); @endphp
+  <form
+    action="{{ route('io.updateStatus', $resource->slug) }}"
+    method="post"
+    id="update-publication-status-form"
+    data-cy="update-publication-status-form">
+    @csrf
 
     <div class="accordion mb-3">
       <div class="accordion-item">
@@ -41,10 +36,22 @@
         </h2>
         <div id="pub-status-collapse" class="accordion-collapse collapse show" aria-labelledby="pub-status-heading">
           <div class="accordion-body">
-            @php echo render_field($form->publicationStatus->label(__('Publication status'))); @endphp
+            <div class="mb-3">
+              <label for="publicationStatus" class="form-label">{{ __('Publication status') }}</label>
+              <select class="form-select" id="publicationStatus" name="publicationStatus">
+                @foreach($publicationStatuses ?? [] as $id => $name)
+                  <option value="{{ $id }}" {{ old('publicationStatus', $currentStatus ?? '') == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </select>
+            </div>
 
-            @if($resource->rgt - $resource->lft > 1)
-              @php echo render_field($form->updateDescendants->label(__('Update descendants'))); @endphp
+            @if(($resource->rgt ?? 0) - ($resource->lft ?? 0) > 1)
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="updateDescendants" name="updateDescendants" value="1" {{ old('updateDescendants') ? 'checked' : '' }}>
+                  <label class="form-check-label" for="updateDescendants">{{ __('Update descendants') }}</label>
+                </div>
+              </div>
             @endif
           </div>
         </div>
@@ -52,10 +59,10 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a href="{{ route('informationobject.show', $resource->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Update') }}"></li>
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

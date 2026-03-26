@@ -1,13 +1,13 @@
-@php decorate_with('layout_2col'); @endphp
+@extends('ahg-theme-b5::layout_2col')
 
-@php slot('sidebar'); @endphp
-  @php include_component('informationobject', 'contextMenu'); @endphp
-@php end_slot(); @endphp
+@section('sidebar')
+  @include('ahg-information-object-manage::_context-menu')
+@endsection
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Physical storage locations') }}</h1>
   <h2>{{ __('No results') }}</h2>
-@php end_slot(); @endphp
+@endsection
 
 <fieldset class="single">
 
@@ -19,8 +19,8 @@
 
 </fieldset>
 
-@php slot('after-content'); @endphp
+@section('after-content')
   <section class="actions mb-3">
-    @php echo link_to(__('Back'), [$resource, 'module' => 'informationobject', 'action' => 'reports'], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
+    <a href="{{ route('informationobject.reports', $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Back') }}</a>
   </section>
-@php end_slot(); @endphp
+@endsection

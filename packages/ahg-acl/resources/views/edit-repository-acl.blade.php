@@ -1,8 +1,7 @@
-<?php
-
-echo get_partial('aclGroup/aclRepository', [
+@include('ahg-acl::_acl-repository', [
     'resource' => $resource,
     'basicActions' => $basicActions,
     'repositories' => $repositories,
-    'form' => $form,
-]);
+    'repositoryObjects' => $repositoryObjects ?? [],
+    'rootRepository' => $rootRepository,
+])

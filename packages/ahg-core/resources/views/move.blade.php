@@ -1,36 +1,36 @@
-@php decorate_with('layout_1col'); @endphp
+@extends('ahg-theme-b5::layouts.1col')
 
-@php slot('title'); @endphp
-  <h1>{{ __('Move %1%', ['%1%' => render_title($resource)]) }}</h1>
-@php end_slot(); @endphp
+@section('title')
+  <h1>{{ __('Move %1%', ['%1%' => $resource->authorized_form_of_name ?? $resource->title ?? '']) }}</h1>
+@endsection
 
-@php slot('before-content'); @endphp
+@section('before-content')
   <div class="d-inline-block mb-3">
-    @php echo get_component('search', 'inlineSearch', [
+    @include('ahg-core::components.inline-search', [
         'label' => __('Search title or identifier'),
-        'landmarkLabel' => sfConfig::get('app_ui_label_informationobject'),
-        'route' => url_for([$resource, 'module' => 'default', 'action' => 'move']),
-    ]); @endphp
+        'landmarkLabel' => config('app.ui_label_informationobject', __('Archival description')),
+        'route' => '/informationobject/' . ($resource->slug ?? '') . '/move',
+    ])
   </div>
 
-  @if(0 < count($parent->ancestors))
+  @if(isset($parent->ancestors) && count($parent->ancestors) > 0)
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         @foreach($parent->ancestors as $item)
           @if(isset($item->parent))
-            <li class="breadcrumb-item">@php echo link_to(render_title($item), [$resource, 'module' => 'default', 'action' => 'move', 'parent' => $item->slug]); @endphp</li>
-          @endforeach
+            <li class="breadcrumb-item"><a href="/informationobject/{{ $resource->slug ?? '' }}/move?parent={{ $item->slug ?? '' }}">{{ $item->authorized_form_of_name ?? $item->title ?? '' }}</a></li>
+          @endif
         @endforeach
         @if(isset($parent->parent))
-          <li class="breadcrumb-item active" aria-current="page">@php echo render_title($parent); @endphp</li>
-        @endforeach
+          <li class="breadcrumb-item active" aria-current="page">{{ $parent->authorized_form_of_name ?? $parent->title ?? '' }}</li>
+        @endif
       </ol>
     </nav>
-  @endforeach
-@php end_slot(); @endphp
+  @endif
+@endsection
 
-@php slot('content'); @endphp
-  @if(count($results))
+@section('content')
+  @if(isset($results) && count($results))
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
@@ -43,32 +43,48 @@
           @foreach($results as $item)
             <tr>
               <td width="15%">
-                @php echo render_value_inline($item->identifier); @endphp
+                {{ $item->identifier ?? '' }}
               </td>
               <td width="85%">
-                @php echo link_to_if($resource->lft > $item->lft || $resource->rgt < $item->rgt, render_title($item), [$resource, 'module' => 'default', 'action' => 'move', 'parent' => $item->slug]); @endphp
+                @if(($resource->lft ?? 0) > ($item->lft ?? 0) || ($resource->rgt ?? 0) < ($item->rgt ?? 0))
+                  <a href="/informationobject/{{ $resource->slug ?? '' }}/move?parent={{ $item->slug ?? '' }}">{{ $item->authorized_form_of_name ?? $item->title ?? '' }}</a>
+                @else
+                  {{ $item->authorized_form_of_name ?? $item->title ?? '' }}
+                @endif
               </td>
             </tr>
           @endforeach
         </tbody>
       </table>
     </div>
-  @endforeach
-@php end_slot(); @endphp
+  @endif
+@endsection
 
-@php slot('after-content'); @endphp
-  @php echo get_partial('default/pager', ['pager' => $pager]); @endphp
+@section('after-content')
+  @if(isset($pager))
+    @include('ahg-core::components.pager', ['pager' => $pager])
+  @endif
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
-  @php echo $form->renderFormTag(url_for([$resource, 'module' => 'default', 'action' => 'move'])); @endphp
+  <form method="POST" action="/informationobject/{{ $resource->slug ?? '' }}/move">
 
-    @php echo $form->renderHiddenFields(); @endphp
+    @csrf
+
+    <input type="hidden" name="parent" value="{{ $parent->slug ?? $parent->id ?? '' }}">
 
     <ul class="actions mb-3 nav gap-2">
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Move here') }}"></li>
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a href="{{ isset($resource->slug) ? route('informationobject.show', $resource->slug) : url()->previous() }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
     </ul>
 
   </form>
-@php end_slot(); @endphp
+@endsection

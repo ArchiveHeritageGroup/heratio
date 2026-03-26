@@ -1,1 +1,1 @@
-<h1>@php echo $levelOfDescriptionAndIdentifier; @endphp@if(!empty($levelOfDescriptionAndIdentifier)) - @endif@php echo render_title($title); @endphp</h1>
+<h1>{{ $levelOfDescriptionAndIdentifier ?? '' }}@if(!empty($levelOfDescriptionAndIdentifier)) - @endif{{ $title ?? $resource->authorized_form_of_name ?? $resource->title ?? '' }}</h1>

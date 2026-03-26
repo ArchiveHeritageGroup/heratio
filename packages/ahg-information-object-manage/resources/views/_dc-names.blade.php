@@ -21,19 +21,16 @@
       @php $i = 0; @endphp
       @foreach($resource->getActorEvents() as $item)
         @if(isset($item->actor))
-          @php $form->getWidgetSchema()->setNameFormat("editNames[{$i}][%s]");
-          ++$i; @endphp
-
-          <tr class="related_obj_@php echo $item->id; @endphp">
+          <tr class="related_obj_{{ $item->id }}">
             <td>
               <input
                 type="hidden"
-                name="@php echo $form->getWidgetSchema()->generateName('id'); @endphp"
-                value="@php echo $item->id; @endphp">
-              @php echo render_title($item->actor); @endphp
+                name="editNames[{{ $i }}][id]"
+                value="{{ $item->id }}">
+              {{ $item->actor->authorized_form_of_name ?? $item->actor->title ?? '' }}
             </td>
             <td>
-              @php echo render_value_inline($item->type); @endphp
+              {{ $item->type ?? '' }}
             </td>
             <td>
               <button type="button" class="multi-row-delete btn atom-btn-white">
@@ -42,38 +39,30 @@
               </button>
             </td>
           </tr>
+          @php ++$i; @endphp
         @endif
       @endforeach
-
-      @php $form->getWidgetSchema()->setNameFormat("editNames[{$i}][%s]"); @endphp
 
       <tr>
         <td>
           <div>
-            @php $extraInputs = '<input class="list" type="hidden" value="'
-                    .route('actor.autocomplete')
-                    .'">';
-                if (\AtomExtensions\Services\AclService::check(QubitActor::getRoot(), 'create')) {
-                    $extraInputs .= '<input class="add" type="hidden"'
-                        .' data-link-existing="true" value="'
-                        .route('actor.add')
-                        .' #authorizedFormOfName">';
-                }
-                echo render_field($form->actor, null, [
-                    'class' => 'form-autocomplete',
-                    'extraInputs' => $extraInputs,
-                    'aria-labelledby' => 'dc-names-actor-head',
-                    'aria-describedby' => 'dc-names-table-help',
-                    'onlyInputs' => true,
-                ]); @endphp
+            <input type="text" class="form-control form-autocomplete" name="editNames[{{ $i }}][actor]"
+              value="{{ old("editNames.{$i}.actor") }}"
+              aria-labelledby="dc-names-actor-head"
+              aria-describedby="dc-names-table-help"
+              data-autocomplete-url="{{ route('actor.autocomplete') ?? '' }}">
+            <input class="list" type="hidden" value="{{ route('actor.autocomplete') ?? '' }}">
           </div>
         </td>
         <td>
-          @php echo render_field($form->type, null, [
-              'aria-labelledby' => 'dc-names-type-head',
-              'aria-describedby' => 'dc-names-table-help',
-              'onlyInputs' => true,
-          ]); @endphp
+          <select class="form-select" name="editNames[{{ $i }}][type]"
+            aria-labelledby="dc-names-type-head"
+            aria-describedby="dc-names-table-help">
+            <option value="">{{ __('- Select type -') }}</option>
+            @foreach($nameTypes ?? [] as $id => $name)
+              <option value="{{ $id }}">{{ $name }}</option>
+            @endforeach
+          </select>
         </td>
         <td>
           <button type="button" class="multi-row-delete btn atom-btn-white">

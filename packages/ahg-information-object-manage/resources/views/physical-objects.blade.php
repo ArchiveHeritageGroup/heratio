@@ -1,6 +1,6 @@
 <h1>{{ __('Physical storage') }}</h1>
 
-<h1 class="label">@php echo render_title($resource); @endphp</h1>
+<h1 class="label">{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}</h1>
 
 <table class="sticky-enabled">
   <thead>
@@ -14,18 +14,21 @@
       </th>
     </tr>
   </thead><tbody>
+    @php $row = 0; @endphp
     @foreach($physicalObjects as $item)
-      <tr class="@php echo 0 == @++$row % 2 ? 'even' : 'odd'; @endphp">
+      <tr class="{{ 0 == ++$row % 2 ? 'even' : 'odd' }}">
         <td>
-          @php echo link_to(render_title($item), [$item, 'module' => 'physicalobject']); @endphp
+          <a href="{{ route('physicalobject.show', $item->slug ?? $item->id) }}">{{ $item->authorized_form_of_name ?? $item->title ?? $item->name ?? '' }}</a>
         </td><td>
-          @php echo render_value($item->getLocation(['cultureFallback' => true])); @endphp
+          {{ $item->location ?? '' }}
         </td><td>
-          @php echo render_value($item->type); @endphp
+          {{ $item->type ?? '' }}
         </td>
       </tr>
     @endforeach
-  <tbody>
+  </tbody>
 </table>
 
-@php echo get_partial('default/pager', ['pager' => $pager]); @endphp
+@if(isset($pager))
+  @include('ahg-core::partials._pager', ['pager' => $pager])
+@endif

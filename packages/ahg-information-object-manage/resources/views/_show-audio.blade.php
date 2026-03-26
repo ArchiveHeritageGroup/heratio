@@ -1,16 +1,22 @@
-@php use_helper('Text'); @endphp
-@php $hasIiifPlayer = false; try { use_helper('Media'); $hasIiifPlayer = function_exists('render_media_player'); } catch (Exception $e) {} @endphp
+@php
+$digitalObjectLabel = config('app.ui_label_digitalobject', 'digital object');
+$altTextOpen = __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => $digitalObjectLabel]);
+$altTextClosed = __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => $digitalObjectLabel]);
+$chaptersUsage = config('atom.term.CHAPTERS_ID');
+$referenceUsage = config('atom.term.REFERENCE_ID');
+$thumbnailUsage = config('atom.term.THUMBNAIL_ID');
+@endphp
 
-@if(QubitTerm::CHAPTERS_ID == $usageType)
+@if($chaptersUsage == $usageType)
 
-  @php // Chapters handled internally by player @endphp
+  {{-- Chapters handled internally by player --}}
 
-@elseif(QubitTerm::REFERENCE_ID == $usageType)
+@elseif($referenceUsage == $usageType)
 
-  @if($showMediaPlayer)
+  @if($showMediaPlayer ?? false)
 
-    @if($hasIiifPlayer)
-      @php // ahgIiifPlugin enabled — use AhgMediaPlayer JS player @endphp
+    @if(function_exists('render_media_player'))
+      {{-- ahgIiifPlugin enabled - use AhgMediaPlayer JS player --}}
       @php echo render_media_player([
           'id' => $resource->id,
           'name' => $resource->name,
@@ -20,44 +26,48 @@
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      @php // Native HTML5 player (no ahgIiifPlugin) @endphp
+      {{-- Native HTML5 player --}}
       <audio controls class="w-100" preload="metadata">
-        <source src="@php echo public_path($representation->getFullPath()); @endphp" type="{{ $resource->mimeType }}">
+        <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
         Your browser does not support audio playback.
       </audio>
     @endif
 
   @else
     <div class="text-center">
-      @php echo image_tag($representation->getFullPath(), ['class' => 'img-thumbnail', 'alt' => '']); @endphp
+      <img src="{{ $representation->getFullPath() }}" class="img-thumbnail" alt="">
     </div>
   @endif
 
-  @if(isset($link) && \AtomExtensions\Services\AclService::check($resource->object, 'readMaster'))
+  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster'))
     <div class="mt-2">
-      @php echo link_to(__('Download audio'), $link, ['class' => 'btn btn-sm btn-outline-secondary']); @endphp
+      <a href="{{ $link }}" class="btn btn-sm btn-outline-secondary">{{ __('Download audio') }}</a>
     </div>
   @endif
 
-@elseif(QubitTerm::THUMBNAIL_ID == $usageType)
+@elseif($thumbnailUsage == $usageType)
 
-  @if($iconOnly)
+  @if($iconOnly ?? false)
     @if(isset($link))
-      @php echo link_to(image_tag('play', ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
+      <a href="{{ $link }}">
+        <img src="{{ asset('images/play.png') }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+      </a>
     @else
-      @php echo image_tag('play', ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+      <img src="{{ asset('images/play.png') }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
     @endif
   @else
     <div class="digitalObject">
       <div class="digitalObjectRep">
         @if(isset($link))
-          @php echo link_to(image_tag('play', ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
+          <a href="{{ $link }}">
+            <img src="{{ asset('images/play.png') }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+          </a>
         @else
-          @php echo image_tag('play', ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+          <img src="{{ asset('images/play.png') }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
         @endif
       </div>
       <div class="digitalObjectDesc">
-        @php echo wrap_text($resource->name, 18); @endphp
+        {{ Illuminate\Support\Str::limit($resource->name, 18) }}
       </div>
     </div>
   @endif
@@ -65,7 +75,7 @@
 @else
 
   <div class="resource">
-    @php echo image_tag('play', ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+    <img src="{{ asset('images/play.png') }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
   </div>
 
 @endif

@@ -4,8 +4,8 @@
 
 <div
   class="atom-table-modal"
-  data-current-resource="@php echo url_for([$resource]); @endphp"
-  data-current-resource-text="@php echo render_title($resource); @endphp"
+  data-current-resource="{{ route('actor.show', ['slug' => $resource->slug]) }}"
+  data-current-resource-text="{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}"
   data-required-fields="@php echo $form->resource->renderId().','.$form->type->renderId(); @endphp"
   data-delete-field-name="deleteRelations"
   data-iframe-error="{{ __('The following resources could not be created:') }}">
@@ -56,46 +56,41 @@
           </td>
         </tr>
         @foreach($resource->getActorRelations() as $item)
-          <tr id="@php echo url_for([$item, 'module' => 'relation']); @endphp">
+          <tr id="{{ route('relation.show', ['slug' => $item->slug]) }}">
             <td data-field-id="@php echo $form->resource->renderId(); @endphp">
               @if($resource->id == $item->objectId)
-                @php echo render_title($item->subject); @endphp
+                {{ $item->subject->authorized_form_of_name ?? $item->subject->title ?? '' }}
               @else
-                @php echo render_title($item->object); @endphp
+                {{ $item->object->authorized_form_of_name ?? $item->object->title ?? '' }}
               @endif
             </td>
             <td data-field-id="@php echo $form->type->renderId(); @endphp">
               @if(QubitTerm::ROOT_ID == $item->type->parentId)
-                @php echo render_value_inline($item->type); @endphp
+                {{ $item->type }}
               @else
-                @php echo render_title($item->type->parent); @endphp
+                {{ $item->type->parent->authorized_form_of_name ?? $item->type->parent->title ?? '' }}
               @endif
             </td>
             <td data-field-id="@php echo $form->subType->renderId(); @endphp">
               @if(QubitTerm::ROOT_ID != $item->type->parentId)
                 @if($resource->id != $item->objectId)
-                  @php echo render_title($item->type).' '.render_title($resource); @endphp
+                  {{ ($item->type->authorized_form_of_name ?? $item->type->title ?? '') . ' ' . ($resource->authorized_form_of_name ?? $resource->title ?? '') }}
                 @elseif(
                     0 < count($converseTerms = QubitRelation::getBySubjectOrObjectId(
                         $item->type->id,
                         ['typeId' => QubitTerm::CONVERSE_TERM_ID]
                     ))
                 )
-                  @php echo render_title($converseTerms[0]->getOpposedObject($item->type))
-                    .' '.
-                    render_title($resource); @endphp
+                  @php $opposed = $converseTerms[0]->getOpposedObject($item->type); @endphp
+                  {{ ($opposed->authorized_form_of_name ?? $opposed->title ?? '') . ' ' . ($resource->authorized_form_of_name ?? $resource->title ?? '') }}
                 @endif
               @endif
             </td>
             <td data-field-id="@php echo $form->date->renderId(); @endphp">
-              @php echo render_value_inline(Qubit::renderDateStartEnd(
-                  $item->date,
-                  $item->startDate,
-                  $item->endDate
-              )); @endphp
+              {{ \AhgCore\Helpers\DateHelper::renderDateStartEnd($item->date, $item->startDate, $item->endDate) }}
             </td>
             <td data-field-id="@php echo $form->description->renderId(); @endphp">
-              @php echo render_value_inline($item->description); @endphp
+              {{ $item->description }}
             </td>
             <td class="text-nowrap">
               <button type="button" class="btn atom-btn-white me-1 edit-row">
@@ -148,11 +143,7 @@
           @php echo $form->renderHiddenFields(); @endphp
 
           @php $extraInputs = '<input class="list" type="hidden" value="'
-                  .url_for([
-                      'module' => 'actor',
-                      'action' => 'autocomplete',
-                      'showOnlyActors' => 'true',
-                  ])
+                  .route('actor.autocomplete', ['showOnlyActors' => 'true'])
                   .'">';
               echo render_field(
                   $form->resource
@@ -169,15 +160,10 @@
           ))); @endphp
 
           @php $extraInputs = '<input class="list" type="hidden" value="'
-                  .url_for([
-                      'module' => 'term',
-                      'action' => 'autocomplete',
-                      'taxonomy' => url_for([
-                          QubitTaxonomy::getById(QubitTaxonomy::ACTOR_RELATION_TYPE_ID),
-                          'module' => 'taxonomy',
-                      ]),
+                  .route('term.autocomplete', [
+                      'taxonomy' => \AhgCore\Constants\QubitTaxonomy::ACTOR_RELATION_TYPE_ID,
                       'addWords' => isset($resource->id)
-                          ? sfOutputEscaper::unescape(render_title($resource))
+                          ? ($resource->authorized_form_of_name ?? $resource->title ?? '')
                           : '',
                   ])
                   .'">';

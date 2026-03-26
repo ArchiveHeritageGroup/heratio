@@ -1,69 +1,59 @@
-@php require_once sfConfig::get('sf_plugins_dir').'/ahgUiOverridesPlugin/lib/helper/AhgLaravelHelper.php';
-
-// Load PII masking helper if privacy plugin is enabled
-$piiEnabled = in_array('ahgPrivacyPlugin', sfProjectConfiguration::getActive()->getPlugins());
-if ($piiEnabled) {
-    require_once sfConfig::get('sf_plugins_dir') . '/ahgPrivacyPlugin/lib/helper/PiiHelper.php';
-}
+@php
+use Illuminate\Support\Facades\DB;
 
 $resourceId = is_object($resource) ? ($resource->id ?? null) : $resource;
 if (!$resourceId) { return; }
-$places = ahg_get_place_access_points($resourceId);
+
+$culture = app()->getLocale();
+$placeTaxonomyId = 42;
+
+$places = DB::table('object_term_relation as otr')
+    ->join('term as t', 'otr.term_id', '=', 't.id')
+    ->leftJoin('term_i18n as ti', function ($join) use ($culture) {
+        $join->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+    })
+    ->leftJoin('term_i18n as ti_en', function ($join) {
+        $join->on('t.id', '=', 'ti_en.id')->where('ti_en.culture', '=', 'en');
+    })
+    ->leftJoin('slug', 't.id', '=', 'slug.object_id')
+    ->where('otr.object_id', $resourceId)
+    ->where('t.taxonomy_id', $placeTaxonomyId)
+    ->select(['t.id', 'slug.slug', DB::raw('COALESCE(ti.name, ti_en.name) as name')])
+    ->orderBy(DB::raw('COALESCE(ti.name, ti_en.name)'))
+    ->get()->toArray();
+
 if (empty($places)) { return; }
 $isSidebar = isset($sidebar) && $sidebar;
+@endphp
 
-// Get base path for URLs - AtoM uses /:slug routing
-$basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
 @if($isSidebar)
   <section id="placeAccessPointsSection">
     <h4>{{ __('Place access points') }}</h4>
     <ul class="list-unstyled">
-      @php foreach ($places as $place) {
-        $placeName = $place->name ?? '';
-        $isMasked = false;
-        if ($piiEnabled && function_exists('pii_mask_value')) {
-            $maskResult = pii_mask_value($resourceId, $placeName, 'GPE');
-            if ($maskResult['masked']) {
-                $placeName = $maskResult['value'];
-                $isMasked = true;
-            }
-        } @endphp
+      @foreach($places as $place)
         <li>
-          @if($isMasked)
-            <span class="text-danger">{{ $placeName }}</span>
-          @elseif($place->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($place->slug); @endphp">{{ $placeName }}</a>
+          @if($place->slug)
+            <a href="{{ route('term.show', $place->slug) }}">{{ $place->name ?? '' }}</a>
           @else
-            {{ $placeName }}
+            {{ $place->name ?? '' }}
           @endif
         </li>
       @endforeach
     </ul>
   </section>
-@php } else { @endphp
-<div class="field@php echo isset($sidebar) ? '' : ' '.render_b5_show_field_css_classes(); @endphp">
+@else
+<div class="field">
 
-  @php echo render_b5_show_label(__('Place access points')); @endphp
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Place access points') }}</h3>
 
-  <div@php echo isset($sidebar) ? '' : ' class="'.render_b5_show_value_css_classes().'"'; @endphp>
-    <ul class="@php echo isset($sidebar) ? 'list-unstyled' : render_b5_show_list_css_classes(); @endphp">
-      @php foreach ($places as $place) {
-        $placeName = $place->name ?? '';
-        $isMasked = false;
-        if ($piiEnabled && function_exists('pii_mask_value')) {
-            $maskResult = pii_mask_value($resourceId, $placeName, 'GPE');
-            if ($maskResult['masked']) {
-                $placeName = $maskResult['value'];
-                $isMasked = true;
-            }
-        } @endphp
+  <div>
+    <ul class="list-unstyled">
+      @foreach($places as $place)
         <li>
-          @if($isMasked)
-            <span class="text-danger">{{ $placeName }}</span>
-          @elseif($place->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($place->slug); @endphp">{{ $placeName }}</a>
+          @if($place->slug)
+            <a href="{{ route('term.show', $place->slug) }}">{{ $place->name ?? '' }}</a>
           @else
-            {{ $placeName }}
+            {{ $place->name ?? '' }}
           @endif
         </li>
       @endforeach
@@ -71,4 +61,4 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
   </div>
 
 </div>
-@endforeach
+@endif

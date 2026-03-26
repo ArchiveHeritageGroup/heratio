@@ -1,19 +1,26 @@
-@php decorate_with('layout_2col.php'); @endphp
+@extends('ahg-theme-b5::layout_2col')
 
-@php slot('sidebar'); @endphp
-  @php include_component('informationobject', 'contextMenu'); @endphp
-@php end_slot(); @endphp
+@section('sidebar')
+  @include('ahg-information-object-manage::_context-menu')
+@endsection
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Feedback') }}</h1>
-  <span class="text-muted">@php echo render_title($resource); @endphp</span>
-@php end_slot(); @endphp
+  <span class="text-muted">{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}</span>
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
-  @php echo $form->renderFormTag(url_for([$resource, 'module' => 'informationobject', 'action' => 'editFeedback']), ['id' => 'feedbackForm']); @endphp
-  @php echo $form->renderHiddenFields(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $e)
+        <p>{{ $e }}</p>
+      @endforeach
+    </div>
+  @endif
+
+  <form action="{{ route('informationobject.editFeedback', $resource->slug) }}" method="post" id="feedbackForm">
+    @csrf
 
   <!-- Identification -->
   <div class="card mb-3">
@@ -23,21 +30,18 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          @php echo $form->name
-            ->label(__('Name of Collection/Item'))
-            ->renderRow(['class' => 'form-control', 'readonly' => 'readonly']); @endphp
+          <label for="name" class="form-label">{{ __('Name of Collection/Item') }}</label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $feedbackData['name'] ?? '') }}" readonly>
         </div>
         <div class="col-md-6 mb-3">
-          @php echo $form->identifier
-            ->label(__('Identifier'))
-            ->renderRow(['class' => 'form-control', 'readonly' => 'readonly']); @endphp
+          <label for="identifier" class="form-label">{{ __('Identifier') }}</label>
+          <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier', $feedbackData['identifier'] ?? '') }}" readonly>
         </div>
       </div>
       <div class="row">
         <div class="col-md-6 mb-3">
-          @php echo $form->unique_identifier
-            ->label(__('Unique Identifier'))
-            ->renderRow(['class' => 'form-control', 'readonly' => 'readonly']); @endphp
+          <label for="unique_identifier" class="form-label">{{ __('Unique Identifier') }}</label>
+          <input type="text" class="form-control" id="unique_identifier" name="unique_identifier" value="{{ old('unique_identifier', $feedbackData['unique_identifier'] ?? '') }}" readonly>
         </div>
       </div>
     </div>
@@ -50,15 +54,17 @@
     </div>
     <div class="card-body">
       <div class="mb-3">
-        @php echo $form->feed_type
-          ->label(__('Feedback Type'))
-          ->renderRow(['class' => 'form-select']); @endphp
+        <label for="feed_type" class="form-label">{{ __('Feedback Type') }}</label>
+        <select class="form-select" id="feed_type" name="feed_type">
+          @foreach($feedbackTypes ?? [] as $value => $label)
+            <option value="{{ $value }}" {{ old('feed_type', $feedbackData['feed_type'] ?? '') == $value ? 'selected' : '' }}>{{ $label }}</option>
+          @endforeach
+        </select>
       </div>
-      
+
       <div class="mb-3">
-        @php echo $form->remarks
-          ->label(__('Remarks/Feedback/Comments'))
-          ->renderRow(['class' => 'form-control', 'rows' => 5]); @endphp
+        <label for="remarks" class="form-label">{{ __('Remarks/Feedback/Comments') }}</label>
+        <textarea class="form-control" id="remarks" name="remarks" rows="5">{{ old('remarks', $feedbackData['remarks'] ?? '') }}</textarea>
       </div>
     </div>
   </div>
@@ -71,34 +77,29 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          @php echo $form->feed_name
-            ->label(__('Name'))
-            ->renderRow(['class' => 'form-control']); @endphp
+          <label for="feed_name" class="form-label">{{ __('Name') }}</label>
+          <input type="text" class="form-control" id="feed_name" name="feed_name" value="{{ old('feed_name', $feedbackData['feed_name'] ?? '') }}">
         </div>
         <div class="col-md-6 mb-3">
-          @php echo $form->feed_surname
-            ->label(__('Surname'))
-            ->renderRow(['class' => 'form-control']); @endphp
+          <label for="feed_surname" class="form-label">{{ __('Surname') }}</label>
+          <input type="text" class="form-control" id="feed_surname" name="feed_surname" value="{{ old('feed_surname', $feedbackData['feed_surname'] ?? '') }}">
         </div>
       </div>
-      
+
       <div class="row">
         <div class="col-md-6 mb-3">
-          @php echo $form->feed_phone
-            ->label(__('Phone Number'))
-            ->renderRow(['class' => 'form-control']); @endphp
+          <label for="feed_phone" class="form-label">{{ __('Phone Number') }}</label>
+          <input type="text" class="form-control" id="feed_phone" name="feed_phone" value="{{ old('feed_phone', $feedbackData['feed_phone'] ?? '') }}">
         </div>
         <div class="col-md-6 mb-3">
-          @php echo $form->feed_email
-            ->label(__('e-Mail Address'))
-            ->renderRow(['class' => 'form-control', 'type' => 'email']); @endphp
+          <label for="feed_email" class="form-label">{{ __('e-Mail Address') }}</label>
+          <input type="email" class="form-control" id="feed_email" name="feed_email" value="{{ old('feed_email', $feedbackData['feed_email'] ?? '') }}">
         </div>
       </div>
-      
+
       <div class="mb-3">
-        @php echo $form->feed_relationship
-          ->label(__('Relationship to item'))
-          ->renderRow(['class' => 'form-control']); @endphp
+        <label for="feed_relationship" class="form-label">{{ __('Relationship to item') }}</label>
+        <input type="text" class="form-control" id="feed_relationship" name="feed_relationship" value="{{ old('feed_relationship', $feedbackData['feed_relationship'] ?? '') }}">
       </div>
     </div>
   </div>
@@ -106,11 +107,11 @@
   <!-- Actions -->
   <section class="actions">
     <ul class="list-unstyled d-flex flex-wrap gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
+      <li><a href="{{ route('informationobject.show', $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Submit Feedback') }}"></li>
     </ul>
   </section>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

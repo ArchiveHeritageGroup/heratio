@@ -1,6 +1,6 @@
-@php decorate_with('layout_1col'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
 
   @if(isset($preview))
     <div class="copyright-statement-preview alert alert-info">
@@ -8,25 +8,25 @@
     </div>
   @endif
 
-  <h1>@php echo render_title($resource); @endphp</h1>
+  <h1>{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}</h1>
 
-@php end_slot(); @endphp
+@endsection
 
 <div class="page">
 
   <div class="p-3">
-    @php echo render_value_html($sf_data->getRaw('copyrightStatement')); @endphp
+    {!! $copyrightStatement ?? '' !!}
   </div>
 
 </div>
 
-@php slot('after-content'); @endphp
+@section('after-content')
   <form method="get">
-    <input type="hidden" name="token" value="@php echo $accessToken; @endphp">
+    <input type="hidden" name="token" value="{{ $accessToken ?? '' }}">
     @if(isset($preview))
       <ul class="actions mb-3 nav gap-2">
         <li><button class="btn atom-btn-outline-success" type="submit" disabled="disabled">{{ __('Agree') }}</button></li>
-        <li>@php echo link_to(__('Close'), ['module' => 'settings', 'action' => 'permissions'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+        <li><a href="{{ route('settings.permissions') }}" class="btn atom-btn-outline-light" role="button">{{ __('Close') }}</a></li>
       </ul>
     @else
       <section class="actions mb-3">
@@ -34,4 +34,4 @@
       </section>
     @endif
   </form>
-@php end_slot(); @endphp
+@endsection

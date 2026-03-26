@@ -15,7 +15,7 @@
         <a href="javascript:history.go(-1)">
           {{ __('Back to previous page.') }}
         </a><br>
-        @php echo link_to(__('Go to homepage.'), '@homepage'); @endphp
+        <a href="{{ url('/') }}">{{ __('Go to homepage.') }}</a>
       </p>
     </div>
   </div>

@@ -1,10 +1,13 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
+<div class="field mb-3">
 
-  @php echo render_b5_show_label(__('Alternative identifier(s)')); @endphp
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Alternative identifier(s)') }}</h3>
 
-  <div class="@php echo render_b5_show_value_css_classes(); @endphp">
+  <div>
     @foreach($resource->getProperties(null, 'alternativeIdentifiers') as $item)
-      @php echo render_show(render_value_inline($item->name), $item->getValue(['cultureFallback' => true]), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3>{{ $item->name ?? '' }}</h3>
+        <div>{{ $item->value ?? '' }}</div>
+      </div>
     @endforeach
   </div>
 

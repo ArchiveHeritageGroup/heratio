@@ -1,29 +1,34 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layouts.1col')
 
-@php slot('title'); @endphp
+@section('title')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
-      @php echo render_title($resource); @endphp
+      {{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}
     </h1>
     <span class="small" id="heading-label">
       {{ __(
           'Link %1%',
-          ['%1%' => sfConfig::get('app_ui_label_physicalobject')]
+          ['%1%' => config('app.ui_label_physicalobject', __('Physical storage'))]
       ) }}
     </span>
   </div>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
-  @php echo $form->renderGlobalErrors(); @endphp
-  @php echo $form->renderFormTag(url_for([
-      $resource,
-      'module' => $sf_context->getModuleName(),
-      'action' => 'editPhysicalObjects',
-  ])); @endphp
-    @php echo $form->renderHiddenFields(); @endphp
+@section('content')
+  @if($errors->any())
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
-    @if(0 < count($relations))
+  <form method="POST" action="{{ $formAction ?? '/informationobject/' . ($resource->slug ?? '') . '/editPhysicalObjects' }}">
+    @csrf
+
+    @if(isset($relations) && count($relations) > 0)
       <div class="table-responsive mb-3">
         <table class="table table-bordered mb-0">
           <thead>
@@ -42,19 +47,17 @@
             @foreach($relations as $item)
               <tr>
                 <td>
-                  @php echo $item->subject->getLabel(); @endphp
+                  {{ $item->subject->label ?? $item->subject->name ?? '' }}
                 </td>
                 <td class="text-nowrap">
-                  <a class="btn atom-btn-white me-1" href="@php echo url_for(
-                      [$item->subject, 'module' => 'physicalobject', 'action' => 'edit']
-                  ); @endphp">
+                  <a class="btn atom-btn-white me-1" href="{{ route('physicalobject.edit', $item->subject->slug ?? $item->subject->id ?? '') }}">
                     <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ __('Edit row') }}</span>
                   </a>
                   <button
                     type="button"
                     class="btn atom-btn-white delete-physical-storage"
-                    id="@php echo url_for([$item, 'module' => 'relation']); @endphp">
+                    id="/relation/{{ $item->id ?? '' }}">
                     <i class="fas fa-fw fa-times" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ __('Delete row') }}</span>
                   </button>
@@ -64,13 +67,13 @@
           </tbody>
         </table>
       </div>
-    @endforeach
+    @endif
 
     <div class="accordion mb-3">
-      <div class="accordion-item@php echo count($relations) ? ' rounded-0' : ''; @endphp">
+      <div class="accordion-item{{ isset($relations) && count($relations) ? ' rounded-0' : '' }}">
         <h2 class="accordion-header" id="add-heading">
           <button
-            class="accordion-button@php echo count($relations) ? ' rounded-0' : ''; @endphp"
+            class="accordion-button{{ isset($relations) && count($relations) ? ' rounded-0' : '' }}"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#add-collapse"
@@ -84,23 +87,12 @@
           class="accordion-collapse collapse show"
           aria-labelledby="add-heading">
           <div class="accordion-body">
-            @php $extraInputs = '<input class="add" type="hidden" data-link-existing="false" value="'
-                    .url_for([
-                        $resource,
-                        'module' => $sf_context->getModuleName(),
-                        'action' => 'editPhysicalObjects',
-                    ])
-                    .' #name"><input class="list" type="hidden" value="'
-                    .url_for([
-                        'module' => 'physicalobject',
-                        'action' => 'autocomplete',
-                    ])
-                    .'">';
-                echo render_field(
-                    $form->containers,
-                    null,
-                    ['class' => 'form-autocomplete', 'extraInputs' => $extraInputs]
-                ); @endphp
+            <div class="mb-3">
+              <label class="form-label" for="containers">{{ __('Containers') }}</label>
+              <input class="form-control form-autocomplete" type="text" name="containers" id="containers" value="">
+              <input class="add" type="hidden" data-link-existing="false" value="{{ $formAction ?? '/informationobject/' . ($resource->slug ?? '') . '/editPhysicalObjects' }} #name">
+              <input class="list" type="hidden" value="{{ route('physicalobject.autocomplete') }}">
+            </div>
           </div>
         </div>
       </div>
@@ -122,9 +114,22 @@
           aria-labelledby="create-heading">
           <div class="accordion-body">
             <div class="form-item">
-              @php echo render_field($form->name); @endphp
-              @php echo render_field($form->location); @endphp
-              @php echo render_field($form->type); @endphp
+              <div class="mb-3">
+                <label class="form-label" for="name">{{ __('Name') }}</label>
+                <input class="form-control" type="text" name="name" id="name" value="">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="location">{{ __('Location') }}</label>
+                <input class="form-control" type="text" name="location" id="location" value="">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="type">{{ __('Type') }}</label>
+                <select class="form-select" name="type" id="type">
+                  @foreach($physicalObjectTypes ?? [] as $typeId => $typeName)
+                    <option value="{{ $typeId }}">{{ $typeName }}</option>
+                  @endforeach
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -133,11 +138,7 @@
 
     <ul class="actions mb-3 nav gap-2">
       <li>
-        @php echo link_to(
-            __('Cancel'),
-            [$resource, 'module' => $sf_context->getModuleName()],
-            ['class' => 'btn atom-btn-outline-light', 'role' => 'button']
-        ); @endphp
+        <a href="{{ isset($resource->slug) ? route('informationobject.show', $resource->slug) : url()->previous() }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
       </li>
       <li>
         <input
@@ -147,4 +148,4 @@
       </li>
     </ul>
   </form>
-@php end_slot(); @endphp
+@endsection

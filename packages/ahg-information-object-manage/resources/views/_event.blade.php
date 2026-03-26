@@ -1,7 +1,7 @@
 <div
   class="atom-table-modal"
-  data-current-resource="@php echo url_for([$resource]); @endphp"
-  data-required-fields="@php echo $form->type->renderId(); @endphp"
+  data-current-resource="{{ url('/' . ($resource->slug ?? '')) }}"
+  data-required-fields="editEvents_type"
   data-delete-field-name="deleteEvents"
   data-iframe-error="{{ __('The following resources could not be created:') }}">
   <div class="alert alert-danger d-none load-error" role="alert">
@@ -31,12 +31,12 @@
       </thead>
       <tbody>
         <tr class="row-template d-none">
-          <td data-field-id="@php echo $form->actor->renderId(); @endphp"></td>
-          <td data-field-id="@php echo $form->type->renderId(); @endphp"></td>
-          <td data-field-id="@php echo $form->place->renderId(); @endphp"></td>
-          <td data-field-id="@php echo $form->date->renderId(); @endphp"></td>
+          <td data-field-id="editEvents_actor"></td>
+          <td data-field-id="editEvents_type"></td>
+          <td data-field-id="editEvents_place"></td>
+          <td data-field-id="editEvents_date"></td>
           <td class="text-nowrap">
-            @if(!isset($sf_request->source))
+            @if(!request()->has('source'))
               <button type="button" class="btn atom-btn-white me-1 edit-row">
                 <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
                 <span class="visually-hidden">{{ __('Edit row') }}</span>
@@ -48,30 +48,29 @@
             </button>
           </td>
         </tr>
-        @foreach($resource->eventsRelatedByobjectId as $item)
-          <tr id="@php echo url_for([$item, 'module' => 'event']); @endphp">
-            <td data-field-id="@php echo $form->actor->renderId(); @endphp">
+        @foreach($resource->eventsRelatedByobjectId ?? [] as $item)
+          <tr id="{{ url('/event/' . ($item->slug ?? $item->id)) }}">
+            <td data-field-id="editEvents_actor">
               @if(isset($item->actor))
-                @php echo render_title($item->actor); @endphp
+                {{ $item->actor->authorized_form_of_name ?? $item->actor->title ?? '' }}
               @endif
             </td>
-            <td data-field-id="@php echo $form->type->renderId(); @endphp">
-              @php echo render_value_inline($item->type); @endphp
+            <td data-field-id="editEvents_type">
+              {{ $item->type ?? '' }}
             </td>
-            <td data-field-id="@php echo $form->place->renderId(); @endphp">
-              @if(null !== $relation = QubitObjectTermRelation::getOneByObjectId($item->id))
-                @php echo render_value_inline($relation->term); @endphp
+            <td data-field-id="editEvents_place">
+              @if(isset($item->place))
+                {{ $item->place ?? '' }}
               @endif
             </td>
-            <td data-field-id="@php echo $form->date->renderId(); @endphp">
-              @php echo render_value_inline(Qubit::renderDateStartEnd(
-                  $item->getDate(['cultureFallback' => true]),
-                  $item->startDate,
-                  $item->endDate
-              )); @endphp
+            <td data-field-id="editEvents_date">
+              {{ $item->date ?? '' }}
+              @if(!empty($item->startDate) || !empty($item->endDate))
+                ({{ $item->startDate ?? '' }} - {{ $item->endDate ?? '' }})
+              @endif
             </td>
             <td class="text-nowrap">
-              @if(!isset($sf_request->source))
+              @if(!request()->has('source'))
                 <button type="button" class="btn atom-btn-white me-1 edit-row">
                   <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
                   <span class="visually-hidden">{{ __('Edit row') }}</span>
@@ -98,7 +97,7 @@
     </table>
   </div>
 
-  <div 
+  <div
     class="modal fade"
     data-bs-backdrop="static"
     tabindex="-1"
@@ -116,60 +115,49 @@
         </div>
 
         <div class="modal-body pb-2">
-          @php echo $form->renderHiddenFields(); @endphp
+          @csrf
 
-          @php $extraInputs = '<input class="list" type="hidden" value="'
-                  .route('actor.autocomplete')
-                  .'">';
-              if (QubitAcl::check(QubitActor::getRoot(), 'create')) {
-                  $extraInputs .= '<input class="add" type="hidden"'
-                      .' data-link-existing="true" value="'
-                      .route('actor.add')
-                      .' #authorizedFormOfName">';
-              }
-              echo render_field(
-                  $form->actor->label(__('Actor name')),
-                  null,
-                  ['class' => 'form-autocomplete', 'extraInputs' => $extraInputs]
-              ); @endphp
-
-          @php echo render_field($form->type->label(__('Event type'))); @endphp
-
-          @php $extraInputs = '<input class="list" type="hidden" value="'
-                  .url_for([
-                      'module' => 'term',
-                      'action' => 'autocomplete',
-                      'taxonomy' => url_for([
-                          QubitTaxonomy::getById(QubitTaxonomy::PLACE_ID),
-                          'module' => 'taxonomy',
-                      ]),
-                  ])
-                  .'">';
-              if (QubitAcl::check(QubitTaxonomy::getById(QubitTaxonomy::PLACE_ID), 'createTerm')) {
-                  $extraInputs .= '<input class="add" type="hidden" data-link-existing="true" value="'
-                      .url_for([
-                          'module' => 'term',
-                          'action' => 'add',
-                          'taxonomy' => url_for([
-                              QubitTaxonomy::getById(QubitTaxonomy::PLACE_ID),
-                              'module' => 'taxonomy',
-                          ]),
-                      ])
-                      .' #name">';
-              }
-              echo render_field(
-                  $form->place,
-                  null,
-                  ['class' => 'form-autocomplete', 'extraInputs' => $extraInputs]
-              ); @endphp
-
-          <div class="date">
-            @php echo render_field($form->date); @endphp
-            @php echo render_field($form->startDate); @endphp
-            @php echo render_field($form->endDate); @endphp
+          <div class="mb-3">
+            <label for="editEvents_actor" class="form-label">{{ __('Actor name') }}</label>
+            <input type="text" class="form-control form-autocomplete" id="editEvents_actor" name="actor" value="{{ old('actor') }}"
+              data-autocomplete-url="{{ route('actor.autocomplete') ?? '' }}">
+            <input class="list" type="hidden" value="{{ route('actor.autocomplete') ?? '' }}">
           </div>
 
-          @php echo render_field($form->description->label(__('Event note'))); @endphp
+          <div class="mb-3">
+            <label for="editEvents_type" class="form-label">{{ __('Event type') }}</label>
+            <select class="form-select" id="editEvents_type" name="type">
+              <option value="">{{ __('- Select event type -') }}</option>
+              @foreach($eventTypes ?? [] as $id => $name)
+                <option value="{{ $id }}">{{ $name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="editEvents_place" class="form-label">{{ __('Place') }}</label>
+            <input type="text" class="form-control form-autocomplete" id="editEvents_place" name="place" value="{{ old('place') }}">
+          </div>
+
+          <div class="date">
+            <div class="mb-3">
+              <label for="editEvents_date" class="form-label">{{ __('Date') }}</label>
+              <input type="text" class="form-control" id="editEvents_date" name="date" value="{{ old('date') }}">
+            </div>
+            <div class="mb-3">
+              <label for="editEvents_startDate" class="form-label">{{ __('Start date') }}</label>
+              <input type="text" class="form-control" id="editEvents_startDate" name="startDate" value="{{ old('startDate') }}">
+            </div>
+            <div class="mb-3">
+              <label for="editEvents_endDate" class="form-label">{{ __('End date') }}</label>
+              <input type="text" class="form-control" id="editEvents_endDate" name="endDate" value="{{ old('endDate') }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="editEvents_description" class="form-label">{{ __('Event note') }}</label>
+            <textarea class="form-control" id="editEvents_description" name="description" rows="3">{{ old('description') }}</textarea>
+          </div>
         </div>
 
         <div class="modal-footer">

@@ -1,6 +1,6 @@
 <div style="text-align: center;">
 
-  @php echo image_tag('lock48', ['alt' => __('Read only')]); @endphp
+  <img src="{{ asset('images/lock48.png') }}" alt="{{ __('Read only') }}">
 
   <h2 style="font-size: 20px;">{{ __('The system is currently in read-only mode. Please try again later.') }}</h2>
 
@@ -8,6 +8,6 @@
 
   <br/>
 
-  @php echo link_to(__('Go to homepage'), '@homepage'); @endphp
+  <a href="{{ route('home') }}">{{ __('Go to homepage') }}</a>
 
 </div>

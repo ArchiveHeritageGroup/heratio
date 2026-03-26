@@ -1,16 +1,21 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
-  <h1>{{ __('User %1%', ['%1%' => render_title($resource)]) }}</h1>
-@php end_slot(); @endphp
+@section('title')
+  <h1>{{ __('User %1%', ['%1%' => $resource->authorized_form_of_name ?? $resource->username ?? '']) }}</h1>
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $error)
+        <p>{{ $error }}</p>
+      @endforeach
+    </div>
+  @endif
 
-  @php echo $form->renderFormTag(url_for([$resource, 'module' => 'user', 'action' => 'passwordEdit']), ['id' => 'editForm']); @endphp
-
-    @php echo $form->renderHiddenFields(); @endphp
+  <form method="post" action="{{ route('user.passwordEdit', ['slug' => $resource->slug]) }}" id="editForm">
+    @csrf
 
     <div class="accordion mb-3">
       <div class="accordion-item">
@@ -28,24 +33,30 @@
                     class="password-strength-settings"
                     data-not-strong="{{ __('Your password is not strong enough.') }}"
                     data-strength-title="{{ __('Password strength:') }}"
-                    data-require-strong-password="@php echo sfConfig::get('app_require_strong_passwords', false); @endphp"
+                    data-require-strong-password="{{ config('atom.require_strong_passwords', false) }}"
                     data-too-short="{{ __('Make it at least six characters') }}"
                     data-add-lower-case="{{ __('Add lowercase letters') }}"
                     data-add-upper-case="{{ __('Add uppercase letters') }}"
                     data-add-numbers="{{ __('Add numbers') }}"
                     data-add-punctuation="{{ __('Add punctuation') }}"
-                    data-username="@php echo $resource->username; @endphp"
+                    data-username="{{ $resource->username }}"
                     data-same-as-username="{{ __('Make it different from your username') }}"
                     data-confirm-failure="{{ __('Your password confirmation did not match your password.') }}"
                   >
                 </div>
-                @php echo render_field($form->password->label(__('New password')), null, ['class' => 'password-strength', 'required' => 'required']); @endphp
-                @php echo render_field($form->confirmPassword->label(__('Confirm password')), null, ['class' => 'password-confirm', 'required' => 'required']); @endphp
+                <div class="mb-3">
+                  <label for="password" class="form-label">{{ __('New password') }}</label>
+                  <input type="password" name="password" id="password" class="form-control password-strength" required>
+                </div>
+                <div class="mb-3">
+                  <label for="confirmPassword" class="form-label">{{ __('Confirm password') }}</label>
+                  <input type="password" name="confirmPassword" id="confirmPassword" class="form-control password-confirm" required>
+                </div>
               </div>
               <div class="col-md-6 template" hidden>
                 <div class="mb-3 bg-light p-3 rounded border-start border-4">
                   <label class="form-label">{{ __('Password strength:') }} <span class="badge bg-secondary ms-1">Optional</span></label>
-		  <div class="progress mb-3">
+                  <div class="progress mb-3">
                     <div class="progress-bar w-0" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
                 </div>
@@ -57,10 +68,10 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'user'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a href="{{ route('user.show', ['slug' => $resource->slug]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

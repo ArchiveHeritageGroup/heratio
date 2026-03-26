@@ -1,47 +1,101 @@
 <section class="contact-info">
   @if(!empty($contactInformation->contactPerson))
-    <div class="field @php echo render_b5_show_field_css_classes(); @endphp">
-      @php echo render_b5_show_label(''); @endphp
-      <div class="agent @php echo render_b5_show_value_css_classes(); @endphp">
+    <div class="field">
+      <div class="agent">
         <span class="text-primary">
-          @php echo render_value_inline($contactInformation->contactPerson); @endphp
+          {{ $contactInformation->contactPerson }}
         </span>
-        @if($contactInformation->primaryContact)
+        @if($contactInformation->primaryContact ?? false)
           <span class="primary-contact">
             {{ __('Primary contact') }}
           </span>
-        @endforeach
+        @endif
       </div>
     </div>
-  @endforeach
+  @endif
 
-  @php echo render_show(__('Type'), render_value_inline($contactInformation->getContactType(['cultureFallback' => true])), ['valueClass' => 'type']); @endphp
+  @if($contactInformation->contactType ?? ($contactInformation->contact_type ?? null))
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Type') }}</h3>
+      <div>{{ $contactInformation->contactType ?? $contactInformation->contact_type ?? '' }}</div>
+    </div>
+  @endif
 
-  <div class="field adr @php echo render_b5_show_field_css_classes(); @endphp">
-    @php echo render_b5_show_label(__('Address')); @endphp
-    <div class="@php echo render_b5_show_value_css_classes(); @endphp">
+  <div class="field adr">
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Address') }}</h3>
+    <div>
 
-      @php echo render_show(__('Street address'), render_value_inline($contactInformation->streetAddress), ['isSubField' => true]); @endphp
+      @if($contactInformation->streetAddress ?? null)
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Street address') }}</h3>
+          <div>{{ $contactInformation->streetAddress }}</div>
+        </div>
+      @endif
 
-      @php echo render_show(__('Locality'), render_value_inline($contactInformation->getCity(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+      @if($contactInformation->city ?? null)
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Locality') }}</h3>
+          <div>{{ $contactInformation->city }}</div>
+        </div>
+      @endif
 
-      @php echo render_show(__('Region'), render_value_inline($contactInformation->getRegion(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+      @if($contactInformation->region ?? null)
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Region') }}</h3>
+          <div>{{ $contactInformation->region }}</div>
+        </div>
+      @endif
 
-      @php echo render_show(__('Country name'), format_country($contactInformation->countryCode), ['isSubField' => true]); @endphp
+      @if($contactInformation->countryCode ?? null)
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Country name') }}</h3>
+          <div>{{ locale_get_display_region('-' . $contactInformation->countryCode, app()->getLocale()) }}</div>
+        </div>
+      @endif
 
-      @php echo render_show(__('Postal code'), render_value_inline($contactInformation->postalCode), ['isSubField' => true]); @endphp
+      @if($contactInformation->postalCode ?? null)
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Postal code') }}</h3>
+          <div>{{ $contactInformation->postalCode }}</div>
+        </div>
+      @endif
 
     </div>
 
   </div>
 
-  @php echo render_show(__('Telephone'), render_value_inline($contactInformation->telephone), ['valueClass' => 'tel']); @endphp
+  @if($contactInformation->telephone ?? null)
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Telephone') }}</h3>
+      <div class="tel">{{ $contactInformation->telephone }}</div>
+    </div>
+  @endif
 
-  @php echo render_show(__('Fax'), render_value_inline($contactInformation->fax), ['valueClass' => 'fax']); @endphp
+  @if($contactInformation->fax ?? null)
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Fax') }}</h3>
+      <div class="fax">{{ $contactInformation->fax }}</div>
+    </div>
+  @endif
 
-  @php echo render_show(__('Email'), render_value_inline($contactInformation->email), ['valueClass' => 'email']); @endphp
+  @if($contactInformation->email ?? null)
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Email') }}</h3>
+      <div class="email">{{ $contactInformation->email }}</div>
+    </div>
+  @endif
 
-  @php echo render_show(__('URL'), render_value_inline($contactInformation->website), ['valueClass' => 'url']); @endphp
+  @if($contactInformation->website ?? null)
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('URL') }}</h3>
+      <div class="url">{{ $contactInformation->website }}</div>
+    </div>
+  @endif
 
-  @php echo render_show(__('Note'), render_value($contactInformation->getNote(['cultureFallback' => true])), ['valueClass' => 'note']); @endphp
+  @if($contactInformation->note ?? null)
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Note') }}</h3>
+      <div class="note">{!! nl2br(e($contactInformation->note)) !!}</div>
+    </div>
+  @endif
 </section>

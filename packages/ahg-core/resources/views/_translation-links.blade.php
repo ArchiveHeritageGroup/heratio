@@ -6,10 +6,7 @@
   <ul class="dropdown-menu mt-2" aria-labelledby="translation-links-button">
     @foreach($translations as $code => $value)
       <li>
-        @php echo link_to(
-            $value['language'].' &raquo; '.$value['name'],
-            [$resource, 'module' => $module, 'sf_culture' => $code],
-            ['class' => 'dropdown-item']); @endphp
+        <a href="{{ request()->fullUrlWithQuery(['sf_culture' => $code]) }}" class="dropdown-item">{!! ($value['language'] ?? $code) . ' &raquo; ' . ($value['name'] ?? '') !!}</a>
       </li>
     @endforeach
   </ul>

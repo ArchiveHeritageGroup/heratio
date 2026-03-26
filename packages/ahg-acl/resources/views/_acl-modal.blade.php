@@ -1,15 +1,15 @@
-<div 
+<div
   class="modal fade"
-  id="acl-modal-container-@php echo $entityType; @endphp"
-  data-trigger-button="acl-add-@php echo $entityType; @endphp"
+  id="acl-modal-container-{{ $entityType }}"
+  data-trigger-button="acl-add-{{ $entityType }}"
   data-bs-backdrop="static"
   tabindex="-1"
-  aria-labelledby="acl-modal-heading-@php echo $entityType; @endphp"
+  aria-labelledby="acl-modal-heading-{{ $entityType }}"
   aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="acl-modal-heading-@php echo $entityType; @endphp">
+        <h5 class="modal-title" id="acl-modal-heading-{{ $entityType }}">
           {{ __('Add %1%', ['%1%' => lcfirst($label)]) }}
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal">
@@ -19,19 +19,15 @@
       <div class="modal-body">
         <form>
           <div>
-            <label for="acl-autocomplete-@php echo $entityType; @endphp" class="form-label">
+            <label for="acl-autocomplete-{{ $entityType }}" class="form-label">
               {{ __('%1% name', ['%1%' => $label]) }}
              <span class="badge bg-secondary ms-1">Optional</span></label>
             <select
-              name="acl-autocomplete-@php echo $entityType; @endphp"
-              id="acl-autocomplete-@php echo $entityType; @endphp"
+              name="acl-autocomplete-{{ $entityType }}"
+              id="acl-autocomplete-{{ $entityType }}"
               class="form-control form-autocomplete mb-1">
             </select>
-            <input class="list" type="hidden" value="@php echo url_for([
-                'module' => $entityType,
-                'action' => 'autocomplete',
-                'showOnlyActors' => 'actor' == $entityType,
-            ]); @endphp"/>
+            <input class="list" type="hidden" value="{{ route($entityType . '.autocomplete', ['showOnlyActors' => ('actor' == $entityType)]) }}"/>
           </div>
         </form>
       </div>
@@ -67,10 +63,10 @@
               <input
                 class="form-check-input"
                 type="radio"
-                name="acl[@php echo $key; @endphp_{objectId}]"
-                id="acl_grant_[@php echo $key; @endphp_{objectId}]"
-                value="@php echo \AtomExtensions\Services\AclService::GRANT; @endphp">
-              <label class="form-check-label" for="acl_grant_[@php echo $key; @endphp_{objectId}]">
+                name="acl[{{ $key }}_{objectId}]"
+                id="acl_grant_[{{ $key }}_{objectId}]"
+                value="{{ \AhgCore\Services\AclService::GRANT }}">
+              <label class="form-check-label" for="acl_grant_[{{ $key }}_{objectId}]">
                 {{ __('Grant') }}
                <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
@@ -78,10 +74,10 @@
               <input
                 class="form-check-input"
                 type="radio"
-                name="acl[@php echo $key; @endphp_{objectId}]"
-                id="acl_deny_[@php echo $key; @endphp_{objectId}]"
-                value="@php echo \AtomExtensions\Services\AclService::DENY; @endphp">
-              <label class="form-check-label" for="acl_deny_[@php echo $key; @endphp_{objectId}]">
+                name="acl[{{ $key }}_{objectId}]"
+                id="acl_deny_[{{ $key }}_{objectId}]"
+                value="{{ \AhgCore\Services\AclService::DENY }}">
+              <label class="form-check-label" for="acl_deny_[{{ $key }}_{objectId}]">
                 {{ __('Deny') }}
                <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>
@@ -90,10 +86,10 @@
                 class="form-check-input"
                 type="radio"
                 checked
-                name="acl[@php echo $key; @endphp_{objectId}]"
-                id="acl_inherit_[@php echo $key; @endphp_{objectId}]"
-                value="@php echo \AtomExtensions\Services\AclService::INHERIT; @endphp">
-              <label class="form-check-label" for="acl_inherit_[@php echo $key; @endphp_{objectId}]">
+                name="acl[{{ $key }}_{objectId}]"
+                id="acl_inherit_[{{ $key }}_{objectId}]"
+                value="{{ \AhgCore\Services\AclService::INHERIT }}">
+              <label class="form-check-label" for="acl_inherit_[{{ $key }}_{objectId}]">
                 {{ __('Inherit') }}
                <span class="badge bg-secondary ms-1">Optional</span></label>
             </div>

@@ -4,11 +4,11 @@
       @if(isset($object->parent))
         @if(isset($resource) && $object == $resource)
           <li class="breadcrumb-item active" aria-current="page">
-            @php echo render_title($object); @endphp
+            {{ $object->authorized_form_of_name ?? $object->title ?? '' }}
           </li>
         @else
           <li class="breadcrumb-item">
-            @php echo link_to(render_title($object), [$object, 'module' => 'informationobject']); @endphp
+            <a href="{{ route('informationobject.show', $object->slug ?? '') }}">{{ $object->authorized_form_of_name ?? $object->title ?? '' }}</a>
           </li>
         @endif
       @endif

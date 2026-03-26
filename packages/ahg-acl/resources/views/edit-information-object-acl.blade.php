@@ -1,10 +1,10 @@
-<?php
-
-echo get_partial('aclGroup/aclInformationObject', [
+@include('ahg-acl::_acl-information-object', [
     'resource' => $resource,
     'basicActions' => $basicActions,
     'informationObjects' => $informationObjects,
+    'informationObjectEntities' => $informationObjectEntities ?? [],
     'root' => $root,
     'repositories' => $repositories,
-    'form' => $form,
-]);
+    'repositoryObjects' => $repositoryObjects ?? [],
+    'rootInformationObject' => $rootInformationObject,
+])

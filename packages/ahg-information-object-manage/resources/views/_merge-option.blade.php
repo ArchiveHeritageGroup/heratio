@@ -1,10 +1,10 @@
-@php /**
+@php
+/**
  * Merge Option for Digital Object Upload
  */
-
 $io = $resource ?? $informationObject ?? null; @endphp
 
-@if($io && $sf_user->hasCredential(['contributor', 'editor', 'administrator'], false))
+@if($io && auth()->check() && in_array(auth()->user()->role ?? '', ['contributor', 'editor', 'administrator']))
 <div class="card mb-4 border-info">
     <div class="card-header bg-info text-white">
         <h6 class="mb-0">
@@ -16,7 +16,7 @@ $io = $resource ?? $informationObject ?? null; @endphp
         <p class="mb-3">
             Need to create a multi-page PDF from multiple TIFF or image files?
         </p>
-        <a href="@php echo url_for(['module' => 'tiffpdfmerge', 'action' => 'index', 'informationObject' => $io->slug]); @endphp" 
+        <a href="{{ url('/tiffpdfmerge/index/' . ($io->slug ?? '')) }}"
            class="btn atom-btn-white">
             <i class="fas fa-file-pdf me-1"></i>
             Merge Images to PDF

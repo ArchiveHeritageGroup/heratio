@@ -1,17 +1,9 @@
-@php /**
+@php
+/**
  * Name Access Points Partial
  *
  * Shows actors related to the information object via events and relations.
- * Uses helper functions from AhgLaravelHelper.php
- *
- * @package    ahgThemeB5Plugin
- * @subpackage templates
  */
-
-// Load helper functions if not already loaded
-if (!function_exists('ahg_get_actor_events')) {
-    require_once sfConfig::get('sf_plugins_dir').'/ahgUiOverridesPlugin/lib/helper/AhgLaravelHelper.php';
-}
 
 // Get resource ID
 $resourceId = is_object($resource) ? ($resource->id ?? null) : $resource;
@@ -20,11 +12,21 @@ if (!$resourceId) {
     return;
 }
 
-// Get actor events (creators, contributors, etc.) - uses helper function
-$actorEvents = ahg_get_actor_events($resourceId);
+// Get actor events (creators, contributors, etc.)
+$actorEvents = [];
+if (method_exists($resource, 'getActorEvents')) {
+    $actorEvents = $resource->getActorEvents();
+} elseif (function_exists('ahg_get_actor_events')) {
+    $actorEvents = ahg_get_actor_events($resourceId);
+}
 
-// Get name access points via relations - uses helper function
-$nameAccessPoints = ahg_get_name_access_relations($resourceId);
+// Get name access points via relations
+$nameAccessPoints = [];
+if (method_exists($resource, 'getNameAccessRelations')) {
+    $nameAccessPoints = $resource->getNameAccessRelations();
+} elseif (function_exists('ahg_get_name_access_relations')) {
+    $nameAccessPoints = ahg_get_name_access_relations($resourceId);
+}
 
 // Combine and deduplicate by actor ID
 $allActors = [];
@@ -52,10 +54,6 @@ if (empty($allActors)) {
 // Check if sidebar display
 $isSidebar = isset($sidebar) && $sidebar; @endphp
 
-@php // Get the base path for constructing actor URLs
-// AtoM routing uses QubitMetadataRoute - URLs are just /:slug
-// The route determines module from object class in database
-$basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
 @if($isSidebar)
   <section id="nameAccessPointsSection">
     <h4>{{ __('Related people and organizations') }}</h4>
@@ -63,7 +61,7 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
       @foreach($allActors as $actor)
         <li>
           @if($actor->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">
+            <a href="{{ route('actor.show', $actor->slug) }}">
               {{ $actor->name ?? '' }}
             </a>
           @else
@@ -77,20 +75,20 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
     </ul>
   </section>
 @else
-<div class="field@php echo isset($sidebar) ? '' : ' '.render_b5_show_field_css_classes(); @endphp">
+<div class="field{{ isset($sidebar) ? '' : ' mb-3' }}">
 
   @if(isset($mods))
-    @php echo render_b5_show_label(__('Names')); @endphp
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Names') }}</h3>
   @else
-    @php echo render_b5_show_label(__('Name access points')); @endphp
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Name access points') }}</h3>
   @endif
 
-  <div@php echo isset($sidebar) ? '' : ' class="'.render_b5_show_value_css_classes().'"'; @endphp>
-    <ul class="@php echo isset($sidebar) ? 'list-unstyled' : render_b5_show_list_css_classes(); @endphp">
+  <div{!! isset($sidebar) ? '' : ' class="ms-0"' !!}>
+    <ul class="{{ isset($sidebar) ? 'list-unstyled' : 'list-unstyled ms-0' }}">
       @foreach($allActors as $actor)
         <li>
           @if($actor->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">{{ $actor->name ?? '' }}</a>
+            <a href="{{ route('actor.show', $actor->slug) }}">{{ $actor->name ?? '' }}</a>
           @else
             {{ $actor->name ?? '' }}
           @endif

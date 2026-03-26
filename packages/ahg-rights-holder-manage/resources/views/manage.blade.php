@@ -1,23 +1,30 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
-      @php echo render_title($resource); @endphp
+      {{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}
     </h1>
     <span class="small" id="heading-label">
       {{ __('Manage rights inheritance') }}
     </span>
   </div>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $error)
+        <p>{{ $error }}</p>
+      @endforeach
+    </div>
+  @endif
 
   <form method="post">
+    @csrf
 
-    @php echo $form->renderHiddenFields(); @endphp
+    {!! $form->renderHiddenFields() !!}
 
     <div class="accordion mb-3">
       <div class="accordion-item">
@@ -46,10 +53,10 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a href="{{ route('informationobject.show', ['slug' => $resource->slug]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Apply') }}"></li>
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

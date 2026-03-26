@@ -1,73 +1,69 @@
-@php decorate_with('layout_3col'); @endphp
-@php use_helper('Date'); @endphp
+@extends('ahg-theme-b5::layout_3col')
 
-@php slot('sidebar'); @endphp
+@section('sidebar')
 
-  @php echo get_partial('term/sidebar', [
+  @include('ahg-term-taxonomy::_sidebar', [
       'resource' => $resource,
       'showTreeview' => true,
       'search' => $search,
       'aggs' => $aggs,
-      'listPager' => $listPager, ]); @endphp
+      'listPager' => $listPager, ])
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('title'); @endphp
+@section('title')
 
-  <h1>@php echo render_title($resource); @endphp</h1>
+  <h1>{{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}</h1>
 
-  @php echo get_component('term', 'navigateRelated', ['resource' => $resource]); @endphp
+  @include('ahg-term-taxonomy::_navigate-related', ['resource' => $resource])
 
-  @php echo get_partial('term/errors', ['errorSchema' => $errorSchema]); @endphp
+  @include('ahg-term-taxonomy::_errors', ['errorSchema' => $errorSchema])
 
-  @if(QubitTerm::ROOT_ID != $resource->parentId)
-    @php echo include_partial('default/breadcrumb',
-                 ['resource' => $resource, 'objects' => $resource->getAncestors()->andSelf()->orderBy('lft')]); @endphp
-  @endforeach
+  @if(\AhgCore\Constants\QubitTerm::ROOT_ID != $resource->parentId)
+    @include('ahg-core::_breadcrumb',
+                 ['resource' => $resource, 'objects' => $resource->getAncestors()->push($resource)->sortBy('lft')])
+  @endif
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('before-content'); @endphp
-  @php echo get_component('default', 'translationLinks', ['resource' => $resource]); @endphp
-@php end_slot(); @endphp
+@section('before-content')
+  @include('ahg-core::_translation-links', ['resource' => $resource])
+@endsection
 
-@php slot('context-menu'); @endphp
+@section('context-menu')
 
   <nav>
 
-    @php echo get_partial('term/format', ['resource' => $resource]); @endphp
+    @include('ahg-term-taxonomy::_format', ['resource' => $resource])
 
-    @php echo get_partial('term/rightContextMenu', ['resource' => $resource, 'results' => $pager->getNbResults()]); @endphp
+    @include('ahg-term-taxonomy::_right-context-menu', ['resource' => $resource, 'results' => $pager->getNbResults()])
 
   </nav>
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
   <div id="content">
-    @php echo get_partial('term/fields', ['resource' => $resource]); @endphp
+    @include('ahg-term-taxonomy::_fields', ['resource' => $resource])
   </div>
 
-  @php echo get_partial('term/actions', ['resource' => $resource]); @endphp
+  @include('ahg-term-taxonomy::_actions', ['resource' => $resource])
 
   <h1>
     {{ __('%1% %2% results for %3%', [
         '%1%' => $pager->getNbResults(),
-        '%2%' => sfConfig::get('app_ui_label_actor'),
-        '%3%' => render_title($resource), ]) }}
+        '%2%' => config('atom.ui_label_actor', __('Authority record')),
+        '%3%' => $resource->authorized_form_of_name ?? $resource->title ?? '', ]) }}
   </h1>
 
   <div class="d-flex flex-wrap gap-2">
-    @if(isset($sf_request->onlyDirect))
-      @php $params = $sf_data->getRaw('sf_request')->getGetParameters(); @endphp
-      @php unset($params['onlyDirect']); @endphp
-      @php unset($params['page']); @endphp
+    @if(request()->has('onlyDirect'))
+      @php $params = request()->query();
+        unset($params['onlyDirect']);
+        unset($params['page']); @endphp
       <a
-        href="@php echo url_for(
-            [$resource, 'module' => 'term', 'action' => 'relatedAuthorities']
-            + $params
-        ); @endphp"
+        href="{{ route('term.relatedAuthorities', array_merge(['slug' => $resource->slug], $params)) }}"
         class="btn btn-sm atom-btn-white align-self-start mw-100 filter-tag d-flex">
         <span class="visually-hidden">
           {{ __('Remove filter:') }}
@@ -77,43 +73,43 @@
         </span>
         <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
       </a>
-    @endforeach
+    @endif
 
     <div class="d-flex flex-wrap gap-2 ms-auto mb-3">
-      @php echo get_partial('default/sortPickers', ['options' => [
+      @include('ahg-core::_sort-pickers', ['options' => [
           'lastUpdated' => __('Date modified'),
           'alphabetic' => __('Name'),
           'identifier' => __('Identifier'),
-      ]]); @endphp
+      ]])
     </div>
   </div>
 
   <div id="content">
 
-    @php echo get_partial('term/directTerms', [
+    @include('ahg-term-taxonomy::_direct-terms', [
         'resource' => $resource,
         'aggs' => $aggs,
-    ]); @endphp
+    ])
 
     @if($pager->getNbResults())
 
       @foreach($pager->getResults() as $hit)
         @php $doc = $hit->getData(); @endphp
-        @php echo include_partial('actor/searchResult', ['doc' => $doc, 'pager' => $pager, 'culture' => $selectedCulture, 'clipboardType' => 'actor']); @endphp
+        @include('ahg-actor-manage::_search-result', ['doc' => $doc, 'pager' => $pager, 'culture' => $selectedCulture, 'clipboardType' => 'actor'])
       @endforeach
 
-    @php } else { @endphp
+    @else
 
       <div class="p-3">
         {{ __('We couldn\'t find any results matching your search.') }}
       </div>
 
-    @endforeach
+    @endif
 
   </div>
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('after-content'); @endphp
-  @php echo get_partial('default/pager', ['pager' => $pager]); @endphp
-@php end_slot(); @endphp
+@section('after-content')
+  @include('ahg-core::_pager', ['pager' => $pager])
+@endsection

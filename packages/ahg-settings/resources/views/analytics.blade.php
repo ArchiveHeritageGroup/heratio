@@ -1,34 +1,41 @@
-@php decorate_with('layout_2col.php'); @endphp
+@extends('ahg-theme-b5::layout_2col')
 
-@php slot('sidebar'); @endphp
+@section('sidebar')
 
-  @php echo get_component('settings', 'menu'); @endphp
+  @include('ahg-settings::_menu')
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('title'); @endphp
+@section('title')
 
   <h1>{{ __('Web analytics') }}</h1>
 
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
   <div class="alert alert-info">
     {{ __('Please clear the cache and restart PHP-FPM after adding tracking ID.') }}
   </div>
 
-  @if(!empty(sfConfig::get('app_google_analytics_api_key')) && '' == QubitSetting::getByName('google_analytics'))
+  @if(!empty(config('atom.google_analytics_api_key')) && empty(\AhgCore\Models\Setting::getByName('google_analytics')))
     <div class="alert alert-info">
       {{ __('Google analytics is currently set in the app.yml.') }}
     </div>
-  @endforeach
+  @endif
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $error)
+        <p>{{ $error }}</p>
+      @endforeach
+    </div>
+  @endif
 
-  @php echo $form->renderFormTag(route('settings.analytics')); @endphp
+  <form method="post" action="{{ route('settings.analytics') }}">
+    @csrf
 
-    @php echo $form->renderHiddenFields(); @endphp
+    {!! $form->renderHiddenFields() !!}
 
     <div class="accordion mb-3">
       <div class="accordion-item">
@@ -51,4 +58,4 @@
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

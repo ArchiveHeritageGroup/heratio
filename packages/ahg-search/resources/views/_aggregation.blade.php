@@ -1,51 +1,48 @@
 @if(!isset($aggs[$name]) || (!isset($filters[$name]) && (count($aggs[$name]) < 2 || ('languages' == $name && count($aggs[$name]) < 3))))
   @php return; @endphp
-@endforeach
+@endif
 
-@php $openned = (isset($sf_request->{$name}) || (isset($open) && $open && 0 < count($aggs[$name]))); @endphp
+@php $openned = (request()->has($name) || (isset($open) && $open && 0 < count($aggs[$name]))); @endphp
 
 <div class="accordion mb-3">
   <div class="accordion-item aggregation">
-    <h2 class="accordion-header" id="heading-@php echo $name; @endphp">
+    <h2 class="accordion-header" id="heading-{{ $name }}">
       <button
-        class="accordion-button@php echo $openned ? '' : ' collapsed'; @endphp"
+        class="accordion-button{{ $openned ? '' : ' collapsed' }}"
         type="button"
         data-bs-toggle="collapse"
-        data-bs-target="#collapse-@php echo $name; @endphp"
-        aria-expanded="@php echo $openned ? 'true' : 'false'; @endphp"
-        aria-controls="collapse-@php echo $name; @endphp">
-        @php echo $label; @endphp
+        data-bs-target="#collapse-{{ $name }}"
+        aria-expanded="{{ $openned ? 'true' : 'false' }}"
+        aria-controls="collapse-{{ $name }}">
+        {{ $label }}
       </button>
     </h2>
     <div
-      id="collapse-@php echo $name; @endphp"
-      class="accordion-collapse collapse@php echo $openned ? ' show' : ''; @endphp list-group list-group-flush"
-      aria-labelledby="heading-@php echo $name; @endphp">
-      @php $filters = sfOutputEscaper::unescape($filters); @endphp
+      id="collapse-{{ $name }}"
+      class="accordion-collapse collapse{{ $openned ? ' show' : '' }} list-group list-group-flush"
+      aria-labelledby="heading-{{ $name }}">
 
       @if('languages' !== $name)
-        @php echo link_to(
-            __('All'),
-            [$name => null, 'page' => null] + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-            ['class' => 'list-group-item list-group-item-action d-flex justify-content-between align-items-center'.(!isset($filters[$name]) ? ' active text-decoration-underline' : '')]
-        ); @endphp
-      @endforeach
-    
+        @php
+          $allParams = array_merge(request()->all(), [$name => null, 'page' => null]);
+          $isActive = !isset($filters[$name]);
+        @endphp
+        <a href="{{ request()->fullUrlWithQuery([$name => null, 'page' => null]) }}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center{{ $isActive ? ' active text-decoration-underline' : '' }}">
+          {{ __('All') }}
+        </a>
+      @endif
+
       @foreach($aggs[$name] as $bucket)
         @php $active = ((isset($filters[$name]) && $filters[$name] == $bucket['key'])
             || (!isset($filters[$name]) && 'unique_language' == $bucket['key'])); @endphp
 
-        @php echo link_to(
-            __(strip_markdown($bucket['display']))
-            .'<span class="visually-hidden">, '
-            .$bucket['doc_count'].' '.__('results')
-            .'</span>'
-            .'<span aria-hidden="true" class="ms-3 text-nowrap">'
-            .$bucket['doc_count']
-            .'</span>',
-            ['page' => null, $name => 'unique_language' == $bucket['key'] ? null : $bucket['key']] + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-            ['class' => 'list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break'.($active ? ' active text-decoration-underline' : '')]
-        ); @endphp
+        <a href="{{ request()->fullUrlWithQuery(['page' => null, $name => 'unique_language' == $bucket['key'] ? null : $bucket['key']]) }}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break{{ $active ? ' active text-decoration-underline' : '' }}">
+          {{ __(strip_tags($bucket['display'])) }}
+          <span class="visually-hidden">, {{ $bucket['doc_count'] }} {{ __('results') }}</span>
+          <span aria-hidden="true" class="ms-3 text-nowrap">{{ $bucket['doc_count'] }}</span>
+        </a>
       @endforeach
     </div>
   </div>

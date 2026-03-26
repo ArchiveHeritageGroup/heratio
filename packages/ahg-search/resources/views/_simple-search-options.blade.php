@@ -1,18 +1,14 @@
 @php /**
  * Enhanced Simple Search Options Dropdown
  * Includes: Global search, Advanced search, Search Templates, Saved Searches, History
- * 
- * Overrides: apps/qubit/modules/search/templates/_simpleSearchOptions.php
  */
 
-// Load search service
-\AhgCore\Core\AhgDb::init();
-$searchService = new \App\Services\AdvancedSearchService();
+$searchService = app(\App\Services\AdvancedSearchService::class);
 
-$user = sfContext::getInstance()->getUser();
-$isAuthenticated = $user->isAuthenticated();
-$userId = $isAuthenticated ? $user->getAttribute('user_id') : null;
-$sessionId = session_id();
+$user = Auth::user();
+$isAuthenticated = Auth::check();
+$userId = $isAuthenticated ? $user->id : null;
+$sessionId = session()->getId();
 
 // Get data
 $templates = $searchService->getFeaturedTemplates();
@@ -28,89 +24,89 @@ $popular = $searchService->getPopularSearches(5); @endphp
       <i class="fa fa-globe me-1"></i>{{ __('Global search') }}
     </label>
   </div>
-  
+
   <!-- Advanced Search -->
-  <a class="dropdown-item" href="@php echo url_for('@glam_browse') . '?showAdvanced=true'; @endphp">
+  <a class="dropdown-item" href="{{ route('glam.browse') . '?showAdvanced=true' }}">
     <i class="fa fa-sliders-h me-2"></i>{{ __('Advanced search') }}
   </a>
-  
+
   <div class="dropdown-divider"></div>
-  
+
   <!-- Quick Search Templates -->
   @if(!empty($templates))
   <h6 class="dropdown-header">
     <i class="fa fa-bolt me-1"></i>{{ __('Quick Searches') }}
   </h6>
-  @php foreach ($templates as $template): @endphp
-  <a class="dropdown-item" href="@php echo url_for(['module' => 'searchEnhancement', 'action' => 'runTemplate', 'id' => $template->id]); @endphp">
-    <i class="fa @php echo esc_entities($template->icon); @endphp me-2 text-@php echo esc_entities($template->color); @endphp"></i>
-    @php echo esc_entities($template->name); @endphp
+  @foreach($templates as $template)
+  <a class="dropdown-item" href="{{ route('searchEnhancement.runTemplate', ['id' => $template->id]) }}">
+    <i class="fa {{ e($template->icon) }} me-2 text-{{ e($template->color) }}"></i>
+    {{ e($template->name) }}
   </a>
-  @php endforeach; @endphp
-  <a class="dropdown-item text-muted small" href="@php echo route('searchEnhancement.adminTemplates'); @endphp">
+  @endforeach
+  <a class="dropdown-item text-muted small" href="{{ route('searchEnhancement.adminTemplates') }}">
     <i class="fa fa-cog me-2"></i>{{ __('Manage templates') }}
   </a>
   <div class="dropdown-divider"></div>
   @endif
-  
+
   <!-- Saved Searches (Authenticated users) -->
   @if($isAuthenticated && !empty($savedSearches))
   <h6 class="dropdown-header">
     <i class="fa fa-bookmark me-1"></i>{{ __('Saved Searches') }}
   </h6>
-  @php foreach ($savedSearches as $saved): @endphp
-  <a class="dropdown-item" href="@php echo url_for(['module' => 'searchEnhancement', 'action' => 'runSavedSearch', 'id' => $saved->id]); @endphp">
+  @foreach($savedSearches as $saved)
+  <a class="dropdown-item" href="{{ route('searchEnhancement.runSavedSearch', ['id' => $saved->id]) }}">
     <i class="fa fa-bookmark-o me-2"></i>
-    @php echo esc_entities($saved->name); @endphp
+    {{ e($saved->name) }}
     @if($saved->notify_new_results)
       <i class="fa fa-bell text-info ms-1" title="{{ __('Notifications on') }}"></i>
     @endif
   </a>
-  @php endforeach; @endphp
-  <a class="dropdown-item text-muted small" href="@php echo route('searchEnhancement.savedSearches'); @endphp">
+  @endforeach
+  <a class="dropdown-item text-muted small" href="{{ route('searchEnhancement.savedSearches') }}">
     <i class="fa fa-list me-2"></i>{{ __('All saved searches') }}
   </a>
   <div class="dropdown-divider"></div>
   @endif
-  
+
   <!-- Recent Searches -->
   @if(!empty($history))
   <h6 class="dropdown-header">
     <i class="fa fa-history me-1"></i>{{ __('Recent Searches') }}
   </h6>
-  @php foreach ($history as $item): @endphp
+  @foreach($history as $item)
   @php $params = json_decode($item->search_params, true) ?: [];
-    $searchUrl = url_for('@glam_browse') . '?' . http_build_query($params); @endphp
-  <a class="dropdown-item" href="@php echo $searchUrl; @endphp">
+    $searchUrl = route('glam.browse') . '?' . http_build_query($params); @endphp
+  <a class="dropdown-item" href="{{ $searchUrl }}">
     <i class="fa fa-search me-2 text-muted"></i>
-    @php echo esc_entities(mb_substr($item->search_query ?: __('(Advanced)'), 0, 30)); @endphp
-    <small class="text-muted">(@php echo $item->result_count; @endphp)</small>
+    {{ e(mb_substr($item->search_query ?: __('(Advanced)'), 0, 30)) }}
+    <small class="text-muted">({{ $item->result_count }})</small>
   </a>
-  @php endforeach; @endphp
-  <a class="dropdown-item text-muted small" href="@php echo route('searchEnhancement.history'); @endphp">
+  @endforeach
+  <a class="dropdown-item text-muted small" href="{{ route('searchEnhancement.history') }}">
     <i class="fa fa-clock me-2"></i>{{ __('View all history') }}
   </a>
   <div class="dropdown-divider"></div>
   @endif
-  
+
   <!-- Popular Searches -->
   @if(!empty($popular))
   <h6 class="dropdown-header">
     <i class="fa fa-fire me-1"></i>{{ __('Popular') }}
   </h6>
-  @php foreach (array_slice($popular, 0, 3) as $p): @endphp
+  @foreach(array_slice($popular, 0, 3) as $p)
   @php $params = json_decode($p->search_params, true) ?: [];
-    $searchUrl = url_for('@glam_browse') . '?' . http_build_query($params); @endphp
-  <a class="dropdown-item" href="@php echo $searchUrl; @endphp">
+    $searchUrl = route('glam.browse') . '?' . http_build_query($params); @endphp
+  <a class="dropdown-item" href="{{ $searchUrl }}">
     <i class="fa fa-trending-up me-2 text-warning"></i>
-    @php echo esc_entities($p->search_query); @endphp
-    <small class="text-muted">(@php echo $p->search_count; @endphp)</small>
+    {{ e($p->search_query) }}
+    <small class="text-muted">({{ $p->search_count }})</small>
   </a>
-  @php endforeach; @endphp
+  @endforeach
   @endif
 </div>
 
-<style @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<style nonce="{{ csp_nonce() }}">
 .search-options-dropdown {
   min-width: 280px;
   max-height: 70vh;

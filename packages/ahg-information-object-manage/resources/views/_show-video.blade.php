@@ -1,28 +1,38 @@
-@php use_helper('Text'); @endphp
-@php $hasIiifPlayer = false; try { use_helper('Media'); $hasIiifPlayer = function_exists('render_media_player'); } catch (Exception $e) {} @endphp
+@php
+$digitalObjectLabel = config('app.ui_label_digitalobject', 'digital object');
+$altTextOpen = __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => $digitalObjectLabel]);
+$altTextClosed = __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => $digitalObjectLabel]);
+$masterUsage = config('atom.term.MASTER_ID');
+$chaptersUsage = config('atom.term.CHAPTERS_ID');
+$subtitlesUsage = config('atom.term.SUBTITLES_ID');
+$referenceUsage = config('atom.term.REFERENCE_ID');
+$thumbnailUsage = config('atom.term.THUMBNAIL_ID');
+@endphp
 
-@if(QubitTerm::MASTER_ID == $usageType)
+@if($masterUsage == $usageType)
 
   @if(isset($link))
-    @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]); @endphp
+    <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}">
   @else
-    @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]), $link); @endphp
+    <a href="{{ $link }}">
+      <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}">
+    </a>
   @endif
 
-@elseif(QubitTerm::CHAPTERS_ID == $usageType)
+@elseif($chaptersUsage == $usageType)
 
-  @php // Chapters handled internally by player @endphp
+  {{-- Chapters handled internally by player --}}
 
-@elseif(QubitTerm::SUBTITLES_ID == $usageType)
+@elseif($subtitlesUsage == $usageType)
 
-  @php // Subtitles handled internally by player @endphp
+  {{-- Subtitles handled internally by player --}}
 
-@elseif(QubitTerm::REFERENCE_ID == $usageType)
+@elseif($referenceUsage == $usageType)
 
-  @if($showMediaPlayer)
+  @if($showMediaPlayer ?? false)
 
-    @if($hasIiifPlayer)
-      @php // ahgIiifPlugin enabled — use AhgMediaPlayer JS player @endphp
+    @if(function_exists('render_media_player'))
+      {{-- ahgIiifPlugin enabled - use AhgMediaPlayer JS player --}}
       @php echo render_media_player([
           'id' => $resource->id,
           'name' => $resource->name,
@@ -32,44 +42,48 @@
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      @php // Native HTML5 player (no ahgIiifPlugin) @endphp
+      {{-- Native HTML5 player --}}
       <video controls class="w-100" style="max-height:500px;" preload="metadata">
-        <source src="@php echo public_path($representation->getFullPath()); @endphp" type="{{ $resource->mimeType }}">
+        <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
         Your browser does not support video playback.
       </video>
     @endif
 
   @else
     <div style="text-align: center">
-      @php echo image_tag($representation->getFullPath(), ['style' => 'border: #999 1px solid', 'alt' => '']); @endphp
+      <img src="{{ $representation->getFullPath() }}" style="border: #999 1px solid" alt="">
     </div>
   @endif
 
-  @if(isset($link) && \AtomExtensions\Services\AclService::check($resource->object, 'readMaster'))
+  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster'))
     <div class="mt-2">
-      @php echo link_to(__('Download video'), $link, ['class' => 'btn btn-sm btn-outline-secondary']); @endphp
+      <a href="{{ $link }}" class="btn btn-sm btn-outline-secondary">{{ __('Download video') }}</a>
     </div>
   @endif
 
-@elseif(QubitTerm::THUMBNAIL_ID == $usageType)
+@elseif($thumbnailUsage == $usageType)
 
-  @if($iconOnly)
+  @if($iconOnly ?? false)
     @if(isset($link))
-      @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]), $link); @endphp
+      <a href="{{ $link }}">
+        <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}">
+      </a>
     @else
-      @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]); @endphp
+      <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}">
     @endif
   @else
     <div class="digitalObject">
       <div class="digitalObjectRep">
         @if(isset($link))
-          @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]), $link); @endphp
+          <a href="{{ $link }}">
+            <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}">
+          </a>
         @else
-          @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')])]); @endphp
+          <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}">
         @endif
       </div>
       <div class="digitalObjectDesc">
-        @php echo wrap_text($resource->name, 18); @endphp
+        {{ Illuminate\Support\Str::limit($resource->name, 18) }}
       </div>
     </div>
   @endif

@@ -1,12 +1,15 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
+<div class="field">
 
-  @php echo render_b5_show_label(__('Alternative identifier(s)')); @endphp
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Alternative identifier(s)') }}</h3>
 
-  <div class="@php echo render_b5_show_value_css_classes(); @endphp">
+  <div>
     @foreach($resource->getAlternativeIdentifiers() as $item)
-      @php echo render_show(render_value_inline($item->getType(['cultureFallback' => true])), $item->getName(['cultureFallback' => true]), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ $item->getType(['cultureFallback' => true]) }}</h3>
+        <div>{{ $item->getName(['cultureFallback' => true]) }}</div>
+      </div>
       @if(!empty($note = $item->getNote(['cultureFallback' => true])))
-        @php echo render_value($note); @endphp
+        <div>{!! $note !!}</div>
       @endif
     @endforeach
   </div>

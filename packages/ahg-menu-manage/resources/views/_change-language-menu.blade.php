@@ -19,7 +19,7 @@
     </span>
     <span class="visually-hidden">
       {{ __('Language') }}
-    </span>  
+    </span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="language-menu">
     <li>
@@ -29,12 +29,9 @@
     </li>
     @foreach($langCodes as $value)
       <li>
-        @php echo link_to(
-            ucfirst(format_language($value, $value)),
-            ['sf_culture' => $value]
-                + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-            ['class' => 'dropdown-item']
-        ); @endphp
+        <a href="{{ request()->fullUrlWithQuery(['sf_culture' => $value]) }}" class="dropdown-item">
+          {{ ucfirst(\Locale::getDisplayLanguage($value, $value)) }}
+        </a>
       </li>
     @endforeach
   </ul>

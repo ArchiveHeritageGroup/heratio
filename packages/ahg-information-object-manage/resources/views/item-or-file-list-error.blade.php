@@ -5,6 +5,6 @@
 
     <p>{{ __("Oops, we couldn't find any %1 level descriptions.", ['%1' => strtolower($type)]) }}</p>
 
-    <p>@php echo link_to(__('Back'), [$resource, 'module' => 'informationobject', 'action' => 'reports']); @endphp</p>
+    <p><a href="{{ route('informationobject.reports', $resource->slug) }}">{{ __('Back') }}</a></p>
   </div>
 </div>

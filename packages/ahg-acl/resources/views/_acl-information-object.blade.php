@@ -1,34 +1,32 @@
 <h1>
   {{ __('Edit %1% permissions of %2%', [
-      '%1%' => lcfirst(sfConfig::get('app_ui_label_informationobject')),
-      '%2%' => render_title($resource),
+      '%1%' => lcfirst(__('Archival description')),
+      '%2%' => $resource->authorized_form_of_name ?? $resource->title ?? '',
   ]) }}
 </h1>
 
-@php echo get_partial('aclGroup/aclModal', [
+@include('ahg-acl::_acl-modal', [
     'entityType' => 'informationobject',
-    'label' => sfConfig::get('app_ui_label_informationobject'),
+    'label' => __('Archival description'),
     'basicActions' => $basicActions,
-]); @endphp
+])
 
-@php echo get_partial('aclGroup/aclModal', [
+@include('ahg-acl::_acl-modal', [
     'entityType' => 'repository',
-    'label' => sfConfig::get('app_ui_label_repository'),
+    'label' => __('Repository'),
     'basicActions' => $basicActions,
-]); @endphp
+])
 
-@php echo $form->renderGlobalErrors(); @endphp
+@if($errors->any())
+  <div class="alert alert-danger">
+    @foreach($errors->all() as $error)
+      <p>{{ $error }}</p>
+    @endforeach
+  </div>
+@endif
 
-@php echo $form->renderFormTag(
-    url_for([
-        $resource,
-        'module' => $sf_context->getModuleName(),
-        'action' => 'editInformationObjectAcl',
-    ]),
-    ['id' => 'editForm']
-); @endphp
-
-  @php echo $form->renderHiddenFields(); @endphp
+<form id="editForm" method="POST" action="{{ route('acl.editInformationObjectAcl', ['id' => $resource->id]) }}">
+  @csrf
 
   <div class="accordion mb-3">
     <div class="accordion-item">
@@ -42,7 +40,7 @@
           aria-controls="all-collapse">
           {{ __(
               'Permissions for all %1%',
-              ['%1%' => lcfirst(sfConfig::get('app_ui_label_informationobject'))]
+              ['%1%' => lcfirst(__('Archival description'))]
           ) }}
         </button>
       </h2>
@@ -51,11 +49,13 @@
         class="accordion-collapse collapse"
         aria-labelledby="all-heading">
         <div class="accordion-body">
-          @php echo get_component('aclGroup', 'aclTable', [
-              'object' => QubitInformationObject::getRoot(),
-              'permissions' => $root,
+          @include('ahg-acl::_acl-table', [
+              'object' => $rootInformationObject,
+              'permissions' => $root ?? [],
               'actions' => $basicActions,
-          ]); @endphp
+              'module' => 'informationobject',
+              'moduleLabel' => __('Archival description'),
+          ])
         </div>
       </div>
     </div>
@@ -70,19 +70,21 @@
           aria-controls="io-collapse">
           {{ __(
               'Permissions by %1%',
-              ['%1%' => lcfirst(sfConfig::get('app_ui_label_informationobject'))]
+              ['%1%' => lcfirst(__('Archival description'))]
           ) }}
         </button>
       </h2>
       <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
         <div class="accordion-body">
-          @if(0 < count($informationObjects))
+          @if(count($informationObjects) > 0)
             @foreach($informationObjects as $informationObjectId => $permissions)
-              @php echo get_component('aclGroup', 'aclTable', [
-                  'object' => QubitInformationObject::getById($informationObjectId),
+              @include('ahg-acl::_acl-table', [
+                  'object' => $informationObjectEntities[$informationObjectId] ?? (object)['id' => $informationObjectId, 'slug' => $informationObjectId],
                   'permissions' => $permissions,
                   'actions' => $basicActions,
-              ]); @endphp
+                  'module' => 'informationobject',
+                  'moduleLabel' => __('Archival description'),
+              ])
             @endforeach
           @endif
 
@@ -95,7 +97,7 @@
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
                 'Add permissions by %1%',
-                ['%1%' => lcfirst(sfConfig::get('app_ui_label_informationobject'))]
+                ['%1%' => lcfirst(__('Archival description'))]
             ) }}
           </button>
         </div>
@@ -112,7 +114,7 @@
           aria-controls="repo-collapse">
           {{ __(
               'Permissions by %1%',
-              ['%1%' => lcfirst(sfConfig::get('app_ui_label_repository'))]
+              ['%1%' => lcfirst(__('Repository'))]
           ) }}
         </button>
       </h2>
@@ -121,13 +123,15 @@
         class="accordion-collapse collapse"
         aria-labelledby="repo-heading">
         <div class="accordion-body">
-          @if(0 < count($repositories))
+          @if(count($repositories) > 0)
             @foreach($repositories as $repository => $permissions)
-              @php echo get_component('aclGroup', 'aclTable', [
-                  'object' => QubitRepository::getBySlug($repository),
+              @include('ahg-acl::_acl-table', [
+                  'object' => $repositoryObjects[$repository] ?? (object)['id' => $repository, 'slug' => $repository],
                   'permissions' => $permissions,
                   'actions' => $basicActions,
-              ]); @endphp
+                  'module' => 'repository',
+                  'moduleLabel' => __('Repository'),
+              ])
             @endforeach
           @endif
 
@@ -140,7 +144,7 @@
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __(
                 'Add permissions by %1%',
-                ['%1%' => lcfirst(sfConfig::get('app_ui_label_repository'))]
+                ['%1%' => lcfirst(__('Repository'))]
             ) }}
           </button>
         </div>
@@ -150,11 +154,9 @@
 
   <ul class="actions mb-3 nav gap-2">
     <li>
-      @php echo link_to(
-          __('Cancel'),
-          [$resource, 'module' => $sf_context->getModuleName(), 'action' => 'indexInformationObjectAcl'],
-          ['class' => 'btn atom-btn-outline-light', 'role' => 'button']
-      ); @endphp
+      <a href="{{ route('acl.groups') }}" class="btn atom-btn-outline-light" role="button">
+        {{ __('Cancel') }}
+      </a>
     </li>
     <li>
       <input

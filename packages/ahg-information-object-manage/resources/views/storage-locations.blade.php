@@ -15,23 +15,23 @@
 </head>
 
 <body>
-  <h1 class="do-print">@php echo $this->i18n->__('Physical storage locations'); @endphp</h1>
+  <h1 class="do-print">{{ __('Physical storage locations') }}</h1>
 
   <h1 class="label">
-    @php echo render_title($resource); @endphp
+    {{ $resource->authorized_form_of_name ?? $resource->title ?? '' }}
   </h1>
 
   <table class="sticky-enabled">
     <thead>
       <tr>
         <th>
-          @php echo $this->i18n->__('#'); @endphp
+          {{ __('#') }}
         </th><th>
-          @php echo $this->i18n->__('Name'); @endphp
+          {{ __('Name') }}
         </th><th>
-          @php echo $this->i18n->__('Location'); @endphp
+          {{ __('Location') }}
         </th><th>
-          @php echo $this->i18n->__('Type'); @endphp
+          {{ __('Type') }}
         </th>
       </tr>
     </thead><tbody>
@@ -39,13 +39,13 @@
       @foreach($results as $item)
         <tr>
           <td>
-            @php echo $row++; @endphp
+            {{ $row++ }}
           </td><td>
-            @php echo link_to(render_title($item->getName(['cultureFallback' => true])), sfConfig::get('app_siteBaseUrl').'/'.$item->slug); @endphp
+            <a href="{{ url('/' . ($item->slug ?? '')) }}">{{ $item->name ?? '' }}</a>
           </td><td>
-            @php echo render_value_inline($item->getLocation(['cultureFallback' => true])); @endphp
+            {{ $item->location ?? '' }}
           </td><td>
-            @php echo render_value_inline($item->getType(['cultureFallback' => true])); @endphp
+            {{ $item->type ?? '' }}
           </td>
         </tr>
       @endforeach
@@ -53,7 +53,7 @@
   </table>
 
   <div id="result-count">
-    @php echo $this->i18n->__('Showing %1% results', ['%1%' => count($results)]); @endphp
+    {{ __('Showing %1% results', ['%1%' => count($results)]) }}
   </div>
 </body>
 </html>

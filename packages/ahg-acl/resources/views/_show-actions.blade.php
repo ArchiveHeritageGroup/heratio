@@ -1,23 +1,41 @@
-@if(\AtomExtensions\Services\AclService::check($group, ['create', 'update', 'delete', 'list']))
+@auth
+@if(\AhgCore\Services\AclService::check($group, ['create', 'update', 'delete', 'list']))
 
   <ul class="actions mb-3 nav gap-2">
 
-    @if(\AtomExtensions\Services\AclService::check($group, 'update'))
-      <li>@php echo link_to(__('Edit'), [$group, 'module' => 'aclGroup', 'action' => str_replace('index', 'edit', $sf_context->getActionName())], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
+    @if(\AhgCore\Services\AclService::check($group, 'update'))
+      <li>
+        <a href="{{ route('acl.edit-group', ['id' => $group->id]) }}" class="btn atom-btn-outline-light">
+          {{ __('Edit') }}
+        </a>
+      </li>
     @endif
 
-    @if(\AtomExtensions\Services\AclService::check($group, 'delete'))
-      <li>@php echo link_to(__('Delete'), [$group, 'module' => 'aclGroup', 'action' => 'delete'], ['class' => 'btn atom-btn-outline-danger']); @endphp</li>
+    @if(\AhgCore\Services\AclService::check($group, 'delete'))
+      <li>
+        <a href="{{ route('acl.groups') }}?delete={{ $group->id }}" class="btn atom-btn-outline-danger">
+          {{ __('Delete') }}
+        </a>
+      </li>
     @endif
 
-    @if(\AtomExtensions\Services\AclService::check($group, 'create'))
-      <li>@php echo link_to(__('Add new'), ['module' => 'aclGroup', 'action' => 'add'], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
+    @if(\AhgCore\Services\AclService::check($group, 'create'))
+      <li>
+        <a href="{{ route('acl.edit-group', ['id' => 0]) }}" class="btn atom-btn-outline-light">
+          {{ __('Add new') }}
+        </a>
+      </li>
     @endif
-    
-    @if(\AtomExtensions\Services\AclService::check($group, 'list'))
-      <li>@php echo link_to(__('Return to group list'), ['module' => 'aclGroup', 'action' => 'list'], ['class' => 'btn atom-btn-outline-light']); @endphp</li>
+
+    @if(\AhgCore\Services\AclService::check($group, 'list'))
+      <li>
+        <a href="{{ route('acl.groups') }}" class="btn atom-btn-outline-light">
+          {{ __('Return to group list') }}
+        </a>
+      </li>
     @endif
 
   </ul>
 
 @endif
+@endauth

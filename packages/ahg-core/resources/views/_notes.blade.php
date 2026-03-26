@@ -1,63 +1,63 @@
 <h3 class="fs-6 mb-2">
-  @php echo $tableName; @endphp
+  {{ $tableName }}
 </h3>
 
 <div class="table-responsive mb-2">
   <table class="table table-bordered mb-0 multi-row">
     <thead class="table-light">
       <tr>
-	@if($hiddenType)
-          <th id="@php echo $arrayName; @endphp-content-head" class="w-100">
+	@if($hiddenType ?? false)
+          <th id="{{ $arrayName }}-content-head" class="w-100">
             {{ __('Content') }}
           </th>
-	@php } else { @endphp
-          <th id="@php echo $arrayName; @endphp-content-head" class="w-70">
+	@else
+          <th id="{{ $arrayName }}-content-head" class="w-70">
             {{ __('Content') }}
           </th>
-          <th id="@php echo $arrayName; @endphp-type-head" class="w-30">
+          <th id="{{ $arrayName }}-type-head" class="w-30">
             {{ __('Type') }}
           </th>
-        @endforeach
+        @endif
         <th>
           <span class="visually-hidden">{{ __('Delete') }}</span>
         </th>
       </tr>
     </thead>
     <tbody>
-      @php $i = 0;
-      foreach ($notes as $item) { @endphp
-        @php $form->getWidgetSchema()->setNameFormat($arrayName."[{$i}][%s]");
-        ++$i; @endphp
-
-        <tr class="related_obj_@php echo $item->id; @endphp">
+      @php $i = 0; @endphp
+      @foreach($notes ?? [] as $item)
+        <tr class="related_obj_{{ $item->id ?? '' }}">
           <td>
             <input
               type="hidden"
-              name="@php echo $form->getWidgetSchema()->generateName('id'); @endphp"
-              value="@php echo $item->id; @endphp">
-            @if($hiddenType)
+              name="{{ $arrayName }}[{{ $i }}][id]"
+              value="{{ $item->id ?? '' }}">
+            @if($hiddenType ?? false)
               <input
                 type="hidden"
-                name="@php echo $form->getWidgetSchema()->generateName('type'); @endphp"
-                value="@php echo $hiddenTypeId; @endphp">
-            @endforeach
-            @php $form->setDefault('content', $item->getContent()); @endphp
-            @php echo render_field($form->content, $item, [
-                'aria-labelledby' => $arrayName.'-content-head',
-                'aria-describedby' => $arrayName.'-table-help',
-                'onlyInputs' => true,
-            ]); @endphp
+                name="{{ $arrayName }}[{{ $i }}][type]"
+                value="{{ $hiddenTypeId ?? '' }}">
+            @endif
+            <textarea
+              class="form-control"
+              name="{{ $arrayName }}[{{ $i }}][content]"
+              aria-labelledby="{{ $arrayName }}-content-head"
+              aria-describedby="{{ $arrayName }}-table-help"
+              rows="2">{{ $item->content ?? '' }}</textarea>
           </td>
-          @if(!$hiddenType)
+          @if(!($hiddenType ?? false))
             <td>
-              @php $form->setDefault('type', $item->typeId); @endphp
-              @php echo render_field($form->type, null, [
-                  'aria-labelledby' => $arrayName.'-type-head',
-                  'aria-describedby' => $arrayName.'-table-help',
-                  'onlyInputs' => true,
-              ]); @endphp
+              <select
+                class="form-select"
+                name="{{ $arrayName }}[{{ $i }}][type]"
+                aria-labelledby="{{ $arrayName }}-type-head"
+                aria-describedby="{{ $arrayName }}-table-help">
+                @foreach($noteTypes ?? [] as $typeId => $typeName)
+                  <option value="{{ $typeId }}"{{ ($item->typeId ?? $item->type_id ?? '') == $typeId ? ' selected' : '' }}>{{ $typeName }}</option>
+                @endforeach
+              </select>
             </td>
-          @endforeach
+          @endif
           <td>
             <button type="button" class="multi-row-delete btn atom-btn-white">
               <i class="fas fa-times" aria-hidden="true"></i>
@@ -65,35 +65,38 @@
             </button>
           </td>
         </tr>
+        @php $i++; @endphp
       @endforeach
 
-      @php $form->getWidgetSchema()->setNameFormat($arrayName."[{$i}][%s]"); @endphp
-
+      {{-- Empty row for adding new --}}
       <tr>
         <td>
-          @if($hiddenType)
+          @if($hiddenType ?? false)
             <input
               type="hidden"
-              name="@php echo $form->getWidgetSchema()->generateName('type'); @endphp"
-              value="@php echo $hiddenTypeId; @endphp">
-          @endforeach
-          @php $form->setDefault('content', ''); @endphp
-          @php echo render_field($form->content, null, [
-              'aria-labelledby' => $arrayName.'-content-head',
-              'aria-describedby' => $arrayName.'-table-help',
-              'onlyInputs' => true,
-          ]); @endphp
+              name="{{ $arrayName }}[{{ $i }}][type]"
+              value="{{ $hiddenTypeId ?? '' }}">
+          @endif
+          <textarea
+            class="form-control"
+            name="{{ $arrayName }}[{{ $i }}][content]"
+            aria-labelledby="{{ $arrayName }}-content-head"
+            aria-describedby="{{ $arrayName }}-table-help"
+            rows="2"></textarea>
         </td>
-        @if(!$hiddenType)
+        @if(!($hiddenType ?? false))
           <td>
-            @php $form->setDefault('type', ''); @endphp
-            @php echo render_field($form->type, null, [
-                'aria-labelledby' => $arrayName.'-type-head',
-                'aria-describedby' => $arrayName.'-table-help',
-                'onlyInputs' => true,
-            ]); @endphp
+            <select
+              class="form-select"
+              name="{{ $arrayName }}[{{ $i }}][type]"
+              aria-labelledby="{{ $arrayName }}-type-head"
+              aria-describedby="{{ $arrayName }}-table-help">
+              @foreach($noteTypes ?? [] as $typeId => $typeName)
+                <option value="{{ $typeId }}">{{ $typeName }}</option>
+              @endforeach
+            </select>
           </td>
-        @endforeach
+        @endif
         <td>
           <button type="button" class="multi-row-delete btn atom-btn-white">
             <i class="fas fa-times" aria-hidden="true"></i>
@@ -104,7 +107,7 @@
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="@php echo $hiddenType ? '2' : '3'; @endphp">
+        <td colspan="{{ ($hiddenType ?? false) ? '2' : '3' }}">
           <button type="button" class="multi-row-add btn atom-btn-white">
             <i class="fas fa-plus me-1" aria-hidden="true"></i>
             {{ __('Add new') }}
@@ -115,6 +118,6 @@
   </table>
 </div>
 
-<div class="form-text mb-3" id="@php echo $arrayName; @endphp-table-help">
-  @php echo $help; @endphp
+<div class="form-text mb-3" id="{{ $arrayName }}-table-help">
+  {{ $help ?? '' }}
 </div>

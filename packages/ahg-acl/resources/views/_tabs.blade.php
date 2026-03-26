@@ -1,20 +1,20 @@
 <nav>
   <ul class="nav nav-pills mb-3 d-flex gap-2">
-  @foreach($groupsMenu->getChildren() as $child)
-      @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-      @if(
-          str_replace('%currentId%', $sf_request->id, $child->path)
-          == $sf_context->getRouting()->getCurrentInternalUri()
-      )
-        @php $options['class'] .= ' active'; @endphp
-        @php $options['aria-current'] = 'page'; @endphp
-      @endif
+  @foreach($groupsMenu as $child)
+      @php
+        $options = ['class' => 'btn atom-btn-white active-primary text-wrap'];
+        $childUrl = $child['url'] ?? '#';
+        $childLabel = $child['label'] ?? '';
+        $isActive = (request()->url() == $childUrl);
+        if ($isActive) {
+            $options['class'] .= ' active';
+            $options['aria-current'] = 'page';
+        }
+      @endphp
       <li class="nav-item">
-        @php echo link_to(
-            $child->getLabel(['cultureFallback' => true]),
-            $child->getPath(['getUrl' => true, 'resolveAlias' => true]),
-            $options
-        ); @endphp
+        <a href="{{ $childUrl }}" class="{{ $options['class'] }}" @if($isActive) aria-current="page" @endif>
+          {{ $childLabel }}
+        </a>
       </li>
     @endforeach
   </ul>

@@ -1,17 +1,13 @@
 @php /**
- * Name Access Points Partial - Object Module Version
+ * Name Access Points Partial - Laravel Version
  *
  * Shows actors related to the information object via events and relations.
- * Uses helper functions from AhgLaravelHelper.php
  *
- * @package    ahgThemeB5Plugin
+ * @package    ahg-core
  * @subpackage templates
  */
 
-// Load helper functions if not already loaded
-if (!function_exists('ahg_get_actor_events')) {
-    require_once sfConfig::get('sf_plugins_dir').'/ahgUiOverridesPlugin/lib/helper/AhgLaravelHelper.php';
-}
+use Illuminate\Support\Facades\DB;
 
 // Get resource ID
 $resourceId = is_object($resource) ? ($resource->id ?? null) : $resource;
@@ -20,11 +16,48 @@ if (!$resourceId) {
     return;
 }
 
-// Get actor events (creators, contributors, etc.) - uses helper function
-$actorEvents = ahg_get_actor_events($resourceId);
+$culture = app()->getLocale();
 
-// Get name access points via relations - uses helper function
-$nameAccessPoints = ahg_get_name_access_relations($resourceId);
+// Get actor events (creators, contributors, etc.)
+$actorEvents = DB::table('event as e')
+    ->join('actor as a', 'e.actor_id', '=', 'a.id')
+    ->leftJoin('actor_i18n as ai', function ($join) use ($culture) {
+        $join->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
+    })
+    ->leftJoin('actor_i18n as ai_en', function ($join) {
+        $join->on('a.id', '=', 'ai_en.id')->where('ai_en.culture', '=', 'en');
+    })
+    ->leftJoin('term_i18n as ti', function ($join) use ($culture) {
+        $join->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+    })
+    ->leftJoin('term_i18n as ti_en', function ($join) {
+        $join->on('e.type_id', '=', 'ti_en.id')->where('ti_en.culture', '=', 'en');
+    })
+    ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
+    ->where('e.object_id', $resourceId)
+    ->whereNotNull('e.actor_id')
+    ->select(['a.id', 'e.type_id', 'slug.slug',
+        DB::raw('COALESCE(ai.authorized_form_of_name, ai_en.authorized_form_of_name) as name'),
+        DB::raw('COALESCE(ti.name, ti_en.name) as event_type')])
+    ->orderBy(DB::raw('COALESCE(ai.authorized_form_of_name, ai_en.authorized_form_of_name)'))
+    ->get()->toArray();
+
+// Get name access points via relations
+$nameAccessPoints = DB::table('relation as r')
+    ->join('actor as a', 'r.object_id', '=', 'a.id')
+    ->leftJoin('actor_i18n as ai', function ($join) use ($culture) {
+        $join->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
+    })
+    ->leftJoin('actor_i18n as ai_en', function ($join) {
+        $join->on('a.id', '=', 'ai_en.id')->where('ai_en.culture', '=', 'en');
+    })
+    ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
+    ->where('r.subject_id', $resourceId)
+    ->where('r.type_id', 161)
+    ->select(['a.id', 'slug.slug',
+        DB::raw('COALESCE(ai.authorized_form_of_name, ai_en.authorized_form_of_name) as name')])
+    ->orderBy(DB::raw('COALESCE(ai.authorized_form_of_name, ai_en.authorized_form_of_name)'))
+    ->get()->toArray();
 
 // Combine and deduplicate by actor ID
 $allActors = [];
@@ -50,12 +83,9 @@ if (empty($allActors)) {
 }
 
 // Check if sidebar display
-$isSidebar = isset($sidebar) && $sidebar; @endphp
+$isSidebar = isset($sidebar) && $sidebar;
+@endphp
 
-@php // Get the base path for constructing actor URLs
-// AtoM routing uses QubitMetadataRoute - URLs are just /:slug
-// The route determines module from object class in database
-$basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
 @if($isSidebar)
   <section id="nameAccessPointsSection">
     <h4>{{ __('Related people and organizations') }}</h4>
@@ -63,44 +93,44 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
       @foreach($allActors as $actor)
         <li>
           @if($actor->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">
+            <a href="{{ route('actor.show', $actor->slug) }}">
               {{ $actor->name ?? '' }}
             </a>
-          @php } else { @endphp
+          @else
             {{ $actor->name ?? '' }}
-          @endforeach
+          @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
-          @endforeach
+          @endif
         </li>
       @endforeach
     </ul>
   </section>
-@php } else { @endphp
-<div class="field@php echo isset($sidebar) ? '' : ' '.render_b5_show_field_css_classes(); @endphp">
+@else
+<div class="field">
 
   @if(isset($mods))
-    @php echo render_b5_show_label(__('Names')); @endphp
-  @php } else { @endphp
-    @php echo render_b5_show_label(__('Name access points')); @endphp
-  @endforeach
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Names') }}</h3>
+  @else
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Name access points') }}</h3>
+  @endif
 
-  <div@php echo isset($sidebar) ? '' : ' class="'.render_b5_show_value_css_classes().'"'; @endphp>
-    <ul class="@php echo isset($sidebar) ? 'list-unstyled' : render_b5_show_list_css_classes(); @endphp">
+  <div>
+    <ul class="list-unstyled">
       @foreach($allActors as $actor)
         <li>
           @if($actor->slug)
-            <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">{{ $actor->name ?? '' }}</a>
-          @php } else { @endphp
+            <a href="{{ route('actor.show', $actor->slug) }}">{{ $actor->name ?? '' }}</a>
+          @else
             {{ $actor->name ?? '' }}
-          @endforeach
+          @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
-          @endforeach
+          @endif
         </li>
       @endforeach
     </ul>
   </div>
 
 </div>
-@endforeach
+@endif

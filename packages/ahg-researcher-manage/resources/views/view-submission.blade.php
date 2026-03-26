@@ -37,13 +37,13 @@
         </div>
         <div>
           @if($submission->status === 'draft')
-            <a href="@php echo url_for(['module' => 'researcher', 'action' => 'editSubmission', 'id' => $submission->id]) @endphp"
+            <a href="{{ route('researcher.editSubmission', ['id' => $submission->id]) }}"
                class="btn btn-outline-primary btn-sm me-1">
               <i class="bi bi-pencil me-1"></i>Edit
             </a>
           @endif
           @if(in_array($submission->status, ['draft', 'returned']))
-            <a href="@php echo url_for(['module' => 'researcher', 'action' => 'addItem', 'id' => $submission->id]) @endphp"
+            <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}"
                class="btn atom-btn-white btn-sm">
               <i class="bi bi-plus-lg me-1"></i>Add Item
             </a>
@@ -84,7 +84,7 @@
               <i class="bi bi-inbox" style="font-size: 1.5rem;"></i>
               <p class="mt-2 mb-0">No items yet.
                 @if(in_array($submission->status, ['draft', 'returned']))
-                  <a href="@php echo url_for(['module' => 'researcher', 'action' => 'addItem', 'id' => $submission->id]) @endphp">Add your first item</a>.
+                  <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}">Add your first item</a>.
                 @endif
               </p>
             </div>
@@ -120,7 +120,7 @@
                     <td><i class="bi @php echo $icon @endphp me-1"></i>@php echo ucfirst($item->item_type) @endphp</td>
                     <td class="@php echo $indent @endphp">
                       @if($item->parent_item_id)<i class="bi bi-arrow-return-right me-1 text-muted"></i>@endif
-                      <a href="@php echo url_for(['module' => 'researcher', 'action' => 'editItem', 'id' => $submission->id, 'itemId' => $item->id]) @endphp">
+                      <a href="{{ route('researcher.editItem', ['id' => $submission->id, 'itemId' => $item->id]) }}">
                         @php echo htmlspecialchars($item->title) @endphp
                       </a>
                       @if($item->identifier)
@@ -138,7 +138,7 @@
                     <td>@php echo implode(' ', $accessPoints) ?: '<small class="text-muted">-</small>' @endphp</td>
                     <td class="text-end">
                       @if(in_array($submission->status, ['draft', 'returned']))
-                        <form method="post" action="@php echo url_for(['module' => 'researcher', 'action' => 'deleteItem', 'id' => $submission->id, 'itemId' => $item->id]) @endphp"
+                        <form method="post" action="{{ route('researcher.deleteItem', ['id' => $submission->id, 'itemId' => $item->id]) }}"
                               style="display:inline" onsubmit="return confirm('Delete this item?')">
                           <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                             <i class="bi bi-trash"></i>
@@ -253,7 +253,7 @@
         </div>
         <div class="card-body d-grid gap-2">
           @if($submission->status === 'draft')
-            <form method="post" action="@php echo url_for(['module' => 'researcher', 'action' => 'submit', 'id' => $submission->id]) @endphp">
+            <form method="post" action="{{ route('researcher.submit', ['id' => $submission->id]) }}">
               <button type="submit" class="btn atom-btn-outline-warning w-100" @php echo count($items) === 0 ? 'disabled' : '' @endphp
                       onclick="return confirm('Submit this collection for archivist review?')">
                 <i class="bi bi-send me-1"></i>Submit for Review
@@ -265,11 +265,11 @@
           @endif
 
           @if($submission->status === 'returned')
-            <a href="@php echo url_for(['module' => 'researcher', 'action' => 'addItem', 'id' => $submission->id]) @endphp"
+            <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}"
                class="btn btn-outline-success">
               <i class="bi bi-plus-lg me-1"></i>Add More Items
             </a>
-            <form method="post" action="@php echo url_for(['module' => 'researcher', 'action' => 'resubmit', 'id' => $submission->id]) @endphp">
+            <form method="post" action="{{ route('researcher.resubmit', ['id' => $submission->id]) }}">
               <button type="submit" class="btn atom-btn-outline-warning w-100" onclick="return confirm('Resubmit for review?')">
                 <i class="bi bi-send me-1"></i>Resubmit
               </button>
@@ -277,7 +277,7 @@
           @endif
 
           @if($submission->status === 'approved' && $isAdmin)
-            <a href="@php echo url_for(['module' => 'researcher', 'action' => 'publish', 'id' => $submission->id]) @endphp"
+            <a href="{{ route('researcher.publish', ['id' => $submission->id]) }}"
                class="btn atom-btn-white">
               <i class="bi bi-globe me-1"></i>Publish to AtoM
             </a>

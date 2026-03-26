@@ -1,9 +1,9 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
-  @php echo render_b5_show_label(__('Accession number(s)')); @endphp
-  <div class="@php echo render_b5_show_value_css_classes(); @endphp">
-    <ul class="@php echo render_b5_show_list_css_classes(); @endphp">
+<div class="field mb-3">
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Accession number(s)') }}</h3>
+  <div>
+    <ul class="list-unstyled ms-0">
       @foreach($accessions as $item)
-        <li>@php echo link_to(render_title($item->object), [$item->object, 'module' => 'accession']); @endphp</li>
+        <li><a href="{{ route('accession.show', $item->object->slug ?? $item->object->id ?? '') }}">{{ $item->object->authorized_form_of_name ?? $item->object->title ?? '' }}</a></li>
       @endforeach
     </ul>
   </div>

@@ -4,8 +4,8 @@
 
 <div
   class="atom-table-modal"
-  data-current-resource="@php echo url_for([$resource]); @endphp"
-  data-required-fields="@php echo $form->resource->renderId(); @endphp"
+  data-current-resource="{{ route('function.show', ['slug' => $resource->slug]) }}"
+  data-required-fields="{{ $form->resource->renderId() }}"
   data-delete-field-name="deleteRelations"
   data-iframe-error="{{ __('The following resources could not be created:') }}">
   <div class="alert alert-danger d-none load-error" role="alert">
@@ -32,9 +32,9 @@
       </thead>
       <tbody>
         <tr class="row-template d-none">
-          <td data-field-id="@php echo $form->resource->renderId(); @endphp"></td>
-          <td data-field-id="@php echo $form->description->renderId(); @endphp"></td>
-          <td data-field-id="@php echo $form->date->renderId(); @endphp"></td>
+          <td data-field-id="{{ $form->resource->renderId() }}"></td>
+          <td data-field-id="{{ $form->description->renderId() }}"></td>
+          <td data-field-id="{{ $form->date->renderId() }}"></td>
           <td class="text-nowrap">
             <button type="button" class="btn atom-btn-white me-1 edit-row">
               <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
@@ -47,19 +47,15 @@
           </td>
         </tr>
         @foreach($isdf->relatedAuthorityRecord as $item)
-          <tr id="@php echo url_for([$item, 'module' => 'relation']); @endphp">
-            <td data-field-id="@php echo $form->resource->renderId(); @endphp">
-              @php echo render_title($item->object); @endphp
+          <tr id="{{ route('relation.show', ['slug' => $item->slug]) }}">
+            <td data-field-id="{{ $form->resource->renderId() }}">
+              {{ $item->object->authorized_form_of_name ?? $item->object->title ?? '' }}
             </td>
-            <td data-field-id="@php echo $form->description->renderId(); @endphp">
-              @php echo render_value_inline($item->description); @endphp
+            <td data-field-id="{{ $form->description->renderId() }}">
+              {{ $item->description }}
             </td>
-            <td data-field-id="@php echo $form->date->renderId(); @endphp">
-              @php echo render_value_inline(Qubit::renderDateStartEnd(
-                  $item->date,
-                  $item->startDate,
-                  $item->endDate
-              )); @endphp
+            <td data-field-id="{{ $form->date->renderId() }}">
+              {{ \AhgCore\Helpers\DateHelper::renderDateStartEnd($item->date, $item->startDate, $item->endDate) }}
             </td>
             <td class="text-nowrap">
               <button type="button" class="btn atom-btn-white me-1 edit-row">
@@ -87,7 +83,7 @@
     </table>
   </div>
 
-  <div 
+  <div
     class="modal fade"
     data-bs-backdrop="static"
     tabindex="-1"
@@ -109,10 +105,10 @@
             {{ __('Please complete all required fields.') }}
           </div>
 
-          @php echo $form->renderHiddenFields(); @endphp
+          {!! $form->renderHiddenFields() !!}
 
           @php $extraInputs = '<input class="list" type="hidden" value="'
-                  .url_for(['module' => 'actor', 'action' => 'autocomplete', 'showOnlyActors' => 'true'])
+                  .route('actor.autocomplete', ['showOnlyActors' => 'true'])
                   .'">';
               echo render_field(
                   $form->resource

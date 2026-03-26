@@ -1,28 +1,33 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
-  @php echo render_b5_show_label(__('Date(s)')); @endphp
+<div class="field mb-3">
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Date(s)') }}</h3>
 
-    <div xmlns:dc="http://purl.org/dc/elements/1.1/" about="@php echo url_for([$resource, 'module' => 'informationobject'], true); @endphp" class="@php echo render_b5_show_value_css_classes(); @endphp">
+    <div xmlns:dc="http://purl.org/dc/elements/1.1/" about="{{ route('informationobject.show', $resource->slug ?? '') }}" class="ms-0">
 
-    <ul class="@php echo render_b5_show_list_css_classes(); @endphp">
+    <ul class="list-unstyled ms-0">
       @foreach($resource->getDates() as $item)
         <li>
           <div class="date">
-            <span property="dc:date" start="@php echo $item->startDate; @endphp" end="@php echo $item->endDate; @endphp">@php echo render_value_inline(Qubit::renderDateStartEnd($item->getDate(['cultureFallback' => true]), $item->startDate, $item->endDate)); @endphp</span>
-            @if('dc' !== sfConfig::get('app_default_template_informationobject'))
-              <span class="date-type">(@php echo render_value_inline($item->type->__toString()); @endphp)</span>
+            <span property="dc:date" start="{{ $item->startDate ?? '' }}" end="{{ $item->endDate ?? '' }}">
+              {{ $item->date ?? '' }}
+              @if(!empty($item->startDate) || !empty($item->endDate))
+                ({{ $item->startDate ?? '' }} - {{ $item->endDate ?? '' }})
+              @endif
+            </span>
+            @if(($defaultTemplate ?? '') !== 'dc')
+              <span class="date-type">({{ $item->type ?? '' }})</span>
             @endif
             <dl class="mb-0">
-              @if(isset($item->actor) && null !== $item->type->getRole())
-                <dt class="fw-normal text-muted">@php echo render_value_inline($item->type->getRole()); @endphp</dt>
-                <dd class="mb-0">@php echo render_title($item->actor); @endphp</dd>
+              @if(isset($item->actor) && !empty($item->type->role ?? null))
+                <dt class="fw-normal text-muted">{{ $item->type->role ?? '' }}</dt>
+                <dd class="mb-0">{{ $item->actor->authorized_form_of_name ?? $item->actor->title ?? '' }}</dd>
               @endif
-              @if(null !== $item->getPlace())
+              @if(!empty($item->place))
                 <dt class="fw-normal text-muted">{{ __('Place') }}</dt>
-                <dd class="mb-0">@php echo render_value_inline($item->getPlace()); @endphp</dd>
+                <dd class="mb-0">{{ $item->place }}</dd>
               @endif
-              @if(0 < strlen($item->description))
+              @if(!empty($item->description))
                 <dt class="fw-normal text-muted">{{ __('Note') }}</dt>
-                <dd class="mb-0">@php echo render_value_inline($item->description); @endphp</dd>
+                <dd class="mb-0">{{ $item->description }}</dd>
               @endif
             </dl>
 

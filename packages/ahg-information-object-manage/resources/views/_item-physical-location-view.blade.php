@@ -1,21 +1,14 @@
-@php /**
+@php
+/**
  * Item Physical Location View partial
  * Editor-level access required
- * Include with: include_partial('informationobject/itemPhysicalLocationView', ['itemLocation' => $itemLocation])
  */
 
 // Check editor access
-$user = sfContext::getInstance()->getUser();
-if (!$user->isAuthenticated()) return;
+if (!auth()->check()) return;
 
-// Check for editor/admin group membership
-$userId = $user->getAttribute('user_id');
-if (!$userId) return;
-
-$isEditor = \Illuminate\Database\Capsule\Manager::table('acl_user_group')
-    ->where('user_id', $userId)
-    ->whereIn('group_id', [100, 101])
-    ->exists();
+$user = auth()->user();
+$isEditor = in_array($user->role ?? '', ['editor', 'administrator']);
 
 if (!$isEditor) return;
 if (empty($itemLocation)) return;
@@ -60,7 +53,10 @@ $conditionLabels = [
 ]; @endphp
 
 @if(!empty($locationParts))
-@php echo render_show(__('Item location'), '<i class="fas fa-folder-open me-1 text-warning"></i>' . implode(' &gt; ', $locationParts)); @endphp
+<div class="field">
+  <h3>{{ __('Item location') }}</h3>
+  <div><i class="fas fa-folder-open me-1 text-warning"></i>{!! implode(' &gt; ', $locationParts) !!}</div>
+</div>
 @endif
 
 @if(!empty($itemLocation['container']))
@@ -70,31 +66,45 @@ $conditionLabels = [
     <h4 class="mb-0"><i class="fas fa-box me-2"></i>{{ __('Storage container') }}</h4>
   </div>
   <div class="card-body">
-    @php $containerLink = '<a href="' . url_for(['module' => 'physicalobject', 'slug' => $itemLocation['container']['slug']]) . '">' . esc_entities($itemLocation['container']['name']) . '</a>';
+    @php
+    $containerLink = '<a href="' . route('physicalobject.show', $itemLocation['container']['slug'] ?? '') . '">' . e($itemLocation['container']['name'] ?? '') . '</a>';
     if (!empty($itemLocation['container']['location'])) {
-        $containerLink .= ' <span class="text-muted">(' . esc_entities($itemLocation['container']['location']) . ')</span>';
+        $containerLink .= ' <span class="text-muted">(' . e($itemLocation['container']['location']) . ')</span>';
     }
-    echo render_show(__('Container'), $containerLink); @endphp
+    @endphp
+    <div class="field">
+      <h3>{{ __('Container') }}</h3>
+      <div>{!! $containerLink !!}</div>
+    </div>
 
     @if(!empty($containerLocationParts))
-    @php echo render_show(__('Container location'), '<i class="fas fa-building me-1 text-primary"></i>' . implode(' &gt; ', $containerLocationParts)); @endphp
+    <div class="field">
+      <h3>{{ __('Container location') }}</h3>
+      <div><i class="fas fa-building me-1 text-primary"></i>{!! implode(' &gt; ', $containerLocationParts) !!}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['container']['barcode']))
-    @php echo render_show(__('Container barcode'), '<code><i class="fas fa-barcode me-1"></i>' . esc_entities($itemLocation['container']['barcode']) . '</code>'); @endphp
+    <div class="field">
+      <h3>{{ __('Container barcode') }}</h3>
+      <div><code><i class="fas fa-barcode me-1"></i>{{ $itemLocation['container']['barcode'] }}</code></div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['container']['security_level']))
-    @php echo render_show(__('Security level'), '<span class="badge bg-danger"><i class="fas fa-lock me-1"></i>' . ucfirst(esc_entities($itemLocation['container']['security_level'])) . '</span>'); @endphp
+    <div class="field">
+      <h3>{{ __('Security level') }}</h3>
+      <div><span class="badge bg-danger"><i class="fas fa-lock me-1"></i>{{ ucfirst($itemLocation['container']['security_level']) }}</span></div>
+    </div>
     @endif
   </div>
 </section>
 @endif
 
 <!-- Item Details -->
-@php $hasItemDetails = !empty($itemLocation['barcode']) || !empty($itemLocation['box_number']) || 
-    !empty($itemLocation['folder_number']) || !empty($itemLocation['shelf']) || 
-    !empty($itemLocation['row']) || !empty($itemLocation['position']) || 
+@php $hasItemDetails = !empty($itemLocation['barcode']) || !empty($itemLocation['box_number']) ||
+    !empty($itemLocation['folder_number']) || !empty($itemLocation['shelf']) ||
+    !empty($itemLocation['row']) || !empty($itemLocation['position']) ||
     !empty($itemLocation['item_number']) || !empty($itemLocation['extent_value']); @endphp
 @if($hasItemDetails)
 <section class="card mb-3">
@@ -103,35 +113,59 @@ $conditionLabels = [
   </div>
   <div class="card-body">
     @if(!empty($itemLocation['barcode']))
-    @php echo render_show(__('Item barcode'), '<code><i class="fas fa-barcode me-1"></i>' . esc_entities($itemLocation['barcode']) . '</code>'); @endphp
+    <div class="field">
+      <h3>{{ __('Item barcode') }}</h3>
+      <div><code><i class="fas fa-barcode me-1"></i>{{ $itemLocation['barcode'] }}</code></div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['box_number']))
-    @php echo render_show(__('Box'), esc_entities($itemLocation['box_number'])); @endphp
+    <div class="field">
+      <h3>{{ __('Box') }}</h3>
+      <div>{{ $itemLocation['box_number'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['folder_number']))
-    @php echo render_show(__('Folder'), esc_entities($itemLocation['folder_number'])); @endphp
+    <div class="field">
+      <h3>{{ __('Folder') }}</h3>
+      <div>{{ $itemLocation['folder_number'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['shelf']))
-    @php echo render_show(__('Shelf'), esc_entities($itemLocation['shelf'])); @endphp
+    <div class="field">
+      <h3>{{ __('Shelf') }}</h3>
+      <div>{{ $itemLocation['shelf'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['row']))
-    @php echo render_show(__('Row'), esc_entities($itemLocation['row'])); @endphp
+    <div class="field">
+      <h3>{{ __('Row') }}</h3>
+      <div>{{ $itemLocation['row'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['position']))
-    @php echo render_show(__('Position'), esc_entities($itemLocation['position'])); @endphp
+    <div class="field">
+      <h3>{{ __('Position') }}</h3>
+      <div>{{ $itemLocation['position'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['item_number']))
-    @php echo render_show(__('Item number'), esc_entities($itemLocation['item_number'])); @endphp
+    <div class="field">
+      <h3>{{ __('Item number') }}</h3>
+      <div>{{ $itemLocation['item_number'] }}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['extent_value']))
-    @php echo render_show(__('Extent'), esc_entities($itemLocation['extent_value']) . ' ' . esc_entities($itemLocation['extent_unit'] ?? '')); @endphp
+    <div class="field">
+      <h3>{{ __('Extent') }}</h3>
+      <div>{{ $itemLocation['extent_value'] }} {{ $itemLocation['extent_unit'] ?? '' }}</div>
+    </div>
     @endif
   </div>
 </section>
@@ -151,8 +185,11 @@ $conditionLabels = [
         'offsite' => 'bg-info',
         'missing' => 'bg-dark',
         default => 'bg-secondary'
-    };
-    echo render_show(__('Access status'), '<span class="badge ' . $badgeClass . '">' . ($accessLabels[$status] ?? ucfirst($status)) . '</span>'); @endphp
+    }; @endphp
+    <div class="field">
+      <h3>{{ __('Access status') }}</h3>
+      <div><span class="badge {{ $badgeClass }}">{{ $accessLabels[$status] ?? ucfirst($status) }}</span></div>
+    </div>
 
     @if(!empty($itemLocation['condition_status']))
     @php $condition = $itemLocation['condition_status'];
@@ -163,24 +200,36 @@ $conditionLabels = [
         'poor' => 'bg-orange',
         'critical' => 'bg-danger',
         default => 'bg-secondary'
-    };
-    echo render_show(__('Condition'), '<span class="badge ' . $condBadgeClass . '">' . ($conditionLabels[$condition] ?? ucfirst($condition)) . '</span>'); @endphp
+    }; @endphp
+    <div class="field">
+      <h3>{{ __('Condition') }}</h3>
+      <div><span class="badge {{ $condBadgeClass }}">{{ $conditionLabels[$condition] ?? ucfirst($condition) }}</span></div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['condition_notes']))
-    @php echo render_show(__('Condition notes'), nl2br(esc_entities($itemLocation['condition_notes']))); @endphp
+    <div class="field">
+      <h3>{{ __('Condition notes') }}</h3>
+      <div>{!! nl2br(e($itemLocation['condition_notes'])) !!}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['last_accessed_at']))
     @php $accessedText = date('Y-m-d H:i', strtotime($itemLocation['last_accessed_at']));
     if (!empty($itemLocation['accessed_by'])) {
-        $accessedText .= ' <span class="text-muted">(' . esc_entities($itemLocation['accessed_by']) . ')</span>';
-    }
-    echo render_show(__('Last accessed'), $accessedText); @endphp
+        $accessedText .= ' <span class="text-muted">(' . e($itemLocation['accessed_by']) . ')</span>';
+    } @endphp
+    <div class="field">
+      <h3>{{ __('Last accessed') }}</h3>
+      <div>{!! $accessedText !!}</div>
+    </div>
     @endif
 
     @if(!empty($itemLocation['notes']))
-    @php echo render_show(__('Notes'), nl2br(esc_entities($itemLocation['notes']))); @endphp
+    <div class="field">
+      <h3>{{ __('Notes') }}</h3>
+      <div>{!! nl2br(e($itemLocation['notes'])) !!}</div>
+    </div>
     @endif
   </div>
 </section>

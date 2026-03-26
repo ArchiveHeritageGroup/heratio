@@ -1,19 +1,17 @@
-@php /**
- * Contact information view for authority records
- */
-
-use AtomFramework\Extensions\Contact\Repositories\ContactInformationRepository;
-
-$contactRepo = new ContactInformationRepository();
+@php
+$contactRepo = new \AhgCore\Repositories\ContactInformationRepository();
 $contacts = $contactRepo->getByActorId($resource->id);
 
 if ($contacts->isEmpty()) {
     return;
 } @endphp
 
-@php foreach ($contacts as $contact): @endphp
+@foreach($contacts as $contact)
   @if($contact->contact_person)
-    @php echo render_show(__('Contact person'), esc_specialchars($contact->contact_person)); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Contact person') }}</h3>
+      <div>{{ e($contact->contact_person) }}</div>
+    </div>
   @endif
 
   @php $addressParts = array_filter([
@@ -23,35 +21,57 @@ if ($contacts->isEmpty()) {
       $contact->postal_code,
       $contact->country_code
   ]);
-  if (!empty($addressParts)): @endphp
-    @php echo render_show(__('Address'), esc_specialchars(implode(', ', $addressParts))); @endphp
+  @endphp
+  @if(!empty($addressParts))
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Address') }}</h3>
+      <div>{{ e(implode(', ', $addressParts)) }}</div>
+    </div>
   @endif
 
   @if($contact->telephone)
-    @php echo render_show(__('Telephone'), '<a href="tel:' . esc_specialchars($contact->telephone) . '">' . esc_specialchars($contact->telephone) . '</a>'); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Telephone') }}</h3>
+      <div><a href="tel:{{ e($contact->telephone) }}">{{ e($contact->telephone) }}</a></div>
+    </div>
   @endif
 
   @if($contact->fax)
-    @php echo render_show(__('Fax'), esc_specialchars($contact->fax)); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Fax') }}</h3>
+      <div>{{ e($contact->fax) }}</div>
+    </div>
   @endif
 
   @if($contact->email)
-    @php echo render_show(__('Email'), '<a href="mailto:' . esc_specialchars($contact->email) . '">' . esc_specialchars($contact->email) . '</a>'); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Email') }}</h3>
+      <div><a href="mailto:{{ e($contact->email) }}">{{ e($contact->email) }}</a></div>
+    </div>
   @endif
 
   @if($contact->website)
-    @php echo render_show(__('Website'), '<a href="' . esc_specialchars($contact->website) . '" target="_blank" rel="noopener">' . esc_specialchars($contact->website) . ' <i class="fas fa-external-link-alt fa-xs"></i></a>'); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Website') }}</h3>
+      <div><a href="{{ e($contact->website) }}" target="_blank" rel="noopener">{{ e($contact->website) }} <i class="fas fa-external-link-alt fa-xs"></i></a></div>
+    </div>
   @endif
 
   @if($contact->note)
-    @php echo render_show(__('Note'), nl2br(esc_specialchars($contact->note))); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Note') }}</h3>
+      <div>{!! nl2br(e($contact->note)) !!}</div>
+    </div>
   @endif
 
   @if($contact->primary_contact)
-    @php echo render_show(__('Primary contact'), '<span class="badge bg-success">' . __('Yes') . '</span>'); @endphp
+    <div class="field">
+      <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Primary contact') }}</h3>
+      <div><span class="badge bg-success">{{ __('Yes') }}</span></div>
+    </div>
   @endif
 
   @if($contacts->count() > 1 && $contact !== $contacts->last())
     <hr class="my-3">
   @endif
-@php endforeach; @endphp
+@endforeach

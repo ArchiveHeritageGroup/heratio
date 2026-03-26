@@ -3,7 +3,7 @@
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
-      <li class="breadcrumb-item"><a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submissionId]) @endphp">@php echo htmlspecialchars($submission->title) @endphp</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submissionId]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
       <li class="breadcrumb-item active">@php echo $item ? 'Edit Item' : 'Add Item' @endphp</li>
     </ol>
   </nav>
@@ -19,7 +19,7 @@
         @php echo $item ? 'Edit Item' : 'Add Item' @endphp
       </h4>
       <div>
-        <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submissionId]) @endphp"
+        <a href="{{ route('researcher.viewSubmission', ['id' => $submissionId]) }}"
            class="btn btn-outline-secondary me-1">
           <i class="bi bi-arrow-left me-1"></i>Back
         </a>

@@ -1,19 +1,23 @@
 <section id="physical-objects">
 
-  <h4 class="h5 mb-2">@php echo sfConfig::get('app_ui_label_physicalobject'); @endphp</h4>
+  <h4 class="h5 mb-2">{{ config('atom.ui_label_physicalobject', __('Physical storage')) }}</h4>
   <ul class="list-unstyled">
 
     @foreach($physicalObjects as $item)
       <li>
 
         @if(isset($item->type))
-          @php echo render_value_inline($item->type); @endphp:
+          {{ $item->type }}:
         @endif
 
-        @php echo link_to_if(QubitAcl::check($resource, 'update'), render_title($item), [$item, 'module' => 'physicalobject']); @endphp
+        @if(Auth::check() && Auth::user()->can('update', $resource))
+          <a href="{{ route('physicalobject.show', ['slug' => $item->slug]) }}">{{ $item->authorized_form_of_name ?? $item->title ?? '' }}</a>
+        @else
+          {{ $item->authorized_form_of_name ?? $item->title ?? '' }}
+        @endif
 
-        @if(isset($item->location) && $sf_user->isAuthenticated())
-          - @php echo render_value_inline($item->getLocation(['cultureFallback' => 'true'])); @endphp
+        @if(isset($item->location) && Auth::check())
+          - {{ $item->getLocation(['cultureFallback' => 'true']) }}
         @endif
 
       </li>

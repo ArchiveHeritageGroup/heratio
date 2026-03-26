@@ -1,31 +1,37 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layout_1col')
 
-@php slot('title'); @endphp
+@section('title')
   <h1>{{ __('Are you sure you want to delete the finding aid of %1%?', ['%1%' => $resource->title]) }}</h1>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @php echo $form->renderGlobalErrors(); @endphp
+  @if($errors->any())
+    <div class="alert alert-danger">
+      @foreach($errors->all() as $e)
+        <p>{{ $e }}</p>
+      @endforeach
+    </div>
+  @endif
 
-  @php echo $form->renderFormTag(url_for([$resource, 'module' => 'informationobject', 'action' => 'deleteFindingAid']), ['method' => 'delete']); @endphp
+  <form action="{{ route('informationobject.findingaid.delete', $resource->slug) }}" method="post">
+    @csrf
+    @method('DELETE')
 
-    @php echo $form->renderHiddenFields(); @endphp
-    
     <div id="content" class="p-3">
       {{ __('The following file will be deleted from the file system:') }}
 
       <ul class="mb-0">
-        <li><a href="@php echo public_path($path); @endphp" target="_blank">@php echo $filename; @endphp</a></li>
+        <li><a href="{{ asset($path) }}" target="_blank">{{ $filename }}</a></li>
         <li>{{ __('If the finding aid is an uploaded PDF, the transcript will be deleted too.') }}</li>
       </ul>
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+      <li><a href="{{ route('informationobject.show', $resource->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-danger" type="submit" value="{{ __('Delete') }}"></li>
     </ul>
 
   </form>
 
-@php end_slot(); @endphp
+@endsection

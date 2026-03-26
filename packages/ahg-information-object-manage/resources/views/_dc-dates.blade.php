@@ -23,37 +23,28 @@
     <tbody>
       @php $i = 0; @endphp
       @foreach($resource->getDates() as $item)
-        @php $form->getWidgetSchema()->setNameFormat("editDates[{$i}][%s]");
-        ++$i; @endphp
-
-        <tr class="date related_obj_@php echo $item->id; @endphp">
+        <tr class="date related_obj_{{ $item->id }}">
           <td>
             <input
               type="hidden"
-              name="@php echo $form->getWidgetSchema()->generateName('id'); @endphp"
-              value="@php echo $item->id; @endphp">
-            @php $form->setDefault('date', $item->getDate(['cultureFallback' => true])); @endphp
-            @php echo render_field($form->date, null, [
-                'aria-labelledby' => 'dc-dates-date-head',
-                'aria-describedby' => 'dc-dates-table-help',
-                'onlyInputs' => true,
-            ]); @endphp
+              name="editDates[{{ $i }}][id]"
+              value="{{ $item->id }}">
+            <input type="text" class="form-control" name="editDates[{{ $i }}][date]"
+              value="{{ $item->date ?? '' }}"
+              aria-labelledby="dc-dates-date-head"
+              aria-describedby="dc-dates-table-help">
           </td>
           <td>
-            @php $form->setDefault('startDate', Qubit::renderDate($item->startDate)); @endphp
-            @php echo render_field($form->startDate, null, [
-                'aria-labelledby' => 'dc-dates-start-head',
-                'aria-describedby' => 'dc-dates-table-help',
-                'onlyInputs' => true,
-            ]); @endphp
+            <input type="text" class="form-control" name="editDates[{{ $i }}][startDate]"
+              value="{{ $item->startDate ?? '' }}"
+              aria-labelledby="dc-dates-start-head"
+              aria-describedby="dc-dates-table-help">
           </td>
           <td>
-            @php $form->setDefault('endDate', Qubit::renderDate($item->endDate)); @endphp
-            @php echo render_field($form->endDate, null, [
-                'aria-labelledby' => 'dc-dates-end-head',
-                'aria-describedby' => 'dc-dates-table-help',
-                'onlyInputs' => true,
-            ]); @endphp
+            <input type="text" class="form-control" name="editDates[{{ $i }}][endDate]"
+              value="{{ $item->endDate ?? '' }}"
+              aria-labelledby="dc-dates-end-head"
+              aria-describedby="dc-dates-table-help">
           </td>
           <td>
             <button type="button" class="multi-row-delete btn atom-btn-white">
@@ -62,34 +53,27 @@
             </button>
           </td>
         </tr>
+        @php ++$i; @endphp
       @endforeach
-
-      @php $form->getWidgetSchema()->setNameFormat("editDates[{$i}][%s]"); @endphp
 
       <tr class="date">
         <td>
-          @php $form->setDefault('date', ''); @endphp
-          @php echo render_field($form->date, null, [
-              'aria-labelledby' => 'dc-dates-date-head',
-              'aria-describedby' => 'dc-dates-table-help',
-              'onlyInputs' => true,
-          ]); @endphp
+          <input type="text" class="form-control" name="editDates[{{ $i }}][date]"
+            value=""
+            aria-labelledby="dc-dates-date-head"
+            aria-describedby="dc-dates-table-help">
         </td>
         <td>
-          @php $form->setDefault('startDate', ''); @endphp
-          @php echo render_field($form->startDate, null, [
-              'aria-labelledby' => 'dc-dates-start-head',
-              'aria-describedby' => 'dc-dates-table-help',
-              'onlyInputs' => true,
-          ]); @endphp
+          <input type="text" class="form-control" name="editDates[{{ $i }}][startDate]"
+            value=""
+            aria-labelledby="dc-dates-start-head"
+            aria-describedby="dc-dates-table-help">
         </td>
         <td>
-          @php $form->setDefault('endDate', ''); @endphp
-          @php echo render_field($form->endDate, null, [
-              'aria-labelledby' => 'dc-dates-end-head',
-              'aria-describedby' => 'dc-dates-table-help',
-              'onlyInputs' => true,
-          ]); @endphp
+          <input type="text" class="form-control" name="editDates[{{ $i }}][endDate]"
+            value=""
+            aria-labelledby="dc-dates-end-head"
+            aria-describedby="dc-dates-table-help">
         </td>
         <td>
           <button type="button" class="multi-row-delete btn atom-btn-white">

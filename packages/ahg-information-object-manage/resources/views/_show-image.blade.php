@@ -1,20 +1,31 @@
-@php use_helper('Text'); @endphp
+@php
+$digitalObjectLabel = config('app.ui_label_digitalobject', 'digital object');
+$altTextOpen = __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => $digitalObjectLabel]);
+$altTextClosed = __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => $digitalObjectLabel]);
+$masterUsage = config('atom.term.MASTER_ID');
+$referenceUsage = config('atom.term.REFERENCE_ID');
+$thumbnailUsage = config('atom.term.THUMBNAIL_ID');
+@endphp
 
-@if(QubitTerm::MASTER_ID == $usageType || QubitTerm::REFERENCE_ID == $usageType)
+@if($masterUsage == $usageType || $referenceUsage == $usageType)
 
   @if(isset($link))
-    @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link, ['target' => '_blank']); @endphp
+    <a href="{{ $link }}" target="_blank">
+      <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+    </a>
   @else
-    @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+    <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
   @endif
 
-@elseif(QubitTerm::THUMBNAIL_ID == $usageType)
+@elseif($thumbnailUsage == $usageType)
 
-  @if($iconOnly)
+  @if($iconOnly ?? false)
     @if(isset($link))
-      @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
+      <a href="{{ $link }}">
+        <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+      </a>
     @else
-      @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+      <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
     @endif
 
   @else
@@ -23,14 +34,16 @@
 
       <div class="digitalObjectRep">
         @if(isset($link))
-          @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
+          <a href="{{ $link }}">
+            <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+          </a>
         @else
-          @php echo image_tag($representation->getFullPath(), ['alt' => __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
+          <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
         @endif
       </div>
 
       <div class="digitalObjectDesc">
-        @php echo wrap_text($resource->name, 18); @endphp
+        {{ Illuminate\Support\Str::limit($resource->name, 18) }}
       </div>
 
     </div>

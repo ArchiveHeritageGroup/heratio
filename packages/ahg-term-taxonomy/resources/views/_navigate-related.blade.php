@@ -1,36 +1,32 @@
 <nav>
   <ul class="nav nav-pills mb-3 d-flex gap-2">
     @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('index' == $sf_context->getActionName())
+    @if(request()->route() && request()->route()->getName() === 'term.index')
       @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
+    @endif
     <li class="nav-item">
-      @if($relatedIoCount || 'relatedAuthorities' == $sf_context->getActionName())
-        @php echo link_to(
-            __('Related %1% (%2%)', ['%1%' => sfConfig::get('app_ui_label_informationobject'), '%2%' => $relatedIoCount]),
-            [$resource, 'module' => 'term', 'action' => 'index'],
-            $options
-        ); @endphp
-      @php } else { @endphp
-        <a class="@php echo $options['class']; @endphp" href="#">{{ __('Related %1% (%2%)', ['%1%' => sfConfig::get('app_ui_label_informationobject'), '%2%' => $relatedIoCount]) }}</a>
-      @endforeach
+      @if($relatedIoCount || (request()->route() && request()->route()->getName() === 'term.relatedAuthorities'))
+        <a class="{{ $options['class'] }}" href="{{ route('term.index', ['slug' => $resource->slug]) }}"
+           {{ (request()->route() && request()->route()->getName() === 'term.index') ? 'aria-current=page' : '' }}>
+          {{ __('Related %1% (%2%)', ['%1%' => config('atom.ui_label_informationobject', __('Archival description')), '%2%' => $relatedIoCount]) }}
+        </a>
+      @else
+        <a class="{{ $options['class'] }}" href="#">{{ __('Related %1% (%2%)', ['%1%' => config('atom.ui_label_informationobject', __('Archival description')), '%2%' => $relatedIoCount]) }}</a>
+      @endif
     </li>
     @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('index' != $sf_context->getActionName())
+    @if(request()->route() && request()->route()->getName() !== 'term.index')
       @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
+    @endif
     <li class="nav-item">
       @if($relatedActorCount)
-        @php echo link_to(
-            __('Related %1% (%2%)', ['%1%' => sfConfig::get('app_ui_label_actor'), '%2%' => $relatedActorCount]),
-            [$resource, 'module' => 'term', 'action' => 'relatedAuthorities'],
-            $options
-        ); @endphp
-      @php } else { @endphp
-        <a class="@php echo $options['class']; @endphp" href="#">{{ __('Related %1% (%2%)', ['%1%' => sfConfig::get('app_ui_label_actor'), '%2%' => $relatedActorCount]) }}</a>
-      @endforeach
+        <a class="{{ $options['class'] }}" href="{{ route('term.relatedAuthorities', ['slug' => $resource->slug]) }}"
+           {{ (request()->route() && request()->route()->getName() !== 'term.index') ? 'aria-current=page' : '' }}>
+          {{ __('Related %1% (%2%)', ['%1%' => config('atom.ui_label_actor', __('Authority record')), '%2%' => $relatedActorCount]) }}
+        </a>
+      @else
+        <a class="{{ $options['class'] }}" href="#">{{ __('Related %1% (%2%)', ['%1%' => config('atom.ui_label_actor', __('Authority record')), '%2%' => $relatedActorCount]) }}</a>
+      @endif
     </li>
   </ul>
 </nav>

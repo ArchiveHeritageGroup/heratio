@@ -4,7 +4,7 @@
  */
 
 // Only show for users with edit permissions
-if (!$sf_user->hasCredential(['contributor', 'editor', 'administrator'], false)) {
+if (!auth()->check() || !in_array(auth()->user()->role ?? '', ['contributor', 'editor', 'administrator'])) {
     return;
 }
 
@@ -14,16 +14,16 @@ $resourceSlug = $resource->slug ?? null; @endphp
 <div class="digital-object-actions mb-3">
     <div class="btn-group" role="group" aria-label="Digital object actions">
         <!-- Standard Upload -->
-        <a href="@php echo url_for(['module' => 'digitalobject', 'action' => 'edit', 'informationObject' => $resourceSlug]); @endphp" 
+        <a href="{{ route('digitalobject.edit', ['informationObject' => $resourceSlug]) }}"
            class="btn btn-outline-primary btn-sm">
             <i class="fas fa-upload me-1"></i>
             Upload file
         </a>
-        
+
         <!-- TIFF to PDF Merge -->
-        <button type="button" 
-                class="btn btn-outline-secondary btn-sm" 
-                data-bs-toggle="modal" 
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-bs-toggle="modal"
                 data-bs-target="#tiffPdfMergeModal"
                 title="Upload multiple TIFF/image files and merge into a single PDF/A document">
             <i class="fas fa-layer-group me-1"></i>
@@ -49,7 +49,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <div id="tpmAlert" class="alert" style="display: none;"></div>
 
                 <!-- Hidden fields -->
-                <input type="hidden" id="tpmInformationObjectId" value="@php echo $resourceId; @endphp">
+                <input type="hidden" id="tpmInformationObjectId" value="{{ $resourceId }}">
                 <input type="hidden" id="tpmJobId" value="">
 
                 <!-- Settings Row -->
@@ -89,7 +89,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <p class="mb-1"><strong>Drag and drop images here</strong></p>
                     <p class="text-muted small mb-2">or click to browse</p>
                     <p class="text-muted small mb-0">Supported: TIFF, JPEG, PNG, BMP, GIF</p>
-                    <input type="file" id="tpmFileInput" class="d-none" multiple 
+                    <input type="file" id="tpmFileInput" class="d-none" multiple
                            accept=".tif,.tiff,.jpg,.jpeg,.png,.bmp,.gif">
                 </div>
 
@@ -100,7 +100,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         <small id="tpmProgressText" class="text-muted"></small>
                     </div>
                     <div class="progress" style="height: 6px;">
-                        <div id="tpmProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                        <div id="tpmProgressBar" class="progress-bar progress-bar-striped progress-bar-animated"
                              role="progressbar" style="width: 0%"></div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
     </div>
 </div>
 
-<style @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<style nonce="{{ csp_nonce() }}">
 #tpmDropZone { cursor: pointer; min-height: 150px; transition: all 0.2s; }
 #tpmDropZone:hover, #tpmDropZone.drag-over { border-color: #0d6efd !important; background-color: #e7f1ff !important; }
 .tpm-file-item { transition: background-color 0.2s; }
@@ -153,11 +153,11 @@ $resourceSlug = $resource->slug ?? null; @endphp
 .tpm-sortable-ghost { opacity: 0.4; background-color: #e7f1ff; }
 </style>
 
-<script src="/plugins/ahgThemeB5Plugin/js/sortable.min.js"></script>
-<script @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<script src="{{ asset('vendor/ahg-theme-b5/js/sortable.min.js') }}"></script>
+<script nonce="{{ csp_nonce() }}">
 (function() {
     'use strict';
-    
+
     const API_BASE = '/api/tiff-pdf-merge';
     let currentJob = null;
     let uploadedFiles = [];
@@ -168,7 +168,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
 
     async function initModal() {
         resetState();
-        
+
         try {
             const infoObjId = document.getElementById('tpmInformationObjectId')?.value;
             const response = await fetch(API_BASE + '/jobs', {
@@ -183,7 +183,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     attach_to_record: document.getElementById('tpmAttachToRecord')?.checked ?? true
                 })
             });
-            
+
             const data = await response.json();
             if (data.success) {
                 currentJob = data.job_id;
@@ -254,7 +254,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
 
         for (const file of validFiles) {
             updateProgress(uploaded, validFiles.length);
-            
+
             try {
                 const formData = new FormData();
                 formData.append('file', file);
@@ -330,7 +330,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
 
     window.tpmRemoveFile = async function(fileId) {
         if (!confirm('Remove this file?')) return;
-        
+
         try {
             await fetch(`${API_BASE}/jobs/${currentJob}/files/${fileId}`, { method: 'DELETE' });
             uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);

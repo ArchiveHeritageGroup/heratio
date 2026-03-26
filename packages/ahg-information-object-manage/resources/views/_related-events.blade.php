@@ -1,5 +1,3 @@
-@php $sf_response->addJavaScript('multiDelete', 'last'); @endphp
-
 <table id="relatedEvents" class="table table-bordered">
   <thead>
     <tr>
@@ -16,30 +14,34 @@
       </th>
     </tr>
   </thead><tbody>
-    @foreach($resource->eventsRelatedByobjectId as $item)
-      <tr class="@php echo 0 == @++$row % 2 ? 'even' : 'odd'; @endphp related_obj_@php echo $item->id; @endphp" id="@php echo url_for([$item, 'module' => 'event']); @endphp">
+    @php $row = 0; @endphp
+    @foreach($resource->eventsRelatedByobjectId ?? [] as $item)
+      <tr class="{{ 0 == ++$row % 2 ? 'even' : 'odd' }} related_obj_{{ $item->id }}" id="event-{{ $item->id }}">
         <td>
           <div>
             @if(isset($item->actor))
-              @php echo render_title($item->actor); @endphp
+              {{ $item->actor->authorized_form_of_name ?? $item->actor->title ?? '' }}
             @endif
           </div>
         </td><td>
           <div>
-            @php echo render_value_inline($item->type); @endphp
+            {{ $item->type ?? '' }}
           </div>
         </td><td>
           <div>
-            @if(null !== $relation = QubitObjectTermRelation::getOneByObjectId($item->id))
-              @php echo render_value_inline($relation->term); @endphp
+            @if(isset($item->place))
+              {{ $item->place ?? '' }}
             @endif
           </div>
         </td><td>
           <div>
-            @php echo render_value_inline(Qubit::renderDateStartEnd($item->getDate(['cultureFallback' => true]), $item->startDate, $item->endDate)); @endphp
+            {{ $item->date ?? '' }}
+            @if(!empty($item->startDate) || !empty($item->endDate))
+              ({{ $item->startDate ?? '' }} - {{ $item->endDate ?? '' }})
+            @endif
           </div>
         </td><td style="text-align: right">
-          <input class="multiDelete" name="deleteEvents[]" type="checkbox" value="@php echo url_for([$item, 'module' => 'event']); @endphp"/>
+          <input class="multiDelete" name="deleteEvents[]" type="checkbox" value="event-{{ $item->id }}"/>
         </td>
       </tr>
     @endforeach

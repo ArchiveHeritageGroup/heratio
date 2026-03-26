@@ -2,7 +2,7 @@
   id="search-box"
   class="d-flex flex-grow-1 my-2"
   role="search"
-  action="@php echo url_for('@glam_browse'); @endphp">
+  action="{{ route('glam.browse') }}">
   <h2 class="visually-hidden">{{ __('Search') }}</h2>
   <input type="hidden" name="topLod" value="0">
   <input type="hidden" name="sort" value="relevance">
@@ -18,7 +18,7 @@
       <span class="visually-hidden">{{ __('Search options') }}</span>
     </button>
     <div class="dropdown-menu mt-2" aria-labelledby="search-box-options">
-      @if(sfConfig::get('app_multi_repository'))
+      @if(config('atom.multi_repository'))
         <div class="px-3 py-2">
           <div class="form-check">
             <input
@@ -39,12 +39,12 @@
                 type="radio"
                 name="repos"
                 id="search-realm-repo"
-                value="@php echo $repository->id; @endphp">
+                value="{{ $repository->id }}">
               <label class="form-check-label" for="search-realm-repo">
-                {{ __('Search <span>%1%</span>', ['%1%' => render_title($repository)]) }} <span class="badge bg-secondary ms-1">Optional</span>
+                {!! __('Search <span>%1%</span>', ['%1%' => $repository->authorized_form_of_name ?? $repository->title ?? '']) !!} <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
-          @endforeach
+          @endif
           @if(isset($altRepository))
             <div class="form-check">
               <input
@@ -52,16 +52,16 @@
                 type="radio"
                 name="repos"
                 id="search-realm-alt-repo"
-                value="@php echo $altRepository->id; @endphp">
+                value="{{ $altRepository->id }}">
               <label class="form-check-label" for="search-realm-alt-repo">
-                {{ __('Search <span>%1%</span>', ['%1%' => render_title($altRepository)]) }} <span class="badge bg-secondary ms-1">Optional</span>
+                {!! __('Search <span>%1%</span>', ['%1%' => $altRepository->authorized_form_of_name ?? $altRepository->title ?? '']) !!} <span class="badge bg-secondary ms-1">Optional</span>
               </label>
             </div>
-          @endforeach
+          @endif
         </div>
         <div class="dropdown-divider"></div>
-      @endforeach
-      <a class="dropdown-item" href="@php echo url_for('@glam_browse') . '?showAdvanced=true&topLevel=0'; @endphp">
+      @endif
+      <a class="dropdown-item" href="{{ route('glam.browse') . '?showAdvanced=true&topLevel=0' }}">
         {{ __('Advanced search') }}
       </a>
       <div class="dropdown-divider"></div>
@@ -78,7 +78,7 @@
             id="semantic-search-toggle"
             name="semantic"
             value="1"
-            @php echo ($sf_request->getParameter('semantic') == '1') ? 'checked' : ''; @endphp>
+            {{ request('semantic') == '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="semantic-search-toggle">
             {{ __('Expand search with synonyms') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
@@ -91,11 +91,11 @@
       type="search"
       name="query"
       autocomplete="off"
-      value="@php echo $sf_request->query; @endphp"
-      placeholder="@php echo sfConfig::get('app_ui_label_globalSearch'); @endphp"
-      data-url="@php echo route('search.autocomplete'); @endphp"
+      value="{{ request('query') }}"
+      placeholder="{{ config('atom.ui_label_globalSearch', __('Search')) }}"
+      data-url="{{ route('search.autocomplete') }}"
       data-bs-toggle="dropdown"
-      aria-label="@php echo sfConfig::get('app_ui_label_globalSearch'); @endphp"
+      aria-label="{{ config('atom.ui_label_globalSearch', __('Search')) }}"
       aria-expanded="false">
     <ul id="search-box-results" class="dropdown-menu mt-2" aria-labelledby="search-box-input"></ul>
     <button class="btn btn-sm atom-btn-secondary" type="submit">
@@ -105,7 +105,7 @@
   </div>
 </form>
 
-<script @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<script nonce="{{ csp_nonce() }}">
 (function() {
   var searchBox = document.getElementById('search-box');
   var queryInput = document.getElementById('search-box-input');
@@ -123,7 +123,7 @@
     e.preventDefault();
 
     // Fetch expansions and then submit
-    fetch('@php echo route('semanticSearchAdmin.testExpand'); @endphp?query=' + encodeURIComponent(query))
+    fetch('{{ route('semanticSearchAdmin.testExpand') }}?query=' + encodeURIComponent(query))
       .then(function(response) { return response.json(); })
       .then(function(data) {
         if (data.success && Object.keys(data.expansions).length > 0) {

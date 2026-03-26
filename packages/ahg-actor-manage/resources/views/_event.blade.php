@@ -4,17 +4,12 @@
 
 <div
   class="atom-table-modal"
-  data-current-resource="@php echo url_for([$resource]); @endphp"
+  data-current-resource="{{ route('actor.show', ['slug' => $resource->slug]) }}"
   data-required-fields="@php echo $form->informationObject->renderId().','.$form->type->renderId(); @endphp"
   data-delete-field-name="deleteRelations"
   data-iframe-error="{{ __('The following resources could not be created:') }}"
   @if(isset($resource->slug))
-    data-lazy-load-url="@php echo url_for([
-        'module' => 'sfIsaarPlugin',
-        'action' => 'actorEvents',
-        'slug' => $resource->slug,
-        'limit' => sfConfig::get('app_hits_per_page', 10),
-    ]); @endphp"
+    data-lazy-load-url="{{ route('actor.events', ['slug' => $resource->slug, 'limit' => config('atom.hits_per_page', 10)]) }}"
   @endif
   data-iframe-error="{{ __('The following resources could not be created:') }}">
   <div class="alert alert-danger d-none load-error" role="alert">

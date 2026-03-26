@@ -1,76 +1,150 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
-  @php echo render_b5_show_label(__('Related right')); @endphp
-  <div class="@php echo render_b5_show_value_css_classes(); @endphp">
-    @if(QubitAcl::check($relatedObject, 'update'))
+<div class="field">
+  <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Related right') }}</h3>
+  <div>
+    @if(Auth::check() && Auth::user()->can('update', $relatedObject))
       <div>
-        <a href="@php echo url_for(['module' => 'right', 'action' => 'edit', 'slug' => $resource->slug]); @endphp">{{ __('Edit') }}</a> |
-        <a href="@php echo url_for(['module' => 'right', 'action' => 'delete', 'slug' => $resource->slug]); @endphp">{{ __('Delete') }}</a>
+        <a href="{{ route('right.edit', ['slug' => $resource->slug]) }}">{{ __('Edit') }}</a> |
+        <a href="{{ route('right.delete', ['slug' => $resource->slug]) }}">{{ __('Delete') }}</a>
       </div>
-    @endforeach
+    @endif
 
     <div>
       @if(isset($inherit))
-        @php echo link_to(render_title($inherit), [$inherit, 'module' => 'informationobject'], ['title' => __('Inherited from %1%', ['%1%' => $inherit])]); @endphp
-      @endforeach
+        <a href="{{ route('informationobject.show', ['slug' => $inherit->slug]) }}" title="{{ __('Inherited from %1%', ['%1%' => $inherit->authorized_form_of_name ?? $inherit->title ?? '']) }}">
+          {{ $inherit->authorized_form_of_name ?? $inherit->title ?? '' }}
+        </a>
+      @endif
 
-      @php echo render_show(__('Basis'), render_value_inline($resource->basis), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Basis') }}</h3>
+        <div>{{ $resource->basis }}</div>
+      </div>
 
-      @php echo render_show(__('Start date'), render_value_inline(Qubit::renderDate($resource->startDate)), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Start date') }}</h3>
+        <div>{{ \AhgCore\Helpers\DateHelper::renderDate($resource->startDate) }}</div>
+      </div>
 
-      @php echo render_show(__('End date'), render_value_inline(Qubit::renderDate($resource->endDate)), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('End date') }}</h3>
+        <div>{{ \AhgCore\Helpers\DateHelper::renderDate($resource->endDate) }}</div>
+      </div>
 
-      @php echo render_show(__('Documentation Identifier Type'), render_value_inline($resource->identifierType), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Documentation Identifier Type') }}</h3>
+        <div>{{ $resource->identifierType }}</div>
+      </div>
 
-      @php echo render_show(__('Documentation Identifier Value'), render_value_inline($resource->identifierValue), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Documentation Identifier Value') }}</h3>
+        <div>{{ $resource->identifierValue }}</div>
+      </div>
 
-      @php echo render_show(__('Documentation Identifier Role'), render_value_inline($resource->identifierRole), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Documentation Identifier Role') }}</h3>
+        <div>{{ $resource->identifierRole }}</div>
+      </div>
 
       @if(isset($resource->rightsHolder))
-        @php echo render_show(__('Rights holder'), link_to(render_value_inline($resource->rightsHolder), [$resource->rightsHolder, 'module' => 'rightsholder']), ['isSubField' => true]); @endphp
-      @endforeach
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Rights holder') }}</h3>
+          <div><a href="{{ route('rightsholder.show', ['slug' => $resource->rightsHolder->slug]) }}">{{ $resource->rightsHolder }}</a></div>
+        </div>
+      @endif
 
-      @php echo render_show(__('Rights note(s)'), render_value_inline($resource->getRightsNote(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+      <div class="field">
+        <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Rights note(s)') }}</h3>
+        <div>{{ $resource->getRightsNote(['cultureFallback' => true]) }}</div>
+      </div>
 
-      @if(QubitTerm::RIGHT_BASIS_COPYRIGHT_ID == $resource->basisId)
+      @if(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_COPYRIGHT_ID == $resource->basisId)
 
-        @php echo render_show(__('Copyright status'), render_value_inline($resource->copyrightStatus), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Copyright status') }}</h3>
+          <div>{{ $resource->copyrightStatus }}</div>
+        </div>
 
-        @php echo render_show(__('Copyright status determination date'), render_value_inline($resource->copyrightStatusDate), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Copyright status determination date') }}</h3>
+          <div>{{ $resource->copyrightStatusDate }}</div>
+        </div>
 
-        @php echo render_show(__('Copyright jurisdiction'), render_value_inline($resource->copyrightJurisdiction), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Copyright jurisdiction') }}</h3>
+          <div>{{ $resource->copyrightJurisdiction }}</div>
+        </div>
 
-        @php echo render_show(__('Copyright note'), render_value_inline($resource->getCopyrightNote(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Copyright note') }}</h3>
+          <div>{{ $resource->getCopyrightNote(['cultureFallback' => true]) }}</div>
+        </div>
 
-      @php } elseif (QubitTerm::RIGHT_BASIS_LICENSE_ID == $resource->basisId) { @endphp
+      @elseif(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_LICENSE_ID == $resource->basisId)
 
-        @php echo render_show(__('License identifier'), render_value_inline($resource->getIdentifierValue(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('License identifier') }}</h3>
+          <div>{{ $resource->getIdentifierValue(['cultureFallback' => true]) }}</div>
+        </div>
 
-        @php echo render_show(__('License terms'), render_value_inline($resource->getLicenseTerms(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('License terms') }}</h3>
+          <div>{{ $resource->getLicenseTerms(['cultureFallback' => true]) }}</div>
+        </div>
 
-        @php echo render_show(__('License note'), render_value_inline($resource->getLicenseNote(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('License note') }}</h3>
+          <div>{{ $resource->getLicenseNote(['cultureFallback' => true]) }}</div>
+        </div>
 
-      @php } elseif (QubitTerm::RIGHT_BASIS_STATUTE_ID == $resource->basisId) { @endphp
+      @elseif(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_STATUTE_ID == $resource->basisId)
 
-        @php echo render_show(__('Statute jurisdiction'), render_value_inline($resource->getStatuteJurisdiction(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Statute jurisdiction') }}</h3>
+          <div>{{ $resource->getStatuteJurisdiction(['cultureFallback' => true]) }}</div>
+        </div>
 
         @if(null !== $statuteCitation = $resource->statuteCitation)
-          @php echo render_show(__('Statute citation'), render_value_inline($statuteCitation->getName(['cultureFallback' => true])), ['isSubField' => true]); @endphp
-        @endforeach
+          <div class="field">
+            <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Statute citation') }}</h3>
+            <div>{{ $statuteCitation->getName(['cultureFallback' => true]) }}</div>
+          </div>
+        @endif
 
-        @php echo render_show(__('Statute determination date'), render_value_inline($resource->statuteDeterminationDate), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Statute determination date') }}</h3>
+          <div>{{ $resource->statuteDeterminationDate }}</div>
+        </div>
 
-        @php echo render_show(__('Statute note'), render_value_inline($resource->getStatuteNote(['cultureFallback' => true])), ['isSubField' => true]); @endphp
+        <div class="field">
+          <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Statute note') }}</h3>
+          <div>{{ $resource->getStatuteNote(['cultureFallback' => true]) }}</div>
+        </div>
 
-      @endforeach
+      @endif
 
       <blockquote class="border-bottom m-0 mt-1">
         @foreach($resource->grantedRights as $grantedRight)
           <div class="border border-bottom-0 px-2 py-1">
-            @php echo render_show(__('Act'), render_value_inline($grantedRight->act), ['isSubField' => true]); @endphp
-            @php echo render_show(__('Restriction'), render_value_inline(QubitGrantedRight::getRestrictionString($grantedRight->restriction)), ['isSubField' => true]); @endphp
-            @php echo render_show(__('Start date'), render_value_inline(Qubit::renderDate($grantedRight->startDate)), ['isSubField' => true]); @endphp
-            @php echo render_show(__('End date'), render_value_inline(Qubit::renderDate($grantedRight->endDate)), ['isSubField' => true]); @endphp
-            @php echo render_show(__('Notes'), render_value_inline($grantedRight->notes), ['isSubField' => true]); @endphp
+            <div class="field">
+              <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Act') }}</h3>
+              <div>{{ $grantedRight->act }}</div>
+            </div>
+            <div class="field">
+              <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Restriction') }}</h3>
+              <div>{{ \AhgCore\Models\GrantedRight::getRestrictionString($grantedRight->restriction) }}</div>
+            </div>
+            <div class="field">
+              <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Start date') }}</h3>
+              <div>{{ \AhgCore\Helpers\DateHelper::renderDate($grantedRight->startDate) }}</div>
+            </div>
+            <div class="field">
+              <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('End date') }}</h3>
+              <div>{{ \AhgCore\Helpers\DateHelper::renderDate($grantedRight->endDate) }}</div>
+            </div>
+            <div class="field">
+              <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Notes') }}</h3>
+              <div>{{ $grantedRight->notes }}</div>
+            </div>
           </div>
         @endforeach
       </blockquote>

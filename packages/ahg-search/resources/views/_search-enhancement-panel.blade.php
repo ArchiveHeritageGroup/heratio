@@ -1,28 +1,24 @@
 @php /**
  * Search Enhancement Panel
- * 
+ *
  * Include in browse templates:
- * <?php include_partial('search/searchEnhancementPanel', ['entityType' => 'informationobject']); @endphp
- * 
- * Path: ' . sfConfig::get('sf_plugins_dir') . '/ahgThemeB5Plugin/modules/search/templates/_searchEnhancementPanel.php
+ * @include('ahg-search::_search-enhancement-panel', ['entityType' => 'informationobject'])
  */
 
-// Load service
-\AhgCore\Core\AhgDb::init();
-$searchService = new \App\Services\AdvancedSearchService();
+$searchService = app(\App\Services\AdvancedSearchService::class);
 
 $entityType = $entityType ?? 'informationobject';
-$user = sfContext::getInstance()->getUser();
-$isAuthenticated = $user->isAuthenticated();
-$userId = $isAuthenticated ? $user->getAttribute('user_id') : null;
-$sessionId = session_id();
+$user = Auth::user();
+$isAuthenticated = Auth::check();
+$userId = $isAuthenticated ? $user->id : null;
+$sessionId = session()->getId();
 
 // Get data
 $history = $searchService->getUserHistory($userId, $sessionId, 5);
 $templates = $searchService->getFeaturedTemplates();
 $popular = $searchService->getPopularSearches(5, $entityType);
 $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : [];
-?>
+@endphp
 
 <div class="search-enhancement-panel mb-4">
   <!-- Quick Search Templates -->
@@ -30,13 +26,13 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <div class="mb-3">
     <label class="form-label small text-muted">{{ __('Quick Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
     <div class="d-flex flex-wrap gap-2">
-      @php foreach ($templates as $template): @endphp
-      <a href="@php echo url_for(['module' => 'searchEnhancement', 'action' => 'runTemplate', 'id' => $template->id]); @endphp" 
-         class="btn btn-sm btn-outline-@php echo esc_entities($template->color); @endphp">
-        <i class="fa @php echo esc_entities($template->icon); @endphp me-1"></i>
-        @php echo esc_entities($template->name); @endphp
+      @foreach($templates as $template)
+      <a href="{{ route('searchEnhancement.runTemplate', ['id' => $template->id]) }}"
+         class="btn btn-sm btn-outline-{{ e($template->color) }}">
+        <i class="fa {{ e($template->icon) }} me-1"></i>
+        {{ e($template->name) }}
       </a>
-      @php endforeach; @endphp
+      @endforeach
     </div>
   </div>
   @endif
@@ -50,18 +46,19 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
           <i class="fa fa-history me-1"></i>{{ __('Recent Searches') }}
         </h6>
         <ul class="list-unstyled mb-0 small">
-          @php foreach (array_slice($history, 0, 5) as $item): @endphp
+          @foreach(array_slice($history, 0, 5) as $item)
           <li class="mb-1">
-            <a href="@php echo url_for(['module' => $entityType, 'action' => 'browse']) . '?' . http_build_query(json_decode($item->search_params, true)); @endphp" 
+            @php $params = json_decode($item->search_params, true) ?: []; @endphp
+            <a href="{{ route($entityType . '.browse') . '?' . http_build_query($params) }}"
                class="text-decoration-none">
-              @php echo esc_entities($item->search_query ?: __('(Advanced)')); @endphp
-              <span class="text-muted">(@php echo $item->result_count; @endphp)</span>
+              {{ e($item->search_query ?: __('(Advanced)')) }}
+              <span class="text-muted">({{ $item->result_count }})</span>
             </a>
           </li>
-          @php endforeach; @endphp
+          @endforeach
         </ul>
-        <a href="@php echo route('searchEnhancement.history'); @endphp" class="small">
-          {{ __('View all') }} →
+        <a href="{{ route('searchEnhancement.history') }}" class="small">
+          {{ __('View all') }} &rarr;
         </a>
       </div>
     </div>
@@ -74,20 +71,20 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
           <i class="fa fa-bookmark me-1"></i>{{ __('Saved Searches') }}
         </h6>
         <ul class="list-unstyled mb-0 small">
-          @php foreach (array_slice($savedSearches, 0, 5) as $saved): @endphp
+          @foreach(array_slice($savedSearches, 0, 5) as $saved)
           <li class="mb-1">
-            <a href="@php echo url_for(['module' => 'searchEnhancement', 'action' => 'runSavedSearch', 'id' => $saved->id]); @endphp" 
+            <a href="{{ route('searchEnhancement.runSavedSearch', ['id' => $saved->id]) }}"
                class="text-decoration-none">
-              @php echo esc_entities($saved->name); @endphp
+              {{ e($saved->name) }}
               @if($saved->notify_new_results)
                 <i class="fa fa-bell text-info" title="{{ __('Notifications enabled') }}"></i>
               @endif
             </a>
           </li>
-          @php endforeach; @endphp
+          @endforeach
         </ul>
-        <a href="@php echo route('searchEnhancement.savedSearches'); @endphp" class="small">
-          {{ __('Manage saved') }} →
+        <a href="{{ route('searchEnhancement.savedSearches') }}" class="small">
+          {{ __('Manage saved') }} &rarr;
         </a>
       </div>
     </div>
@@ -99,13 +96,14 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   <div class="mb-3">
     <label class="form-label small text-muted">{{ __('Popular Searches') }} <span class="badge bg-secondary ms-1">Optional</span></label>
     <div class="d-flex flex-wrap gap-1">
-      @php foreach ($popular as $p): @endphp
-      <a href="@php echo url_for(['module' => $entityType, 'action' => 'browse']) . '?' . http_build_query(json_decode($p->search_params, true)); @endphp" 
+      @foreach($popular as $p)
+      @php $params = json_decode($p->search_params, true) ?: []; @endphp
+      <a href="{{ route($entityType . '.browse') . '?' . http_build_query($params) }}"
          class="badge bg-light text-dark text-decoration-none">
-        @php echo esc_entities($p->search_query); @endphp
-        <span class="text-muted">(@php echo $p->search_count; @endphp)</span>
+        {{ e($p->search_query) }}
+        <span class="text-muted">({{ $p->search_count }})</span>
       </a>
-      @php endforeach; @endphp
+      @endforeach
     </div>
   </div>
   @endif
@@ -136,16 +134,10 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-public">
           <label class="form-check-label" for="save-search-public">
-            {{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">Optional</span>
-          </label>
-        </div>
-	<div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" id="save-search-public">
-          <label class="form-check-label" for="save-search-public">
             <i class="fa fa-link me-1"></i>{{ __('Make public (shareable link)') }} <span class="badge bg-secondary ms-1">Optional</span>
           </label>
         </div>
-        @if($user->isAdministrator())
+        @if($user && $user->hasRole('administrator'))
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="save-search-global">
           <label class="form-check-label" for="save-search-global">
@@ -178,7 +170,7 @@ $savedSearches = $isAuthenticated ? $searchService->getSavedSearches($userId) : 
   </div>
 </div>
 
-<script @php $n = sfConfig::get('csp_nonce', ''); echo $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp>
+<script nonce="{{ csp_nonce() }}">
 // Toggle notification frequency
 document.getElementById('save-search-notify')?.addEventListener('change', function() {
   document.getElementById('notify-frequency-group').style.display = this.checked ? 'block' : 'none';
@@ -191,7 +183,7 @@ function saveCurrentSearch() {
     alert('{{ __('Please enter a name') }}');
     return;
   }
-  
+
 const data = {
     name: name,
     description: document.getElementById('save-search-description')?.value || '',
@@ -201,11 +193,14 @@ const data = {
     notify: document.getElementById('save-search-notify')?.checked ? 1 : 0,
     frequency: document.getElementById('save-search-frequency')?.value || 'weekly',
     search_params: window.location.search.substring(1),
-    entity_type: '@php echo $entityType; @endphp'
-  };  
-  fetch('@php echo route('searchEnhancement.saveSearch'); @endphp', {
+    entity_type: '{{ $entityType }}'
+  };
+  fetch('{{ route('searchEnhancement.saveSearch') }}', {
     method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+    },
     body: new URLSearchParams(data)
   })
   .then(r => r.json())

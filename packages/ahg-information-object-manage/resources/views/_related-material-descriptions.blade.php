@@ -1,21 +1,21 @@
-<div class="field @php echo render_b5_show_field_css_classes(); @endphp">
+<div class="field mb-3">
 
-  @if('rad' == $template)
-    @php echo render_b5_show_label(__('Related materials')); @endphp
+  @if(($template ?? '') == 'rad')
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Related materials') }}</h3>
   @else
-    @php echo render_b5_show_label(__('Related descriptions')); @endphp
+    <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Related descriptions') }}</h3>
   @endif
 
-  <div class="@php echo render_b5_show_value_css_classes(); @endphp">
-    <ul class="@php echo render_b5_show_list_css_classes(); @endphp">
-      @foreach($resource->relationsRelatedBysubjectId as $item)
-        @if(isset($item->type) && QubitTerm::RELATED_MATERIAL_DESCRIPTIONS_ID == $item->type->id)
-          <li>@php echo link_to(render_title($item->object), [$item->object, 'module' => 'informationobject']); @endphp</li>
+  <div>
+    <ul class="list-unstyled ms-0">
+      @foreach($resource->relationsRelatedBysubjectId ?? [] as $item)
+        @if(isset($item->type) && ($relatedMaterialDescriptionsId ?? 0) == $item->type->id)
+          <li><a href="{{ route('informationobject.show', $item->object->slug ?? $item->object->id ?? '') }}">{{ $item->object->authorized_form_of_name ?? $item->object->title ?? '' }}</a></li>
         @endif
       @endforeach
-      @foreach($resource->relationsRelatedByobjectId as $item)
-        @if(isset($item->type) && QubitTerm::RELATED_MATERIAL_DESCRIPTIONS_ID == $item->type->id)
-          <li>@php echo link_to(render_title($item->subject), [$item->subject, 'module' => 'informationobject']); @endphp</li>
+      @foreach($resource->relationsRelatedByobjectId ?? [] as $item)
+        @if(isset($item->type) && ($relatedMaterialDescriptionsId ?? 0) == $item->type->id)
+          <li><a href="{{ route('informationobject.show', $item->subject->slug ?? $item->subject->id ?? '') }}">{{ $item->subject->authorized_form_of_name ?? $item->subject->title ?? '' }}</a></li>
         @endif
       @endforeach
     </ul>

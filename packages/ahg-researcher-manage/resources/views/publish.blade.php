@@ -3,7 +3,7 @@
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
-      <li class="breadcrumb-item"><a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp">@php echo htmlspecialchars($submission->title) @endphp</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
       <li class="breadcrumb-item active">Publish</li>
     </ol>
   </nav>
@@ -36,7 +36,7 @@
 
             <form method="post">
               <div class="d-flex justify-content-between">
-                <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp"
+                <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}"
                    class="btn btn-outline-secondary">
                   <i class="bi bi-arrow-left me-1"></i>Cancel
                 </a>
@@ -97,7 +97,7 @@
                         <td><small>@php echo $obj['level'] ?? '-' @endphp</small></td>
                         <td>
                           @if(!empty($obj['slug']))
-                            <a href="@php echo url_for(['module' => 'informationobject', 'slug' => $obj['slug']]) @endphp" target="_blank">
+                            <a href="{{ route('informationobject.show', ['slug' => $obj['slug']]) }}" target="_blank">
                               <i class="bi bi-box-arrow-up-right me-1"></i>@php echo $obj['slug'] @endphp
                             </a>
                           @else
@@ -161,7 +161,7 @@
               <a href="@php echo route('researcher.dashboard') @endphp" class="btn btn-outline-secondary">
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
               </a>
-              <a href="@php echo url_for(['module' => 'researcher', 'action' => 'viewSubmission', 'id' => $submission->id]) @endphp"
+              <a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}"
                  class="btn atom-btn-white">
                 <i class="bi bi-eye me-1"></i>View Submission
               </a>

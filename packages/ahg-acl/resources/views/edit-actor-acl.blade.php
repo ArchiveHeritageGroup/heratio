@@ -1,8 +1,7 @@
-<?php
-
-echo get_partial('aclGroup/aclActor', [
+@include('ahg-acl::_acl-actor', [
     'resource' => $resource,
     'basicActions' => $basicActions,
     'actors' => $actors,
-    'form' => $form,
-]);
+    'rootActor' => $rootActor,
+    'actorObjects' => $actorObjects ?? [],
+])

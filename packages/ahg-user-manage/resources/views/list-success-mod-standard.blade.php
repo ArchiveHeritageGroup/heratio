@@ -1,40 +1,34 @@
 <h1>{{ __('List users') }}</h1>
 
 <div class="d-inline-block mb-3">
-  @php echo get_component('search', 'inlineSearch', [
+  @include('ahg-search::_inline-search', [
       'label' => __('Search users'),
       'landmarkLabel' => __('User'),
       'route' => route('user.list'),
-  ]); @endphp
+  ])
 </div>
 
 <nav>
   <ul class="nav nav-pills mb-3 d-flex gap-2">
     @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('onlyInactive' != $sf_request->filter)
+    @if('onlyInactive' != request('filter'))
       @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
     @endif
     <li class="nav-item">
-      @php echo link_to(
-          __('Show active only'),
-          ['filter' => 'onlyActive']
-          + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-          $options
-      ); @endphp
+      <a class="{{ $options['class'] }}" href="{{ request()->fullUrlWithQuery(['filter' => 'onlyActive']) }}"
+         {{ ('onlyInactive' != request('filter')) ? 'aria-current=page' : '' }}>
+        {{ __('Show active only') }}
+      </a>
     </li>
     @php $options = ['class' => 'btn atom-btn-white active-primary text-wrap']; @endphp
-    @if('onlyInactive' == $sf_request->filter)
+    @if('onlyInactive' == request('filter'))
       @php $options['class'] .= ' active'; @endphp
-      @php $options['aria-current'] = 'page'; @endphp
     @endif
     <li class="nav-item">
-      @php echo link_to(
-          __('Show inactive only'),
-          ['filter' => 'onlyInactive']
-          + $sf_data->getRaw('sf_request')->getParameterHolder()->getAll(),
-          $options
-      ); @endphp
+      <a class="{{ $options['class'] }}" href="{{ request()->fullUrlWithQuery(['filter' => 'onlyInactive']) }}"
+         {{ ('onlyInactive' == request('filter')) ? 'aria-current=page' : '' }}>
+        {{ __('Show inactive only') }}
+      </a>
     </li>
   </ul>
 </nav>
@@ -48,9 +42,9 @@
         </th><th>
           {{ __('Email') }}
         </th><th>
-          {{ __('Classification') ?>
+          {{ __('Classification') }}
         </th><th>
-           @php echo __('User groups') }}
+          {{ __('User groups') }}
         </th>
       </tr>
     </thead>
@@ -58,20 +52,20 @@
       @foreach($users as $item)
         <tr>
           <td>
-            <?php echo link_to($item->username, [$item, 'module' => 'user']); @endphp
+            <a href="{{ route('user.show', ['slug' => $item->slug]) }}">{{ $item->username }}</a>
             @if(!$item->active)
               ({{ __('inactive') }})
             @endif
-            @if($sf_user->user === $item)
+            @if(Auth::check() && Auth::id() === $item->id)
               ({{ __('you') }})
             @endif
           </td><td>
-            @php echo $item->email; @endphp
- 		  </td><td>
+            {{ $item->email }}
+          </td><td>
 
-				 <ul>
+            <ul>
               @foreach($item->getAclGroups() as $group)
-                <li>@php echo render_title($group); @endphp</li>
+                <li>{{ $group->authorized_form_of_name ?? $group->title ?? '' }}</li>
               @endforeach
             </ul>
           </td>
@@ -81,8 +75,8 @@
   </table>
 </div>
 
-@php echo get_partial('default/pager', ['pager' => $pager]); @endphp
+@include('ahg-core::_pager', ['pager' => $pager])
 
 <section class="actions mb-3">
-  @php echo link_to(__('Add new'), ['module' => 'user', 'action' => 'add'], ['class' => 'btn atom-btn-outline-light']); @endphp
+  <a href="{{ route('user.add') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
 </section>

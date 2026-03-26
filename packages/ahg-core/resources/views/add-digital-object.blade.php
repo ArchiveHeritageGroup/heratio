@@ -1,100 +1,115 @@
-@php decorate_with('layout_1col.php'); @endphp
+@extends('ahg-theme-b5::layouts.1col')
 
-@php slot('title'); @endphp
+@section('title')
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
       {{ __(
           'Link %1%',
-          ['%1%' => mb_strtolower(sfConfig::get('app_ui_label_digitalobject'))]
+          ['%1%' => mb_strtolower(config('app.ui_label_digitalobject', __('digital object')))]
       ) }}
     </h1>
     <span class="small" id="heading-label">
-      @php echo $resourceDescription; @endphp
+      {{ $resourceDescription ?? '' }}
     </span>
   </div>
-@php end_slot(); @endphp
+@endsection
 
-@php slot('content'); @endphp
+@section('content')
 
-  @if(QubitDigitalObject::reachedAppUploadLimit())
+  @if($uploadLimitReached ?? false)
 
     <div class="alert alert-warning" role="alert">
-      {{ __('The maximum disk space of %1% GB available for uploading digital objects has been reached. Please contact your AtoM system administrator to increase the available disk space.', ['%1%' => sfConfig::get('app_upload_limit')]) }}
+      {{ __('The maximum disk space of %1% GB available for uploading digital objects has been reached. Please contact your system administrator to increase the available disk space.', ['%1%' => config('app.upload_limit', 0)]) }}
     </div>
 
     <section class="actions mb-3">
-      @php echo link_to(__('Cancel'), [$resource, 'module' => $sf_request->module], ['class' => 'btn atom-btn-outline-light']); @endphp
+      <a href="{{ $cancelUrl ?? url()->previous() }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
     </section>
 
-  @php } else { @endphp
+  @else
 
-    @php echo $form->renderGlobalErrors(); @endphp
+    @if($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
 
-    @php echo $form->renderFormTag(url_for([$resource, 'module' => 'object', 'action' => 'addDigitalObject']), ['id' => 'uploadForm']); @endphp
+    <form method="POST" action="{{ $formAction ?? '/object/addDigitalObject/' . ($resource->slug ?? '') }}" id="uploadForm">
 
-      @php echo $form->renderHiddenFields(); @endphp
+      @csrf
 
       <div class="accordion mb-3">
         <div class="accordion-item">
           <h2 class="accordion-header" id="upload-heading">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#upload-collapse" aria-expanded="true" aria-controls="upload-collapse">
-              {{ __('Upload a %1%', ['%1%' => mb_strtolower(sfConfig::get('app_ui_label_digitalobject'))]) }}
+              {{ __('Upload a %1%', ['%1%' => mb_strtolower(config('app.ui_label_digitalobject', __('digital object')))]) }}
             </button>
           </h2>
           <div id="upload-collapse" class="accordion-collapse collapse show" aria-labelledby="upload-heading">
             <div class="accordion-body">
-              @if(null == $repository || -1 == $repository->uploadLimit || floatval($repository->getDiskUsage() / pow(10, 9)) < floatval($repository->uploadLimit) || -1 == sfConfig::get('app_upload_limit'))
+              @if(null == ($repository ?? null) || -1 == ($repository->uploadLimit ?? -1) || floatval(($repository->diskUsage ?? 0) / pow(10, 9)) < floatval($repository->uploadLimit ?? 0) || -1 == config('app.upload_limit', -1))
 
-                @php echo render_field($form->file); @endphp
-
-              @php } elseif (0 == $repository->uploadLimit) { @endphp
-
-                <div class="alert alert-warning" role="alert">
-                  {{ __('Uploads for <a class="alert-link" href="%1%">%2%</a> are disabled', [
-                      '%1%' => url_for([$repository, 'module' => 'repository']),
-                      '%2%' => $repository->__toString(),
-                  ]) }}
+                <div class="mb-3">
+                  <label class="form-label" for="file">{{ __('File') }}</label>
+                  <input class="form-control" type="file" name="file" id="file">
                 </div>
 
-              @php } else { @endphp
+              @elseif(0 == ($repository->uploadLimit ?? 0))
 
                 <div class="alert alert-warning" role="alert">
-                  {{ __('The upload limit of %1% GB for <a class="alert-link" href="%2%">%3%</a> has been reached', [
-                      '%1%' => $repository->uploadLimit,
-                      '%2%' => url_for([$repository, 'module' => 'repository']),
-                      '%3%' => $repository->__toString(), ]) }}
+                  {!! __('Uploads for <a class="alert-link" href="%1%">%2%</a> are disabled', [
+                      '%1%' => route('repository.show', $repository->slug ?? ''),
+                      '%2%' => $repository->authorized_form_of_name ?? (string)$repository,
+                  ]) !!}
                 </div>
 
-              @endforeach
+              @else
+
+                <div class="alert alert-warning" role="alert">
+                  {!! __('The upload limit of %1% GB for <a class="alert-link" href="%2%">%3%</a> has been reached', [
+                      '%1%' => $repository->uploadLimit ?? 0,
+                      '%2%' => route('repository.show', $repository->slug ?? ''),
+                      '%3%' => $repository->authorized_form_of_name ?? (string)$repository,
+                  ]) !!}
+                </div>
+
+              @endif
             </div>
           </div>
         </div>
         <div class="accordion-item">
           <h2 class="accordion-header" id="external-heading">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#external-collapse" aria-expanded="false" aria-controls="external-collapse">
-              {{ __('Link to an external %1%', ['%1%' => mb_strtolower(sfConfig::get('app_ui_label_digitalobject'))]) }}
+              {{ __('Link to an external %1%', ['%1%' => mb_strtolower(config('app.ui_label_digitalobject', __('digital object')))]) }}
             </button>
           </h2>
           <div id="external-collapse" class="accordion-collapse collapse" aria-labelledby="external-heading">
             <div class="accordion-body">
-              @php echo render_field($form->url); @endphp
+              <div class="mb-3">
+                <label class="form-label" for="url">{{ __('URL') }}</label>
+                <input class="form-control" type="url" name="url" id="url" value="">
+              </div>
             </div>
           </div>
         </div>
 
-        @php // Show merge option if ahgPreservationPlugin is enabled and user has credentials
+        @php
         $showMerge = false;
-        $rawResource = sfOutputEscaper::unescape($resource);
-        if ($sf_user->hasCredential(['contributor', 'editor', 'administrator'], false) && $rawResource instanceof QubitInformationObject) {
+        if (auth()->check() && auth()->user()->is_admin && isset($resource) && isset($resource->id)) {
             try {
-                $showMerge = \Illuminate\Database\Capsule\Manager::table('atom_plugin')
+                $showMerge = \Illuminate\Support\Facades\DB::table('atom_plugin')
                     ->where('name', 'ahgPreservationPlugin')
                     ->where('is_enabled', 1)
                     ->exists();
             } catch (\Exception $e) {
                 $showMerge = false;
             }
-        } @endphp
+        }
+        @endphp
 
         @if($showMerge)
         <div class="accordion-item">
@@ -112,7 +127,7 @@
               <div class="row g-3 mb-3">
                 <div class="col-md-4">
                   <label for="tpmJobName" class="form-label">{{ __('Document Name') }} <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <input type="text" class="form-control" id="tpmJobName" value="{{ $resource->identifier ? $resource->identifier . ' - Merged' : 'Merged Document ' . date('Y-m-d') }}">
+                  <input type="text" class="form-control" id="tpmJobName" value="{{ ($resource->identifier ?? '') ? ($resource->identifier . ' - Merged') : ('Merged Document ' . date('Y-m-d')) }}">
                 </div>
                 <div class="col-md-3">
                   <label for="tpmPdfStandard" class="form-label">{{ __('PDF Standard') }} <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -179,39 +194,38 @@
             </div>
           </div>
         </div>
-        @endforeach
+        @endif
       </div>
 
       <ul class="actions mb-3 nav gap-2">
-        <li>@php echo link_to(__('Cancel'), [$resource, 'module' => $sf_request->module], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
+        <li><a href="{{ $cancelUrl ?? url()->previous() }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
       </ul>
 
     </form>
 
     @if($showMerge)
-    @php $n = sfConfig::get('csp_nonce', ''); $nonceAttr = $n ? preg_replace('/^nonce=/', 'nonce="', $n).'"' : ''; @endphp
-    <style @php echo $nonceAttr; @endphp>
+    <style>
     #tpmDropZone { transition: all 0.3s ease; }
     #tpmDropZone:hover, #tpmDropZone.drag-over { border-color: #0d6efd !important; background-color: #e8f4ff !important; }
     .tpm-file-item { transition: background-color 0.2s; cursor: grab; }
     .tpm-file-item:hover { background-color: #f8f9fa; }
     .sortable-ghost { opacity: 0.4; background-color: #cfe2ff !important; }
     </style>
-    <script src="/plugins/ahgCorePlugin/web/js/vendor/Sortable.min.js" @php echo $nonceAttr; @endphp></script>
-    <script @php echo $nonceAttr; @endphp>
+    <script src="/plugins/ahgCorePlugin/web/js/vendor/Sortable.min.js"></script>
+    <script>
     (function() {
         'use strict';
         var currentJob = null, uploadedFiles = [], sortable = null;
-        var ioSlug = @php echo json_encode($resource->slug ?? ''); @endphp;
-        var ioId = @php echo json_encode($resource->id); @endphp;
-        var createUrl = @php echo json_encode(route('tiffpdfmerge.create')); @endphp;
-        var uploadUrl = @php echo json_encode(route('tiffpdfmerge.upload')); @endphp;
-        var reorderUrl = @php echo json_encode(route('tiffpdfmerge.reorder')); @endphp;
-        var removeUrl = @php echo json_encode(route('tiffpdfmerge.removeFile')); @endphp;
-        var processUrl = @php echo json_encode(route('tiffpdfmerge.process')); @endphp;
-        var deleteUrl = @php echo json_encode(route('tiffpdfmerge.delete')); @endphp;
-        var recordUrl = @php echo json_encode(url_for([$resource, 'module' => 'informationobject'])); @endphp;
+        var ioSlug = @json($resource->slug ?? '');
+        var ioId = @json($resource->id ?? null);
+        var createUrl = @json(route('tiffpdfmerge.create'));
+        var uploadUrl = @json(route('tiffpdfmerge.upload'));
+        var reorderUrl = @json(route('tiffpdfmerge.reorder'));
+        var removeUrl = @json(route('tiffpdfmerge.removeFile'));
+        var processUrl = @json(route('tiffpdfmerge.process'));
+        var deleteUrl = @json(route('tiffpdfmerge.delete'));
+        var recordUrl = @json(isset($resource->slug) ? route('informationobject.show', $resource->slug) : '/');
 
         document.addEventListener('DOMContentLoaded', function() {
             var fi = document.getElementById('tpmFileInput');
@@ -228,7 +242,6 @@
             var clb = document.getElementById('tpmClearBtn');
             if (clb) clb.addEventListener('click', clearAll);
 
-            // Collapse other accordions when merge is expanded
             var mergeCollapse = document.getElementById('merge-collapse');
             if (mergeCollapse) {
                 mergeCollapse.addEventListener('shown.bs.collapse', function() {
@@ -240,7 +253,7 @@
         function initMergeJob() {
             fetch(createUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
                 body: new URLSearchParams({
                     job_name: document.getElementById('tpmJobName').value || 'Merged PDF',
                     information_object_id: ioId,
@@ -286,6 +299,7 @@
                 var fd = new FormData();
                 fd.append('file', validFiles[uploaded]);
                 fd.append('job_id', currentJob);
+                fd.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
                 fetch(uploadUrl, { method: 'POST', body: fd })
                     .then(function(r) { return r.json(); })
                     .then(function(result) {
@@ -326,7 +340,7 @@
             uploadedFiles.splice(evt.newIndex, 0, m);
             fetch(reorderUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
                 body: new URLSearchParams({ job_id: currentJob, 'file_order[]': uploadedFiles.map(function(f) { return f.id; }) })
             }).catch(function() {});
             updateFileList();
@@ -336,7 +350,7 @@
             if (!confirm('Remove this file?')) return;
             fetch(removeUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
                 body: new URLSearchParams({ file_id: id })
             }).then(function() {
                 uploadedFiles = uploadedFiles.filter(function(f) { return f.id !== id; });
@@ -353,7 +367,7 @@
 
             fetch(processUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
                 body: new URLSearchParams({ job_id: currentJob })
             }).then(function(r) { return r.json(); }).then(function(result) {
                 if (result.success) {
@@ -374,7 +388,7 @@
         function clearAll() {
             if (!confirm('Clear all files?')) return;
             if (currentJob) {
-                fetch(deleteUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ job_id: currentJob }) }).catch(function() {});
+                fetch(deleteUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' }, body: new URLSearchParams({ job_id: currentJob }) }).catch(function() {});
             }
             uploadedFiles = [];
             currentJob = null;
@@ -397,8 +411,8 @@
         function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
     })();
     </script>
-    @endforeach
+    @endif
 
-  @endforeach
+  @endif
 
-@php end_slot(); @endphp
+@endsection

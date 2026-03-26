@@ -1,7 +1,8 @@
-<?php
-
-echo get_component('aclGroup', 'termAclForm', [
+@include('ahg-acl::_term-acl-form', [
     'resource' => $resource,
-    'permissions' => $permissions,
-    'form' => $form,
-]);
+    'termActions' => $termActions ?? $basicActions ?? [],
+    'taxonomyPermissions' => $taxonomyPermissions ?? [],
+    'taxonomyObjects' => $taxonomyObjects ?? [],
+    'rootPermissions' => $rootPermissions ?? [],
+    'rootTerm' => $rootTerm,
+])
