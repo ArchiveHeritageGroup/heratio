@@ -22,7 +22,7 @@
           <div>
             @if(isset($item->actor))
               @php echo render_title($item->actor); @endphp
-            @endforeach
+            @endif
           </div>
         </td><td>
           <div>
@@ -32,7 +32,7 @@
           <div>
             @if(null !== $relation = QubitObjectTermRelation::getOneByObjectId($item->id))
               @php echo render_value_inline($relation->term); @endphp
-            @endforeach
+            @endif
           </div>
         </td><td>
           <div>

@@ -8,7 +8,7 @@
       )
         @php $options['class'] .= ' active'; @endphp
         @php $options['aria-current'] = 'page'; @endphp
-      @endforeach
+      @endif
       <li class="nav-item">
         @php echo link_to(
             $child->getLabel(['cultureFallback' => true]),

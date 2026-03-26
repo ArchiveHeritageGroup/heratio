@@ -18,8 +18,8 @@
       </tr>
     </thead>
     <tbody>
-      @php $i = 0;
-      foreach ($resource->getActorEvents() as $item) { @endphp
+      @php $i = 0; @endphp
+      @foreach($resource->getActorEvents() as $item)
         @if(isset($item->actor))
           @php $form->getWidgetSchema()->setNameFormat("editNames[{$i}][%s]");
           ++$i; @endphp
@@ -42,7 +42,7 @@
               </button>
             </td>
           </tr>
-        @endforeach
+        @endif
       @endforeach
 
       @php $form->getWidgetSchema()->setNameFormat("editNames[{$i}][%s]"); @endphp

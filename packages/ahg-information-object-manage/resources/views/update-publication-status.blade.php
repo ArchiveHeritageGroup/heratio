@@ -45,7 +45,7 @@
 
             @if($resource->rgt - $resource->lft > 1)
               @php echo render_field($form->updateDescendants->label(__('Update descendants'))); @endphp
-            @endforeach
+            @endif
           </div>
         </div>
       </div>

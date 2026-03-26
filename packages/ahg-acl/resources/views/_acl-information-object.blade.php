@@ -84,7 +84,7 @@
                   'actions' => $basicActions,
               ]); @endphp
             @endforeach
-          @endforeach
+          @endif
 
           <button
             class="btn atom-btn-white text-wrap"
@@ -129,7 +129,7 @@
                   'actions' => $basicActions,
               ]); @endphp
             @endforeach
-          @endforeach
+          @endif
 
           <button
             class="btn atom-btn-white text-wrap"

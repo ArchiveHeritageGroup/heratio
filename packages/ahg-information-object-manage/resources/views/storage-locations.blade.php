@@ -35,8 +35,8 @@
         </th>
       </tr>
     </thead><tbody>
-      @php $row = 1;
-      foreach ($results as $item) { @endphp
+      @php $row = 1; @endphp
+      @foreach($results as $item)
         <tr>
           <td>
             @php echo $row++; @endphp

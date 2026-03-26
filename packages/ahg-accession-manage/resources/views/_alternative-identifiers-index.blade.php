@@ -7,7 +7,7 @@
       @php echo render_show(render_value_inline($item->getType(['cultureFallback' => true])), $item->getName(['cultureFallback' => true]), ['isSubField' => true]); @endphp
       @if(!empty($note = $item->getNote(['cultureFallback' => true])))
         @php echo render_value($note); @endphp
-      @endforeach
+      @endif
     @endforeach
   </div>
 

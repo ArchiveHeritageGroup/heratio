@@ -33,11 +33,11 @@
               'class' => 'card-img-top',
           ]); @endphp
         </a>
-      @php } else { @endphp
+      @else
         <a class="p-3" href="@php echo url_for(['module' => 'informationobject', 'slug' => $doc['slug']]); @endphp">
           @php echo render_title($title); @endphp
         </a>
-      @endforeach
+      @endif
 
       <div class="card-body">
         <div class="card-text d-flex align-items-start gap-2">

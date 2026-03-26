@@ -4,14 +4,14 @@
       <span class="d-inline-block">
         @if($object->id != constant(get_class($sf_data->getRaw('object')).'::ROOT_ID'))
           @php echo render_title($object); @endphp
-        @php } else { @endphp
+        @else
           <em>
             {{ __(
                 'All %1%',
                 ['%1%' => lcfirst(sfConfig::get('app_ui_label_'.$module))]
             ) }}
           </em>
-        @endforeach
+        @endif
       </span>
     </caption>
     <thead class="table-light">
@@ -61,7 +61,7 @@
                   {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
-            @php } else { @endphp
+            @else
               <div class="form-check form-check-inline">
                 <input
                   class="form-check-input"
@@ -102,7 +102,7 @@
                   {{ __('Inherit') }} <span class="badge bg-secondary ms-1">Required</span>
                 </label>
               </div>
-            @endforeach
+            @endif
           </td>
         </tr>
       @endforeach

@@ -22,7 +22,7 @@
         ); @endphp
       </a>
     </div>
-  @endforeach
+  @endif
 
   <div class="col-12@php echo empty($doc['hasDigitalObject']) ? '' : ' col-lg-9'; @endphp d-flex flex-column gap-1">
     <div class="d-flex align-items-center gap-2 mw-100">
@@ -51,7 +51,7 @@
             @php echo $doc['descriptionIdentifier']; @endphp
           </span>
           @php $showDash = true; @endphp
-        @endforeach
+        @endif
 
         @if(
             !empty($doc['entityTypeId'])
@@ -59,12 +59,12 @@
         )
           @if($showDash)
             <span class="text-muted mx-2"> · </span>
-          @endforeach
+          @endif
           <span class="text-muted">
             @php echo $termName; @endphp
           </span>
           @php $showDash = true; @endphp
-        @endforeach
+        @endif
 
         @if(strlen($dates = get_search_i18n(
             $doc,
@@ -73,11 +73,11 @@
         )
           @if($showDash)
             <span class="text-muted mx-2"> · </span>
-          @endforeach
+          @endif
           <span class="text-muted">
             @php echo render_value_inline($dates); @endphp
           </span>
-        @endforeach
+        @endif
       </div>
 
       @if(strlen($history = get_search_i18n(
@@ -88,7 +88,7 @@
         <span class="text-block d-none">
           @php echo render_value($history); @endphp
         </span>
-      @endforeach
+      @endif
     </div>
   </div>
 </article>

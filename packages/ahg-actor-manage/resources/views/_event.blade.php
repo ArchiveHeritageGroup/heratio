@@ -15,7 +15,7 @@
         'slug' => $resource->slug,
         'limit' => sfConfig::get('app_hits_per_page', 10),
     ]); @endphp"
-  @endforeach
+  @endif
   data-iframe-error="{{ __('The following resources could not be created:') }}">
   <div class="alert alert-danger d-none load-error" role="alert">
     {{ __('Could not load relation data.') }}

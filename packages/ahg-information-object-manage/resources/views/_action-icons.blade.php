@@ -24,7 +24,7 @@
           </i>{{ __('Inventory') }}
         </a>
       </li>
-    @endforeach
+    @endif
 
     <li>
       @if(isset($resource) && sfConfig::get('app_enable_institutional_scoping') && $sf_user->hasAttribute('search-realm'))
@@ -34,13 +34,13 @@
             'collection' => $resource->getCollectionRoot()->id,
             'repos' => $sf_user->getAttribute('search-realm'),
             'topLod' => false, ]); @endphp">
-      @php } else { @endphp
+      @else
         <a class="atom-icon-link" href="@php echo url_for([
             'module' => 'informationobject',
             'action' => 'browse',
             'collection' => $resource->getCollectionRoot()->id,
             'topLod' => false, ]); @endphp">
-      @endforeach
+      @endif
         <i class="fas fa-fw fa-list me-1" aria-hidden="true">
         </i>{{ __('Browse as list') }}
       </a>
@@ -59,7 +59,7 @@
           </i>{{ __('Browse digital objects') }}
         </a>
       </li>
-    @endforeach
+    @endif
   </ul>
 
   @if($sf_user->isAdministrator())
@@ -79,7 +79,7 @@
         </a>
       </li>
     </ul>
-  @endforeach
+  @endif
 
   <h4 class="h5 mb-2">{{ __('Export') }}</h4>
   <ul class="list-unstyled">
@@ -90,7 +90,7 @@
           </i>{{ __('Dublin Core 1.1 XML') }}
         </a>
       </li>
-    @endforeach
+    @endif
 
     @if($sf_context->getConfiguration()->isPluginEnabled('sfEadPlugin'))
       <li>
@@ -99,7 +99,7 @@
           </i>{{ __('EAD 2002 XML') }}
         </a>
       </li>
-    @endforeach
+    @endif
 
     @if('sfModsPlugin' == $sf_context->getModuleName() && $sf_context->getConfiguration()->isPluginEnabled('sfModsPlugin'))
       <li>
@@ -108,7 +108,7 @@
           </i>{{ __('MODS 3.5 XML') }}
         </a>
       </li>
-    @endforeach
+    @endif
   </ul>
 
   @php echo get_component('informationobject', 'findingAid', ['resource' => $resource, 'contextMenu' => true]); @endphp

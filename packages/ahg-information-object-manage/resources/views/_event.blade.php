@@ -41,7 +41,7 @@
                 <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
                 <span class="visually-hidden">{{ __('Edit row') }}</span>
               </button>
-            @endforeach
+            @endif
             <button type="button" class="btn atom-btn-white delete-row">
               <i class="fas fa-fw fa-times" aria-hidden="true"></i>
               <span class="visually-hidden">{{ __('Delete row') }}</span>
@@ -53,7 +53,7 @@
             <td data-field-id="@php echo $form->actor->renderId(); @endphp">
               @if(isset($item->actor))
                 @php echo render_title($item->actor); @endphp
-              @endforeach
+              @endif
             </td>
             <td data-field-id="@php echo $form->type->renderId(); @endphp">
               @php echo render_value_inline($item->type); @endphp
@@ -61,7 +61,7 @@
             <td data-field-id="@php echo $form->place->renderId(); @endphp">
               @if(null !== $relation = QubitObjectTermRelation::getOneByObjectId($item->id))
                 @php echo render_value_inline($relation->term); @endphp
-              @endforeach
+              @endif
             </td>
             <td data-field-id="@php echo $form->date->renderId(); @endphp">
               @php echo render_value_inline(Qubit::renderDateStartEnd(
@@ -76,7 +76,7 @@
                   <i class="fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
                   <span class="visually-hidden">{{ __('Edit row') }}</span>
                 </button>
-              @endforeach
+              @endif
               <button type="button" class="btn atom-btn-white delete-row">
                 <i class="fas fa-fw fa-times" aria-hidden="true"></i>
                 <span class="visually-hidden">{{ __('Delete row') }}</span>

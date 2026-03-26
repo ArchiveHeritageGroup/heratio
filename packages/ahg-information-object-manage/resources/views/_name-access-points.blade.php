@@ -66,24 +66,24 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
             <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">
               {{ $actor->name ?? '' }}
             </a>
-          @php } else { @endphp
+          @else
             {{ $actor->name ?? '' }}
-          @endforeach
+          @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
-          @endforeach
+          @endif
         </li>
       @endforeach
     </ul>
   </section>
-@php } else { @endphp
+@else
 <div class="field@php echo isset($sidebar) ? '' : ' '.render_b5_show_field_css_classes(); @endphp">
 
   @if(isset($mods))
     @php echo render_b5_show_label(__('Names')); @endphp
-  @php } else { @endphp
+  @else
     @php echo render_b5_show_label(__('Name access points')); @endphp
-  @endforeach
+  @endif
 
   <div@php echo isset($sidebar) ? '' : ' class="'.render_b5_show_value_css_classes().'"'; @endphp>
     <ul class="@php echo isset($sidebar) ? 'list-unstyled' : render_b5_show_list_css_classes(); @endphp">
@@ -91,16 +91,16 @@ $basePath = sfContext::getInstance()->getRequest()->getScriptName(); @endphp
         <li>
           @if($actor->slug)
             <a href="@php echo $basePath; @endphp/@php echo rawurlencode($actor->slug); @endphp">{{ $actor->name ?? '' }}</a>
-          @php } else { @endphp
+          @else
             {{ $actor->name ?? '' }}
-          @endforeach
+          @endif
           @if(!empty($actor->event_type))
             <span class="text-muted">({{ $actor->event_type }})</span>
-          @endforeach
+          @endif
         </li>
       @endforeach
     </ul>
   </div>
 
 </div>
-@endforeach
+@endif

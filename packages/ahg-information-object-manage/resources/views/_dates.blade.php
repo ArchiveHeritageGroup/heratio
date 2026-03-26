@@ -10,20 +10,20 @@
             <span property="dc:date" start="@php echo $item->startDate; @endphp" end="@php echo $item->endDate; @endphp">@php echo render_value_inline(Qubit::renderDateStartEnd($item->getDate(['cultureFallback' => true]), $item->startDate, $item->endDate)); @endphp</span>
             @if('dc' !== sfConfig::get('app_default_template_informationobject'))
               <span class="date-type">(@php echo render_value_inline($item->type->__toString()); @endphp)</span>
-            @endforeach
+            @endif
             <dl class="mb-0">
               @if(isset($item->actor) && null !== $item->type->getRole())
                 <dt class="fw-normal text-muted">@php echo render_value_inline($item->type->getRole()); @endphp</dt>
                 <dd class="mb-0">@php echo render_title($item->actor); @endphp</dd>
-              @endforeach
+              @endif
               @if(null !== $item->getPlace())
                 <dt class="fw-normal text-muted">{{ __('Place') }}</dt>
                 <dd class="mb-0">@php echo render_value_inline($item->getPlace()); @endphp</dd>
-              @endforeach
+              @endif
               @if(0 < strlen($item->description))
                 <dt class="fw-normal text-muted">{{ __('Note') }}</dt>
                 <dd class="mb-0">@php echo render_value_inline($item->description); @endphp</dd>
-              @endforeach
+              @endif
             </dl>
 
           </div>

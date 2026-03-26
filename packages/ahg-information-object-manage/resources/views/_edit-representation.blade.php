@@ -9,7 +9,7 @@
           @php echo render_value_inline($representation->name); @endphp
         </span>
       </div>
-    @endforeach
+    @endif
 
     @if(isset($representation->byteSize))
       <div class="mb-3">
@@ -20,7 +20,7 @@
           @php echo hr_filesize($representation->byteSize); @endphp
         </span>
       </div>
-    @endforeach
+    @endif
 
     @if(QubitTerm::CHAPTERS_ID == $representation->usageId)
       <a
@@ -29,7 +29,7 @@
         <i class="fas fa-fw fa-eye me-1" aria-hidden="true"></i>
         {{ __('View file') }}
       </a>
-    @endforeach
+    @endif
     <a
       href="@php echo url_for([
           $representation,
@@ -51,5 +51,5 @@
           'editForm' => true,
       ]); @endphp
     </div>
-  @endforeach
+  @endif
 </div>

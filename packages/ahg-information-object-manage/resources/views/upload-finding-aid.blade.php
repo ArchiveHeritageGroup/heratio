@@ -33,7 +33,7 @@
               <div class="alert alert-danger" role="alert">
                 @php echo $errorMessage; @endphp</li>
               </div>
-            @endforeach
+            @endif
 
             @php echo render_field($form->file->label(__('%1% file', ['%1%' => strtoupper($format)]))); @endphp
           </div>

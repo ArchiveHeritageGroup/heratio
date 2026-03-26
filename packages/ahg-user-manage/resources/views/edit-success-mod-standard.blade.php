@@ -10,9 +10,9 @@
 
   @if(isset($sf_request->getAttribute('sf_route')->resource))
     @php echo $form->renderFormTag(url_for([$resource, 'module' => 'user', 'action' => 'edit']), ['id' => 'editForm']); @endphp
-  @php } else { @endphp
+  @else
     @php echo $form->renderFormTag(route('user.add'), ['id' => 'editForm']); @endphp
-  @endforeach
+  @endif
 
     @php echo $form->renderHiddenFields(); @endphp
 
@@ -49,9 +49,9 @@
                 </div>
                 @if(isset($sf_request->getAttribute('sf_route')->resource))
                   @php echo render_field($form->password->label(__('Change password')), null, ['class' => 'password-strength']); @endphp
-                @php } else { @endphp
+                @else
                   @php echo render_field($form->password->label(__('Password')), null, ['class' => 'password-strength']); @endphp
-                @endforeach
+                @endif
                 @php echo render_field($form->confirmPassword->label(__('Confirm password')), null, ['class' => 'password-confirm']); @endphp
               </div>
               <div class="col-md-6 template" hidden>
@@ -68,11 +68,11 @@
 			  @php echo $form->active
 			    ->label(__('Active'))
 			    ->renderRow(); @endphp
-			@endforeach
+			@endif
 
             @if($sf_user->user != $resource)
               @php echo render_field($form->active->label(__('Active'))); @endphp
-            @endforeach
+            @endif
           </div>
         </div>
       </div>
@@ -100,13 +100,13 @@
               @php echo render_field($form->restApiKey->label(
                   __('REST API access key'.((isset($restApiKey)) ? ': <code class="ms-2">'.$restApiKey.'</code>' : ''))
               )); @endphp
-            @endforeach
+            @endif
 
             @if($oaiEnabled)
               @php echo render_field($form->oaiApiKey->label(
                   __('OAI-PMH API access key'.((isset($oaiApiKey)) ? ': <code class="ms-2">'.$oaiApiKey.'</code>' : ''))
               )); @endphp
-            @endforeach
+            @endif
           </div>
         </div>
       </div>
@@ -116,10 +116,10 @@
       @if(isset($sf_request->getAttribute('sf_route')->resource))
         <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'user'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
-      @php } else { @endphp
+      @else
         <li>@php echo link_to(__('Cancel'), ['module' => 'user', 'action' => 'list'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
-      @endforeach
+      @endif
     </ul>
 
   </form>

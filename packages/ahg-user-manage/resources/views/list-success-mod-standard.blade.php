@@ -14,7 +14,7 @@
     @if('onlyInactive' != $sf_request->filter)
       @php $options['class'] .= ' active'; @endphp
       @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
+    @endif
     <li class="nav-item">
       @php echo link_to(
           __('Show active only'),
@@ -27,7 +27,7 @@
     @if('onlyInactive' == $sf_request->filter)
       @php $options['class'] .= ' active'; @endphp
       @php $options['aria-current'] = 'page'; @endphp
-    @endforeach
+    @endif
     <li class="nav-item">
       @php echo link_to(
           __('Show inactive only'),
@@ -61,10 +61,10 @@
             <?php echo link_to($item->username, [$item, 'module' => 'user']); @endphp
             @if(!$item->active)
               ({{ __('inactive') }})
-            @endforeach
+            @endif
             @if($sf_user->user === $item)
               ({{ __('you') }})
-            @endforeach
+            @endif
           </td><td>
             @php echo $item->email; @endphp
  		  </td><td>

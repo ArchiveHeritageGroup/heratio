@@ -48,7 +48,7 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
   <div class="alert alert-danger" role="alert">
     {{ __('This user is inactive') }}
   </div>
-@endforeach
+@endif
 
 @php echo get_component('user', 'aclMenu'); @endphp
 
@@ -69,11 +69,11 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
 
     @if(!$sf_user->isAdministrator())
       @php echo render_show(__('Password'), link_to(__('Reset password'), [$resource, 'module' => 'user', 'action' => 'passwordEdit'])); @endphp
-    @endforeach
+    @endif
 
     @if(0 < count($groups = $resource->getAclGroups()))
       @php echo render_show(__('User groups'), $groups); @endphp
-    @endforeach
+    @endif
 
     @if(
         sfConfig::get('app_multi_repository')
@@ -84,21 +84,21 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
               $repos[] = render_title($item);
           }
           echo render_show(__('Repository affiliation'), $repos); @endphp
-    @endforeach
+    @endif
 
     @if($sf_context->getConfiguration()->isPluginEnabled('arRestApiPlugin'))
       @php echo render_show(
           __('REST API key'),
           isset($restApiKey) ? '<code>'.$restApiKey.'</code>' : __('Not generated yet.')
       ); @endphp
-    @endforeach
+    @endif
 
     @if($sf_context->getConfiguration()->isPluginEnabled('arOaiPlugin'))
       @php echo render_show(
           __('OAI-PMH API key'),
           isset($oaiApiKey) ? '<code>'.$oaiApiKey.'</code>' : __('Not generated yet.')
       ); @endphp
-    @endforeach
+    @endif
 
   </section>
 
@@ -114,7 +114,7 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
           <a href="@php echo url_for('@security_clearances'); @endphp" class="btn btn-sm btn-outline-primary">
             <i class="fas fa-cog me-1"></i>{{ __('Manage Clearances') }}
           </a>
-        @endforeach
+        @endif
       </div>
       
       <div class="p-3">
@@ -144,25 +144,25 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
                     @php echo date('Y-m-d', $expiresAt); @endphp
                     @if($isExpired)
                       <span class="badge bg-danger ms-1">{{ __('EXPIRED') }}</span>
-                    @php } elseif ($isExpiringSoon) { @endphp
+                    @elseif($isExpiringSoon)
                       <span class="badge bg-warning text-dark ms-1">{{ __('Expiring Soon') }}</span>
-                    @endforeach
+                    @endif
                   </span>
                 </div>
-              @endforeach
+              @endif
               
               @if(isset($userClearance->notes) && $userClearance->notes)
                 <div class="mb-2">
                   <strong>{{ __('Notes') }}:</strong>
                   <span class="text-muted">{{ $userClearance->notes }}</span>
                 </div>
-              @endforeach
-            @php } else { @endphp
+              @endif
+            @else
               <p class="text-muted mb-0">
                 <i class="fas fa-info-circle me-1"></i>
                 {{ __('No security clearance assigned. This user can only access public records.') }}
               </p>
-            @endforeach
+            @endif
           </div>
           
           <div class="col-md-6">
@@ -190,18 +190,18 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
               <button type="button" class="btn atom-btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
                 <i class="fas fa-edit me-1"></i>{{ __('Change Clearance') }}
               </button>
-              <a href="@php echo url_for('@security_clearance_revoke?id=' . $resource->id); @endphp" 
+              <a href="@php echo url_for('@security_clearance_revoke?id=' . $resource->id); @endphp"
                  class="btn atom-btn-outline-danger btn-sm"
                  onclick="return confirm('{{ __('Are you sure you want to revoke this user\'s security clearance?') }}');">
                 <i class="fas fa-user-slash me-1"></i>{{ __('Revoke Clearance') }}
               </a>
-            @php } else { @endphp
+            @else
               <button type="button" class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#grantClearanceModal">
                 <i class="fas fa-user-shield me-1"></i>{{ __('Grant Clearance') }}
               </button>
-            @endforeach
+            @endif
           </div>
-        @endforeach
+        @endif
       </div>
     </div>
     
@@ -247,7 +247,7 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
         </div>
       </div>
     </section>
-  @endforeach
+  @endif
 
 </section>
 
@@ -327,4 +327,4 @@ $canManageClearance = $isAdmin || $sf_user->hasCredential('manage_security'); @e
     </div>
   </div>
 </div>
-@endforeach
+@endif

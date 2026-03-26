@@ -6,7 +6,7 @@
     <div class="copyright-statement-preview alert alert-info">
       {{ __('Copyright statement preview') }}
     </div>
-  @endforeach
+  @endif
 
   <h1>@php echo render_title($resource); @endphp</h1>
 
@@ -28,10 +28,10 @@
         <li><button class="btn atom-btn-outline-success" type="submit" disabled="disabled">{{ __('Agree') }}</button></li>
         <li>@php echo link_to(__('Close'), ['module' => 'settings', 'action' => 'permissions'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
       </ul>
-    @php } else { @endphp
+    @else
       <section class="actions mb-3">
         <button class="btn atom-btn-outline-success" type="submit">{{ __('Agree') }}</button>
       </section>
-    @endforeach
+    @endif
   </form>
 @php end_slot(); @endphp

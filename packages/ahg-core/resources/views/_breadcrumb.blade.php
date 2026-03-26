@@ -6,12 +6,12 @@
           <li class="breadcrumb-item active" aria-current="page">
             @php echo render_title($object); @endphp
           </li>
-        @php } else { @endphp
+        @else
           <li class="breadcrumb-item">
             @php echo link_to(render_title($object), [$object, 'module' => 'informationobject']); @endphp
           </li>
-        @endforeach
-      @endforeach
+        @endif
+      @endif
     @endforeach
   </ol>
 </nav>

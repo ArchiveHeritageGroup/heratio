@@ -1,20 +1,22 @@
-@php /**
+@php
+/**
  * Example: Display book cover in information object view.
  *
  * Usage in template:
- * <?php include_partial('informationobject/bookCoverExample', ['isbn' => '978-0-13-468599-1']) @endphp
+ * @include('informationobject/bookCoverExample', ['isbn' => '978-0-13-468599-1'])
  */
 
 use AtomFramework\Services\BookCoverService;
 
 // Get ISBN from resource properties or parameter
-$isbn = $isbn ?? $resource->getPropertyByName('isbn13')?->getValue() 
+$isbn = $isbn ?? $resource->getPropertyByName('isbn13')?->getValue()
              ?? $resource->getPropertyByName('isbn10')?->getValue();
+@endphp
 
-if (!$isbn): ?>
+@if(!$isbn)
     <!-- No ISBN available -->
-@php else: 
-    $covers = BookCoverService::getAllSizes($isbn); @endphp
+@else
+    @php $covers = BookCoverService::getAllSizes($isbn); @endphp
 
 <div class="book-cover-container text-center mb-3">
     <!-- Primary: Open Library (direct URL, no API call) -->

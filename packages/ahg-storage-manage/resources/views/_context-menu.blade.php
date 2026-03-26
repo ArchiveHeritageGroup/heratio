@@ -8,13 +8,13 @@
 
         @if(isset($item->type))
           @php echo render_value_inline($item->type); @endphp:
-        @endforeach
+        @endif
 
         @php echo link_to_if(QubitAcl::check($resource, 'update'), render_title($item), [$item, 'module' => 'physicalobject']); @endphp
 
         @if(isset($item->location) && $sf_user->isAuthenticated())
           - @php echo render_value_inline($item->getLocation(['cultureFallback' => 'true'])); @endphp
-        @endforeach
+        @endif
 
       </li>
     @endforeach

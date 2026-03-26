@@ -19,11 +19,11 @@
                 'Cannot calculate accumulated dates because this %1% has no children',
                 ['%1%' => sfConfig::get('app_ui_label_informationobject')]
             ) }}
-        @php } else { @endphp
+        @else
           {{ __('Cannot calculate accumulated dates because no lower level dates exist') }}
-        @endforeach
+        @endif
       </div>
-    @endforeach
+    @endif
 
     <section class="actions mb-3">
       @php echo link_to(

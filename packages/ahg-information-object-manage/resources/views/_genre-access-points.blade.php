@@ -2,11 +2,11 @@
 
   @if(isset($sidebar))
     <h4 class="h5 mb-2">{{ __('Related genres') }}</h4>
-  @php } elseif (isset($mods)) { @endphp
+  @elseif(isset($mods))
     @php echo render_b5_show_label(__('Genres')); @endphp
-  @php } else { @endphp
+  @else
     @php echo render_b5_show_label(__('Genre access points')); @endphp
-  @endforeach
+  @endif
 
   <div@php echo isset($sidebar) ? '' : ' class="'.render_b5_show_value_css_classes().'"'; @endphp>
     <ul class="@php echo isset($sidebar) ? 'list-unstyled' : render_b5_show_list_css_classes(); @endphp">
@@ -15,10 +15,10 @@
           @foreach($item->term->ancestors->andSelf()->orderBy('lft') as $key => $subject)
             @if(QubitTerm::ROOT_ID == $subject->id)
               @php continue; @endphp
-            @endforeach
+            @endif
             @if(1 < $key)
               &raquo;
-            @endforeach
+            @endif
             @php echo link_to(render_title($subject), [$subject, 'module' => 'term']); @endphp
           @endforeach
         </li>

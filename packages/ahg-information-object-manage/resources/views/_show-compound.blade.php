@@ -6,18 +6,18 @@
           @if(null !== $representation = $leftObject->getCompoundRepresentation())
             @if($resource->object instanceof QubitInformationObject)
               @php echo link_to_if(SecurityPrivileges::editCredentials($sf_user, 'informationObject') || QubitTerm::TEXT_ID == $resource->mediaType->id, image_tag($representation->getFullPath(), ['alt' => '', 'class' => 'img-thumbnail']), public_path($leftObject->getFullPath(), ['title' => __('View full size')])); @endphp
-            @php } elseif ($resource->object instanceof QubitActor) { @endphp
+            @elseif($resource->object instanceof QubitActor)
               @php echo link_to_if(SecurityPrivileges::editCredentials($sf_user, 'actor') || QubitTerm::TEXT_ID == $resource->mediaType->id, image_tag($representation->getFullPath(), ['alt' => '', 'class' => 'img-thumbnail']), public_path($leftObject->getFullPath(), ['title' => __('View full size')])); @endphp
-            @endforeach
-          @endforeach
+            @endif
+          @endif
         </td><td>
           @if(null !== $rightObject && null !== $representation = $rightObject->getCompoundRepresentation())
             @if($resource->object instanceof QubitInformationObject)
               @php echo link_to_if(SecurityPrivileges::editCredentials($sf_user, 'informationObject') || QubitTerm::TEXT_ID == $resource->mediaType->id, image_tag($representation->getFullPath(), ['alt' => '', 'class' => 'img-thumbnail']), public_path($rightObject->getFullPath(), ['title' => __('View full size')])); @endphp
-            @php } elseif ($resource->object instanceof QubitActor) { @endphp
+            @elseif($resource->object instanceof QubitActor)
               @php echo link_to_if(SecurityPrivileges::editCredentials($sf_user, 'actor') || QubitTerm::TEXT_ID == $resource->mediaType->id, image_tag($representation->getFullPath(), ['alt' => '', 'class' => 'img-thumbnail']), public_path($rightObject->getFullPath(), ['title' => __('View full size')])); @endphp
-            @endforeach
-          @endforeach
+            @endif
+          @endif
         </td>
       </tr>
 
@@ -30,7 +30,7 @@
             </a>
           </td>
         </tr>
-      @endforeach
+      @endif
     </tbody>
   </table>
 </div>

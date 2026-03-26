@@ -80,7 +80,7 @@
                   'permissions' => $item,
                   'actions' => $basicActions,
               ]); @endphp
-            @endforeach
+            @endif
           @endforeach
 
           <button

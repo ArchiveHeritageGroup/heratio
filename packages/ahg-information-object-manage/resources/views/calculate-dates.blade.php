@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-      @endforeach
+      @endif
       @if(count($descendantEventTypes))
         <div class="accordion-item">
           <h2 class="accordion-header" id="create-heading">
@@ -85,7 +85,7 @@
             </div>
           </div>
         </div>
-      @endforeach
+      @endif
     </div>
     
     <div class="alert alert-info" role="alert">

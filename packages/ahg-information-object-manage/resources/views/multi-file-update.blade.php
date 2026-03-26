@@ -35,9 +35,9 @@
                       && QubitAcl::check($io, 'readThumbnail')
                   )
                     @php echo image_tag($thumbnail->getFullPath(), ['alt' => __($do->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-                  @php } else { @endphp
+                  @else
                     @php echo image_tag(QubitDigitalObject::getGenericIconPathByMediaTypeId($do->mediaTypeId), ['alt' => __($do->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-                  @endforeach
+                  @endif
                 @endforeach
               </td>
               <td>
@@ -45,7 +45,7 @@
                   <div class="default-translation">
                     @php echo render_value_inline($digitalObjectTitleForm[$io->id]->getValue(), $io); @endphp
                   </div>
-                @endforeach
+                @endif
 
                 @php echo render_field(
                     $digitalObjectTitleForm[$io->id],
@@ -62,7 +62,7 @@
                       @php echo $io->digitalObjectsRelatedByobjectId[0]->name; @endphp
                     </span>
                   </div>
-                @endforeach
+                @endif
 
                 @if(isset($io->levelOfDescription))
                   <div class="mb-3">
@@ -73,7 +73,7 @@
                       @php echo render_value_inline($io->levelOfDescription); @endphp
                     </span>
                   </div>
-                @endforeach
+                @endif
               </td>
             </tr>
           @endforeach

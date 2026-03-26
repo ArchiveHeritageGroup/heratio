@@ -21,8 +21,8 @@
       </tr>
     </thead>
     <tbody>
-      @php $i = 0;
-      foreach ($resource->getDates() as $item) { @endphp
+      @php $i = 0; @endphp
+      @foreach($resource->getDates() as $item)
         @php $form->getWidgetSchema()->setNameFormat("editDates[{$i}][%s]");
         ++$i; @endphp
 

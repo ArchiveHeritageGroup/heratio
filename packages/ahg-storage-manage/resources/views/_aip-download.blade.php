@@ -6,7 +6,7 @@
       <a href="@php echo url_for([$resource, 'module' => 'arStorageService', 'action' => 'extractFile']); @endphp" target="_blank">
         <i class="fa fa-download me-1" aria-hidden="true"></i>{{ __('Download file') }}
       </a>
-    @endforeach
+    @endif
   </div>
 </div>
 
@@ -18,6 +18,6 @@
       <a href="@php echo url_for([$resource, 'module' => 'arStorageService', 'action' => 'download']); @endphp" target="_blank">
         <i class="fa fa-download me-1" aria-hidden="true"></i>{{ __('Download AIP') }}
       </a>
-    @endforeach
+    @endif
   </div>
 </div>

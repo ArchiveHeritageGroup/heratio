@@ -60,32 +60,32 @@
             <td data-field-id="@php echo $form->resource->renderId(); @endphp">
               @if($resource->id == $item->objectId)
                 @php echo render_title($item->subject); @endphp
-              @php } else { @endphp
+              @else
                 @php echo render_title($item->object); @endphp
-              @endforeach
+              @endif
             </td>
             <td data-field-id="@php echo $form->type->renderId(); @endphp">
               @if(QubitTerm::ROOT_ID == $item->type->parentId)
                 @php echo render_value_inline($item->type); @endphp
-              @php } else { @endphp
+              @else
                 @php echo render_title($item->type->parent); @endphp
-              @endforeach
+              @endif
             </td>
             <td data-field-id="@php echo $form->subType->renderId(); @endphp">
               @if(QubitTerm::ROOT_ID != $item->type->parentId)
                 @if($resource->id != $item->objectId)
                   @php echo render_title($item->type).' '.render_title($resource); @endphp
-                @php } elseif (
+                @elseif(
                     0 < count($converseTerms = QubitRelation::getBySubjectOrObjectId(
                         $item->type->id,
                         ['typeId' => QubitTerm::CONVERSE_TERM_ID]
                     ))
-                ) { @endphp
+                )
                   @php echo render_title($converseTerms[0]->getOpposedObject($item->type))
                     .' '.
                     render_title($resource); @endphp
-                @endforeach
-              @endforeach
+                @endif
+              @endif
             </td>
             <td data-field-id="@php echo $form->date->renderId(); @endphp">
               @php echo render_value_inline(Qubit::renderDateStartEnd(

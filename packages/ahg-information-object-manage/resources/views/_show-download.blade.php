@@ -28,11 +28,11 @@ if ($isPdf && in_array('ahgPrivacyPlugin', sfProjectConfiguration::getActive()->
     @else
       @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($representation->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
     @endif
-  @php } else { @endphp
+  @else
     @php echo image_tag($representation->getFullPath(), ['alt' => __($representation->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-  @endforeach
+  @endif
 
-@php } else { @endphp
+@else
 
   @if($iconOnly && isset($link))
 
@@ -42,7 +42,7 @@ if ($isPdf && in_array('ahgPrivacyPlugin', sfProjectConfiguration::getActive()->
       @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($representation->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
     @endif
 
-  @php } else { @endphp
+  @else
 
     <div class="digitalObject text-center" style="width: 120px;">
 
@@ -52,9 +52,9 @@ if ($isPdf && in_array('ahgPrivacyPlugin', sfProjectConfiguration::getActive()->
         @else
           @php echo link_to(image_tag($representation->getFullPath(), ['alt' => __($representation->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']), $link); @endphp
         @endif
-      @php } else { @endphp
+      @else
         @php echo image_tag($representation->getFullPath(), ['alt' => __($representation->getDigitalObjectAltText() ?: 'Original %1% is not accessible', ['%1%' => sfConfig::get('app_ui_label_digitalobject')]), 'class' => 'img-thumbnail']); @endphp
-      @endforeach
+      @endif
 
       <div class="digitalObjectDesc small">
         @php echo wrap_text($digitalObject->name, 18); @endphp
@@ -65,6 +65,6 @@ if ($isPdf && in_array('ahgPrivacyPlugin', sfProjectConfiguration::getActive()->
 
     </div>
 
-  @endforeach
+  @endif
 
-@endforeach
+@endif

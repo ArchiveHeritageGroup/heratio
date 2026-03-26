@@ -3,11 +3,11 @@
     <li>@php echo link_to(__('Cancel'), [$resource, 'module' => 'informationobject'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
     @if(isset($sf_request->parent))
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
-    @php } else { @endphp
+    @else
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
-    @endforeach
-  @php } else { @endphp
+    @endif
+  @else
     <li>@php echo link_to(__('Cancel'), ['module' => 'informationobject', 'action' => 'browse'], ['class' => 'btn atom-btn-outline-light', 'role' => 'button']); @endphp</li>
     <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
-  @endforeach
+  @endif
 </ul>

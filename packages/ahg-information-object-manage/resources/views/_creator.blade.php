@@ -6,9 +6,9 @@
         <li>
           @if(0 < count($resource->getCreators()))
             @php echo link_to(render_title($item), [$item]); @endphp
-          @php } else { @endphp
+          @else
             @php echo link_to(render_title($item), [$item], ['title' => __('Inherited from %1%', ['%1%' => $ancestor])]); @endphp
-          @endforeach
+          @endif
         </li>
       @endforeach
     </ul>
