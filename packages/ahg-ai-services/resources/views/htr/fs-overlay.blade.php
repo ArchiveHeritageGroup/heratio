@@ -410,8 +410,15 @@
     for (let i = annotations.length - 1; i >= 0; i--) {
       const a = annotations[i];
       if (!a) continue;
+      // Corners
+      if (Math.abs(px - a.x) < margin && Math.abs(py - a.y) < margin) return {idx: i, handle: 'tl'};
+      if (Math.abs(px - (a.x + a.w)) < margin && Math.abs(py - a.y) < margin) return {idx: i, handle: 'tr'};
+      if (Math.abs(px - a.x) < margin && Math.abs(py - (a.y + a.h)) < margin) return {idx: i, handle: 'bl'};
       if (Math.abs(px - (a.x + a.w)) < margin && Math.abs(py - (a.y + a.h)) < margin) return {idx: i, handle: 'br'};
+      // Edges
+      if (Math.abs(px - a.x) < margin && py >= a.y && py <= a.y + a.h) return {idx: i, handle: 'left'};
       if (Math.abs(px - (a.x + a.w)) < margin && py >= a.y && py <= a.y + a.h) return {idx: i, handle: 'right'};
+      if (Math.abs(py - a.y) < margin && px >= a.x && px <= a.x + a.w) return {idx: i, handle: 'top'};
       if (Math.abs(py - (a.y + a.h)) < margin && px >= a.x && px <= a.x + a.w) return {idx: i, handle: 'bottom'};
     }
     return null;
@@ -616,7 +623,7 @@
         .catch(() => { applyFormTemplate('sa-death-generic'); redraw(); });
       }
     };
-    img.src = '{{ route("admin.ai.htr.serveImage") }}?path=' + encodeURIComponent(entry.path);
+    img.src = '{{ route("admin.ai.htr.serveCroppedImage") }}?path=' + encodeURIComponent(entry.path);
   }
 
   // ── Auto-place: position all field boxes on the image ──
@@ -947,8 +954,10 @@
 
     if (resizing && annotations[resizeIdx]) {
       const a = annotations[resizeIdx];
-      if (resizeHandle === 'right' || resizeHandle === 'br') a.w = Math.max(10, p.x - a.x);
-      if (resizeHandle === 'bottom' || resizeHandle === 'br') a.h = Math.max(10, p.y - a.y);
+      if (resizeHandle === 'right' || resizeHandle === 'br' || resizeHandle === 'tr') a.w = Math.max(10, p.x - a.x);
+      if (resizeHandle === 'bottom' || resizeHandle === 'br' || resizeHandle === 'bl') a.h = Math.max(10, p.y - a.y);
+      if (resizeHandle === 'left' || resizeHandle === 'tl' || resizeHandle === 'bl') { const oldRight = a.x + a.w; a.x = Math.min(p.x, oldRight - 10); a.w = oldRight - a.x; }
+      if (resizeHandle === 'top' || resizeHandle === 'tl' || resizeHandle === 'tr') { const oldBottom = a.y + a.h; a.y = Math.min(p.y, oldBottom - 10); a.h = oldBottom - a.y; }
       redraw(); return;
     }
 
@@ -971,7 +980,10 @@
 
     if (currentTool === 'select') {
       const rh = hitResize(p.x, p.y);
-      if (rh) { cvs.style.cursor = rh.handle === 'right' ? 'ew-resize' : (rh.handle === 'bottom' ? 'ns-resize' : 'nwse-resize'); }
+      if (rh) {
+        const cursors = { left:'ew-resize', right:'ew-resize', top:'ns-resize', bottom:'ns-resize', tl:'nwse-resize', br:'nwse-resize', tr:'nesw-resize', bl:'nesw-resize' };
+        cvs.style.cursor = cursors[rh.handle] || 'nwse-resize';
+      }
       else if (hitTest(p.x, p.y) >= 0) { cvs.style.cursor = 'move'; }
       else { cvs.style.cursor = 'default'; }
     }

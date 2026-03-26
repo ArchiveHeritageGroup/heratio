@@ -752,6 +752,116 @@ PY;
     }
 
     /**
+     * Serve an auto-cropped image — removes black borders (book binding, dark edges).
+     * Scans pixel brightness from each edge to find the white form area.
+     */
+    public function htrServeCroppedImage(Request $request)
+    {
+        $path = $request->input('path', '');
+        if (!$path || !file_exists($path)) {
+            abort(404);
+        }
+
+        $cacheDir = storage_path('app/cropped-cache');
+        @mkdir($cacheDir, 0777, true);
+        $cacheKey = md5($path . filemtime($path));
+        $cachePath = "{$cacheDir}/{$cacheKey}.jpg";
+
+        if (!file_exists($cachePath)) {
+            // Load image
+            $im = @imagecreatefromjpeg($path);
+            if (!$im) {
+                $im = @imagecreatefrompng($path);
+            }
+            if (!$im) {
+                return response()->file($path); // fallback: serve original
+            }
+
+            $w = imagesx($im);
+            $h = imagesy($im);
+            $threshold = 150; // brightness threshold (0-255)
+
+            // Scan from left: find first column where median brightness > threshold
+            $left = 0;
+            for ($x = 0; $x < $w; $x++) {
+                $bright = [];
+                for ($s = 0; $s < 10; $s++) {
+                    $y = (int)($h * 0.1 + ($h * 0.8 / 10) * $s);
+                    $rgb = imagecolorat($im, $x, min($y, $h - 1));
+                    $bright[] = ($rgb >> 16) & 0xFF; // grayscale: R channel
+                }
+                sort($bright);
+                if ($bright[5] > $threshold) { $left = $x; break; } // median
+            }
+
+            // Scan from right
+            $right = $w - 1;
+            for ($x = $w - 1; $x > $left; $x--) {
+                $bright = [];
+                for ($s = 0; $s < 10; $s++) {
+                    $y = (int)($h * 0.1 + ($h * 0.8 / 10) * $s);
+                    $rgb = imagecolorat($im, $x, min($y, $h - 1));
+                    $bright[] = ($rgb >> 16) & 0xFF;
+                }
+                sort($bright);
+                if ($bright[5] > $threshold) { $right = $x; break; }
+            }
+
+            // Scan from top
+            $top = 0;
+            for ($y = 0; $y < $h; $y++) {
+                $bright = [];
+                for ($s = 0; $s < 10; $s++) {
+                    $x = (int)($w * 0.3 + ($w * 0.4 / 10) * $s);
+                    $rgb = imagecolorat($im, min($x, $w - 1), $y);
+                    $bright[] = ($rgb >> 16) & 0xFF;
+                }
+                sort($bright);
+                if ($bright[5] > $threshold) { $top = $y; break; }
+            }
+
+            // Scan from bottom
+            $bottom = $h - 1;
+            for ($y = $h - 1; $y > $top; $y--) {
+                $bright = [];
+                for ($s = 0; $s < 10; $s++) {
+                    $x = (int)($w * 0.3 + ($w * 0.4 / 10) * $s);
+                    $rgb = imagecolorat($im, min($x, $w - 1), $y);
+                    $bright[] = ($rgb >> 16) & 0xFF;
+                }
+                sort($bright);
+                if ($bright[5] > $threshold) { $bottom = $y; break; }
+            }
+
+            // Add small padding
+            $pad = 5;
+            $left = max(0, $left - $pad);
+            $top = max(0, $top - $pad);
+            $right = min($w - 1, $right + $pad);
+            $bottom = min($h - 1, $bottom + $pad);
+
+            $cropW = $right - $left;
+            $cropH = $bottom - $top;
+
+            // Only crop if we're actually removing significant borders (> 5% per side)
+            if ($cropW > $w * 0.5 && $cropH > $h * 0.5) {
+                $cropped = imagecrop($im, ['x' => $left, 'y' => $top, 'width' => $cropW, 'height' => $cropH]);
+                if ($cropped) {
+                    imagejpeg($cropped, $cachePath, 92);
+                    imagedestroy($cropped);
+                } else {
+                    imagejpeg($im, $cachePath, 92);
+                }
+            } else {
+                imagejpeg($im, $cachePath, 92);
+            }
+            imagedestroy($im);
+        }
+
+        return response()->file($cachePath, ['Content-Type' => 'image/jpeg']);
+    }
+
+    /**
      * FS Overlay — OCR the form labels to find their positions on the image.
      * Runs Tesseract with TSV output, matches words against field names.
      */
