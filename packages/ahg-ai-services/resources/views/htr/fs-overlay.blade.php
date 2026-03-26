@@ -102,6 +102,7 @@
       <div>
         <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baManualCrop()" id="ba-crop-btn" title="Draw crop area to remove borders"><i class="fas fa-crop-alt me-1"></i>Crop</button>
         <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
         <button class="btn btn-sm btn-outline-warning" onclick="baMigrateToServer()" id="ba-migrate-btn" title="Push browser positions to server"><i class="fas fa-cloud-upload-alt me-1"></i>Sync to server</button>
@@ -802,6 +803,58 @@
     redraw();
   };
 
+  // ── Manual crop: draw rectangle to remove borders ──
+  let cropMode = false;
+  let cropStartX = 0, cropStartY = 0;
+
+  window.baManualCrop = function() {
+    cropMode = true;
+    baSetTool('draw'); // use draw tool for the crop rectangle
+    const btn = document.getElementById('ba-crop-btn');
+    btn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Draw crop area...';
+    btn.classList.add('active');
+    document.getElementById('ba-image-name').textContent += ' — DRAW CROP RECTANGLE';
+  };
+
+  // Hook into the draw mouseup — if cropMode, do the crop instead of creating annotation
+  function handleCropDraw(x, y, w, h) {
+    cropMode = false;
+    const btn = document.getElementById('ba-crop-btn');
+    btn.innerHTML = '<i class="fas fa-crop-alt me-1"></i>Crop';
+    btn.classList.remove('active');
+    btn.disabled = true;
+
+    const entry = images[imgIdx];
+    document.getElementById('ba-image-name').textContent = entry.fname + ' — Cropping...';
+
+    fetch('{{ route("admin.ai.htr.fsOverlayManualCrop") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({
+        image_path: entry.path,
+        x: Math.round(x),
+        y: Math.round(y),
+        w: Math.round(w),
+        h: Math.round(h),
+      }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      if (data.success) {
+        // Reload the image (now cropped)
+        loadImage();
+        buildFieldList();
+      } else {
+        alert(data.error || 'Crop failed');
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      alert('Crop error: ' + err.message);
+    });
+  }
+
   // ── Recognise: send field crops to HTR service ──
   window.baRecognise = function() {
     const entry = images[imgIdx];
@@ -828,26 +881,53 @@
       btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise';
 
       if (data.success && data.results) {
-        // Fill in recognised text into sidebar fields
-        let filled = 0;
+        // Show recognised text under each field — click to accept
+        let count = 0;
         for (const [label, result] of Object.entries(data.results)) {
-          if (!result.text) continue;
-          // Find the field index
           const idx = COLUMNS.indexOf(label);
           if (idx < 0) continue;
-          // Update the input
-          const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
-          if (inp && !inp.value.trim()) {
-            // Only fill if currently empty
-            inp.value = result.text;
-            entry.fields[label] = result.text;
-            if (annotations[idx]) annotations[idx].value = result.text;
-            filled++;
+          count++;
+          const text = result.text || '';
+          const error = result.error || '';
+
+          // Find the coords div and add recognised text below it
+          const coordsEl = document.getElementById('ba-coords-' + idx);
+          if (!coordsEl) continue;
+
+          // Remove any previous recognition result
+          const prev = coordsEl.parentNode.querySelector('.ba-recog');
+          if (prev) prev.remove();
+
+          if (text) {
+            const recogDiv = document.createElement('div');
+            recogDiv.className = 'ba-recog';
+            recogDiv.style.cssText = 'font-size:0.75rem; color:#c00; cursor:pointer; padding:2px 0; border-top:1px dashed #ddd; margin-top:2px;';
+            recogDiv.title = 'Click to use this value';
+            recogDiv.innerHTML = '<i class="fas fa-robot" style="font-size:0.6rem"></i> ' +
+              '<span style="text-decoration:underline dotted">' + text.replace(/</g,'&lt;') + '</span>';
+            recogDiv.addEventListener('click', function() {
+              const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
+              if (inp) {
+                inp.value = text;
+                entry.fields[label] = text;
+                if (annotations[idx]) annotations[idx].value = text;
+                redraw();
+                this.style.color = '#198754';
+                this.innerHTML = '<i class="fas fa-check"></i> Accepted';
+              }
+            });
+            coordsEl.parentNode.appendChild(recogDiv);
+          } else if (error) {
+            const errDiv = document.createElement('div');
+            errDiv.className = 'ba-recog';
+            errDiv.style.cssText = 'font-size:0.7rem; color:#999;';
+            errDiv.textContent = '⚠ ' + error;
+            coordsEl.parentNode.appendChild(errDiv);
           }
         }
         redraw();
-        btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognised (' + filled + ')';
-        setTimeout(() => { btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise'; }, 3000);
+        btn.innerHTML = '<i class="fas fa-brain me-1"></i>Done (' + count + ')';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-brain me-1"></i>Recognise'; }, 5000);
       } else {
         alert(data.error || 'Recognition failed');
       }
@@ -1088,6 +1168,12 @@
     let x = Math.min(sx, p.x), y = Math.min(sy, p.y);
     let w = Math.abs(p.x - sx), h = Math.abs(p.y - sy);
     if (w < 5 || h < 5) { redraw(); return; }
+
+    // If in crop mode, do manual crop instead of annotation
+    if (cropMode) {
+      handleCropDraw(x, y, w, h);
+      return;
+    }
 
     const entry = images[imgIdx];
     const col = COLUMNS[fieldIdx];

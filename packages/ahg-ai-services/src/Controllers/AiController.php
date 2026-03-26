@@ -873,6 +873,56 @@ PY;
     }
 
     /**
+     * FS Overlay — manual crop: user draws a rectangle, server crops and replaces the cached image.
+     */
+    public function htrFsOverlayManualCrop(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        $x = (int)$request->input('x', 0);
+        $y = (int)$request->input('y', 0);
+        $w = (int)$request->input('w', 0);
+        $h = (int)$request->input('h', 0);
+
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found']);
+        }
+        if ($w < 50 || $h < 50) {
+            return response()->json(['success' => false, 'error' => 'Crop area too small']);
+        }
+
+        // Crop the original image
+        $im = @imagecreatefromjpeg($imagePath) ?: @imagecreatefrompng($imagePath);
+        if (!$im) {
+            return response()->json(['success' => false, 'error' => 'Cannot load image']);
+        }
+
+        $crop = imagecrop($im, ['x' => $x, 'y' => $y, 'width' => $w, 'height' => $h]);
+        imagedestroy($im);
+
+        if (!$crop) {
+            return response()->json(['success' => false, 'error' => 'Crop failed']);
+        }
+
+        // Overwrite the original image with the cropped version
+        imagejpeg($crop, $imagePath, 92);
+
+        // Also update the cache
+        $cacheDir = storage_path('app/cropped-cache');
+        $cacheKey = md5($imagePath . filemtime($imagePath));
+        $cachePath = "{$cacheDir}/{$cacheKey}.jpg";
+        imagejpeg($crop, $cachePath, 92);
+        imagedestroy($crop);
+
+        $newInfo = @getimagesize($imagePath);
+
+        return response()->json([
+            'success' => true,
+            'width' => $newInfo[0] ?? $w,
+            'height' => $newInfo[1] ?? $h,
+        ]);
+    }
+
+    /**
      * FS Overlay — recognise text in annotated field regions using the fine-tuned HTR model.
      * Crops each field from the image, sends to HTR service, returns recognised text.
      */
@@ -971,11 +1021,17 @@ PY;
             return response()->json(['success' => false, 'error' => 'Image not found']);
         }
 
+        // Use cropped image if available
+        $cacheDir = storage_path('app/cropped-cache');
+        $cacheKey = md5($imagePath . filemtime($imagePath));
+        $cachePath = "{$cacheDir}/{$cacheKey}.jpg";
+        $ocrPath = file_exists($cachePath) ? $cachePath : $imagePath;
+
         // Run Tesseract with TSV output (word-level bounding boxes)
         $tmpOut = tempnam(sys_get_temp_dir(), 'ocr');
         $cmd = sprintf(
             'tesseract %s %s --psm 3 tsv 2>/dev/null',
-            escapeshellarg($imagePath),
+            escapeshellarg($ocrPath),
             escapeshellarg($tmpOut)
         );
         exec($cmd);
