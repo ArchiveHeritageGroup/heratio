@@ -903,8 +903,14 @@ PY;
             return response()->json(['success' => false, 'error' => 'Crop area too small']);
         }
 
-        // Crop the original image
-        $im = @imagecreatefromjpeg($imagePath) ?: @imagecreatefrompng($imagePath);
+        // Use the auto-cropped version if it exists (that's what the viewer shows)
+        $cacheDir = storage_path('app/cropped-cache');
+        @mkdir($cacheDir, 0777, true);
+        $oldCacheKey = md5($imagePath . filemtime($imagePath));
+        $oldCachePath = "{$cacheDir}/{$oldCacheKey}.jpg";
+        $srcPath = file_exists($oldCachePath) ? $oldCachePath : $imagePath;
+
+        $im = @imagecreatefromjpeg($srcPath) ?: @imagecreatefrompng($srcPath);
         if (!$im) {
             return response()->json(['success' => false, 'error' => 'Cannot load image']);
         }
@@ -916,14 +922,14 @@ PY;
             return response()->json(['success' => false, 'error' => 'Crop failed']);
         }
 
-        // Overwrite the original image with the cropped version
+        // Overwrite the original file with cropped version
         imagejpeg($crop, $imagePath, 92);
 
-        // Also update the cache
-        $cacheDir = storage_path('app/cropped-cache');
-        $cacheKey = md5($imagePath . filemtime($imagePath));
-        $cachePath = "{$cacheDir}/{$cacheKey}.jpg";
-        imagejpeg($crop, $cachePath, 92);
+        // Clear old cache, write new cache with updated mtime
+        @unlink($oldCachePath);
+        $newCacheKey = md5($imagePath . filemtime($imagePath));
+        $newCachePath = "{$cacheDir}/{$newCacheKey}.jpg";
+        imagejpeg($crop, $newCachePath, 92);
         imagedestroy($crop);
 
         $newInfo = @getimagesize($imagePath);

@@ -626,7 +626,7 @@
         .catch(() => { applyFormTemplate('sa-death-generic'); redraw(); });
       }
     };
-    img.src = '{{ route("admin.ai.htr.serveCroppedImage") }}?path=' + encodeURIComponent(entry.path);
+    img.src = '{{ route("admin.ai.htr.serveCroppedImage") }}?path=' + encodeURIComponent(entry.path) + '&_=' + Date.now();
   }
 
   // ── Auto-place: position all field boxes on the image ──
