@@ -71,6 +71,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/admin/ai/htr/fs-overlay', [AiController::class, 'htrFsOverlay'])->name('admin.ai.htr.fsOverlay');
     Route::post('/admin/ai/htr/fs-overlay/load', [AiController::class, 'htrBulkAnnotateLoad'])->name('admin.ai.htr.fsOverlayLoad');
     Route::post('/admin/ai/htr/fs-overlay/save', [AiController::class, 'htrBulkAnnotateSave'])->name('admin.ai.htr.fsOverlaySave');
+    Route::post('/admin/ai/htr/fs-overlay/ocr-labels', [AiController::class, 'htrFsOverlayOcr'])->name('admin.ai.htr.fsOverlayOcr');
     Route::post('/admin/ai/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
     Route::post('/admin/ai/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
     Route::get('/admin/ai/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');

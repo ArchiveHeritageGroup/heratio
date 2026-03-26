@@ -93,8 +93,9 @@
     <div class="d-flex justify-content-between mt-2">
       <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
       <div>
+        <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
         <button class="btn btn-sm btn-outline-primary" onclick="baAutoPlace()" id="ba-autoplace-btn" title="Re-apply saved positions"><i class="fas fa-magic me-1"></i>Auto-place</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset positions</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="baResetPositions()" title="Clear saved positions"><i class="fas fa-undo me-1"></i>Reset</button>
         <button class="btn btn-sm atom-btn-white" onclick="baSkip()"><i class="fas fa-forward me-1"></i>Skip</button>
       </div>
       <button class="btn btn-sm atom-btn-outline-success" onclick="baSaveAndNext()" id="ba-save-btn" disabled><i class="fas fa-save me-1"></i>Save & Next</button>
@@ -266,9 +267,15 @@
       cvs.width = img.width * scale;
       cvs.height = img.height * scale;
 
-      // Auto-place fields using saved positions or defaults
-      autoPlaceFields();
-      redraw();
+      // If we have saved positions, use those. Otherwise OCR the labels.
+      const hasSaved = COLUMNS.some(col => savedPositions[col]);
+      if (hasSaved) {
+        autoPlaceFields();
+        redraw();
+      } else {
+        // OCR the form to find printed label positions
+        ocrAndPlace(entry);
+      }
     };
     img.src = '{{ route("admin.ai.htr.serveImage") }}?path=' + encodeURIComponent(entry.path);
   }
@@ -329,6 +336,80 @@
       if (!ann) return;
       const c = document.getElementById('ba-coords-' + i);
       if (c) c.textContent = Math.round(ann.x) + ',' + Math.round(ann.y) + ' ' + Math.round(ann.w) + '×' + Math.round(ann.h);
+    });
+  }
+
+  // ── OCR labels: detect printed form labels and position boxes there ──
+  function ocrAndPlace(entry) {
+    document.getElementById('ba-image-name').textContent += ' — OCR detecting labels...';
+
+    const activeFields = COLUMNS.filter(col => entry.fields[col]);
+
+    fetch('{{ route("admin.ai.htr.fsOverlayOcr") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({
+        image_path: entry.path,
+        fields: activeFields,
+      }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.positions) {
+        // Apply OCR-detected positions
+        const positions = data.positions;
+        annotations = [];
+        COLUMNS.forEach(function(col, i) {
+          const val = entry.fields[col] || '';
+          if (!val) { skipped.push(i); annotations.push(null); return; }
+
+          if (positions[col]) {
+            const p = positions[col];
+            const ann = {
+              label: col,
+              value: val,
+              x: p.x,
+              y: p.y,
+              w: p.w,
+              h: p.h,
+            };
+            annotations.push(ann);
+            // Save as reference for next images
+            savedPositions[col] = { x: p.x, y: p.y, w: p.w, h: p.h };
+          } else {
+            // No OCR match — use default position
+            const activeIdx = annotations.filter(a => a).length;
+            annotations.push({
+              label: col,
+              value: val,
+              x: 20,
+              y: 50 + activeIdx * Math.round(img.height / (activeFields.length + 2)),
+              w: Math.round(img.width * 0.45),
+              h: 40,
+            });
+          }
+        });
+
+        persistPositions();
+        highlightField();
+        updateProgress();
+        annotations.forEach(function(ann, i) {
+          if (!ann) return;
+          const c = document.getElementById('ba-coords-' + i);
+          if (c) c.textContent = Math.round(ann.x) + ',' + Math.round(ann.y) + ' ' + Math.round(ann.w) + '×' + Math.round(ann.h);
+        });
+        redraw();
+
+        document.getElementById('ba-image-name').textContent = entry.fname + ' (' + (imgIdx + 1) + '/' + images.length + ') — ' + Object.keys(positions).length + ' labels detected';
+      } else {
+        // OCR failed — fall back to default placement
+        autoPlaceFields();
+        redraw();
+      }
+    })
+    .catch(() => {
+      autoPlaceFields();
+      redraw();
     });
   }
 

@@ -710,6 +710,125 @@ PY;
     }
 
     /**
+     * FS Overlay — OCR the form labels to find their positions on the image.
+     * Runs Tesseract with TSV output, matches words against field names.
+     */
+    public function htrFsOverlayOcr(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        $fields = $request->input('fields', []); // field names to locate
+
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found']);
+        }
+
+        // Run Tesseract with TSV output (word-level bounding boxes)
+        $tmpOut = tempnam(sys_get_temp_dir(), 'ocr');
+        $cmd = sprintf(
+            'tesseract %s %s --psm 3 tsv 2>/dev/null',
+            escapeshellarg($imagePath),
+            escapeshellarg($tmpOut)
+        );
+        exec($cmd);
+
+        $tsvFile = $tmpOut . '.tsv';
+        if (!file_exists($tsvFile)) {
+            @unlink($tmpOut);
+            return response()->json(['success' => false, 'error' => 'OCR failed']);
+        }
+
+        $lines = file($tsvFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        @unlink($tsvFile);
+        @unlink($tmpOut);
+
+        // Parse TSV into word entries
+        $words = [];
+        foreach ($lines as $i => $line) {
+            if ($i === 0) continue; // header
+            $parts = explode("\t", $line);
+            if (count($parts) < 12 || empty(trim($parts[11]))) continue;
+            $conf = (float)$parts[10];
+            if ($conf < 20) continue; // skip low confidence
+            $words[] = [
+                'text' => trim($parts[11]),
+                'left' => (int)$parts[6],
+                'top' => (int)$parts[7],
+                'width' => (int)$parts[8],
+                'height' => (int)$parts[9],
+                'conf' => $conf,
+            ];
+        }
+
+        // Build a map of field label keywords → positions
+        // For each CSV field name, find matching printed label on the form
+        $labelMap = [
+            'Name' => ['name', 'names', 'deceased', 'surname', 'christian'],
+            'Sex' => ['sex', 'gender'],
+            'Age' => ['age'],
+            'Birth Year' => ['birth', 'born'],
+            'Birth Date' => ['birth', 'born', 'date'],
+            'Birth Place' => ['birthplace', 'born'],
+            'Event Type' => ['death', 'birth', 'marriage'],
+            'Event Date' => ['date', 'death', 'died'],
+            'Event Place' => ['place', 'death', 'died', 'district'],
+            'Cause of Death' => ['cause', 'causes'],
+            'Father' => ['father'],
+            'Mother' => ['mother', 'maiden'],
+            'Spouse' => ['spouse', 'married', 'husband', 'wife'],
+            'Occupation' => ['occupation', 'profession'],
+            'Race' => ['race', 'colour', 'color'],
+            'Marital Status' => ['married', 'marital', 'single', 'widow'],
+            'Residence' => ['residence', 'address', 'abode'],
+            'District' => ['district', 'division'],
+            'Registration No' => ['registration', 'register', 'entry'],
+            'Informant' => ['informant', 'informants'],
+            'Registrar' => ['registrar'],
+        ];
+
+        $positions = [];
+        foreach ($fields as $fieldName) {
+            $keywords = $labelMap[$fieldName] ?? [strtolower($fieldName)];
+            $bestMatch = null;
+            $bestConf = 0;
+
+            foreach ($words as $word) {
+                $wLower = strtolower($word['text']);
+                foreach ($keywords as $kw) {
+                    // Match if word contains the keyword (or keyword contains the word for short words)
+                    if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false)) {
+                        if ($word['conf'] > $bestConf) {
+                            $bestMatch = $word;
+                            $bestConf = $word['conf'];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if ($bestMatch) {
+                // Position the annotation box to the right of the label (where the value is written)
+                $positions[$fieldName] = [
+                    'label_x' => $bestMatch['left'],
+                    'label_y' => $bestMatch['top'],
+                    'label_w' => $bestMatch['width'],
+                    'label_h' => $bestMatch['height'],
+                    // Value box: starts right of label, extends to ~60% of image width
+                    'x' => $bestMatch['left'] + $bestMatch['width'] + 10,
+                    'y' => $bestMatch['top'] - 5,
+                    'w' => 400,
+                    'h' => max(30, $bestMatch['height'] + 10),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'positions' => $positions,
+            'word_count' => count($words),
+        ]);
+    }
+
+    /**
      * Bulk Annotate — load folder + spreadsheet data.
      * Scans for .xlsx/.csv in folder, parses, matches with images.
      */
