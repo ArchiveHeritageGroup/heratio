@@ -153,7 +153,7 @@
 <script>
 (function() {
   let COLUMNS = [];
-  const COLORS = ['#ff6b6b','#4ecdc4','#45b7d1','#96ceb4','#ffeaa7','#dfe6e9','#fd79a8','#6c5ce7','#00b894'];
+  const COLORS = ['#cc0000','#cc0000','#cc0000','#cc0000','#cc0000','#cc0000','#cc0000','#cc0000','#cc0000'];
 
   let images = [];
   let imgIdx = -1;
@@ -161,7 +161,7 @@
   let annotations = [];
   let img = null;
   let scale = 1;
-  let currentTool = 'hand'; // default to pan
+  let currentTool = 'select'; // default to select/move
   let drawing = false, sx = 0, sy = 0;
   let dragging = false, dragIdx = -1, dragOffX = 0, dragOffY = 0;
   let resizing = false, resizeIdx = -1, resizeHandle = '';
@@ -179,6 +179,30 @@
   // Only these 5 fields are used — everything else is skipped
   const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Residence Place'];
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
+
+  // Convert "6 months" → "Six Months", "45 years" → "Forty Five Years", "0 days" → "Nought Days"
+  function numberToWords(ageStr) {
+    if (!ageStr) return '';
+    const ones = ['Nought','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+    function convert(n) {
+      n = parseInt(n);
+      if (isNaN(n)) return String(n);
+      if (n < 20) return ones[n];
+      if (n < 100) return tens[Math.floor(n/10)] + (n % 10 ? ' ' + ones[n % 10] : '');
+      if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred' + (n % 100 ? ' and ' + convert(n % 100) : '');
+      return String(n);
+    }
+
+    // Parse "6 months", "45 years", "0 days" etc
+    const m = ageStr.match(/^(\d+)\s*(.*)/);
+    if (!m) return ageStr;
+    const num = convert(m[1]);
+    const unit = m[2] ? m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase() : '';
+    return num + (unit ? ' ' + unit : '');
+  }
 
   // ── Known form templates (positions as % of image width/height) ──
   // Form templates — positions as % of image width/height
@@ -476,13 +500,13 @@
 
       // Step 2: data loaded
       images = data.images;
-      COLUMNS = data.columns || [];
+      COLUMNS = (data.columns || []).filter(col => !shouldSkip(col));
       imgIdx = -1;
       document.getElementById('ba-workspace').style.display = '';
       document.getElementById('ba-remaining-count').textContent = images.length;
 
       if (COLUMNS.length === 0 && images.length > 0) {
-        COLUMNS = Object.keys(images[0].fields);
+        COLUMNS = Object.keys(images[0].fields).filter(col => !shouldSkip(col));
       }
 
       // Ensure all template fields are in COLUMNS (even if not in CSV)
@@ -515,7 +539,7 @@
       loadSavedPositions(() => {
         console.log('[FS Overlay] Starting with form type:', currentFormType, 'saved fields:', Object.keys(savedPositions));
         nextImage();
-        baSetTool('hand');
+        baSetTool('select');
       });
     })
     .catch(err => {
@@ -775,8 +799,13 @@
     const container = document.getElementById('ba-fields');
     container.innerHTML = '';
 
+    // Fields to clear (don't pre-fill from CSV — user reads from document)
+    const CLEAR_FIELDS = ['Event Date'];
+
     COLUMNS.forEach(function(col, i) {
-      const val = entry.fields[col] || '';
+      let val = entry.fields[col] || '';
+      if (CLEAR_FIELDS.includes(col)) val = '';
+      if (col === 'Age') val = numberToWords(val);
       const div = document.createElement('div');
       div.className = 'ba-field' + (i === fieldIdx ? ' active' : '');
       div.dataset.idx = i;
@@ -966,6 +995,11 @@
         const c = document.getElementById('ba-coords-' + dragIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
       }
+      // Focus the field input in the sidebar
+      fieldIdx = dragIdx;
+      highlightField();
+      const inp = document.querySelector('.ba-edit-input[data-field-idx="' + dragIdx + '"]');
+      if (inp) { inp.focus(); inp.select(); }
       redraw(); return;
     }
 
@@ -1069,7 +1103,22 @@
   // ── Keyboard shortcuts ──
   document.addEventListener('keydown', function(e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.key === 'Enter') { advanceToNextField(); highlightField(); e.preventDefault(); }
+    if (e.key === 'Enter') {
+      // If Event Date is filled in, Save & Next
+      const eventDateInput = document.querySelector('.ba-edit-input[data-field-idx]');
+      const eventDateIdx = COLUMNS.indexOf('Event Date');
+      let eventDateFilled = false;
+      if (eventDateIdx >= 0) {
+        const inp = document.querySelector('.ba-edit-input[data-field-idx="' + eventDateIdx + '"]');
+        eventDateFilled = inp && inp.value.trim().length > 0;
+      }
+      if (eventDateFilled) {
+        e.preventDefault();
+        baSaveAndNext();
+      } else {
+        advanceToNextField(); highlightField(); e.preventDefault();
+      }
+    }
     if (e.key === 'Backspace') {
       if (annotations[fieldIdx]) { annotations[fieldIdx] = null; highlightField(); updateProgress(); redraw(); }
       e.preventDefault();

@@ -208,13 +208,30 @@
     fetch('{{ route("admin.ai.htr.bulkAnnotateLoad") }}', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-      body: JSON.stringify({ folder: folder }),
+      body: JSON.stringify({ folder: folder, spreadsheet: document.getElementById('ba-spreadsheet').value }),
     })
     .then(r => r.json())
     .then(data => {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-upload me-1"></i>Load';
       if (!data.success) { alert(data.error || 'Load failed'); return; }
+
+      // Handle spreadsheet selection (shared loader now requires it)
+      if (data.needsSelection) {
+        const ssSelect = document.getElementById('ba-spreadsheet');
+        ssSelect.innerHTML = '<option value="">Select spreadsheet...</option>';
+        (data.spreadsheets || []).forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          ssSelect.appendChild(opt);
+        });
+        if (data.spreadsheets.length === 1) {
+          ssSelect.value = data.spreadsheets[0];
+          loadBulkData();
+        }
+        return;
+      }
 
       images = data.images;
       COLUMNS = data.columns || [];
