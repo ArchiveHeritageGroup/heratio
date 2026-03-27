@@ -32,6 +32,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                     config(["app.{$key}" => $dbValue]);
                 }
             }
+
+            // Load element visibility settings into config('atom.element_visibility.*')
+            SettingHelper::loadElementVisibility(app()->getLocale());
         });
 
         // Load routes

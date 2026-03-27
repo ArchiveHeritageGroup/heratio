@@ -189,6 +189,10 @@ class ActorController extends Controller
         $subjects = $this->service->getSubjectAccessPoints($actor->id);
         $places = $this->service->getPlaceAccessPoints($actor->id);
         $occupations = $this->service->getOccupations($actor->id);
+        $occupationNotes = $this->service->getOccupationNotes($actor->id);
+
+        // "Subject of" resources (name access points via relation table)
+        $subjectOfResources = $this->service->getSubjectOfResources($actor->id);
 
         // Resolve description status/detail names
         $descriptionStatusName = $this->service->getEntityTypeName($actor->description_status_id);
@@ -244,6 +248,8 @@ class ActorController extends Controller
             'subjects' => $subjects,
             'places' => $places,
             'occupations' => $occupations,
+            'occupationNotes' => $occupationNotes,
+            'subjectOfResources' => $subjectOfResources,
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,
@@ -273,6 +279,8 @@ class ActorController extends Controller
         $subjects = $this->service->getSubjectAccessPoints($actor->id);
         $places = $this->service->getPlaceAccessPoints($actor->id);
         $occupations = $this->service->getOccupations($actor->id);
+        $occupationNotes = $this->service->getOccupationNotes($actor->id);
+        $subjectOfResources = $this->service->getSubjectOfResources($actor->id);
 
         $descriptionStatusName = $this->service->getEntityTypeName($actor->description_status_id);
         $descriptionDetailName = $this->service->getEntityTypeName($actor->description_detail_id);
@@ -318,6 +326,8 @@ class ActorController extends Controller
             'subjects' => $subjects,
             'places' => $places,
             'occupations' => $occupations,
+            'occupationNotes' => $occupationNotes,
+            'subjectOfResources' => $subjectOfResources,
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,
@@ -355,6 +365,9 @@ class ActorController extends Controller
         $formChoices = $this->service->getFormChoices();
         $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
         $structuredOccupations = $this->service->getActorOccupations($actor->id);
+        $subjects = $this->service->getSubjectAccessPoints($actor->id);
+        $places = $this->service->getPlaceAccessPoints($actor->id);
+        $maintainingRepository = $this->service->getMaintainingRepository($actor->id);
 
         return view('ahg-actor-manage::edit', [
             'actor' => $actor,
@@ -364,6 +377,9 @@ class ActorController extends Controller
             'formChoices' => $formChoices,
             'externalIdentifiers' => $externalIdentifiers,
             'structuredOccupations' => $structuredOccupations,
+            'subjects' => $subjects,
+            'places' => $places,
+            'maintainingRepository' => $maintainingRepository,
         ]);
     }
 
@@ -512,6 +528,65 @@ class ActorController extends Controller
         // Save structured occupations if provided
         if ($request->has('structured_occupations')) {
             $this->service->saveActorOccupations($actor->id, $request->input('structured_occupations', []));
+        }
+
+        // ---- Subject access points (taxonomy 35) ----
+        if ($request->has('subjectAccessPointIds')) {
+            DB::table('object_term_relation')
+                ->where('object_id', $actor->id)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 35);
+                })
+                ->delete();
+            foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
+                DB::table('object_term_relation')->insert([
+                    'object_id' => $actor->id,
+                    'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Place access points (taxonomy 42) ----
+        if ($request->has('placeAccessPointIds')) {
+            DB::table('object_term_relation')
+                ->where('object_id', $actor->id)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 42);
+                })
+                ->delete();
+            foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
+                DB::table('object_term_relation')->insert([
+                    'object_id' => $actor->id,
+                    'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Maintaining repository ----
+        if ($request->has('maintaining_repository_id')) {
+            // Remove existing maintaining repository relation
+            DB::table('relation')
+                ->where('subject_id', $actor->id)
+                ->whereIn('object_id', function ($q) {
+                    $q->select('id')->from('repository');
+                })
+                ->delete();
+            $repoId = (int) $request->input('maintaining_repository_id');
+            if ($repoId > 0) {
+                $relObjectId = DB::table('object')->insertGetId([
+                    'class_name'  => 'QubitRelation',
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+                $culture = app()->getLocale();
+                DB::table('relation')->insert([
+                    'id'             => $relObjectId,
+                    'subject_id'     => $actor->id,
+                    'object_id'      => $repoId,
+                    'type_id'        => 160, // Maintaining repository relation type
+                    'source_culture' => $culture,
+                ]);
+            }
         }
 
         // Recalculate completeness score

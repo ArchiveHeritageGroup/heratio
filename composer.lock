@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "90475f0cc3efc3c30f0116e685b49b51",
+    "content-hash": "3aa65b45600cc6c1d7fccdc6d8f94771",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -811,6 +811,36 @@
                 }
             },
             "description": "Export management for Heratio (CSV, EAD, archival, authority, repository exports)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/extended-rights",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-extended-rights",
+                "reference": "b5ff7adbb56c5c407e3f324e3c92c27d4f0f54c8"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgExtendedRights\\Providers\\AhgExtendedRightsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgExtendedRights\\": "src/"
+                }
+            },
+            "description": "Extended rights management for Heratio: embargoes, orphan works, TK labels, rights statements, CC licenses, reports",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11407,6 +11437,7 @@
         "ahg/dropdown-manage": 20,
         "ahg/exhibition": 20,
         "ahg/export": 20,
+        "ahg/extended-rights": 20,
         "ahg/favorites": 20,
         "ahg/federation": 20,
         "ahg/feedback": 20,

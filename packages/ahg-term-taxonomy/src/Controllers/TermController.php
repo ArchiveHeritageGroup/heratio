@@ -708,4 +708,36 @@ class TermController extends Controller
             ->route('term.browse', ['taxonomy' => $taxonomyId])
             ->with('success', 'Term deleted successfully.');
     }
+
+    /**
+     * AJAX autocomplete endpoint for terms within a given taxonomy.
+     *
+     * GET /term/autocomplete?query=...&taxonomy_id=35
+     * Returns JSON: [{id: ..., name: ...}, ...]
+     */
+    public function autocomplete(Request $request)
+    {
+        $query = $request->get('query', '');
+        $taxonomyId = (int) $request->get('taxonomy_id', 0);
+        $culture = app()->getLocale();
+        $limit = (int) $request->get('limit', 20);
+
+        if (!$taxonomyId) {
+            return response()->json([]);
+        }
+
+        $results = DB::table('term')
+            ->join('term_i18n', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                  ->where('term_i18n.culture', '=', $culture);
+            })
+            ->where('term.taxonomy_id', $taxonomyId)
+            ->where('term_i18n.name', 'LIKE', '%' . $query . '%')
+            ->select('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->limit($limit)
+            ->get();
+
+        return response()->json($results);
+    }
 }

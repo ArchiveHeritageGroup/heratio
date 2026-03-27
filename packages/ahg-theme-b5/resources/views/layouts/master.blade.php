@@ -1,3 +1,4 @@
+@php $cspNonce = base64_encode(random_bytes(16)); @endphp
 <!DOCTYPE html>
 <html lang="{{ $themeData['culture'] ?? 'en' }}" dir="ltr">
   <head>
@@ -107,7 +108,7 @@
     @stack('js')
 
     {{-- Auto-open first accordion block on every page --}}
-    <script>
+    <script nonce="{{ $cspNonce }}">
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.accordion').forEach(function(acc) {
         var firstCollapse = acc.querySelector('.accordion-collapse');
@@ -127,7 +128,7 @@
     @include('theme::partials.feedback-tab')
 
     {{-- Global JS error logger — sends client errors to Laravel log --}}
-    <script>
+    <script nonce="{{ $cspNonce }}">
     window.onerror = function(msg, url, line, col, err) {
       try {
         fetch('/api/log-error', {

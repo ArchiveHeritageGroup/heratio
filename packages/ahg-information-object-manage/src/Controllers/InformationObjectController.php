@@ -673,13 +673,33 @@ class InformationObjectController extends Controller
                 ->value('name');
         }
 
-        // Repository
+        // Repository (direct or inherited from nearest ancestor — matching AtoM behaviour)
         $repository = null;
-        if ($io->repository_id) {
+        $repoId = $io->repository_id;
+        if (!$repoId && $io->parent_id && $io->parent_id != 1) {
+            // Walk up the tree to find the nearest ancestor with a repository_id
+            $ancestorId = $io->parent_id;
+            $maxDepth = 50; // safety limit
+            while ($ancestorId && $ancestorId != 1 && $maxDepth-- > 0) {
+                $ancestor = DB::table('information_object')
+                    ->where('id', $ancestorId)
+                    ->select('repository_id', 'parent_id')
+                    ->first();
+                if (!$ancestor) {
+                    break;
+                }
+                if ($ancestor->repository_id) {
+                    $repoId = $ancestor->repository_id;
+                    break;
+                }
+                $ancestorId = $ancestor->parent_id;
+            }
+        }
+        if ($repoId) {
             $repository = DB::table('repository')
                 ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
                 ->join('slug', 'repository.id', '=', 'slug.object_id')
-                ->where('repository.id', $io->repository_id)
+                ->where('repository.id', $repoId)
                 ->where('actor_i18n.culture', $culture)
                 ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
                 ->first();
@@ -931,7 +951,7 @@ class InformationObjectController extends Controller
             ->where('relation.subject_id', $io->id)
             ->where('relation.type_id', 151)
             ->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id', 'slug.slug')
+            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.description', 'physical_object_i18n.location', 'physical_object.type_id', 'slug.slug')
             ->get();
 
         // Resolve physical object type names
@@ -949,6 +969,7 @@ class InformationObjectController extends Controller
         $rights = collect();
         $extendedRights = collect();
         $extendedRightsTkLabels = [];
+        $activeEmbargo = null;
         if (auth()->check()) {
             try {
                 $rights = DB::table('relation')
@@ -964,8 +985,8 @@ class InformationObjectController extends Controller
             }
 
             // Extended rights (from extended_rights + extended_rights_i18n tables)
+            $erService = new \AhgInformationObjectManage\Services\ExtendedRightsService($culture);
             try {
-                $erService = new \AhgInformationObjectManage\Services\ExtendedRightsService($culture);
                 $extendedRights = $erService->getExtendedRights($io->id);
                 foreach ($extendedRights as $er) {
                     $extendedRightsTkLabels[$er->id] = $erService->getTkLabelsForRights($er->id);
@@ -973,6 +994,24 @@ class InformationObjectController extends Controller
             } catch (\Exception $e) {
                 // extended_rights tables may not exist in all installs
             }
+
+            // Active embargo for sidebar display
+            try {
+                $activeEmbargo = $erService->getActiveEmbargo($io->id);
+            } catch (\Exception $e) {
+                // embargo table may not exist
+            }
+        }
+
+        // Approved NER entity count (for PDF Entity Overlay link in sidebar)
+        $nerEntityCount = 0;
+        try {
+            $nerEntityCount = DB::table('ahg_ner_entity')
+                ->where('object_id', $io->id)
+                ->where('status', 'approved')
+                ->count();
+        } catch (\Exception $e) {
+            // ahg_ner_entity table may not exist in all installs
         }
 
         // Accessions (via relation table)
@@ -1173,6 +1212,25 @@ class InformationObjectController extends Controller
                 ->value('name');
         }
 
+        // Display standard options (taxonomy_id for display standards)
+        // AtoM uses taxonomy_id = 67 for "Display Standard" terms
+        $displayStandardOptions = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 67)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+        // If taxonomy 67 yields nothing, fallback — check if terms exist under another id
+        if ($displayStandardOptions->isEmpty()) {
+            $displayStandardOptions = collect([
+                (object) ['id' => null, 'name' => 'ISAD(G)'],
+            ]);
+        }
+
+        // Audit log enabled setting
+        $auditLogEnabled = \AhgCore\Services\SettingHelper::isAuditLogEnabled();
+
         // Source language name (for Administration area)
         $sourceLanguageName = null;
         if ($io->source_culture) {
@@ -1285,7 +1343,48 @@ class InformationObjectController extends Controller
             'keymapEntries' => $keymapEntries,
             'translationLinks' => $translationLinks,
             'digitalObjectRights' => $digitalObjectRights,
+            'activeEmbargo' => $activeEmbargo,
+            'childThumbnails' => $childThumbnails,
+            'childThumbnailTotal' => $childThumbnailTotal,
+            'nerEntityCount' => $nerEntityCount,
+            'displayStandardOptions' => $displayStandardOptions,
+            'auditLogEnabled' => $auditLogEnabled,
         ]);
+    }
+
+    /**
+     * Update the display standard for an information object (Administration area).
+     */
+    public function updateDisplayStandard(Request $request, string $slug)
+    {
+        $io = DB::table('information_object')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        $displayStandardId = $request->input('display_standard_id');
+        $updateDescendants = $request->boolean('update_descendants', false);
+
+        // Update this IO
+        DB::table('information_object')
+            ->where('id', $io->id)
+            ->update(['display_standard_id' => $displayStandardId ?: null]);
+
+        // Optionally update all descendants
+        if ($updateDescendants) {
+            DB::table('information_object')
+                ->where('lft', '>', $io->lft)
+                ->where('rgt', '<', $io->rgt)
+                ->update(['display_standard_id' => $displayStandardId ?: null]);
+        }
+
+        return redirect()->route('informationobject.show', $slug)
+            ->with('success', 'Display standard updated.' . ($updateDescendants ? ' Descendants updated.' : ''));
     }
 
     /**
@@ -1460,7 +1559,7 @@ class InformationObjectController extends Controller
             ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
             ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
             ->where('relation.subject_id', $io->id)->where('relation.type_id', 151)->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id')->get();
+            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.description', 'physical_object_i18n.location', 'physical_object.type_id')->get();
 
         $physicalObjectTypeIds = $physicalObjects->pluck('type_id')->filter()->unique()->values()->toArray();
         $physicalObjectTypeNames = [];
@@ -2015,6 +2114,106 @@ class InformationObjectController extends Controller
             // museum_metadata table may not exist in all installs
         }
 
+        // ---- Creators (event type 111) ----
+        if ($request->has('_creatorsIncluded')) {
+            $creatorIds = array_filter((array) $request->input('creatorIds', []));
+            // Remove existing creator events for this IO
+            DB::table('event')
+                ->where('object_id', $ioId)
+                ->where('type_id', 111)
+                ->delete();
+            foreach ($creatorIds as $actorId) {
+                $actorId = (int) $actorId;
+                if ($actorId <= 0) continue;
+                $eventObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitEvent',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('event')->insert([
+                    'id'        => $eventObjectId,
+                    'object_id' => $ioId,
+                    'actor_id'  => $actorId,
+                    'type_id'   => 111,
+                    'source_culture' => $culture,
+                ]);
+                DB::table('event_i18n')->insert([
+                    'id'      => $eventObjectId,
+                    'culture' => $culture,
+                ]);
+            }
+        }
+
+        // ---- Subject access points (taxonomy 35) ----
+        if ($request->has('subjectAccessPointIds')) {
+            DB::table('object_term_relation')
+                ->where('object_id', $ioId)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 35);
+                })
+                ->delete();
+            foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
+                DB::table('object_term_relation')->insert([
+                    'object_id' => $ioId,
+                    'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Place access points (taxonomy 42) ----
+        if ($request->has('placeAccessPointIds')) {
+            DB::table('object_term_relation')
+                ->where('object_id', $ioId)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 42);
+                })
+                ->delete();
+            foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
+                DB::table('object_term_relation')->insert([
+                    'object_id' => $ioId,
+                    'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Genre access points (taxonomy 78) ----
+        if ($request->has('genreAccessPointIds')) {
+            DB::table('object_term_relation')
+                ->where('object_id', $ioId)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 78);
+                })
+                ->delete();
+            foreach (array_filter((array) $request->input('genreAccessPointIds', [])) as $termId) {
+                DB::table('object_term_relation')->insert([
+                    'object_id' => $ioId,
+                    'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Name access points (relation type 161) ----
+        if ($request->has('nameAccessPointIds')) {
+            DB::table('relation')
+                ->where('subject_id', $ioId)
+                ->where('type_id', 161)
+                ->delete();
+            foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $actorId) {
+                $relObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('relation')->insert([
+                    'id'             => $relObjectId,
+                    'subject_id'     => $ioId,
+                    'object_id'      => (int) $actorId,
+                    'type_id'        => 161,
+                    'source_culture' => $culture,
+                ]);
+            }
+        }
+
         // Update object.updated_at
         DB::table('object')
             ->where('id', $ioId)
@@ -2163,13 +2362,64 @@ class InformationObjectController extends Controller
      * Delete an information object.
      */
     /**
+     * Show the "Update publication status" form page.
+     * Mirrors AtoM's informationobject/updatePublicationStatus action.
+     */
+    public function showUpdateStatus(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $resource = DB::table('information_object')
+            ->join('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->join('slug', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt',
+                     'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$resource) {
+            abort(404);
+        }
+
+        // Current publication status
+        $currentStatus = DB::table('status')
+            ->where('object_id', $resource->id)
+            ->where('type_id', 158)
+            ->value('status_id');
+
+        // Publication status options from taxonomy 175 (Publication status)
+        $publicationStatuses = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 175)
+            ->where('term_i18n.culture', $culture)
+            ->pluck('term_i18n.name', 'term.id')
+            ->toArray();
+
+        // Fallback if taxonomy lookup is empty
+        if (empty($publicationStatuses)) {
+            $publicationStatuses = [160 => 'Published', 159 => 'Draft'];
+        }
+
+        return view('ahg-io-manage::update-publication-status', [
+            'resource' => $resource,
+            'currentStatus' => $currentStatus,
+            'publicationStatuses' => $publicationStatuses,
+        ]);
+    }
+
+    /**
      * Update publication status for an information object.
      * Status is stored in the `status` table with type_id=158.
      * 160 = Published, 159 = Draft.
+     * Supports updating descendants when the "updateDescendants" checkbox is ticked.
      */
     public function updateStatus(Request $request, string $slug)
     {
-        $statusId = (int) $request->input('publication_status');
+        // Accept both field names: "publicationStatus" (from dedicated page) and "publication_status" (legacy inline)
+        $statusId = (int) ($request->input('publicationStatus') ?: $request->input('publication_status'));
         if (!in_array($statusId, [159, 160], true)) {
             return redirect()->back()->with('error', 'Invalid publication status.');
         }
@@ -2177,7 +2427,7 @@ class InformationObjectController extends Controller
         $io = DB::table('slug')
             ->join('information_object', 'slug.object_id', '=', 'information_object.id')
             ->where('slug.slug', $slug)
-            ->select('information_object.id')
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt')
             ->first();
 
         if (!$io) {
@@ -2205,7 +2455,43 @@ class InformationObjectController extends Controller
 
         $label = $statusId === 160 ? 'Published' : 'Draft';
 
-        return redirect()->back()->with('success', "Publication status updated to {$label}.");
+        // Update descendants if requested
+        if ($request->boolean('updateDescendants')) {
+            $descendantIds = DB::table('information_object')
+                ->where('lft', '>', $io->lft)
+                ->where('rgt', '<', $io->rgt)
+                ->pluck('id');
+
+            $updatedCount = 0;
+            foreach ($descendantIds as $descId) {
+                $descExists = DB::table('status')
+                    ->where('object_id', $descId)
+                    ->where('type_id', 158)
+                    ->first();
+
+                if ($descExists) {
+                    DB::table('status')
+                        ->where('object_id', $descId)
+                        ->where('type_id', 158)
+                        ->update(['status_id' => $statusId]);
+                } else {
+                    DB::table('status')->insert([
+                        'object_id' => $descId,
+                        'type_id' => 158,
+                        'status_id' => $statusId,
+                    ]);
+                }
+                $updatedCount++;
+            }
+
+            return redirect()
+                ->route('informationobject.show', $slug)
+                ->with('success', "Publication status updated to {$label}. {$updatedCount} descendant(s) also updated.");
+        }
+
+        return redirect()
+            ->route('informationobject.show', $slug)
+            ->with('success', "Publication status updated to {$label}.");
     }
 
     public function destroy(Request $request, string $slug)

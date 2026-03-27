@@ -66,6 +66,36 @@
     </div>
   @endif
 
+  @if(($subjectOfResources ?? collect())->isNotEmpty())
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">Subject of</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        @foreach($subjectOfResources->take(10) as $resource)
+          <li class="list-group-item">
+            <a href="{{ route('informationobject.show', $resource->slug) }}">
+              {{ $resource->title ?: '[Untitled]' }}
+            </a>
+          </li>
+        @endforeach
+        @if($subjectOfResources->count() > 10)
+          <li class="list-group-item text-muted">
+            <a href="{{ route('glam.browse') }}?topLevel=0&names={{ $actor->id }}" class="text-muted">
+              ... and {{ $subjectOfResources->count() - 10 }} more
+            </a>
+          </li>
+        @endif
+      </ul>
+      <div class="card-body p-0">
+        <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&names={{ $actor->id }}">
+          <i class="fas fa-search me-1" aria-hidden="true"></i>
+          Browse {{ $subjectOfResources->count() }} result{{ $subjectOfResources->count() !== 1 ? 's' : '' }}
+        </a>
+      </div>
+    </div>
+  @endif
+
   @if($relatedFunctions->isNotEmpty())
     <div class="card mb-3">
       <div class="card-header">
@@ -307,6 +337,12 @@
               <a href="{{ route('term.show', $occ->slug) }}">{{ $occ->name }}</a>
             @else
               {{ $occ->name }}
+            @endif
+            @if(isset($occupationNotes[$occ->relation_id]) && !empty($occupationNotes[$occ->relation_id]))
+              <div class="field row g-0 mt-1">
+                <h4 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-1 ps-0" style="font-size:.85rem;color:var(--ahg-primary);">Note</h4>
+                <div class="col-8 p-1">{{ $occupationNotes[$occ->relation_id] }}</div>
+              </div>
             @endif
           </div>
         @endforeach

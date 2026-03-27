@@ -18,6 +18,7 @@
         'extraFields' => [],                      // optional, extra fields to show in dropdown (e.g. ['slug'])
         'inputClass'  => '',                      // optional, extra CSS classes for input
         'allowFreeText' => false,                 // optional, allow values not from the list
+        'extraParams' => [],                      // optional, extra query params appended to the route URL
         'multi'       => false,                   // optional, multi-select mode
         'multiName'   => '',                      // optional, name for hidden inputs in multi mode (e.g. 'creatorIds[]')
         'existingItems'=> [],                     // optional, pre-selected items [{id:..., name:...}, ...]
@@ -46,7 +47,15 @@
     $acMulti         = $multi ?? false;
     $acMultiName     = $multiName ?? ($acName . '[]');
     $acExistingItems = $existingItems ?? [];
-    $acRouteUrl      = $acRoute ? route($acRoute) : '';
+    $acExtraParams   = $extraParams ?? [];
+    if ($acRoute) {
+        $acRouteUrl = route($acRoute);
+        if (!empty($acExtraParams)) {
+            $acRouteUrl .= (str_contains($acRouteUrl, '?') ? '&' : '?') . http_build_query($acExtraParams);
+        }
+    } else {
+        $acRouteUrl = '';
+    }
 @endphp
 
 <div class="mb-3 ahg-autocomplete" id="{{ $acId }}" data-config='@json([

@@ -1105,6 +1105,84 @@ PY;
 
         imagedestroy($im);
 
+        // Post-process: match place fields against SA towns list
+        $placeFields = ['Place of Marriage', 'District', 'Province'];
+        $needsPlaceLookup = false;
+        foreach ($results as $label => $r) {
+            if (in_array($label, $placeFields) && !empty($r['text'])) {
+                $needsPlaceLookup = true;
+                break;
+            }
+        }
+
+        if ($needsPlaceLookup) {
+            try {
+                $plScript = <<<'PY'
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from places import PlaceLookup
+pl = PlaceLookup()
+queries = json.loads(sys.argv[1])
+out = {}
+for label, text in queries.items():
+    match = pl.lookup(text, threshold=0.55)
+    if match:
+        out[label] = match
+    else:
+        out[label] = None
+print(json.dumps(out))
+PY;
+                $queries = [];
+                foreach ($results as $label => $r) {
+                    if (in_array($label, $placeFields) && !empty($r['text'])) {
+                        $queries[$label] = $r['text'];
+                    }
+                }
+
+                if (!empty($queries)) {
+                    $tmpPy = tempnam(sys_get_temp_dir(), 'place_') . '.py';
+                    file_put_contents($tmpPy, $plScript);
+                    $escaped = escapeshellarg(json_encode($queries));
+                    $output = shell_exec("python3 {$tmpPy} {$escaped} 2>/dev/null");
+                    @unlink($tmpPy);
+
+                    $matches = json_decode(trim($output ?: '{}'), true) ?: [];
+                    foreach ($matches as $label => $match) {
+                        if ($match && isset($results[$label])) {
+                            $results[$label]['place_match'] = $match;
+                            // Auto-correct if confidence is high enough
+                            if (($match['confidence'] ?? 0) >= 0.7) {
+                                $results[$label]['text'] = $match['name'];
+                            }
+                            // For Province field, use the province from any matched town
+                            if ($label === 'Province' && empty($match['name']) && !empty($match['province'])) {
+                                $results[$label]['text'] = $match['historical_province'] ?? $match['province'];
+                            }
+                        }
+                    }
+
+                    // Cross-reference: if Place of Marriage matched, auto-fill District and Province
+                    if (isset($matches['Place of Marriage']) && $matches['Place of Marriage']) {
+                        $townMatch = $matches['Place of Marriage'];
+                        // Auto-fill Province if it wasn't matched or was low confidence
+                        if (isset($results['Province']) && (!isset($matches['Province']) || !$matches['Province'] || ($matches['Province']['confidence'] ?? 0) < 0.7)) {
+                            $results['Province']['text'] = $townMatch['historical_province'] ?? $townMatch['province'] ?? '';
+                            $results['Province']['place_match'] = $townMatch;
+                            $results['Province']['auto_filled_from'] = 'Place of Marriage';
+                        }
+                        // Auto-fill District if it wasn't matched
+                        if (isset($results['District']) && (!isset($matches['District']) || !$matches['District'] || ($matches['District']['confidence'] ?? 0) < 0.7)) {
+                            $results['District']['text'] = $townMatch['name'];
+                            $results['District']['place_match'] = $townMatch;
+                            $results['District']['auto_filled_from'] = 'Place of Marriage';
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::warning('[FS Overlay] Place lookup failed: ' . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'results' => $results,

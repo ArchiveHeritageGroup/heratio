@@ -56,6 +56,8 @@
   {{-- ===== Authenticated-only management sections ===== --}}
   @auth
 
+    {{-- Collections Management (only if collections management controllers are available) --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ProvenanceController::class))
     {{-- Collections Management --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -74,8 +76,12 @@
         <a href="{{ route('io.heritage', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-landmark me-1"></i> Heritage Assets
         </a>
+        <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-quote-left me-1"></i> Cite this Record
+        </a>
       </div>
     </div>
+    @endif {{-- end Collections Management package check --}}
 
     {{-- Digital Preservation (OAIS) --}}
     <div class="card mb-3">
@@ -89,7 +95,8 @@
       </div>
     </div>
 
-    {{-- AI Tools --}}
+    {{-- AI Tools (only if AI controller is available) --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-robot me-1"></i> AI Tools
@@ -101,9 +108,15 @@
         <a href="{{ route('io.ai.summarize', $io->id) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-file-alt me-1"></i> Generate Summary
         </a>
-        <a href="{{ route('io.ai.translate', $io->id) }}" class="list-group-item list-group-item-action small">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
           <i class="fas fa-language me-1"></i> Translate
         </a>
+        @if(isset($nerEntityCount) && $nerEntityCount > 0)
+          <a href="{{ route('io.ai.extract', $io->id) }}#entities" class="list-group-item list-group-item-action small d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-file-pdf me-1"></i> View PDF Entities</span>
+            <span class="badge bg-success rounded-pill">{{ $nerEntityCount }}</span>
+          </a>
+        @endif
       </div>
     </div>
 
@@ -118,8 +131,10 @@
         </a>
       </div>
     </div>
+    @endif {{-- end AI Tools package check --}}
 
-    {{-- Privacy & PII --}}
+    {{-- Privacy & PII (only if privacy controller is available) --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-user-shield me-1"></i> Privacy & PII
@@ -138,26 +153,60 @@
         </a>
       </div>
     </div>
+    @endif {{-- end Privacy package check --}}
 
     {{-- Rights --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-copyright me-1"></i> Rights
       </div>
+
+      {{-- Rights Status badges --}}
+      @if(auth()->check())
+        <div class="card-body py-2">
+          @if(isset($extendedRights) && $extendedRights->isNotEmpty())
+            <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+          @endif
+          @if(isset($activeEmbargo) && $activeEmbargo)
+            <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+          @endif
+          @if((!isset($extendedRights) || $extendedRights->isEmpty()) && (!isset($activeEmbargo) || !$activeEmbargo))
+            <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+          @endif
+        </div>
+      @endif
+
       <div class="list-group list-group-flush">
         <a href="{{ route('io.rights.extended', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-copyright me-1"></i> Add extended rights
         </a>
-        <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-lock me-1"></i> Add embargo
-        </a>
+
+        {{-- Conditional embargo links --}}
+        @if(isset($activeEmbargo) && $activeEmbargo)
+          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-edit me-1"></i> Edit embargo
+          </a>
+          <form method="POST" action="{{ route('io.rights.embargo.lift', $activeEmbargo->id) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start"
+                    onclick="return confirm('Are you sure you want to lift this embargo?')">
+              <i class="fas fa-unlock me-1"></i> Lift embargo
+            </button>
+          </form>
+        @else
+          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-lock me-1"></i> Add embargo
+          </a>
+        @endif
+
         <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
         </a>
       </div>
     </div>
 
-    {{-- Research Tools --}}
+    {{-- Research Tools (only if research controller is available) --}}
+    @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-graduation-cap me-1"></i> Research Tools
@@ -180,8 +229,12 @@
         </a>
       </div>
     </div>
+    @endif {{-- end Research Tools package check --}}
 
   @endauth
+
+  {{-- Static pages menu (visible to all users, matching AtoM context menu) --}}
+  @include('ahg-menu::_static-pages-menu')
 
 @endsection
 
@@ -189,6 +242,17 @@
 {{-- TITLE BLOCK                                                  --}}
 {{-- ============================================================ --}}
 @section('title-block')
+
+  {{-- Validation errors / error schema (matching AtoM errorSchema display) --}}
+  @if($errors->any())
+    <div class="alert alert-danger" role="alert">
+      <ul class="list-unstyled mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
   {{-- Description header: Level Identifier - Title --}}
   <h1 class="mb-2">
@@ -247,6 +311,28 @@
 {{-- BEFORE CONTENT: Digital object reference image               --}}
 {{-- ============================================================ --}}
 @section('before-content')
+
+  {{-- Imageflow: scrollable gallery of child IO thumbnails (matching AtoM imageflow component) --}}
+  @if(isset($childThumbnails) && $childThumbnails->isNotEmpty())
+    <div class="imageflow-strip border-bottom mb-2 py-2 px-1" style="background:#f8f8f8;">
+      <div class="d-flex overflow-auto gap-2 px-2" style="scrollbar-width:thin;">
+        @foreach($childThumbnails as $ct)
+          @php
+            $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($ct);
+          @endphp
+          <a href="{{ route('informationobject.show', $ct->slug) }}" class="flex-shrink-0 text-center text-decoration-none" style="width:100px;" title="{{ $ct->title ?: '[Untitled]' }}">
+            <img src="{{ $thumbUrl }}" alt="{{ $ct->title ?: '' }}" class="img-thumbnail" style="width:90px;height:68px;object-fit:cover;">
+            <small class="d-block text-truncate text-muted mt-1" style="font-size:.7rem;">{{ Str::limit($ct->title ?: '[Untitled]', 18) }}</small>
+          </a>
+        @endforeach
+      </div>
+      @if(isset($childThumbnailTotal) && $childThumbnailTotal > $childThumbnails->count())
+        <div class="text-center mt-1">
+          <small class="text-muted">Showing {{ $childThumbnails->count() }} of {{ $childThumbnailTotal }} digital objects</small>
+        </div>
+      @endif
+    </div>
+  @endif
 
   @if(isset($digitalObjects) && ($digitalObjects['master'] || $digitalObjects['reference'] || $digitalObjects['thumbnail']))
     @php
@@ -390,7 +476,7 @@
 
         <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
-        <script>
+        <script nonce="{{ $cspNonce ?? '' }}">
         document.addEventListener('DOMContentLoaded', function() {
           initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
         });
@@ -603,6 +689,21 @@
         </div>
         @endauth
       @endif
+
+      {{-- TIFF to PDF Merge button (only for items with TIFF digital objects) --}}
+      @auth
+        @php
+          $hasTiffDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null)
+            && in_array(strtolower($digitalObjects['master']->mime_type ?? ''), ['image/tiff', 'image/tif', 'image/x-tiff']);
+        @endphp
+        @if($hasTiffDigitalObject)
+          <div class="text-center my-2">
+            <a href="{{ route('tiffpdfmerge.create') }}?io_id={{ $io->id }}" class="btn atom-btn-white btn-sm">
+              <i class="fas fa-file-pdf me-1"></i> Merge to PDF
+            </a>
+          </div>
+        @endif
+      @endauth
     @endif
   @endif
 
@@ -682,6 +783,7 @@
   </div>
 
   {{-- ===== 1. Identity area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_identity_area'))
   <section id="identityArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#identity-collapse">
@@ -746,8 +848,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_identity_area visibility --}}
 
   {{-- ===== 2. Context area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_context_area'))
   <section id="contextArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#context-collapse">
@@ -823,24 +927,30 @@
         </div>
       @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_archival_history'))
       @if($io->archival_history)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival history</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->archival_history)) !!}</div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_immediate_source'))
       @if($io->acquisition)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition or transfer</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->acquisition)) !!}</div>
         </div>
       @endif
+      @endif
 
     </div>
   </section>
+  @endif {{-- end isad_context_area visibility --}}
 
   {{-- ===== 3. Content and structure area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_content_and_structure_area'))
   <section id="contentAndStructureArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#content-collapse">
@@ -861,11 +971,13 @@
         </div>
       @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_appraisal_destruction'))
       @if($io->appraisal)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->appraisal)) !!}</div>
         </div>
+      @endif
       @endif
 
       @if($io->accruals)
@@ -884,8 +996,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_content_and_structure_area visibility --}}
 
   {{-- ===== 4. Conditions of access and use area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_conditions_of_access_use_area'))
   <section id="conditionsOfAccessAndUseArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#conditions-collapse">
@@ -952,11 +1066,13 @@
         </div>
       @endforeach
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_physical_condition'))
       @if($io->physical_characteristics)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical characteristics and technical requirements</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->physical_characteristics)) !!}</div>
         </div>
+      @endif
       @endif
 
       @if($io->finding_aids)
@@ -980,8 +1096,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_conditions_of_access_use_area visibility --}}
 
   {{-- ===== 5. Allied materials area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_allied_materials_area'))
   <section id="alliedMaterialsArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#allied-collapse">
@@ -1048,8 +1166,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_allied_materials_area visibility --}}
 
   {{-- ===== 6. Notes area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_notes_area'))
   <section id="notesArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#notes-collapse">
@@ -1064,6 +1184,7 @@
     <div id="notes-collapse">
 
       {{-- General notes (type_id = 125) --}}
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_notes'))
       @if(isset($notes) && $notes->isNotEmpty())
         @foreach($notes->where('type_id', 125) as $note)
           <div class="field text-break row g-0">
@@ -1072,6 +1193,7 @@
           </div>
         @endforeach
       @endif
+      @endif {{-- end isad_notes visibility --}}
 
       {{-- Alternative identifiers --}}
       @if(isset($alternativeIdentifiers) && (is_countable($alternativeIdentifiers) ? count($alternativeIdentifiers) > 0 : !empty($alternativeIdentifiers)))
@@ -1087,8 +1209,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_notes_area visibility --}}
 
   {{-- ===== 7. Access points ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_access_points_area'))
   <section id="accessPointsArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#access-collapse">
@@ -1183,8 +1307,10 @@
 
     </div>
   </section>
+  @endif {{-- end isad_access_points_area visibility --}}
 
   {{-- ===== 8. Description control area ===== --}}
+  @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_description_control_area'))
   <section id="descriptionControlArea" class="border-bottom">
     <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
       <a class="text-decoration-none text-white" href="#description-collapse">
@@ -1198,48 +1324,61 @@
     </h2>
     <div id="description-collapse">
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_description_identifier'))
       @if($io->description_identifier ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description identifier</h3>
           <div class="col-9 p-2">{{ $io->description_identifier }}</div>
         </div>
       @endif
+      @endif {{-- end isad_control_description_identifier --}}
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_institution_identifier'))
       @if($io->institution_responsible_identifier ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Institution identifier</h3>
           <div class="col-9 p-2">{{ $io->institution_responsible_identifier }}</div>
         </div>
       @endif
+      @endif {{-- end isad_control_institution_identifier --}}
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_rules_conventions'))
       @if($io->rules ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rules and/or conventions used</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->rules)) !!}</div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_status'))
       @if(isset($descriptionStatusName) && $descriptionStatusName)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Status</h3>
           <div class="col-9 p-2">{{ $descriptionStatusName }}</div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_level_of_detail'))
       @if(isset($descriptionDetailName) && $descriptionDetailName)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Level of detail</h3>
           <div class="col-9 p-2">{{ $descriptionDetailName }}</div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_dates'))
       @if($io->revision_history ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of creation revision deletion</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->revision_history)) !!}</div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_languages'))
       @if(isset($languagesOfDescription) && (is_countable($languagesOfDescription) ? count($languagesOfDescription) > 0 : !empty($languagesOfDescription)))
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Language(s)</h3>
@@ -1250,7 +1389,9 @@
           </div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_scripts'))
       @if(isset($scriptsOfDescription) && (is_countable($scriptsOfDescription) ? count($scriptsOfDescription) > 0 : !empty($scriptsOfDescription)))
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script(s)</h3>
@@ -1261,15 +1402,19 @@
           </div>
         </div>
       @endif
+      @endif
 
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_sources'))
       @if($io->sources ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Sources</h3>
           <div class="col-9 p-2">{!! nl2br(e($io->sources)) !!}</div>
         </div>
       @endif
+      @endif
 
       {{-- Archivist's note (type_id = 124) --}}
+      @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('isad_control_archivists_notes'))
       @if(isset($notes) && $notes->isNotEmpty())
         @foreach($notes->where('type_id', 124) as $note)
           <div class="field text-break row g-0">
@@ -1278,9 +1423,11 @@
           </div>
         @endforeach
       @endif
+      @endif
 
     </div>
   </section>
+  @endif {{-- end isad_description_control_area visibility --}}
 
   {{-- ===== 8b. Administration area (authenticated only, matching AtoM _adminInfo.php) ===== --}}
   @auth
@@ -1344,10 +1491,31 @@
                 </div>
 
                 <div class="col-md-6">
-                  {{-- Display standard --}}
+                  {{-- Display standard (form with dropdown + update descendants) --}}
                   <div class="field text-break row g-0">
                     <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Display standard</h3>
-                    <div class="col-8 p-2">{{ $displayStandardName ?? 'ISAD(G)' }}</div>
+                    <div class="col-8 p-2">
+                      <form method="POST" action="{{ route('io.updateDisplayStandard', $io->slug) }}" class="d-flex flex-column gap-2">
+                        @csrf
+                        <select name="display_standard_id" class="form-select form-select-sm">
+                          <option value="">-- Default --</option>
+                          @if(isset($displayStandardOptions))
+                            @foreach($displayStandardOptions as $opt)
+                              <option value="{{ $opt->id }}" @if($io->display_standard_id == $opt->id) selected @endif>{{ $opt->name }}</option>
+                            @endforeach
+                          @endif
+                        </select>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="update_descendants" value="1" id="updateDescendantsCheck">
+                          <label class="form-check-label small" for="updateDescendantsCheck">
+                            Update descendant display standard
+                          </label>
+                        </div>
+                        <button type="submit" class="btn btn-sm atom-btn-white align-self-start">
+                          <i class="fas fa-save me-1"></i>Save
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
 
@@ -1467,6 +1635,9 @@
       </div>
     </section>
   @endauth
+
+  {{-- ===== 9b. Extended Rights visual badges ===== --}}
+  @include('ahg-io-manage::partials._rights-badges')
 
   {{-- ===== 10. Digital object metadata ===== --}}
   @if(isset($digitalObjects) && $digitalObjects['master'])
@@ -2070,7 +2241,8 @@
       </div>
     @endif
 
-    {{-- Physical storage --}}
+    {{-- Physical storage (visibility check matching AtoM) --}}
+    @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('physical_storage'))
     @if(isset($physicalObjects) && (is_countable($physicalObjects) ? count($physicalObjects) > 0 : !empty($physicalObjects)))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -2079,24 +2251,34 @@
         <ul class="list-group list-group-flush">
           @foreach($physicalObjects as $pobj)
             <li class="list-group-item small">
-              @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
-                <strong>{{ $physicalObjectTypeNames[$pobj->type_id] }}:</strong>
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
+                    <span class="badge bg-secondary me-1">{{ $physicalObjectTypeNames[$pobj->type_id] }}</span>
+                  @endif
+                  @if(isset($pobj->slug))
+                    <a href="{{ route('physicalobject.show', $pobj->slug) }}" class="fw-bold text-decoration-none">{{ $pobj->name ?? '[Unknown]' }}</a>
+                  @else
+                    <span class="fw-bold">{{ $pobj->name ?? '[Unknown]' }}</span>
+                  @endif
+                </div>
+              </div>
+              @if(isset($pobj->location) && $pobj->location)
+                <div class="mt-1 text-muted">
+                  <i class="fas fa-map-marker-alt me-1"></i> {{ $pobj->location }}
+                </div>
               @endif
-              @if(isset($pobj->slug))
-                <a href="{{ route('physicalobject.show', $pobj->slug) }}">{{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}</a>
-              @else
-                {{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}
+              @if(isset($pobj->description) && $pobj->description)
+                <div class="mt-1 text-muted small">
+                  <i class="fas fa-info-circle me-1"></i> {{ $pobj->description }}
+                </div>
               @endif
-              @auth
-                @if(isset($pobj->location) && $pobj->location)
-                  - {{ $pobj->location }}
-                @endif
-              @endauth
             </li>
           @endforeach
         </ul>
       </div>
     @endif
+    @endif {{-- end physical_storage visibility --}}
 
   </nav>
 
@@ -2107,10 +2289,14 @@
 {{-- ============================================================ --}}
 @section('after-content')
   @auth
+  @php $isAdmin = auth()->user()->is_admin; @endphp
   <ul class="actions mb-3 nav gap-2">
+    {{-- Edit button: any authenticated user can edit --}}
     <li>
       <a href="{{ route('informationobject.edit', $io->slug) }}" class="btn atom-btn-outline-light">Edit</a>
     </li>
+    {{-- Delete button: admin only --}}
+    @if($isAdmin)
     <li>
       <form action="{{ route('informationobject.destroy', $io->slug) }}" method="POST"
             onsubmit="return confirm('Are you sure you want to delete this archival description?');">
@@ -2119,15 +2305,20 @@
         <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
       </form>
     </li>
+    @endif
+    {{-- Add new: any authenticated user --}}
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id]) }}" class="btn atom-btn-outline-light">Add new</a>
     </li>
     <li>
       <a href="{{ route('informationobject.create', ['parent_id' => $io->id, 'copy_from' => $io->id]) }}" class="btn atom-btn-outline-light">Duplicate</a>
     </li>
+    {{-- Move button: admin only --}}
+    @if($isAdmin)
     <li>
       <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
     </li>
+    @endif
     <li>
       <div class="dropup">
         <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -2189,20 +2380,18 @@
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
-            <form method="POST" action="{{ route('io.updateStatus', $io->slug ?? '') }}" class="dropdown-item p-0">
-              @csrf
-              <select name="publication_status" onchange="this.form.submit()" class="form-select form-select-sm border-0">
-                <option value="" disabled selected>Update pub. status</option>
-                <option value="160">Published</option>
-                <option value="159">Draft</option>
-              </select>
-            </form>
+            <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $io->slug ?? '') }}">
+              <i class="fas fa-eye me-2"></i>Update publication status
+            </a>
           </li>
+          {{-- Modification history: only show if audit logging is enabled --}}
+          @if(isset($auditLogEnabled) && $auditLogEnabled)
           <li>
             <a class="dropdown-item" href="{{ route('audit.browse', ['type' => 'QubitInformationObject', 'id' => $io->id ?? '']) }}">
               <i class="fas fa-history me-2"></i>Modification history
             </a>
           </li>
+          @endif
         </ul>
       </div>
     </li>
@@ -2214,4 +2403,109 @@
   </ul>
   @endauth
   <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-transcription.js') }}"></script>
+
+  {{-- Translate Modal --}}
+  @auth
+  <div class="modal fade" id="translateModal" tabindex="-1" aria-labelledby="translateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+          <h5 class="modal-title" id="translateModalLabel"><i class="fas fa-language me-2"></i>Translate Record</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Source language</label>
+            <input type="text" class="form-control" value="{{ ucfirst($io->source_culture ?? 'en') }}" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="translateTargetLang" class="form-label fw-bold">Target language</label>
+            <select id="translateTargetLang" class="form-select">
+              <option value="af">Afrikaans</option>
+              <option value="ar">Arabic</option>
+              <option value="de">German</option>
+              <option value="en" selected>English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="pt">Portuguese</option>
+              <option value="zu">Zulu</option>
+              <option value="xh">Xhosa</option>
+              <option value="st">Sesotho</option>
+              <option value="tn">Setswana</option>
+              <option value="nso">Sepedi</option>
+              <option value="ts">Tsonga</option>
+              <option value="ss">Swati</option>
+              <option value="ve">Venda</option>
+              <option value="nr">Ndebele</option>
+            </select>
+          </div>
+          <div id="translateResult" class="d-none">
+            <label class="form-label fw-bold">Translation result</label>
+            <div id="translateResultContent" class="border rounded p-3 bg-light" style="max-height:300px;overflow-y:auto;white-space:pre-wrap;"></div>
+          </div>
+          <div id="translateError" class="alert alert-danger d-none mt-3"></div>
+          <div id="translateSpinner" class="text-center d-none my-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Translating...</span>
+            </div>
+            <p class="text-muted mt-2">Translating, please wait...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn atom-btn-outline-light" id="translateSubmitBtn">
+            <i class="fas fa-language me-1"></i> Translate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script nonce="{{ $cspNonce ?? '' }}">
+  document.addEventListener('DOMContentLoaded', function() {
+    var translateBtn = document.getElementById('translateSubmitBtn');
+    if (!translateBtn) return;
+    translateBtn.addEventListener('click', function() {
+      var targetLang = document.getElementById('translateTargetLang').value;
+      var spinner = document.getElementById('translateSpinner');
+      var result = document.getElementById('translateResult');
+      var resultContent = document.getElementById('translateResultContent');
+      var errorDiv = document.getElementById('translateError');
+
+      spinner.classList.remove('d-none');
+      result.classList.add('d-none');
+      errorDiv.classList.add('d-none');
+      translateBtn.disabled = true;
+
+      fetch('{{ route("io.ai.translate", $io->id) }}' + '?target_lang=' + encodeURIComponent(targetLang), {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        spinner.classList.add('d-none');
+        translateBtn.disabled = false;
+        if (data.error) {
+          errorDiv.textContent = data.error;
+          errorDiv.classList.remove('d-none');
+        } else {
+          resultContent.textContent = data.translation || data.text || JSON.stringify(data);
+          result.classList.remove('d-none');
+        }
+      })
+      .catch(function(err) {
+        spinner.classList.add('d-none');
+        translateBtn.disabled = false;
+        errorDiv.textContent = 'Translation failed: ' + (err.message || 'Unknown error');
+        errorDiv.classList.remove('d-none');
+      });
+    });
+  });
+  </script>
+  @endauth
 @endsection

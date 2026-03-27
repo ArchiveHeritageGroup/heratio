@@ -350,15 +350,45 @@
         </h2>
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
-            <div class="mb-3">
-              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" name="subject_access_points" value="{{ old('subject_access_points') }}" placeholder="Type to search subjects..." autocomplete="off">
-            </div>
+            @php
+              $actorSubjectItems = ($subjects ?? collect())->map(function ($s) {
+                  return ['id' => $s->id, 'name' => $s->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'subjectAccessPoints',
+                'label'         => 'Subject access points',
+                'route'         => 'term.autocomplete',
+                'placeholder'   => 'Type to search subjects...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'subjectAccessPointIds[]',
+                'existingItems' => $actorSubjectItems,
+                'inputClass'    => 'form-control-sm',
+                'extraParams'   => ['taxonomy_id' => 35],
+            ])
 
-            <div class="mb-3">
-              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" class="form-control" name="place_access_points" value="{{ old('place_access_points') }}" placeholder="Type to search places..." autocomplete="off">
-            </div>
+            @php
+              $actorPlaceItems = ($places ?? collect())->map(function ($p) {
+                  return ['id' => $p->id, 'name' => $p->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'placeAccessPoints',
+                'label'         => 'Place access points',
+                'route'         => 'term.autocomplete',
+                'placeholder'   => 'Type to search places...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'placeAccessPointIds[]',
+                'existingItems' => $actorPlaceItems,
+                'inputClass'    => 'form-control-sm',
+                'extraParams'   => ['taxonomy_id' => 42],
+            ])
 
             <!-- Occupation(s) multi-row table -->
             <h3 class="fs-6 mb-2">Occupation(s)</h3>
@@ -416,12 +446,18 @@
               <div class="form-text text-muted small">"Record a unique authority record identifier in accordance with local and/or national conventions. If the authority record is to be used internationally, record the country code of the country in which the authority record was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the authority record is an international organization, give the organizational identifier in place of the country code." (ISAAR 5.4.1)</div>
             </div>
 
-            <div class="mb-3">
-              <label for="maintaining_repository" class="form-label">Maintaining repository <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="maintaining_repository" id="maintaining_repository" class="form-control"
-                     value="{{ old('maintaining_repository') }}" placeholder="Type to search repositories..." autocomplete="off">
-              <div class="form-text text-muted small">"Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511)." (ISAAR 5.4.2)</div>
-            </div>
+            @include('ahg-core::components.autocomplete', [
+                'name'         => 'maintaining_repository_id',
+                'label'        => 'Maintaining repository',
+                'route'        => 'repository.autocomplete',
+                'value'        => old('maintaining_repository_id', ($maintainingRepository->id ?? '')),
+                'displayValue' => old('maintaining_repository_name', ($maintainingRepository->name ?? '')),
+                'placeholder'  => 'Type to search repositories...',
+                'required'     => false,
+                'helpText'     => '"Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511)." (ISAAR 5.4.2)',
+                'idField'      => 'id',
+                'nameField'    => 'name',
+            ])
 
             <div class="mb-3">
               <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>

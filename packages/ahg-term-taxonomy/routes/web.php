@@ -22,4 +22,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy');
 });
 
+Route::get('/term/autocomplete', [TermController::class, 'autocomplete'])->name('term.autocomplete');
 Route::get('/term/{slug}', [TermController::class, 'show'])->name('term.show');

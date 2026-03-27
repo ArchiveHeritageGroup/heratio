@@ -48,6 +48,7 @@
         "ahg/dropdown-manage": "@dev",
         "ahg/exhibition": "@dev",
         "ahg/export": "@dev",
+        "ahg/extended-rights": "@dev",
         "ahg/favorites": "@dev",
         "ahg/federation": "@dev",
         "ahg/feedback": "@dev",

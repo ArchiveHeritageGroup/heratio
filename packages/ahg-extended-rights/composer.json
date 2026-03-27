@@ -1,0 +1,20 @@
+{
+    "name": "ahg/extended-rights",
+    "description": "Extended rights management for Heratio: embargoes, orphan works, TK labels, rights statements, CC licenses, reports",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgExtendedRights\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgExtendedRights\\Providers\\AhgExtendedRightsServiceProvider"
+            ]
+        }
+    }
+}

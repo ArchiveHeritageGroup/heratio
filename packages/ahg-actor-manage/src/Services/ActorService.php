@@ -358,7 +358,65 @@ class ActorService
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $actorId)
             ->where('term.taxonomy_id', 78) // Occupation taxonomy (same as genre for IOs)
-            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->select('object_term_relation.id as relation_id', 'term.id', 'term_i18n.name', 'slug.slug')
+            ->get();
+    }
+
+    /**
+     * Get occupation notes keyed by object_term_relation ID.
+     * Notes are stored in the note table with type_id = 188 (ACTOR_OCCUPATION_NOTE_ID),
+     * where note.object_id = object_term_relation.id.
+     */
+    public function getOccupationNotes(int $actorId): array
+    {
+        $relationIds = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('object_term_relation.object_id', $actorId)
+            ->where('term.taxonomy_id', 78)
+            ->pluck('object_term_relation.id')
+            ->toArray();
+
+        if (empty($relationIds)) {
+            return [];
+        }
+
+        return DB::table('note')
+            ->leftJoin('note_i18n', function ($j) {
+                $j->on('note.id', '=', 'note_i18n.id')
+                    ->where('note_i18n.culture', '=', $this->culture);
+            })
+            ->where('note.type_id', 188) // ACTOR_OCCUPATION_NOTE_ID
+            ->whereIn('note.object_id', $relationIds)
+            ->select('note.object_id as relation_id', 'note_i18n.content')
+            ->get()
+            ->keyBy('relation_id')
+            ->map(fn ($row) => $row->content)
+            ->toArray();
+    }
+
+    /**
+     * Get information objects where this actor is a name access point ("Subject of").
+     * Uses the relation table with type_id = 161 (name access points),
+     * where relation.object_id = actor.id and relation.subject_id = information_object.id.
+     */
+    public function getSubjectOfResources(int $actorId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $actorId)
+            ->where('relation.type_id', 161) // name access points
+            ->where('information_object.id', '!=', 1) // exclude root
+            ->select(
+                'information_object.id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->distinct()
             ->get();
     }
 

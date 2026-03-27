@@ -69,11 +69,15 @@ Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'cs
 
 // Auth-required features
 Route::middleware('auth')->group(function () {
-    // Publication status update
+    // Publication status update (GET = show form, POST = process)
+    Route::get('/informationobject/{slug}/update-status', [InformationObjectController::class, 'showUpdateStatus'])->name('io.showUpdateStatus');
     Route::post('/informationobject/{slug}/update-status', [InformationObjectController::class, 'updateStatus'])->name('io.updateStatus');
 
     // Calculate dates
     Route::post('/informationobject/{slug}/calculate-dates', [InformationObjectController::class, 'calculateDates'])->name('informationobject.calculateDates');
+
+    // Display standard update (Administration area form)
+    Route::post('/informationobject/{slug}/display-standard', [InformationObjectController::class, 'updateDisplayStandard'])->name('io.updateDisplayStandard');
 
     // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');

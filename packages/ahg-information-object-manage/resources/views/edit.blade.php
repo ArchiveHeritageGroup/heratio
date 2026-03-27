@@ -196,36 +196,43 @@
 
             {{-- Name of creator(s) multi-row --}}
             <input type="hidden" name="_creatorsIncluded" value="1">
-            <div class="mb-3">
-              <label class="form-label">Name of creator(s) <span class="form-required text-danger" title="This archival description, or one of its higher levels, requires at least one creator.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <div id="creator-list">
-                @foreach($creators as $cIdx => $creator)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $creator->name ?? '' }}" readonly>
-                    <input type="hidden" name="creators[{{ $cIdx }}][actorId]" value="{{ $creator->id ?? 0 }}">
-                    <input type="hidden" name="creators[{{ $cIdx }}][actorName]" value="{{ $creator->name ?? '' }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="Type to add creator..." autocomplete="off">
-              </div>
-              <div class="form-text text-muted small">Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)</div>
-            </div>
+            @php
+              $creatorItems = ($creators ?? collect())->map(function ($c) {
+                  return ['id' => $c->id ?? 0, 'name' => $c->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'creators',
+                'label'         => 'Name of creator(s)',
+                'route'         => 'actor.autocomplete',
+                'placeholder'   => 'Type to add creator...',
+                'required'      => true,
+                'helpText'      => 'Record the name of the organization(s) or the individual(s) responsible for the creation, accumulation and maintenance of the records in the unit of description. Search for an existing name in the authority records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new authority record. (ISAD 3.2.1)',
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'creatorIds[]',
+                'existingItems' => $creatorItems,
+            ])
 
-            <div class="mb-3">
-              <label for="repository_id" class="form-label">Repository <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select class="form-select" id="repository_id" name="repository_id">
-                <option value="">-- Select --</option>
-                @foreach($repositories as $repo)
-                  <option value="{{ $repo->id }}" @selected(old('repository_id', $io->repository_id) == $repo->id)>
-                    {{ $repo->name }}
-                  </option>
-                @endforeach
-              </select>
-              <div class="form-text text-muted small">Record the name of the organization which has custody of the archival material. Search for an existing name in the archival institution records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new archival institution record.</div>
-            </div>
+            @php
+              $repoDisplayName = '';
+              if (old('repository_id', $io->repository_id)) {
+                  $repoDisplayName = ($repositories ?? collect())->firstWhere('id', old('repository_id', $io->repository_id))->name ?? '';
+              }
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'         => 'repository_id',
+                'label'        => 'Repository',
+                'route'        => 'repository.autocomplete',
+                'value'        => old('repository_id', $io->repository_id ?? ''),
+                'displayValue' => $repoDisplayName,
+                'placeholder'  => 'Type to search repositories...',
+                'required'     => false,
+                'helpText'     => 'Record the name of the organization which has custody of the archival material. Search for an existing name in the archival institution records by typing the first few characters of the name. Alternatively, type a new name to create and link to a new archival institution record.',
+                'idField'      => 'id',
+                'nameField'    => 'name',
+            ])
 
             <div class="mb-3">
               <label for="archival_history" class="form-label">Archival history <span class="badge bg-warning ms-1">Recommended</span></label>
@@ -471,73 +478,87 @@
           <div class="accordion-body">
 
             {{-- Subject access points --}}
-            <div class="mb-3">
-              <label class="form-label">Subject access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <div id="subject-ap-list">
-                @foreach($subjects as $sIdx => $sap)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $sap->name ?? '' }}" readonly>
-                    <input type="hidden" name="subjectAccessPointIds[]" value="{{ $sap->term_id }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="Type to add subject..." autocomplete="off">
-              </div>
-            </div>
+            @php
+              $subjectItems = ($subjects ?? collect())->map(function ($s) {
+                  return ['id' => $s->term_id, 'name' => $s->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'subjectAccessPoints',
+                'label'         => 'Subject access points',
+                'route'         => 'term.autocomplete',
+                'placeholder'   => 'Type to add subject...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'subjectAccessPointIds[]',
+                'existingItems' => $subjectItems,
+                'inputClass'    => 'form-control-sm',
+                'extraParams'   => ['taxonomy_id' => 35],
+            ])
 
             {{-- Place access points --}}
-            <div class="mb-3">
-              <label class="form-label">Place access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <div id="place-ap-list">
-                @foreach($places as $pIdx => $pap)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $pap->name ?? '' }}" readonly>
-                    <input type="hidden" name="placeAccessPointIds[]" value="{{ $pap->term_id }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="Type to add place..." autocomplete="off">
-              </div>
-            </div>
+            @php
+              $placeItems = ($places ?? collect())->map(function ($p) {
+                  return ['id' => $p->term_id, 'name' => $p->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'placeAccessPoints',
+                'label'         => 'Place access points',
+                'route'         => 'term.autocomplete',
+                'placeholder'   => 'Type to add place...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'placeAccessPointIds[]',
+                'existingItems' => $placeItems,
+                'inputClass'    => 'form-control-sm',
+                'extraParams'   => ['taxonomy_id' => 42],
+            ])
 
             {{-- Genre access points --}}
-            <div class="mb-3">
-              <label class="form-label">Genre access points <span class="badge bg-secondary ms-1">Optional</span></label>
-              <div id="genre-ap-list">
-                @foreach($genres as $gIdx => $gap)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $gap->name ?? '' }}" readonly>
-                    <input type="hidden" name="genreAccessPointIds[]" value="{{ $gap->term_id }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="Type to add genre..." autocomplete="off">
-              </div>
-            </div>
+            @php
+              $genreItems = ($genres ?? collect())->map(function ($g) {
+                  return ['id' => $g->term_id, 'name' => $g->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'genreAccessPoints',
+                'label'         => 'Genre access points',
+                'route'         => 'term.autocomplete',
+                'placeholder'   => 'Type to add genre...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'genreAccessPointIds[]',
+                'existingItems' => $genreItems,
+                'inputClass'    => 'form-control-sm',
+                'extraParams'   => ['taxonomy_id' => 78],
+            ])
 
             {{-- Name access points (subjects) --}}
-            <div class="mb-3">
-              <label class="form-label">Name access points (subjects) <span class="badge bg-secondary ms-1">Optional</span></label>
-              <div id="name-ap-list">
-                @foreach($nameAccessPoints as $nIdx => $nap)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $nap->name ?? '' }}" readonly>
-                    <input type="hidden" name="nameAccessPoints[{{ $nIdx }}][actorId]" value="{{ $nap->actor_id }}">
-                    <input type="hidden" name="nameAccessPoints[{{ $nIdx }}][actorName]" value="{{ $nap->name ?? '' }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-target="name-ap-list" placeholder="Type to add name..." autocomplete="off">
-              </div>
-            </div>
+            @php
+              $nameApItems = ($nameAccessPoints ?? collect())->map(function ($n) {
+                  return ['id' => $n->actor_id, 'name' => $n->name ?? ''];
+              })->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'nameAccessPoints',
+                'label'         => 'Name access points (subjects)',
+                'route'         => 'actor.autocomplete',
+                'placeholder'   => 'Type to add name...',
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'nameAccessPointIds[]',
+                'existingItems' => $nameApItems,
+                'inputClass'    => 'form-control-sm',
+            ])
 
           </div>
         </div>

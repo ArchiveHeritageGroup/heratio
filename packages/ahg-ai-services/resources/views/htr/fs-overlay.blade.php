@@ -890,8 +890,18 @@
       }
 
       if (selectedType && selectedType !== 'auto') {
-        applyFormTemplate(selectedType);
-        afterFieldsPlaced();
+        currentFormType = selectedType;
+        // If we already have saved positions in memory (from previous images), use them directly
+        // Don't re-fetch from server — savedPositions is always up-to-date from persistPositions()
+        if (Object.keys(savedPositions).length > 0) {
+          applyFormTemplate(selectedType);
+          afterFieldsPlaced();
+        } else {
+          loadSavedPositions(() => {
+            applyFormTemplate(selectedType);
+            afterFieldsPlaced();
+          });
+        }
       } else if (COLUMNS.some(col => savedPositions[col])) {
         autoPlaceFields();
         afterFieldsPlaced();
@@ -1367,9 +1377,9 @@
       if (label === 'Event Date') fixedText = autoFixDate(cleanText);
       else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-      // Auto-populate if field is empty
+      // Overwrite field with recognised text (user moved/resized the box to a new position)
       const inp = document.querySelector('.ba-edit-input[data-field-idx="' + annIdx + '"]');
-      if (inp && !inp.value.trim()) {
+      if (inp) {
         inp.value = fixedText;
         entry.fields[label] = fixedText;
         if (annotations[annIdx]) annotations[annIdx].value = fixedText;
@@ -1397,6 +1407,21 @@
           }
         });
         coordsEl.parentNode.appendChild(recogDiv);
+
+        // Show place match badge if available
+        if (result.place_match) {
+          const pm = result.place_match;
+          const pmDiv = document.createElement('div');
+          pmDiv.style.cssText = 'font-size:0.7rem; color:#0d6efd; padding:1px 0;';
+          const conf = Math.round((pm.confidence || 0) * 100);
+          const icon = pm.match_type === 'exact' ? 'fa-map-marker-alt' : 'fa-search-location';
+          let info = '<i class="fas ' + icon + '" style="font-size:0.6rem"></i> ' + (pm.name || '').replace(/</g,'&lt;');
+          if (pm.province) info += ' <span style="color:#666">(' + pm.historical_province + ')</span>';
+          if (pm.auto_filled_from) info += ' <span style="color:#198754; font-size:0.6rem">← ' + pm.auto_filled_from + '</span>';
+          info += ' <span style="font-size:0.6rem;color:#999">' + conf + '%</span>';
+          pmDiv.innerHTML = info;
+          coordsEl.parentNode.appendChild(pmDiv);
+        }
       }
       redraw();
     })
