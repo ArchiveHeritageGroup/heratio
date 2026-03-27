@@ -73,4 +73,73 @@ class AccessRequestService
             ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
     }
+
+    /**
+     * Create a new access request.
+     */
+    public function createRequest(int $userId, array $data): int
+    {
+        return DB::table('access_request')->insertGetId([
+            'user_id'                    => $userId,
+            'requested_classification_id' => $data['object_id'] ?? 0,
+            'reason'                     => $data['reason'],
+            'status'                     => 'pending',
+            'created_at'                 => now(),
+            'updated_at'                 => now(),
+        ]);
+    }
+
+    /**
+     * Approve an access request.
+     */
+    public function approveRequest(int $id, int $reviewerId, ?string $notes = null): bool
+    {
+        return DB::table('access_request')
+            ->where('id', $id)
+            ->update([
+                'status'       => 'approved',
+                'reviewed_by'  => $reviewerId,
+                'reviewed_at'  => now(),
+                'review_notes' => $notes,
+                'updated_at'   => now(),
+            ]) > 0;
+    }
+
+    /**
+     * Deny an access request.
+     */
+    public function denyRequest(int $id, int $reviewerId, ?string $reason = null): bool
+    {
+        return DB::table('access_request')
+            ->where('id', $id)
+            ->update([
+                'status'       => 'denied',
+                'reviewed_by'  => $reviewerId,
+                'reviewed_at'  => now(),
+                'review_notes' => $reason,
+                'updated_at'   => now(),
+            ]) > 0;
+    }
+
+    /**
+     * Add an approver.
+     */
+    public function addApprover(int $userId): int
+    {
+        return DB::table('access_request_approver')->insertGetId([
+            'user_id'    => $userId,
+            'active'     => 1,
+            'created_at' => now(),
+        ]);
+    }
+
+    /**
+     * Remove an approver (deactivate).
+     */
+    public function removeApprover(int $id): bool
+    {
+        return DB::table('access_request_approver')
+            ->where('id', $id)
+            ->update(['active' => 0]) > 0;
+    }
 }

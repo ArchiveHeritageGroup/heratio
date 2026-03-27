@@ -721,26 +721,49 @@ PY;
             return response()->json(['success' => false, 'error' => 'No form type']);
         }
 
+        // Only save if positions actually contain field data (at least one field with x/y/w/h)
+        $hasFields = false;
+        if (is_array($positions)) {
+            foreach ($positions as $key => $val) {
+                if (is_array($val) && isset($val['x'], $val['y'], $val['w'], $val['h'])) {
+                    $hasFields = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$hasFields) {
+            return response()->json(['success' => true, 'skipped' => 'no field positions to save']);
+        }
+
         $file = storage_path('app/fs-overlay-positions.json');
         $all = [];
         if (file_exists($file)) {
             $all = json_decode(file_get_contents($file), true) ?: [];
         }
 
-        $all[$formType] = !empty($positions) ? $positions : new \stdClass();
+        // Merge new positions into existing (don't overwrite fields that aren't in this save)
+        $existing = $all[$formType] ?? [];
+        if (is_array($existing)) {
+            $positions = array_merge($existing, $positions);
+        }
 
-        // Also save positions under all related SA death form types so auto-detect
+        $all[$formType] = $positions;
+
+        // Also save under all related SA death form types so auto-detect
         // inconsistency between images doesn't lose positions
         $saDeathTypes = ['sa-death-1923', 'sa-death-1894', 'sa-death-generic'];
-        if (in_array($formType, $saDeathTypes) && !empty($positions)) {
+        if (in_array($formType, $saDeathTypes)) {
             foreach ($saDeathTypes as $dt) {
                 $all[$dt] = $positions;
             }
         }
 
-        file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT));
+        file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT | JSON_FORCE_OBJECT));
 
-        return response()->json(['success' => true]);
+        \Log::info('[FS Overlay] Saved positions', ['form_type' => $formType, 'fields' => array_keys($positions)]);
+
+        return response()->json(['success' => true, 'fields_saved' => array_keys($positions)]);
     }
 
     /**

@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout')
+@extends('theme::layouts.1col')
 
 @section('title', 'Export Repositories')
 
