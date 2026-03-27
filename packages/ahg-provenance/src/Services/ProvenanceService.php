@@ -14,7 +14,7 @@ class ProvenanceService
         $io = DB::table('information_object')
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.name', '!=', '');
+                     ->where('slug.slug', '!=', '');
             })
             ->where('slug.slug', $slug)
             ->select('information_object.*', 'slug.slug')
@@ -88,7 +88,7 @@ class ProvenanceService
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.name', '!=', '');
+                     ->where('slug.slug', '!=', '');
             })
             ->leftJoin('provenance_event as pe', 'pe.provenance_record_id', '=', 'pr.id')
             ->select(

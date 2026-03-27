@@ -64,6 +64,10 @@
         </select>
       </div>
       <div class="col-md-1">
+        <label class="form-label small fw-bold">Entries</label>
+        <input type="number" id="ba-entries-per-page" class="form-control form-control-sm" value="2" min="1" max="10" title="Number of entries per page (for multi-entry forms like marriage registers)">
+      </div>
+      <div class="col-md-1">
         <label class="form-label small fw-bold">&nbsp;</label>
         <button id="ba-load-btn" class="btn btn-sm atom-btn-outline-success w-100" onclick="loadBulkData()">
           <i class="fas fa-upload me-1"></i>Load
@@ -189,7 +193,10 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place', 'Husband Name', 'Wife Name', 'Husband Race', 'Wife Race', 'District', 'Place of Marriage', 'Witnesses', 'Married By', 'Registration No'];
+  // Base allowed fields — multi-entry fields (marriage etc.) are added dynamically by generateMultiEntryFields()
+  const ALLOWED_FIELDS = [
+    'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
+  ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
     'Residence Place': 'Duration of last Illness',
@@ -492,18 +499,20 @@
       detect: ['marriage', 'huwelik', 'huweliksregister', 'duplicate original marriage', 'duplikaat origineel'],
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
-      fields: {
-        'Registration No': { x: 0.02, y: 0.04, w: 0.08, h: 0.04 },
-        'Husband Name':    { x: 0.06, y: 0.12, w: 0.25, h: 0.04 },
-        'Husband Race':    { x: 0.06, y: 0.17, w: 0.15, h: 0.03 },
-        'Wife Name':       { x: 0.06, y: 0.22, w: 0.25, h: 0.04 },
-        'Wife Race':       { x: 0.06, y: 0.27, w: 0.15, h: 0.03 },
-        'District':        { x: 0.35, y: 0.12, w: 0.30, h: 0.04 },
-        'Place of Marriage':{ x: 0.35, y: 0.17, w: 0.30, h: 0.04 },
-        'Event Date':      { x: 0.06, y: 0.33, w: 0.30, h: 0.04 },
-        'Witnesses':       { x: 0.06, y: 0.55, w: 0.35, h: 0.08 },
-        'Married By':      { x: 0.40, y: 0.50, w: 0.25, h: 0.04 },
-      }
+      multiEntry: true, // supports N entries per page — fields generated dynamically
+      baseFields: {
+        'Reg No':           { x: 0.02, w: 0.06, h: 0.03, dy: 0.00 },
+        'Husband Name':     { x: 0.05, w: 0.28, h: 0.04, dy: 0.04 },
+        'Husband Race':     { x: 0.05, w: 0.12, h: 0.03, dy: 0.09 },
+        'Wife Name':        { x: 0.05, w: 0.28, h: 0.04, dy: 0.14 },
+        'Wife Race':        { x: 0.05, w: 0.12, h: 0.03, dy: 0.19 },
+        'District':         { x: 0.35, w: 0.28, h: 0.04, dy: 0.04 },
+        'Place of Marriage': { x: 0.35, w: 0.28, h: 0.04, dy: 0.09 },
+        'Event Date':       { x: 0.05, w: 0.28, h: 0.03, dy: 0.26 },
+        'Witnesses':        { x: 0.05, w: 0.30, h: 0.05, dy: 0.32 },
+        'Married By':       { x: 0.38, w: 0.25, h: 0.04, dy: 0.29 },
+      },
+      fields: {} // populated dynamically by generateMultiEntryFields()
     },
     'manual': {
       label: 'Manual positioning (no template)',
@@ -511,6 +520,47 @@
       fields: {}
     }
   };
+
+  // Generate fields for multi-entry templates (marriage registers etc.)
+  // Distributes N entries evenly across the page, each with suffixed field names
+  function generateMultiEntryFields(tpl, numEntries) {
+    if (!tpl.baseFields || numEntries < 1) return tpl.fields || {};
+
+    const headerHeight = 0.06; // space for page header
+    const entryHeight = (1.0 - headerHeight) / numEntries;
+    const fields = {};
+
+    for (let e = 1; e <= numEntries; e++) {
+      const yBase = headerHeight + (e - 1) * entryHeight;
+      for (const [name, pos] of Object.entries(tpl.baseFields)) {
+        const fieldName = name + ' (' + e + ')';
+        fields[fieldName] = {
+          x: pos.x,
+          y: yBase + (pos.dy || 0) * (entryHeight / 0.42), // scale dy relative to entry height
+          w: pos.w,
+          h: pos.h * (entryHeight / 0.42), // scale height too
+        };
+        // Add to ALLOWED_FIELDS if not already there
+        if (!ALLOWED_FIELDS.includes(fieldName)) {
+          ALLOWED_FIELDS.push(fieldName);
+        }
+      }
+    }
+    return fields;
+  }
+
+  // Update multi-entry template fields when entries count changes
+  function updateMultiEntryTemplate() {
+    const numEntries = parseInt(document.getElementById('ba-entries-per-page').value) || 2;
+    for (const [key, tpl] of Object.entries(FORM_TEMPLATES)) {
+      if (tpl.multiEntry && tpl.baseFields) {
+        tpl.fields = generateMultiEntryFields(tpl, numEntries);
+      }
+    }
+  }
+
+  // Initialize multi-entry templates with default count
+  updateMultiEntryTemplate();
 
   // Populate form type dropdown + change handler
   (function() {
@@ -525,30 +575,48 @@
       if (img && images[imgIdx]) {
         const newType = this.value === 'auto' ? 'sa-death-generic' : this.value;
         currentFormType = newType;
+        updateMultiEntryTemplate();
         loadSavedPositions(() => {
           applyFormTemplate(newType);
+          buildFieldList();
           redraw();
         });
+      }
+    });
+
+    // Re-generate fields when entries-per-page changes
+    document.getElementById('ba-entries-per-page').addEventListener('change', function() {
+      updateMultiEntryTemplate();
+      if (img && images[imgIdx] && FORM_TEMPLATES[currentFormType]?.multiEntry) {
+        applyFormTemplate(currentFormType);
+        buildFieldList();
+        redraw();
       }
     });
   })();
 
   // Auto-detect form type from first image OCR
   function detectFormType(ocrWords) {
-    const allText = ocrWords.map(w => w.toLowerCase()).join(' ');
-    let bestType = 'sa-death-generic';
+    const allText = ocrWords.map(w => (typeof w === 'string' ? w : (w.text || '')).toLowerCase()).join(' ');
+    let bestType = 'manual';
     let bestScore = 0;
 
     for (const [key, tpl] of Object.entries(FORM_TEMPLATES)) {
-      if (!tpl.detect.length) continue;
+      if (!tpl.detect || !tpl.detect.length) continue;
       let score = 0;
       for (const kw of tpl.detect) {
         if (allText.includes(kw)) score++;
       }
-      if (score > bestScore) { bestScore = score; bestType = key; }
+      // Normalize score by number of detect keywords (higher % match = better fit)
+      const normalized = score / tpl.detect.length;
+      if (score > 0 && (score > bestScore || (score === bestScore && normalized > (bestScore / (FORM_TEMPLATES[bestType]?.detect?.length || 1))))) {
+        bestScore = score;
+        bestType = key;
+      }
     }
 
     if (bestScore === 0) {
+      bestType = 'sa-death-generic'; // fallback only when nothing matches at all
       document.getElementById('ba-image-name').textContent += ' — UNRECOGNISED FORM (using generic, select form type manually)';
     } else {
       const tpl = FORM_TEMPLATES[bestType];

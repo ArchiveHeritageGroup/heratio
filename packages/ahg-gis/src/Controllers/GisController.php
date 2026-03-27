@@ -25,7 +25,7 @@ class GisController extends Controller
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.name', '!=', '');
+                     ->where('slug.slug', '!=', '');
             })
             ->whereNotNull('information_object.latitude')
             ->whereNotNull('information_object.longitude')
@@ -68,7 +68,7 @@ class GisController extends Controller
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.name', '!=', '');
+                     ->where('slug.slug', '!=', '');
             })
             ->whereNotNull('information_object.latitude')
             ->whereNotNull('information_object.longitude')
