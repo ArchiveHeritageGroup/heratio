@@ -101,6 +101,10 @@
       <button class="btn btn-sm atom-btn-white" onclick="baPrev()" id="ba-prev-btn" disabled><i class="fas fa-arrow-left me-1"></i>Previous</button>
       <div>
         <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
+          <input class="form-check-input" type="checkbox" id="ba-auto-detect" checked style="cursor:pointer">
+          <label class="form-check-label small" for="ba-auto-detect" style="cursor:pointer" title="Auto-detect printed labels on each image">Detect</label>
+        </div>
+        <div class="form-check form-switch d-inline-block me-1" style="vertical-align:middle">
           <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
           <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">Auto</label>
         </div>
@@ -801,6 +805,17 @@
         if (autoRecogEnabled) setTimeout(baRecognise, 500);
       }
 
+      // If "Detect" checkbox is on, always run OCR label detection first
+      const autoDetectLabels = document.getElementById('ba-auto-detect')?.checked;
+
+      if (autoDetectLabels) {
+        // Run OCR label detection → positions field boxes next to printed labels
+        ocrAndPlace(entry);
+        // ocrAndPlace calls redraw, sets annotations, etc. — afterFieldsPlaced handled inside
+        if (autoRecogEnabled) setTimeout(baRecognise, 1500); // recognise after labels placed
+        return; // ocrAndPlace handles everything
+      }
+
       if (selectedType && selectedType !== 'auto') {
         applyFormTemplate(selectedType);
         afterFieldsPlaced();
@@ -920,6 +935,7 @@
         // Apply OCR-detected positions
         const positions = data.positions;
         annotations = [];
+        let phraseCount = 0, contextCount = 0, kwCount = 0;
         COLUMNS.forEach(function(col, i) {
           const val = entry.fields[col] || '';
           if (shouldSkip(col)) { skipped.push(i); annotations.push(null); return; }
@@ -937,6 +953,22 @@
             annotations.push(ann);
             // Save as reference for next images
             savedPositions[col] = { x: p.x / imgNatW, y: p.y / imgNatH, w: p.w / imgNatW, h: p.h / imgNatH };
+            // Track match quality
+            if (p.match_strategy === 'phrase') phraseCount++;
+            else if (p.match_strategy === 'keyword+context') contextCount++;
+            else kwCount++;
+            // Show match info in sidebar
+            const coordsEl = document.getElementById('ba-coords-' + i);
+            if (coordsEl) {
+              const prev = coordsEl.parentNode.querySelector('.ba-recog');
+              if (prev) prev.remove();
+              const badge = document.createElement('div');
+              badge.className = 'ba-recog';
+              const color = p.match_strategy === 'phrase' ? '#198754' : (p.match_strategy === 'keyword+context' ? '#0d6efd' : '#6c757d');
+              badge.style.cssText = 'font-size:0.7rem; color:' + color + ';';
+              badge.innerHTML = '<i class="fas fa-crosshairs" style="font-size:0.6rem"></i> ' + (p.match_strategy || 'keyword') + ': "' + (p.label_text || '').replace(/</g,'&lt;') + '"';
+              coordsEl.parentNode.appendChild(badge);
+            }
           } else {
             // No OCR match — use default position
             const activeIdx = annotations.filter(a => a).length;
@@ -951,6 +983,9 @@
           }
         });
 
+        // Persist the OCR-detected positions to server
+        persistPositions();
+
         highlightField();
         updateProgress();
         annotations.forEach(function(ann, i) {
@@ -960,7 +995,8 @@
         });
         redraw();
 
-        document.getElementById('ba-image-name').textContent = entry.fname + ' (' + (imgIdx + 1) + '/' + images.length + ') — ' + Object.keys(positions).length + ' labels detected';
+        const summary = phraseCount + ' phrase, ' + contextCount + ' context, ' + kwCount + ' keyword';
+        document.getElementById('ba-image-name').textContent = entry.fname + ' (' + (imgIdx + 1) + '/' + images.length + ') — ' + Object.keys(positions).length + ' labels detected (' + summary + ')';
       } else {
         // OCR failed — fall back to default placement
         autoPlaceFields();

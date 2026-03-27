@@ -1134,86 +1134,247 @@ PY;
 
         // Build a map of field label keywords → positions
         // For each CSV field name, find the matching printed label on the form
-        // The FIRST keyword is the primary anchor (e.g. "Date" for Event Date, not "Death")
         // Bilingual SA death certificate labels (English / Afrikaans)
+        // Multi-word phrases are matched by finding adjacent words on the same line
         $labelMap = [
-            'Name' => ['christian', 'voornamen', 'familienaam', 'surname', 'names'],
-            'Sex' => ['sex', 'geslacht', 'geslag', 'gender'],
-            'Age' => ['age', 'ouderdom'],
-            'Birth Date' => ['birth', 'born', 'geboorte'],
-            'Birth Place' => ['birthplace', 'geboorteplek'],
-            'Event Date' => ['date', 'datum'],           // "Date of Death" / "Datum van Overleden"
-            'Event Place' => ['place', 'plaats', 'plek'], // "Place of Death" / "Plaats waar Overleden"
-            'Cause of Death' => ['cause', 'causes', 'oorzaak', 'doodsoorzaak'],
-            'Father' => ['father', 'vader'],
-            'Mother' => ['mother', 'moeder', 'maiden'],
-            'Spouse' => ['spouse', 'married', 'husband', 'wife', 'eggenoot', 'eggenote', 'getroud'],
-            'Occupation' => ['occupation', 'profession', 'beroep'],
-            'Race' => ['race', 'colour', 'color', 'ras', 'kleur'],
-            'Marital Status' => ['married', 'marital', 'single', 'widow', 'huwelikstaat', 'getroud', 'ongetroud'],
-            'Residence' => ['residence', 'address', 'abode', 'woonplek', 'adres'],
-            'District' => ['district', 'division', 'distrik', 'afdeling'],
-            'Registration No' => ['registration', 'register', 'entry', 'registrasie'],
-            'Informant' => ['informant', 'informants', 'aangewer'],
-            'Registrar' => ['registrar', 'registrateur'],
+            'Name' => [
+                'phrases' => ['christian names', 'voornamen en familienaam', 'surname of deceased', 'naam van oorledene'],
+                'words' => ['christian', 'voornamen', 'familienaam', 'surname', 'names'],
+            ],
+            'Sex' => [
+                'phrases' => [],
+                'words' => ['sex', 'geslacht', 'geslag', 'gender'],
+            ],
+            'Age' => [
+                'phrases' => ['age at death', 'ouderdom by oorlye'],
+                'words' => ['age', 'ouderdom'],
+            ],
+            'Birth Date' => [
+                'phrases' => ['date of birth', 'geboortedatum'],
+                'words' => ['birth', 'born', 'geboorte'],
+            ],
+            'Birth Place' => [
+                'phrases' => ['place of birth', 'geboorteplek'],
+                'words' => ['birthplace', 'geboorteplek'],
+            ],
+            'Event Date' => [
+                'phrases' => ['date of death', 'datum van oorlye', 'datum van dood', 'datum van sterfte', 'datum van overlijden', 'date of decease'],
+                'words' => ['date', 'datum'],
+                'context' => ['death', 'dood', 'oorlye', 'sterfte', 'overlijden', 'decease'],
+            ],
+            'Residence Place' => [
+                'phrases' => ['place of death', 'plek van oorlye', 'plaats van overlijden', 'place where death', 'plek waar dood', 'usual place of residence', 'gewone woonplek'],
+                'words' => ['place', 'plek', 'plaats', 'residence', 'woonplek'],
+                'context' => ['death', 'dood', 'oorlye', 'overlijden', 'residence', 'woon'],
+            ],
+            'Cause of Death' => [
+                'phrases' => ['cause of death', 'oorsaak van dood', 'doodsoorsaak'],
+                'words' => ['cause', 'causes', 'oorsaak', 'doodsoorsaak'],
+            ],
+            'Father' => [
+                'phrases' => ['father of deceased', 'vader van oorledene'],
+                'words' => ['father', 'vader'],
+            ],
+            'Mother' => [
+                'phrases' => ['mother of deceased', 'moeder van oorledene', 'maiden name'],
+                'words' => ['mother', 'moeder', 'maiden'],
+            ],
+            'Spouse' => [
+                'phrases' => [],
+                'words' => ['spouse', 'married', 'husband', 'wife', 'eggenoot', 'eggenote', 'getroud'],
+            ],
+            'Occupation' => [
+                'phrases' => [],
+                'words' => ['occupation', 'profession', 'beroep'],
+            ],
+            'Race' => [
+                'phrases' => [],
+                'words' => ['race', 'colour', 'color', 'ras', 'kleur'],
+            ],
+            'Marital Status' => [
+                'phrases' => ['marital status', 'huwelikstaat'],
+                'words' => ['married', 'marital', 'single', 'widow', 'huwelikstaat'],
+            ],
+            'Residence' => [
+                'phrases' => ['usual place of residence', 'gewone woonplek', 'usual place of abode'],
+                'words' => ['residence', 'address', 'abode', 'woonplek', 'adres'],
+            ],
+            'District' => [
+                'phrases' => [],
+                'words' => ['district', 'division', 'distrik', 'afdeling'],
+            ],
+            'Registration No' => [
+                'phrases' => ['registration no', 'registrasienommer'],
+                'words' => ['registration', 'register', 'entry', 'registrasie'],
+            ],
+            'Informant' => [
+                'phrases' => [],
+                'words' => ['informant', 'informants', 'aangewer'],
+            ],
+            'Registrar' => [
+                'phrases' => [],
+                'words' => ['registrar', 'registrateur'],
+            ],
         ];
 
         // Get image dimensions for smart width calculation
         $imgInfo = @getimagesize($imagePath);
         $imgWidth = $imgInfo ? $imgInfo[0] : 1800;
+        $imgHeight = $imgInfo ? $imgInfo[1] : 2400;
+
+        // Build full-text lines from adjacent words (same Y ±15px) for phrase matching
+        $lines = [];
+        $sortedWords = $words;
+        usort($sortedWords, fn($a, $b) => $a['top'] === $b['top'] ? $a['left'] - $b['left'] : $a['top'] - $b['top']);
+        $currentLine = [];
+        $currentY = -100;
+        foreach ($sortedWords as $w) {
+            if (abs($w['top'] - $currentY) > 15) {
+                if (!empty($currentLine)) $lines[] = $currentLine;
+                $currentLine = [$w];
+                $currentY = $w['top'];
+            } else {
+                $currentLine[] = $w;
+            }
+        }
+        if (!empty($currentLine)) $lines[] = $currentLine;
 
         $positions = [];
         foreach ($fields as $fieldName) {
             // Skip excluded fields
             if (in_array($fieldName, $skipFields)) continue;
 
-            $keywords = $labelMap[$fieldName] ?? [strtolower($fieldName)];
+            $config = $labelMap[$fieldName] ?? ['phrases' => [], 'words' => [strtolower($fieldName)]];
+            $phrases = $config['phrases'] ?? [];
+            $keywords = $config['words'] ?? [];
+            $contextWords = $config['context'] ?? [];
             $bestMatch = null;
             $bestConf = 0;
 
-            foreach ($words as $word) {
-                // Skip tiny words (likely noise/artifacts)
-                if ($word['width'] < 15 || $word['height'] < 8) continue;
-                // Skip very short OCR text (1-2 chars rarely match real labels)
-                if (strlen($word['text']) < 3) continue;
+            // Strategy 1: Multi-word phrase matching (most accurate)
+            // Find lines where the full phrase appears
+            foreach ($phrases as $phrase) {
+                $phraseWords = explode(' ', strtolower($phrase));
+                foreach ($lines as $line) {
+                    $lineText = strtolower(implode(' ', array_column($line, 'text')));
+                    if (stripos($lineText, $phrase) !== false) {
+                        // Find the first word of the phrase in this line
+                        foreach ($line as $w) {
+                            if (stripos(strtolower($w['text']), $phraseWords[0]) !== false) {
+                                // Compute bounding box spanning all phrase words
+                                $phraseRight = $w['left'] + $w['width'];
+                                $phraseBottom = $w['top'] + $w['height'];
+                                foreach ($line as $lw) {
+                                    if ($lw['left'] >= $w['left'] && $lw['left'] <= $w['left'] + $imgWidth * 0.3) {
+                                        $lwLower = strtolower($lw['text']);
+                                        foreach ($phraseWords as $pw) {
+                                            if (stripos($lwLower, $pw) !== false) {
+                                                $phraseRight = max($phraseRight, $lw['left'] + $lw['width']);
+                                                $phraseBottom = max($phraseBottom, $lw['top'] + $lw['height']);
+                                            }
+                                        }
+                                    }
+                                }
+                                $score = 1000 + $w['conf']; // phrase match always beats single-word
+                                if ($score > $bestConf) {
+                                    $bestMatch = [
+                                        'text' => $phrase,
+                                        'left' => $w['left'],
+                                        'top' => $w['top'],
+                                        'width' => $phraseRight - $w['left'],
+                                        'height' => $phraseBottom - $w['top'],
+                                        'conf' => $w['conf'],
+                                    ];
+                                    $bestConf = $score;
+                                }
+                                break 2; // first match is usually best for phrases
+                            }
+                        }
+                    }
+                }
+            }
 
-                $wLower = strtolower($word['text']);
-                foreach ($keywords as $kw) {
-                    if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false)) {
-                        // Score: prefer higher confidence AND larger words
-                        $score = $word['conf'] + ($word['width'] * 0.1);
+            // Strategy 2: Single keyword + context (e.g. "date" near "death")
+            if (!$bestMatch && !empty($contextWords)) {
+                foreach ($words as $word) {
+                    if ($word['width'] < 15 || $word['height'] < 8 || strlen($word['text']) < 3) continue;
+                    $wLower = strtolower($word['text']);
+                    $kwMatch = false;
+                    foreach ($keywords as $kw) {
+                        if (stripos($wLower, $kw) !== false) { $kwMatch = true; break; }
+                    }
+                    if (!$kwMatch) continue;
+
+                    // Check if any context word is nearby (same line, within 300px)
+                    $hasContext = false;
+                    foreach ($words as $other) {
+                        if (abs($other['top'] - $word['top']) > 20) continue;
+                        if (abs($other['left'] - $word['left']) > 300) continue;
+                        $oLower = strtolower($other['text']);
+                        foreach ($contextWords as $ctx) {
+                            if (stripos($oLower, $ctx) !== false) { $hasContext = true; break 2; }
+                        }
+                    }
+
+                    if ($hasContext) {
+                        $score = 500 + $word['conf'] + ($word['width'] * 0.1);
                         if ($score > $bestConf) {
                             $bestMatch = $word;
                             $bestConf = $score;
                         }
-                        break;
+                    }
+                }
+            }
+
+            // Strategy 3: Simple single keyword (fallback)
+            if (!$bestMatch) {
+                foreach ($words as $word) {
+                    if ($word['width'] < 15 || $word['height'] < 8 || strlen($word['text']) < 3) continue;
+                    $wLower = strtolower($word['text']);
+                    foreach ($keywords as $kw) {
+                        if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false)) {
+                            $score = $word['conf'] + ($word['width'] * 0.1);
+                            if ($score > $bestConf) {
+                                $bestMatch = $word;
+                                $bestConf = $score;
+                            }
+                            break;
+                        }
                     }
                 }
             }
 
             if ($bestMatch) {
-                // Start position: right after the label
-                $startX = $bestMatch['left'] + $bestMatch['width'] + 5;
+                // Answer region: to the right of and slightly below the label
+                $labelRight = $bestMatch['left'] + $bestMatch['width'];
+                $startX = $labelRight + 5;
                 $startY = $bestMatch['top'] - 5;
 
-                // Default box width: from label end to ~85% of image width
+                // Default box: from label end to ~85% of image width
                 $boxW = max(200, (int)($imgWidth * 0.85) - $startX);
                 $boxH = max(35, $bestMatch['height'] + 15);
 
-                // Special handling for "Event Place" — starts at the label, covers wide area
-                if ($fieldName === 'Event Place') {
-                    $startX = $bestMatch['left']; // start at the label itself
-                    $boxW = max(400, (int)($imgWidth * 0.9) - $startX);
-                    $boxH = max(50, $bestMatch['height'] + 30); // taller for multi-line places
+                // For "Event Date" / "Date of Death" — answer is usually on the same line or line below
+                if ($fieldName === 'Event Date') {
+                    $boxW = max(300, (int)($imgWidth * 0.70) - $startX);
+                    $boxH = max(40, $bestMatch['height'] + 20);
                 }
 
-                // Special handling for "Event Date" — start right at the label
-                if ($fieldName === 'Event Date') {
-                    $startX = $bestMatch['left'] + $bestMatch['width'] + 3;
-                    $boxW = max(300, (int)($imgWidth * 0.7) - $startX);
+                // For "Residence Place" / "Place of Death" — often multi-line, wider box
+                if ($fieldName === 'Residence Place' || $fieldName === 'Event Place') {
+                    $boxW = max(400, (int)($imgWidth * 0.90) - $startX);
+                    $boxH = max(50, $bestMatch['height'] + 30);
+                }
+
+                // If the answer area would be too narrow (label is far right), put box below label instead
+                if ($boxW < 150) {
+                    $startX = $bestMatch['left'];
+                    $startY = $bestMatch['top'] + $bestMatch['height'] + 3;
+                    $boxW = max(300, (int)($imgWidth * 0.85) - $startX);
                 }
 
                 $positions[$fieldName] = [
+                    'label_text' => $bestMatch['text'],
                     'label_x' => $bestMatch['left'],
                     'label_y' => $bestMatch['top'],
                     'label_w' => $bestMatch['width'],
@@ -1222,6 +1383,7 @@ PY;
                     'y' => $startY,
                     'w' => $boxW,
                     'h' => $boxH,
+                    'match_strategy' => $bestConf >= 1000 ? 'phrase' : ($bestConf >= 500 ? 'keyword+context' : 'keyword'),
                 ];
             }
         }
