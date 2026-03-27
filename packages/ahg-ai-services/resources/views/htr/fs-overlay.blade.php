@@ -63,11 +63,7 @@
           <option value="auto">Auto-detect</option>
         </select>
       </div>
-      <div class="col-md-1">
-        <label class="form-label small fw-bold">Entries</label>
-        <input type="number" id="ba-entries-per-page" class="form-control form-control-sm" value="2" min="1" max="10" title="Number of entries per page (for multi-entry forms like marriage registers)">
-      </div>
-      <div class="col-md-1">
+      <div class="col-md-2">
         <label class="form-label small fw-bold">&nbsp;</label>
         <button id="ba-load-btn" class="btn btn-sm atom-btn-outline-success w-100" onclick="loadBulkData()">
           <i class="fas fa-upload me-1"></i>Load
@@ -519,47 +515,6 @@
     }
   };
 
-  // Generate fields for multi-entry templates (marriage registers etc.)
-  // Distributes N entries evenly across the page, each with suffixed field names
-  function generateMultiEntryFields(tpl, numEntries) {
-    if (!tpl.baseFields || numEntries < 1) return tpl.fields || {};
-
-    const headerHeight = 0.06; // space for page header
-    const entryHeight = (1.0 - headerHeight) / numEntries;
-    const fields = {};
-
-    for (let e = 1; e <= numEntries; e++) {
-      const yBase = headerHeight + (e - 1) * entryHeight;
-      for (const [name, pos] of Object.entries(tpl.baseFields)) {
-        const fieldName = name + ' (' + e + ')';
-        fields[fieldName] = {
-          x: pos.x,
-          y: yBase + (pos.dy || 0) * (entryHeight / 0.42), // scale dy relative to entry height
-          w: pos.w,
-          h: pos.h * (entryHeight / 0.42), // scale height too
-        };
-        // Add to ALLOWED_FIELDS if not already there
-        if (!ALLOWED_FIELDS.includes(fieldName)) {
-          ALLOWED_FIELDS.push(fieldName);
-        }
-      }
-    }
-    return fields;
-  }
-
-  // Update multi-entry template fields when entries count changes
-  function updateMultiEntryTemplate() {
-    const numEntries = parseInt(document.getElementById('ba-entries-per-page').value) || 2;
-    for (const [key, tpl] of Object.entries(FORM_TEMPLATES)) {
-      if (tpl.multiEntry && tpl.baseFields) {
-        tpl.fields = generateMultiEntryFields(tpl, numEntries);
-      }
-    }
-  }
-
-  // Initialize multi-entry templates with default count
-  updateMultiEntryTemplate();
-
   // Populate form type dropdown + change handler
   (function() {
     const sel = document.getElementById('ba-form-type');
@@ -573,22 +528,23 @@
       if (img && images[imgIdx]) {
         const newType = this.value === 'auto' ? 'sa-death-generic' : this.value;
         currentFormType = newType;
-        updateMultiEntryTemplate();
+
+        // Rebuild COLUMNS from the new template's fields
+        const tpl = FORM_TEMPLATES[newType];
+        if (tpl && tpl.fields && Object.keys(tpl.fields).length > 0) {
+          COLUMNS = Object.keys(tpl.fields).filter(col => !shouldSkip(col));
+          // Ensure empty field values exist on current image
+          const entry = images[imgIdx];
+          if (entry) {
+            COLUMNS.forEach(col => { if (!entry.fields[col]) entry.fields[col] = ''; });
+          }
+        }
+
         loadSavedPositions(() => {
           applyFormTemplate(newType);
           buildFieldList();
           redraw();
         });
-      }
-    });
-
-    // Re-generate fields when entries-per-page changes
-    document.getElementById('ba-entries-per-page').addEventListener('change', function() {
-      updateMultiEntryTemplate();
-      if (img && images[imgIdx] && FORM_TEMPLATES[currentFormType]?.multiEntry) {
-        applyFormTemplate(currentFormType);
-        buildFieldList();
-        redraw();
       }
     });
   })();
