@@ -84,8 +84,12 @@ class InformationObjectController extends Controller
         if ($request->get('repo')) {
             $params['filters']['repository_id'] = $request->get('repo');
         }
+        // Support both 'levels' (sidebar facet) and 'level' (advanced search form)
         if ($request->get('levels')) {
             $params['filters']['level_of_description_id'] = $request->get('levels');
+        }
+        if ($request->get('level')) {
+            $params['filters']['level_of_description_id'] = $request->get('level');
         }
         if ($request->filled('hasDigital')) {
             $params['filters']['has_digital'] = $request->get('hasDigital');
@@ -100,7 +104,73 @@ class InformationObjectController extends Controller
             $params['filters']['range_type'] = $request->get('rangeType');
         }
 
+        // Top-level description autocomplete (collection filter from advanced search)
+        if ($request->get('collection')) {
+            $params['filters']['collection_id'] = $request->get('collection');
+        }
+
+        // Copyright status filter (taxonomy 69)
+        if ($request->get('copyrightStatus')) {
+            $params['filters']['copyright_status_id'] = $request->get('copyrightStatus');
+        }
+
+        // Finding aid status filter
+        if ($request->get('findingAidStatus')) {
+            $params['filters']['finding_aid_status'] = $request->get('findingAidStatus');
+        }
+
         $result = $service->browse($params);
+
+        // Batch-resolve creators, dates, and publication statuses for result IDs
+        $creators = [];
+        $dates = [];
+        $pubStatuses = [];
+        if (!empty($result['hits'])) {
+            $resultIds = array_column($result['hits'], 'id');
+
+            // Creators: actors linked via event table (type_id = 111 = creation)
+            $creatorRows = DB::table('event')
+                ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+                ->where('actor_i18n.culture', $culture)
+                ->where('event.type_id', 111)
+                ->whereIn('event.information_object_id', $resultIds)
+                ->select('event.information_object_id', 'actor_i18n.authorized_form_of_name')
+                ->get();
+            foreach ($creatorRows as $row) {
+                $creators[$row->information_object_id][] = $row->authorized_form_of_name;
+            }
+
+            // Dates: event start_date/end_date per IO
+            $dateRows = DB::table('event')
+                ->whereIn('event.information_object_id', $resultIds)
+                ->whereNotNull('event.start_date')
+                ->select('event.information_object_id', 'event.start_date', 'event.end_date')
+                ->get();
+            foreach ($dateRows as $row) {
+                if (!isset($dates[$row->information_object_id])) {
+                    $dates[$row->information_object_id] = [];
+                }
+                $start = $row->start_date ? substr($row->start_date, 0, 10) : null;
+                $end = $row->end_date ? substr($row->end_date, 0, 10) : null;
+                if ($start && $end && $start !== $end) {
+                    $dates[$row->information_object_id][] = $start . ' - ' . $end;
+                } elseif ($start) {
+                    $dates[$row->information_object_id][] = $start;
+                }
+            }
+
+            // Publication statuses: status table (type_id=158)
+            if (auth()->check() && auth()->user()->is_admin) {
+                $statusRows = DB::table('status')
+                    ->whereIn('status.object_id', $resultIds)
+                    ->where('status.type_id', 158)
+                    ->select('status.object_id', 'status.status_id')
+                    ->get();
+                foreach ($statusRows as $row) {
+                    $pubStatuses[$row->object_id] = $row->status_id;
+                }
+            }
+        }
 
         $pager = new SimplePager($result);
 
@@ -283,6 +353,15 @@ class InformationObjectController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
+        // Copyright status terms for advanced search dropdown (taxonomy 69)
+        $copyrightStatuses = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 69)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
         $facets = [
             'levels' => [
                 'label' => 'Level of description',
@@ -419,6 +498,39 @@ class InformationObjectController extends Controller
             }
         }
 
+        // Copyright status filter tag
+        $copyrightStatusFilter = $request->get('copyrightStatus');
+        if ($copyrightStatusFilter) {
+            $csName = DB::table('term_i18n')->where('id', $copyrightStatusFilter)->where('culture', $culture)->value('name');
+            if ($csName) {
+                $filterTags[] = [
+                    'label' => 'Copyright: ' . $csName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['copyrightStatus', 'page'])),
+                ];
+            }
+        }
+
+        // Finding aid status filter tag
+        $findingAidFilter = $request->get('findingAidStatus');
+        if ($findingAidFilter) {
+            $filterTags[] = [
+                'label' => 'Finding aid: ' . ($findingAidFilter === 'yes' ? 'Yes' : 'No'),
+                'removeUrl' => route('informationobject.browse', $request->except(['findingAidStatus', 'page'])),
+            ];
+        }
+
+        // Level of description filter tag (from advanced search 'level' param)
+        $levelFilter = $request->get('level');
+        if ($levelFilter && !$levelsId) {
+            $levelName = DB::table('term_i18n')->where('id', $levelFilter)->where('culture', $culture)->value('name');
+            if ($levelName) {
+                $filterTags[] = [
+                    'label' => 'Level: ' . $levelName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['level', 'page'])),
+                ];
+            }
+        }
+
         // Top-level description filter state
         $isTopLevel = ($topLevel === '1' || $topLevel === 'true') && !$hasQuery;
 
@@ -456,11 +568,15 @@ class InformationObjectController extends Controller
             'filterTags' => $filterTags,
             'digitalObjectsCount' => $digitalObjectsCount,
             'levelsOfDescription' => $levelsOfDescription,
+            'copyrightStatuses' => $copyrightStatuses,
             'isTopLevel' => $isTopLevel,
             'languageFacets' => $languageFacets,
             'collectionFacets' => $collectionFacets,
             'collectionNames' => $collectionNames,
             'parentInfo' => $result['parentInfo'] ?? [],
+            'creators' => $creators,
+            'dates' => $dates,
+            'pubStatuses' => $pubStatuses,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Title',

@@ -5,6 +5,7 @@ namespace AhgInformationObjectManage\Services;
 use AhgCore\Constants\TermId;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class InformationObjectBrowseService extends BrowseService
 {
@@ -37,7 +38,8 @@ class InformationObjectBrowseService extends BrowseService
             'information_object.identifier',
             'object.updated_at',
             'slug.slug',
-            DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.information_object_id = information_object.id LIMIT 1) as thumbnail_path'),
+            'information_object_i18n.scope_and_content',
+            DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = information_object.id LIMIT 1) as thumbnail_path'),
         ];
     }
 
@@ -122,6 +124,63 @@ class InformationObjectBrowseService extends BrowseService
                     if ($endDate) $sub->where('event.start_date', '<=', $endDate);
                 }
             });
+        }
+
+        // Copyright status filter: filter by rights.copyright_status_id linked to IO
+        if (!empty($this->activeFilters['copyright_status_id'])) {
+            $copyrightStatusId = (int) $this->activeFilters['copyright_status_id'];
+            // Check if the requested status is "Unknown" (term id 352) — includes records with no rights record
+            $unknownTermId = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', 69)
+                ->where('term_i18n.name', 'Unknown')
+                ->where('term_i18n.culture', 'en')
+                ->value('term.id');
+
+            if ($unknownTermId && $copyrightStatusId == $unknownTermId) {
+                // Unknown: either copyright_status_id matches OR no rights record exists
+                $query->where(function ($q) use ($copyrightStatusId) {
+                    $q->whereExists(function ($sub) use ($copyrightStatusId) {
+                        $sub->select(DB::raw(1))
+                            ->from('relation')
+                            ->join('rights', 'relation.object_id', '=', 'rights.id')
+                            ->whereColumn('relation.subject_id', 'information_object.id')
+                            ->where('rights.copyright_status_id', $copyrightStatusId);
+                    })->orWhereNotExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('relation')
+                            ->join('rights', 'relation.object_id', '=', 'rights.id')
+                            ->whereColumn('relation.subject_id', 'information_object.id')
+                            ->whereNotNull('rights.copyright_status_id');
+                    });
+                });
+            } else {
+                $query->whereExists(function ($sub) use ($copyrightStatusId) {
+                    $sub->select(DB::raw(1))
+                        ->from('relation')
+                        ->join('rights', 'relation.object_id', '=', 'rights.id')
+                        ->whereColumn('relation.subject_id', 'information_object.id')
+                        ->where('rights.copyright_status_id', $copyrightStatusId);
+                });
+            }
+        }
+
+        // Finding aid status filter
+        if (!empty($this->activeFilters['finding_aid_status'])) {
+            $findingAidStatus = $this->activeFilters['finding_aid_status'];
+            if ($findingAidStatus === 'yes') {
+                // Has a finding aid: finding_aids field is not null and not empty
+                $query->where(function ($q) {
+                    $q->whereNotNull('information_object_i18n.finding_aids')
+                      ->where('information_object_i18n.finding_aids', '!=', '');
+                });
+            } elseif ($findingAidStatus === 'no') {
+                // Does not have a finding aid
+                $query->where(function ($q) {
+                    $q->whereNull('information_object_i18n.finding_aids')
+                      ->orWhere('information_object_i18n.finding_aids', '=', '');
+                });
+            }
         }
 
         // Publication status filter: only show published records
@@ -456,6 +515,7 @@ class InformationObjectBrowseService extends BrowseService
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
             'thumbnail_path' => $row->thumbnail_path ?? '',
+            'scope_and_content' => Str::limit($row->scope_and_content ?? '', 200),
         ];
     }
 }

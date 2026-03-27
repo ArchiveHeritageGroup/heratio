@@ -398,7 +398,7 @@ class AiController extends Controller
 
     public function batch(Request $request)
     {
-        $rows = DB::table('job')->where('name', 'LIKE', '%ai%')->orderByDesc('created_at')->get();
+        $rows = DB::table('job')->where('name', 'LIKE', '%ai%')->orderByDesc('completed_at')->get();
         return view('ahg-ai-services::batch', ['rows' => $rows]);
     }
 

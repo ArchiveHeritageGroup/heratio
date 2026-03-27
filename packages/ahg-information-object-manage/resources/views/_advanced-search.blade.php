@@ -1,6 +1,37 @@
 @php
   $showAdvanced = request()->has('showAdvanced') && request('showAdvanced') === '1';
   $currentQuery = request('query', request('subquery', ''));
+
+  // Rebuild existing criteria rows from request parameters
+  $criteriaRows = [];
+  for ($ri = 0; $ri < 10; $ri++) {
+      $sq = request("sq{$ri}");
+      if ($sq !== null && trim($sq) !== '') {
+          $criteriaRows[] = [
+              'operator' => request("so{$ri}", 'and'),
+              'query'    => $sq,
+              'field'    => request("sf{$ri}", ''),
+          ];
+      }
+  }
+  // Always show at least one row
+  if (empty($criteriaRows)) {
+      $criteriaRows[] = [
+          'operator' => 'and',
+          'query'    => $currentQuery,
+          'field'    => '',
+      ];
+  }
+
+  // Resolve the selected collection name for the autocomplete display value
+  $selectedCollectionId   = request('collection', '');
+  $selectedCollectionName = '';
+  if ($selectedCollectionId) {
+      $selectedCollectionName = \Illuminate\Support\Facades\DB::table('information_object_i18n')
+          ->where('id', $selectedCollectionId)
+          ->where('culture', app()->getLocale())
+          ->value('title') ?? '';
+  }
 @endphp
 
 <div class="accordion mb-3 adv-search" role="search">
@@ -20,21 +51,22 @@
 
           <h5>{{ __('Find results with:') }}</h5>
 
-          <div class="criteria mb-4">
-            {{-- Search criterion row --}}
-            <div class="criterion row align-items-center">
+          <div class="criteria mb-4" id="adv-search-criteria">
+            {{-- Render existing criteria rows --}}
+            @foreach($criteriaRows as $idx => $cr)
+            <div class="criterion row align-items-center" data-index="{{ $idx }}">
               <div class="col-xl-auto mb-3 adv-search-boolean">
-                <select class="form-select" name="so0">
-                  <option value="and">{{ __('and') }}</option>
-                  <option value="or">{{ __('or') }}</option>
-                  <option value="not">{{ __('not') }}</option>
+                <select class="form-select" name="so{{ $idx }}">
+                  <option value="and"{{ $cr['operator'] === 'and' ? ' selected' : '' }}>{{ __('and') }}</option>
+                  <option value="or"{{ $cr['operator'] === 'or' ? ' selected' : '' }}>{{ __('or') }}</option>
+                  <option value="not"{{ $cr['operator'] === 'not' ? ' selected' : '' }}>{{ __('not') }}</option>
                 </select>
               </div>
 
               <div class="col-xl-auto flex-grow-1 mb-3">
                 <input class="form-control" type="text"
                        aria-label="{{ __('Search') }}" placeholder="{{ __('Search') }}"
-                       name="sq0" value="{{ request('sq0', $currentQuery) }}">
+                       name="sq{{ $idx }}" value="{{ $cr['query'] }}">
               </div>
 
               <div class="col-xl-auto mb-3 text-center">
@@ -42,47 +74,48 @@
               </div>
 
               <div class="col-xl-auto mb-3">
-                <select class="form-select" name="sf0">
+                <select class="form-select" name="sf{{ $idx }}">
                   <option value="">{{ __('Any field') }}</option>
-                  <option value="title"{{ request('sf0') === 'title' ? ' selected' : '' }}>{{ __('Title') }}</option>
-                  <option value="identifier"{{ request('sf0') === 'identifier' ? ' selected' : '' }}>{{ __('Identifier') }}</option>
-                  <option value="referenceCode"{{ request('sf0') === 'referenceCode' ? ' selected' : '' }}>{{ __('Reference code') }}</option>
-                  <option value="scopeAndContent"{{ request('sf0') === 'scopeAndContent' ? ' selected' : '' }}>{{ __('Scope and content') }}</option>
-                  <option value="extentAndMedium"{{ request('sf0') === 'extentAndMedium' ? ' selected' : '' }}>{{ __('Extent and medium') }}</option>
-                  <option value="archivalHistory"{{ request('sf0') === 'archivalHistory' ? ' selected' : '' }}>{{ __('Archival history') }}</option>
-                  <option value="acquisition"{{ request('sf0') === 'acquisition' ? ' selected' : '' }}>{{ __('Acquisition') }}</option>
-                  <option value="creatorSearch"{{ request('sf0') === 'creatorSearch' ? ' selected' : '' }}>{{ __('Creator') }}</option>
-                  <option value="subjectSearch"{{ request('sf0') === 'subjectSearch' ? ' selected' : '' }}>{{ __('Subject') }}</option>
-                  <option value="placeSearch"{{ request('sf0') === 'placeSearch' ? ' selected' : '' }}>{{ __('Place') }}</option>
-                  <option value="genreSearch"{{ request('sf0') === 'genreSearch' ? ' selected' : '' }}>{{ __('Genre') }}</option>
-                  <option value="noteContent"{{ request('sf0') === 'noteContent' ? ' selected' : '' }}>{{ __('Notes') }}</option>
-                  <option value="arrangement"{{ request('sf0') === 'arrangement' ? ' selected' : '' }}>{{ __('Arrangement') }}</option>
-                  <option value="accessConditions"{{ request('sf0') === 'accessConditions' ? ' selected' : '' }}>{{ __('Access conditions') }}</option>
-                  <option value="reproductionConditions"{{ request('sf0') === 'reproductionConditions' ? ' selected' : '' }}>{{ __('Reproduction conditions') }}</option>
-                  <option value="physicalCharacteristics"{{ request('sf0') === 'physicalCharacteristics' ? ' selected' : '' }}>{{ __('Physical characteristics') }}</option>
-                  <option value="findingAids"{{ request('sf0') === 'findingAids' ? ' selected' : '' }}>{{ __('Finding aids') }}</option>
-                  <option value="locationOfOriginals"{{ request('sf0') === 'locationOfOriginals' ? ' selected' : '' }}>{{ __('Location of originals') }}</option>
-                  <option value="locationOfCopies"{{ request('sf0') === 'locationOfCopies' ? ' selected' : '' }}>{{ __('Location of copies') }}</option>
-                  <option value="relatedUnits"{{ request('sf0') === 'relatedUnits' ? ' selected' : '' }}>{{ __('Related units of description') }}</option>
-                  <option value="rules"{{ request('sf0') === 'rules' ? ' selected' : '' }}>{{ __('Rules') }}</option>
-                  <option value="sources"{{ request('sf0') === 'sources' ? ' selected' : '' }}>{{ __('Sources') }}</option>
-                  <option value="appraisal"{{ request('sf0') === 'appraisal' ? ' selected' : '' }}>{{ __('Appraisal') }}</option>
-                  <option value="accruals"{{ request('sf0') === 'accruals' ? ' selected' : '' }}>{{ __('Accruals') }}</option>
-                  <option value="alternateTitle"{{ request('sf0') === 'alternateTitle' ? ' selected' : '' }}>{{ __('Alternate title') }}</option>
-                  <option value="edition"{{ request('sf0') === 'edition' ? ' selected' : '' }}>{{ __('Edition') }}</option>
+                  <option value="title"{{ $cr['field'] === 'title' ? ' selected' : '' }}>{{ __('Title') }}</option>
+                  <option value="identifier"{{ $cr['field'] === 'identifier' ? ' selected' : '' }}>{{ __('Identifier') }}</option>
+                  <option value="referenceCode"{{ $cr['field'] === 'referenceCode' ? ' selected' : '' }}>{{ __('Reference code') }}</option>
+                  <option value="scopeAndContent"{{ $cr['field'] === 'scopeAndContent' ? ' selected' : '' }}>{{ __('Scope and content') }}</option>
+                  <option value="extentAndMedium"{{ $cr['field'] === 'extentAndMedium' ? ' selected' : '' }}>{{ __('Extent and medium') }}</option>
+                  <option value="archivalHistory"{{ $cr['field'] === 'archivalHistory' ? ' selected' : '' }}>{{ __('Archival history') }}</option>
+                  <option value="acquisition"{{ $cr['field'] === 'acquisition' ? ' selected' : '' }}>{{ __('Acquisition') }}</option>
+                  <option value="creatorSearch"{{ $cr['field'] === 'creatorSearch' ? ' selected' : '' }}>{{ __('Creator') }}</option>
+                  <option value="subjectSearch"{{ $cr['field'] === 'subjectSearch' ? ' selected' : '' }}>{{ __('Subject') }}</option>
+                  <option value="placeSearch"{{ $cr['field'] === 'placeSearch' ? ' selected' : '' }}>{{ __('Place') }}</option>
+                  <option value="genreSearch"{{ $cr['field'] === 'genreSearch' ? ' selected' : '' }}>{{ __('Genre') }}</option>
+                  <option value="noteContent"{{ $cr['field'] === 'noteContent' ? ' selected' : '' }}>{{ __('Notes') }}</option>
+                  <option value="arrangement"{{ $cr['field'] === 'arrangement' ? ' selected' : '' }}>{{ __('Arrangement') }}</option>
+                  <option value="accessConditions"{{ $cr['field'] === 'accessConditions' ? ' selected' : '' }}>{{ __('Access conditions') }}</option>
+                  <option value="reproductionConditions"{{ $cr['field'] === 'reproductionConditions' ? ' selected' : '' }}>{{ __('Reproduction conditions') }}</option>
+                  <option value="physicalCharacteristics"{{ $cr['field'] === 'physicalCharacteristics' ? ' selected' : '' }}>{{ __('Physical characteristics') }}</option>
+                  <option value="findingAids"{{ $cr['field'] === 'findingAids' ? ' selected' : '' }}>{{ __('Finding aids') }}</option>
+                  <option value="locationOfOriginals"{{ $cr['field'] === 'locationOfOriginals' ? ' selected' : '' }}>{{ __('Location of originals') }}</option>
+                  <option value="locationOfCopies"{{ $cr['field'] === 'locationOfCopies' ? ' selected' : '' }}>{{ __('Location of copies') }}</option>
+                  <option value="relatedUnits"{{ $cr['field'] === 'relatedUnits' ? ' selected' : '' }}>{{ __('Related units of description') }}</option>
+                  <option value="rules"{{ $cr['field'] === 'rules' ? ' selected' : '' }}>{{ __('Rules') }}</option>
+                  <option value="sources"{{ $cr['field'] === 'sources' ? ' selected' : '' }}>{{ __('Sources') }}</option>
+                  <option value="appraisal"{{ $cr['field'] === 'appraisal' ? ' selected' : '' }}>{{ __('Appraisal') }}</option>
+                  <option value="accruals"{{ $cr['field'] === 'accruals' ? ' selected' : '' }}>{{ __('Accruals') }}</option>
+                  <option value="alternateTitle"{{ $cr['field'] === 'alternateTitle' ? ' selected' : '' }}>{{ __('Alternate title') }}</option>
+                  <option value="edition"{{ $cr['field'] === 'edition' ? ' selected' : '' }}>{{ __('Edition') }}</option>
                 </select>
               </div>
 
               <div class="col-xl-auto mb-3">
-                <a href="#" class="delete-criterion" aria-label="{{ __('Delete criterion') }}">
+                <a href="#" class="delete-criterion" aria-label="{{ __('Delete criterion') }}"
+                   onclick="event.preventDefault(); var row = this.closest('.criterion'); var container = row.parentNode; if (container.querySelectorAll('.criterion').length > 1) { row.remove(); } else { row.querySelector('input[type=text]').value = ''; }">
                   <i aria-hidden="true" class="fas fa-times text-muted"></i>
                 </a>
               </div>
             </div>
+            @endforeach
 
             <div class="add-new-criteria mb-3">
-              <button type="button" class="btn atom-btn-white" id="add-field-search-btn"
-                      onclick="this.closest('.criteria').insertBefore(this.closest('.criteria').querySelector('.criterion').cloneNode(true), this.closest('.add-new-criteria'))">
+              <button type="button" class="btn atom-btn-white" id="add-field-search-btn">
                 {{ __('Add criterion') }}
               </button>
             </div>
@@ -106,6 +139,20 @@
                     @endif
                   </select>
                 </div>
+              </div>
+
+              <div class="col-md-6">
+                @include('ahg-core::components.autocomplete', [
+                    'name'         => 'collection',
+                    'label'        => __('Top-level description'),
+                    'route'        => 'informationobject.autocomplete',
+                    'value'        => $selectedCollectionId,
+                    'displayValue' => $selectedCollectionName,
+                    'placeholder'  => __('Type to search for a collection...'),
+                    'queryParam'   => 'query',
+                    'idField'      => 'id',
+                    'nameField'    => 'name',
+                ])
               </div>
             </div>
           </div>
@@ -151,6 +198,35 @@
                     <option value="museum"{{ request('type') === 'museum' ? ' selected' : '' }}>{{ __('Museum') }}</option>
                     <option value="gallery"{{ request('type') === 'gallery' ? ' selected' : '' }}>{{ __('Gallery') }}</option>
                     <option value="photos"{{ request('type') === 'photos' ? ' selected' : '' }}>{{ __('Photos') }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="copyright-status-select" class="form-label">{{ __('Copyright status') }}</label>
+                  <select class="form-select" name="copyrightStatus" id="copyright-status-select">
+                    <option value="">{{ __('— Any —') }}</option>
+                    @if(isset($copyrightStatuses))
+                      @foreach($copyrightStatuses as $cs)
+                        <option value="{{ $cs->id }}"{{ request('copyrightStatus') == $cs->id ? ' selected' : '' }}>
+                          {{ $cs->name }}
+                        </option>
+                      @endforeach
+                    @endif
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="finding-aid-select" class="form-label">{{ __('Finding aid') }}</label>
+                  <select class="form-select" name="findingAidStatus" id="finding-aid-select">
+                    <option value="">{{ __('— Any —') }}</option>
+                    <option value="yes"{{ request('findingAidStatus') === 'yes' ? ' selected' : '' }}>{{ __('Yes') }}</option>
+                    <option value="no"{{ request('findingAidStatus') === 'no' ? ' selected' : '' }}>{{ __('No') }}</option>
                   </select>
                 </div>
               </div>
@@ -226,3 +302,46 @@
     </div>
   </div>
 </div>
+
+{{-- Add criterion JS: clones the last row and increments field name indices --}}
+@push('js')
+<script>
+(function () {
+    'use strict';
+    var btn = document.getElementById('add-field-search-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        var container = document.getElementById('adv-search-criteria');
+        var rows = container.querySelectorAll('.criterion');
+        var lastRow = rows[rows.length - 1];
+        var lastIndex = parseInt(lastRow.getAttribute('data-index') || '0', 10);
+        var newIndex = lastIndex + 1;
+
+        var clone = lastRow.cloneNode(true);
+        clone.setAttribute('data-index', newIndex);
+
+        // Update name attributes: so{old} -> so{new}, sq{old} -> sq{new}, sf{old} -> sf{new}
+        clone.querySelectorAll('[name]').forEach(function (el) {
+            el.name = el.name.replace(/\d+$/, newIndex);
+        });
+
+        // Clear the text input value
+        var textInput = clone.querySelector('input[type="text"]');
+        if (textInput) textInput.value = '';
+
+        // Reset the field select to "Any field"
+        var fieldSelect = clone.querySelector('select[name^="sf"]');
+        if (fieldSelect) fieldSelect.selectedIndex = 0;
+
+        // Reset the operator select to "and"
+        var opSelect = clone.querySelector('select[name^="so"]');
+        if (opSelect) opSelect.selectedIndex = 0;
+
+        // Insert before the add-new-criteria div
+        var addDiv = container.querySelector('.add-new-criteria');
+        container.insertBefore(clone, addDiv);
+    });
+})();
+</script>
+@endpush

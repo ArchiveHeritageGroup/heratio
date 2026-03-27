@@ -206,6 +206,10 @@
         @endif
       @endauth
 
+      <a class="btn btn-sm atom-btn-white" href="javascript:window.print()">
+        <i class="fas fa-print me-1" aria-hidden="true"></i>{{ __('Print') }}
+      </a>
+
       <div class="d-flex flex-wrap gap-2 ms-auto">
         @include('ahg-core::components.sort-pickers', [
             'options' => $sortOptions,
@@ -264,6 +268,9 @@
                   <a href="{{ route('informationobject.show', $doc['slug']) }}" class="text-truncate" title="{{ $doc['name'] ?: '[Untitled]' }}">
                     {{ $doc['name'] ?: '[Untitled]' }}
                   </a>
+                  @if(!empty($pubStatuses[$doc['id']]) && $pubStatuses[$doc['id']] == 159)
+                    <span class="badge bg-warning">{{ __('Draft') }}</span>
+                  @endif
                   <button class="btn atom-btn-white ms-auto active-primary clipboard"
                           data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="informationobject"
                           data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
@@ -271,6 +278,15 @@
                     <span class="visually-hidden">Add to clipboard</span>
                   </button>
                 </div>
+                @if(!empty($doc['scope_and_content']))
+                  <p class="card-text small text-muted mb-0">{{ $doc['scope_and_content'] }}</p>
+                @endif
+                @if(!empty($creators[$doc['id']]))
+                  <p class="card-text small text-muted mb-0">{{ __('Creator') }}: {{ implode('; ', $creators[$doc['id']]) }}</p>
+                @endif
+                @if(!empty($dates[$doc['id']]))
+                  <p class="card-text small text-muted mb-0">{{ __('Date(s)') }}: {{ implode('; ', $dates[$doc['id']]) }}</p>
+                @endif
                 @if(!empty($doc['level_of_description_id']) && isset($levelNames[$doc['level_of_description_id']]))
                   <p class="card-text small text-muted mb-0">
                     {{ $levelNames[$doc['level_of_description_id']] }}
@@ -296,7 +312,7 @@
               <th>{{ __('Title') }}</th>
               <th>{{ __('Level of description') }}</th>
               <th>{{ __('Repository') }}</th>
-              <th>{{ __('Identifier') }}</th>
+              <th>{{ __('Reference code') }}</th>
               @if(request('sort') === 'lastUpdated')
                 <th>{{ __('Updated') }}</th>
               @endif
@@ -310,6 +326,18 @@
                   <a href="{{ route('informationobject.show', $doc['slug']) }}">
                     {{ $doc['name'] ?: '[Untitled]' }}
                   </a>
+                  @if(!empty($pubStatuses[$doc['id']]) && $pubStatuses[$doc['id']] == 159)
+                    <span class="badge bg-warning">{{ __('Draft') }}</span>
+                  @endif
+                  @if(!empty($doc['scope_and_content']))
+                    <p class="small text-muted mb-0">{{ $doc['scope_and_content'] }}</p>
+                  @endif
+                  @if(!empty($creators[$doc['id']]))
+                    <p class="small text-muted mb-0">{{ __('Creator') }}: {{ implode('; ', $creators[$doc['id']]) }}</p>
+                  @endif
+                  @if(!empty($dates[$doc['id']]))
+                    <p class="small text-muted mb-0">{{ __('Date(s)') }}: {{ implode('; ', $dates[$doc['id']]) }}</p>
+                  @endif
                   @if(!empty($doc['parent_id']) && $doc['parent_id'] != 1 && isset($parentInfo[$doc['parent_id']]))
                     <p class="small text-muted mb-0">
                       {{ __('Part of') }}
