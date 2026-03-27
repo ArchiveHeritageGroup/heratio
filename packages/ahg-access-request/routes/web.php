@@ -8,7 +8,7 @@ Route::middleware('auth')->prefix('access-request')->group(function () {
     Route::post('/new', [AccessRequestController::class, 'store'])->name('accessRequest.store');
     Route::get('/my-requests', [AccessRequestController::class, 'myRequests'])->name('accessRequest.myRequests');
     Route::get('/request/{slug}', [AccessRequestController::class, 'requestObject'])->name('accessRequest.requestObject');
-    Route::get('/{id}', [AccessRequestController::class, 'view'])->name('accessRequest.view');
+    Route::get('/{id}', [AccessRequestController::class, 'view'])->name('accessRequest.view')->where('id', '[0-9]+');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('access-request')->group(function () {
