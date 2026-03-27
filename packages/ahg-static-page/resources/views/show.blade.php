@@ -26,13 +26,16 @@
   </div>
 
   @auth
+    @php $isAdmin = auth()->user()->is_admin; @endphp
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
+        {{-- Edit: any authenticated user --}}
         <li><a class="btn atom-btn-outline-light" href="{{ route('staticpage.edit', $page->slug) }}">{{ __('Edit') }}</a></li>
         @php
           $protectedSlugs = ['home', 'about', 'contact'];
         @endphp
-        @if(!in_array($page->slug, $protectedSlugs))
+        {{-- Delete: admin only, and not for protected pages --}}
+        @if($isAdmin && !in_array($page->slug, $protectedSlugs))
           <li><a class="btn atom-btn-outline-danger" href="{{ route('staticpage.delete', $page->slug) }}">{{ __('Delete') }}</a></li>
         @endif
       </ul>

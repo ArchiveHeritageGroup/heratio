@@ -39,7 +39,7 @@ $recentEvents = $recentEvents ?? [];
 </div>
 
 <div class="mb-3">
-    <a href="{{ route('spectrum.conditionRisk') }}" class="btn btn-outline-danger">{{ __('Risk Assessment') }}</a>
+    <a href="{{ route('ahgspectrum.condition-risk') }}" class="btn btn-outline-danger">{{ __('Risk Assessment') }}</a>
 </div>
 
 <div class="card">

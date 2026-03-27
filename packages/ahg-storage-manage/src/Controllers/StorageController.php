@@ -260,7 +260,7 @@ class StorageController extends Controller
                             $j->on('event.type_id', '=', 'term_i18n.id')
                                 ->where('term_i18n.culture', '=', $culture);
                         })
-                        ->where('event.information_object_id', $item->id)
+                        ->where('event.object_id', $item->id)
                         ->select([
                             'event_i18n.date as date_display',
                             'event.start_date',

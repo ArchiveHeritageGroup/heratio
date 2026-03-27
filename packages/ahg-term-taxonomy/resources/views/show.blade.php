@@ -222,9 +222,15 @@
 
       {{-- Action buttons --}}
       @auth
+        @php $isAdmin = auth()->user()->is_admin; @endphp
         <ul class="actions mb-3 nav gap-2">
+          {{-- Edit: any authenticated user --}}
           <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+          {{-- Delete: admin only --}}
+          @if($isAdmin)
           <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+          @endif
+          {{-- Add new: any authenticated user --}}
           <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
         </ul>
       @endauth

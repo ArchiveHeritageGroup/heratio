@@ -189,7 +189,7 @@
 
   {{-- Identity area --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>@else Identity area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a><a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="ms-auto text-muted" title="Edit Identity area"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Identity area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type of entity</h3><div class="col-9 p-2">{{ $entityTypeName ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3><div class="col-9 p-2">{{ $actor->authorized_form_of_name ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Parallel form(s) of name</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach(($otherNames ?? collect())->where('type_id', 148) as $n)<li>{{ $n->name }}</li>@endforeach</ul></div></div>
@@ -200,7 +200,7 @@
 
   {{-- Description area --}}
   <section id="descriptionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a>@else Description area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="Edit Description area"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Description area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of existence</h3><div class="col-9 p-2">{{ $actor->dates_of_existence ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">History</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Places</h3><div class="col-9 p-2">{{ $actor->places ?? '' }}</div></div>
@@ -213,7 +213,7 @@
 
   {{-- Relationships area --}}
   <section id="relationshipsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a>@else Relationships area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a><a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="ms-auto text-muted" title="Edit Relationships area"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Relationships area @endauth</div></h2>
     @foreach($relatedActors ?? [] as $related)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related entity</h3>
@@ -590,9 +590,15 @@
 
   {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
+  @php $isAdmin = auth()->user()->is_admin; @endphp
   <ul class="actions mb-3 nav gap-2">
+    {{-- Edit: any authenticated user --}}
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
+    {{-- Delete: admin only --}}
+    @if($isAdmin)
     <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
+    @endif
+    {{-- Add new: any authenticated user --}}
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
     <li>

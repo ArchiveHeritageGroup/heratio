@@ -10,7 +10,7 @@ $riskItems = $riskItems ?? [];
 
 <h1 class="h3 mb-4">{{ __('Risk Assessment') }}</h1>
 
-<a href="{{ route('spectrum.conditionAdmin') }}" class="btn btn-secondary mb-3">{{ __('Back') }}</a>
+<a href="{{ route('ahgspectrum.condition-admin') }}" class="btn btn-secondary mb-3">{{ __('Back') }}</a>
 
 <div class="card">
     <div class="card-header bg-danger text-white"><h5 class="mb-0">{{ __('High Risk Items') }}</h5></div>

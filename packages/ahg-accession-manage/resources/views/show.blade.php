@@ -384,12 +384,20 @@
 
 @section('after-content')
   @auth
+    @php $isAdmin = auth()->user()->is_admin; @endphp
     <ul class="actions mb-3 nav gap-2">
+      {{-- Edit: any authenticated user --}}
       <li><a href="{{ route('accession.edit', $accession->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
 
+      {{-- Delete: admin only --}}
+      @if($isAdmin)
       <li><a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      @endif
 
+      {{-- Deaccession: admin only --}}
+      @if($isAdmin)
       <li><a href="{{ url('/deaccession/add?accession=' . $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
+      @endif
 
       @if(!isset($accrualTo) || count($accrualTo) === 0)
         <li><a href="{{ route('accession.create', ['accession' => $accession->slug]) }}" class="btn atom-btn-outline-light">Add accrual</a></li>

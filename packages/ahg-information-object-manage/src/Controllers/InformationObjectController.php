@@ -137,7 +137,7 @@ class InformationObjectController extends Controller
                 ->select('event.object_id', 'actor_i18n.authorized_form_of_name')
                 ->get();
             foreach ($creatorRows as $row) {
-                $creators[$row->information_object_id][] = $row->authorized_form_of_name;
+                $creators[$row->object_id][] = $row->authorized_form_of_name;
             }
 
             // Dates: event start_date/end_date per IO
@@ -147,15 +147,15 @@ class InformationObjectController extends Controller
                 ->select('event.object_id', 'event.start_date', 'event.end_date')
                 ->get();
             foreach ($dateRows as $row) {
-                if (!isset($dates[$row->information_object_id])) {
-                    $dates[$row->information_object_id] = [];
+                if (!isset($dates[$row->object_id])) {
+                    $dates[$row->object_id] = [];
                 }
                 $start = $row->start_date ? substr($row->start_date, 0, 10) : null;
                 $end = $row->end_date ? substr($row->end_date, 0, 10) : null;
                 if ($start && $end && $start !== $end) {
-                    $dates[$row->information_object_id][] = $start . ' - ' . $end;
+                    $dates[$row->object_id][] = $start . ' - ' . $end;
                 } elseif ($start) {
-                    $dates[$row->information_object_id][] = $start;
+                    $dates[$row->object_id][] = $start;
                 }
             }
 

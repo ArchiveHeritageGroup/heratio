@@ -181,9 +181,15 @@
 
 @section('after-content')
   @auth
+    @php $isAdmin = auth()->user()->is_admin; @endphp
     <ul class="actions mb-3 nav gap-2">
+      {{-- Edit: any authenticated user --}}
       <li><a href="{{ route('donor.edit', $donor->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      {{-- Delete: admin only --}}
+      @if($isAdmin)
       <li><a href="{{ route('donor.confirmDelete', $donor->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      @endif
+      {{-- Add new: any authenticated user --}}
       <li><a href="{{ route('donor.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
     </ul>
   @endauth

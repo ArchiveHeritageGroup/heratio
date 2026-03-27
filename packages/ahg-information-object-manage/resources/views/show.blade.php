@@ -789,11 +789,11 @@
       <a class="text-decoration-none text-white" href="#identity-collapse">
         Identity area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#identity-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Identity area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="identity-collapse">
 
@@ -857,11 +857,11 @@
       <a class="text-decoration-none text-white" href="#context-collapse">
         Context area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#context-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Context area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="context-collapse">
 
@@ -956,11 +956,11 @@
       <a class="text-decoration-none text-white" href="#content-collapse">
         Content and structure area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#content-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Content and structure area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="content-collapse">
 
@@ -1005,11 +1005,11 @@
       <a class="text-decoration-none text-white" href="#conditions-collapse">
         Conditions of access and use area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#conditions-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Conditions of access and use area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="conditions-collapse">
 
@@ -1105,11 +1105,11 @@
       <a class="text-decoration-none text-white" href="#allied-collapse">
         Allied materials area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#allied-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Allied materials area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="allied-collapse">
 
@@ -1175,11 +1175,11 @@
       <a class="text-decoration-none text-white" href="#notes-collapse">
         Notes area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#notes-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Notes area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="notes-collapse">
 
@@ -1218,11 +1218,11 @@
       <a class="text-decoration-none text-white" href="#access-collapse">
         Access points
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#access-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Access points">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="access-collapse">
 
@@ -1316,11 +1316,11 @@
       <a class="text-decoration-none text-white" href="#description-collapse">
         Description control area
       </a>
-      @if(auth()->check())
-        <a href="{{ route('informationobject.edit', $io->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit">
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#description-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Description control area">
           <i class="fas fa-pencil-alt"></i>
         </a>
-      @endif
+      @endauth
     </h2>
     <div id="description-collapse">
 
@@ -1434,7 +1434,7 @@
     <section id="administrationArea" class="border-bottom">
       <div class="accordion" id="adminAreaAccordion">
         <div class="accordion-item border-0">
-          <h2 class="accordion-header" id="admin-heading">
+          <h2 class="accordion-header position-relative" id="admin-heading">
             <button
               class="accordion-button collapsed h6 mb-0 py-2 px-3"
               type="button"
@@ -1445,6 +1445,9 @@
               style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
               Administration area
             </button>
+            <a href="{{ route('informationobject.edit', $io->slug) }}#admin-collapse" class="position-absolute text-white opacity-75" style="font-size:.75rem;right:2.5rem;top:50%;transform:translateY(-50%);z-index:2;" title="Edit Administration area">
+              <i class="fas fa-pencil-alt"></i>
+            </a>
           </h2>
           <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
             <div class="accordion-body p-0">
@@ -1533,6 +1536,9 @@
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
         <a class="text-decoration-none text-white" href="#rights-collapse">
           Rights area
+        </a>
+        <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Rights area">
+          <i class="fas fa-pencil-alt"></i>
         </a>
       </h2>
       <div id="rights-collapse">
@@ -1809,6 +1815,11 @@
       <a class="text-decoration-none text-white" href="#accession-collapse">
         Accession area
       </a>
+      @auth
+        <a href="{{ route('informationobject.edit', $io->slug) }}#accession-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Accession area">
+          <i class="fas fa-pencil-alt"></i>
+        </a>
+      @endauth
     </h2>
     <div id="accession-collapse">
       @if(isset($accessions) && (is_countable($accessions) ? count($accessions) > 0 : !empty($accessions)))

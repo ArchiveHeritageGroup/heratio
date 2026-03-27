@@ -303,7 +303,7 @@ class ActorBrowseService extends BrowseService
             $query->whereExists(function ($sub) use ($repoId) {
                 $sub->select(DB::raw(1))
                     ->from('event')
-                    ->join('information_object', 'event.information_object_id', '=', 'information_object.id')
+                    ->join('information_object', 'event.object_id', '=', 'information_object.id')
                     ->whereColumn('event.actor_id', 'actor.id')
                     ->where('information_object.repository_id', $repoId);
             });

@@ -15,7 +15,7 @@ $missingDigitalObjects = $missingDigitalObjects ?? 0;
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('spectrum.dashboard') }}">Spectrum</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.dashboard') }}">Spectrum</a></li>
         <li class="breadcrumb-item active">{{ __('Data Quality') }}</li>
     </ol>
 </nav>

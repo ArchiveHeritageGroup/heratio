@@ -400,9 +400,15 @@
 
   {{-- Action buttons (bottom bar, matching AtoM) --}}
   @auth
+  @php $isAdmin = auth()->user()->is_admin; @endphp
   <ul class="actions mb-3 nav gap-2">
+    {{-- Edit: any authenticated user --}}
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
+    {{-- Delete: admin only --}}
+    @if($isAdmin)
     <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
+    @endif
+    {{-- Add new: any authenticated user --}}
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>

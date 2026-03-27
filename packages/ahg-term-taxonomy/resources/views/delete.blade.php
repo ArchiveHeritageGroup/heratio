@@ -28,7 +28,7 @@
                 ->leftJoin('event_i18n', function ($j) {
                     $j->on('event_i18n.id', '=', 'event.id')->where('event_i18n.culture', '=', 'en');
                 })
-                ->leftJoin('information_object', 'information_object.id', '=', 'event.information_object_id')
+                ->leftJoin('information_object', 'information_object.id', '=', 'event.object_id')
                 ->leftJoin('information_object_i18n', function ($j) {
                     $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', '=', 'en');
                 })

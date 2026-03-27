@@ -64,7 +64,7 @@ $currentFilter = $currentFilter ?? '';
                 <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Quick Links') }}</h5>
             </div>
             <div class="list-group list-group-flush">
-                <a href="{{ route('spectrum.dashboard') }}" class="list-group-item list-group-item-action">
+                <a href="{{ route('ahgspectrum.dashboard') }}" class="list-group-item list-group-item-action">
                     <i class="fas fa-tachometer-alt me-2"></i>{{ __('Workflow Dashboard') }}
                 </a>
             </div>

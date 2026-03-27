@@ -137,7 +137,7 @@ if ($isAuthenticated && $hasSpectrum) {
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>{{ __('Tasks') }}</h6></li>
     <li>
-      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('spectrum.myTasks') }}">
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('ahgspectrum.my-tasks') }}">
         <span><i class="fas fa-clipboard-list me-2"></i>{{ __('My Tasks') }}</span>
         @if($spectrumTaskCount > 0)
         <span class="badge bg-danger">{{ $spectrumTaskCount }}</span>
@@ -145,7 +145,7 @@ if ($isAuthenticated && $hasSpectrum) {
       </a>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ route('spectrum.dashboard') }}">
+      <a class="dropdown-item" href="{{ route('ahgspectrum.dashboard') }}">
         <span><i class="fas fa-tachometer-alt me-2"></i>{{ __('Workflow Dashboard') }}</span>
       </a>
     </li>

@@ -314,6 +314,7 @@
 
       {{-- Actions --}}
       @auth
+      @php $isAdmin = auth()->user()->is_admin; @endphp
       <div class="card mb-4">
         <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
           <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
@@ -325,9 +326,11 @@
           <a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light w-100 mb-2">
             <i class="fas fa-list me-1"></i>Browse storage locations
           </a>
+          @if($isAdmin)
           <a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger w-100">
             <i class="fas fa-trash me-1"></i>Delete
           </a>
+          @endif
         </div>
       </div>
       @endauth
@@ -338,8 +341,12 @@
   {{-- Bottom action bar --}}
   @auth
   <ul class="actions mb-3 nav gap-2">
+    {{-- Edit: any authenticated user --}}
     <li><a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+    {{-- Delete: admin only --}}
+    @if(auth()->user()->is_admin)
     <li><a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+    @endif
     <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>Browse</a></li>
   </ul>
   @endauth

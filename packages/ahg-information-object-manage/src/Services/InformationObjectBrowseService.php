@@ -489,10 +489,10 @@ class InformationObjectBrowseService extends BrowseService
                 $query->orderBy('information_object.identifier', $sortDir);
                 break;
             case 'startDate':
-                $query->orderByRaw("(SELECT MIN(e.start_date) FROM event e WHERE e.information_object_id = information_object.id) {$sortDir}");
+                $query->orderByRaw("(SELECT MIN(e.start_date) FROM event e WHERE e.object_id = information_object.id) {$sortDir}");
                 break;
             case 'endDate':
-                $query->orderByRaw("(SELECT MAX(e.end_date) FROM event e WHERE e.information_object_id = information_object.id) {$sortDir}");
+                $query->orderByRaw("(SELECT MAX(e.end_date) FROM event e WHERE e.object_id = information_object.id) {$sortDir}");
                 break;
             case 'lastUpdated':
             default:

@@ -128,6 +128,24 @@ class QubitUser extends QubitActor implements Authenticatable
     }
 
     /**
+     * Accessor: $user->is_editor
+     * True if the user belongs to the Editor group (101).
+     */
+    public function getIsEditorAttribute(): bool
+    {
+        return $this->isEditor();
+    }
+
+    /**
+     * Accessor: $user->can_edit
+     * True if the user is an administrator OR an editor (i.e. can edit/create records).
+     */
+    public function getCanEditAttribute(): bool
+    {
+        return $this->isAdministrator() || $this->isEditor();
+    }
+
+    /**
      * Get the display name for this user.
      */
     public function getDisplayName(string $culture = 'en'): string
