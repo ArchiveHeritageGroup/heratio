@@ -44,6 +44,14 @@
                      value="{{ old('email', $user->email ?? '') }}">
             </div>
 
+            @if($user)
+              <div class="mb-3">
+                <label for="current_password" class="form-label">Current password <span class="badge bg-warning ms-1">Required to change password</span></label>
+                <input type="password" name="current_password" id="current_password" class="form-control" autocomplete="current-password">
+                <div class="form-text">Enter your current password to confirm identity before changing the password.</div>
+              </div>
+            @endif
+
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="password" class="form-label">

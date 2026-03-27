@@ -1,15 +1,11 @@
 @extends('ahg-theme-b5::layout_2col')
 
 @section('sidebar')
-
   @include('ahg-settings::_menu')
-
 @endsection
 
 @section('title')
-
   <h1>{{ __('Web analytics') }}</h1>
-
 @endsection
 
 @section('content')
@@ -35,8 +31,6 @@
   <form method="post" action="{{ route('settings.analytics') }}">
     @csrf
 
-    {!! $form->renderHiddenFields() !!}
-
     <div class="accordion mb-3">
       <div class="accordion-item">
         <h2 class="accordion-header" id="analytics-heading">
@@ -46,7 +40,10 @@
         </h2>
         <div id="analytics-collapse" class="accordion-collapse collapse show" aria-labelledby="analytics-heading">
           <div class="accordion-body">
-            @php echo render_field($form->google_analytics); @endphp
+            <div class="mb-3">
+              <label class="form-label">{{ __('Google Analytics tracking ID') }}</label>
+              <input type="text" name="google_analytics" class="form-control" value="{{ old('google_analytics', $googleAnalytics ?? '') }}" placeholder="G-XXXXXXXXXX or UA-XXXXXXXX-X">
+            </div>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 namespace AhgCore\Providers;
 
 use AhgCore\Services\CronSchedulerService;
+use AhgCore\Services\SettingHelper;
 use Illuminate\Support\ServiceProvider;
 
 class AhgCoreServiceProvider extends ServiceProvider
@@ -14,6 +15,25 @@ class AhgCoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Hydrate UI labels from the AtoM setting table so that
+        // config('app.ui_label_*') returns admin-customised values.
+        $this->app->booted(function () {
+            $labels = [
+                'ui_label_repository',
+                'ui_label_actor',
+                'ui_label_informationobject',
+                'ui_label_physicalobject',
+                'ui_label_accession',
+            ];
+
+            foreach ($labels as $key) {
+                $dbValue = SettingHelper::get($key);
+                if ($dbValue !== '') {
+                    config(["app.{$key}" => $dbValue]);
+                }
+            }
+        });
+
         // Load routes
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');

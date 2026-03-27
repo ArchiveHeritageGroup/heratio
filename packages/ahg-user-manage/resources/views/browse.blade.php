@@ -16,10 +16,10 @@
   <nav>
     <ul class="nav nav-pills mb-3 d-flex gap-2">
       <li class="nav-item">
-        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyActive">Show active only</a>
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyActive" {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'aria-current=page' : '' }}>Show active only</a>
       </li>
       <li class="nav-item">
-        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyInactive">Show inactive only</a>
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyInactive" {{ request('filter') === 'onlyInactive' ? 'aria-current=page' : '' }}>Show inactive only</a>
       </li>
     </ul>
   </nav>

@@ -1,13 +1,23 @@
 @extends('theme::layouts.1col')
 
-@section('title', $storage->name ?? 'Physical storage')
+@section('title', $storage->name ?? config('app.ui_label_physicalobject', 'Physical storage'))
 @section('body-class', 'view physicalobject')
 
 @section('content')
-  <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">{{ $storage->name ?? '[Untitled]' }}</h1>
-    <span class="small">View physical storage</span>
+  <div class="multiline-header d-flex align-items-center mb-3">
+    <a href="{{ route('physicalobject.box-list', ['slug' => $storage->slug]) }}" class="text-reset">
+      <i class="fas fa-3x fa-print me-3" aria-hidden="true"></i>
+      <span class="visually-hidden">Print</span>
+    </a>
+    <div class="d-flex flex-column">
+      <h1 class="mb-0" aria-describedby="heading-label">{{ $storage->name ?? '[Untitled]' }}</h1>
+      <span class="small" id="heading-label">View {{ config('app.ui_label_physicalobject', 'Physical storage') }}</span>
+    </div>
   </div>
+
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
 
   <div class="row">
     <div class="col-md-8">
@@ -249,6 +259,26 @@
               <li class="mb-2">
                 <a href="{{ route('informationobject.show', $desc->slug) }}">
                   <i class="fas fa-file me-1"></i>{{ $desc->title ?: '[Untitled]' }}
+                </a>
+              </li>
+            @endforeach
+          </ul>
+        </div>
+      </div>
+      @endif
+
+      {{-- Related accessions --}}
+      @if(isset($accessions) && $accessions->isNotEmpty())
+      <div class="card mb-4">
+        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+          <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related Accessions</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            @foreach($accessions as $acc)
+              <li class="mb-2">
+                <a href="{{ route('accession.show', $acc->slug) }}">
+                  <i class="fas fa-file-alt me-1"></i>{{ $acc->title ?: $acc->identifier ?: '[Untitled]' }}
                 </a>
               </li>
             @endforeach

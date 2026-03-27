@@ -71,13 +71,13 @@
               <td>
                 @switch($item->type)
                   @case('informationObject')
-                    <span class="badge bg-primary">Archival description</span>
+                    <span class="badge bg-primary">{{ config('app.ui_label_informationobject', 'Archival description') }}</span>
                     @break
                   @case('actor')
-                    <span class="badge bg-success">Authority record</span>
+                    <span class="badge bg-success">{{ config('app.ui_label_actor', 'Authority record') }}</span>
                     @break
                   @case('repository')
-                    <span class="badge bg-info">Archival institution</span>
+                    <span class="badge bg-info">{{ config('app.ui_label_repository', 'Archival institution') }}</span>
                     @break
                   @case('accession')
                     <span class="badge bg-warning text-dark">Accession</span>
@@ -125,9 +125,9 @@
   <div class="card mb-3">
     <div class="card-body small">
       <strong>Clipboard summary:</strong>
-      Archival descriptions: {{ $counts['informationObject'] ?? 0 }} |
-      Authority records: {{ $counts['actor'] ?? 0 }} |
-      Archival institutions: {{ $counts['repository'] ?? 0 }} |
+      {{ config('app.ui_label_informationobject', 'Archival description') }}s: {{ $counts['informationObject'] ?? 0 }} |
+      {{ config('app.ui_label_actor', 'Authority record') }}s: {{ $counts['actor'] ?? 0 }} |
+      {{ config('app.ui_label_repository', 'Archival institution') }}s: {{ $counts['repository'] ?? 0 }} |
       <strong>Total: {{ $totalCount }}</strong>
     </div>
   </div>

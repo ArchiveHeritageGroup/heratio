@@ -1,6 +1,6 @@
 @extends('theme::layouts.3col')
 
-@section('title', ($io->title ?? 'Archival description'))
+@section('title', ($io->title ?? config('app.ui_label_informationobject', 'Archival description')))
 @section('body-class', 'view informationobject')
 
 {{-- ============================================================ --}}
@@ -2023,7 +2023,7 @@
     @if(isset($physicalObjects) && (is_countable($physicalObjects) ? count($physicalObjects) > 0 : !empty($physicalObjects)))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-box me-1"></i> Physical storage
+          <i class="fas fa-box me-1"></i> {{ config('app.ui_label_physicalobject', 'Physical storage') }}
         </div>
         <ul class="list-group list-group-flush">
           @foreach($physicalObjects as $pobj)

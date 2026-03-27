@@ -121,13 +121,25 @@ class InformationObjectBrowseService extends BrowseService
             $query->where(function ($q) use ($subquery) {
                 $q->where('information_object_i18n.title', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object.identifier', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.alternate_title', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.scope_and_content', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.archival_history', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.extent_and_medium', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.acquisition', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.appraisal', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.accruals', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.arrangement', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.access_conditions', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.reproduction_conditions', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.physical_characteristics', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.finding_aids', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.location_of_originals', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.location_of_copies', 'LIKE', "%{$subquery}%")
                   ->orWhere('information_object_i18n.related_units_of_description', 'LIKE', "%{$subquery}%")
-                  ->orWhere('information_object_i18n.sources', 'LIKE', "%{$subquery}%");
+                  ->orWhere('information_object_i18n.rules', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.sources', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.revision_history', 'LIKE', "%{$subquery}%")
+                  ->orWhere('information_object_i18n.institution_responsible_identifier', 'LIKE', "%{$subquery}%");
             });
         }
 

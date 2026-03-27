@@ -1,6 +1,6 @@
 <section id="physical-objects">
 
-  <h4 class="h5 mb-2">{{ config('atom.ui_label_physicalobject', __('Physical storage')) }}</h4>
+  <h4 class="h5 mb-2">{{ config('app.ui_label_physicalobject', __('Physical storage')) }}</h4>
   <ul class="list-unstyled">
 
     @foreach($physicalObjects as $item)

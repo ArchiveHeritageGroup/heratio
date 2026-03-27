@@ -31,9 +31,9 @@
             <div class="mb-3">
               <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
               <select class="form-select" name="objectType" id="object-type-select">
-                <option value="informationObject" {{ (isset($objectType) && $objectType === 'informationObject') ? 'selected' : '' }}>Archival description</option>
+                <option value="informationObject" {{ (isset($objectType) && $objectType === 'informationObject') ? 'selected' : '' }}>{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
                 <option value="accession" {{ (isset($objectType) && $objectType === 'accession') ? 'selected' : '' }}>Accession</option>
-                <option value="authorityRecord" {{ (isset($objectType) && $objectType === 'authorityRecord') ? 'selected' : '' }}>Authority record</option>
+                <option value="authorityRecord" {{ (isset($objectType) && $objectType === 'authorityRecord') ? 'selected' : '' }}>{{ config('app.ui_label_actor', 'Authority record') }}</option>
                 <option value="authorityRecordRelationship" {{ (isset($objectType) && $objectType === 'authorityRecordRelationship') ? 'selected' : '' }}>Authority record relationship</option>
                 <option value="event" {{ (isset($objectType) && $objectType === 'event') ? 'selected' : '' }}>Event</option>
                 <option value="repository" {{ (isset($objectType) && $objectType === 'repository') ? 'selected' : '' }}>Repository</option>

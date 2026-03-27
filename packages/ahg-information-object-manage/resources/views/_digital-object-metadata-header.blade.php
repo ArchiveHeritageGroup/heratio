@@ -5,30 +5,30 @@
 
 <div class="digital-object-actions mb-3">
     <div class="btn-group" role="group">
-        @if($sf_user->hasCredential(['contributor', 'editor', 'administrator'], false))
-        
+        @if(auth()->check() && auth()->user()?->hasAnyRole(['contributor', 'editor', 'administrator']))
+
         <!-- Upload Digital Object -->
-        <a href="@php echo url_for(['module' => 'digitalobject', 'action' => 'edit', 'informationObject' => $resource->slug]); @endphp" 
+        <a href="{{ route('digitalobject.edit', ['slug' => $resource->slug]) }}"
            class="btn btn-outline-primary btn-sm">
             <i class="fas fa-upload me-1"></i>
             Upload
         </a>
-        
+
         <!-- TIFF to PDF Merge Button -->
-        @php include_partial('ahgThemeB5Plugin/tiffPdfMergeButton', [
+        @include('ahg-theme-b5::_tiff-pdf-merge-button', [
             'informationObjectId' => $resource->id,
             'buttonClass' => 'btn btn-outline-secondary btn-sm'
-        ]); @endphp
-        
+        ])
+
         @endif
     </div>
 </div>
 
 <!-- Include modal (once per page) -->
-@php include_partial('ahgThemeB5Plugin/tiffPdfMergeModal', [
+@include('ahg-theme-b5::_tiff-pdf-merge-modal', [
     'informationObjectId' => $resource->id
-]); @endphp
+])
 
 <!-- Load required scripts -->
 <script src="/plugins/ahgThemeB5Plugin/js/sortable.min.js"></script>
-<script src="@php echo public_path('plugins/ahgThemeB5Plugin/js/tiff-pdf-merge.js'); @endphp"></script>
+<script src="/plugins/ahgThemeB5Plugin/js/tiff-pdf-merge.js"></script>

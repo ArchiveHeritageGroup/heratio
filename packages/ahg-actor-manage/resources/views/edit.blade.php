@@ -66,32 +66,89 @@
             </div>
 
             @php
-              $parallelNames = ($otherNames ?? collect())->where('type_id', 148);
-              $standardizedNames = ($otherNames ?? collect())->where('type_id', 165);
-              $otherFormNames = ($otherNames ?? collect())->where('type_id', 149);
+              $parallelNames = ($otherNames ?? collect())->where('type_id', 148)->values();
+              $standardizedNames = ($otherNames ?? collect())->where('type_id', 165)->values();
+              $otherFormNames = ($otherNames ?? collect())->where('type_id', 149)->values();
             @endphp
 
+            {{-- Parallel form(s) of name (repeatable) --}}
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="hidden" name="other_names[parallel][type_id]" value="148">
-              <input type="text" name="other_names[parallel][name]" id="parallel_name" class="form-control"
-                     value="{{ old('other_names.parallel.name', $parallelNames->first()->name ?? '') }}">
+              <label class="form-label">Parallel form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
+              <div id="parallel-names-container">
+                @if($parallelNames->count() > 0)
+                  @foreach($parallelNames as $idx => $pn)
+                    <div class="input-group mb-2 other-name-row">
+                      <input type="hidden" name="other_names[parallel][{{ $idx }}][type_id]" value="148">
+                      <input type="text" name="other_names[parallel][{{ $idx }}][name]" class="form-control"
+                             value="{{ old("other_names.parallel.{$idx}.name", $pn->name ?? '') }}">
+                      <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                    </div>
+                  @endforeach
+                @else
+                  <div class="input-group mb-2 other-name-row">
+                    <input type="hidden" name="other_names[parallel][0][type_id]" value="148">
+                    <input type="text" name="other_names[parallel][0][name]" class="form-control" value="">
+                    <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                  </div>
+                @endif
+              </div>
+              <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="parallel-names-container" data-type-id="148" data-prefix="parallel">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+              </button>
               <div class="form-text text-muted small">"Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules." (ISAAR 5.1.3)</div>
             </div>
 
+            {{-- Standardized form(s) of name (repeatable) --}}
             <div class="mb-3">
-              <label for="standardized_name" class="form-label">Standardized form(s) of name according to other rules <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="hidden" name="other_names[standardized][type_id]" value="165">
-              <input type="text" name="other_names[standardized][name]" id="standardized_name" class="form-control"
-                     value="{{ old('other_names.standardized.name', $standardizedNames->first()->name ?? '') }}">
+              <label class="form-label">Standardized form(s) of name according to other rules <span class="badge bg-secondary ms-1">Optional</span></label>
+              <div id="standardized-names-container">
+                @if($standardizedNames->count() > 0)
+                  @foreach($standardizedNames as $idx => $sn)
+                    <div class="input-group mb-2 other-name-row">
+                      <input type="hidden" name="other_names[standardized][{{ $idx }}][type_id]" value="165">
+                      <input type="text" name="other_names[standardized][{{ $idx }}][name]" class="form-control"
+                             value="{{ old("other_names.standardized.{$idx}.name", $sn->name ?? '') }}">
+                      <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                    </div>
+                  @endforeach
+                @else
+                  <div class="input-group mb-2 other-name-row">
+                    <input type="hidden" name="other_names[standardized][0][type_id]" value="165">
+                    <input type="text" name="other_names[standardized][0][name]" class="form-control" value="">
+                    <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                  </div>
+                @endif
+              </div>
+              <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="standardized-names-container" data-type-id="165" data-prefix="standardized">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+              </button>
               <div class="form-text text-muted small">"Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed." (ISAAR 5.1.4)</div>
             </div>
 
+            {{-- Other form(s) of name (repeatable) --}}
             <div class="mb-3">
-              <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="hidden" name="other_names[other][type_id]" value="149">
-              <input type="text" name="other_names[other][name]" id="other_name" class="form-control"
-                     value="{{ old('other_names.other.name', $otherFormNames->first()->name ?? '') }}">
+              <label class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">Optional</span></label>
+              <div id="other-names-container">
+                @if($otherFormNames->count() > 0)
+                  @foreach($otherFormNames as $idx => $on)
+                    <div class="input-group mb-2 other-name-row">
+                      <input type="hidden" name="other_names[other][{{ $idx }}][type_id]" value="149">
+                      <input type="text" name="other_names[other][{{ $idx }}][name]" class="form-control"
+                             value="{{ old("other_names.other.{$idx}.name", $on->name ?? '') }}">
+                      <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                    </div>
+                  @endforeach
+                @else
+                  <div class="input-group mb-2 other-name-row">
+                    <input type="hidden" name="other_names[other][0][type_id]" value="149">
+                    <input type="text" name="other_names[other][0][name]" class="form-control" value="">
+                    <button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>
+                  </div>
+                @endif
+              </div>
+              <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="other-names-container" data-type-id="149" data-prefix="other">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
+              </button>
               <div class="form-text text-muted small">The purpose of this field is to "indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area." Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)</div>
             </div>
 
@@ -527,6 +584,38 @@ document.addEventListener('DOMContentLoaded', function() {
       var table = btn.closest('table');
       if (table.querySelectorAll('tbody tr').length > 1) {
         btn.closest('tr').remove();
+      }
+    }
+  });
+
+  // Other names (parallel/standardized/other) repeatable rows
+  var otherNameCounters = { parallel: {{ $parallelNames->count() ?: 1 }}, standardized: {{ $standardizedNames->count() ?: 1 }}, other: {{ $otherFormNames->count() ?: 1 }} };
+  document.querySelectorAll('.add-other-name-row').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var containerId = btn.dataset.container;
+      var typeId = btn.dataset.typeId;
+      var prefix = btn.dataset.prefix;
+      var container = document.getElementById(containerId);
+      var idx = otherNameCounters[prefix]++;
+      var div = document.createElement('div');
+      div.className = 'input-group mb-2 other-name-row';
+      div.innerHTML = '<input type="hidden" name="other_names[' + prefix + '][' + idx + '][type_id]" value="' + typeId + '">' +
+        '<input type="text" name="other_names[' + prefix + '][' + idx + '][name]" class="form-control" value="">' +
+        '<button type="button" class="btn atom-btn-white remove-other-name-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Remove</span></button>';
+      container.appendChild(div);
+    });
+  });
+
+  // Remove handler for other name rows
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-other-name-row');
+    if (btn) {
+      var container = btn.closest('[id$="-names-container"]');
+      if (container && container.querySelectorAll('.other-name-row').length > 1) {
+        btn.closest('.other-name-row').remove();
+      } else if (btn.closest('.other-name-row')) {
+        var input = btn.closest('.other-name-row').querySelector('input[type="text"]');
+        if (input) input.value = '';
       }
     }
   });

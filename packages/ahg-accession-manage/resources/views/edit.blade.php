@@ -12,6 +12,12 @@
     @endif
   </div>
 
+  @if(request('accession'))
+    <div class="alert alert-info" role="alert">
+      You are creating an accrual to accession {{ request('accession') }}
+    </div>
+  @endif
+
   <form method="POST"
         action="{{ $accession ? route('accession.update', $accession->slug) : route('accession.store') }}"
         id="editForm">
@@ -513,13 +519,13 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="io-heading">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#io-collapse" aria-expanded="false" aria-controls="io-collapse">
-            Archival description area
+            {{ config('app.ui_label_informationobject', 'Archival description') }} area
           </button>
         </h2>
         <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
           <div class="accordion-body">
             <div class="mb-3">
-              <label for="information_objects" class="form-label">Archival description <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="information_objects" class="form-label">{{ config('app.ui_label_informationobject', 'Archival description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="information_objects" id="information_objects" class="form-control" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions..." autocomplete="off">
             </div>
           </div>

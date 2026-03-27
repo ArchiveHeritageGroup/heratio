@@ -1212,6 +1212,84 @@
     });
   };
 
+  // Recognise a single field after drag/resize/draw
+  function recogniseSingleField(annIdx) {
+    const ann = annotations[annIdx];
+    if (!ann || !images[imgIdx]) return;
+    const entry = images[imgIdx];
+    const label = ann.label;
+
+    // Show "Recognising..." badge on the field
+    const coordsEl = document.getElementById('ba-coords-' + annIdx);
+    if (coordsEl) {
+      const prev = coordsEl.parentNode.querySelector('.ba-recog');
+      if (prev) prev.remove();
+      const badge = document.createElement('div');
+      badge.className = 'ba-recog';
+      badge.style.cssText = 'font-size:0.75rem; color:#0d6efd;';
+      badge.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:0.6rem"></i> Recognising...';
+      coordsEl.parentNode.appendChild(badge);
+    }
+
+    fetch('{{ route("admin.ai.htr.fsOverlayRecognise") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'},
+      body: JSON.stringify({
+        image_path: entry.path,
+        annotations: [{ label: ann.label, x: ann.x, y: ann.y, w: ann.w, h: ann.h }],
+      }),
+    })
+    .then(r => r.ok ? r.json() : Promise.reject('Server error'))
+    .then(data => {
+      if (!data.success || !data.results || !data.results[label]) return;
+      const result = data.results[label];
+      const text = result.text || '';
+      if (!text) return;
+
+      let cleanText = dedupeRepeats(text);
+      const fixedText = (label === 'Event Date') ? autoFixDate(cleanText) : cleanText;
+
+      // Auto-populate if field is empty
+      const inp = document.querySelector('.ba-edit-input[data-field-idx="' + annIdx + '"]');
+      if (inp && !inp.value.trim()) {
+        inp.value = fixedText;
+        entry.fields[label] = fixedText;
+        if (annotations[annIdx]) annotations[annIdx].value = fixedText;
+      }
+
+      // Show result below coords
+      if (coordsEl) {
+        const prev = coordsEl.parentNode.querySelector('.ba-recog');
+        if (prev) prev.remove();
+        const recogDiv = document.createElement('div');
+        recogDiv.className = 'ba-recog';
+        recogDiv.style.cssText = 'font-size:0.75rem; color:#c00; cursor:pointer; padding:2px 0; border-top:1px dashed #ddd; margin-top:2px;';
+        recogDiv.title = 'Click to use this value';
+        recogDiv.innerHTML = '<i class="fas fa-robot" style="font-size:0.6rem"></i> ' +
+          '<span style="text-decoration:underline dotted">' + fixedText.replace(/</g,'&lt;') + '</span>' +
+          (fixedText !== text ? ' <span style="font-size:0.6rem;color:#999">(was: ' + text.replace(/</g,'&lt;') + ')</span>' : '');
+        recogDiv.addEventListener('click', function() {
+          if (inp) {
+            inp.value = fixedText;
+            entry.fields[label] = fixedText;
+            if (annotations[annIdx]) annotations[annIdx].value = fixedText;
+            redraw();
+            this.style.color = '#198754';
+            this.innerHTML = '<i class="fas fa-check"></i> Accepted';
+          }
+        });
+        coordsEl.parentNode.appendChild(recogDiv);
+      }
+      redraw();
+    })
+    .catch(() => {
+      if (coordsEl) {
+        const prev = coordsEl.parentNode.querySelector('.ba-recog');
+        if (prev) prev.remove();
+      }
+    });
+  }
+
   window.baAutoPlace = function() {
     autoPlaceFields();
     redraw();
@@ -1410,6 +1488,8 @@
         savedPositions[a.label] = { x: a.x / imgNatW, y: a.y / imgNatH, w: a.w / imgNatW, h: a.h / imgNatH };
         const c = document.getElementById('ba-coords-' + resizeIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
+        persistPositions();
+        recogniseSingleField(resizeIdx);
       }
       fieldIdx = resizeIdx;
       highlightField();
@@ -1426,6 +1506,8 @@
         savedPositions[a.label] = { x: a.x / imgNatW, y: a.y / imgNatH, w: a.w / imgNatW, h: a.h / imgNatH };
         const c = document.getElementById('ba-coords-' + dragIdx);
         if (c) c.textContent = Math.round(a.x) + ',' + Math.round(a.y) + ' ' + Math.round(a.w) + '×' + Math.round(a.h);
+        persistPositions();
+        recogniseSingleField(dragIdx);
       }
       // Focus the field input in the sidebar
       fieldIdx = dragIdx;
@@ -1454,6 +1536,8 @@
 
     annotations[fieldIdx] = { label: col, value: val, x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
     savedPositions[col] = { x: x / imgNatW, y: y / imgNatH, w: w / imgNatW, h: h / imgNatH };
+    persistPositions();
+    recogniseSingleField(fieldIdx);
 
     const coordsEl = document.getElementById('ba-coords-' + fieldIdx);
     if (coordsEl) coordsEl.textContent = Math.round(x) + ',' + Math.round(y) + ' ' + Math.round(w) + '×' + Math.round(h);
@@ -1467,11 +1551,26 @@
 
   function persistPositions() {
     if (!currentFormType) return;
+    // Also save to localStorage as fallback in case session expires
+    try { localStorage.setItem('fs-overlay-pos-' + currentFormType, JSON.stringify(savedPositions)); } catch(e) {}
     fetch('{{ route("admin.ai.htr.fsOverlaySavePositions") }}', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'},
       body: JSON.stringify({ form_type: currentFormType, positions: savedPositions }),
-    }).catch(() => {});
+    })
+    .then(r => {
+      if (!r.ok) {
+        // Session expired (419) or other error — refresh CSRF token
+        if (r.status === 419) {
+          console.warn('[FS Overlay] CSRF expired — positions saved to localStorage, refresh page to re-sync');
+          const bar = document.getElementById('ba-image-name');
+          if (bar) bar.textContent = bar.textContent.replace(/ — CSRF expired.*/, '') + ' — CSRF expired, refresh page to save to server';
+        }
+        return;
+      }
+      return r.json();
+    })
+    .catch(() => {});
   }
 
   function loadSavedPositions(cb) {
@@ -1482,10 +1581,26 @@
     .then(r => r.json())
     .then(data => {
       savedPositions = data.positions || {};
-      console.log('[FS Overlay] Loaded server positions for:', currentFormType, 'fields:', Object.keys(savedPositions));
+      // Fallback: merge localStorage positions if server is empty
+      if (!Object.keys(savedPositions).length) {
+        try {
+          const ls = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
+          if (Object.keys(ls).length) {
+            savedPositions = ls;
+            console.log('[FS Overlay] Loaded positions from localStorage fallback');
+          }
+        } catch(e) {}
+      }
+      console.log('[FS Overlay] Loaded positions for:', currentFormType, 'fields:', Object.keys(savedPositions));
       if (cb) cb();
     })
-    .catch(() => { savedPositions = {}; if (cb) cb(); });
+    .catch(() => {
+      // Server unreachable — try localStorage
+      try {
+        savedPositions = JSON.parse(localStorage.getItem('fs-overlay-pos-' + currentFormType) || '{}');
+      } catch(e) { savedPositions = {}; }
+      if (cb) cb();
+    });
   }
 
   function redraw() {

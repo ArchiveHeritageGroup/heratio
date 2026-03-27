@@ -26,9 +26,29 @@
   </ul>
 
   @if($holdingsPager->lastPage() > 1)
-    <div class="card-body p-2 text-center small">
-      {{ $holdingsPager->currentPage() }}/{{ $holdingsPager->lastPage() }}
-    </div>
+    <nav class="card-body border-bottom p-2 small" aria-label="Pagination">
+      <p class="text-center mb-1">
+        Results <span class="result-start">{{ ($holdingsPager->currentPage() - 1) * $holdingsPager->perPage() + 1 }}</span>
+        to <span class="result-end">{{ min($holdingsPager->currentPage() * $holdingsPager->perPage(), $holdingsPager->total()) }}</span>
+        of {{ $holdingsPager->total() }}
+      </p>
+      <ul class="pagination pagination-sm justify-content-center mb-2">
+        <li class="page-item {{ $holdingsPager->currentPage() <= 1 ? 'disabled' : '' }}">
+          <a class="page-link page-link-prev" href="{{ $holdingsPager->currentPage() > 1 ? request()->fullUrlWithQuery(['holdings_page' => $holdingsPager->currentPage() - 1]) : '#' }}" aria-label="Previous">
+            <i aria-hidden="true" class="fas fa-arrow-left"></i>
+          </a>
+        </li>
+        <li class="page-item my-0 mx-0 text-center">
+          <span class="px-2">{{ $holdingsPager->currentPage() }}</span>
+          <span>of {{ $holdingsPager->lastPage() }}</span>
+        </li>
+        <li class="page-item {{ $holdingsPager->currentPage() >= $holdingsPager->lastPage() ? 'disabled' : '' }}">
+          <a class="page-link page-link-next" href="{{ $holdingsPager->currentPage() < $holdingsPager->lastPage() ? request()->fullUrlWithQuery(['holdings_page' => $holdingsPager->currentPage() + 1]) : '#' }}" aria-label="Next">
+            <i aria-hidden="true" class="fas fa-arrow-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
   @endif
 
   <div class="card-body p-0">

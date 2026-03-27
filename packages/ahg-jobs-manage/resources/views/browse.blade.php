@@ -1,10 +1,10 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Jobs')
+@section('title', 'Manage jobs')
 @section('body-class', 'browse jobs')
 
 @section('title-block')
-  <h1>Jobs</h1>
+  <h1>Manage jobs</h1>
 @endsection
 
 @section('before-content')
@@ -51,6 +51,14 @@
     </div>
   </div>
 
+  {{-- Admin tip --}}
+  @if(auth()->check() && $pager->getNbResults() > 0)
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      <i class="fas fa-info-circle me-1"></i> You may only clear jobs belonging to you.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  @endif
+
   {{-- Filter pills + action buttons --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <ul class="nav nav-pills">
@@ -80,6 +88,9 @@
       <a href="{{ route('job.browse', array_merge(request()->query(), [])) }}" class="btn btn-outline-secondary btn-sm" title="Refresh">
         <i class="fas fa-sync-alt"></i> Refresh
       </a>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="Toggle auto refresh">
+        <i class="fas fa-sync"></i> Auto refresh: <span id="auto-refresh-label">off</span>
+      </button>
       @if(Route::has('job.export-csv'))
         <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="Export CSV">
           <i class="fas fa-download"></i> Export CSV
@@ -165,24 +176,45 @@
     Showing {{ $pager->getNbResults() ? count($pager->getResults()) : 0 }} of {{ $pager->getNbResults() }} job(s)
   </div>
 
-  {{-- Auto-refresh for active jobs --}}
-  @if($currentStatus === 'running' && ($stats['running'] ?? 0) > 0)
-    <script>
-      (function() {
-        var refreshInterval = 15000;
-        var timerId = setInterval(function() {
+  {{-- Auto-refresh toggle --}}
+  <script>
+    (function() {
+      var refreshInterval = 15000;
+      var timerId = null;
+      var toggleBtn = document.getElementById('auto-refresh-toggle');
+      var label = document.getElementById('auto-refresh-label');
+      var autoRefreshOn = false;
+
+      function startAutoRefresh() {
+        if (timerId) clearInterval(timerId);
+        timerId = setInterval(function() {
           window.location.reload();
         }, refreshInterval);
-        document.addEventListener('visibilitychange', function() {
-          if (document.hidden) {
-            clearInterval(timerId);
-          } else {
-            timerId = setInterval(function() {
-              window.location.reload();
-            }, refreshInterval);
-          }
-        });
-      })();
-    </script>
-  @endif
+        autoRefreshOn = true;
+        label.textContent = 'on';
+        toggleBtn.classList.remove('btn-outline-secondary');
+        toggleBtn.classList.add('btn-secondary');
+      }
+
+      function stopAutoRefresh() {
+        if (timerId) { clearInterval(timerId); timerId = null; }
+        autoRefreshOn = false;
+        label.textContent = 'off';
+        toggleBtn.classList.remove('btn-secondary');
+        toggleBtn.classList.add('btn-outline-secondary');
+      }
+
+      toggleBtn.addEventListener('click', function() {
+        if (autoRefreshOn) { stopAutoRefresh(); } else { startAutoRefresh(); }
+      });
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden && autoRefreshOn) {
+          clearInterval(timerId); timerId = null;
+        } else if (!document.hidden && autoRefreshOn) {
+          startAutoRefresh();
+        }
+      });
+    })();
+  </script>
 @endsection

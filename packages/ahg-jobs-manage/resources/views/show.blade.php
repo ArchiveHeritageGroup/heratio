@@ -17,6 +17,10 @@
       <table class="table table-bordered mb-0">
         <tbody>
           <tr>
+            <th style="width: 200px;">Id</th>
+            <td>{{ $job->id }}</td>
+          </tr>
+          <tr>
             <th style="width: 200px;">Job name</th>
             <td>{{ $job->name }}</td>
           </tr>
@@ -44,6 +48,18 @@
             <th>Completed</th>
             <td>{{ $job->completed_at ? \Carbon\Carbon::parse($job->completed_at)->format('Y-m-d H:i:s') : 'N/A' }}</td>
           </tr>
+          @if($job->object_id ?? null)
+            <tr>
+              <th>Associated record</th>
+              <td>
+                @if($job->object_slug ?? null)
+                  <a href="{{ url('/' . $job->object_slug) }}">{{ $job->object_slug }}</a>
+                @else
+                  #{{ (int) $job->object_id }}
+                @endif
+              </td>
+            </tr>
+          @endif
           @if($job->download_path)
             <tr>
               <th>Download</th>
@@ -66,6 +82,19 @@
       </div>
       <div class="card-body p-0">
         <pre class="mb-0 p-3" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->output }}</pre>
+      </div>
+    </div>
+  @endif
+
+  @if($job->status_id == 185 && ($job->error_output ?? null))
+    <div class="card mb-4">
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Error(s)</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="alert alert-danger mb-0 rounded-0 border-0">
+          <pre class="mb-0" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">{{ $job->error_output }}</pre>
+        </div>
       </div>
     </div>
   @endif

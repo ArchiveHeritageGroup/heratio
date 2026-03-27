@@ -363,7 +363,7 @@ class AccessionService
     /**
      * Get the accession this one is an accrual to.
      */
-    public function getAccrualTo(int $accessionId): ?object
+    public function getAccrualTo(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
             ->join('accession', 'relation.object_id', '=', 'accession.id')
@@ -380,7 +380,7 @@ class AccessionService
                 'accession_i18n.title',
                 'slug.slug',
             ])
-            ->first();
+            ->get();
     }
 
     /**

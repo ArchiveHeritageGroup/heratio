@@ -4,7 +4,7 @@
   @extends('theme::layouts.1col')
 @endif
 
-@section('title', 'Archival descriptions')
+@section('title', config('app.ui_label_informationobject', 'Archival description') . 's')
 @section('body-class', 'browse informationobject')
 
 @section('title-block')
@@ -18,7 +18,7 @@
           No results found
         @endif
       </h1>
-      <span class="small" id="heading-label">Archival description</span>
+      <span class="small" id="heading-label">{{ config('app.ui_label_informationobject', 'Archival description') }}</span>
     </div>
   </div>
 @endsection

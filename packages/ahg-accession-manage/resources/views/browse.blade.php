@@ -1,10 +1,10 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Browse accessions')
+@section('title', 'Browse ' . mb_strtolower(config('app.ui_label_accession', 'Accession')) . 's')
 @section('body-class', 'browse accession')
 
 @section('title-block')
-  <h1>Browse accessions</h1>
+  <h1>Browse {{ mb_strtolower(config('app.ui_label_accession', 'Accession')) }}s</h1>
 @endsection
 
 @section('before-content')

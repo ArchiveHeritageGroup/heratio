@@ -70,11 +70,13 @@ class StorageController extends Controller
 
         $typeName = $this->service->getTermName($storage->type_id);
         $descriptions = $this->service->getLinkedDescriptions($storage->id);
+        $accessions = $this->service->getLinkedAccessions($storage->id);
 
         return view('ahg-storage-manage::show', [
             'storage' => $storage,
             'typeName' => $typeName,
             'descriptions' => $descriptions,
+            'accessions' => $accessions,
             'extendedData' => $this->service->getExtendedData($storage->id),
         ]);
     }
@@ -212,5 +214,141 @@ class StorageController extends Controller
 
     public function autocomplete(Request $request) { $q = $request->input('query', ''); $results = DB::table('physical_object')->join('physical_object_i18n','physical_object.id','=','physical_object_i18n.id')->where('physical_object_i18n.name','LIKE','%'.$q.'%')->where('physical_object_i18n.culture','en')->limit(10)->select('physical_object.id','physical_object_i18n.name')->get(); return response()->json($results); }
 
-    public function boxList(Request $request) { return view('ahg-storage-manage::box-list', ['rows' => collect()]); }
+    public function boxList(Request $request)
+    {
+        $slug = $request->get('slug');
+        $storage = null;
+        $rows = collect();
+
+        if ($slug) {
+            $storage = $this->service->getBySlug($slug);
+            if ($storage) {
+                $culture = app()->getLocale();
+
+                // Get linked information objects with AtoM box-list columns
+                $items = DB::table('relation')
+                    ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+                    ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                        $j->on('information_object.id', '=', 'information_object_i18n.id')
+                            ->where('information_object_i18n.culture', '=', $culture);
+                    })
+                    ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                    ->where('relation.object_id', $storage->id)
+                    ->where('relation.type_id', 151)
+                    ->select([
+                        'information_object.id',
+                        'information_object.identifier',
+                        'information_object.parent_id',
+                        'information_object_i18n.title',
+                        'information_object_i18n.access_conditions',
+                        'slug.slug',
+                    ])
+                    ->get();
+
+                // Build reference codes and fetch dates/parent titles
+                foreach ($items as $item) {
+                    // Build reference code (repository identifier + IO identifiers up the hierarchy)
+                    $item->reference_code = $this->buildReferenceCode($item->id, $culture);
+
+                    // Get dates
+                    $item->dates = DB::table('event')
+                        ->leftJoin('event_i18n', function ($j) use ($culture) {
+                            $j->on('event.id', '=', 'event_i18n.id')
+                                ->where('event_i18n.culture', '=', $culture);
+                        })
+                        ->leftJoin('term_i18n', function ($j) use ($culture) {
+                            $j->on('event.type_id', '=', 'term_i18n.id')
+                                ->where('term_i18n.culture', '=', $culture);
+                        })
+                        ->where('event.information_object_id', $item->id)
+                        ->select([
+                            'event_i18n.date as date_display',
+                            'event.start_date',
+                            'event.end_date',
+                            'term_i18n.name as type_name',
+                        ])
+                        ->get();
+
+                    // Get collection root (part of)
+                    $item->part_of = $this->getCollectionRootTitle($item->id, $culture);
+                }
+
+                $rows = $items;
+            }
+        }
+
+        return view('ahg-storage-manage::box-list', [
+            'storage' => $storage,
+            'rows' => $rows,
+        ]);
+    }
+
+    private function buildReferenceCode(int $ioId, string $culture): string
+    {
+        $parts = [];
+        $currentId = $ioId;
+        $rootId = DB::table('information_object')->whereNull('parent_id')->value('id')
+            ?? DB::table('information_object')->where('parent_id', 0)->value('id');
+
+        while ($currentId && $currentId != $rootId) {
+            $row = DB::table('information_object')
+                ->where('id', $currentId)
+                ->select('identifier', 'parent_id', 'repository_id')
+                ->first();
+
+            if (!$row) {
+                break;
+            }
+
+            if ($row->identifier) {
+                array_unshift($parts, $row->identifier);
+            }
+
+            // If this is the top-level IO with a repository, prepend repository identifier
+            if ($row->repository_id) {
+                $repoIdentifier = DB::table('repository')
+                    ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                    ->where('repository.id', $row->repository_id)
+                    ->where('actor_i18n.culture', $culture)
+                    ->value('actor_i18n.authorized_form_of_name');
+                if ($repoIdentifier) {
+                    $repoId = DB::table('repository')->where('id', $row->repository_id)->value('identifier');
+                    if ($repoId) {
+                        array_unshift($parts, $repoId);
+                    }
+                }
+            }
+
+            $currentId = $row->parent_id;
+        }
+
+        return implode(' - ', $parts);
+    }
+
+    private function getCollectionRootTitle(int $ioId, string $culture): string
+    {
+        $currentId = $ioId;
+        $rootId = DB::table('information_object')->whereNull('parent_id')->value('id')
+            ?? DB::table('information_object')->where('parent_id', 0)->value('id');
+        $lastValidId = $ioId;
+
+        while ($currentId && $currentId != $rootId) {
+            $lastValidId = $currentId;
+            $parentId = DB::table('information_object')->where('id', $currentId)->value('parent_id');
+            if (!$parentId || $parentId == $rootId) {
+                break;
+            }
+            $currentId = $parentId;
+        }
+
+        // If the collection root is the same as the item, return empty
+        if ($lastValidId == $ioId) {
+            return '';
+        }
+
+        return DB::table('information_object_i18n')
+            ->where('id', $lastValidId)
+            ->where('culture', $culture)
+            ->value('title') ?? '';
+    }
 }

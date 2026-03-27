@@ -64,6 +64,26 @@ class StorageService
             ->get();
     }
 
+    public function getLinkedAccessions(int $physicalObjectId): \Illuminate\Support\Collection
+    {
+        return DB::table('relation')
+            ->join('accession', 'relation.subject_id', '=', 'accession.id')
+            ->leftJoin('accession_i18n', function ($j) {
+                $j->on('accession.id', '=', 'accession_i18n.id')
+                    ->where('accession_i18n.culture', '=', $this->culture);
+            })
+            ->join('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $physicalObjectId)
+            ->where('relation.type_id', 151)
+            ->select([
+                'relation.subject_id as id',
+                'accession_i18n.title',
+                'accession.identifier',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
     public function getFormChoices(): array
     {
         return DB::table('term')

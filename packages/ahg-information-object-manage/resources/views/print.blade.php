@@ -1,6 +1,6 @@
 @extends('theme::layouts.print')
 
-@section('title', ($io->title ?? 'Archival description'))
+@section('title', ($io->title ?? config('app.ui_label_informationobject', 'Archival description')))
 @section('record-title', $io->title ?? '[Untitled]')
 @section('record-type')
   @if($levelName) {{ $levelName }} @endif
@@ -442,7 +442,7 @@
 
   {{-- ===== 11. Physical storage ===== --}}
   @if(isset($physicalObjects) && (is_countable($physicalObjects) ? count($physicalObjects) > 0 : !empty($physicalObjects)))
-    <h2 class="section-heading">Physical storage</h2>
+    <h2 class="section-heading">{{ config('app.ui_label_physicalobject', 'Physical storage') }}</h2>
     @foreach($physicalObjects as $pobj)
       <div class="field-row">
         <div class="field-label">

@@ -31,6 +31,7 @@ class ActorBrowseService extends BrowseService
             'actor.description_identifier as identifier',
             'object.updated_at',
             'slug.slug',
+            DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = actor.id LIMIT 1) as thumbnail_path'),
         ];
     }
 

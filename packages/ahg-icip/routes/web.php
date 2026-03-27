@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/icip')->middleware(['web'])->group(function () {
+Route::prefix('admin/icip')->middleware(['web', 'auth'])->group(function () {
     Route::get('/communities', [\AhgIcip\Controllers\IcipController::class, 'communities'])->name('ahgicip.communities');
     Route::get('/community-edit', [\AhgIcip\Controllers\IcipController::class, 'communityEdit'])->name('ahgicip.community-edit');
     Route::get('/community-view', [\AhgIcip\Controllers\IcipController::class, 'communityView'])->name('ahgicip.community-view');

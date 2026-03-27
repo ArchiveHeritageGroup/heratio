@@ -28,9 +28,29 @@
   </ul>
 
   @if($actorPager->lastPage() > 1)
-    <div class="card-body p-2 text-center small">
-      {{ $actorPager->currentPage() }}/{{ $actorPager->lastPage() }}
-    </div>
+    <nav class="card-body border-bottom p-2 small" aria-label="Pagination">
+      <p class="text-center mb-1">
+        Results <span class="result-start">{{ ($actorPager->currentPage() - 1) * $actorPager->perPage() + 1 }}</span>
+        to <span class="result-end">{{ min($actorPager->currentPage() * $actorPager->perPage(), $actorPager->total()) }}</span>
+        of {{ $actorPager->total() }}
+      </p>
+      <ul class="pagination pagination-sm justify-content-center mb-2">
+        <li class="page-item {{ $actorPager->currentPage() <= 1 ? 'disabled' : '' }}">
+          <a class="page-link page-link-prev" href="{{ $actorPager->currentPage() > 1 ? request()->fullUrlWithQuery(['actors_page' => $actorPager->currentPage() - 1]) : '#' }}" aria-label="Previous">
+            <i aria-hidden="true" class="fas fa-arrow-left"></i>
+          </a>
+        </li>
+        <li class="page-item my-0 mx-0 text-center">
+          <span class="px-2">{{ $actorPager->currentPage() }}</span>
+          <span>of {{ $actorPager->lastPage() }}</span>
+        </li>
+        <li class="page-item {{ $actorPager->currentPage() >= $actorPager->lastPage() ? 'disabled' : '' }}">
+          <a class="page-link page-link-next" href="{{ $actorPager->currentPage() < $actorPager->lastPage() ? request()->fullUrlWithQuery(['actors_page' => $actorPager->currentPage() + 1]) : '#' }}" aria-label="Next">
+            <i aria-hidden="true" class="fas fa-arrow-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
   @endif
 
   <div class="card-body p-0">

@@ -5,15 +5,15 @@ if (!isset($resource) || !$resource->id) {
     return;
 }
 
-$canEdit = $sf_user->isAuthenticated() && \AtomExtensions\Services\AclService::check($resource, 'update');
+$canEdit = auth()->check() && \AtomExtensions\Services\AclService::check($resource, 'update');
 
 // Check if has extended rights
-$hasRights = \Illuminate\Database\Capsule\Manager::table('extended_rights')
+$hasRights = \Illuminate\Support\Facades\DB::table('extended_rights')
     ->where('object_id', $resource->id)
     ->exists();
 
 // Check if has active embargo and get its ID
-$activeEmbargo = \Illuminate\Database\Capsule\Manager::table('rights_embargo')
+$activeEmbargo = \Illuminate\Support\Facades\DB::table('rights_embargo')
     ->where('object_id', $resource->id)
     ->where('status', 'active')
     ->first();
@@ -25,14 +25,14 @@ $hasEmbargo = $activeEmbargo !== null; @endphp
   <h4>{{ __('Rights') }}</h4>
   <ul class="list-unstyled">
     <li>
-      <a href="@php echo url_for(['module' => 'extendedRights', 'action' => 'edit', 'slug' => $resource->slug]); @endphp">
+      <a href="{{ route('extendedRights.edit', ['slug' => $resource->slug]) }}">
         <i class="fas fa-copyright fa-fw me-1"></i>
-        @php echo $hasRights ? __('Edit extended rights') : __('Add extended rights'); @endphp
+        {{ $hasRights ? __('Edit extended rights') : __('Add extended rights') }}
       </a>
     </li>
     @if($hasRights)
     <li>
-      <a href="@php echo url_for(['module' => 'extendedRights', 'action' => 'clear', 'slug' => $resource->slug]); @endphp" class="text-danger">
+      <a href="{{ route('extendedRights.clear', ['slug' => $resource->slug]) }}" class="text-danger">
         <i class="fas fa-eraser fa-fw me-1"></i>
         {{ __('Clear extended rights') }}
       </a>
@@ -40,27 +40,27 @@ $hasEmbargo = $activeEmbargo !== null; @endphp
     @endif
     @if($hasEmbargo)
     <li>
-      <a href="@php echo url_for(['module' => 'embargo', 'action' => 'edit', 'id' => $activeEmbargo->id]); @endphp">
+      <a href="{{ route('embargo.edit', ['id' => $activeEmbargo->id]) }}">
         <i class="fas fa-edit fa-fw me-1"></i>
         {{ __('Edit embargo') }}
       </a>
     </li>
     <li>
-      <a href="@php echo url_for(['module' => 'embargo', 'action' => 'lift', 'id' => $activeEmbargo->id]); @endphp" class="text-success">
+      <a href="{{ route('embargo.lift', ['id' => $activeEmbargo->id]) }}" class="text-success">
         <i class="fas fa-unlock fa-fw me-1"></i>
         {{ __('Lift embargo') }}
       </a>
     </li>
     @else
     <li>
-      <a href="@php echo url_for(['module' => 'embargo', 'action' => 'add', 'objectId' => $resource->id]); @endphp">
+      <a href="{{ route('embargo.add', ['objectId' => $resource->id]) }}">
         <i class="fas fa-lock fa-fw me-1"></i>
         {{ __('Add embargo') }}
       </a>
     </li>
     @endif
     <li>
-      <a href="@php echo url_for(['module' => 'extendedRights', 'action' => 'export', 'id' => $resource->id]); @endphp">
+      <a href="{{ route('extendedRights.export', ['id' => $resource->id]) }}">
         <i class="fas fa-download fa-fw me-1"></i>
         {{ __('Export rights (JSON-LD)') }}
       </a>

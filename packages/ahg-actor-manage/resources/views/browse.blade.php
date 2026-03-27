@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'Authority records')
+@section('title', config('app.ui_label_actor', 'Authority record') . 's')
 @section('body-class', 'browse actor')
 
 @section('sidebar')
@@ -255,16 +255,29 @@
           No results found
         @endif
       </h1>
-      <span class="small" id="heading-label">Authority record</span>
+      <span class="small" id="heading-label">{{ config('app.ui_label_actor', 'Authority record') }}</span>
     </div>
   </div>
 @endsection
 
 @section('before-content')
+  {{-- Filter tags --}}
+  @if(isset($filterTags) && count($filterTags) > 0)
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      @foreach($filterTags as $tag)
+        <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
+          <span class="visually-hidden">Remove filter:</span>
+          <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
+          <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
+        </a>
+      @endforeach
+    </div>
+  @endif
+
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
-        'label' => 'Search authority record',
-        'landmarkLabel' => 'Authority record',
+        'label' => 'Search ' . mb_strtolower(config('app.ui_label_actor', 'Authority record')),
+        'landmarkLabel' => config('app.ui_label_actor', 'Authority record'),
     ])
   </div>
 
@@ -476,7 +489,14 @@
     <div id="content">
       @foreach($pager->getResults() as $doc)
         <article class="search-result row g-0 p-3 border-bottom">
-          <div class="col-12 d-flex flex-column gap-1">
+          @if(!empty($doc['thumbnail_path']))
+            <div class="col-12 col-lg-3 pb-2 pb-lg-0 pe-lg-3">
+              <a href="{{ route('actor.show', $doc['slug']) }}">
+                <img src="{{ url('/uploads/r/' . $doc['thumbnail_path']) }}" alt="{{ $doc['name'] ?: '[Untitled]' }}" class="img-thumbnail">
+              </a>
+            </div>
+          @endif
+          <div class="col-12{{ !empty($doc['thumbnail_path']) ? ' col-lg-9' : '' }} d-flex flex-column gap-1">
             <div class="d-flex align-items-center gap-2 mw-100">
               <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
                 {{ $doc['name'] ?: '[Untitled]' }}

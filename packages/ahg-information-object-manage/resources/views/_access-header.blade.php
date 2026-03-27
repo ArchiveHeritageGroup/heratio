@@ -1,11 +1,11 @@
 @php /**
  * Access Header - Shows classification and restriction badges
- * Include at top of ISAD detail view: include_partial('sfIsadPlugin/accessHeader', ['resource' => $resource])
+ * Include at top of ISAD detail view: @include('ahg-information-object-manage::_access-header', ['resource' => $resource])
  */
 
 if (!isset($resource) || !$resource->id) return;
 
-$userId = $sf_user->isAuthenticated() ? $sf_user->getAttribute('user_id') : null;
+$userId = auth()->check() ? auth()->id() : null;
 $service = \AtomExtensions\Services\Access\AccessFilterService::getInstance();
 $access = $service->checkAccess($resource->id, $userId);
 
@@ -16,37 +16,37 @@ if (empty($access['classification']) && empty($access['restrictions']) && empty(
 
 <div class="access-header mb-3 border-bottom pb-2">
     <div class="d-flex flex-wrap align-items-center gap-2">
-        
+
         @if(!empty($access['classification']))
             @php $classCode = $access['classification']['code'];
             $classColors = [
                 'PUBLIC' => 'success',
-                'INTERNAL' => 'info', 
+                'INTERNAL' => 'info',
                 'CONFIDENTIAL' => 'primary',
                 'SECRET' => 'warning',
                 'TOP_SECRET' => 'danger',
             ];
             $color = $classColors[$classCode] ?? 'secondary'; @endphp
-            <span class="badge bg-@php echo $color; @endphp fs-6">
+            <span class="badge bg-{{ $color }} fs-6">
                 <i class="fas fa-shield-alt me-1"></i>
-                @php echo esc_entities($access['classification']['name']); @endphp
+                {{ esc_entities($access['classification']['name']) }}
             </span>
         @endif
 
         @if(!empty($access['donor_restrictions']))
-            @php foreach ($access['donor_restrictions'] as $r): @endphp
-                <span class="badge bg-warning text-dark" 
-                      title="@php echo esc_entities($r['message'] ?? ''); @endphp">
+            @foreach($access['donor_restrictions'] as $r)
+                <span class="badge bg-warning text-dark"
+                      title="{{ esc_entities($r['message'] ?? '') }}">
                     <i class="fas fa-user-shield me-1"></i>
-                    @php echo esc_entities($r['donor'] ?? 'Donor Restriction'); @endphp
+                    {{ esc_entities($r['donor'] ?? 'Donor Restriction') }}
                 </span>
-            @php endforeach; @endphp
+            @endforeach
         @endif
 
         @if(!empty($access['embargo']))
             <span class="badge bg-secondary">
                 <i class="fas fa-clock me-1"></i>
-                Embargoed until @php echo date('M j, Y', strtotime($access['embargo']['end_date'])); @endphp
+                Embargoed until {{ date('M j, Y', strtotime($access['embargo']['end_date'])) }}
             </span>
         @endif
 

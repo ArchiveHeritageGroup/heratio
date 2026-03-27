@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/marketplace')->middleware(['web'])->group(function () {
+Route::prefix('admin/marketplace')->middleware(['web', 'auth'])->group(function () {
     Route::get('/admin-categories', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminCategories'])->name('ahgmarketplace.admin-categories');
     Route::get('/admin-currencies', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminCurrencies'])->name('ahgmarketplace.admin-currencies');
     Route::get('/admin-dashboard', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminDashboard'])->name('ahgmarketplace.admin-dashboard');

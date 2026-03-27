@@ -1,9 +1,9 @@
 @extends('theme::layouts.print')
 
-@section('title', $repository->authorized_form_of_name ?? 'Archival institution')
+@section('title', $repository->authorized_form_of_name ?? config('app.ui_label_repository', 'Archival institution'))
 @section('record-title', $repository->authorized_form_of_name ?? '[Untitled]')
 @section('record-type')
-  Archival institution
+  {{ config('app.ui_label_repository', 'Archival institution') }}
   @if($repository->identifier) &mdash; {{ $repository->identifier }} @endif
 @endsection
 

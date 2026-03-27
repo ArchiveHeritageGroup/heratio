@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'Archival institution browse')
+@section('title', config('app.ui_label_repository', 'Archival institution') . ' browse')
 @section('body-class', 'repositoryManage browse')
 
 @section('sidebar')
@@ -196,7 +196,7 @@
           No results found
         @endif
       </h1>
-      <span class="small" id="heading-label">Archival institution</span>
+      <span class="small" id="heading-label">{{ config('app.ui_label_repository', 'Archival institution') }}</span>
     </div>
   </div>
 @endsection
@@ -204,8 +204,8 @@
 @section('before-content')
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
-        'label' => 'Search archival institution',
-        'landmarkLabel' => 'Archival institution',
+        'label' => 'Search ' . mb_strtolower(config('app.ui_label_repository', 'Archival institution')),
+        'landmarkLabel' => config('app.ui_label_repository', 'Archival institution'),
     ])
   </div>
 

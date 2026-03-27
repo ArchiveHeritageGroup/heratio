@@ -207,6 +207,7 @@ class ActorService
                 'actor.id',
                 'actor.description_identifier as identifier',
                 'actor_i18n.authorized_form_of_name as name',
+                'actor_i18n.dates_of_existence',
                 'relation_i18n.description as relation_description',
                 'relation_i18n.date as relation_date',
                 'slug.slug'
@@ -236,6 +237,7 @@ class ActorService
                 'actor.id',
                 'actor.description_identifier as identifier',
                 'actor_i18n.authorized_form_of_name as name',
+                'actor_i18n.dates_of_existence',
                 'relation_i18n.description as relation_description',
                 'relation_i18n.date as relation_date',
                 'slug.slug'
@@ -353,9 +355,10 @@ class ActorService
                 $j->on('term.id', '=', 'term_i18n.id')
                     ->where('term_i18n.culture', '=', $this->culture);
             })
+            ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $actorId)
             ->where('term.taxonomy_id', 78) // Occupation taxonomy (same as genre for IOs)
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->get();
     }
 

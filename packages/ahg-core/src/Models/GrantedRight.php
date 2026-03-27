@@ -28,4 +28,16 @@ class GrantedRight extends Model
     {
         return $this->belongsTo(QubitTerm::class, 'act_id');
     }
+
+    /**
+     * Return a human-readable restriction label.
+     */
+    public static function getRestrictionString($restriction): string
+    {
+        return match ((int) $restriction) {
+            1 => 'Allow',
+            0 => 'Disallow',
+            default => 'Conditional',
+        };
+    }
 }

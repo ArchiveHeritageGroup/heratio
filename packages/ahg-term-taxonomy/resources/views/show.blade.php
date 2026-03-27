@@ -123,12 +123,12 @@
         <ul class="nav nav-pills mb-3 d-flex gap-2">
           <li class="nav-item">
             <a class="btn atom-btn-white active-primary text-wrap active" href="{{ route('term.show', $term->slug) }}">
-              Related Archival descriptions ({{ number_format($relatedDescriptionsCount) }})
+              Related {{ config('app.ui_label_informationobject', 'Archival description') }}s ({{ number_format($relatedDescriptionsCount) }})
             </a>
           </li>
           <li class="nav-item">
             <a class="btn atom-btn-white active-primary text-wrap" href="{{ route('term.show', ['slug' => $term->slug, 'view' => 'actors']) }}">
-              Related Authority records ({{ number_format($relatedActorCount) }})
+              Related {{ config('app.ui_label_actor', 'Authority record') }}s ({{ number_format($relatedActorCount) }})
             </a>
           </li>
         </ul>
@@ -230,7 +230,7 @@
       @endauth
 
       {{-- ===== Related archival descriptions ===== --}}
-      <h1>{{ number_format($totalRelated) }} Archival description results for {{ $term->name }}</h1>
+      <h1>{{ number_format($totalRelated) }} {{ config('app.ui_label_informationobject', 'Archival description') }} results for {{ $term->name }}</h1>
 
       {{-- #22 Only direct filter --}}
       @if($onlyDirect)
@@ -342,6 +342,42 @@
           @endforeach
         </ul>
       @endif
+
+      {{-- Facet panels: aggregation of related descriptions by taxonomy --}}
+      @php
+        $facetTaxonomies = [
+            ['id' => 12, 'label' => 'Languages'],
+            ['id' => 42, 'label' => 'Places'],
+            ['id' => 35, 'label' => 'Subjects'],
+            ['id' => 78, 'label' => 'Genres'],
+            ['id' => 54, 'label' => 'Occupations'],
+        ];
+      @endphp
+      @foreach($facetTaxonomies as $facet)
+        @php
+          $facetTerms = \Illuminate\Support\Facades\DB::select("
+            SELECT ti.name, s.slug, COUNT(*) AS cnt
+            FROM object_term_relation otr
+            JOIN term t ON t.id = otr.term_id
+            JOIN term_i18n ti ON ti.id = t.id AND ti.culture = 'en'
+            JOIN taxonomy tx ON tx.id = t.taxonomy_id AND tx.id = ?
+            JOIN slug s ON s.object_id = t.id
+            JOIN object_term_relation otr2 ON otr2.object_id = otr.object_id
+            WHERE otr2.term_id = ?
+            GROUP BY ti.name, s.slug
+            ORDER BY cnt DESC
+            LIMIT 10
+          ", [$facet['id'], $term->id]);
+        @endphp
+        @if(!empty($facetTerms))
+          <h4 class="h5 mb-2">{{ $facet['label'] }}</h4>
+          <ul class="list-unstyled">
+            @foreach($facetTerms as $ft)
+              <li><a href="{{ route('term.show', $ft->slug) }}">{{ $ft->name }}</a> <span class="text-muted">({{ $ft->cnt }})</span></li>
+            @endforeach
+          </ul>
+        @endif
+      @endforeach
     </div>
   </div>
 @endsection

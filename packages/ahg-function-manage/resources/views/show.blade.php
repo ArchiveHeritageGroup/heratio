@@ -17,14 +17,26 @@
 
 @section('content')
 
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
+
+  @php
+    $canUpdate = \AhgCore\Services\AclService::check($function, 'update');
+    $canDelete = \AhgCore\Services\AclService::check($function, 'delete');
+    $canCreate = \AhgCore\Services\AclService::check($function, 'create');
+  @endphp
+
   {{-- ===== Identity area (ISDF 5.1) ===== --}}
   <section class="section border-bottom" id="identityArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Identity area
-        @auth
-          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-        @endauth
+        @if($canUpdate)
+          <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @else
+          Identity area
+        @endif
       </div>
     </h2>
     <div id="identity-collapse">
@@ -83,10 +95,12 @@
   <section class="section border-bottom" id="contextArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Context area
-        @auth
-          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-        @endauth
+        @if($canUpdate)
+          <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="text-primary text-decoration-none">Context area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @else
+          Context area
+        @endif
       </div>
     </h2>
     <div id="context-collapse">
@@ -126,10 +140,12 @@
   <section class="section border-bottom" id="relationshipsArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Relationships area
-        @auth
-          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-        @endauth
+        @if($canUpdate)
+          <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @else
+          Relationships area
+        @endif
       </div>
     </h2>
     <div id="relationships-collapse">
@@ -258,10 +274,12 @@
   <section class="section border-bottom" id="controlArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Control area
-        @auth
-          <a href="{{ route('function.edit', $function->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-        @endauth
+        @if($canUpdate)
+          <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="text-primary text-decoration-none">Control area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+        @else
+          Control area
+        @endif
       </div>
     </h2>
     <div id="control-collapse">
@@ -354,12 +372,17 @@
 @endsection
 
 @section('after-content')
-  @auth
+  @if($canUpdate || $canDelete || $canCreate)
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('function.edit', $function->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-      <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-      <li><a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
-      <li><a href="{{ route('function.browse') }}" class="btn atom-btn-outline-light">Return to function list</a></li>
+      @if($canUpdate)
+        <li><a href="{{ route('function.edit', $function->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      @endif
+      @if($canDelete)
+        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      @endif
+      @if($canCreate)
+        <li><a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+      @endif
     </ul>
-  @endauth
+  @endif
 @endsection

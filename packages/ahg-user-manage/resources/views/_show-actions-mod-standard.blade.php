@@ -11,7 +11,12 @@
       <a href="{{ route($editRoute, ['slug' => $user->slug]) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a>
     </li>
 
-    @if(auth()->user()->id !== $user->id)
+    @php
+      $userNoteCount = \Illuminate\Support\Facades\DB::table('note')
+          ->where('user_id', $user->id)
+          ->count();
+    @endphp
+    @if(auth()->user()->id !== $user->id && $userNoteCount === 0)
       <li><a href="{{ route('user.confirmDelete', ['slug' => $user->slug]) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
     @endif
 

@@ -1,6 +1,6 @@
 @extends('theme::layouts.3col')
 
-@section('title', $actor->authorized_form_of_name ?? 'Authority record')
+@section('title', $actor->authorized_form_of_name ?? config('app.ui_label_actor', 'Authority record'))
 @section('body-class', 'view actor')
 
 @section('sidebar')
@@ -12,7 +12,7 @@
       <ul class="list-group list-group-flush">
         @foreach($relatedActors as $related)
           <li class="list-group-item">
-            <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>
+            <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>@if(!empty($related->dates_of_existence)) <span class="text-muted">({{ $related->dates_of_existence }})</span>@endif
             @if(!empty($related->identifier))
               <br><small class="text-muted">Identifier: {{ $related->identifier }}</small>
             @endif
@@ -148,14 +148,18 @@
   {{-- Breadcrumb (matching AtoM) --}}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('actor.browse') }}">Authority record</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('actor.browse') }}">{{ config('app.ui_label_actor', 'Authority record') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $actor->authorized_form_of_name }}</li>
     </ol>
   </nav>
 
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
+
   {{-- Identity area --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identity area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>@else Identity area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type of entity</h3><div class="col-9 p-2">{{ $entityTypeName ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3><div class="col-9 p-2">{{ $actor->authorized_form_of_name ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Parallel form(s) of name</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach(($otherNames ?? collect())->where('type_id', 148) as $n)<li>{{ $n->name }}</li>@endforeach</ul></div></div>
@@ -166,7 +170,7 @@
 
   {{-- Description area --}}
   <section id="descriptionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Description area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a>@else Description area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of existence</h3><div class="col-9 p-2">{{ $actor->dates_of_existence ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">History</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Places</h3><div class="col-9 p-2">{{ $actor->places ?? '' }}</div></div>
@@ -179,12 +183,12 @@
 
   {{-- Relationships area --}}
   <section id="relationshipsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Relationships area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a>@else Relationships area @endauth</div></h2>
     @foreach($relatedActors ?? [] as $related)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related entity</h3>
         <div class="col-9 p-2">
-          <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>
+          <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>@if(!empty($related->dates_of_existence)) <span class="note2">({{ $related->dates_of_existence }})</span>@endif
 
           {{-- Identifier of related entity --}}
           @if(!empty($related->identifier))
@@ -253,7 +257,7 @@
 
   {{-- Contact information --}}
   <section id="contactArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact information</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact information</a>@else Contact information @endauth</div></h2>
     @foreach($contacts ?? [] as $contact)
       @if(!$loop->first)
         <hr class="my-3">
@@ -277,7 +281,7 @@
 
   {{-- Access points area --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access points area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#access-collapse" class="text-primary text-decoration-none">Access points area</a>@else Access points area @endauth</div></h2>
     <div class="field row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Subject access points</h3>
       <div class="col-9 p-2">
@@ -298,7 +302,13 @@
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Occupations</h3>
       <div class="col-9 p-2">
         @foreach($occupations ?? [] as $occ)
-          <span class="badge bg-light text-dark me-1">{{ $occ->name }}</span>
+          <div>
+            @if($occ->slug)
+              <a href="{{ route('term.show', $occ->slug) }}">{{ $occ->name }}</a>
+            @else
+              {{ $occ->name }}
+            @endif
+          </div>
         @endforeach
       </div>
     </div>
@@ -397,7 +407,7 @@
 
   {{-- Control area --}}
   <section id="controlArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Control area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#control-collapse" class="text-primary text-decoration-none">Control area</a>@else Control area @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authority record identifier</h3><div class="col-9 p-2">{{ $actor->description_identifier ?? '' }}</div></div>
     @if($maintainingRepository ?? null)
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintained by</h3><div class="col-9 p-2"><a href="{{ route('repository.show', $maintainingRepository->slug) }}">{{ $maintainingRepository->name ?: '[Untitled]' }}</a></div></div>

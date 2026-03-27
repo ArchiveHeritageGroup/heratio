@@ -1,8 +1,14 @@
 <div class="dropdown d-grid">
   <button class="btn atom-btn-white dropdown-toggle text-wrap" type="button" id="browse-menu-institution-button" data-bs-toggle="dropdown" aria-expanded="false">
-    @php echo $browseMenuInstitution->getLabel(['cultureFallback' => true]); @endphp
+    {{ $browseMenuInstitution->getLabel(['cultureFallback' => true]) }}
   </button>
   <ul class="dropdown-menu mt-2" aria-labelledby="browse-menu-institution-button">
-    @php echo QubitMenu::displayHierarchyAsList($browseMenuInstitution, 0, ['anchorClasses' => 'dropdown-item']); @endphp
+    @foreach($browseMenuInstitution->getChildren() as $child)
+      <li>
+        <a class="dropdown-item" href="{{ $child->getPath(['getUrl' => true, 'resolveAlias' => true]) }}">
+          {{ $child->getLabel(['cultureFallback' => true]) }}
+        </a>
+      </li>
+    @endforeach
   </ul>
 </div>

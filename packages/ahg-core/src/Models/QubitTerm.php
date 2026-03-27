@@ -44,4 +44,9 @@ class QubitTerm extends Model
     }
 
     const ROOT_ID = 110;
+
+    // Rights basis IDs
+    const RIGHT_BASIS_COPYRIGHT_ID = 170;
+    const RIGHT_BASIS_LICENSE_ID = 171;
+    const RIGHT_BASIS_STATUTE_ID = 172;
 }

@@ -20,18 +20,17 @@
       </div>
     @endif
   @endauth
+
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
 @endsection
 
 @section('content')
 
   {{-- ===== Identity area ===== --}}
   <section class="section border-bottom" id="identityArea">
-    <h2 class="h6 mb-0 py-2 px-3 rounded-top" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#identity-collapse">Identity area</a>
-      @auth
-        <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
-    </h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>@else Identity area @endauth</div></h2>
     <div id="identity-collapse">
 
       @if($rightsHolder->authorized_form_of_name)
@@ -46,12 +45,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-      <a class="text-decoration-none text-white" href="#contact-collapse">Contact area</a>
-      @auth
-        <a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-      @endauth
-    </h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact area</a>@else Contact area @endauth</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -166,9 +160,7 @@
   {{-- ===== Rights area (PREMIS rights linked to this rights holder) ===== --}}
   @if(isset($rights) && $rights->isNotEmpty())
     <section class="section border-bottom" id="rightsArea">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        Rights area
-      </h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Rights area</div></h2>
       <div>
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm mb-0">
@@ -213,9 +205,7 @@
   {{-- ===== Extended rights area ===== --}}
   @if(isset($extendedRights) && $extendedRights->isNotEmpty())
     <section class="section border-bottom" id="extendedRightsArea">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        Extended rights
-      </h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Extended rights</div></h2>
       <div>
         @foreach($extendedRights as $er)
           <div class="border-bottom p-3">

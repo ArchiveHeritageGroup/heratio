@@ -20,6 +20,10 @@
 
 @section('content')
 
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
+
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
     <h2 class="h5 mb-0 atom-section-header">
@@ -32,12 +36,10 @@
     </h2>
     <div id="basic-collapse">
 
-      @if($accession->identifier)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accession number</h3>
-          <div class="col-9 p-2">{{ $accession->identifier }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accession number</h3>
+        <div class="col-9 p-2">{{ $accession->identifier }}</div>
+      </div>
 
       {{-- Alternative identifiers --}}
       @if(isset($alternativeIdentifiers) && $alternativeIdentifiers->isNotEmpty())
@@ -53,26 +55,20 @@
         </div>
       @endif
 
-      @if($accession->date)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition date</h3>
-          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->date)->format('Y-m-d') }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition date</h3>
+        <div class="col-9 p-2">{{ $accession->date ? \Carbon\Carbon::parse($accession->date)->format('Y-m-d') : '' }}</div>
+      </div>
 
-      @if($accession->source_of_acquisition)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->source_of_acquisition)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Immediate source of acquisition</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->source_of_acquisition ?? '')) !!}</div>
+      </div>
 
-      @if($accession->location_information)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location information</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->location_information)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location information</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->location_information ?? '')) !!}</div>
+      </div>
 
     </div>
   </section>
@@ -188,57 +184,51 @@
     </h2>
     <div id="admin-collapse">
 
-      @if($accession->acquisition_type_id && isset($termNames[$accession->acquisition_type_id]))
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition type</h3>
-          <div class="col-9 p-2">{{ $termNames[$accession->acquisition_type_id] }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Acquisition type</h3>
+        <div class="col-9 p-2">{{ ($accession->acquisition_type_id && isset($termNames[$accession->acquisition_type_id])) ? $termNames[$accession->acquisition_type_id] : '' }}</div>
+      </div>
 
-      @if($accession->resource_type_id && isset($termNames[$accession->resource_type_id]))
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Resource type</h3>
-          <div class="col-9 p-2">{{ $termNames[$accession->resource_type_id] }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Resource type</h3>
+        <div class="col-9 p-2">{{ ($accession->resource_type_id && isset($termNames[$accession->resource_type_id])) ? $termNames[$accession->resource_type_id] : '' }}</div>
+      </div>
 
-      @if($accession->title)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
-          <div class="col-9 p-2">{{ $accession->title }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Title</h3>
+        <div class="col-9 p-2">{{ $accession->title ?? '' }}</div>
+      </div>
 
-      @if(isset($creators) && count($creators) > 0)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creators</h3>
-          <div class="col-9 p-2">
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Creators</h3>
+        <div class="col-9 p-2">
+          @if(isset($creators) && count($creators) > 0)
             <ul class="m-0 ms-1 ps-3">
               @foreach($creators as $creator)
                 <li><a href="{{ route('actor.show', $creator->slug) }}">{{ $creator->name ?? '[Untitled]' }}</a></li>
               @endforeach
             </ul>
-          </div>
+          @endif
         </div>
-      @endif
+      </div>
 
-      @if(isset($dates) && count($dates) > 0)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
-          <div class="col-9 p-2">
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
+        <div class="col-9 p-2">
+          @if(isset($dates) && count($dates) > 0)
             <ul class="m-0 ms-1 ps-3">
               @foreach($dates as $dateItem)
                 <li>{{ $dateItem->date_display ?? '' }} ({{ $dateItem->type_name ?? '' }})</li>
               @endforeach
             </ul>
-          </div>
+          @endif
         </div>
-      @endif
+      </div>
 
-      @if(isset($accessionEvents) && count($accessionEvents) > 0)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Event(s)</h3>
-          <div class="col-9 p-2">
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Event(s)</h3>
+        <div class="col-9 p-2">
+          @if(isset($accessionEvents) && count($accessionEvents) > 0)
             <ul class="m-0 ms-1 ps-3">
               @foreach($accessionEvents as $event)
                 <li>
@@ -249,87 +239,75 @@
                 </li>
               @endforeach
             </ul>
-          </div>
+          @endif
         </div>
-      @endif
+      </div>
 
-      @if($accession->archival_history)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival/Custodial history</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->archival_history)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival/Custodial history</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->archival_history ?? '')) !!}</div>
+      </div>
 
-      @if($accession->scope_and_content)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->scope_and_content)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Scope and content</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->scope_and_content ?? '')) !!}</div>
+      </div>
 
-      @if($accession->appraisal)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->appraisal)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Appraisal, destruction and scheduling</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->appraisal ?? '')) !!}</div>
+      </div>
 
-      @if($accession->physical_characteristics)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical condition</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->physical_characteristics)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Physical condition</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->physical_characteristics ?? '')) !!}</div>
+      </div>
 
-      @if($accession->received_extent_units)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Received extent units</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->received_extent_units)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Received extent units</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->received_extent_units ?? '')) !!}</div>
+      </div>
 
-      @if($accession->processing_status_id && isset($termNames[$accession->processing_status_id]))
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing status</h3>
-          <div class="col-9 p-2">{{ $termNames[$accession->processing_status_id] }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing status</h3>
+        <div class="col-9 p-2">{{ ($accession->processing_status_id && isset($termNames[$accession->processing_status_id])) ? $termNames[$accession->processing_status_id] : '' }}</div>
+      </div>
 
-      @if($accession->processing_priority_id && isset($termNames[$accession->processing_priority_id]))
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing priority</h3>
-          <div class="col-9 p-2">{{ $termNames[$accession->processing_priority_id] }}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing priority</h3>
+        <div class="col-9 p-2">{{ ($accession->processing_priority_id && isset($termNames[$accession->processing_priority_id])) ? $termNames[$accession->processing_priority_id] : '' }}</div>
+      </div>
 
-      @if($accession->processing_notes)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing notes</h3>
-          <div class="col-9 p-2">{!! nl2br(e($accession->processing_notes)) !!}</div>
-        </div>
-      @endif
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Processing notes</h3>
+        <div class="col-9 p-2">{!! nl2br(e($accession->processing_notes ?? '')) !!}</div>
+      </div>
 
-      @if(isset($accruals) && count($accruals) > 0)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accruals</h3>
-          <div class="col-9 p-2">
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accruals</h3>
+        <div class="col-9 p-2">
+          @if(isset($accruals) && count($accruals) > 0)
             <ul class="m-0 ms-1 ps-3">
               @foreach($accruals as $accrual)
                 <li><a href="{{ route('accession.show', $accrual->slug) }}">{{ $accrual->title ?: $accrual->identifier ?: '[Untitled]' }}</a></li>
               @endforeach
             </ul>
-          </div>
+          @endif
         </div>
-      @endif
+      </div>
 
-      @if(isset($accrualTo) && $accrualTo)
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accrual to</h3>
-          <div class="col-9 p-2">
-            <a href="{{ route('accession.show', $accrualTo->slug) }}">{{ $accrualTo->title ?: $accrualTo->identifier ?: '[Untitled]' }}</a>
-          </div>
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Accrual to</h3>
+        <div class="col-9 p-2">
+          @if(isset($accrualTo) && count($accrualTo) > 0)
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($accrualTo as $accrualItem)
+                <li><a href="{{ route('accession.show', $accrualItem->slug) }}">{{ $accrualItem->title ?: $accrualItem->identifier ?: '[Untitled]' }}</a></li>
+              @endforeach
+            </ul>
+          @endif
         </div>
-      @endif
+      </div>
 
     </div>
   </section>
@@ -361,7 +339,7 @@
   <section class="section border-bottom" id="informationObjectArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Archival description area
+        {{ config('app.ui_label_informationobject', 'Archival description') }} area
         @auth
           <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="Edit"><i class="fas fa-pencil-alt"></i></a>
         @endauth
@@ -371,7 +349,7 @@
       @if(isset($informationObjects) && count($informationObjects) > 0)
         @foreach($informationObjects as $io)
           <div class="field row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archival description</h3>
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ config('app.ui_label_informationobject', 'Archival description') }}</h3>
             <div class="col-9 p-2">
               <a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?: '[Untitled]' }}</a>
             </div>
@@ -413,7 +391,7 @@
 
       <li><a href="{{ url('/deaccession/add?accession=' . $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
 
-      @if(!isset($accrualTo) || !$accrualTo)
+      @if(!isset($accrualTo) || count($accrualTo) === 0)
         <li><a href="{{ route('accession.create', ['accession' => $accession->slug]) }}" class="btn atom-btn-outline-light">Add accrual</a></li>
       @endif
 
@@ -423,7 +401,7 @@
             More
           </button>
           <ul class="dropdown-menu mb-2">
-            <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create archival description</a></li>
+            <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>
             <li><a href="{{ url('/right/add?slug=' . $accession->slug) }}" class="dropdown-item">Create new rights</a></li>
             <li><a href="{{ url('/physicalobject/link?slug=' . $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
           </ul>

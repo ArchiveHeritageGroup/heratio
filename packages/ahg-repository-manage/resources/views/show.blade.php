@@ -1,6 +1,6 @@
 @extends('theme::layouts.3col')
 
-@section('title', $repository->authorized_form_of_name ?? 'Archival institution')
+@section('title', $repository->authorized_form_of_name ?? config('app.ui_label_repository', 'Archival institution'))
 @section('body-class', 'view repository')
 
 @section('sidebar')
@@ -71,14 +71,83 @@
   {{-- Breadcrumb (matching AtoM) --}}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('repository.browse') }}">Archival institution</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('repository.browse') }}">{{ config('app.ui_label_repository', 'Archival institution') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $repository->authorized_form_of_name }}</li>
     </ol>
   </nav>
 
+  {{-- Banner image (matching AtoM) --}}
+  @php
+    $bannerRelPath = '/uploads/r/' . ($repository->slug ?? '') . '/conf/banner.png';
+    $bannerAbsPath = '/usr/share/nginx/archive' . $bannerRelPath;
+    $hasBanner = $repository->slug && is_file($bannerAbsPath);
+  @endphp
+  @if($hasBanner)
+    <div class="row mb-3" id="repository-banner">
+      <div class="col-md-9">
+        <img src="{{ $bannerRelPath }}" alt="" class="img-fluid rounded">
+      </div>
+    </div>
+  @endif
+
+  {{-- HTML snippet (matching AtoM) --}}
+  @if(!empty($htmlSnippet))
+    <div class="row" id="repository-html-snippet">
+      <div class="col-md-9">
+        {!! $htmlSnippet !!}
+      </div>
+    </div>
+  @endif
+
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
+
+  {{-- Google Maps embed (matching AtoM) --}}
+  @php
+    $mapApiKey = \AhgCore\Services\SettingHelper::get('google_maps_api_key');
+    $primaryContactForMap = $contacts->first();
+    $mapLatitude = $primaryContactForMap->latitude ?? null;
+    $mapLongitude = $primaryContactForMap->longitude ?? null;
+  @endphp
+  @if($mapLatitude && $mapLongitude && $mapApiKey)
+    <div class="p-1 border-bottom">
+      <div id="front-map" class="simple-map" data-key="{{ $mapApiKey }}" data-latitude="{{ $mapLatitude }}" data-longitude="{{ $mapLongitude }}" style="height:300px;width:100%"></div>
+    </div>
+    @push('scripts')
+    <script>
+      (function() {
+        var mapEl = document.getElementById('front-map');
+        if (!mapEl) return;
+        var key = mapEl.dataset.key, lat = parseFloat(mapEl.dataset.latitude), lng = parseFloat(mapEl.dataset.longitude);
+        if (!key || isNaN(lat) || isNaN(lng)) return;
+        window.initRepositoryMap = function() {
+          var pos = {lat: lat, lng: lng};
+          var map = new google.maps.Map(mapEl, {zoom: 14, center: pos});
+          new google.maps.Marker({position: pos, map: map});
+        };
+        var s = document.createElement('script');
+        s.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&callback=initRepositoryMap';
+        s.async = true; s.defer = true;
+        document.head.appendChild(s);
+      })();
+    </script>
+    @endpush
+  @endif
+
+  @php
+    $editUrl = auth()->check() ? route('repository.edit', $repository->slug) : null;
+  @endphp
+
   {{-- Identity area (ISDIAH 5.1) --}}
   <section id="identifyArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identity area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#identity-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Identity area">Identity area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Identity area</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Identifier</h3><div class="col-9 p-2">{{ $repository->identifier ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3><div class="col-9 p-2">{{ $repository->authorized_form_of_name ?? '' }}</div></div>
@@ -127,7 +196,13 @@
 
   {{-- Contact area (ISDIAH 5.2) --}}
   <section id="contactArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#contact-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Contact area">Contact area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Contact area</div>
+      @endif
+    </h2>
 
     @foreach($contacts as $contact)
       <section class="contact-info">
@@ -228,7 +303,13 @@
 
   {{-- Description area (ISDIAH 5.3) --}}
   <section id="descriptionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Description area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#description-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Description area">Description area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Description area</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">History</h3><div class="col-9 p-2">{!! ($repository->history ?? '') ? nl2br(e($repository->history)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Geographical and cultural context</h3><div class="col-9 p-2">{!! ($repository->geocultural_context ?? '') ? nl2br(e($repository->geocultural_context)) : '' !!}</div></div>
@@ -242,7 +323,13 @@
 
   {{-- Access area (ISDIAH 5.4) --}}
   <section id="accessArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#access-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Access area">Access area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Access area</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Opening times</h3><div class="col-9 p-2">{!! ($repository->opening_times ?? '') ? nl2br(e($repository->opening_times)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Access conditions and requirements</h3><div class="col-9 p-2">{!! ($repository->access_conditions ?? '') ? nl2br(e($repository->access_conditions)) : '' !!}</div></div>
@@ -251,7 +338,13 @@
 
   {{-- Services area (ISDIAH 5.5) --}}
   <section id="servicesArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Services area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#services-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Services area">Services area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Services area</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Research services</h3><div class="col-9 p-2">{!! ($repository->research_services ?? '') ? nl2br(e($repository->research_services)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Reproduction services</h3><div class="col-9 p-2">{!! ($repository->reproduction_services ?? '') ? nl2br(e($repository->reproduction_services)) : '' !!}</div></div>
@@ -260,7 +353,13 @@
 
   {{-- Control area (ISDIAH 5.6) --}}
   <section id="controlArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Control area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#control-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Control area">Control area</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Control area</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description identifier</h3><div class="col-9 p-2">{{ $repository->desc_identifier ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Institution identifier</h3><div class="col-9 p-2">{{ $repository->desc_institution_identifier ?? '' }}</div></div>
@@ -276,7 +375,13 @@
 
   {{-- Access points --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Access points</div></h2>
+    <h2 class="h5 mb-0 atom-section-header">
+      @if($editUrl)
+        <a href="{{ $editUrl }}#points-collapse" class="d-flex p-3 border-bottom text-primary text-decoration-none" title="Edit Access points">Access points</a>
+      @else
+        <div class="d-flex p-3 border-bottom text-primary">Access points</div>
+      @endif
+    </h2>
 
     <div class="field text-break row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Access Points</h3>

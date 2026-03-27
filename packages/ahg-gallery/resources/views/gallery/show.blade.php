@@ -456,7 +456,7 @@
   {{-- Physical storage --}}
   @if($physicalObjects->isNotEmpty())
     <section class="border-bottom">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Physical storage</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ config('app.ui_label_physicalobject', 'Physical storage') }}</div></h2>
       @foreach($physicalObjects as $po)
         <div class="mb-1">
           @if($po->name)<strong>{{ $po->name }}</strong>@endif

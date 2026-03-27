@@ -10,7 +10,12 @@
      data-load-alert-message="There was an error loading the clipboard content."
      data-export-alert-message="The clipboard is empty for this entity type."
      data-export-check-url="{{ url('/clipboard/exportCheck') }}"
-     data-delete-alert-message="Note: clipboard items unclipped in this page will be removed from the clipboard when the page is refreshed. You can re-select them now, or reload the page to remove them completely. Using the sort or print preview buttons will also cause a page reload — so anything currently deselected will be lost!">
+     data-delete-alert-message="Note: clipboard items unclipped in this page will be removed from the clipboard when the page is refreshed. You can re-select them now, or reload the page to remove them completely. Using the sort or print preview buttons will also cause a page reload — so anything currently deselected will be lost!"
+     @if(auth()->check() && (auth()->user()->isEditor() || auth()->user()->isAdministrator()))
+       data-show-accessions="1"
+     @else
+       data-show-accessions="0"
+     @endif>
     <i class="fas fa-2x fa-fw fa-paperclip px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Clipboard" aria-hidden="true"></i>
     <span class="d-lg-none mx-1" aria-hidden="true">Clipboard</span>
     <span class="visually-hidden">Clipboard</span>
@@ -19,9 +24,12 @@
     <li><h6 class="dropdown-header">Clipboard</h6></li>
     <li class="text-muted text-nowrap px-3 pb-2">
       <span id="counts-block"
-            data-information-object-label="Archival description"
-            data-actor-object-label="Authority record"
-            data-repository-object-label="Archival institution">
+            data-information-object-label="{{ config('app.ui_label_informationobject', 'Archival description') }}"
+            data-actor-object-label="{{ config('app.ui_label_actor', 'Authority record') }}"
+            data-repository-object-label="{{ config('app.ui_label_repository', 'Archival institution') }}"
+            @if(auth()->check() && (auth()->user()->isEditor() || auth()->user()->isAdministrator()))
+              data-accession-object-label="{{ config('atom.app_ui_label_accessioncount', 'Accession') }}"
+            @endif>
       </span>
     </li>
     <li>

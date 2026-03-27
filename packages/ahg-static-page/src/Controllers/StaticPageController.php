@@ -22,16 +22,71 @@ class StaticPageController extends Controller
         return view('ahg-static-page::browse', compact('pages'));
     }
 
-    public function destroy(int $id)
+    public function list()
+    {
+        $culture = app()->getLocale();
+        $pages = DB::table('static_page')
+            ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
+            ->join('slug', 'static_page.id', '=', 'slug.object_id')
+            ->where('static_page_i18n.culture', $culture)
+            ->select('static_page.id', 'static_page_i18n.title', 'slug.slug')
+            ->orderBy('static_page_i18n.title')
+            ->get();
+
+        return view('ahg-static-page::list', compact('pages'));
+    }
+
+    public function confirmDelete(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $slugRow = DB::table('slug')->where('slug', $slug)->first();
+        if (!$slugRow) {
+            abort(404);
+        }
+
+        // Prevent deletion of protected pages
+        $protectedSlugs = ['home', 'about', 'contact'];
+        if (in_array($slug, $protectedSlugs)) {
+            return redirect()->route('staticpage.show', $slug)
+                ->with('error', __('Protected pages cannot be deleted.'));
+        }
+
+        $page = DB::table('static_page')
+            ->leftJoin('static_page_i18n', function ($join) use ($culture) {
+                $join->on('static_page.id', '=', 'static_page_i18n.id')
+                    ->where('static_page_i18n.culture', '=', $culture);
+            })
+            ->where('static_page.id', $slugRow->object_id)
+            ->select('static_page.id', 'static_page_i18n.title')
+            ->first();
+
+        if (!$page) {
+            abort(404);
+        }
+
+        return view('ahg-static-page::delete', [
+            'page' => $page,
+            'slug' => $slug,
+        ]);
+    }
+
+    public function destroy(string $slug)
     {
         // Prevent deletion of protected pages
         $protectedSlugs = ['home', 'about', 'contact'];
-        $slug = DB::table('slug')->where('object_id', $id)->value('slug');
 
-        if ($slug && in_array($slug, $protectedSlugs)) {
-            return redirect()->route('staticpage.browse')
-                ->with('error', 'Protected pages cannot be deleted.');
+        if (in_array($slug, $protectedSlugs)) {
+            return redirect()->route('staticpage.list')
+                ->with('error', __('Protected pages cannot be deleted.'));
         }
+
+        $slugRow = DB::table('slug')->where('slug', $slug)->first();
+        if (!$slugRow) {
+            abort(404);
+        }
+
+        $id = $slugRow->object_id;
 
         // Verify the static page exists
         $exists = DB::table('static_page')->where('id', $id)->exists();
@@ -46,8 +101,8 @@ class StaticPageController extends Controller
             DB::table('object')->where('id', $id)->delete();
         });
 
-        return redirect()->route('staticpage.browse')
-            ->with('success', 'Static page deleted successfully.');
+        return redirect()->route('staticpage.list')
+            ->with('success', __('Static page deleted successfully.'));
     }
 
     public function create()

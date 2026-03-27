@@ -141,13 +141,14 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Related function(s)</label>
               <table class="table table-bordered table-sm" id="related-functions-table">
-                <thead><tr><th>Name</th><th>Type</th><th>Description</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>Name</th><th>Identifier</th><th>Category</th><th>Description</th><th>Dates</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedFunctions) && count($relatedFunctions) > 0)
                     @foreach($relatedFunctions as $rf)
                       <tr>
                         <td><input type="text" name="related_functions[{{ $loop->index }}][name]" class="form-control form-control-sm" value="{{ $rf->name ?? '' }}"></td>
-                        <td><input type="text" name="related_functions[{{ $loop->index }}][type]" class="form-control form-control-sm" value="{{ $rf->type ?? '' }}"></td>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][identifier]" class="form-control form-control-sm" value="{{ $rf->identifier ?? '' }}"></td>
+                        <td><input type="text" name="related_functions[{{ $loop->index }}][category]" class="form-control form-control-sm" value="{{ $rf->category ?? '' }}"></td>
                         <td><input type="text" name="related_functions[{{ $loop->index }}][description]" class="form-control form-control-sm" value="{{ $rf->description ?? '' }}"></td>
                         <td><input type="text" name="related_functions[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rf->dates ?? '' }}"></td>
                         <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
@@ -156,19 +157,20 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-functions-table', ['name','type','description','dates'])">Add related function</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-functions-table', ['name','identifier','category','description','dates'])">Add related function</button>
             </div>
 
             {{-- Related authority records --}}
             <div class="mb-3">
               <label class="form-label fw-bold">Related authority record(s)</label>
               <table class="table table-bordered table-sm" id="related-actors-table">
-                <thead><tr><th>Name</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>Name</th><th>Identifier</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedActors) && count($relatedActors) > 0)
                     @foreach($relatedActors as $ra)
                       <tr>
                         <td><input type="text" name="related_actors[{{ $loop->index }}][name]" class="form-control form-control-sm" value="{{ $ra->name ?? '' }}"></td>
+                        <td><input type="text" name="related_actors[{{ $loop->index }}][identifier]" class="form-control form-control-sm" value="{{ $ra->identifier ?? '' }}"></td>
                         <td><input type="text" name="related_actors[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $ra->nature ?? '' }}"></td>
                         <td><input type="text" name="related_actors[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $ra->dates ?? '' }}"></td>
                         <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
@@ -177,19 +179,20 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-actors-table', ['name','nature','dates'])">Add related authority record</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-actors-table', ['name','identifier','nature','dates'])">Add related authority record</button>
             </div>
 
             {{-- Related resources --}}
             <div class="mb-3">
               <label class="form-label fw-bold">Related resource(s)</label>
               <table class="table table-bordered table-sm" id="related-resources-table">
-                <thead><tr><th>Title</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
+                <thead><tr><th>Title</th><th>Identifier</th><th>Nature of relationship</th><th>Dates</th><th style="width:50px"></th></tr></thead>
                 <tbody>
                   @if(isset($relatedResources) && count($relatedResources) > 0)
                     @foreach($relatedResources as $rr)
                       <tr>
                         <td><input type="text" name="related_resources[{{ $loop->index }}][title]" class="form-control form-control-sm" value="{{ $rr->title ?? '' }}"></td>
+                        <td><input type="text" name="related_resources[{{ $loop->index }}][identifier]" class="form-control form-control-sm" value="{{ $rr->identifier ?? '' }}"></td>
                         <td><input type="text" name="related_resources[{{ $loop->index }}][nature]" class="form-control form-control-sm" value="{{ $rr->nature ?? '' }}"></td>
                         <td><input type="text" name="related_resources[{{ $loop->index }}][dates]" class="form-control form-control-sm" value="{{ $rr->dates ?? '' }}"></td>
                         <td><button type="button" class="btn btn-sm atom-btn-outline-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
@@ -198,7 +201,7 @@
                   @endif
                 </tbody>
               </table>
-              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-resources-table', ['title','nature','dates'])">Add related resource</button>
+              <button type="button" class="btn btn-sm atom-btn-white" onclick="addRelRow('related-resources-table', ['title','identifier','nature','dates'])">Add related resource</button>
             </div>
 
           </div>
@@ -340,6 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('add-relfunc-row')?.addEventListener('click', function() {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><input type="text" name="relatedFunctions[' + relFuncIdx + '][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>' +
+      '<td><input type="text" name="relatedFunctions[' + relFuncIdx + '][identifier]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedFunctions[' + relFuncIdx + '][category]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedFunctions[' + relFuncIdx + '][description]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedFunctions[' + relFuncIdx + '][dates]" class="form-control form-control-sm"></td>' +
@@ -353,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('add-relactor-row')?.addEventListener('click', function() {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><input type="text" name="relatedActors[' + relActorIdx + '][name]" class="form-control form-control-sm" placeholder="Type to search..."></td>' +
+      '<td><input type="text" name="relatedActors[' + relActorIdx + '][identifier]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedActors[' + relActorIdx + '][nature]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedActors[' + relActorIdx + '][dates]" class="form-control form-control-sm"></td>' +
       '<td><button type="button" class="btn atom-btn-white remove-relactor-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
@@ -365,6 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('add-relresource-row')?.addEventListener('click', function() {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><input type="text" name="relatedResources[' + relResIdx + '][title]" class="form-control form-control-sm" placeholder="Type to search..."></td>' +
+      '<td><input type="text" name="relatedResources[' + relResIdx + '][identifier]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedResources[' + relResIdx + '][nature]" class="form-control form-control-sm"></td>' +
       '<td><input type="text" name="relatedResources[' + relResIdx + '][dates]" class="form-control form-control-sm"></td>' +
       '<td><button type="button" class="btn atom-btn-white remove-relresource-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';

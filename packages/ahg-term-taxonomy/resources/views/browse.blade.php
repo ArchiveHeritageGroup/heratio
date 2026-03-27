@@ -104,14 +104,22 @@
 @section('content')
 
     @if($pager->getNbResults())
+      @php
+        $hasAnyIoCount = collect($enrichedResults)->contains(fn($d) => ($d['ioCount'] ?? 0) > 0);
+        $hasAnyActorCount = collect($enrichedResults)->contains(fn($d) => ($d['actorCount'] ?? 0) > 0);
+      @endphp
       <div class="table-responsive mb-3">
         <table class="table table-bordered mb-0">
           <thead>
             <tr>
               <th>{{ $taxonomyName ?? 'Term' }} term</th>
               <th>Scope note</th>
-              <th>Archival description count</th>
-              <th>Authority record count</th>
+              @if($hasAnyIoCount)
+                <th>{{ config('app.ui_label_informationobject', 'Archival description') }} count</th>
+              @endif
+              @if($hasAnyActorCount)
+                <th>{{ config('app.ui_label_actor', 'Authority record') }} count</th>
+              @endif
             </tr>
           </thead>
           <tbody>
@@ -146,8 +154,12 @@
                     @endif
                   @endif
                 </td>
-                <td>{{ $doc['ioCount'] ?? 0 }}</td>
-                <td>{{ $doc['actorCount'] ?? 0 }}</td>
+                @if($hasAnyIoCount)
+                  <td>{{ $doc['ioCount'] ?? 0 }}</td>
+                @endif
+                @if($hasAnyActorCount)
+                  <td>{{ $doc['actorCount'] ?? 0 }}</td>
+                @endif
               </tr>
             @endforeach
           </tbody>

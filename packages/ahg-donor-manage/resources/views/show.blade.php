@@ -20,13 +20,17 @@
       </div>
     @endif
   @endauth
+
+  @if(!empty($translations))
+    @include('ahg-core::_translation-links')
+  @endif
 @endsection
 
 @section('content')
 
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Basic info</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Basic info</a>@else Basic info @endauth</div></h2>
     <div id="identity-collapse">
 
       @if($donor->authorized_form_of_name)
@@ -41,7 +45,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Contact area</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact area</a>@else Contact area @endauth</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -156,6 +160,7 @@
   {{-- ===== Accession area ===== --}}
   <section class="section" id="accessionArea">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Accession area</div></h2>
+    {{-- Accession area has no edit link in AtoM --}}
     <div>
 
       @if(isset($accessions) && $accessions->isNotEmpty())

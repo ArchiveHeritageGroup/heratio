@@ -27,7 +27,7 @@ if (!$resourceId) {
 }
 
 // Check if user can see detailed rights
-$canSeeDetails = $sf_user->isAuthenticated();
+$canSeeDetails = auth()->check();
 
 // Safe ACL check - only if resource is a proper Qubit object
 $canEdit = false;
@@ -41,11 +41,11 @@ if ($resource instanceof QubitInformationObject) {
 
 @if(function_exists('checkPluginEnabled') && checkPluginEnabled('ahgExtendedRightsPlugin'))
 <!-- Extended Rights Display -->
-@php include_component('extendedRights', 'rightsDisplay', ['objectId' => $resourceId]); @endphp
+@include('ahg-extended-rights::_rights-display', ['objectId' => $resourceId])
 <!-- Provenance Display (authenticated users only) -->
 @if($canSeeDetails)
-  @php include_component('extendedRights', 'provenanceDisplay', ['objectId' => $resourceId]); @endphp
+  @include('ahg-extended-rights::_provenance-display', ['objectId' => $resourceId])
 @endif
 <!-- Embargo Warning (public) -->
-@php include_component('extendedRights', 'embargoStatus', ['objectId' => $resourceId]); @endphp
+@include('ahg-extended-rights::_embargo-status', ['objectId' => $resourceId])
 @endif

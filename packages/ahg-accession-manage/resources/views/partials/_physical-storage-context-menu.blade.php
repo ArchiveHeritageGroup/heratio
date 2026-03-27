@@ -1,6 +1,6 @@
 @if(isset($physicalObjects) && count($physicalObjects) > 0)
 <section id="physical-objects">
-  <h4 class="h5 mb-2">{{ config('atom.app_ui_label_physicalobject', 'Physical storage') }}</h4>
+  <h4 class="h5 mb-2">{{ config('app.ui_label_physicalobject', 'Physical storage') }}</h4>
   <ul class="list-unstyled">
     @foreach($physicalObjects as $item)
       <li>

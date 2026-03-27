@@ -1,30 +1,42 @@
-@extends('theme::layouts.1col')
+@php
+  $hasMenu = view()->exists('ahg-menu-manage::_static-pages-menu');
+@endphp
 
-@section('title', $page->title ?: 'Page')
+@extends($hasMenu ? 'theme::layouts.2col' : 'theme::layouts.1col')
+
+@section('title', $page->title ?: __('Page'))
 @section('body-class', 'show static-page')
 
-@section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-file-alt me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">{{ $page->title ?: 'Untitled page' }}</h1>
-      <span class="small text-muted">Static page</span>
-    </div>
-  </div>
+@if($hasMenu)
+  @section('sidebar')
+    @include('ahg-menu-manage::_static-pages-menu')
+  @endsection
+@endif
 
-  <div class="static-page-content mb-4">
-    @if($page->content)
-      {!! $page->content !!}
-    @else
-      <p class="text-muted mb-0">No content available.</p>
-    @endif
+@section('content')
+
+  <h1>{{ $page->title ?: __('Untitled page') }}</h1>
+
+  <div class="page p-3">
+    <div>
+      @if($page->content)
+        {!! $page->content !!}
+      @endif
+    </div>
   </div>
 
   @auth
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
-        <li><a class="btn atom-btn-outline-light" href="{{ route('staticpage.edit', $page->slug) }}">Edit</a></li>
+        <li><a class="btn atom-btn-outline-light" href="{{ route('staticpage.edit', $page->slug) }}">{{ __('Edit') }}</a></li>
+        @php
+          $protectedSlugs = ['home', 'about', 'contact'];
+        @endphp
+        @if(!in_array($page->slug, $protectedSlugs))
+          <li><a class="btn atom-btn-outline-danger" href="{{ route('staticpage.delete', $page->slug) }}">{{ __('Delete') }}</a></li>
+        @endif
       </ul>
     </section>
   @endauth
+
 @endsection

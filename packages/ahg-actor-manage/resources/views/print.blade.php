@@ -1,6 +1,6 @@
 @extends('theme::layouts.print')
 
-@section('title', $actor->authorized_form_of_name ?? 'Authority record')
+@section('title', $actor->authorized_form_of_name ?? config('app.ui_label_actor', 'Authority record'))
 @section('record-title', $actor->authorized_form_of_name ?? '[Untitled]')
 @section('record-type')
   @if($entityTypeName) {{ $entityTypeName }} @endif

@@ -10,7 +10,7 @@
 @section('before-content')
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">Browse accessions</a>
+      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">Browse {{ mb_strtolower(config('app.ui_label_accession', 'Accession')) }}s</a>
       <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">Add new</a>
     </div>
   </div>

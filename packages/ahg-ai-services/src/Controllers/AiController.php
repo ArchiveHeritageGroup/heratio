@@ -727,7 +727,17 @@ PY;
             $all = json_decode(file_get_contents($file), true) ?: [];
         }
 
-        $all[$formType] = !empty($positions) ? (object)$positions : new \stdClass();
+        $all[$formType] = !empty($positions) ? $positions : new \stdClass();
+
+        // Also save positions under all related SA death form types so auto-detect
+        // inconsistency between images doesn't lose positions
+        $saDeathTypes = ['sa-death-1923', 'sa-death-1894', 'sa-death-generic'];
+        if (in_array($formType, $saDeathTypes) && !empty($positions)) {
+            foreach ($saDeathTypes as $dt) {
+                $all[$dt] = $positions;
+            }
+        }
+
         file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT));
 
         return response()->json(['success' => true]);
@@ -747,6 +757,19 @@ PY;
         }
 
         $positions = $all[$formType] ?? [];
+
+        // Fallback: if no positions for this form type, try other SA death types
+        if (empty($positions)) {
+            $saDeathTypes = ['sa-death-1923', 'sa-death-1894', 'sa-death-generic'];
+            if (in_array($formType, $saDeathTypes)) {
+                foreach ($saDeathTypes as $dt) {
+                    if (!empty($all[$dt])) {
+                        $positions = $all[$dt];
+                        break;
+                    }
+                }
+            }
+        }
 
         return response()->json(['success' => true, 'positions' => $positions]);
     }

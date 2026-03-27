@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/vendor')->middleware(['web'])->group(function () {
+Route::prefix('admin/vendor')->middleware(['web', 'auth'])->group(function () {
     Route::get('/add', [\AhgVendor\Controllers\VendorController::class, 'add'])->name('ahgvendor.add');
     Route::get('/add-transaction', [\AhgVendor\Controllers\VendorController::class, 'addTransaction'])->name('ahgvendor.add-transaction');
     Route::get('/edit', [\AhgVendor\Controllers\VendorController::class, 'edit'])->name('ahgvendor.edit');

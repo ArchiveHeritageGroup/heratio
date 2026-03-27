@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/naz')->middleware(['web'])->group(function () {
+Route::prefix('admin/naz')->middleware(['web', 'auth'])->group(function () {
     Route::get('/closure-create', [\AhgNaz\Controllers\NazController::class, 'closureCreate'])->name('ahgnaz.closure-create');
     Route::get('/closure-edit', [\AhgNaz\Controllers\NazController::class, 'closureEdit'])->name('ahgnaz.closure-edit');
     Route::get('/closures', [\AhgNaz\Controllers\NazController::class, 'closures'])->name('ahgnaz.closures');

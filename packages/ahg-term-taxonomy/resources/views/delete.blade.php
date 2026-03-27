@@ -22,7 +22,54 @@
         @endif
 
         @if(isset($eventCount) && $eventCount > 0)
-          <p>It is associated with {{ $eventCount }} event(s).</p>
+          <p>It is associated with {{ $eventCount }} event(s):</p>
+          @php
+            $eventDetails = \Illuminate\Support\Facades\DB::table('event')
+                ->leftJoin('event_i18n', function ($j) {
+                    $j->on('event_i18n.id', '=', 'event.id')->where('event_i18n.culture', '=', 'en');
+                })
+                ->leftJoin('information_object', 'information_object.id', '=', 'event.information_object_id')
+                ->leftJoin('information_object_i18n', function ($j) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', '=', 'en');
+                })
+                ->leftJoin('slug', function ($j) {
+                    $j->on('slug.object_id', '=', 'information_object.id');
+                })
+                ->where('event.type_id', $term->id)
+                ->select(
+                    'event.id as event_id',
+                    'event_i18n.date as date_display',
+                    'event.start_date',
+                    'event.end_date',
+                    'information_object_i18n.title as io_title',
+                    'slug.slug as io_slug'
+                )
+                ->limit(10)
+                ->get();
+          @endphp
+          @if($eventDetails->isNotEmpty())
+            <ul class="mb-0">
+              @foreach($eventDetails as $evt)
+                <li>
+                  @if($evt->io_slug)
+                    <a href="{{ url('/' . $evt->io_slug) }}">{{ $evt->io_title ?: '[Untitled]' }}</a>
+                  @elseif($evt->io_title)
+                    {{ $evt->io_title }}
+                  @else
+                    Event #{{ $evt->event_id }}
+                  @endif
+                  @if($evt->date_display)
+                    &mdash; {{ $evt->date_display }}
+                  @elseif($evt->start_date || $evt->end_date)
+                    &mdash; {{ $evt->start_date ?? '' }}{{ ($evt->start_date && $evt->end_date) ? ' - ' : '' }}{{ $evt->end_date ?? '' }}
+                  @endif
+                </li>
+              @endforeach
+            </ul>
+            @if($eventCount > 10)
+              <p class="text-muted small mt-1">... and {{ $eventCount - 10 }} more event(s).</p>
+            @endif
+          @endif
         @endif
 
         @if(isset($descendantCount) && $descendantCount > 0)

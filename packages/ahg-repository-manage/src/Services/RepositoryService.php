@@ -993,4 +993,19 @@ class RepositoryService
             ]);
         }
     }
+
+    /**
+     * Get a scoped repository setting value from setting + setting_i18n tables.
+     */
+    public function getRepositorySetting(int $repositoryId, string $name): ?string
+    {
+        return DB::table('setting')
+            ->join('setting_i18n', function ($j) {
+                $j->on('setting.id', '=', 'setting_i18n.id')
+                  ->where('setting_i18n.culture', '=', $this->culture);
+            })
+            ->where('setting.name', $name)
+            ->where('setting.scope', 'repository_' . $repositoryId)
+            ->value('setting_i18n.value');
+    }
 }

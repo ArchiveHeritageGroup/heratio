@@ -52,9 +52,9 @@ class AccessRequestController extends Controller
     /**
      * View a single request.
      */
-    public function view(int $id)
+    public function view(string $id)
     {
-        $accessRequest = $this->service->getRequest($id);
+        $accessRequest = $this->service->getRequest((int) $id);
         abort_unless($accessRequest, 404);
 
         return view('ahg-access-request::view', compact('accessRequest'));
@@ -88,9 +88,9 @@ class AccessRequestController extends Controller
     /**
      * Approve an access request.
      */
-    public function approve(Request $request, int $id)
+    public function approve(Request $request, string $id)
     {
-        $this->service->approveRequest($id, auth()->id(), $request->get('notes'));
+        $this->service->approveRequest((int) $id, auth()->id(), $request->get('notes'));
 
         return redirect()->route('accessRequest.pending')->with('notice', 'Request approved.');
     }
@@ -98,9 +98,9 @@ class AccessRequestController extends Controller
     /**
      * Deny an access request.
      */
-    public function deny(Request $request, int $id)
+    public function deny(Request $request, string $id)
     {
-        $this->service->denyRequest($id, auth()->id(), $request->get('reason'));
+        $this->service->denyRequest((int) $id, auth()->id(), $request->get('reason'));
 
         return redirect()->route('accessRequest.pending')->with('notice', 'Request denied.');
     }

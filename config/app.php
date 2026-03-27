@@ -123,4 +123,21 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | UI Labels (customisable entity names)
+    |--------------------------------------------------------------------------
+    |
+    | These mirror AtoM's sfConfig::get('app_ui_label_*') settings.
+    | Admins can override them via the AtoM settings table; the
+    | AhgCoreServiceProvider hydrates these from the DB at boot.
+    |
+    */
+
+    'ui_label_repository' => 'Archival institution',
+    'ui_label_actor' => 'Authority record',
+    'ui_label_informationobject' => 'Archival description',
+    'ui_label_physicalobject' => 'Physical storage',
+    'ui_label_accession' => 'Accession',
+
 ];

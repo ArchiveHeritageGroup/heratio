@@ -1,15 +1,15 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Physical storage')
+@section('title', config('app.ui_label_physicalobject', 'Physical storage'))
 @section('body-class', 'browse physicalobject')
 
 @section('content')
-  <h1>Browse Physical storage</h1>
+  <h1>Browse {{ config('app.ui_label_physicalobject', 'Physical storage') }}</h1>
 
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
-        'label' => 'Search physical storage',
-        'landmarkLabel' => 'Physical storage',
+        'label' => 'Search ' . mb_strtolower(config('app.ui_label_physicalobject', 'Physical storage')),
+        'landmarkLabel' => config('app.ui_label_physicalobject', 'Physical storage'),
     ])
   </div>
 

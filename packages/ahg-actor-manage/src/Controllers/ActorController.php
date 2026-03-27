@@ -75,6 +75,80 @@ class ActorController extends Controller
         $mediaTypeFacets = $browseService->getMediaTypeFacets();
         $languageFacets = $browseService->getLanguageFacets();
 
+        // Build filter tags for active filters
+        $filterTags = [];
+        $baseUrl = url('/actor/browse');
+        $allParams = $request->except(['page']);
+
+        if (!empty($params['subquery'])) {
+            $removeParams = $allParams;
+            unset($removeParams['query'], $removeParams['subquery']);
+            $filterTags[] = ['label' => 'Search: ' . $params['subquery'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if (!empty($params['entityType']) && isset($entityTypeFacets[$params['entityType']])) {
+            $removeParams = $allParams;
+            unset($removeParams['entityType']);
+            $filterTags[] = ['label' => 'Entity type: ' . $entityTypeFacets[$params['entityType']]['name'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if (!empty($params['repository'])) {
+            $repoName = collect($repositories)->firstWhere('id', $params['repository'])->name ?? $params['repository'];
+            $removeParams = $allParams;
+            unset($removeParams['repository']);
+            $filterTags[] = ['label' => 'Repository: ' . $repoName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if (!empty($params['hasDigitalObject'])) {
+            $removeParams = $allParams;
+            unset($removeParams['hasDigitalObject']);
+            $filterTags[] = ['label' => 'Has digital object', 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if (!empty($params['emptyField'])) {
+            $removeParams = $allParams;
+            unset($removeParams['emptyField']);
+            $filterTags[] = ['label' => 'Empty field: ' . $params['emptyField'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('languages') && $request->get('languages') !== '') {
+            $langCode = $request->get('languages');
+            $langName = isset($languageFacets[$langCode]) ? $languageFacets[$langCode]['name'] : $langCode;
+            $removeParams = $allParams;
+            unset($removeParams['languages']);
+            $filterTags[] = ['label' => 'Language: ' . $langName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('maintainedBy') && $request->get('maintainedBy') !== '') {
+            $mbId = $request->get('maintainedBy');
+            $mbName = isset($maintainedByFacets[$mbId]) ? $maintainedByFacets[$mbId]['name'] : $mbId;
+            $removeParams = $allParams;
+            unset($removeParams['maintainedBy']);
+            $filterTags[] = ['label' => 'Maintained by: ' . $mbName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('occupation') && $request->get('occupation') !== '') {
+            $occId = $request->get('occupation');
+            $occName = isset($occupationFacets[$occId]) ? $occupationFacets[$occId]['name'] : $occId;
+            $removeParams = $allParams;
+            unset($removeParams['occupation']);
+            $filterTags[] = ['label' => 'Occupation: ' . $occName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('place') && $request->get('place') !== '') {
+            $placeId = $request->get('place');
+            $placeName = isset($placeFacets[$placeId]) ? $placeFacets[$placeId]['name'] : $placeId;
+            $removeParams = $allParams;
+            unset($removeParams['place']);
+            $filterTags[] = ['label' => 'Place: ' . $placeName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('subject') && $request->get('subject') !== '') {
+            $subId = $request->get('subject');
+            $subName = isset($subjectFacets[$subId]) ? $subjectFacets[$subId]['name'] : $subId;
+            $removeParams = $allParams;
+            unset($removeParams['subject']);
+            $filterTags[] = ['label' => 'Subject: ' . $subName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+        if ($request->has('mediaType') && $request->get('mediaType') !== '') {
+            $mtId = $request->get('mediaType');
+            $mtName = isset($mediaTypeFacets[$mtId]) ? $mediaTypeFacets[$mtId]['name'] : $mtId;
+            $removeParams = $allParams;
+            unset($removeParams['mediaType']);
+            $filterTags[] = ['label' => 'Media type: ' . $mtName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+        }
+
         return view('ahg-actor-manage::browse', [
             'pager' => $pager,
             'entityTypeNames' => $result['entityTypeNames'] ?? [],
@@ -87,6 +161,7 @@ class ActorController extends Controller
             'subjectFacets' => $subjectFacets,
             'mediaTypeFacets' => $mediaTypeFacets,
             'languageFacets' => $languageFacets,
+            'filterTags' => $filterTags,
             'params' => $params,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',

@@ -44,9 +44,9 @@
               <div class="mb-3">
                 <label class="form-label" for="object-type-select">Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select class="form-select" name="objectType" id="object-type-select">
-                  <option value="informationObject">Archival description</option>
+                  <option value="informationObject">{{ config('app.ui_label_informationobject', 'Archival description') }}</option>
                   <option value="accession">Accession</option>
-                  <option value="authorityRecord">Authority record</option>
+                  <option value="authorityRecord">{{ config('app.ui_label_actor', 'Authority record') }}</option>
                   <option value="authorityRecordRelationship">Authority record relationship</option>
                   <option value="event">Event</option>
                   <option value="repository">Repository</option>

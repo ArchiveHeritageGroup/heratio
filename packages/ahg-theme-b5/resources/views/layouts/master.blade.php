@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $themeData['siteTitle'] ?? 'Heratio')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Google Tag Manager (script) --}}
+    @include('theme::partials.tag-manager', ['slot' => 'script'])
+
+    {{-- Google Analytics --}}
+    @include('theme::partials.google-analytics')
+
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     {{-- Webpack bundles --}}
@@ -28,8 +35,20 @@
   </head>
   <body class="d-flex flex-column min-vh-100 @yield('body-class')">
 
+    {{-- Google Tag Manager (noscript) --}}
+    @include('theme::partials.tag-manager', ['slot' => 'noscript'])
+
     {{-- Header --}}
     @include('theme::partials.header')
+
+    {{-- Privacy notification banner --}}
+    @include('theme::partials.privacy-message')
+
+    {{-- Accessibility helpers (WCAG 2.1 AA) --}}
+    @include('theme::partials.accessibility-helpers')
+
+    {{-- Print preview bar --}}
+    @include('theme::partials.print-preview-bar')
 
     {{-- Site description bar --}}
     @if(($themeData['toggleDescription'] ?? false) && !empty($themeData['siteDescription']))
