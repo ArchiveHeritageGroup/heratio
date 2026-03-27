@@ -894,107 +894,62 @@ class RicController extends Controller
      */
     protected function buildOverviewGraph(string $endpoint, string $username, string $password): array
     {
-        // Main query: RecordSets and their relations including new RiC-O predicates
-        $query = <<<'SPARQL'
+        // Step 1: Fast query — get all entities with labels
+        $nodesQuery = <<<'SPARQL'
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
-  {
-    ?s a rico:RecordSet .
-    ?s rico:title ?label .
-    BIND("RecordSet" AS ?type)
-  }
-  OPTIONAL {
-    ?s ?pred ?related .
-    FILTER(isURI(?related) && ?pred != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-    OPTIONAL { ?related rico:title ?relLabel }
-    OPTIONAL { ?related a ?relType . FILTER(STRSTARTS(STR(?relType), "https://www.ica.org/standards/RiC/ontology#")) }
-  }
-} LIMIT 200
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?s ?type ?label WHERE {
+  ?s a ?rawType .
+  FILTER(STRSTARTS(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#"))
+  BIND(REPLACE(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#", "") AS ?type)
+  OPTIONAL { ?s rico:title ?label }
+  OPTIONAL { ?s rdfs:label ?label }
+} LIMIT 300
 SPARQL;
 
-        $result = $this->executeSparql($query, $endpoint, $username, $password);
+        // Step 2: Fast query — get relationships only (no OPTIONAL to avoid timeout)
+        $edgesQuery = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT ?s ?pred ?o WHERE {
+  ?s ?pred ?o .
+  FILTER(isURI(?o))
+  FILTER(STRSTARTS(STR(?pred), "https://www.ica.org/standards/RiC/ontology#"))
+  FILTER(?pred != rico:hasAgentName && ?pred != rico:hasPlaceName)
+} LIMIT 500
+SPARQL;
+
         $nodes = [];
         $edges = [];
         $nodeIndex = [];
 
-        if ($result && isset($result['results']['bindings'])) {
-            foreach ($result['results']['bindings'] as $row) {
+        $nodesResult = $this->executeSparql($nodesQuery, $endpoint, $username, $password);
+        if ($nodesResult && isset($nodesResult['results']['bindings'])) {
+            foreach ($nodesResult['results']['bindings'] as $row) {
                 $uri = $row['s']['value'];
                 if (!isset($nodeIndex[$uri])) {
                     $nodeIndex[$uri] = true;
                     $nodes[] = [
                         'id'    => $uri,
                         'label' => $row['label']['value'] ?? $this->extractLabel($uri),
-                        'type'  => 'RecordSet',
+                        'type'  => $row['type']['value'] ?? 'Unknown',
                     ];
-                }
-                if (isset($row['related'])) {
-                    $relUri = $row['related']['value'];
-                    if (!isset($nodeIndex[$relUri])) {
-                        $nodeIndex[$relUri] = true;
-                        $relType = isset($row['relType']) ? $this->extractType($row['relType']['value']) : $this->extractTypeFromUri($relUri);
-                        $nodes[] = [
-                            'id'    => $relUri,
-                            'label' => isset($row['relLabel']) ? $row['relLabel']['value'] : $this->extractLabel($relUri),
-                            'type'  => $relType,
-                        ];
-                    }
-                    $predLabel = isset($row['pred']) ? $this->extractLabel($row['pred']['value']) : '';
-                    $edges[] = ['source' => $uri, 'target' => $relUri, 'label' => $predLabel];
                 }
             }
         }
 
-        // Also query standalone entities (Person, CorporateBody, Family, Place, Activity, Record, etc.)
-        $standaloneQuery = <<<'SPARQL'
-PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
-  {
-    ?s a ?rawType .
-    FILTER(STRSTARTS(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#"))
-    FILTER(?rawType != rico:RecordSet)
-    FILTER(STRSTARTS(STR(?s), "https://archives.theahg.co.za/ric/standalone"))
-    BIND(REPLACE(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#", "") AS ?type)
-    OPTIONAL { ?s rico:title ?label }
-    OPTIONAL { ?s rico:name ?label }
-    OPTIONAL { ?s rico:hasAgentName/rico:textualValue ?label }
-    OPTIONAL { ?s rico:hasPlaceName/rico:textualValue ?label }
-  }
-  OPTIONAL {
-    ?s ?pred ?related .
-    FILTER(isURI(?related) && ?pred != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-    OPTIONAL { ?related rico:title ?relLabel }
-    OPTIONAL { ?related a ?relType . FILTER(STRSTARTS(STR(?relType), "https://www.ica.org/standards/RiC/ontology#")) }
-  }
-} LIMIT 200
-SPARQL;
-
-        $standaloneResult = $this->executeSparql($standaloneQuery, $endpoint, $username, $password);
-        if ($standaloneResult && isset($standaloneResult['results']['bindings'])) {
-            foreach ($standaloneResult['results']['bindings'] as $row) {
-                $uri = $row['s']['value'];
-                if (!isset($nodeIndex[$uri])) {
-                    $nodeIndex[$uri] = true;
-                    $label = $row['label']['value'] ?? $this->extractLabel($uri);
-                    $nodes[] = [
-                        'id'    => $uri,
-                        'label' => $label,
-                        'type'  => $row['type']['value'] ?? 'Unknown',
+        $edgesResult = $this->executeSparql($edgesQuery, $endpoint, $username, $password);
+        if ($edgesResult && isset($edgesResult['results']['bindings'])) {
+            foreach ($edgesResult['results']['bindings'] as $row) {
+                $source = $row['s']['value'];
+                $target = $row['o']['value'];
+                $pred = $row['pred']['value'];
+                // Only add edges where both nodes exist
+                if (isset($nodeIndex[$source]) && isset($nodeIndex[$target])) {
+                    $edges[] = [
+                        'source' => $source,
+                        'target' => $target,
+                        'label'  => $this->extractLabel($pred),
                     ];
-                }
-                if (isset($row['related'])) {
-                    $relUri = $row['related']['value'];
-                    if (!isset($nodeIndex[$relUri])) {
-                        $nodeIndex[$relUri] = true;
-                        $relType = isset($row['relType']) ? $this->extractType($row['relType']['value']) : $this->extractTypeFromUri($relUri);
-                        $nodes[] = [
-                            'id'    => $relUri,
-                            'label' => isset($row['relLabel']) ? $row['relLabel']['value'] : $this->extractLabel($relUri),
-                            'type'  => $relType,
-                        ];
-                    }
-                    $predLabel = isset($row['pred']) ? $this->extractLabel($row['pred']['value']) : '';
-                    $edges[] = ['source' => $uri, 'target' => $relUri, 'label' => $predLabel];
                 }
             }
         }
