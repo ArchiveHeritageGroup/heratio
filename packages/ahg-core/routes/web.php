@@ -4,6 +4,18 @@ use AhgCore\Controllers\ClipboardController;
 use AhgCore\Controllers\TtsController;
 use Illuminate\Support\Facades\Route;
 
+// Client-side error logging — captures JS errors to Laravel log
+Route::post('/api/log-error', function (\Illuminate\Http\Request $request) {
+    \Log::warning('[JS Error] ' . ($request->input('message', 'Unknown JS error')), [
+        'url' => $request->input('url', ''),
+        'line' => $request->input('line', ''),
+        'col' => $request->input('col', ''),
+        'stack' => $request->input('stack', ''),
+        'ua' => $request->userAgent(),
+    ]);
+    return response()->json(['logged' => true]);
+})->name('api.log-error');
+
 // TTS (Text-to-Speech) API endpoints — AJAX, used by TTS widget
 Route::get('/tts/settings', [TtsController::class, 'settings'])->name('tts.settings');
 Route::get('/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText');
@@ -25,15 +37,6 @@ Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::get('/export/csv', [ClipboardController::class, 'exportCsv'])->name('export.csv');
     Route::get('/count',      [ClipboardController::class, 'count'])->name('count');
     Route::post('/exportCheck', [ClipboardController::class, 'exportCheck'])->name('exportCheck');
-
-// Auto-registered stub routes
-Route::match(['get','post'], '/tiffpdfmerge/create', function() { return view('core::create'); })->name('tiffpdfmerge.create');
-Route::match(['get','post'], '/tiffpdfmerge/upload', function() { return view('core::upload'); })->name('tiffpdfmerge.upload');
-Route::match(['get','post'], '/tiffpdfmerge/reorder', function() { return view('core::reorder'); })->name('tiffpdfmerge.reorder');
-Route::match(['get','post'], '/tiffpdfmerge/remove-file', function() { return view('core::remove-file'); })->name('tiffpdfmerge.removeFile');
-Route::match(['get','post'], '/tiffpdfmerge/process', function() { return view('core::process'); })->name('tiffpdfmerge.process');
-Route::match(['get','post'], '/tiffpdfmerge/delete', function() { return view('core::delete'); })->name('tiffpdfmerge.delete');
-Route::match(['get','post'], '/object/import-select', function() { return view('core::import-select'); })->name('object.importSelect');
 });
 
 // Object import select & TIFF/PDF merge (auth required)

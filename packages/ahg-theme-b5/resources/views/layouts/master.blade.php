@@ -120,5 +120,28 @@
 
     {{-- Floating Feedback Tab --}}
     @include('theme::partials.feedback-tab')
+
+    {{-- Global JS error logger — sends client errors to Laravel log --}}
+    <script>
+    window.onerror = function(msg, url, line, col, err) {
+      try {
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||''},
+          body: JSON.stringify({message:msg, url:url, line:line, col:col, stack:err?.stack||''})
+        }).catch(function(){});
+      } catch(e) {}
+    };
+    window.addEventListener('unhandledrejection', function(ev) {
+      try {
+        var msg = ev.reason?.message || String(ev.reason || 'Unhandled promise rejection');
+        fetch('/api/log-error', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||''},
+          body: JSON.stringify({message:msg, url:location.href, stack:ev.reason?.stack||''})
+        }).catch(function(){});
+      } catch(e) {}
+    });
+    </script>
   </body>
 </html>

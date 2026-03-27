@@ -281,6 +281,8 @@ class InformationObjectBrowseService extends BrowseService
             'alternateTitle' => 'information_object_i18n.alternate_title',
             'edition' => 'information_object_i18n.edition',
             'identifier' => 'information_object.identifier',
+            'referenceCode' => 'information_object.identifier',
+            'acquisition' => 'information_object_i18n.acquisition',
         ];
 
         foreach ($criteria as $i => $row) {

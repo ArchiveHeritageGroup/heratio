@@ -191,8 +191,7 @@
   // Only these 5 fields are used — everything else is skipped
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
-    'Reg No', 'Wife Name', 'Place of Marriage', 'District', 'Province',
-    'Married By', 'Denomination', 'Witnesses',
+    'Reg No', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -497,15 +496,12 @@
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
       fields: {
-        'District':          { x: 0.42, y: 0.08, w: 0.22, h: 0.04 },  // top of page
-        'Province':          { x: 0.66, y: 0.08, w: 0.18, h: 0.04 },  // top of page
-        'Reg No':            { x: 0.01, y: 0.14, w: 0.06, h: 0.06 },  // col 1
-        'Wife Name':         { x: 0.24, y: 0.14, w: 0.18, h: 0.20 },  // col 4
-        'Place of Marriage': { x: 0.42, y: 0.14, w: 0.22, h: 0.20 },  // col 6
+        'Reg No':            { x: 0.05, y: 0.14, w: 0.06, h: 0.06 },  // next to "No."
+        'Place of Marriage': { x: 0.38, y: 0.14, w: 0.15, h: 0.08 },  // next to "Huwelik Bevestig te"
+        'District':          { x: 0.42, y: 0.08, w: 0.13, h: 0.04 },  // next to "Distrikt/District"
+        'Province':          { x: 0.57, y: 0.08, w: 0.13, h: 0.04 },  // next to "Provinsie/Province"
         'Event Date':        { x: 0.10, y: 0.58, w: 0.25, h: 0.05 },  // "solemnized by me on this the ..."
-        'Married By':        { x: 0.55, y: 0.62, w: 0.30, h: 0.05 },  // officiant name
-        'Denomination':      { x: 0.55, y: 0.68, w: 0.30, h: 0.05 },  // church/denomination
-        'Witnesses':         { x: 0.05, y: 0.76, w: 0.35, h: 0.12 },  // witness names
+        'Marriage Date':     { x: 0.05, y: 0.30, w: 0.30, h: 0.05 },  // date in the register body
       }
     },
     'manual': {
