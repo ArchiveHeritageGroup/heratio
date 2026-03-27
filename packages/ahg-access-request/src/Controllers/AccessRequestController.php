@@ -124,7 +124,7 @@ class AccessRequestController extends Controller
      */
     public function removeApprover(string $id)
     {
-        $this->service->removeApprover($id);
+        $this->service->removeApprover((int) $id);
 
         return redirect()->route('accessRequest.approvers')->with('notice', 'Approver removed.');
     }
