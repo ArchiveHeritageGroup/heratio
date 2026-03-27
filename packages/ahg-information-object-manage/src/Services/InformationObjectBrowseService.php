@@ -113,7 +113,7 @@ class InformationObjectBrowseService extends BrowseService
             $query->whereExists(function ($sub) use ($startDate, $endDate, $rangeType) {
                 $sub->select(DB::raw(1))
                     ->from('event')
-                    ->whereColumn('event.information_object_id', 'information_object.id');
+                    ->whereColumn('event.object_id', 'information_object.id');
 
                 if ($rangeType === 'exact') {
                     if ($startDate) $sub->where('event.start_date', '>=', $startDate);
@@ -299,7 +299,7 @@ class InformationObjectBrowseService extends BrowseService
                     $sub->select(DB::raw(1))
                         ->from('event')
                         ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-                        ->whereColumn('event.information_object_id', 'information_object.id')
+                        ->whereColumn('event.object_id', 'information_object.id')
                         ->where('actor_i18n.authorized_form_of_name', 'LIKE', $like);
                 });
 
@@ -399,7 +399,7 @@ class InformationObjectBrowseService extends BrowseService
                     $q->whereExists(function ($sub) use ($like) {
                         $sub->select(DB::raw(1))->from('event')
                             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-                            ->whereColumn('event.information_object_id', 'information_object.id')
+                            ->whereColumn('event.object_id', 'information_object.id')
                             ->where('actor_i18n.authorized_form_of_name', 'LIKE', $like);
                     });
                 } elseif ($field === 'subjectSearch') {
@@ -448,7 +448,7 @@ class InformationObjectBrowseService extends BrowseService
                         $inner->orWhereExists(function ($sub) use ($like) {
                             $sub->select(DB::raw(1))->from('event')
                                 ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-                                ->whereColumn('event.information_object_id', 'information_object.id')
+                                ->whereColumn('event.object_id', 'information_object.id')
                                 ->where('actor_i18n.authorized_form_of_name', 'LIKE', $like);
                         });
                     });

@@ -234,7 +234,7 @@
   @endauth
 
   {{-- Static pages menu (visible to all users, matching AtoM context menu) --}}
-  @include('ahg-menu::_static-pages-menu')
+  @include('ahg-menu-manage::_static-pages-menu')
 
 @endsection
 

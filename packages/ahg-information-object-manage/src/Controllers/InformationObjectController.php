@@ -133,8 +133,8 @@ class InformationObjectController extends Controller
                 ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
                 ->where('actor_i18n.culture', $culture)
                 ->where('event.type_id', 111)
-                ->whereIn('event.information_object_id', $resultIds)
-                ->select('event.information_object_id', 'actor_i18n.authorized_form_of_name')
+                ->whereIn('event.object_id', $resultIds)
+                ->select('event.object_id', 'actor_i18n.authorized_form_of_name')
                 ->get();
             foreach ($creatorRows as $row) {
                 $creators[$row->information_object_id][] = $row->authorized_form_of_name;
@@ -142,9 +142,9 @@ class InformationObjectController extends Controller
 
             // Dates: event start_date/end_date per IO
             $dateRows = DB::table('event')
-                ->whereIn('event.information_object_id', $resultIds)
+                ->whereIn('event.object_id', $resultIds)
                 ->whereNotNull('event.start_date')
-                ->select('event.information_object_id', 'event.start_date', 'event.end_date')
+                ->select('event.object_id', 'event.start_date', 'event.end_date')
                 ->get();
             foreach ($dateRows as $row) {
                 if (!isset($dates[$row->information_object_id])) {
