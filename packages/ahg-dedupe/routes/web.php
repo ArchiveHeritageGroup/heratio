@@ -25,7 +25,6 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/dedupe/rule/{id}/edit', [DedupeController::class, 'ruleEdit'])->name('dedupe.rule.edit')->whereNumber('id');
     Route::post('/admin/dedupe/rule/{id}/edit', [DedupeController::class, 'ruleUpdate'])->name('dedupe.rule.update')->whereNumber('id');
     Route::get('/admin/dedupe/rule/{id}/delete', [DedupeController::class, 'ruleDelete'])->name('dedupe.rule.delete')->whereNumber('id');
-});
     Route::match(['get','post'], '/admin/dedupe/config', [DedupeController::class, 'config'])->name('dedupe.config');
     Route::get('/admin/dedupe/contact/{id}', [DedupeController::class, 'contact'])->name('dedupe.contact')->whereNumber('id');
     Route::get('/admin/dedupe/dashboard', [DedupeController::class, 'dashboard'])->name('dedupe.dashboard');
@@ -35,9 +34,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/dedupe/occupations', [DedupeController::class, 'occupations'])->name('dedupe.occupations');
     Route::match(['get','post'], '/admin/dedupe/split/{id}', [DedupeController::class, 'split'])->name('dedupe.split')->whereNumber('id');
     Route::get('/admin/dedupe/workqueue', [DedupeController::class, 'workqueue'])->name('dedupe.workqueue');
+});
 
 // API: Real-time duplicate check (AJAX, used by JS widgets during data entry)
-Route::get('/api/dedupe/realtime', [DedupeController::class, 'apiRealtime'])->name('dedupe.api.realtime');
+Route::middleware('auth')->get('/api/dedupe/realtime', [DedupeController::class, 'apiRealtime'])->name('dedupe.api.realtime');
 
 // Legacy base-path alias: /admin/dedupe/dismiss/ without ID (JSON error response)
 Route::middleware('admin')->match(['get', 'post'], '/admin/dedupe/dismiss', function () {

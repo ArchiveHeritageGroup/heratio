@@ -213,17 +213,20 @@ class AclController extends Controller
             ->first();
 
         // Access grants
-        $accessGrants = DB::table('security_object_access as soa')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('soa.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
-            })
-            ->leftJoin('actor_i18n as ai', function ($j) {
-                $j->on('soa.granted_by', '=', 'ai.id')->where('ai.culture', '=', 'en');
-            })
-            ->where('soa.user_id', $userId)
-            ->select('soa.*', 'ioi.title as object_title', 'ai.authorized_form_of_name as granted_by_name')
-            ->orderByDesc('soa.granted_at')
-            ->get();
+        $accessGrants = collect();
+        if (Schema::hasTable('security_object_access')) {
+            $accessGrants = DB::table('security_object_access as soa')
+                ->leftJoin('information_object_i18n as ioi', function ($j) {
+                    $j->on('soa.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+                })
+                ->leftJoin('actor_i18n as ai', function ($j) {
+                    $j->on('soa.granted_by', '=', 'ai.id')->where('ai.culture', '=', 'en');
+                })
+                ->where('soa.user_id', $userId)
+                ->select('soa.*', 'ioi.title as object_title', 'ai.authorized_form_of_name as granted_by_name')
+                ->orderByDesc('soa.granted_at')
+                ->get();
+        }
 
         // User's own requests
         $requests = DB::table('security_access_request as sar')
@@ -600,7 +603,7 @@ class AclController extends Controller
     public function reviewAccessRequest(int $id)
     {
         $accessRequest = DB::table('security_access_request')->where('id', $id)->first()
-            ?? (object) ['id' => $id, 'requester_name' => '', 'object_title' => '', 'reason' => '', 'created_at' => ''];
-        return view('ahg-acl::security.review-request', ['request' => $accessRequest]);
+            ?? (object) ['id' => $id, 'requester_name' => '', 'object_title' => '', 'justification' => '', 'created_at' => '', 'request_type' => '', 'priority' => 'normal', 'duration_hours' => 24, 'user_id' => 0, 'status' => 'pending'];
+        return view('ahg-acl::security.review-request', ['accessRequest' => $accessRequest]);
     }
 }

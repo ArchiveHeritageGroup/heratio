@@ -36,8 +36,8 @@ Route::match(['get','post'], '/tiffpdfmerge/delete', function() { return view('c
 Route::match(['get','post'], '/object/import-select', function() { return view('core::import-select'); })->name('object.importSelect');
 });
 
-// Object import select
-Route::middleware(['web'])->group(function () {
+// Object import select & TIFF/PDF merge (auth required)
+Route::middleware('auth')->group(function () {
     Route::get('/object/{slug}/import-select', fn($slug) => view('ahg-core::object-import-select', ['slug' => $slug]))->name('object.importSelect');
     Route::get('/tiffpdfmerge/create', fn() => view('ahg-core::tiffpdfmerge-create'))->name('tiffpdfmerge.create');
     Route::post('/tiffpdfmerge/upload', fn() => redirect()->back())->name('tiffpdfmerge.upload');

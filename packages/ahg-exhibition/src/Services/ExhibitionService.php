@@ -15,7 +15,7 @@ class ExhibitionService
 
     public function search(array $filters = [], int $limit = 20, int $offset = 0): array
     {
-        $query = DB::table('ahg_exhibition');
+        $query = DB::table('exhibition');
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -41,10 +41,10 @@ class ExhibitionService
 
     public function get(int $id, bool $withObjects = false): ?object
     {
-        $exhibition = DB::table('ahg_exhibition')->where('id', $id)->first();
+        $exhibition = DB::table('exhibition')->where('id', $id)->first();
 
         if ($exhibition && $withObjects) {
-            $exhibition->objects = DB::table('ahg_exhibition_object as eo')
+            $exhibition->objects = DB::table('exhibition_object as eo')
                 ->leftJoin('information_object_i18n as ioi', function ($j) {
                     $j->on('eo.information_object_id', '=', 'ioi.id')
                         ->where('ioi.culture', '=', $this->culture);
@@ -55,22 +55,22 @@ class ExhibitionService
                 ->orderBy('eo.sort_order')
                 ->get();
 
-            $exhibition->storylines = DB::table('ahg_exhibition_storyline')
+            $exhibition->storylines = DB::table('exhibition_storyline')
                 ->where('exhibition_id', $id)
                 ->orderBy('sort_order')
                 ->get();
 
-            $exhibition->sections = DB::table('ahg_exhibition_section')
+            $exhibition->sections = DB::table('exhibition_section')
                 ->where('exhibition_id', $id)
                 ->orderBy('sort_order')
                 ->get();
 
-            $exhibition->events = DB::table('ahg_exhibition_event')
+            $exhibition->events = DB::table('exhibition_event')
                 ->where('exhibition_id', $id)
                 ->orderBy('event_date')
                 ->get();
 
-            $exhibition->checklists = DB::table('ahg_exhibition_checklist')
+            $exhibition->checklists = DB::table('exhibition_checklist')
                 ->where('exhibition_id', $id)
                 ->orderBy('category')
                 ->get();
@@ -81,7 +81,7 @@ class ExhibitionService
 
     public function getBySlug(string $slug): ?object
     {
-        return DB::table('ahg_exhibition')->where('slug', $slug)->first();
+        return DB::table('exhibition')->where('slug', $slug)->first();
     }
 
     public function create(array $data): int
@@ -93,23 +93,23 @@ class ExhibitionService
             $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
         }
 
-        return DB::table('ahg_exhibition')->insertGetId($data);
+        return DB::table('exhibition')->insertGetId($data);
     }
 
     public function update(int $id, array $data): void
     {
         $data['updated_at'] = now();
-        DB::table('ahg_exhibition')->where('id', $id)->update($data);
+        DB::table('exhibition')->where('id', $id)->update($data);
     }
 
     public function delete(int $id): void
     {
-        DB::table('ahg_exhibition_object')->where('exhibition_id', $id)->delete();
-        DB::table('ahg_exhibition_storyline')->where('exhibition_id', $id)->delete();
-        DB::table('ahg_exhibition_section')->where('exhibition_id', $id)->delete();
-        DB::table('ahg_exhibition_event')->where('exhibition_id', $id)->delete();
-        DB::table('ahg_exhibition_checklist')->where('exhibition_id', $id)->delete();
-        DB::table('ahg_exhibition')->where('id', $id)->delete();
+        DB::table('exhibition_object')->where('exhibition_id', $id)->delete();
+        DB::table('exhibition_storyline')->where('exhibition_id', $id)->delete();
+        DB::table('exhibition_section')->where('exhibition_id', $id)->delete();
+        DB::table('exhibition_event')->where('exhibition_id', $id)->delete();
+        DB::table('exhibition_checklist')->where('exhibition_id', $id)->delete();
+        DB::table('exhibition')->where('id', $id)->delete();
     }
 
     public function getTypes(): array
@@ -137,16 +137,16 @@ class ExhibitionService
     public function getStatistics(): array
     {
         return [
-            'total' => DB::table('ahg_exhibition')->count(),
-            'active' => DB::table('ahg_exhibition')->where('status', 'active')->count(),
-            'planning' => DB::table('ahg_exhibition')->where('status', 'planning')->count(),
-            'completed' => DB::table('ahg_exhibition')->where('status', 'completed')->count(),
+            'total' => DB::table('exhibition')->count(),
+            'active' => DB::table('exhibition')->where('status', 'active')->count(),
+            'planning' => DB::table('exhibition')->where('status', 'planning')->count(),
+            'completed' => DB::table('exhibition')->where('status', 'completed')->count(),
         ];
     }
 
     public function getObjects(int $exhibitionId): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_exhibition_object as eo')
+        return DB::table('exhibition_object as eo')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('eo.information_object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $this->culture);
@@ -160,7 +160,7 @@ class ExhibitionService
 
     public function getStorylines(int $exhibitionId): \Illuminate\Support\Collection
     {
-        return DB::table('ahg_exhibition_storyline')
+        return DB::table('exhibition_storyline')
             ->where('exhibition_id', $exhibitionId)
             ->orderBy('sort_order')
             ->get();
@@ -168,7 +168,7 @@ class ExhibitionService
 
     public function getStoryline(int $id): ?object
     {
-        return DB::table('ahg_exhibition_storyline')->where('id', $id)->first();
+        return DB::table('exhibition_storyline')->where('id', $id)->first();
     }
 
     public function exportObjectListCsv(int $exhibitionId): string

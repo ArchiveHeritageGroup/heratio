@@ -3,7 +3,7 @@
 use AhgLoan\Controllers\LoanController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth.required')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/loan', [LoanController::class, 'index'])->name('loan.index');
     Route::get('/loan/create', [LoanController::class, 'create'])->name('loan.create');
     Route::post('/loan/create', [LoanController::class, 'store'])->name('loan.store');
@@ -18,5 +18,5 @@ Route::middleware('auth.required')->group(function () {
     Route::post('/loan/{id}/extend', [LoanController::class, 'extend'])->name('loan.extend');
     Route::post('/loan/{id}/return', [LoanController::class, 'returnLoan'])->name('loan.return');
     Route::post('/loan/{id}/upload-document', [LoanController::class, 'uploadDocument'])->name('loan.upload-document');
-});
     Route::get('/loan/dashboard', [LoanController::class, 'dashboard'])->name('loan.dashboard');
+});

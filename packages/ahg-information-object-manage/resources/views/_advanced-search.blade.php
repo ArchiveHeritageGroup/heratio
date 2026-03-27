@@ -55,6 +55,21 @@
                   <option value="subjectSearch"{{ request('sf0') === 'subjectSearch' ? ' selected' : '' }}>{{ __('Subject') }}</option>
                   <option value="placeSearch"{{ request('sf0') === 'placeSearch' ? ' selected' : '' }}>{{ __('Place') }}</option>
                   <option value="genreSearch"{{ request('sf0') === 'genreSearch' ? ' selected' : '' }}>{{ __('Genre') }}</option>
+                  <option value="noteContent"{{ request('sf0') === 'noteContent' ? ' selected' : '' }}>{{ __('Notes') }}</option>
+                  <option value="arrangement"{{ request('sf0') === 'arrangement' ? ' selected' : '' }}>{{ __('Arrangement') }}</option>
+                  <option value="accessConditions"{{ request('sf0') === 'accessConditions' ? ' selected' : '' }}>{{ __('Access conditions') }}</option>
+                  <option value="reproductionConditions"{{ request('sf0') === 'reproductionConditions' ? ' selected' : '' }}>{{ __('Reproduction conditions') }}</option>
+                  <option value="physicalCharacteristics"{{ request('sf0') === 'physicalCharacteristics' ? ' selected' : '' }}>{{ __('Physical characteristics') }}</option>
+                  <option value="findingAids"{{ request('sf0') === 'findingAids' ? ' selected' : '' }}>{{ __('Finding aids') }}</option>
+                  <option value="locationOfOriginals"{{ request('sf0') === 'locationOfOriginals' ? ' selected' : '' }}>{{ __('Location of originals') }}</option>
+                  <option value="locationOfCopies"{{ request('sf0') === 'locationOfCopies' ? ' selected' : '' }}>{{ __('Location of copies') }}</option>
+                  <option value="relatedUnits"{{ request('sf0') === 'relatedUnits' ? ' selected' : '' }}>{{ __('Related units of description') }}</option>
+                  <option value="rules"{{ request('sf0') === 'rules' ? ' selected' : '' }}>{{ __('Rules') }}</option>
+                  <option value="sources"{{ request('sf0') === 'sources' ? ' selected' : '' }}>{{ __('Sources') }}</option>
+                  <option value="appraisal"{{ request('sf0') === 'appraisal' ? ' selected' : '' }}>{{ __('Appraisal') }}</option>
+                  <option value="accruals"{{ request('sf0') === 'accruals' ? ' selected' : '' }}>{{ __('Accruals') }}</option>
+                  <option value="alternateTitle"{{ request('sf0') === 'alternateTitle' ? ' selected' : '' }}>{{ __('Alternate title') }}</option>
+                  <option value="edition"{{ request('sf0') === 'edition' ? ' selected' : '' }}>{{ __('Edition') }}</option>
                 </select>
               </div>
 

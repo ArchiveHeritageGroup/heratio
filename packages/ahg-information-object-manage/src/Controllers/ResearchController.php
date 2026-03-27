@@ -88,11 +88,11 @@ class ResearchController extends Controller
 
         // Get repository
         $repository = DB::table('information_object as io2')
-            ->join('repository_i18n', function ($j) use ($culture) {
-                $j->on('repository_i18n.id', '=', 'io2.repository_id')->where('repository_i18n.culture', $culture);
+            ->join('actor_i18n as repo_ai', function ($j) use ($culture) {
+                $j->on('repo_ai.id', '=', 'io2.repository_id')->where('repo_ai.culture', $culture);
             })
             ->where('io2.id', $io->id)
-            ->select('repository_i18n.authorized_form_of_name as name')
+            ->select('repo_ai.authorized_form_of_name as name')
             ->first();
 
         // Get dates

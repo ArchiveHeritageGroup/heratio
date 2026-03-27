@@ -452,11 +452,11 @@ class GalleryController extends Controller
     /** Gallery dashboard. */
     public function dashboard()
     {
-        $totalItems = DB::table('gallery_artwork')->count();
-        $itemsWithMedia = DB::table('gallery_artwork')->whereNotNull('digital_object_id')->count();
-        $totalArtists = DB::table('gallery_artist')->count();
-        $activeLoans = DB::table('gallery_loan')->where('status', 'active')->count();
-        $recentItems = DB::table('gallery_artwork')->orderBy('created_at', 'desc')->limit(10)->get();
+        $totalItems = Schema::hasTable('gallery_artwork') ? DB::table('gallery_artwork')->count() : 0;
+        $itemsWithMedia = Schema::hasTable('gallery_artwork') ? DB::table('gallery_artwork')->whereNotNull('digital_object_id')->count() : 0;
+        $totalArtists = Schema::hasTable('gallery_artist') ? DB::table('gallery_artist')->count() : 0;
+        $activeLoans = Schema::hasTable('gallery_loan') ? DB::table('gallery_loan')->where('status', 'active')->count() : 0;
+        $recentItems = Schema::hasTable('gallery_artwork') ? DB::table('gallery_artwork')->orderBy('created_at', 'desc')->limit(10)->get() : collect();
         return view('ahg-gallery::gallery.dashboard', compact('totalItems', 'itemsWithMedia', 'totalArtists', 'activeLoans', 'recentItems'));
     }
 

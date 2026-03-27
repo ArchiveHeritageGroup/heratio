@@ -31,16 +31,23 @@ class ProvenanceService
 
         $io->title = $title;
 
-        $provenance = DB::table('provenance')
+        $record = DB::table('provenance_record')
             ->where('information_object_id', $io->id)
-            ->orderBy('event_date')
-            ->get();
+            ->first();
+
+        $events = collect();
+        if ($record) {
+            $events = DB::table('provenance_event')
+                ->where('provenance_record_id', $record->id)
+                ->orderBy('event_date')
+                ->get();
+        }
 
         return [
             'resource' => $io,
             'provenance' => [
-                'record' => $provenance->first(),
-                'events' => $provenance,
+                'record' => $record,
+                'events' => $events,
             ],
         ];
     }
@@ -60,8 +67,8 @@ class ProvenanceService
             return [
                 'date' => $event->event_date ?? '',
                 'title' => $event->event_type ?? '',
-                'description' => $event->description ?? '',
-                'agent' => $event->agent_name ?? '',
+                'description' => $event->notes ?? '',
+                'agent' => '',
             ];
         });
 
@@ -73,8 +80,8 @@ class ProvenanceService
      */
     public function browse(int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return DB::table('provenance')
-            ->join('information_object', 'provenance.information_object_id', '=', 'information_object.id')
+        return DB::table('provenance_record as pr')
+            ->join('information_object', 'pr.information_object_id', '=', 'information_object.id')
             ->leftJoin('information_object_i18n', function ($join) {
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
                      ->where('information_object_i18n.culture', '=', 'en');
@@ -83,13 +90,14 @@ class ProvenanceService
                 $join->on('information_object.id', '=', 'slug.object_id')
                      ->where('slug.name', '!=', '');
             })
+            ->leftJoin('provenance_event as pe', 'pe.provenance_record_id', '=', 'pr.id')
             ->select(
                 'information_object.id',
                 'information_object_i18n.title',
                 'slug.slug',
-                DB::raw('COUNT(provenance.id) as event_count'),
-                DB::raw('MIN(provenance.event_date) as earliest_event'),
-                DB::raw('MAX(provenance.event_date) as latest_event')
+                DB::raw('COUNT(pe.id) as event_count'),
+                DB::raw('MIN(pe.event_date) as earliest_event'),
+                DB::raw('MAX(pe.event_date) as latest_event')
             )
             ->groupBy('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->orderBy('information_object_i18n.title')

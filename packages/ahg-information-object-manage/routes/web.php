@@ -17,33 +17,44 @@ use AhgInformationObjectManage\Controllers\TreeviewController;
 use AhgInformationObjectManage\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 
-// Media routes (transcription, metadata extraction, snippets)
+// Media routes — read-only transcription/snippet views are public
 Route::get('/media/transcription/{id}/vtt', [MediaController::class, 'transcriptionVtt'])->name('media.transcription.vtt')->where('id', '[0-9]+');
 Route::get('/media/transcription/{id}/srt', [MediaController::class, 'transcriptionSrt'])->name('media.transcription.srt')->where('id', '[0-9]+');
 Route::get('/media/transcription/{id}', [MediaController::class, 'transcriptionJson'])->name('media.transcription.json')->where('id', '[0-9]+');
-Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->where('id', '[0-9]+');
-Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
-Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
 Route::get('/media/snippets/{id}', [MediaController::class, 'snippetsList'])->name('media.snippets.list')->where('id', '[0-9]+');
 // GET /media/snippets — list snippets by digital_object_id query param (legacy AtoM URL)
 Route::get('/media/snippets', [MediaController::class, 'snippetsListByQuery'])->name('media.snippets.listByQuery');
-Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
-Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->where('id', '[0-9]+');
 Route::get('/media/export-snippet', [MediaController::class, 'exportSnippet'])->name('media.export-snippet');
+
+// Media routes — mutating actions require auth
+Route::middleware('auth')->group(function () {
+    Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->where('id', '[0-9]+');
+    Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
+    Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
+    Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
+    Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->where('id', '[0-9]+');
+});
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
-Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
-Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
-Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
-Route::get('/informationobject/{slug}/rename', [InformationObjectController::class, 'rename'])->name('informationobject.rename');
-Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate');
-Route::get('/informationobject/{slug}/inventory', [InformationObjectController::class, 'inventory'])->name('informationobject.inventory');
-Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
-Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
-Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
-Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy');
+
+// IO CRUD routes require auth
+Route::middleware('auth')->group(function () {
+    Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
+    Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
+    Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
+    Route::get('/informationobject/{slug}/rename', [InformationObjectController::class, 'rename'])->name('informationobject.rename');
+    Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate');
+    Route::get('/informationobject/{slug}/inventory', [InformationObjectController::class, 'inventory'])->name('informationobject.inventory');
+    Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
+    Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
+});
+
+Route::middleware('admin')->group(function () {
+    Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
+    Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy');
+});
 
 // Treeview API (public for viewing)
 Route::get('/informationobject/treeview', [TreeviewController::class, 'treeview'])->name('io.treeview');

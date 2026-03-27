@@ -3,7 +3,7 @@
 use AhgJobsManage\Controllers\JobController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('web')->group(function () {
+Route::middleware('admin')->group(function () {
     Route::get('/jobs/browse', [JobController::class, 'browse']);
 });
 

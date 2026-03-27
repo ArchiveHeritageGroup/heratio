@@ -53,6 +53,43 @@ class InformationObjectController extends Controller
             $params['filters']['media_type_id'] = $mediaTypeId;
         }
 
+        // Parse advanced search criteria (sq0/sf0/so0, sq1/sf1/so1, ...)
+        $advancedCriteria = [];
+        for ($i = 0; $i < 10; $i++) {
+            $sq = $request->get("sq{$i}");
+            if ($sq !== null && trim($sq) !== '') {
+                $advancedCriteria[] = [
+                    'query'    => $sq,
+                    'field'    => $request->get("sf{$i}", ''),
+                    'operator' => $request->get("so{$i}", 'and'),
+                ];
+            }
+        }
+        if (!empty($advancedCriteria)) {
+            $params['advancedCriteria'] = $advancedCriteria;
+            $params['subquery'] = '';
+        }
+
+        // Parse advanced search filters
+        if ($request->get('repo')) {
+            $params['filters']['repository_id'] = $request->get('repo');
+        }
+        if ($request->get('levels')) {
+            $params['filters']['level_of_description_id'] = $request->get('levels');
+        }
+        if ($request->filled('hasDigital')) {
+            $params['filters']['has_digital'] = $request->get('hasDigital');
+        }
+        if ($request->get('startDate')) {
+            $params['filters']['start_date'] = $request->get('startDate');
+        }
+        if ($request->get('endDate')) {
+            $params['filters']['end_date'] = $request->get('endDate');
+        }
+        if ($request->get('rangeType')) {
+            $params['filters']['range_type'] = $request->get('rangeType');
+        }
+
         $result = $service->browse($params);
 
         $pager = new SimplePager($result);

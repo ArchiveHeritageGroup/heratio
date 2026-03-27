@@ -17,12 +17,12 @@ Route::get('/iiif-auth/auth-success', function () { return view('ahg-iiif-collec
 Route::get('/iiif-auth/clickthrough', function () { return view('ahg-iiif-collection::iiifAuth.clickthrough', ['terms' => '', 'acceptUrl' => '']); })->name('iiif-auth.clickthrough');
 Route::get('/iiif-auth/logout-success', function () { return view('ahg-iiif-collection::iiifAuth.logout-success'); })->name('iiif-auth.logout-success');
 
-// IIIF viewer/compare/validation (public)
-Route::get('/iiif/viewer/{slug}', [IiifCollectionController::class, 'viewer'])->name('iiif.viewer');
-Route::get('/iiif/compare', [IiifCollectionController::class, 'compare'])->name('iiif.compare');
+// IIIF viewer/compare/validation (public) — use /iiif-viewer prefix to avoid nginx /iiif/ proxy
+Route::get('/iiif-viewer/{slug}', [IiifCollectionController::class, 'viewer'])->name('iiif.viewer');
+Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name('iiif.compare');
 
 // Authenticated routes
-Route::middleware('auth.required')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/manifest-collection/new', [IiifCollectionController::class, 'create'])->name('iiif-collection.create');
     Route::post('/manifest-collection', [IiifCollectionController::class, 'store'])->name('iiif-collection.store');
     Route::get('/manifest-collection/{id}/edit', [IiifCollectionController::class, 'edit'])->name('iiif-collection.edit');
@@ -33,23 +33,23 @@ Route::middleware('auth.required')->group(function () {
     Route::post('/manifest-collection/reorder', [IiifCollectionController::class, 'reorder'])->name('iiif-collection.reorder');
     Route::get('/manifest-collections/autocomplete', [IiifCollectionController::class, 'autocomplete'])->name('iiif-collection.autocomplete');
 
-    // IIIF Settings
-    Route::get('/iiif/settings', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
-    Route::post('/iiif/settings', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update');
+    // IIIF Settings — under /admin/ to avoid nginx /iiif/ proxy
+    Route::get('/admin/iiif-settings', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
+    Route::post('/admin/iiif-settings', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update');
 
     // IIIF Validation
-    Route::get('/iiif/validation-dashboard', [IiifCollectionController::class, 'validationDashboard'])->name('iiif.validation-dashboard');
+    Route::get('/admin/iiif-validation', [IiifCollectionController::class, 'validationDashboard'])->name('iiif.validation-dashboard');
 
     // Media Settings
-    Route::get('/iiif/media-settings/queue', [IiifCollectionController::class, 'mediaQueue'])->name('iiif.media-settings.queue');
-    Route::get('/iiif/media-settings/test', [IiifCollectionController::class, 'mediaTest'])->name('iiif.media-settings.test');
-    Route::post('/iiif/media-settings/test', [IiifCollectionController::class, 'mediaTestRun'])->name('iiif.media-settings.test.run');
+    Route::get('/admin/iiif-media/queue', [IiifCollectionController::class, 'mediaQueue'])->name('iiif.media-settings.queue');
+    Route::get('/admin/iiif-media/test', [IiifCollectionController::class, 'mediaTest'])->name('iiif.media-settings.test');
+    Route::post('/admin/iiif-media/test', [IiifCollectionController::class, 'mediaTestRun'])->name('iiif.media-settings.test.run');
 
     // 3D Reports
-    Route::get('/iiif/three-d-reports', [IiifCollectionController::class, 'threeDIndex'])->name('iiif.three-d-reports.index');
-    Route::get('/iiif/three-d-reports/digital-objects', [IiifCollectionController::class, 'threeDDigitalObjects'])->name('iiif.three-d-reports.digital-objects');
-    Route::get('/iiif/three-d-reports/hotspots', [IiifCollectionController::class, 'threeDHotspots'])->name('iiif.three-d-reports.hotspots');
-    Route::get('/iiif/three-d-reports/models', [IiifCollectionController::class, 'threeDModels'])->name('iiif.three-d-reports.models');
-    Route::get('/iiif/three-d-reports/settings', [IiifCollectionController::class, 'threeDSettings'])->name('iiif.three-d-reports.settings');
-    Route::get('/iiif/three-d-reports/thumbnails', [IiifCollectionController::class, 'threeDThumbnails'])->name('iiif.three-d-reports.thumbnails');
+    Route::get('/admin/iiif-3d-reports', [IiifCollectionController::class, 'threeDIndex'])->name('iiif.three-d-reports.index');
+    Route::get('/admin/iiif-3d-reports/digital-objects', [IiifCollectionController::class, 'threeDDigitalObjects'])->name('iiif.three-d-reports.digital-objects');
+    Route::get('/admin/iiif-3d-reports/hotspots', [IiifCollectionController::class, 'threeDHotspots'])->name('iiif.three-d-reports.hotspots');
+    Route::get('/admin/iiif-3d-reports/models', [IiifCollectionController::class, 'threeDModels'])->name('iiif.three-d-reports.models');
+    Route::get('/admin/iiif-3d-reports/settings', [IiifCollectionController::class, 'threeDSettings'])->name('iiif.three-d-reports.settings');
+    Route::get('/admin/iiif-3d-reports/thumbnails', [IiifCollectionController::class, 'threeDThumbnails'])->name('iiif.three-d-reports.thumbnails');
 });

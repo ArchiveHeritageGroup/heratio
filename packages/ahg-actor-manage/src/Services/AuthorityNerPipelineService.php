@@ -16,7 +16,7 @@ class AuthorityNerPipelineService
      */
     public function getPendingEntities(array $filters = []): array
     {
-        $query = DB::table('ner_entity as ne')
+        $query = DB::table('ahg_ner_entity as ne')
             ->leftJoin('ahg_ner_authority_stub as stub', 'ne.id', '=', 'stub.ner_entity_id')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('ne.object_id', '=', 'ioi.id')
@@ -111,7 +111,7 @@ class AuthorityNerPipelineService
      */
     public function createStub(int $nerEntityId, int $userId): ?int
     {
-        $entity = DB::table('ner_entity')
+        $entity = DB::table('ahg_ner_entity')
             ->where('id', $nerEntityId)
             ->first();
 
@@ -215,7 +215,7 @@ class AuthorityNerPipelineService
 
         $pendingEntities = 0;
         try {
-            $pendingEntities = DB::table('ner_entity as ne')
+            $pendingEntities = DB::table('ahg_ner_entity as ne')
                 ->leftJoin('ahg_ner_authority_stub as stub', 'ne.id', '=', 'stub.ner_entity_id')
                 ->whereNull('stub.id')
                 ->whereIn('ne.entity_type', ['PERSON', 'ORG', 'GPE'])

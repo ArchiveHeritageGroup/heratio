@@ -192,9 +192,9 @@ class DedupeController extends Controller
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
                     ->where('information_object_i18n.culture', '=', $culture);
             })
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repo_ai.id')
+                    ->where('repo_ai.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
                 $join->on('information_object.level_of_description_id', '=', 'level_term.id')
@@ -208,7 +208,7 @@ class DedupeController extends Controller
                 'information_object_i18n.extent_and_medium as extent',
                 'information_object_i18n.scope_and_content',
                 'level_term.name as level_of_description',
-                'repository_i18n.authorized_form_of_name as repository',
+                'repo_ai.authorized_form_of_name as repository',
             ])
             ->first();
 
@@ -217,9 +217,9 @@ class DedupeController extends Controller
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
                     ->where('information_object_i18n.culture', '=', $culture);
             })
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repo_ai.id')
+                    ->where('repo_ai.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
                 $join->on('information_object.level_of_description_id', '=', 'level_term.id')
@@ -233,7 +233,7 @@ class DedupeController extends Controller
                 'information_object_i18n.extent_and_medium as extent',
                 'information_object_i18n.scope_and_content',
                 'level_term.name as level_of_description',
-                'repository_i18n.authorized_form_of_name as repository',
+                'repo_ai.authorized_form_of_name as repository',
             ])
             ->first();
 
@@ -322,12 +322,12 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('repository_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
             })
-            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
-            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
 
         return view('ahg-dedupe::scan', [
@@ -379,9 +379,9 @@ class DedupeController extends Controller
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
                     ->where('information_object_i18n.culture', '=', $culture);
             })
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repo_ai.id')
+                    ->where('repo_ai.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
                 $join->on('information_object.level_of_description_id', '=', 'level_term.id')
@@ -394,7 +394,7 @@ class DedupeController extends Controller
                 'information_object.identifier',
                 'information_object_i18n.title',
                 'level_term.name as level_of_description',
-                'repository_i18n.authorized_form_of_name as repository_name',
+                'repo_ai.authorized_form_of_name as repository_name',
                 'slug.slug',
             ])
             ->first();
@@ -404,9 +404,9 @@ class DedupeController extends Controller
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
                     ->where('information_object_i18n.culture', '=', $culture);
             })
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
+                $join->on('information_object.repository_id', '=', 'repo_ai.id')
+                    ->where('repo_ai.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
                 $join->on('information_object.level_of_description_id', '=', 'level_term.id')
@@ -419,7 +419,7 @@ class DedupeController extends Controller
                 'information_object.identifier',
                 'information_object_i18n.title',
                 'level_term.name as level_of_description',
-                'repository_i18n.authorized_form_of_name as repository_name',
+                'repo_ai.authorized_form_of_name as repository_name',
                 'slug.slug',
             ])
             ->first();
@@ -471,12 +471,12 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('repository_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
             })
-            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
-            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
 
         return view('ahg-dedupe::rule-create', [
@@ -533,12 +533,12 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('repository_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
             })
-            ->select('repository.id', 'repository_i18n.authorized_form_of_name as name')
-            ->orderBy('repository_i18n.authorized_form_of_name')
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
 
         return view('ahg-dedupe::rule-edit', [

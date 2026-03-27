@@ -8,24 +8,26 @@ Route::get('/gallery/browse', [GalleryController::class, 'browse'])->name('galle
 Route::get('/gallery/artists', [GalleryController::class, 'artists'])->name('gallery.artists');
 Route::get('/gallery/artists/{id}', [GalleryController::class, 'showArtist'])->name('gallery.artists.show')->where('id', '[0-9]+');
 
-// Public dashboard and index
-Route::get('/gallery/dashboard', [GalleryController::class, 'dashboard'])->name('gallery.dashboard');
-Route::get('/gallery/index', [GalleryController::class, 'galleryIndex'])->name('gallery.index');
-Route::get('/gallery/loans', [GalleryController::class, 'loans'])->name('gallery.loans');
-Route::get('/gallery/loans/{id}', [GalleryController::class, 'showLoan'])->name('gallery.loans.show')->where('id', '[0-9]+');
-Route::get('/gallery/valuations', [GalleryController::class, 'valuations'])->name('gallery.valuations');
-Route::get('/gallery/valuations/{id}', [GalleryController::class, 'showValuation'])->name('gallery.valuations.show')->where('id', '[0-9]+');
-Route::get('/gallery/venues', [GalleryController::class, 'venues'])->name('gallery.venues');
-Route::get('/gallery/venues/{id}', [GalleryController::class, 'showVenue'])->name('gallery.venues.show')->where('id', '[0-9]+');
-Route::get('/gallery/facility-report/{id}', [GalleryController::class, 'facilityReport'])->name('gallery.facility-report')->where('id', '[0-9]+');
+// Authenticated gallery management routes
+Route::middleware('auth')->group(function () {
+    Route::get('/gallery/dashboard', [GalleryController::class, 'dashboard'])->name('gallery.dashboard');
+    Route::get('/gallery/index', [GalleryController::class, 'galleryIndex'])->name('gallery.index');
+    Route::get('/gallery/loans', [GalleryController::class, 'loans'])->name('gallery.loans');
+    Route::get('/gallery/loans/{id}', [GalleryController::class, 'showLoan'])->name('gallery.loans.show')->where('id', '[0-9]+');
+    Route::get('/gallery/valuations', [GalleryController::class, 'valuations'])->name('gallery.valuations');
+    Route::get('/gallery/valuations/{id}', [GalleryController::class, 'showValuation'])->name('gallery.valuations.show')->where('id', '[0-9]+');
+    Route::get('/gallery/venues', [GalleryController::class, 'venues'])->name('gallery.venues');
+    Route::get('/gallery/venues/{id}', [GalleryController::class, 'showVenue'])->name('gallery.venues.show')->where('id', '[0-9]+');
+    Route::get('/gallery/facility-report/{id}', [GalleryController::class, 'facilityReport'])->name('gallery.facility-report')->where('id', '[0-9]+');
 
-// Gallery Reports
-Route::get('/gallery-reports', [GalleryController::class, 'reportsIndex'])->name('gallery-reports.index');
-Route::get('/gallery-reports/exhibitions', [GalleryController::class, 'reportsExhibitions'])->name('gallery-reports.exhibitions');
-Route::get('/gallery-reports/facility-reports', [GalleryController::class, 'reportsFacilityReports'])->name('gallery-reports.facility-reports');
-Route::get('/gallery-reports/loans', [GalleryController::class, 'reportsLoans'])->name('gallery-reports.loans');
-Route::get('/gallery-reports/spaces', [GalleryController::class, 'reportsSpaces'])->name('gallery-reports.spaces');
-Route::get('/gallery-reports/valuations', [GalleryController::class, 'reportsValuations'])->name('gallery-reports.valuations');
+    // Gallery Reports
+    Route::get('/gallery-reports', [GalleryController::class, 'reportsIndex'])->name('gallery-reports.index');
+    Route::get('/gallery-reports/exhibitions', [GalleryController::class, 'reportsExhibitions'])->name('gallery-reports.exhibitions');
+    Route::get('/gallery-reports/facility-reports', [GalleryController::class, 'reportsFacilityReports'])->name('gallery-reports.facility-reports');
+    Route::get('/gallery-reports/loans', [GalleryController::class, 'reportsLoans'])->name('gallery-reports.loans');
+    Route::get('/gallery-reports/spaces', [GalleryController::class, 'reportsSpaces'])->name('gallery-reports.spaces');
+    Route::get('/gallery-reports/valuations', [GalleryController::class, 'reportsValuations'])->name('gallery-reports.valuations');
+});
 
 // Authenticated routes (before slug catch-all)
 Route::middleware('auth')->group(function () {

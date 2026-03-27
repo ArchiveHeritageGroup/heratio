@@ -890,6 +890,37 @@ PY;
                 if ($getMedian($bright) > $threshold) { $bottom = $y; break; }
             }
 
+            // Detect overlay card: scan for a vertical dark gap in the right 50%
+            // Marriage registers etc. have a white checklist card overlapping on the right
+            // The gap between document and card is a dark vertical band
+            $midX = $left + (int)(($right - $left) * 0.5);
+            $gapThreshold = 80; // darker than content
+            $gapMinHeight = (int)(($bottom - $top) * 0.3); // gap must span at least 30% of height
+
+            for ($x = $right; $x > $midX; $x--) {
+                $darkCount = 0;
+                for ($s = 0; $s < $samples; $s++) {
+                    $sy = (int)($top + ($bottom - $top) * 0.1 + ($bottom - $top) * 0.8 / $samples * $s);
+                    $b = $getBrightness($im, min($x, $w - 1), min($sy, $h - 1));
+                    if ($b < $gapThreshold) $darkCount++;
+                }
+                // If most sample points are dark, this is a gap column
+                if ($darkCount >= $samples * 0.6) {
+                    // Verify there's bright content to the left of this gap
+                    $leftOfGap = [];
+                    $checkX = max($left, $x - 20);
+                    for ($s = 0; $s < $samples; $s++) {
+                        $sy = (int)($top + ($bottom - $top) * 0.1 + ($bottom - $top) * 0.8 / $samples * $s);
+                        $leftOfGap[] = $getBrightness($im, min($checkX, $w - 1), min($sy, $h - 1));
+                    }
+                    if ($getMedian($leftOfGap) > $threshold) {
+                        // Found the gap — crop here
+                        $right = $x;
+                        break;
+                    }
+                }
+            }
+
             // Add small padding
             $pad = 5;
             $left = max(0, $left - $pad);
@@ -1686,12 +1717,51 @@ PY;
             glob("{$folder}/*.csv") ?: [],
             glob("{$folder}/*.xls") ?: []
         );
+
+        $selectedSpreadsheet = $request->input('spreadsheet', '');
+
+        // No spreadsheets found — operate in image-only mode
         if (empty($spreadsheets)) {
-            return response()->json(['success' => false, 'error' => 'No spreadsheet found in folder']);
+            if (!$selectedSpreadsheet && $selectedSpreadsheet !== '__none__') {
+                // Return empty spreadsheet list — frontend will offer "No spreadsheet" option
+                return response()->json([
+                    'success' => true,
+                    'spreadsheets' => [],
+                    'needsSelection' => true,
+                    'noSpreadsheets' => true,
+                ]);
+            }
+
+            // Load images directly from filesystem
+            $processedDir = $folder . '/processed';
+            $processedFiles = [];
+            if (is_dir($processedDir)) {
+                $processedFiles = array_map('basename', glob("{$processedDir}/*.{jpg,jpeg,png,tif,tiff,JPG,JPEG,PNG,TIF,TIFF}", GLOB_BRACE) ?: []);
+            }
+
+            $imageFiles = glob("{$folder}/*.{jpg,jpeg,png,tif,tiff,JPG,JPEG,PNG,TIF,TIFF}", GLOB_BRACE) ?: [];
+            sort($imageFiles);
+            $images = [];
+            foreach ($imageFiles as $imgFile) {
+                $fname = basename($imgFile);
+                if (in_array($fname, $processedFiles)) continue;
+                $images[] = [
+                    'fname' => $fname,
+                    'path' => $imgFile,
+                    'fields' => [],
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'images' => $images,
+                'columns' => [],
+                'spreadsheet' => '__none__',
+                'total' => count($images),
+            ]);
         }
 
         // If only listing spreadsheets (no specific one selected), return the list
-        $selectedSpreadsheet = $request->input('spreadsheet', '');
         if (!$selectedSpreadsheet) {
             // Return list of available spreadsheets for the dropdown
             $ssNames = array_map('basename', $spreadsheets);
@@ -1699,6 +1769,36 @@ PY;
                 'success' => true,
                 'spreadsheets' => $ssNames,
                 'needsSelection' => true,
+            ]);
+        }
+
+        // "__none__" means user chose to skip the spreadsheet even though ones exist
+        if ($selectedSpreadsheet === '__none__') {
+            $processedDir = $folder . '/processed';
+            $processedFiles = [];
+            if (is_dir($processedDir)) {
+                $processedFiles = array_map('basename', glob("{$processedDir}/*.{jpg,jpeg,png,tif,tiff,JPG,JPEG,PNG,TIF,TIFF}", GLOB_BRACE) ?: []);
+            }
+
+            $imageFiles = glob("{$folder}/*.{jpg,jpeg,png,tif,tiff,JPG,JPEG,PNG,TIF,TIFF}", GLOB_BRACE) ?: [];
+            sort($imageFiles);
+            $images = [];
+            foreach ($imageFiles as $imgFile) {
+                $fname = basename($imgFile);
+                if (in_array($fname, $processedFiles)) continue;
+                $images[] = [
+                    'fname' => $fname,
+                    'path' => $imgFile,
+                    'fields' => [],
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'images' => $images,
+                'columns' => [],
+                'spreadsheet' => '__none__',
+                'total' => count($images),
             ]);
         }
 

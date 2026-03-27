@@ -17,8 +17,8 @@ class ConditionService
     {
         return [
             'total_checks' => DB::table('spectrum_condition_check')->count(),
-            'total_photos' => DB::table('condition_photo')->count(),
-            'total_annotations' => DB::table('condition_annotation')->count(),
+            'total_photos' => DB::table('spectrum_condition_photo')->count(),
+            'total_annotations' => DB::table('spectrum_condition_photo')->whereNotNull('annotations')->count(),
         ];
     }
 
@@ -90,7 +90,7 @@ class ConditionService
 
     public function getPhotosForCheck(int $checkId): \Illuminate\Support\Collection
     {
-        return DB::table('condition_photo')
+        return DB::table('spectrum_condition_photo')
             ->where('condition_check_id', $checkId)
             ->orderBy('sort_order')
             ->get();
@@ -98,26 +98,26 @@ class ConditionService
 
     public function getPhoto(int $id): ?object
     {
-        return DB::table('condition_photo')->where('id', $id)->first();
+        return DB::table('spectrum_condition_photo')->where('id', $id)->first();
     }
 
     public function getAnnotations(int $photoId): array
     {
         $photo = $this->getPhoto($photoId);
 
-        if (!$photo || empty($photo->annotation_data)) {
+        if (!$photo || empty($photo->annotations)) {
             return [];
         }
 
-        return json_decode($photo->annotation_data, true) ?: [];
+        return json_decode($photo->annotations, true) ?: [];
     }
 
     public function saveAnnotations(int $photoId, array $annotations, int $userId): bool
     {
-        return DB::table('condition_photo')
+        return DB::table('spectrum_condition_photo')
             ->where('id', $photoId)
             ->update([
-                'annotation_data' => json_encode($annotations),
+                'annotations' => json_encode($annotations),
                 'updated_at' => now(),
             ]) >= 0;
     }
@@ -128,8 +128,8 @@ class ConditionService
         $totalAnnotations = 0;
 
         foreach ($photos as $photo) {
-            if (!empty($photo->annotation_data)) {
-                $annotations = json_decode($photo->annotation_data, true);
+            if (!empty($photo->annotations)) {
+                $annotations = json_decode($photo->annotations, true);
                 if (is_array($annotations)) {
                     $totalAnnotations += count($annotations);
                 }
@@ -154,7 +154,7 @@ class ConditionService
         $path = $uploadDir . '/' . $filename;
 
         if (move_uploaded_file($file['tmp_name'], $path)) {
-            return DB::table('condition_photo')->insertGetId([
+            return DB::table('spectrum_condition_photo')->insertGetId([
                 'condition_check_id' => $checkId,
                 'filename' => $filename,
                 'original_name' => $file['name'],
@@ -181,7 +181,7 @@ class ConditionService
             unlink($path);
         }
 
-        return DB::table('condition_photo')->where('id', $photoId)->delete() > 0;
+        return DB::table('spectrum_condition_photo')->where('id', $photoId)->delete() > 0;
     }
 
     public function getConditionCheckForObject(string $slug): ?array
@@ -235,11 +235,11 @@ class ConditionService
 
     public function getTemplates(): \Illuminate\Support\Collection
     {
-        return DB::table('condition_template')->orderBy('name')->get();
+        return DB::table('spectrum_condition_template')->orderBy('name')->get();
     }
 
     public function getTemplateView(int $id): ?object
     {
-        return DB::table('condition_template')->where('id', $id)->first();
+        return DB::table('spectrum_condition_template')->where('id', $id)->first();
     }
 }

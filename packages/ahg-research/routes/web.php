@@ -12,19 +12,24 @@ use Illuminate\Support\Facades\Route;
 | All routes follow the AtoM URL structure: /research/*
 */
 
+// Public research routes
 Route::prefix('research')->name('research.')->group(function () {
+    Route::get('/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
+    Route::post('/public-register', [ResearchController::class, 'publicRegister'])->name('publicRegister.store');
+    Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
+    Route::get('/cite/{slug}', [ResearchController::class, 'cite'])->name('cite');
+});
+
+Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
 
     // Dashboard & Index
     Route::match(['get', 'post'], '/', [ResearchController::class, 'index'])->name('index');
     Route::match(['get', 'post'], '/dashboard', [ResearchController::class, 'dashboard'])->name('dashboard');
-    Route::get('/admin', [ResearchController::class, 'dashboard'])->name('admin'); // AtoM menu alias
+    Route::get('/admin', [ResearchController::class, 'dashboard'])->name('admin');
 
-    // Registration (public and authenticated)
+    // Registration
     Route::get('/register', [ResearchController::class, 'register'])->name('register');
     Route::post('/register', [ResearchController::class, 'register'])->name('register.store');
-    Route::get('/publicRegister', [ResearchController::class, 'publicRegister'])->name('publicRegister');
-    Route::post('/public-register', [ResearchController::class, 'publicRegister'])->name('publicRegister.store');
-    Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
 
     // Profile
     Route::get('/profile', [ResearchController::class, 'profile'])->name('profile');
@@ -76,9 +81,6 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::put('/annotations/{id}', [ResearchController::class, 'updateAnnotation'])->name('annotations.update')->where('id', '[0-9]+');
     Route::delete('/annotations/{id}', [ResearchController::class, 'destroyAnnotation'])->name('annotations.destroy')->where('id', '[0-9]+');
 
-    // Citations
-    Route::get('/cite/{slug}', [ResearchController::class, 'cite'])->name('cite');
-
     // Projects
     Route::get('/projects', [ResearchController::class, 'projects'])->name('projects');
     Route::get('/projects/create', [ResearchController::class, 'createProject'])->name('projects.create');
@@ -117,7 +119,14 @@ Route::prefix('research')->name('research.')->group(function () {
     // Notifications
     Route::match(['get', 'post'], '/notifications', [ResearchController::class, 'notifications'])->name('notifications');
 
-    // Admin: Researchers
+    // AJAX endpoints
+    Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
+    Route::post('/addToCollection', [ResearchController::class, 'addToCollection'])->name('addToCollection');
+    Route::post('/createCollectionAjax', [ResearchController::class, 'createCollectionAjax'])->name('createCollectionAjax');
+});
+
+// Admin research management routes
+Route::prefix('research')->name('research.')->middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/researchers', [ResearchController::class, 'researchers'])->name('researchers');
     Route::match(['get', 'post'], '/viewResearcher/{id}', [ResearchController::class, 'viewResearcher'])->name('viewResearcher')->where('id', '[0-9]+');
     Route::post('/approveResearcher/{id}', [ResearchController::class, 'approveResearcher'])->name('approveResearcher')->where('id', '[0-9]+');
@@ -125,30 +134,17 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::post('/researchers/{id}/approve', [ResearchController::class, 'approveResearcher'])->name('researchers.approve')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/reject', [ResearchController::class, 'rejectResearcher'])->name('researchers.reject')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/suspend', [ResearchController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
-
-    // Admin: Bookings
     Route::match(['get', 'post'], '/bookings', [ResearchController::class, 'bookings'])->name('bookings');
-
-    // Admin: Rooms
     Route::get('/rooms', [ResearchController::class, 'rooms'])->name('rooms');
     Route::match(['get', 'post'], '/editRoom', [ResearchController::class, 'editRoom'])->name('editRoom');
-
-    // Admin: Seats, Equipment, Retrieval, Walk-In
     Route::match(['get', 'post'], '/seats', [ResearchController::class, 'seats'])->name('seats');
     Route::match(['get', 'post'], '/equipment', [ResearchController::class, 'equipment'])->name('equipment');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchController::class, 'retrievalQueue'])->name('retrievalQueue');
     Route::match(['get', 'post'], '/walkIn', [ResearchController::class, 'walkIn'])->name('walkIn');
-
-    // Admin: Types, Statistics, Institutions, Activities
     Route::get('/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
     Route::match(['get', 'post'], '/adminStatistics', [ResearchController::class, 'adminStatistics'])->name('adminStatistics');
     Route::match(['get', 'post'], '/institutions', [ResearchController::class, 'institutions'])->name('institutions');
     Route::match(['get', 'post'], '/activities', [ResearchController::class, 'activities'])->name('activities');
-
-    // AJAX endpoints
-    Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
-    Route::post('/addToCollection', [ResearchController::class, 'addToCollection'])->name('addToCollection');
-    Route::post('/createCollectionAjax', [ResearchController::class, 'createCollectionAjax'])->name('createCollectionAjax');
 });
 
 /*

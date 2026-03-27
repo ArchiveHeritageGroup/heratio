@@ -52,9 +52,9 @@
         <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="/path/to/images">
       </div>
       <div class="col-md-5">
-        <label class="form-label small fw-bold">Spreadsheet (in same folder)</label>
+        <label class="form-label small fw-bold">Spreadsheet <span class="text-muted fw-normal">(optional)</span></label>
         <select id="ba-spreadsheet" class="form-select form-select-sm">
-          <option value="">Select spreadsheet...</option>
+          <option value="__none__">No spreadsheet (images only)</option>
         </select>
       </div>
       <div class="col-md-2">
@@ -189,7 +189,7 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place'];
+  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place', 'Husband Name', 'Wife Name', 'Husband Race', 'Wife Race', 'District', 'Place of Marriage', 'Witnesses', 'Married By', 'Registration No'];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
     'Residence Place': 'Duration of last Illness',
@@ -487,6 +487,24 @@
         'Event Date':     { x: 0.25, y: 0.38, w: 0.45, h: 0.03 },
       }
     },
+    'sa-marriage-register': {
+      label: 'SA Marriage — Duplicate Original Marriage Register (EN/AF)',
+      detect: ['marriage', 'huwelik', 'huweliksregister', 'duplicate original marriage', 'duplikaat origineel'],
+      anchor: ['duplicate', 'marriage', 'register'],
+      anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
+      fields: {
+        'Registration No': { x: 0.02, y: 0.04, w: 0.08, h: 0.04 },
+        'Husband Name':    { x: 0.06, y: 0.12, w: 0.25, h: 0.04 },
+        'Husband Race':    { x: 0.06, y: 0.17, w: 0.15, h: 0.03 },
+        'Wife Name':       { x: 0.06, y: 0.22, w: 0.25, h: 0.04 },
+        'Wife Race':       { x: 0.06, y: 0.27, w: 0.15, h: 0.03 },
+        'District':        { x: 0.35, y: 0.12, w: 0.30, h: 0.04 },
+        'Place of Marriage':{ x: 0.35, y: 0.17, w: 0.30, h: 0.04 },
+        'Event Date':      { x: 0.06, y: 0.33, w: 0.30, h: 0.04 },
+        'Witnesses':       { x: 0.06, y: 0.55, w: 0.35, h: 0.08 },
+        'Married By':      { x: 0.40, y: 0.50, w: 0.25, h: 0.04 },
+      }
+    },
     'manual': {
       label: 'Manual positioning (no template)',
       detect: [],
@@ -684,17 +702,21 @@
     })
     .then(r => r.json())
     .then(data => {
-      if (data.needsSelection && data.spreadsheets) {
-        ssSelect.innerHTML = '<option value="">Select spreadsheet...</option>';
-        data.spreadsheets.forEach(name => {
+      if (data.needsSelection) {
+        ssSelect.innerHTML = '<option value="__none__">No spreadsheet (images only)</option>';
+        (data.spreadsheets || []).forEach(name => {
           const opt = document.createElement('option');
           opt.value = name;
           opt.textContent = name;
           ssSelect.appendChild(opt);
         });
-        // Auto-select if only one
-        if (data.spreadsheets.length === 1) {
+        // Auto-select the spreadsheet if only one exists
+        if (data.spreadsheets && data.spreadsheets.length === 1) {
           ssSelect.value = data.spreadsheets[0];
+        }
+        // If no spreadsheets at all, auto-select "No spreadsheet"
+        if (data.noSpreadsheets) {
+          ssSelect.value = '__none__';
         }
       }
     })
@@ -729,17 +751,22 @@
 
       // Step 1: populate spreadsheet dropdown
       if (data.needsSelection) {
-        ssSelect.innerHTML = '<option value="">Select spreadsheet...</option>';
+        ssSelect.innerHTML = '<option value="__none__">No spreadsheet (images only)</option>';
         (data.spreadsheets || []).forEach(name => {
           const opt = document.createElement('option');
           opt.value = name;
           opt.textContent = name;
           ssSelect.appendChild(opt);
         });
-        // Auto-select if only one
-        if (data.spreadsheets.length === 1) {
+        // Auto-select if only one spreadsheet
+        if (data.spreadsheets && data.spreadsheets.length === 1) {
           ssSelect.value = data.spreadsheets[0];
           loadBulkData(); // re-call with selection
+        }
+        // If no spreadsheets at all, auto-load in images-only mode
+        if (data.noSpreadsheets) {
+          ssSelect.value = '__none__';
+          loadBulkData(); // re-call with __none__
         }
         return;
       }

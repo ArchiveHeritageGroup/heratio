@@ -3,8 +3,10 @@
 use AhgAccessionManage\Controllers\AccessionController;
 use Illuminate\Support\Facades\Route;
 
-// Accession create form is accessible anonymously (matches AtoM behavior)
-Route::get('/accession/add', [AccessionController::class, 'create'])->name('accession.create');
+// Accession create form requires auth
+Route::middleware('auth')->group(function () {
+    Route::get('/accession/add', [AccessionController::class, 'create'])->name('accession.create');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/accession/browse', [AccessionController::class, 'browse'])->name('accession.browse');
