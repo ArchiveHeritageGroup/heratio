@@ -122,7 +122,7 @@ class AccessRequestController extends Controller
     /**
      * Remove an approver.
      */
-    public function removeApprover(int $id)
+    public function removeApprover(string $id)
     {
         $this->service->removeApprover($id);
 
