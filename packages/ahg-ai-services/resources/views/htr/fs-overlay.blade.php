@@ -949,6 +949,10 @@
               y: p.y,
               w: p.w,
               h: p.h,
+              // Store detected label position for highlighting
+              labelBox: p.label_x !== undefined ? { x: p.label_x, y: p.label_y, w: p.label_w, h: p.label_h } : null,
+              labelText: p.label_text || null,
+              matchStrategy: p.match_strategy || null,
             };
             annotations.push(ann);
             // Save as reference for next images
@@ -1682,6 +1686,37 @@
         ctx.fillRect(ann.x * scale, (ann.y + ann.h) * scale + 2, vw, 16);
         ctx.fillStyle = '#333';
         ctx.fillText(ann.value, ann.x * scale + 4, (ann.y + ann.h) * scale + 14);
+      }
+
+      // Highlight detected printed label (dashed blue box around the label text)
+      if (ann.labelBox) {
+        const lb = ann.labelBox;
+        ctx.strokeStyle = '#0d6efd';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.globalAlpha = 0.8;
+        ctx.strokeRect(lb.x * scale, lb.y * scale, lb.w * scale, lb.h * scale);
+        ctx.setLineDash([]);
+        // Label tag above the printed label box
+        const tagText = '⎯ ' + (ann.labelText || 'label');
+        ctx.font = '10px sans-serif';
+        const tagW = ctx.measureText(tagText).width + 6;
+        ctx.fillStyle = '#0d6efd';
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(lb.x * scale, lb.y * scale - 14, tagW, 14);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#fff';
+        ctx.fillText(tagText, lb.x * scale + 3, lb.y * scale - 3);
+        // Draw a connecting line from label to answer box
+        ctx.strokeStyle = '#0d6efd';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.moveTo((lb.x + lb.w) * scale, (lb.y + lb.h / 2) * scale);
+        ctx.lineTo(ann.x * scale, (ann.y + ann.h / 2) * scale);
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
 
       ctx.restore();
