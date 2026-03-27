@@ -193,9 +193,9 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  // Base allowed fields — multi-entry fields (marriage etc.) are added dynamically by generateMultiEntryFields()
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
+    'Reg No', 'Wife Name', 'Place of Marriage', 'District', 'Province',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -499,20 +499,14 @@
       detect: ['marriage', 'huwelik', 'huweliksregister', 'duplicate original marriage', 'duplikaat origineel'],
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
-      multiEntry: true, // supports N entries per page — fields generated dynamically
-      baseFields: {
-        'Reg No':           { x: 0.02, w: 0.06, h: 0.03, dy: 0.00 },
-        'Husband Name':     { x: 0.05, w: 0.28, h: 0.04, dy: 0.04 },
-        'Husband Race':     { x: 0.05, w: 0.12, h: 0.03, dy: 0.09 },
-        'Wife Name':        { x: 0.05, w: 0.28, h: 0.04, dy: 0.14 },
-        'Wife Race':        { x: 0.05, w: 0.12, h: 0.03, dy: 0.19 },
-        'District':         { x: 0.35, w: 0.28, h: 0.04, dy: 0.04 },
-        'Place of Marriage': { x: 0.35, w: 0.28, h: 0.04, dy: 0.09 },
-        'Event Date':       { x: 0.05, w: 0.28, h: 0.03, dy: 0.26 },
-        'Witnesses':        { x: 0.05, w: 0.30, h: 0.05, dy: 0.32 },
-        'Married By':       { x: 0.38, w: 0.25, h: 0.04, dy: 0.29 },
-      },
-      fields: {} // populated dynamically by generateMultiEntryFields()
+      fields: {
+        'District':          { x: 0.42, y: 0.08, w: 0.22, h: 0.04 },  // top of page
+        'Province':          { x: 0.66, y: 0.08, w: 0.18, h: 0.04 },  // top of page
+        'Reg No':            { x: 0.01, y: 0.14, w: 0.06, h: 0.06 },  // col 1
+        'Wife Name':         { x: 0.24, y: 0.14, w: 0.18, h: 0.20 },  // col 4
+        'Place of Marriage': { x: 0.42, y: 0.14, w: 0.22, h: 0.20 },  // col 6
+        'Event Date':        { x: 0.05, y: 0.40, w: 0.30, h: 0.06 },  // date row
+      }
     },
     'manual': {
       label: 'Manual positioning (no template)',
