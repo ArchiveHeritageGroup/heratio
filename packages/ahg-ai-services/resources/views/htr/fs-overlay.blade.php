@@ -191,7 +191,7 @@
   // Only these 5 fields are used — everything else is skipped
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
-    'Husband Race', 'Spouse', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
+    'Husband Name', 'Husband Race', 'Spouse', 'Spouse Race', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -496,8 +496,10 @@
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
       fields: {
-        'Husband Race':      { x: 0.05, y: 0.110, w: 0.10, h: 0.06 },    // race column
-        'Spouse':            { x: 0.16, y: 0.110, w: 0.22, h: 0.06 },    // wife/spouse name
+        'Husband Name':      { x: 0.08, y: 0.275, w: 0.19, h: 0.068 },   // husband name
+        'Husband Race':      { x: 0.05, y: 0.13, w: 0.10, h: 0.05 },    // race column
+        'Spouse':            { x: 0.19, y: 0.385, w: 0.19, h: 0.058 },  // wife/spouse name
+        'Spouse Race':       { x: 0.16, y: 0.20, w: 0.10, h: 0.05 },    // spouse race
         'Place of Marriage': { x: 0.452, y: 0.175, w: 0.134, h: 0.055 },  // bottom-aligned at 0.23
         'District':          { x: 0.628, y: 0.175, w: 0.128, h: 0.055 },  // bottom-aligned at 0.23
         'Province':          { x: 0.817, y: 0.175, w: 0.13, h: 0.055 },   // bottom-aligned at 0.23
@@ -1295,9 +1297,10 @@
             if (label === 'Event Date') fixedText = autoFixDate(cleanText);
             else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-            // If field is empty, auto-populate it directly
+            // Auto-populate — skip CSV-prefilled name fields (reference data)
+            const bulkCsvPrefilled = ['Husband Name', 'Spouse'];
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
-            if (inp) {
+            if (inp && !bulkCsvPrefilled.includes(label)) {
               inp.value = fixedText;
               entry.fields[label] = fixedText;
               if (annotations[idx]) annotations[idx].value = fixedText;
@@ -1468,9 +1471,10 @@
       if (label === 'Event Date') fixedText = autoFixDate(cleanText);
       else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-      // Overwrite field with recognised text (user moved/resized the box to a new position)
+      // Overwrite field with recognised text — but skip CSV-prefilled fields (names are reference data)
+      const csvPrefilledFields = ['Husband Name', 'Spouse'];
       const inp = document.querySelector('.ba-edit-input[data-field-idx="' + annIdx + '"]');
-      if (inp) {
+      if (inp && !csvPrefilledFields.includes(label)) {
         inp.value = fixedText;
         entry.fields[label] = fixedText;
         if (annotations[annIdx]) annotations[annIdx].value = fixedText;

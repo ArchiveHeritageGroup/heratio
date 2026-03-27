@@ -21,6 +21,7 @@ Route::middleware('admin')->group(function () {
 
     // RIC Explorer
     Route::get('/admin/ric/explorer', [RicController::class, 'explorer'])->name('ric.explorer');
+    Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->name('ric.create-entity');
     Route::get('/admin/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
     Route::get('/admin/ric/data', [RicController::class, 'getData'])->name('ric.data');
 

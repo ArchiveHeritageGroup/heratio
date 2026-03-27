@@ -668,6 +668,109 @@ class RicController extends Controller
     }
 
     /**
+     * Create a new RiC entity directly in the Fuseki graph store.
+     * Standalone — does not create in AtoM/Heratio DB. Can be synced later.
+     */
+    public function createEntity(Request $request)
+    {
+        $type = $request->input('type', 'Record');
+        $name = trim($request->input('name', ''));
+        $description = trim($request->input('description', ''));
+        $identifier = trim($request->input('identifier', ''));
+        $parentUri = trim($request->input('parent_uri', ''));
+
+        if (!$name) {
+            return response()->json(['success' => false, 'error' => 'Name is required']);
+        }
+
+        $config = $this->getFusekiConfig();
+        $fusekiEndpoint = $config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric');
+        $fusekiUsername = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
+        $fusekiPassword = $config['fuseki_password'] ?? config('services.ric.fuseki_password', '');
+
+        // RiC-O type mapping
+        $ricTypes = [
+            'Record'        => 'rico:Record',
+            'RecordSet'     => 'rico:RecordSet',
+            'RecordPart'    => 'rico:RecordPart',
+            'Person'        => 'rico:Person',
+            'CorporateBody' => 'rico:CorporateBody',
+            'Family'        => 'rico:Family',
+            'Place'         => 'rico:Place',
+            'Activity'      => 'rico:Activity',
+            'Event'         => 'rico:Event',
+            'Concept'       => 'rico:Concept',
+        ];
+
+        $ricType = $ricTypes[$type] ?? 'rico:Record';
+
+        // Generate a URI for the new entity
+        $slug = \Illuminate\Support\Str::slug($name);
+        $uid = substr(md5($name . microtime(true)), 0, 8);
+        $entityUri = "https://heratio.theahg.co.za/ric/" . strtolower($type) . "/{$slug}-{$uid}";
+
+        // Build SPARQL INSERT
+        $escapeName = addslashes($name);
+        $sparql = "PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>\n"
+            . "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+            . "PREFIX dcterms: <http://purl.org/dc/terms/>\n"
+            . "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\n"
+            . "INSERT DATA {\n"
+            . "  <{$entityUri}> a {$ricType} ;\n"
+            . "    rdfs:label \"{$escapeName}\" ;\n"
+            . "    rico:title \"{$escapeName}\" ;\n"
+            . "    dcterms:created \"" . now()->toIso8601String() . "\"^^xsd:dateTime ;\n";
+
+        if ($identifier) {
+            $sparql .= "    rico:identifier \"" . addslashes($identifier) . "\" ;\n";
+        }
+        if ($description) {
+            $sparql .= "    rico:scopeAndContent \"" . addslashes($description) . "\" ;\n";
+        }
+        if ($parentUri) {
+            $sparql .= "    rico:isOrWasIncludedIn <{$parentUri}> ;\n";
+        }
+
+        // Remove trailing " ;\n" and close with " .\n}"
+        $sparql = rtrim($sparql, " ;\n") . " .\n}";
+
+        // Execute SPARQL UPDATE
+        $updateUrl = rtrim($fusekiEndpoint, '/') . '/update';
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $updateUrl,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => 'update=' . urlencode($sparql),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 15,
+        ]);
+        if ($fusekiUsername) {
+            curl_setopt($ch, CURLOPT_USERPWD, "{$fusekiUsername}:{$fusekiPassword}");
+        }
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            \Log::info('[RiC] Entity created in graph store', ['uri' => $entityUri, 'type' => $type, 'name' => $name]);
+            return response()->json([
+                'success' => true,
+                'uri' => $entityUri,
+                'type' => $type,
+                'name' => $name,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => "Fuseki returned HTTP {$httpCode}",
+            'response' => substr($response ?: '', 0, 500),
+        ]);
+    }
+
+    /**
      * Autocomplete endpoint for information objects.
      * Returns JSON array of {id, title, lod, identifier, slug}.
      */

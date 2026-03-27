@@ -96,6 +96,58 @@
     </a>
   </div>
 
+  {{-- New Entity Modal --}}
+  <div class="modal fade" id="ricCreateEntityModal" tabindex="-1" aria-labelledby="ricCreateEntityLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background:#2a2a3e; color:#e0e0e0;">
+        <div class="modal-header" style="border-color:#444;">
+          <h5 class="modal-title" id="ricCreateEntityLabel"><i class="fas fa-plus me-2"></i>New RiC Entity</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small">Entity Type</label>
+            <select id="ric-create-type" class="form-select form-select-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;">
+              <option value="RecordSet">RecordSet (Fonds/Collection)</option>
+              <option value="Record" selected>Record (Item/File)</option>
+              <option value="RecordPart">RecordPart</option>
+              <option value="Person">Person</option>
+              <option value="CorporateBody">CorporateBody</option>
+              <option value="Family">Family</option>
+              <option value="Place">Place</option>
+              <option value="Activity">Activity</option>
+              <option value="Event">Event</option>
+              <option value="Concept">Concept/Term</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Name / Title <span class="text-danger">*</span></label>
+            <input type="text" id="ric-create-name" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Enter entity name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Identifier</label>
+            <input type="text" id="ric-create-identifier" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional identifier">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Description</label>
+            <textarea id="ric-create-description" class="form-control form-control-sm" rows="3" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Parent URI <span class="text-muted">(link to existing entity)</span></label>
+            <input type="text" id="ric-create-parent" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="Optional parent URI">
+          </div>
+          <div id="ric-create-result" style="display:none;"></div>
+        </div>
+        <div class="modal-footer" style="border-color:#444;">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-sm btn-success" id="ric-create-submit" onclick="submitCreateEntity()">
+            <i class="fas fa-plus me-1"></i>Create Entity
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{-- Fullscreen Modal --}}
   <div id="ric-fullscreen-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#1a1a2e; z-index:9999;">
     <div style="position:absolute; top:15px; right:15px; z-index:10001;">
@@ -342,5 +394,63 @@
     }
   });
 })();
+
+// ── New Entity ──
+window.openCreateForm = function() {
+  var modal = new bootstrap.Modal(document.getElementById('ricCreateEntityModal'));
+  document.getElementById('ric-create-result').style.display = 'none';
+  document.getElementById('ric-create-name').value = '';
+  document.getElementById('ric-create-identifier').value = '';
+  document.getElementById('ric-create-description').value = '';
+  document.getElementById('ric-create-parent').value = '';
+  modal.show();
+};
+
+window.submitCreateEntity = function() {
+  var name = document.getElementById('ric-create-name').value.trim();
+  if (!name) { alert('Name is required'); return; }
+
+  var btn = document.getElementById('ric-create-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+
+  fetch('{{ route("ric.create-entity") }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+    },
+    body: JSON.stringify({
+      type: document.getElementById('ric-create-type').value,
+      name: name,
+      identifier: document.getElementById('ric-create-identifier').value.trim(),
+      description: document.getElementById('ric-create-description').value.trim(),
+      parent_uri: document.getElementById('ric-create-parent').value.trim(),
+    }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus me-1"></i>Create Entity';
+    var resultDiv = document.getElementById('ric-create-result');
+    resultDiv.style.display = '';
+
+    if (data.success) {
+      resultDiv.innerHTML = '<div class="alert alert-success py-2 mb-0"><i class="fas fa-check me-1"></i>Created: <strong>' + data.name + '</strong> (' + data.type + ')<br><code style="font-size:0.75rem">' + data.uri + '</code></div>';
+      // Load the new entity in the graph
+      setTimeout(function() {
+        bootstrap.Modal.getInstance(document.getElementById('ricCreateEntityModal')).hide();
+        if (typeof loadEntityById === 'function') loadEntityById(data.uri);
+      }, 1500);
+    } else {
+      resultDiv.innerHTML = '<div class="alert alert-danger py-2 mb-0"><i class="fas fa-times me-1"></i>' + (data.error || 'Failed') + '</div>';
+    }
+  })
+  .catch(function(err) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus me-1"></i>Create Entity';
+    alert('Error: ' + err.message);
+  });
+};
 </script>
 @endpush

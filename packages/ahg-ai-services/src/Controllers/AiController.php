@@ -1981,8 +1981,10 @@ PY;
                     $mapped['Province'] = $placeParts[1] ?? '';
                     // District left empty — OCR only
                     $mapped['District'] = '';
+                    $mapped['Husband Name'] = $fields['Name'] ?? '';
                     $mapped['Husband Race'] = '';
                     $mapped['Spouse'] = $fields['Spouse'] ?? '';
+                    $mapped['Spouse Race'] = '';
 
                     $fields = $mapped;
                 }
