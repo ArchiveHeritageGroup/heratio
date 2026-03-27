@@ -478,55 +478,129 @@
 
 @section('content')
 
-  <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
-    @include('ahg-core::components.sort-pickers', [
-        'options' => $sortOptions,
-        'default' => 'alphabetic',
-    ])
-  </div>
-
   @if($pager->getNbResults())
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {{-- Display mode toggle --}}
+      @php
+        $displayMode = request('displayMode', 'list');
+        $baseQuery = request()->except(['displayMode', 'page']);
+      @endphp
+      <div class="btn-group" role="group" aria-label="Display mode">
+        <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
+           class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Compact table/list view">
+          <i class="fas fa-list" aria-hidden="true"></i>
+          <span class="visually-hidden">List</span>
+        </a>
+        <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
+           class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
+          <i class="fas fa-th" aria-hidden="true"></i>
+          <span class="visually-hidden">Grid</span>
+        </a>
+        <a href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'tree'])) }}"
+           class="btn btn-sm {{ $displayMode === 'tree' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Tree/hierarchy view">
+          <i class="fas fa-sitemap" aria-hidden="true"></i>
+          <span class="visually-hidden">Tree</span>
+        </a>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 ms-auto">
+        @include('ahg-core::components.sort-pickers', [
+            'options' => $sortOptions,
+            'default' => 'alphabetic',
+        ])
+
+        @php
+          $currentDir = request('sortDir', 'asc');
+          $dirQuery = request()->except(['sortDir', 'page']);
+        @endphp
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
+            Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">Ascending</a></li>
+            <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'desc'])) }}" class="dropdown-item {{ $currentDir === 'desc' ? 'active' : '' }}">Descending</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <div id="content">
-      @foreach($pager->getResults() as $doc)
-        <article class="search-result row g-0 p-3 border-bottom">
-          @if(!empty($doc['thumbnail_path']))
-            <div class="col-12 col-lg-3 pb-2 pb-lg-0 pe-lg-3">
-              <a href="{{ route('actor.show', $doc['slug']) }}">
-                <img src="{{ url('/uploads/r/' . $doc['thumbnail_path']) }}" alt="{{ $doc['name'] ?: '[Untitled]' }}" class="img-thumbnail">
-              </a>
-            </div>
-          @endif
-          <div class="col-12{{ !empty($doc['thumbnail_path']) ? ' col-lg-9' : '' }} d-flex flex-column gap-1">
-            <div class="d-flex align-items-center gap-2 mw-100">
-              <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
-                {{ $doc['name'] ?: '[Untitled]' }}
-              </a>
-              <button class="btn atom-btn-white ms-auto active-primary clipboard"
-                      data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
-                      data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
-                <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
-                <span class="visually-hidden">Add to clipboard</span>
-              </button>
-            </div>
-            <div class="d-flex flex-column gap-2">
-              <div class="d-flex flex-wrap">
-                @if(!empty($doc['identifier']))
-                  <span class="text-primary me-2">{{ $doc['identifier'] }}</span>
-                @endif
-                @if(!empty($doc['identifier']) && !empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                  <span class="text-muted mx-2">&middot;</span>
-                @endif
-                @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
-                  <span class="text-muted">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
-                @endif
-                @if(request('sort') === 'lastUpdated' && !empty($doc['updated_at']))
-                  <span class="text-muted ms-2">{{ \Carbon\Carbon::parse($doc['updated_at'])->format('Y-m-d') }}</span>
+      @if(in_array($displayMode, ['list', 'tree']))
+        {{-- List view --}}
+        @foreach($pager->getResults() as $doc)
+          <article class="search-result row g-0 p-3 border-bottom">
+            @if(!empty($doc['thumbnail_path']))
+              <div class="col-12 col-lg-3 pb-2 pb-lg-0 pe-lg-3">
+                <a href="{{ route('actor.show', $doc['slug']) }}">
+                  <img src="{{ url('/uploads/r/' . $doc['thumbnail_path']) }}" alt="{{ $doc['name'] ?: '[Untitled]' }}" class="img-thumbnail">
+                </a>
+              </div>
+            @endif
+            <div class="col-12{{ !empty($doc['thumbnail_path']) ? ' col-lg-9' : '' }} d-flex flex-column gap-1">
+              <div class="d-flex align-items-center gap-2 mw-100">
+                <a class="h5 mb-0 text-truncate" href="{{ route('actor.show', $doc['slug']) }}" title="{{ $doc['name'] ?: '[Untitled]' }}">
+                  {{ $doc['name'] ?: '[Untitled]' }}
+                </a>
+                <button class="btn atom-btn-white ms-auto active-primary clipboard"
+                        data-clipboard-slug="{{ $doc['slug'] }}" data-clipboard-type="actor"
+                        data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard">
+                  <i class="fas fa-lg fa-paperclip" aria-hidden="true"></i>
+                  <span class="visually-hidden">Add to clipboard</span>
+                </button>
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <div class="d-flex flex-wrap">
+                  @php $showDash = false; @endphp
+                  @if(!empty($doc['identifier']))
+                    <span class="text-primary">{{ $doc['identifier'] }}</span>
+                    @php $showDash = true; @endphp
+                  @endif
+                  @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                    @if($showDash)
+                      <span class="text-muted mx-2">&middot;</span>
+                    @endif
+                    <span class="text-muted">{{ $entityTypeNames[$doc['entity_type_id']] }}</span>
+                    @php $showDash = true; @endphp
+                  @endif
+                  @if(!empty($doc['dates_of_existence']))
+                    @if($showDash)
+                      <span class="text-muted mx-2">&middot;</span>
+                    @endif
+                    <span class="text-muted">{{ $doc['dates_of_existence'] }}</span>
+                  @endif
+                </div>
+                @if(!empty($doc['history']))
+                  <span class="text-block d-none">{{ $doc['history'] }}</span>
                 @endif
               </div>
             </div>
-          </div>
-        </article>
-      @endforeach
+          </article>
+        @endforeach
+      @else
+        {{-- Grid/Card view --}}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+          @foreach($pager->getResults() as $doc)
+            <div class="col">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <a href="{{ route('actor.show', $doc['slug']) }}">
+                      {{ $doc['name'] ?: '[Untitled]' }}
+                    </a>
+                  </h5>
+                  @if(!empty($doc['entity_type_id']) && isset($entityTypeNames[$doc['entity_type_id']]))
+                    <p class="card-text small text-muted">
+                      {{ $entityTypeNames[$doc['entity_type_id']] }}
+                    </p>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+      @endif
     </div>
   @endif
 @endsection

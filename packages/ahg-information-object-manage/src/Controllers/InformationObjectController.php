@@ -528,6 +528,36 @@ class InformationObjectController extends Controller
                 ->toArray();
         }
 
+        // Child thumbnails for image carousel (matching AtoM imageflow component)
+        $childThumbnails = collect();
+        $childIds = $children->pluck('id')->toArray();
+        if (!empty($childIds)) {
+            $childThumbnails = DB::table('digital_object')
+                ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
+                ->join('information_object_i18n', function ($join) use ($culture) {
+                    $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
+                         ->where('information_object_i18n.culture', '=', $culture);
+                })
+                ->whereIn('digital_object.object_id', $childIds)
+                ->where('digital_object.usage_id', 142) // Thumbnail usage
+                ->select(
+                    'digital_object.id',
+                    'digital_object.object_id',
+                    'digital_object.name',
+                    'digital_object.path',
+                    'digital_object.mime_type',
+                    'digital_object.byte_size',
+                    'slug.slug',
+                    'information_object_i18n.title'
+                )
+                ->limit(10) // Limit carousel items like AtoM
+                ->get();
+        }
+        $childThumbnailTotal = !empty($childIds) ? DB::table('digital_object')
+            ->whereIn('digital_object.object_id', $childIds)
+            ->where('digital_object.usage_id', 142)
+            ->count() : 0;
+
         // Parent breadcrumb chain (walk up the tree)
         $breadcrumbs = [];
         $parentId = $io->parent_id;
@@ -552,39 +582,43 @@ class InformationObjectController extends Controller
         $subjects = DB::table('object_term_relation')
             ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('slug', 'object_term_relation.term_id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 35)
             ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select('term_i18n.name', 'slug.slug')
             ->get();
 
         // Place access points (taxonomy_id = 42)
         $places = DB::table('object_term_relation')
             ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('slug', 'object_term_relation.term_id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 42)
             ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select('term_i18n.name', 'slug.slug')
             ->get();
 
         // Name access points (via relation table — actors linked as name access points)
         $nameAccessPoints = DB::table('relation')
             ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->leftJoin('slug', 'relation.object_id', '=', 'slug.object_id')
             ->where('relation.subject_id', $io->id)
             ->where('relation.type_id', 161) // Name access point relation
             ->where('actor_i18n.culture', $culture)
-            ->select('actor_i18n.authorized_form_of_name as name')
+            ->select('actor_i18n.authorized_form_of_name as name', 'slug.slug')
             ->get();
 
         // Genre access points (taxonomy_id = 78)
         $genres = DB::table('object_term_relation')
             ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->leftJoin('slug', 'object_term_relation.term_id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 78)
             ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select('term_i18n.name', 'slug.slug')
             ->get();
 
         // Language of material
@@ -641,10 +675,11 @@ class InformationObjectController extends Controller
         $physicalObjects = DB::table('relation')
             ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
             ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
+            ->leftJoin('slug', 'physical_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $io->id)
             ->where('relation.type_id', 151)
             ->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id')
+            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id', 'slug.slug')
             ->get();
 
         // Resolve physical object type names

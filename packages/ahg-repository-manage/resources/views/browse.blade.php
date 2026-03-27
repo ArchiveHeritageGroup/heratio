@@ -231,7 +231,7 @@
             <div class="row mb-4">
 
               <div class="col-md-4">
-                <label class="form-label" for="thematicAreas">Thematic area <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="thematicAreas">Thematic area</label>
                 <select class="form-select" name="thematicAreas" id="thematicAreas">
                   <option selected="selected"></option>
                   @foreach($thematicAreaOptions ?? [] as $ta)
@@ -241,7 +241,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="types">Archive type <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="types">Archive type</label>
                 <select class="form-select" name="types" id="types">
                   <option selected="selected"></option>
                   @foreach($repositoryTypes ?? [] as $rt)
@@ -251,7 +251,7 @@
               </div>
 
               <div class="col-md-4">
-                <label class="form-label" for="regions">Region <span class="badge bg-secondary ms-1">Optional</span></label>
+                <label class="form-label" for="regions">Region</label>
                 <select class="form-select" name="regions" id="regions">
                   <option selected="selected"></option>
                   @foreach($regions ?? [] as $r)
@@ -314,15 +314,6 @@
   </div>
 
   @if($pager->getNbResults())
-    {{-- Results info --}}
-    @php
-      $from = ($pager->getPage() - 1) * $pager->getMaxPerPage() + 1;
-      $to = min($pager->getPage() * $pager->getMaxPerPage(), $pager->getNbResults());
-    @endphp
-    <div class="small text-muted mb-2">
-      Results {{ $from }} to {{ $to }} of {{ $pager->getNbResults() }}
-    </div>
-
     @if($displayMode === 'grid')
       <div class="row g-3 mb-3">
         @foreach($pager->getResults() as $doc)
@@ -401,12 +392,4 @@
 
 @section('after-content')
   @include('ahg-core::components.pager', ['pager' => $pager])
-
-  @auth
-    <section class="actions mb-3">
-      <ul class="actions mb-1 nav gap-2">
-        <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}" title="Add new">Add new</a></li>
-      </ul>
-    </section>
-  @endauth
 @endsection

@@ -8,6 +8,30 @@
 {{-- ============================================================ --}}
 @section('sidebar')
 
+  {{-- Repository logo (matching AtoM context menu) --}}
+  @if(isset($repository) && $repository)
+    @php
+      $repoLogoPath = null;
+      $repoDigitalObject = \Illuminate\Support\Facades\DB::table('digital_object')
+        ->where('object_id', $repository->id)
+        ->first();
+      if ($repoDigitalObject) {
+        $repoLogoPath = \AhgCore\Services\DigitalObjectService::getUrl($repoDigitalObject);
+      }
+    @endphp
+    <div class="text-center mb-3">
+      @if($repoLogoPath)
+        <a href="{{ route('repository.show', $repository->slug) }}">
+          <img src="{{ $repoLogoPath }}" alt="{{ $repository->name }}" class="img-fluid" style="max-height:80px;">
+        </a>
+      @else
+        <a href="{{ route('repository.show', $repository->slug) }}" class="text-decoration-none">
+          <strong>{{ $repository->name }}</strong>
+        </a>
+      @endif
+    </div>
+  @endif
+
   {{-- Dynamic treeview hierarchy --}}
   @include('ahg-io-manage::partials._treeview', ['io' => $io])
 
@@ -1012,9 +1036,9 @@
         </div>
       @endif
 
-      {{-- Publication notes (type_id = 141) --}}
+      {{-- Publication notes (type_id = 120) --}}
       @if(isset($notes) && $notes->isNotEmpty())
-        @foreach($notes->where('type_id', 141) as $note)
+        @foreach($notes->where('type_id', 120) as $note)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Publication note</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
@@ -1039,9 +1063,9 @@
     </h2>
     <div id="notes-collapse">
 
-      {{-- General notes (type_id = 137) --}}
+      {{-- General notes (type_id = 125) --}}
       @if(isset($notes) && $notes->isNotEmpty())
-        @foreach($notes->where('type_id', 137) as $note)
+        @foreach($notes->where('type_id', 125) as $note)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Note</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
@@ -1084,7 +1108,13 @@
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($subjects as $subject)
-                <li>{{ $subject->name }}</li>
+                <li>
+                  @if(isset($subject->slug))
+                    <a href="{{ route('informationobject.browse', ['subject' => $subject->name]) }}">{{ $subject->name }}</a>
+                  @else
+                    {{ $subject->name }}
+                  @endif
+                </li>
               @endforeach
             </ul>
           </div>
@@ -1097,7 +1127,13 @@
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($places as $place)
-                <li>{{ $place->name }}</li>
+                <li>
+                  @if(isset($place->slug))
+                    <a href="{{ route('informationobject.browse', ['place' => $place->name]) }}">{{ $place->name }}</a>
+                  @else
+                    {{ $place->name }}
+                  @endif
+                </li>
               @endforeach
             </ul>
           </div>
@@ -1110,7 +1146,16 @@
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($nameAccessPoints as $nap)
-                <li>{{ $nap->name }}</li>
+                <li>
+                  @if(isset($nap->slug))
+                    <a href="{{ route('actor.show', $nap->slug) }}">{{ $nap->name }}</a>
+                  @else
+                    {{ $nap->name }}
+                  @endif
+                  @if(isset($nap->event_type))
+                    <span class="text-muted">({{ $nap->event_type }})</span>
+                  @endif
+                </li>
               @endforeach
             </ul>
           </div>
@@ -1123,7 +1168,13 @@
           <div class="col-9 p-2">
             <ul class="m-0 ms-1 ps-3">
               @foreach($genres as $genre)
-                <li>{{ $genre->name }}</li>
+                <li>
+                  @if(isset($genre->slug))
+                    <a href="{{ route('informationobject.browse', ['genre' => $genre->name]) }}">{{ $genre->name }}</a>
+                  @else
+                    {{ $genre->name }}
+                  @endif
+                </li>
               @endforeach
             </ul>
           </div>
@@ -1218,9 +1269,9 @@
         </div>
       @endif
 
-      {{-- Archivist's note (type_id = 142) --}}
+      {{-- Archivist's note (type_id = 124) --}}
       @if(isset($notes) && $notes->isNotEmpty())
-        @foreach($notes->where('type_id', 142) as $note)
+        @foreach($notes->where('type_id', 124) as $note)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Archivist's note</h3>
             <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
@@ -2031,7 +2082,16 @@
               @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
                 <strong>{{ $physicalObjectTypeNames[$pobj->type_id] }}:</strong>
               @endif
-              {{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}
+              @if(isset($pobj->slug))
+                <a href="{{ route('physicalobject.show', $pobj->slug) }}">{{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}</a>
+              @else
+                {{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}
+              @endif
+              @auth
+                @if(isset($pobj->location) && $pobj->location)
+                  - {{ $pobj->location }}
+                @endif
+              @endauth
             </li>
           @endforeach
         </ul>

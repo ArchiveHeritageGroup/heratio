@@ -29,6 +29,8 @@ class ActorBrowseService extends BrowseService
             'actor_i18n.authorized_form_of_name as name',
             'actor.entity_type_id',
             'actor.description_identifier as identifier',
+            'actor_i18n.dates_of_existence',
+            'actor_i18n.history',
             'object.updated_at',
             'slug.slug',
             DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = actor.id LIMIT 1) as thumbnail_path'),
@@ -442,8 +444,11 @@ class ActorBrowseService extends BrowseService
             'name' => $row->name ?? '',
             'entity_type_id' => $row->entity_type_id ?? null,
             'identifier' => $row->identifier ?? '',
+            'dates_of_existence' => $row->dates_of_existence ?? '',
+            'history' => $row->history ?? '',
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
+            'thumbnail_path' => $row->thumbnail_path ?? '',
         ];
     }
 }
