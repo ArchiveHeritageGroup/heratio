@@ -191,7 +191,7 @@
   // Only these 5 fields are used — everything else is skipped
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
-    'Reg No', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
+    'Husband Race', 'Spouse', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -496,12 +496,13 @@
       anchor: ['duplicate', 'marriage', 'register'],
       anchorRef: { x: 0.12, y: 0.04, w: 0.50, h: 0.02 },
       fields: {
-        'Reg No':            { x: 0.05, y: 0.14, w: 0.06, h: 0.06 },  // next to "No."
-        'Place of Marriage': { x: 0.38, y: 0.14, w: 0.15, h: 0.08 },  // next to "Huwelik Bevestig te"
-        'District':          { x: 0.42, y: 0.08, w: 0.13, h: 0.04 },  // next to "Distrikt/District"
-        'Province':          { x: 0.57, y: 0.08, w: 0.13, h: 0.04 },  // next to "Provinsie/Province"
-        'Event Date':        { x: 0.10, y: 0.58, w: 0.25, h: 0.05 },  // "solemnized by me on this the ..."
-        'Marriage Date':     { x: 0.05, y: 0.30, w: 0.30, h: 0.05 },  // date in the register body
+        'Husband Race':      { x: 0.05, y: 0.110, w: 0.10, h: 0.06 },    // race column
+        'Spouse':            { x: 0.16, y: 0.110, w: 0.22, h: 0.06 },    // wife/spouse name
+        'Place of Marriage': { x: 0.452, y: 0.175, w: 0.134, h: 0.055 },  // bottom-aligned at 0.23
+        'District':          { x: 0.628, y: 0.175, w: 0.128, h: 0.055 },  // bottom-aligned at 0.23
+        'Province':          { x: 0.817, y: 0.175, w: 0.13, h: 0.055 },   // bottom-aligned at 0.23
+        'Event Date':        { x: 0.16, y: 0.70, w: 0.29, h: 0.05 },     // "solemnized by me on this the ..."
+        'Marriage Date':     { x: 0.0, y: 0.43, w: 0.085, h: 0.14 },      // left edge of image
       }
     },
     'manual': {
@@ -586,6 +587,16 @@
 
     currentFormType = templateKey;
     document.getElementById('ba-form-type').value = templateKey;
+
+    // Rebuild COLUMNS from the template's fields so the correct fields appear
+    if (tpl.fields && Object.keys(tpl.fields).length > 0) {
+      COLUMNS = Object.keys(tpl.fields).filter(col => !shouldSkip(col));
+      // Ensure empty field values exist on current image
+      const entry = images[imgIdx];
+      if (entry) {
+        COLUMNS.forEach(col => { if (!entry.fields[col]) entry.fields[col] = ''; });
+      }
+    }
 
     // If we have a detected anchor AND the template has an anchor reference,
     // compute offset + scale to adjust all field positions
@@ -846,8 +857,7 @@
     fieldIdx = 0;
     annotations = [];
     skipped = [];
-    loadImage();
-    buildFieldList();
+    loadImage(); // buildFieldList() is called inside afterFieldsPlaced() after image loads
     updateCounters();
   }
 
@@ -872,40 +882,36 @@
         const annCount = annotations.filter(a => a).length;
         console.log('[FS Overlay] COLUMNS:', COLUMNS, 'annotations:', annCount, 'skipped:', skipped.length, 'img:', img.width, 'x', img.height, 'savedPos:', Object.keys(savedPositions));
         if (annCount === 0) {
-          alert('[DEBUG] No annotations created!\nCOLUMNS: ' + COLUMNS.join(', ') + '\nForm type: ' + currentFormType + '\nSaved positions: ' + Object.keys(savedPositions).join(', ') + '\nTemplate fields: ' + (FORM_TEMPLATES[currentFormType] ? Object.keys(FORM_TEMPLATES[currentFormType].fields).join(', ') : 'none'));
+          console.warn('[FS Overlay] No annotations created. COLUMNS:', COLUMNS.join(', '), 'Form type:', currentFormType);
         }
+        buildFieldList();
         redraw();
         if (autoRecogEnabled) setTimeout(baRecognise, 500);
       }
 
-      // If "Detect" checkbox is on, always run OCR label detection first
-      const autoDetectLabels = document.getElementById('ba-auto-detect')?.checked;
-
-      if (autoDetectLabels) {
-        // Run OCR label detection → positions field boxes next to printed labels
-        ocrAndPlace(entry);
-        // ocrAndPlace calls redraw, sets annotations, etc. — afterFieldsPlaced handled inside
-        if (autoRecogEnabled) setTimeout(baRecognise, 1500); // recognise after labels placed
-        return; // ocrAndPlace handles everything
-      }
-
+      // If a specific form type is selected, always use template positions
       if (selectedType && selectedType !== 'auto') {
         currentFormType = selectedType;
-        // If we already have saved positions in memory (from previous images), use them directly
-        // Don't re-fetch from server — savedPositions is always up-to-date from persistPositions()
-        if (Object.keys(savedPositions).length > 0) {
-          applyFormTemplate(selectedType);
-          afterFieldsPlaced();
-        } else {
-          loadSavedPositions(() => {
-            applyFormTemplate(selectedType);
-            afterFieldsPlaced();
-          });
+        // Always rebuild COLUMNS + apply template for the selected form type
+        const tpl = FORM_TEMPLATES[selectedType];
+        if (tpl && tpl.fields && Object.keys(tpl.fields).length > 0) {
+          COLUMNS = Object.keys(tpl.fields).filter(col => !shouldSkip(col));
+          const e = images[imgIdx];
+          if (e) COLUMNS.forEach(col => { if (!e.fields[col]) e.fields[col] = ''; });
         }
+        applyFormTemplate(selectedType);
+        afterFieldsPlaced();
       } else if (COLUMNS.some(col => savedPositions[col])) {
         autoPlaceFields();
         afterFieldsPlaced();
       } else {
+        // No form type selected — use OCR label detection if Detect is on
+        const autoDetectLabels = document.getElementById('ba-auto-detect')?.checked;
+        if (autoDetectLabels) {
+          ocrAndPlace(entry);
+          if (autoRecogEnabled) setTimeout(baRecognise, 1500);
+          return;
+        }
         // Auto-detect: quick OCR to identify form type, then apply template
         document.getElementById('ba-image-name').textContent += ' — detecting form type...';
         fetch('{{ route("admin.ai.htr.fsOverlayOcr") }}', {
@@ -1225,7 +1231,7 @@
   };
 
   // ── Auto-recognise toggle ──
-  let autoRecogEnabled = localStorage.getItem('fs-overlay-auto-recog') === 'true';
+  let autoRecogEnabled = localStorage.getItem('fs-overlay-auto-recog') !== 'false';
 
   // Set initial state
   (function() {
@@ -1291,7 +1297,7 @@
 
             // If field is empty, auto-populate it directly
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
-            if (inp && !inp.value.trim()) {
+            if (inp) {
               inp.value = fixedText;
               entry.fields[label] = fixedText;
               if (annotations[idx]) annotations[idx].value = fixedText;
@@ -1316,6 +1322,91 @@
               }
             });
             coordsEl.parentNode.appendChild(recogDiv);
+
+            // Place match: "Add to dictionary" for place fields — only when NOT already in dict
+            const bulkPlaceLabels = ['Place of Marriage', 'District', 'Province'];
+            const bulkIsExact = result.place_match && result.place_match.match_type === 'exact';
+            if (bulkPlaceLabels.includes(label) && fixedText.length >= 2 && !bulkIsExact) {
+              const hasGoodMatch = result.place_match && (result.place_match.confidence || 0) >= 0.9;
+              if (!hasGoodMatch) {
+                const addDiv = document.createElement('div');
+                addDiv.style.cssText = 'font-size:0.65rem; color:#6c757d; cursor:pointer; padding:1px 0;';
+                addDiv.title = 'Add "' + fixedText + '" to SA towns dictionary';
+                addDiv.innerHTML = '<i class="fas fa-plus-circle" style="font-size:0.55rem"></i> Add "' + fixedText.replace(/</g,'&lt;') + '" to dictionary';
+                addDiv.addEventListener('click', function() {
+                  const townName = inp ? inp.value.trim() : fixedText;
+                  if (!townName) return;
+                  this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:0.55rem"></i> Adding...';
+                  fetch('{{ route("admin.ai.htr.addTown") }}', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'},
+                    body: JSON.stringify({ name: townName, province: '', district: '' }),
+                  })
+                  .then(r => r.json())
+                  .then(d => {
+                    if (d.success) { this.style.color = '#198754'; this.innerHTML = '<i class="fas fa-check"></i> Added (' + (d.stats?.sa_towns || '') + ' towns)'; }
+                    else { this.style.color = '#dc3545'; this.innerHTML = '<i class="fas fa-times"></i> ' + (d.error || 'Failed'); }
+                  })
+                  .catch(() => { this.innerHTML = '<i class="fas fa-times"></i> Error'; });
+                });
+                coordsEl.parentNode.appendChild(addDiv);
+              }
+            }
+
+            // Place match badge — clickable to replace text
+            if (result.place_match) {
+              const pm = result.place_match;
+              const pmDiv = document.createElement('div');
+              pmDiv.style.cssText = 'font-size:0.7rem; color:#0d6efd; padding:1px 0; cursor:pointer;';
+              pmDiv.title = 'Click to use: ' + (pm.name || '');
+              const conf = Math.round((pm.confidence || 0) * 100);
+              const icon = pm.match_type === 'exact' ? 'fa-map-marker-alt' : 'fa-search-location';
+              let info = '<i class="fas ' + icon + '" style="font-size:0.6rem"></i> <span style="text-decoration:underline dotted">' + (pm.name || '').replace(/</g,'&lt;') + '</span>';
+              if (pm.province) info += ' <span style="color:#666">(' + (pm.historical_province || pm.province) + ')</span>';
+              info += ' <span style="font-size:0.6rem;color:#999">' + conf + '%</span>';
+              pmDiv.innerHTML = info;
+              pmDiv.addEventListener('click', function() {
+                if (inp && pm.name) {
+                  inp.value = pm.name;
+                  entry.fields[label] = pm.name;
+                  if (annotations[idx]) annotations[idx].value = pm.name;
+                  redraw();
+                  this.style.color = '#198754';
+                  this.innerHTML = '<i class="fas fa-check"></i> ' + pm.name;
+                }
+              });
+              coordsEl.parentNode.appendChild(pmDiv);
+            }
+
+            // Blur handler: when user edits to a new value, offer "Add to dict"
+            if (inp) {
+              inp.setAttribute('data-orig-recog', fixedText);
+              inp.addEventListener('blur', function() {
+                const newVal = this.value.trim();
+                const origVal = this.getAttribute('data-orig-recog') || '';
+                const parent = coordsEl ? coordsEl.parentNode : null;
+                if (!parent) return;
+                const prevWd = parent.querySelector('.ba-add-word');
+                if (prevWd) prevWd.remove();
+                if (newVal.length >= 2 && newVal !== origVal) {
+                  const wdDiv = document.createElement('div');
+                  wdDiv.className = 'ba-add-word';
+                  wdDiv.style.cssText = 'font-size:0.6rem; color:#6c757d; cursor:pointer; padding:1px 0;';
+                  wdDiv.innerHTML = '<i class="fas fa-spell-check" style="font-size:0.5rem"></i> Add "' + newVal.replace(/</g,'&lt;') + '" to dict';
+                  wdDiv.addEventListener('click', function() {
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:0.5rem"></i> Adding...';
+                    const isPlace = bulkPlaceLabels.includes(label);
+                    const url = isPlace ? '{{ route("admin.ai.htr.addTown") }}' : '{{ route("admin.ai.htr.addWord") }}';
+                    const body = isPlace ? { name: newVal, province: '', district: '' } : { word: newVal };
+                    fetch(url, { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'}, body:JSON.stringify(body) })
+                    .then(r => r.json())
+                    .then(d => { this.style.color = d.success ? '#198754' : '#dc3545'; this.innerHTML = d.success ? '<i class="fas fa-check"></i> Added' : '<i class="fas fa-times"></i> ' + (d.error||'Failed'); })
+                    .catch(() => { this.innerHTML = '<i class="fas fa-times"></i> Error'; });
+                  });
+                  parent.appendChild(wdDiv);
+                }
+              });
+            }
           } else if (error) {
             const errDiv = document.createElement('div');
             errDiv.className = 'ba-recog';
@@ -1408,19 +1499,104 @@
         });
         coordsEl.parentNode.appendChild(recogDiv);
 
-        // Show place match badge if available
+        // "Add to dictionary" button for place fields — only when NOT already in dict
+        const placeLabels = ['Place of Marriage', 'District', 'Province'];
+        const isExactPlaceMatch = result.place_match && result.place_match.match_type === 'exact';
+        if (placeLabels.includes(label) && fixedText.length >= 2 && !isExactPlaceMatch) {
+          const hasGoodMatch = result.place_match && (result.place_match.confidence || 0) >= 0.9;
+          if (!hasGoodMatch) {
+            const addDiv = document.createElement('div');
+            addDiv.style.cssText = 'font-size:0.65rem; color:#6c757d; cursor:pointer; padding:1px 0;';
+            addDiv.title = 'Add "' + fixedText + '" to SA towns dictionary';
+            addDiv.innerHTML = '<i class="fas fa-plus-circle" style="font-size:0.55rem"></i> Add "' + fixedText.replace(/</g,'&lt;') + '" to dictionary';
+            addDiv.addEventListener('click', function() {
+              const townName = inp ? inp.value.trim() : fixedText;
+              if (!townName) return;
+              this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:0.55rem"></i> Adding...';
+              fetch('{{ route("admin.ai.htr.addTown") }}', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'},
+                body: JSON.stringify({ name: townName, province: '', district: '' }),
+              })
+              .then(r => r.json())
+              .then(d => {
+                if (d.success) {
+                  this.style.color = '#198754';
+                  this.innerHTML = '<i class="fas fa-check"></i> Added (' + (d.stats?.sa_towns || '') + ' towns)';
+                } else {
+                  this.style.color = '#dc3545';
+                  this.innerHTML = '<i class="fas fa-times"></i> ' + (d.error || 'Failed');
+                }
+              })
+              .catch(() => { this.innerHTML = '<i class="fas fa-times"></i> Error'; });
+            });
+            coordsEl.parentNode.appendChild(addDiv);
+          }
+        }
+
+        // Show place match badge if available — clickable to replace text
         if (result.place_match) {
           const pm = result.place_match;
           const pmDiv = document.createElement('div');
-          pmDiv.style.cssText = 'font-size:0.7rem; color:#0d6efd; padding:1px 0;';
+          pmDiv.style.cssText = 'font-size:0.7rem; color:#0d6efd; padding:1px 0; cursor:pointer;';
+          pmDiv.title = 'Click to use: ' + (pm.name || '');
           const conf = Math.round((pm.confidence || 0) * 100);
           const icon = pm.match_type === 'exact' ? 'fa-map-marker-alt' : 'fa-search-location';
-          let info = '<i class="fas ' + icon + '" style="font-size:0.6rem"></i> ' + (pm.name || '').replace(/</g,'&lt;');
-          if (pm.province) info += ' <span style="color:#666">(' + pm.historical_province + ')</span>';
-          if (pm.auto_filled_from) info += ' <span style="color:#198754; font-size:0.6rem">← ' + pm.auto_filled_from + '</span>';
+          let info = '<i class="fas ' + icon + '" style="font-size:0.6rem"></i> <span style="text-decoration:underline dotted">' + (pm.name || '').replace(/</g,'&lt;') + '</span>';
+          if (pm.province) info += ' <span style="color:#666">(' + (pm.historical_province || pm.province) + ')</span>';
           info += ' <span style="font-size:0.6rem;color:#999">' + conf + '%</span>';
           pmDiv.innerHTML = info;
+          pmDiv.addEventListener('click', function() {
+            if (inp && pm.name) {
+              inp.value = pm.name;
+              entry.fields[label] = pm.name;
+              if (annotations[annIdx]) annotations[annIdx].value = pm.name;
+              redraw();
+              this.style.color = '#198754';
+              this.innerHTML = '<i class="fas fa-check"></i> ' + pm.name;
+            }
+          });
           coordsEl.parentNode.appendChild(pmDiv);
+        }
+
+        // Attach blur handler: when user edits field to a new value, offer "Add to dict"
+        if (inp) {
+          inp.setAttribute('data-orig-recog', fixedText);
+          inp.addEventListener('blur', function() {
+            const newVal = this.value.trim();
+            const origVal = this.getAttribute('data-orig-recog') || '';
+            const parent = coordsEl ? coordsEl.parentNode : null;
+            if (!parent) return;
+            // Remove previous add-word-dict element
+            const prevWd = parent.querySelector('.ba-add-word');
+            if (prevWd) prevWd.remove();
+            // Show "Add to dict" if edited value differs from recognition and is >= 2 chars
+            if (newVal.length >= 2 && newVal !== origVal) {
+              const wdDiv = document.createElement('div');
+              wdDiv.className = 'ba-add-word';
+              wdDiv.style.cssText = 'font-size:0.6rem; color:#6c757d; cursor:pointer; padding:1px 0;';
+              wdDiv.title = 'Add "' + newVal + '" to dictionary';
+              wdDiv.innerHTML = '<i class="fas fa-spell-check" style="font-size:0.5rem"></i> Add "' + newVal.replace(/</g,'&lt;') + '" to dict';
+              wdDiv.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:0.5rem"></i> Adding...';
+                const isPlace = ['Place of Marriage', 'District', 'Province'].includes(label);
+                const url = isPlace ? '{{ route("admin.ai.htr.addTown") }}' : '{{ route("admin.ai.htr.addWord") }}';
+                const body = isPlace ? { name: newVal, province: '', district: '' } : { word: newVal };
+                fetch(url, {
+                  method: 'POST',
+                  headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||'{{ csrf_token() }}'},
+                  body: JSON.stringify(body),
+                })
+                .then(r => r.json())
+                .then(d => {
+                  if (d.success) { this.style.color = '#198754'; this.innerHTML = '<i class="fas fa-check"></i> Added'; }
+                  else { this.style.color = '#dc3545'; this.innerHTML = '<i class="fas fa-times"></i> ' + (d.error || 'Failed'); }
+                })
+                .catch(() => { this.innerHTML = '<i class="fas fa-times"></i> Error'; });
+              });
+              parent.appendChild(wdDiv);
+            }
+          });
         }
       }
       redraw();

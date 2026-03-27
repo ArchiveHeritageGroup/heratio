@@ -1125,8 +1125,21 @@ pl = PlaceLookup()
 queries = json.loads(sys.argv[1])
 out = {}
 for label, text in queries.items():
-    match = pl.lookup(text, threshold=0.55)
+    match = pl.lookup(text, threshold=0.65)
     if match:
+        # Reject if match adds words not in the input (e.g. "Cape" → "Cape Division")
+        input_words = set(text.lower().split())
+        match_words = set(match['name'].lower().split())
+        added_words = match_words - input_words
+        if added_words and match.get('match_type') != 'exact':
+            # Match adds words — only accept if very high confidence
+            if match.get('confidence', 0) < 0.85:
+                out[label] = None
+                continue
+        # Reject if match name is much longer than input (prevents "Cape" → "Cape Division")
+        if len(match['name']) > len(text) * 1.8 and match.get('match_type') != 'exact':
+            out[label] = None
+            continue
         out[label] = match
     else:
         out[label] = None
@@ -1147,34 +1160,11 @@ PY;
                     @unlink($tmpPy);
 
                     $matches = json_decode(trim($output ?: '{}'), true) ?: [];
+                    // Only attach match info as metadata — never overwrite the raw OCR text
+                    // This data is for LLM training, so the original text must be preserved
                     foreach ($matches as $label => $match) {
                         if ($match && isset($results[$label])) {
                             $results[$label]['place_match'] = $match;
-                            // Auto-correct if confidence is high enough
-                            if (($match['confidence'] ?? 0) >= 0.7) {
-                                $results[$label]['text'] = $match['name'];
-                            }
-                            // For Province field, use the province from any matched town
-                            if ($label === 'Province' && empty($match['name']) && !empty($match['province'])) {
-                                $results[$label]['text'] = $match['historical_province'] ?? $match['province'];
-                            }
-                        }
-                    }
-
-                    // Cross-reference: if Place of Marriage matched, auto-fill District and Province
-                    if (isset($matches['Place of Marriage']) && $matches['Place of Marriage']) {
-                        $townMatch = $matches['Place of Marriage'];
-                        // Auto-fill Province if it wasn't matched or was low confidence
-                        if (isset($results['Province']) && (!isset($matches['Province']) || !$matches['Province'] || ($matches['Province']['confidence'] ?? 0) < 0.7)) {
-                            $results['Province']['text'] = $townMatch['historical_province'] ?? $townMatch['province'] ?? '';
-                            $results['Province']['place_match'] = $townMatch;
-                            $results['Province']['auto_filled_from'] = 'Place of Marriage';
-                        }
-                        // Auto-fill District if it wasn't matched
-                        if (isset($results['District']) && (!isset($matches['District']) || !$matches['District'] || ($matches['District']['confidence'] ?? 0) < 0.7)) {
-                            $results['District']['text'] = $townMatch['name'];
-                            $results['District']['place_match'] = $townMatch;
-                            $results['District']['auto_filled_from'] = 'Place of Marriage';
                         }
                     }
                 }
@@ -1974,6 +1964,29 @@ PY;
                     $fields[trim($header)] = (string) $val;
                 }
 
+                // Map FS Capture columns to marriage form fields when Event Type = Marriage
+                if ($isFsCsv && strtolower(trim($fields['Event Type'] ?? '')) === 'marriage') {
+                    $mapped = [];
+                    $mapped['Event Date'] = $fields['Event Date'] ?? '';
+                    $mapped['Marriage Date'] = $fields['Event Date'] ?? '';
+
+                    // Split "Event Place" → Place of Marriage + Province
+                    $eventPlace = $fields['Event Place'] ?? '';
+                    $placeParts = array_map('trim', explode(',', $eventPlace));
+                    // Remove "South Africa" from end
+                    if (count($placeParts) > 1 && strtolower(end($placeParts)) === 'south africa') {
+                        array_pop($placeParts);
+                    }
+                    $mapped['Place of Marriage'] = $placeParts[0] ?? '';
+                    $mapped['Province'] = $placeParts[1] ?? '';
+                    // District left empty — OCR only
+                    $mapped['District'] = '';
+                    $mapped['Husband Race'] = '';
+                    $mapped['Spouse'] = $fields['Spouse'] ?? '';
+
+                    $fields = $mapped;
+                }
+
                 $images[] = [
                     'fname' => $fname,
                     'path' => $imagePath,
@@ -2212,6 +2225,76 @@ PY;
             'split_dir' => $splitDir,
             'total' => count($results),
         ]);
+    }
+
+    /**
+     * Add a town to the SA towns dictionary.
+     */
+    public function htrAddTown(Request $request)
+    {
+        $name = trim($request->input('name', ''));
+        $province = trim($request->input('province', ''));
+        $district = trim($request->input('district', ''));
+
+        if (!$name || strlen($name) < 2) {
+            return response()->json(['success' => false, 'error' => 'Town name too short']);
+        }
+
+        $script = <<<'PY'
+import sys, json
+sys.path.insert(0, '/opt/ahg-ai/htr')
+from places import PlaceLookup, PROVINCE_MAP
+
+pl = PlaceLookup()
+args = json.loads(sys.argv[1])
+name = args['name']
+province = args.get('province', '')
+district = args.get('district', '')
+
+# Check if already exists
+existing = pl.lookup(name, threshold=0.95)
+if existing and existing.get('match_type') == 'exact':
+    print(json.dumps({'success': False, 'error': 'Town already exists: ' + existing['name'], 'existing': existing}))
+    sys.exit(0)
+
+# Add to sa_towns list
+historical = PROVINCE_MAP.get(province, province)
+new_town = {
+    'name': name,
+    'province': province,
+    'alt_name': district if district and district != name else '',
+    'historical_province': historical,
+}
+pl.sa_towns.append(new_town)
+pl._build_index()
+pl._save_cache()
+
+print(json.dumps({
+    'success': True,
+    'town': new_town,
+    'stats': pl.stats(),
+}))
+PY;
+        $tmpPy = tempnam(sys_get_temp_dir(), 'town_') . '.py';
+        file_put_contents($tmpPy, $script);
+        $escaped = escapeshellarg(json_encode([
+            'name' => $name,
+            'province' => $province,
+            'district' => $district,
+        ]));
+        $output = shell_exec("python3 {$tmpPy} {$escaped} 2>&1");
+        @unlink($tmpPy);
+
+        $result = json_decode(trim($output ?: '{}'), true);
+        if (!$result) {
+            $result = ['success' => false, 'error' => 'Script failed: ' . substr($output ?: 'no output', 0, 200)];
+        }
+
+        if ($result['success'] ?? false) {
+            \Log::info('[HTR] Town added to dictionary', ['town' => $name, 'province' => $province]);
+        }
+
+        return response()->json($result);
     }
 
     public function htrSkipImage(Request $request)

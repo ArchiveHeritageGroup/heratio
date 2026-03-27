@@ -82,6 +82,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/htr/fs-overlay/load-positions', [AiController::class, 'htrFsOverlayLoadPositions'])->name('admin.ai.htr.fsOverlayLoadPositions');
     Route::post('/htr/spellcheck', [AiController::class, 'htrSpellcheck'])->name('admin.ai.htr.spellcheck');
     Route::post('/htr/add-word', [AiController::class, 'htrAddWord'])->name('admin.ai.htr.addWord');
+    Route::post('/htr/add-town', [AiController::class, 'htrAddTown'])->name('admin.ai.htr.addTown');
     Route::get('/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
 });
