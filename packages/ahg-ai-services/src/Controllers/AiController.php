@@ -1141,19 +1141,23 @@ PY;
                 'phrases' => ['christian names and surname', 'christian names & surname', 'voornamen en familienaam', 'surname of deceased', 'naam van oorledene', 'name and surname', 'naam en van'],
                 'words' => ['surname', 'familienaam'],
                 'context' => ['christian', 'names', 'voornamen', 'deceased', 'oorledene'],
+                'min_y_pct' => 0.15,
+                'max_y_pct' => 0.35,
             ],
             'Sex' => [
                 'phrases' => ['sex or gender', 'geslag of gender'],
                 'words' => ['sex', 'geslacht', 'geslag', 'gender', 'gee'],
                 'numbered_label' => '2',
-                'min_y_pct' => 0.20, // below header area
+                'min_y_pct' => 0.20,
+                'max_y_pct' => 0.35,
             ],
             'Age' => [
                 'phrases' => ['age at death', 'ouderdom by oorlye', 'age last birthday', 'ouderdom laaste verjaarsdag'],
                 'words' => ['age', 'ouderdom', 'leeftyd'],
                 'context' => ['death', 'dood', 'oorlye', 'birthday', 'verjaarsdag', 'last'],
                 'numbered_label' => '4',
-                'min_y_pct' => 0.20,
+                'min_y_pct' => 0.25,
+                'max_y_pct' => 0.40,
             ],
             'Birth Date' => [
                 'phrases' => ['date of birth', 'geboortedatum'],
@@ -1168,23 +1172,26 @@ PY;
                 'words' => ['date'],
                 'context' => ['of', 'death', 'dood', 'oorlye'],
                 'numbered_label' => '8',
+                'min_y_pct' => 0.30,
+                'max_y_pct' => 0.50,
             ],
             'Event Year' => [
-                // The printed "18__" / "19__" / "20__" year box — usually far right on the Date of Death line
+                // The printed "18__" / "19__" / "20__" year box — far right on the Date of Death line
                 'phrases' => [],
                 'words' => ['18', '19', '20'],
-                // Only match if on same line as Event Date (near y of "8. Date of Death")
-                // and in the right half of the image
                 'min_x_pct' => 0.60,
-                'max_y_pct' => 0.75,
+                'min_y_pct' => 0.30,
+                'max_y_pct' => 0.50,
             ],
             'Residence Place' => [
                 // Item 11a on the 1894 form: "Duration of last Illness"
-                'phrases' => ['duration of last illness', 'duur van laaste siekte', 'duur van laatste ziekte'],
+                // OCR often misses "of" and "last" — add short phrases
+                'phrases' => ['duration of last illness', 'duration of last', 'duration illness', 'duration of illness', 'duur van laaste siekte', 'duur van laatste ziekte', 'duur van siekte'],
                 'words' => ['duration', 'duur'],
-                'context' => ['last', 'illness', 'siekte', 'laaste'],
+                'context' => ['illness', 'siekte', 'last', 'laaste'],
                 'numbered_label' => '114', // OCR reads "11a." as "114."
-                'max_y_pct' => 0.75,
+                'min_y_pct' => 0.40,
+                'max_y_pct' => 0.60,
             ],
             'Cause of Death' => [
                 'phrases' => ['cause of death', 'oorsaak van dood', 'doodsoorsaak'],
@@ -1236,8 +1243,12 @@ PY;
             ],
         ];
 
-        // Get image dimensions for smart width calculation
-        $imgInfo = @getimagesize($imagePath);
+        // Get image dimensions — use CROPPED image if available (OCR runs on cropped)
+        $cacheDir = storage_path('app/cropped-cache');
+        $cacheKey = md5($imagePath . @filemtime($imagePath));
+        $croppedPath = "{$cacheDir}/{$cacheKey}.jpg";
+        $dimPath = file_exists($croppedPath) ? $croppedPath : $imagePath;
+        $imgInfo = @getimagesize($dimPath);
         $imgWidth = $imgInfo ? $imgInfo[0] : 1800;
         $imgHeight = $imgInfo ? $imgInfo[1] : 2400;
 
@@ -1271,6 +1282,10 @@ PY;
             $bestMatch = null;
             $bestConf = 0;
 
+            // Read Y filters early for all strategies
+            $maxYPctVal = $config['max_y_pct'] ?? 1.0;
+            $minYPctVal = $config['min_y_pct'] ?? 0.0;
+
             // Strategy 1: Multi-word phrase matching (most accurate)
             // Find lines where the full phrase appears
             foreach ($phrases as $phrase) {
@@ -1280,6 +1295,11 @@ PY;
                     if (stripos($lineText, $phrase) !== false) {
                         // Find the first word of the phrase in this line
                         foreach ($line as $w) {
+                            // Y-position filter — skip header and fine print
+                            if ($imgHeight > 0 && $w['top'] > $imgHeight * $maxYPctVal) continue;
+                            if ($imgHeight > 0 && $w['top'] < $imgHeight * $minYPctVal) continue;
+                            // Left-side preference — labels are on the left half
+                            if ($imgWidth > 0 && $w['left'] > $imgWidth * 0.55) continue;
                             if (stripos(strtolower($w['text']), $phraseWords[0]) !== false) {
                                 // Compute bounding box spanning all phrase words
                                 $phraseRight = $w['left'] + $w['width'];
@@ -1295,7 +1315,13 @@ PY;
                                         }
                                     }
                                 }
-                                $score = 1000 + $w['conf']; // phrase match always beats single-word
+                                $score = 1000 + $w['conf'];
+                                // Prefer matches higher on the page (form body, not fine print)
+                                // Add bonus for being closer to top of valid Y-band
+                                if ($imgHeight > 0) {
+                                    $yPct = $w['top'] / $imgHeight;
+                                    $score += (int)((1.0 - $yPct) * 200); // higher = better
+                                }
                                 if ($score > $bestConf) {
                                     $bestMatch = [
                                         'text' => $phrase,
@@ -1307,7 +1333,7 @@ PY;
                                     ];
                                     $bestConf = $score;
                                 }
-                                break 2; // first match is usually best for phrases
+                                break; // found phrase in this line, try next line/phrase for better match
                             }
                         }
                     }
@@ -1317,8 +1343,8 @@ PY;
             // Strategy 1.5: Numbered label — find "8." or "12." near a keyword
             // SA death certificates have numbered fields: "8. Date of Death", "12. Duration of last Illness"
             $numberedLabel = $config['numbered_label'] ?? null;
-            $maxYPct = $config['max_y_pct'] ?? 1.0;
-            $minYPct = $config['min_y_pct'] ?? 0.0;
+            $maxYPct = $maxYPctVal;
+            $minYPct = $minYPctVal;
             $minXPctField = $config['min_x_pct'] ?? 0.0;
             if (!$bestMatch && $numberedLabel) {
                 foreach ($words as $word) {
@@ -1349,7 +1375,7 @@ PY;
                         'text' => $numberedLabel . '. ' . $fieldName,
                         'left' => $word['left'],
                         'top' => $word['top'],
-                        'width' => min($labelEnd - $word['left'], (int)($imgWidth * 0.35)),
+                        'width' => min($labelEnd - $word['left'], 20 * 10), // cap at 20mm
                         'height' => $word['height'],
                         'conf' => $word['conf'],
                     ];
@@ -1371,11 +1397,11 @@ PY;
                     }
                     if (!$kwMatch) continue;
 
-                    // Check if any context word is nearby (same line, within 300px)
+                    // Check if any context word is nearby (within 30px vertically, 500px horizontally)
                     $hasContext = false;
                     foreach ($words as $other) {
-                        if (abs($other['top'] - $word['top']) > 20) continue;
-                        if (abs($other['left'] - $word['left']) > 300) continue;
+                        if (abs($other['top'] - $word['top']) > 30) continue;
+                        if (abs($other['left'] - $word['left']) > 500) continue;
                         $oLower = strtolower($other['text']);
                         foreach ($contextWords as $ctx) {
                             if (stripos($oLower, $ctx) !== false) { $hasContext = true; break 2; }
@@ -1429,47 +1455,60 @@ PY;
                 $boxW = max(250, (int)($imgWidth * 0.85) - $startX);
                 $boxH = max(45, $bestMatch['height'] + 25);
 
-                // Name — shift right, move up, taller box
+                // 1mm ≈ 10px on these ~250 DPI scans
+                $mm = 10;
+
+                // Fixed box sizes per field (all in mm)
+                // All boxes start right after label end + small gap
+                // 1mm ≈ 10px on these ~250 DPI scans
+                $mm = 10;
+                $gap = 1 * $mm; // 1mm gap after label
+
+                // Box starts right after the label text ends
+                // Label width = just the matched word, not extended
+                // Cap label width — for display only, keep it tight to the actual word
+                $bestMatch['width'] = min($bestMatch['width'], 10 * $mm); // cap at 10mm
+
                 if ($fieldName === 'Name') {
-                    $startX = $labelRight + (int)($imgWidth * 0.02);
-                    $startY = $bestMatch['top'] - 18;
-                    $boxH = max(65, $bestMatch['height'] + 45);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap;
+                    $startY = $bestMatch['top'] - (4 * $mm);  // up 1mm
+                    $boxW = 90 * $mm;
+                    $boxH = 8 * $mm;
                 }
 
-                // Sex — just after label, wider, taller
                 if ($fieldName === 'Sex') {
-                    $startX = $labelRight + (int)($imgWidth * 0.01);
-                    $boxW = (int)($imgWidth * 0.22);
-                    $boxH = max(50, $bestMatch['height'] + 30);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap;
+                    $startY = $bestMatch['top'] - (4 * $mm);
+                    $boxW = 120 * $mm;  // +30mm
+                    $boxH = 7 * $mm;
                 }
 
-                // Age — tight to the word "Age" + ~2mm gap, compact
                 if ($fieldName === 'Age') {
-                    $startX = $labelRight + 8; // ~2mm at 96dpi
-                    $boxW = (int)($imgWidth * 0.15);
-                    $boxH = max(30, $bestMatch['height'] + 10);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap - (30 * $mm);  // left 30mm
+                    $startY = $bestMatch['top'] - (11 * $mm);  // up 10mm
+                    $boxW = 40 * $mm;
+                    $boxH = 7 * $mm;
                 }
 
-                // Event Date — wide box, moved up
                 if ($fieldName === 'Event Date') {
-                    $startX = $labelRight + (int)($imgWidth * 0.01);
-                    $startY = $bestMatch['top'] - 24;
-                    $boxW = max(430, (int)($imgWidth * 0.65) - $startX);
-                    $boxH = max(60, $bestMatch['height'] + 40);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap + (5 * $mm);
+                    $startY = $bestMatch['top'] - (5 * $mm);  // up 2mm
+                    $boxW = 110 * $mm;  // +10mm
+                    $boxH = 8 * $mm;
                 }
 
-                // Event Year — small box for 2-digit year, right side of page
                 if ($fieldName === 'Event Year') {
-                    $startX = $labelRight + 3;
-                    $boxW = (int)($imgWidth * 0.06); // small: just 2 digits
-                    $boxH = max(35, $bestMatch['height'] + 15);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap;
+                    $startY = $bestMatch['top'] - (1 * $mm);
+                    $boxW = 12 * $mm;
+                    $boxH = 4 * $mm;
                 }
 
-                // Duration of last Illness (item 11a) — wide box after label
                 if ($fieldName === 'Residence Place') {
-                    $startX = $labelRight + (int)($imgWidth * 0.01);
-                    $boxW = max(350, (int)($imgWidth * 0.85) - $startX);
-                    $boxH = max(50, $bestMatch['height'] + 30);
+                    $startX = $bestMatch['left'] + $bestMatch['width'] + $gap + (25 * $mm);  // left 5mm (was 30)
+                    $startY = $bestMatch['top'] - (3 * $mm);  // up 2mm
+                    $boxW = 80 * $mm;
+                    $boxH = 7 * $mm;
                 }
 
                 // If the answer area would be too narrow (label is far right), put box below label instead
@@ -1494,17 +1533,44 @@ PY;
             }
         }
 
+        // ── Age special case: if Sex was found, position Age relative to Sex ──
+        // Age label is often missed by OCR. Sex is more reliable.
+        // On the form, Age is ~19mm below Sex at the same X.
+        $mm = 10;
+        $gap = 1 * $mm;
+        if (isset($positions['Sex']) && $positions['Sex']['match_strategy'] !== 'relative') {
+            $sexPos = $positions['Sex'];
+            $ageFromSex = true;
+            // If Age was found but at a wrong position, override it
+            // If Age was not found, create it
+            $positions['Age'] = [
+                'label_text' => 'Age (from Sex)',
+                'label_x' => $sexPos['label_x'],
+                'label_y' => $sexPos['label_y'] + (15 * $mm),
+                'label_w' => $sexPos['label_w'],
+                'label_h' => $sexPos['label_h'],
+                'x' => $sexPos['x'],
+                'y' => $sexPos['y'] + (15 * $mm),  // down 1mm
+                'w' => 120 * $mm,  // +30mm wider
+                'h' => 7 * $mm,
+                'match_strategy' => 'from_sex',
+            ];
+        }
+
         // ── Relative positioning: for fields not found by OCR, compute from a found anchor ──
         // On the 1894 SA death form, fields are at fixed vertical offsets from each other.
         // Offsets measured as % of image height from "1. Christian Names and Surname"
+        // Calibrated from 33S7-95DB-9JD1.jpg (2119x3040, Act 7 of 1894)
+        // 1mm ≈ 10px on these scans
+        $mmRel = 10;
         $relativeOffsets = [
-            // field => [y_offset_from_name (% of imgH), x_start (% of imgW), w (% of imgW), h (px)]
-            'Name'            => [0.000, 0.35, 0.50, 65],
-            'Sex'             => [0.040, 0.35, 0.22, 50],
-            'Age'             => [0.100, 0.35, 0.15, 35],
-            'Event Date'      => [0.195, 0.35, 0.45, 55],
-            'Event Year'      => [0.195, 0.82, 0.06, 35],
-            'Residence Place' => [0.330, 0.35, 0.50, 45],
+            // field => [y_offset_from_name (% of imgH), x_start (% of imgW), w (mm), h (mm)]
+            'Name'            => [0.000, 0.50, 90, 10],
+            'Sex'             => [0.036, 0.33, 50, 5],
+            'Age'             => [0.100, 0.33, 40, 5],
+            'Event Date'      => [0.183, 0.38, 90, 6],
+            'Event Year'      => [0.183, 0.82, 12, 4],
+            'Residence Place' => [0.284, 0.42, 80, 5],
         ];
 
         // Find best anchor: prefer Name, then any found field
@@ -1528,8 +1594,8 @@ PY;
 
                 $estY = $nameY + (int)($imgHeight * $offsets[0]);
                 $estX = (int)($imgWidth * $offsets[1]);
-                $estW = (int)($imgWidth * $offsets[2]);
-                $estH = $offsets[3];
+                $estW = $offsets[2] * $mmRel;
+                $estH = $offsets[3] * $mmRel;
 
                 $positions[$fn] = [
                     'label_text' => $fn . ' (relative)',

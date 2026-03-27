@@ -947,7 +947,8 @@
   function ocrAndPlace(entry) {
     document.getElementById('ba-image-name').textContent += ' — OCR detecting labels...';
 
-    const activeFields = COLUMNS.filter(col => entry.fields[col]);
+    // Send ALL allowed fields for detection, not just ones with CSV data
+    const activeFields = ALLOWED_FIELDS.slice();
 
     fetch('{{ route("admin.ai.htr.fsOverlayOcr") }}', {
       method: 'POST',
@@ -1444,6 +1445,9 @@
     });
     const active = document.querySelector('.ba-field.active');
     if (active) active.scrollIntoView({ block: 'nearest' });
+    // Auto-select text in the active field's input
+    const inp = document.querySelector('.ba-edit-input[data-field-idx="' + fieldIdx + '"]');
+    if (inp) { inp.focus(); inp.select(); }
   }
 
   function updateProgress() {
