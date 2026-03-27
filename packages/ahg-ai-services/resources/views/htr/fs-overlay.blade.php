@@ -196,6 +196,7 @@
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
     'Reg No', 'Wife Name', 'Place of Marriage', 'District', 'Province',
+    'Married By', 'Denomination', 'Witnesses',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -505,7 +506,10 @@
         'Reg No':            { x: 0.01, y: 0.14, w: 0.06, h: 0.06 },  // col 1
         'Wife Name':         { x: 0.24, y: 0.14, w: 0.18, h: 0.20 },  // col 4
         'Place of Marriage': { x: 0.42, y: 0.14, w: 0.22, h: 0.20 },  // col 6
-        'Event Date':        { x: 0.05, y: 0.40, w: 0.30, h: 0.06 },  // date row
+        'Event Date':        { x: 0.10, y: 0.58, w: 0.25, h: 0.05 },  // "solemnized by me on this the ..."
+        'Married By':        { x: 0.55, y: 0.62, w: 0.30, h: 0.05 },  // officiant name
+        'Denomination':      { x: 0.55, y: 0.68, w: 0.30, h: 0.05 },  // church/denomination
+        'Witnesses':         { x: 0.05, y: 0.76, w: 0.35, h: 0.12 },  // witness names
       }
     },
     'manual': {
