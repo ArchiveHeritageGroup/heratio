@@ -1378,7 +1378,7 @@
     COLUMNS.forEach(function(col, i) {
       let val = entry.fields[col] || '';
       if (CLEAR_FIELDS.includes(col)) val = '';
-      if (col === 'Age') val = spellcheckAge(val);
+      // Don't modify Age CSV value — display as-is from spreadsheet
       const div = document.createElement('div');
       div.className = 'ba-field' + (i === fieldIdx ? ' active' : '');
       div.dataset.idx = i;
