@@ -1181,7 +1181,7 @@ PY;
                 'phrases' => ['duration of last illness', 'duur van laaste siekte', 'duur van laatste ziekte'],
                 'words' => ['duration', 'duur'],
                 'context' => ['last', 'illness', 'siekte', 'laaste'],
-                'numbered_label' => '11',
+                'numbered_label' => '114', // OCR reads "11a." as "114."
                 'max_y_pct' => 0.75,
             ],
             'Cause of Death' => [
@@ -1317,9 +1317,17 @@ PY;
             $maxYPct = $config['max_y_pct'] ?? 1.0;
             if (!$bestMatch && $numberedLabel) {
                 foreach ($words as $word) {
-                    // Look for the number label (e.g. "8" or "8." or "12" or "12.")
-                    $wClean = rtrim($word['text'], '.');
-                    if ($wClean !== $numberedLabel) continue;
+                    // Look for the number label — flexible matching:
+                    // "8" matches "8", "8.", "8:"
+                    // "114" matches "114", "114.", "11a", "11a.", "11A"
+                    $wClean = rtrim(rtrim($word['text'], '.'), ':');
+                    $nlClean = strtolower($numberedLabel);
+                    $wLower = strtolower($wClean);
+                    // Direct match or OCR confusion (a↔4, l↔1)
+                    $matches = ($wLower === $nlClean)
+                        || ($wLower === str_replace('a', '4', $nlClean))
+                        || ($wLower === str_replace('4', 'a', $nlClean));
+                    if (!$matches) continue;
                     // Skip if in fine print area (bottom of page)
                     if ($imgHeight > 0 && $word['top'] > $imgHeight * $maxYPct) continue;
                     // Found the number — the answer region is to its right on the same line
@@ -1411,11 +1419,11 @@ PY;
                 $boxW = max(250, (int)($imgWidth * 0.85) - $startX);
                 $boxH = max(45, $bestMatch['height'] + 25);
 
-                // Name — shift right, move up a bit, tall box
+                // Name — shift right, move up a bit, taller box (+2mm ≈ +8px)
                 if ($fieldName === 'Name') {
                     $startX = $labelRight + (int)($imgWidth * 0.02);
-                    $startY = $bestMatch['top'] - 10; // moved up
-                    $boxH = max(55, $bestMatch['height'] + 35);
+                    $startY = $bestMatch['top'] - 10;
+                    $boxH = max(65, $bestMatch['height'] + 45);
                 }
 
                 // Sex — just after label, wider, taller
@@ -1432,12 +1440,12 @@ PY;
                     $boxH = max(30, $bestMatch['height'] + 10);
                 }
 
-                // Event Date — longer box, slightly higher
+                // Event Date — longer box (+10mm ≈ +40px), slightly higher
                 if ($fieldName === 'Event Date') {
                     $startX = $labelRight + (int)($imgWidth * 0.01);
-                    $startY = $bestMatch['top'] - 8; // 1mm higher
-                    $boxW = max(350, (int)($imgWidth * 0.58) - $startX);
-                    $boxH = max(55, $bestMatch['height'] + 35);
+                    $startY = $bestMatch['top'] - 8;
+                    $boxW = max(400, (int)($imgWidth * 0.62) - $startX);
+                    $boxH = max(60, $bestMatch['height'] + 40);
                 }
 
                 // Event Year — small box for 2-digit year, right side of page
