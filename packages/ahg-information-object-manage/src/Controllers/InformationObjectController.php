@@ -109,6 +109,11 @@ class InformationObjectController extends Controller
             $params['filters']['collection_id'] = $request->get('collection');
         }
 
+        // General material designation filter (taxonomy 50)
+        if ($request->get('materialDesignation')) {
+            $params['filters']['general_material_designation_id'] = $request->get('materialDesignation');
+        }
+
         // Copyright status filter (taxonomy 69)
         if ($request->get('copyrightStatus')) {
             $params['filters']['copyright_status_id'] = $request->get('copyrightStatus');
@@ -296,6 +301,69 @@ class InformationObjectController extends Controller
             ->limit(10)
             ->get();
 
+        // Copyright status facet (taxonomy 69 via relation + rights tables)
+        $copyrightFacets = DB::table('relation')
+            ->join('rights', 'relation.object_id', '=', 'rights.id')
+            ->join('term', 'rights.copyright_status_id', '=', 'term.id')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('term.taxonomy_id', 69)
+            ->where('information_object.id', '!=', 1)
+            ->whereNotNull('rights.copyright_status_id')
+            ->select(
+                'rights.copyright_status_id as id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(DISTINCT relation.subject_id) as count')
+            )
+            ->groupBy('rights.copyright_status_id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        // General material designation facet (taxonomy 50 via object_term_relation)
+        $materialDesignationFacets = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('term.taxonomy_id', 50)
+            ->where('information_object.id', '!=', 1)
+            ->select(
+                'term.id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(DISTINCT object_term_relation.object_id) as count')
+            )
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get();
+
+        // Finding aid status facet (yes/no based on information_object_i18n.finding_aids)
+        $findingAidYes = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->where('information_object_i18n.culture', $culture)
+            ->where('information_object.id', '!=', 1)
+            ->whereNotNull('information_object_i18n.finding_aids')
+            ->where('information_object_i18n.finding_aids', '!=', '')
+            ->count();
+        $findingAidNo = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->where('information_object_i18n.culture', $culture)
+            ->where('information_object.id', '!=', 1)
+            ->where(function ($q) {
+                $q->whereNull('information_object_i18n.finding_aids')
+                  ->orWhere('information_object_i18n.finding_aids', '=', '');
+            })
+            ->count();
+        $findingAidFacetTerms = [];
+        if ($findingAidYes > 0) {
+            $findingAidFacetTerms[] = ['value' => 'yes', 'label' => 'Yes', 'count' => $findingAidYes];
+        }
+        if ($findingAidNo > 0) {
+            $findingAidFacetTerms[] = ['value' => 'no', 'label' => 'No', 'count' => $findingAidNo];
+        }
+
         // Language facet (count information_object_i18n rows grouped by culture)
         $languageRows = DB::table('information_object_i18n')
             ->join('information_object', 'information_object_i18n.id', '=', 'information_object.id')
@@ -390,6 +458,18 @@ class InformationObjectController extends Controller
             'mediatypes' => [
                 'label' => 'Media type',
                 'terms' => $mediaFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'copyrightStatus' => [
+                'label' => 'Copyright status',
+                'terms' => $copyrightFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'materialDesignation' => [
+                'label' => 'General material designation',
+                'terms' => $materialDesignationFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'findingAidStatus' => [
+                'label' => 'Finding aid',
+                'terms' => $findingAidFacetTerms,
             ],
         ];
 
@@ -494,6 +574,18 @@ class InformationObjectController extends Controller
                 $filterTags[] = [
                     'label' => 'Part of: ' . $collectionName,
                     'removeUrl' => route('informationobject.browse', $request->except(['collection', 'page'])),
+                ];
+            }
+        }
+
+        // General material designation filter tag
+        $materialDesignationFilter = $request->get('materialDesignation');
+        if ($materialDesignationFilter) {
+            $mdName = DB::table('term_i18n')->where('id', $materialDesignationFilter)->where('culture', $culture)->value('name');
+            if ($mdName) {
+                $filterTags[] = [
+                    'label' => 'Material: ' . $mdName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['materialDesignation', 'page'])),
                 ];
             }
         }

@@ -293,13 +293,13 @@
       $baseQuery = request()->except(['displayMode', 'page']);
     @endphp
     <div class="btn-group" role="group" aria-label="Display mode">
-      <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
-         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
-        <i class="fas fa-th" aria-hidden="true"></i><span class="visually-hidden">Grid</span>
-      </a>
       <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'list'])) }}"
          class="btn btn-sm {{ $displayMode === 'list' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Compact table/list view">
-        <i class="fas fa-list" aria-hidden="true"></i><span class="visually-hidden">List</span>
+        <i class="fas fa-list me-1" aria-hidden="true"></i> Table view
+      </a>
+      <a href="{{ url('/repository/browse') }}?{{ http_build_query(array_merge($baseQuery, ['displayMode' => 'grid'])) }}"
+         class="btn btn-sm {{ $displayMode === 'grid' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="Thumbnail grid with cards">
+        <i class="fas fa-th me-1" aria-hidden="true"></i> Card view
       </a>
     </div>
 

@@ -274,6 +274,49 @@ class ActorService
     }
 
     /**
+     * Get paginated information objects related to this actor (via events).
+     *
+     * @return array{items: \Illuminate\Support\Collection, total: int, page: int, lastPage: int}
+     */
+    public function getRelatedResourcesPaginated(int $actorId, int $page = 1, int $perPage = 10): array
+    {
+        $baseQuery = DB::table('event')
+            ->join('information_object', 'event.object_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('event.actor_id', $actorId)
+            ->where('information_object.id', '!=', 1)
+            ->select(
+                'information_object.id',
+                'information_object_i18n.title',
+                'information_object.identifier',
+                'event.type_id as event_type_id',
+                'slug.slug'
+            )
+            ->distinct();
+
+        $total = DB::table(DB::raw("({$baseQuery->toSql()}) as sub"))
+            ->mergeBindings($baseQuery)
+            ->count();
+
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = max(1, min($page, $lastPage));
+        $offset = ($page - 1) * $perPage;
+
+        $items = (clone $baseQuery)->offset($offset)->limit($perPage)->get();
+
+        return [
+            'items'    => $items,
+            'total'    => $total,
+            'page'     => $page,
+            'lastPage' => $lastPage,
+        ];
+    }
+
+    /**
      * Get ISDF functions related to this actor.
      */
     public function getRelatedFunctions(int $actorId): \Illuminate\Support\Collection
@@ -418,6 +461,48 @@ class ActorService
             )
             ->distinct()
             ->get();
+    }
+
+    /**
+     * Get paginated "Subject of" resources for this actor.
+     *
+     * @return array{items: \Illuminate\Support\Collection, total: int, page: int, lastPage: int}
+     */
+    public function getSubjectOfResourcesPaginated(int $actorId, int $page = 1, int $perPage = 10): array
+    {
+        $baseQuery = DB::table('relation')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $actorId)
+            ->where('relation.type_id', 161)
+            ->where('information_object.id', '!=', 1)
+            ->select(
+                'information_object.id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->distinct();
+
+        $total = DB::table(DB::raw("({$baseQuery->toSql()}) as sub"))
+            ->mergeBindings($baseQuery)
+            ->count();
+
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = max(1, min($page, $lastPage));
+        $offset = ($page - 1) * $perPage;
+
+        $items = (clone $baseQuery)->offset($offset)->limit($perPage)->get();
+
+        return [
+            'items'    => $items,
+            'total'    => $total,
+            'page'     => $page,
+            'lastPage' => $lastPage,
+        ];
     }
 
     /**

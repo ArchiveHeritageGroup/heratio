@@ -192,6 +192,7 @@
   const ALLOWED_FIELDS = [
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
     'Husband Name', 'Husband Race', 'Spouse', 'Spouse Race', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
+    'Text Block',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -505,6 +506,15 @@
         'Province':          { x: 0.817, y: 0.175, w: 0.13, h: 0.055 },   // bottom-aligned at 0.23
         'Event Date':        { x: 0.16, y: 0.70, w: 0.29, h: 0.05 },     // "solemnized by me on this the ..."
         'Marriage Date':     { x: 0.0, y: 0.43, w: 0.085, h: 0.14 },      // left edge of image
+      }
+    },
+    'narrative': {
+      label: 'Narrative — Free-form handwritten text (letters, diaries, notes)',
+      detect: ['dear', 'sir', 'madam', 'letter', 'diary', 'note', 'beloved'],
+      anchor: [],
+      anchorRef: {},
+      fields: {
+        'Text Block': { x: 0.02, y: 0.02, w: 0.96, h: 0.96 },
       }
     },
     'manual': {

@@ -311,12 +311,31 @@
             </div>
 
             {{-- Language(s) of material - multi-row select --}}
+            @php
+              $languageOptions = [
+                'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
+                'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
+                'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
+                've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
+                'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
+                'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
+                'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
+              ];
+            @endphp
             <div class="mb-3">
               <label class="form-label">Language(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="languages-list">
                 @foreach($materialLanguages as $lIdx => $langCode)
                   <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control form-control-sm" name="languages[]" value="{{ $langCode }}" placeholder="e.g. en">
+                    <select class="form-select form-select-sm" name="languages[]">
+                      <option value="">-- Select language --</option>
+                      @foreach($languageOptions as $code => $name)
+                        <option value="{{ $code }}" @selected($langCode === $code)>{{ $name }} ({{ $code }})</option>
+                      @endforeach
+                      @if($langCode && !array_key_exists($langCode, $languageOptions))
+                        <option value="{{ $langCode }}" selected>{{ $langCode }}</option>
+                      @endif
+                    </select>
                     <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
                   </div>
                 @endforeach
@@ -326,12 +345,28 @@
             </div>
 
             {{-- Script(s) of material - multi-row select --}}
+            @php
+              $scriptOptions = [
+                'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
+                'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
+                'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
+                'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
+              ];
+            @endphp
             <div class="mb-3">
               <label class="form-label">Script(s) of material <span class="badge bg-secondary ms-1">Optional</span></label>
               <div id="scripts-list">
                 @foreach($materialScripts as $sIdx => $scriptCode)
                   <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control form-control-sm" name="scripts[]" value="{{ $scriptCode }}" placeholder="e.g. Latn">
+                    <select class="form-select form-select-sm" name="scripts[]">
+                      <option value="">-- Select script --</option>
+                      @foreach($scriptOptions as $code => $name)
+                        <option value="{{ $code }}" @selected($scriptCode === $code)>{{ $name }} ({{ $code }})</option>
+                      @endforeach
+                      @if($scriptCode && !array_key_exists($scriptCode, $scriptOptions))
+                        <option value="{{ $scriptCode }}" selected>{{ $scriptCode }}</option>
+                      @endif
+                    </select>
                     <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
                   </div>
                 @endforeach
@@ -631,7 +666,15 @@
               <div id="langs-of-desc-list">
                 @foreach($languagesOfDescription as $ldIdx => $ldCode)
                   <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control form-control-sm" name="languagesOfDescription[]" value="{{ $ldCode }}">
+                    <select class="form-select form-select-sm" name="languagesOfDescription[]">
+                      <option value="">-- Select language --</option>
+                      @foreach($languageOptions as $code => $name)
+                        <option value="{{ $code }}" @selected($ldCode === $code)>{{ $name }} ({{ $code }})</option>
+                      @endforeach
+                      @if($ldCode && !array_key_exists($ldCode, $languageOptions))
+                        <option value="{{ $ldCode }}" selected>{{ $ldCode }}</option>
+                      @endif
+                    </select>
                     <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
                   </div>
                 @endforeach
@@ -646,7 +689,15 @@
               <div id="scripts-of-desc-list">
                 @foreach($scriptsOfDescription as $sdIdx => $sdCode)
                   <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control form-control-sm" name="scriptsOfDescription[]" value="{{ $sdCode }}">
+                    <select class="form-select form-select-sm" name="scriptsOfDescription[]">
+                      <option value="">-- Select script --</option>
+                      @foreach($scriptOptions as $code => $name)
+                        <option value="{{ $code }}" @selected($sdCode === $code)>{{ $name }} ({{ $code }})</option>
+                      @endforeach
+                      @if($sdCode && !array_key_exists($sdCode, $scriptOptions))
+                        <option value="{{ $sdCode }}" selected>{{ $sdCode }}</option>
+                      @endif
+                    </select>
                     <button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>
                   </div>
                 @endforeach
@@ -965,14 +1016,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Add language/script row (generic)
+  // Language and script option maps for dynamic row creation
+  var languageOptionsMap = {!! json_encode($languageOptions) !!};
+  var scriptOptionsMap = {!! json_encode($scriptOptions) !!};
+
+  // Add language/script row (generic) - creates <select> dropdowns
   document.querySelectorAll('.btn-add-lang-row, .btn-add-script-row').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var target = document.getElementById(this.getAttribute('data-target'));
       var name = this.getAttribute('data-name');
+      var isScript = btn.classList.contains('btn-add-script-row');
+      var optionsMap = isScript ? scriptOptionsMap : languageOptionsMap;
+      var placeholder = isScript ? '-- Select script --' : '-- Select language --';
       var div = document.createElement('div');
       div.className = 'input-group input-group-sm mb-1';
-      div.innerHTML = '<input type="text" class="form-control form-control-sm" name="' + name + '" placeholder="e.g. en / Latn"><button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>';
+      var opts = '<option value="">' + placeholder + '</option>';
+      for (var code in optionsMap) {
+        opts += '<option value="' + code + '">' + optionsMap[code] + ' (' + code + ')</option>';
+      }
+      div.innerHTML = '<select class="form-select form-select-sm" name="' + name + '">' + opts + '</select><button type="button" class="btn btn-outline-danger btn-remove-ap">Remove</button>';
       target.appendChild(div);
     });
   });

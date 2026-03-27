@@ -126,6 +126,19 @@ class InformationObjectBrowseService extends BrowseService
             });
         }
 
+        // General material designation filter (taxonomy 50 via object_term_relation)
+        if (!empty($this->activeFilters['general_material_designation_id'])) {
+            $gmdId = (int) $this->activeFilters['general_material_designation_id'];
+            $query->whereExists(function ($sub) use ($gmdId) {
+                $sub->select(DB::raw(1))
+                    ->from('object_term_relation')
+                    ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+                    ->whereColumn('object_term_relation.object_id', 'information_object.id')
+                    ->where('term.taxonomy_id', 50)
+                    ->where('object_term_relation.term_id', $gmdId);
+            });
+        }
+
         // Copyright status filter: filter by rights.copyright_status_id linked to IO
         if (!empty($this->activeFilters['copyright_status_id'])) {
             $copyrightStatusId = (int) $this->activeFilters['copyright_status_id'];

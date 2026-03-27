@@ -171,7 +171,7 @@ class ActorController extends Controller
         ]);
     }
 
-    public function show(string $slug)
+    public function show(string $slug, Request $request)
     {
         $actor = $this->service->getBySlug($slug);
         if (!$actor) {
@@ -183,7 +183,6 @@ class ActorController extends Controller
         $contacts = $this->service->getContacts($actor->id);
         $events = $this->service->getEvents($actor->id);
         $relatedActors = $this->service->getRelatedActors($actor->id);
-        $relatedResources = $this->service->getRelatedResources($actor->id);
         $digitalObjects = $this->service->getDigitalObjects($actor->id);
         $maintenanceNotes = $this->service->getMaintenanceNotes($actor->id);
         $subjects = $this->service->getSubjectAccessPoints($actor->id);
@@ -191,8 +190,13 @@ class ActorController extends Controller
         $occupations = $this->service->getOccupations($actor->id);
         $occupationNotes = $this->service->getOccupationNotes($actor->id);
 
-        // "Subject of" resources (name access points via relation table)
-        $subjectOfResources = $this->service->getSubjectOfResources($actor->id);
+        // Paginated "Creator of" resources (via events)
+        $creatorPage = max(1, (int) $request->get('creator_page', 1));
+        $creatorPaginated = $this->service->getRelatedResourcesPaginated($actor->id, $creatorPage, 10);
+
+        // Paginated "Subject of" resources (name access points via relation table)
+        $subjectPage = max(1, (int) $request->get('subject_page', 1));
+        $subjectPaginated = $this->service->getSubjectOfResourcesPaginated($actor->id, $subjectPage, 10);
 
         // Resolve description status/detail names
         $descriptionStatusName = $this->service->getEntityTypeName($actor->description_status_id);
@@ -239,7 +243,10 @@ class ActorController extends Controller
             'relationTypeNames' => $relationTypeNames,
             'relationCategoryNames' => $relationCategoryNames,
             'converseRelationTypeNames' => $converseRelationTypeNames,
-            'relatedResources' => $relatedResources,
+            'relatedResources' => $creatorPaginated['items'],
+            'relatedResourcesTotal' => $creatorPaginated['total'],
+            'relatedResourcesPage' => $creatorPaginated['page'],
+            'relatedResourcesLastPage' => $creatorPaginated['lastPage'],
             'relatedFunctions' => $relatedFunctions,
             'digitalObjects' => $digitalObjects,
             'maintenanceNotes' => $maintenanceNotes,
@@ -249,7 +256,10 @@ class ActorController extends Controller
             'places' => $places,
             'occupations' => $occupations,
             'occupationNotes' => $occupationNotes,
-            'subjectOfResources' => $subjectOfResources,
+            'subjectOfResources' => $subjectPaginated['items'],
+            'subjectOfResourcesTotal' => $subjectPaginated['total'],
+            'subjectOfResourcesPage' => $subjectPaginated['page'],
+            'subjectOfResourcesLastPage' => $subjectPaginated['lastPage'],
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,

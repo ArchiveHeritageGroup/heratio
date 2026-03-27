@@ -329,6 +329,9 @@
       @if(isset($childThumbnailTotal) && $childThumbnailTotal > $childThumbnails->count())
         <div class="text-center mt-1">
           <small class="text-muted">Showing {{ $childThumbnails->count() }} of {{ $childThumbnailTotal }} digital objects</small>
+          <a href="{{ url('/informationobject/browse') }}?{{ http_build_query(['parent' => $io->slug, 'topLod' => 0]) }}" class="btn btn-sm atom-btn-white ms-2">
+            <i class="fas fa-images me-1" aria-hidden="true"></i> Show all {{ $childThumbnailTotal }} items
+          </a>
         </div>
       @endif
     </div>

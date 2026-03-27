@@ -36,61 +36,77 @@
     </div>
   @endif
 
-  @if($relatedResources->isNotEmpty())
-    <div class="card mb-3">
+  @if(($relatedResourcesTotal ?? 0) > 0)
+    <div class="card mb-3" id="creators">
       <div class="card-header">
         <h5 class="mb-0">Creator of</h5>
       </div>
       <ul class="list-group list-group-flush">
-        @foreach($relatedResources->take(10) as $resource)
+        @foreach($relatedResources as $resource)
           <li class="list-group-item">
             <a href="{{ route('informationobject.show', $resource->slug) }}">
               {{ $resource->title ?: '[Untitled]' }}
             </a>
           </li>
         @endforeach
-        @if($relatedResources->count() > 10)
-          <li class="list-group-item text-muted">
-            <a href="{{ route('glam.browse') }}?topLevel=0&creator={{ $actor->id }}" class="text-muted">
-              ... and {{ $relatedResources->count() - 10 }} more
-            </a>
-          </li>
-        @endif
       </ul>
+      @if($relatedResourcesLastPage > 1)
+        <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center border-top">
+          @if($relatedResourcesPage > 1)
+            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage - 1]) }}#creators" class="btn btn-sm btn-outline-secondary">&laquo; Previous</a>
+          @else
+            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; Previous</span>
+          @endif
+          <small class="text-muted">Page {{ $relatedResourcesPage }} of {{ $relatedResourcesLastPage }}</small>
+          @if($relatedResourcesPage < $relatedResourcesLastPage)
+            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage + 1]) }}#creators" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
+          @else
+            <span class="btn btn-sm btn-outline-secondary disabled">Next &raquo;</span>
+          @endif
+        </div>
+      @endif
       <div class="card-body p-0">
         <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&creator={{ $actor->id }}">
           <i class="fas fa-search me-1" aria-hidden="true"></i>
-          Browse {{ $relatedResources->count() }} result{{ $relatedResources->count() !== 1 ? 's' : '' }}
+          Browse {{ $relatedResourcesTotal }} result{{ $relatedResourcesTotal !== 1 ? 's' : '' }}
         </a>
       </div>
     </div>
   @endif
 
-  @if(($subjectOfResources ?? collect())->isNotEmpty())
-    <div class="card mb-3">
+  @if(($subjectOfResourcesTotal ?? 0) > 0)
+    <div class="card mb-3" id="subjects">
       <div class="card-header">
         <h5 class="mb-0">Subject of</h5>
       </div>
       <ul class="list-group list-group-flush">
-        @foreach($subjectOfResources->take(10) as $resource)
+        @foreach($subjectOfResources as $resource)
           <li class="list-group-item">
             <a href="{{ route('informationobject.show', $resource->slug) }}">
               {{ $resource->title ?: '[Untitled]' }}
             </a>
           </li>
         @endforeach
-        @if($subjectOfResources->count() > 10)
-          <li class="list-group-item text-muted">
-            <a href="{{ route('glam.browse') }}?topLevel=0&names={{ $actor->id }}" class="text-muted">
-              ... and {{ $subjectOfResources->count() - 10 }} more
-            </a>
-          </li>
-        @endif
       </ul>
+      @if($subjectOfResourcesLastPage > 1)
+        <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center border-top">
+          @if($subjectOfResourcesPage > 1)
+            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage - 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">&laquo; Previous</a>
+          @else
+            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; Previous</span>
+          @endif
+          <small class="text-muted">Page {{ $subjectOfResourcesPage }} of {{ $subjectOfResourcesLastPage }}</small>
+          @if($subjectOfResourcesPage < $subjectOfResourcesLastPage)
+            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage + 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
+          @else
+            <span class="btn btn-sm btn-outline-secondary disabled">Next &raquo;</span>
+          @endif
+        </div>
+      @endif
       <div class="card-body p-0">
         <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&names={{ $actor->id }}">
           <i class="fas fa-search me-1" aria-hidden="true"></i>
-          Browse {{ $subjectOfResources->count() }} result{{ $subjectOfResources->count() !== 1 ? 's' : '' }}
+          Browse {{ $subjectOfResourcesTotal }} result{{ $subjectOfResourcesTotal !== 1 ? 's' : '' }}
         </a>
       </div>
     </div>
