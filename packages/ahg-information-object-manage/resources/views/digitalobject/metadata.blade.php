@@ -16,7 +16,7 @@ $showAccess = ($showMasterFileMetadata ?? false) || ($showReferenceCopyMetadata 
       }
     @endphp
 
-    @include('ahg-theme-b5::partials._section-heading', [
+    @include('theme::partials._section-heading', [
         'heading' => __('%1% metadata', ['%1%' => $digitalObjectLabel]),
         'condition' => $headingCondition,
         'link' => route('io.digitalobject.edit', $resource->id ?? 0),

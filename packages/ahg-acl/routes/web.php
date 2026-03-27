@@ -48,6 +48,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/acl/security-audit-trail', [AclController::class, 'securityAudit'])->name('acl.security-audit-trail');
 });
 
+// Legacy URL aliases — redirect to real Heratio routes
+Route::get('/security/audit', fn () => redirect('/admin/acl/security-audit', 301));
+
 // AtoM-style security routes (authenticated users, not admin-only)
 Route::middleware('auth')->group(function () {
     Route::get('/security/my-requests', [AclController::class, 'myRequests'])->name('security.my-requests');

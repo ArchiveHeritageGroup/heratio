@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/dam/{slug}', [DamController::class, 'show'])->name('dam.show')
-    ->where('slug', '(?!browse|create|dashboard)[a-z0-9\-]+');
+    ->where('slug', '(?!browse|create|dashboard|store|bulk-create|index|reports)[a-z0-9\-]+');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dam/bulk-create', [DamController::class, 'bulkCreate'])->name('dam.bulk-create');

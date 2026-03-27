@@ -52,6 +52,6 @@ Route::get('/accession/{slug}', [AccessionController::class, 'show'])->name('acc
 Route::middleware(['web'])->group(function () {
 
 // Auto-registered stub routes
-Route::match(['get','post'], '/donor/autocomplete', function() { return view('accessionmanage::autocomplete'); })->name('donor.autocomplete');
-Route::match(['get','post'], '/donor/add', function() { return view('accessionmanage::add'); })->name('donor.add');
+Route::match(['get','post'], '/donor/autocomplete', function() { return view('ahg-accession-manage::autocomplete'); })->name('donor.autocomplete');
+Route::match(['get','post'], '/donor/add', function() { return view('ahg-accession-manage::add'); })->name('donor.add');
 });

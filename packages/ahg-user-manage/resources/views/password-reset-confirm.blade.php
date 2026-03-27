@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_1col')
+@extends('theme::layout_1col')
 
 @section('title')
   <h1>{{ __('Reset Your Password') }}</h1>

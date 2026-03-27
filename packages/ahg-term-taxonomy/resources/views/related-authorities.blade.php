@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_3col')
+@extends('theme::layout_3col')
 
 @section('sidebar')
 

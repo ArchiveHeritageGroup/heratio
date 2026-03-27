@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_1col')
+@extends('theme::layout_1col')
 
 @section('title')
   <div class="multiline-header d-flex flex-column mb-3">

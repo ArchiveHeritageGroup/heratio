@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout')
+@extends('theme::layout')
 
 @section('title', 'Rename - ' . ($io->title ?? 'Untitled'))
 

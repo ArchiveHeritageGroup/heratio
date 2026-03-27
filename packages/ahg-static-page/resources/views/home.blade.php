@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_2col')
+@extends('theme::layout_2col')
 
 @section('title')
   <h1>{{ $resource->getTitle(['cultureFallback' => true]) }}</h1>

@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_2col')
+@extends('theme::layout_2col')
 
 @section('sidebar')
   @include('ahg-information-object-manage::_context-menu')

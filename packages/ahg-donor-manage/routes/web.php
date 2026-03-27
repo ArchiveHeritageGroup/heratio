@@ -17,7 +17,8 @@ Route::middleware('admin')->group(function () {
     Route::delete('/donor/{slug}/delete', [DonorController::class, 'destroy'])->name('donor.destroy');
 });
 
-Route::get('/donor/{slug}', [DonorController::class, 'show'])->name('donor.show');
+Route::get('/donor/{slug}', [DonorController::class, 'show'])->name('donor.show')
+    ->where('slug', '(?!browse|add|agreements|agreement|index|view)[a-z0-9\-]+');
 
 Route::middleware('auth')->group(function () {
     Route::get('/donor/agreements', [DonorController::class, 'agreementDashboard'])->name('donor.agreements');

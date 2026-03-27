@@ -8,6 +8,9 @@ Route::get('/about', [StaticPageController::class, 'show'])->defaults('slug', 'a
 Route::get('/privacy', [StaticPageController::class, 'show'])->defaults('slug', 'privacy')->name('staticpage.privacy');
 Route::get('/terms', [StaticPageController::class, 'show'])->defaults('slug', 'terms')->name('staticpage.terms');
 
+// Legacy URL alias: /admin/static-pages → /staticpage/browse
+Route::get('/admin/static-pages', fn () => redirect('/staticpage/browse', 301));
+
 Route::middleware('admin')->group(function () {
     Route::get('/staticpage/browse', [StaticPageController::class, 'browse'])->name('staticpage.browse');
     Route::get('/staticpage/list', [StaticPageController::class, 'list'])->name('staticpage.list');

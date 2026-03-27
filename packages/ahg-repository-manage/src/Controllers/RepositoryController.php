@@ -73,6 +73,61 @@ class RepositoryController extends Controller
             ->select('term.id', 'term_i18n.name')
             ->get();
 
+        // ── Filter tags (active filter pills) ──
+        $filterTags = [];
+
+        if (!empty($params['thematicArea'])) {
+            $taName = DB::table('term_i18n')->where('id', $params['thematicArea'])->where('culture', $culture)->value('name');
+            if ($taName) {
+                $filterTags[] = [
+                    'label' => 'Thematic area: ' . $taName,
+                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['thematicAreas', 'page'])),
+                ];
+            }
+        }
+
+        if (!empty($params['archiveType'])) {
+            $atName = DB::table('term_i18n')->where('id', $params['archiveType'])->where('culture', $culture)->value('name');
+            if ($atName) {
+                $filterTags[] = [
+                    'label' => 'Archive type: ' . $atName,
+                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['types', 'page'])),
+                ];
+            }
+        }
+
+        if (!empty($params['region'])) {
+            $filterTags[] = [
+                'label' => 'Region: ' . $params['region'],
+                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['regions', 'page'])),
+            ];
+        }
+
+        if (!empty($params['subregion'])) {
+            $srName = DB::table('term_i18n')->where('id', $params['subregion'])->where('culture', $culture)->value('name');
+            if ($srName) {
+                $filterTags[] = [
+                    'label' => 'Subregion: ' . $srName,
+                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['geographicSubregions', 'page'])),
+                ];
+            }
+        }
+
+        if (!empty($params['locality'])) {
+            $filterTags[] = [
+                'label' => 'Locality: ' . $params['locality'],
+                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['locality', 'page'])),
+            ];
+        }
+
+        if (!empty($params['languages'])) {
+            $langDisplay = locale_get_display_language($params['languages'], 'en') ?: $params['languages'];
+            $filterTags[] = [
+                'label' => 'Language: ' . ucfirst($langDisplay),
+                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['languages', 'page'])),
+            ];
+        }
+
         return view('ahg-repository-manage::browse', [
             'pager' => $pager,
             'thematicAreaFacets' => $thematicAreaFacets,
@@ -84,6 +139,7 @@ class RepositoryController extends Controller
             'thematicAreaOptions' => $thematicAreaOptions,
             'repositoryTypes' => $repositoryTypes,
             'params' => $params,
+            'filterTags' => $filterTags,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Name',

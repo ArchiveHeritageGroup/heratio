@@ -8,6 +8,25 @@ use Illuminate\Support\Facades\Auth;
 class AccessRequestService
 {
     /**
+     * Browse all access requests (admin view).
+     */
+    public function getAllRequests(int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return DB::table('access_request')
+            ->leftJoin('user', 'access_request.user_id', '=', 'user.id')
+            ->leftJoin('actor_i18n', function ($join) {
+                $join->on('user.id', '=', 'actor_i18n.id')
+                     ->where('actor_i18n.culture', '=', 'en');
+            })
+            ->select(
+                'access_request.*',
+                'actor_i18n.authorized_form_of_name as user_name'
+            )
+            ->orderByDesc('access_request.created_at')
+            ->paginate($perPage);
+    }
+
+    /**
      * Get pending access requests for admins/approvers.
      */
     public function getPendingRequests(int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator

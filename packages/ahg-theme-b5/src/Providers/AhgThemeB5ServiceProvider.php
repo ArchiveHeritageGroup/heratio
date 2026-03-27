@@ -15,11 +15,22 @@ class AhgThemeB5ServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Load views with 'theme' namespace
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'theme');
+        $viewPath = __DIR__ . '/../../resources/views';
+
+        // Load views with 'theme' namespace (primary)
+        $this->loadViewsFrom($viewPath, 'theme');
+
+        // Register 'ahg-theme-b5' as an alias namespace so views using
+        // @extends('ahg-theme-b5::...') resolve correctly
+        $this->loadViewsFrom($viewPath, 'ahg-theme-b5');
 
         // Share theme data with all views
         View::composer('theme::layouts.*', function ($view) {
+            $themeService = app(ThemeService::class);
+            $view->with('themeData', $themeService->getLayoutData());
+        });
+
+        View::composer('ahg-theme-b5::layouts.*', function ($view) {
             $themeService = app(ThemeService::class);
             $view->with('themeData', $themeService->getLayoutData());
         });

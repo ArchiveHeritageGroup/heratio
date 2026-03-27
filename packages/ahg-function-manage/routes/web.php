@@ -22,5 +22,5 @@ Route::get('/function/{slug}', [FunctionController::class, 'show'])->name('funct
 Route::middleware(['web'])->group(function () {
 
 // Auto-registered stub routes
-Route::match(['get','post'], '/autocomplete', function() { return view('functionmanage::autocomplete'); })->name('function.autocomplete');
+Route::match(['get','post'], '/autocomplete', function() { return view('ahg-function-manage::autocomplete'); })->name('function.autocomplete');
 });

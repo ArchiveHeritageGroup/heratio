@@ -10,7 +10,7 @@ $headingsTitle = __('Edit %1%', ['%1%' => $digitalObjectLabel]);
 
 <section>
 
-  @include('ahg-theme-b5::partials._section-heading', [
+  @include('theme::partials._section-heading', [
       'heading' => __('%1% (%2%) rights area', ['%1%' => $digitalObjectLabel, '%2%' => $resource->usage ?? '']),
       'condition' => $headingCondition,
       'link' => $headingsUrl,
@@ -37,7 +37,7 @@ $headingsTitle = __('Edit %1%', ['%1%' => $digitalObjectLabel]);
 
   @if($referenceChild)
 
-    @include('ahg-theme-b5::partials._section-heading', [
+    @include('theme::partials._section-heading', [
         'heading' => __('%1% (%2%) rights area', ['%1%' => $digitalObjectLabel, '%2%' => $referenceChild->usage ?? '']),
         'condition' => $headingCondition,
         'link' => $headingsUrl,
@@ -66,7 +66,7 @@ $headingsTitle = __('Edit %1%', ['%1%' => $digitalObjectLabel]);
 
   @if($thumbnailChild)
 
-    @include('ahg-theme-b5::partials._section-heading', [
+    @include('theme::partials._section-heading', [
         'heading' => __('%1% (%2%) rights area', ['%1%' => $digitalObjectLabel, '%2%' => $thumbnailChild->usage ?? '']),
         'condition' => $headingCondition,
         'link' => $headingsUrl,

@@ -3,6 +3,9 @@
 use AhgIntegrity\Controllers\IntegrityController;
 use Illuminate\Support\Facades\Route;
 
+// Legacy URL alias: /admin/integrity → /integrity/index
+Route::get('/admin/integrity', fn () => redirect('/integrity/index', 301));
+
 Route::middleware('admin')->group(function () {
     Route::get('/integrity/index', [IntegrityController::class, 'index'])->name('integrity.index');
     Route::get('/integrity/alerts', [IntegrityController::class, 'alerts'])->name('integrity.alerts');

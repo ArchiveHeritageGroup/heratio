@@ -1,8 +1,13 @@
-@extends('theme::layouts.2col')
+@if(isset($pager) && $pager->getNbResults())
+  @extends('theme::layouts.2col')
+@else
+  @extends('theme::layouts.1col')
+@endif
 
 @section('title', config('app.ui_label_actor', 'Authority record') . 's')
 @section('body-class', 'browse actor')
 
+@if(isset($pager) && $pager->getNbResults())
 @section('sidebar')
   <h2 class="d-grid">
     <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button"
@@ -243,6 +248,7 @@
     @endif
   </div>
 @endsection
+@endif
 
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">

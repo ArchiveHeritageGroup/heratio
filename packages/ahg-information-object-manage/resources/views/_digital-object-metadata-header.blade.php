@@ -15,7 +15,7 @@
         </a>
 
         <!-- TIFF to PDF Merge Button -->
-        @include('ahg-theme-b5::_tiff-pdf-merge-button', [
+        @include('theme::_tiff-pdf-merge-button', [
             'informationObjectId' => $resource->id,
             'buttonClass' => 'btn btn-outline-secondary btn-sm'
         ])
@@ -25,7 +25,7 @@
 </div>
 
 <!-- Include modal (once per page) -->
-@include('ahg-theme-b5::_tiff-pdf-merge-modal', [
+@include('theme::_tiff-pdf-merge-modal', [
     'informationObjectId' => $resource->id
 ])
 

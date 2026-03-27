@@ -21,6 +21,11 @@
     @if($themeData['themeJsBundle'] ?? null)
       <script defer src="{{ $themeData['themeJsBundle'] }}"></script>
     @endif
+
+    {{-- jQuery CSRF setup — must load after jQuery (vendor bundle) and before DOMContentLoaded
+         so that the AtoM theme bundle's jQuery AJAX calls include the CSRF token --}}
+    <script defer src="{{ asset('vendor/ahg-theme-b5/js/jquery-csrf-setup.js') }}"></script>
+
     @if($themeData['themeCssBundle'] ?? null)
       <link href="{{ $themeData['themeCssBundle'] }}" rel="stylesheet">
     @endif

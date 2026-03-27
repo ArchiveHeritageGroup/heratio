@@ -3,6 +3,9 @@
 use AhgDropdownManage\Controllers\DropdownController;
 use Illuminate\Support\Facades\Route;
 
+// Legacy URL alias: /admin/dropdown → /admin/dropdowns
+Route::get('/admin/dropdown', fn () => redirect('/admin/dropdowns', 301));
+
 Route::middleware('admin')->group(function () {
     Route::get('/admin/dropdowns', [DropdownController::class, 'index'])->name('dropdown.index');
     Route::get('/admin/dropdowns/{taxonomy}/edit', [DropdownController::class, 'edit'])->name('dropdown.edit');

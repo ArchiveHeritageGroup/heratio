@@ -3,6 +3,10 @@
 use AhgAccessRequest\Controllers\AccessRequestController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware(['auth', 'admin'])->prefix('access-request')->group(function () {
+    Route::get('/browse', [AccessRequestController::class, 'browse'])->name('accessRequest.browse');
+});
+
 Route::middleware('auth')->prefix('access-request')->group(function () {
     Route::get('/new', [AccessRequestController::class, 'create'])->name('accessRequest.create');
     Route::post('/new', [AccessRequestController::class, 'store'])->name('accessRequest.store');

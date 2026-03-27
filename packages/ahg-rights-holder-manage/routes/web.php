@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/rightsholder/browse', [RightsHolderController::class, 'browse'])->name('rightsholder.browse');
 
+// Redirect hyphenated variant to canonical URL
+Route::redirect('/rights-holder/browse', '/rightsholder/browse', 301);
+
 Route::middleware('auth')->group(function () {
     Route::get('/rightsholder/add', [RightsHolderController::class, 'create'])->name('rightsholder.create');
     Route::post('/rightsholder/add', [RightsHolderController::class, 'store'])->name('rightsholder.store');

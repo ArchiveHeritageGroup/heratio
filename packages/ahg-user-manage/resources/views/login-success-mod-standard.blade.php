@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_1col')
+@extends('theme::layout_1col')
 
 @section('content')
   @if($errors->any())

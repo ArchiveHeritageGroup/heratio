@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layouts.1col')
+@extends('theme::layouts.1col')
 
 @section('title')
   <h1>{{ __('Move %1%', ['%1%' => $resource->authorized_form_of_name ?? $resource->title ?? '']) }}</h1>

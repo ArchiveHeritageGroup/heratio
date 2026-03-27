@@ -932,7 +932,8 @@ PY;
             $cropH = $bottom - $top;
 
             // Only crop if we're actually removing significant borders (> 5% per side)
-            if ($cropW > $w * 0.5 && $cropH > $h * 0.5) {
+            // Guard against INT_MAX overflow: imagecrop fails when width * height exceeds 2^31-1
+            if ($cropW > $w * 0.5 && $cropH > $h * 0.5 && ((float)$cropW * (float)$cropH) < 2147483647) {
                 $cropped = imagecrop($im, ['x' => $left, 'y' => $top, 'width' => $cropW, 'height' => $cropH]);
                 if ($cropped) {
                     imagejpeg($cropped, $cachePath, 92);
@@ -990,6 +991,12 @@ PY;
         $im = @imagecreatefromjpeg($srcPath) ?: @imagecreatefrompng($srcPath);
         if (!$im) {
             return response()->json(['success' => false, 'error' => 'Cannot load image']);
+        }
+
+        // Guard against INT_MAX overflow: imagecrop fails when width * height exceeds 2^31-1
+        if (((float)$w * (float)$h) >= 2147483647) {
+            imagedestroy($im);
+            return response()->json(['success' => false, 'error' => 'Crop area too large (exceeds INT_MAX)']);
         }
 
         $crop = imagecrop($im, ['x' => $x, 'y' => $y, 'width' => $w, 'height' => $h]);

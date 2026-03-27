@@ -1,5 +1,5 @@
 @php
-  // Build static pages sidebar from DB if $menu is not provided
+  // Build static pages sidebar from DB
   $culture = app()->getLocale();
   $staticPages = \Illuminate\Support\Facades\DB::table('static_page')
       ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')

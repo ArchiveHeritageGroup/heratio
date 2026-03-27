@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout')
+@extends('theme::layout')
 
 @section('title', 'Provenance Timeline - ' . ($resource->title ?? $resource->slug))
 

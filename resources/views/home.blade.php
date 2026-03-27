@@ -214,6 +214,15 @@
   {{-- Static page content --}}
   @if($page)
     <div class="page p-3">
+      @auth
+        @if(auth()->user()->is_admin)
+          <div class="mb-2 text-end">
+            <a href="{{ route('staticpage.edit', 'home') }}" class="btn btn-sm atom-btn-white">
+              <i class="fas fa-pencil-alt me-1" aria-hidden="true"></i>{{ __('Edit') }}
+            </a>
+          </div>
+        @endif
+      @endauth
       {!! $page->content ?? '' !!}
     </div>
   @endif

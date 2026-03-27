@@ -13,6 +13,16 @@ class AccessRequestController extends Controller
     ) {}
 
     /**
+     * Browse all access requests.
+     */
+    public function browse()
+    {
+        $requests = $this->service->getAllRequests();
+
+        return view('ahg-access-request::browse', compact('requests'));
+    }
+
+    /**
      * New access request form.
      */
     public function create()

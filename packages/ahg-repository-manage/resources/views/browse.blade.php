@@ -202,6 +202,19 @@
 @endsection
 
 @section('before-content')
+  {{-- Filter tags --}}
+  @if(isset($filterTags) && count($filterTags) > 0)
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      @foreach($filterTags as $tag)
+        <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
+          <span class="visually-hidden">Remove filter:</span>
+          <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
+          <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
+        </a>
+      @endforeach
+    </div>
+  @endif
+
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [
         'label' => 'Search ' . mb_strtolower(config('app.ui_label_repository', 'Archival institution')),

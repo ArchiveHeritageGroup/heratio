@@ -33,9 +33,11 @@ class InformationObjectBrowseService extends BrowseService
             'information_object_i18n.title as name',
             'information_object.level_of_description_id',
             'information_object.repository_id',
+            'information_object.parent_id',
             'information_object.identifier',
             'object.updated_at',
             'slug.slug',
+            DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.information_object_id = information_object.id LIMIT 1) as thumbnail_path'),
         ];
     }
 
@@ -63,6 +65,24 @@ class InformationObjectBrowseService extends BrowseService
         // Top-level filter: only show top-level descriptions (parent_id=1)
         if (!empty($this->activeFilters['top_level'])) {
             $query->where('information_object.parent_id', 1);
+        }
+
+        // Language filter: restrict to a specific i18n culture
+        if (!empty($this->activeFilters['language'])) {
+            $query->where('information_object_i18n.culture', $this->activeFilters['language']);
+        }
+
+        // Collection filter: restrict to descendants of a specific top-level IO
+        if (!empty($this->activeFilters['collection_id'])) {
+            $collectionId = (int) $this->activeFilters['collection_id'];
+            $query->where(function ($q) use ($collectionId) {
+                // Include the collection itself or any descendant (using nested set lft/rgt)
+                $q->where('information_object.id', $collectionId)
+                  ->orWhere(function ($inner) use ($collectionId) {
+                      $inner->whereRaw('information_object.lft > (SELECT lft FROM information_object WHERE id = ?)', [$collectionId])
+                            ->whereRaw('information_object.rgt < (SELECT rgt FROM information_object WHERE id = ?)', [$collectionId]);
+                  });
+            });
         }
 
         // Has digital object filter
@@ -153,6 +173,25 @@ class InformationObjectBrowseService extends BrowseService
                     ->toArray();
             }
             $result['repositoryNames'] = $repositoryNames;
+
+            // Batch resolve parent IO names and slugs for "Part of" links
+            $parentIds = array_filter(array_unique(array_column($result['hits'], 'parent_id')));
+            // Exclude root node (id=1) from parent resolution
+            $parentIds = array_diff($parentIds, [1]);
+            $parentInfo = [];
+            if (!empty($parentIds)) {
+                $parentInfo = DB::table('information_object')
+                    ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                    ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                    ->whereIn('information_object.id', $parentIds)
+                    ->where('information_object_i18n.culture', $this->culture)
+                    ->select('information_object.id', 'information_object_i18n.title as name', 'slug.slug')
+                    ->get()
+                    ->keyBy('id')
+                    ->map(fn ($row) => ['name' => $row->name, 'slug' => $row->slug])
+                    ->toArray();
+            }
+            $result['parentInfo'] = $parentInfo;
         }
 
         return $result;
@@ -412,9 +451,11 @@ class InformationObjectBrowseService extends BrowseService
             'name' => $row->name ?? '',
             'level_of_description_id' => $row->level_of_description_id ?? null,
             'repository_id' => $row->repository_id ?? null,
+            'parent_id' => $row->parent_id ?? null,
             'identifier' => $row->identifier ?? '',
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
+            'thumbnail_path' => $row->thumbnail_path ?? '',
         ];
     }
 }

@@ -22,6 +22,7 @@ class InformationObjectController extends Controller
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
             'sort' => $request->get('sort', 'alphabetic'),
+            'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('query', $request->get('subquery', '')),
         ];
 
@@ -43,6 +44,9 @@ class InformationObjectController extends Controller
         $levelsId = $request->get('levels');
         $mediaTypeId = $request->get('mediatypes');
 
+        $languageFilter = $request->get('languages');
+        $collectionId = $request->get('collection');
+
         if ($repositoryId) {
             $params['filters']['repository_id'] = $repositoryId;
         }
@@ -51,6 +55,12 @@ class InformationObjectController extends Controller
         }
         if ($mediaTypeId) {
             $params['filters']['media_type_id'] = $mediaTypeId;
+        }
+        if ($languageFilter) {
+            $params['filters']['language'] = $languageFilter;
+        }
+        if ($collectionId) {
+            $params['filters']['collection_id'] = $collectionId;
         }
 
         // Parse advanced search criteria (sq0/sf0/so0, sq1/sf1/so1, ...)
@@ -216,6 +226,48 @@ class InformationObjectController extends Controller
             ->limit(10)
             ->get();
 
+        // Language facet (count information_object_i18n rows grouped by culture)
+        $languageRows = DB::table('information_object_i18n')
+            ->join('information_object', 'information_object_i18n.id', '=', 'information_object.id')
+            ->where('information_object.id', '!=', 1)
+            ->whereNotNull('information_object_i18n.title')
+            ->where('information_object_i18n.title', '!=', '')
+            ->select('information_object_i18n.culture', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('information_object_i18n.culture')
+            ->orderBy('information_object_i18n.culture')
+            ->get();
+
+        $languageFacets = [];
+        foreach ($languageRows as $r) {
+            $langName = locale_get_display_language($r->culture, 'en') ?: $r->culture;
+            $languageFacets[$r->culture] = [
+                'name' => ucfirst($langName),
+                'count' => $r->cnt,
+            ];
+        }
+
+        // Collection ("Part of") facet — top-level descriptions that have children
+        $collectionFacets = DB::table('information_object as parent')
+            ->join('information_object_i18n as parent_i18n', 'parent.id', '=', 'parent_i18n.id')
+            ->join('slug as parent_slug', 'parent.id', '=', 'parent_slug.object_id')
+            ->where('parent_i18n.culture', $culture)
+            ->where('parent.parent_id', 1)
+            ->where('parent.id', '!=', 1)
+            ->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('information_object as child')
+                    ->whereColumn('child.parent_id', 'parent.id');
+            })
+            ->select(
+                'parent.id',
+                'parent_i18n.title as label',
+                'parent_slug.slug',
+                DB::raw('(SELECT COUNT(*) FROM information_object child WHERE child.lft > parent.lft AND child.rgt < parent.rgt) as count')
+            )
+            ->orderByDesc(DB::raw('(SELECT COUNT(*) FROM information_object child WHERE child.lft > parent.lft AND child.rgt < parent.rgt)'))
+            ->limit(10)
+            ->get();
+
         // Digital objects count (for "X results with digital objects" banner)
         $digitalObjectsCount = DB::table('digital_object')
             ->join('information_object', 'digital_object.object_id', '=', 'information_object.id')
@@ -348,8 +400,51 @@ class InformationObjectController extends Controller
             ];
         }
 
+        if ($languageFilter) {
+            $langDisplayName = locale_get_display_language($languageFilter, 'en') ?: $languageFilter;
+            $filterTags[] = [
+                'label' => 'Language: ' . ucfirst($langDisplayName),
+                'removeUrl' => route('informationobject.browse', $request->except(['languages', 'page'])),
+            ];
+        }
+
+        if ($collectionId) {
+            $collectionName = DB::table('information_object_i18n')
+                ->where('id', $collectionId)->where('culture', $culture)->value('title');
+            if ($collectionName) {
+                $filterTags[] = [
+                    'label' => 'Part of: ' . $collectionName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['collection', 'page'])),
+                ];
+            }
+        }
+
         // Top-level description filter state
         $isTopLevel = ($topLevel === '1' || $topLevel === 'true') && !$hasQuery;
+
+        // Resolve collection names for results that have a parent
+        $collectionNames = [];
+        if (!empty($result['hits'])) {
+            $parentIds = array_filter(array_unique(array_column($result['hits'], 'parent_id')));
+            // Remove root (id=1)
+            $parentIds = array_filter($parentIds, fn($id) => $id != 1);
+            if (!empty($parentIds)) {
+                // For each parent, walk up to find the top-level ancestor title
+                $collectionNames = DB::table('information_object')
+                    ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', $culture)
+                    ->where('information_object.parent_id', 1)
+                    ->whereIn('information_object.id', function ($sub) use ($parentIds) {
+                        // Get top-level ancestors: either the parent itself is top-level, or we find the ancestor
+                        $sub->select('information_object.id')
+                            ->from('information_object')
+                            ->where('information_object.parent_id', 1)
+                            ->whereIn('information_object.id', $parentIds);
+                    })
+                    ->pluck('information_object_i18n.title', 'information_object.id')
+                    ->toArray();
+            }
+        }
 
         return view('ahg-io-manage::browse', [
             'pager' => $pager,
@@ -362,6 +457,10 @@ class InformationObjectController extends Controller
             'digitalObjectsCount' => $digitalObjectsCount,
             'levelsOfDescription' => $levelsOfDescription,
             'isTopLevel' => $isTopLevel,
+            'languageFacets' => $languageFacets,
+            'collectionFacets' => $collectionFacets,
+            'collectionNames' => $collectionNames,
+            'parentInfo' => $result['parentInfo'] ?? [],
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Title',

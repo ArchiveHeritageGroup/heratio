@@ -1,4 +1,4 @@
-@extends('ahg-theme-b5::layout_1col')
+@extends('theme::layout_1col')
 
 @section('title')
   <h1>{{ __('Are you sure you want to delete the finding aid of %1%?', ['%1%' => $resource->title]) }}</h1>
