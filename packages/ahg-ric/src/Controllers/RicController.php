@@ -945,6 +945,60 @@ SPARQL;
             }
         }
 
+        // Also query standalone entities (Person, CorporateBody, Family, Place, Activity, Record, etc.)
+        $standaloneQuery = <<<'SPARQL'
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
+  {
+    ?s a ?rawType .
+    FILTER(STRSTARTS(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#"))
+    FILTER(?rawType != rico:RecordSet)
+    FILTER(STRSTARTS(STR(?s), "https://archives.theahg.co.za/ric/standalone"))
+    BIND(REPLACE(STR(?rawType), "https://www.ica.org/standards/RiC/ontology#", "") AS ?type)
+    OPTIONAL { ?s rico:title ?label }
+    OPTIONAL { ?s rico:name ?label }
+    OPTIONAL { ?s rico:hasAgentName/rico:textualValue ?label }
+    OPTIONAL { ?s rico:hasPlaceName/rico:textualValue ?label }
+  }
+  OPTIONAL {
+    ?s ?pred ?related .
+    FILTER(isURI(?related) && ?pred != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+    OPTIONAL { ?related rico:title ?relLabel }
+    OPTIONAL { ?related a ?relType . FILTER(STRSTARTS(STR(?relType), "https://www.ica.org/standards/RiC/ontology#")) }
+  }
+} LIMIT 200
+SPARQL;
+
+        $standaloneResult = $this->executeSparql($standaloneQuery, $endpoint, $username, $password);
+        if ($standaloneResult && isset($standaloneResult['results']['bindings'])) {
+            foreach ($standaloneResult['results']['bindings'] as $row) {
+                $uri = $row['s']['value'];
+                if (!isset($nodeIndex[$uri])) {
+                    $nodeIndex[$uri] = true;
+                    $label = $row['label']['value'] ?? $this->extractLabel($uri);
+                    $nodes[] = [
+                        'id'    => $uri,
+                        'label' => $label,
+                        'type'  => $row['type']['value'] ?? 'Unknown',
+                    ];
+                }
+                if (isset($row['related'])) {
+                    $relUri = $row['related']['value'];
+                    if (!isset($nodeIndex[$relUri])) {
+                        $nodeIndex[$relUri] = true;
+                        $relType = isset($row['relType']) ? $this->extractType($row['relType']['value']) : $this->extractTypeFromUri($relUri);
+                        $nodes[] = [
+                            'id'    => $relUri,
+                            'label' => isset($row['relLabel']) ? $row['relLabel']['value'] : $this->extractLabel($relUri),
+                            'type'  => $relType,
+                        ];
+                    }
+                    $predLabel = isset($row['pred']) ? $this->extractLabel($row['pred']['value']) : '';
+                    $edges[] = ['source' => $uri, 'target' => $relUri, 'label' => $predLabel];
+                }
+            }
+        }
+
         // Also query Mandate, Rule, Mechanism entities from triplestore
         $mandateQuery = <<<'SPARQL'
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
