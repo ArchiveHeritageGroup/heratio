@@ -1354,8 +1354,8 @@ PY;
                 $startY = $bestMatch['top'] - 5;
 
                 // Default box: from label end to ~85% of image width
-                $boxW = max(200, (int)($imgWidth * 0.85) - $startX);
-                $boxH = max(35, $bestMatch['height'] + 15);
+                $boxW = max(250, (int)($imgWidth * 0.85) - $startX);
+                $boxH = max(45, $bestMatch['height'] + 25);
 
                 // Per-field box overrides from labelMap config
                 $boxConfig = $config['box'] ?? null;
@@ -1371,10 +1371,11 @@ PY;
                     }
                 }
 
-                // Sex — small box, just enough for "Male"/"Female"
+                // Sex — wider box, shifted further right from label
                 if ($fieldName === 'Sex') {
-                    $boxW = min($boxW, (int)($imgWidth * 0.12));
-                    $boxH = max(25, $bestMatch['height'] + 5);
+                    $startX = $labelRight + (int)($imgWidth * 0.03);
+                    $boxW = (int)($imgWidth * 0.20);
+                    $boxH = max(35, $bestMatch['height'] + 15);
                 }
 
                 // Age — compact box for number + unit
