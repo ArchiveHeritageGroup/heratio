@@ -387,28 +387,50 @@
     return fixed.join(' ');
   }
 
-  // Convert "6 months" → "Six Months", "45 years" → "Forty Five Years", "0 days" → "Nought Days"
-  function numberToWords(ageStr) {
+  // Spellcheck age unit — keep the number as-is, just fix the unit text
+  // Valid units: Days, Months, Years (and common OCR misreads)
+  function spellcheckAge(ageStr) {
     if (!ageStr) return '';
-    const ones = ['Nought','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
-                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
-    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    const s = ageStr.trim();
 
-    function convert(n) {
-      n = parseInt(n);
-      if (isNaN(n)) return String(n);
-      if (n < 20) return ones[n];
-      if (n < 100) return tens[Math.floor(n/10)] + (n % 10 ? ' ' + ones[n % 10] : '');
-      if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred' + (n % 100 ? ' and ' + convert(n % 100) : '');
-      return String(n);
+    // Already just a number — return as-is
+    if (/^\d+$/.test(s)) return s;
+
+    // Split into number part and unit part
+    const m = s.match(/^(\d+)\s*(.*)/);
+    if (!m) {
+      // No number — might be all text like "Six Months", return as-is
+      return s;
     }
 
-    // Parse "6 months", "45 years", "0 days" etc
-    const m = ageStr.match(/^(\d+)\s*(.*)/);
-    if (!m) return ageStr;
-    const num = convert(m[1]);
-    const unit = m[2] ? m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase() : '';
-    return num + (unit ? ' ' + unit : '');
+    const num = m[1];
+    const unitRaw = (m[2] || '').trim().toLowerCase();
+    if (!unitRaw) return num;
+
+    // Fuzzy match unit against known valid values
+    const validUnits = {
+      'days': 'Days', 'day': 'Days', 'dys': 'Days', 'das': 'Days', 'dae': 'Days', 'dag': 'Days', 'dage': 'Days',
+      'months': 'Months', 'month': 'Months', 'mnths': 'Months', 'mths': 'Months', 'mos': 'Months', 'maande': 'Months', 'maand': 'Months',
+      'years': 'Years', 'year': 'Years', 'yrs': 'Years', 'yr': 'Years', 'yeas': 'Years', 'jaar': 'Years', 'jare': 'Years',
+      'weeks': 'Weeks', 'week': 'Weeks', 'wks': 'Weeks', 'weke': 'Weeks',
+      'hours': 'Hours', 'hour': 'Hours', 'hrs': 'Hours', 'ure': 'Hours', 'uur': 'Hours',
+    };
+
+    // Exact match first
+    if (validUnits[unitRaw]) return num + ' ' + validUnits[unitRaw];
+
+    // Levenshtein fuzzy match
+    let bestUnit = unitRaw.charAt(0).toUpperCase() + unitRaw.slice(1);
+    let bestDist = 999;
+    for (const [key, val] of Object.entries(validUnits)) {
+      const d = levenshtein(unitRaw, key);
+      if (d < bestDist) { bestDist = d; bestUnit = val; }
+    }
+    // Accept fuzzy match if distance <= 2
+    if (bestDist <= 2) return num + ' ' + bestUnit;
+
+    // Can't fix — return capitalised
+    return num + ' ' + unitRaw.charAt(0).toUpperCase() + unitRaw.slice(1);
   }
 
   // ── Known form templates (positions as % of image width/height) ──
@@ -1200,8 +1222,10 @@
           if (text) {
             // De-duplicate repeated text (TrOCR loop bug)
             let cleanText = dedupeRepeats(text);
-            // Auto-fix spelling only on date fields
-            const fixedText = (label === 'Event Date') ? autoFixDate(cleanText) : cleanText;
+            // Auto-fix: dates get date spellcheck, age gets unit spellcheck
+            let fixedText = cleanText;
+            if (label === 'Event Date') fixedText = autoFixDate(cleanText);
+            else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
             // If field is empty, auto-populate it directly
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
@@ -1287,7 +1311,9 @@
       if (!text) return;
 
       let cleanText = dedupeRepeats(text);
-      const fixedText = (label === 'Event Date') ? autoFixDate(cleanText) : cleanText;
+      let fixedText = cleanText;
+      if (label === 'Event Date') fixedText = autoFixDate(cleanText);
+      else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
       // Auto-populate if field is empty
       const inp = document.querySelector('.ba-edit-input[data-field-idx="' + annIdx + '"]');
@@ -1346,7 +1372,7 @@
     COLUMNS.forEach(function(col, i) {
       let val = entry.fields[col] || '';
       if (CLEAR_FIELDS.includes(col)) val = '';
-      if (col === 'Age') val = numberToWords(val);
+      if (col === 'Age') val = spellcheckAge(val);
       const div = document.createElement('div');
       div.className = 'ba-field' + (i === fieldIdx ? ' active' : '');
       div.dataset.idx = i;

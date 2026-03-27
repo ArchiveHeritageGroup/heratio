@@ -1142,12 +1142,14 @@ PY;
                 'words' => ['christian', 'voornamen', 'familienaam', 'surname', 'names'],
             ],
             'Sex' => [
-                'phrases' => [],
+                'phrases' => ['sex or gender', 'geslag of gender'],
                 'words' => ['sex', 'geslacht', 'geslag', 'gender'],
+                'box' => ['offset_x' => 0.02, 'w_pct' => 0.12, 'h_extra' => 0], // small box, shifted right
             ],
             'Age' => [
-                'phrases' => ['age at death', 'ouderdom by oorlye'],
-                'words' => ['age', 'ouderdom'],
+                'phrases' => ['age at death', 'ouderdom by oorlye', 'age last birthday', 'ouderdom laaste verjaarsdag'],
+                'words' => ['age', 'ouderdom', 'leeftyd'],
+                'context' => ['death', 'dood', 'oorlye', 'birthday', 'verjaarsdag', 'last'],
             ],
             'Birth Date' => [
                 'phrases' => ['date of birth', 'geboortedatum'],
@@ -1158,14 +1160,14 @@ PY;
                 'words' => ['birthplace', 'geboorteplek'],
             ],
             'Event Date' => [
-                'phrases' => ['date of death', 'datum van oorlye', 'datum van dood', 'datum van sterfte', 'datum van overlijden', 'date of decease'],
-                'words' => ['date', 'datum'],
+                'phrases' => ['date of death', 'datum van oorlye', 'datum van dood', 'datum van sterfte', 'datum van overlijden', 'date of decease', 'date when death'],
+                'words' => [],  // no single-word fallback — "date" alone matches too many things
                 'context' => ['death', 'dood', 'oorlye', 'sterfte', 'overlijden', 'decease'],
             ],
             'Residence Place' => [
-                'phrases' => ['place of death', 'plek van oorlye', 'plaats van overlijden', 'place where death', 'plek waar dood', 'usual place of residence', 'gewone woonplek'],
-                'words' => ['place', 'plek', 'plaats', 'residence', 'woonplek'],
-                'context' => ['death', 'dood', 'oorlye', 'overlijden', 'residence', 'woon'],
+                'phrases' => ['duration of last illness', 'duur van laaste siekte', 'duur van laatste ziekte', 'place of death', 'plek van oorlye', 'usual place of residence', 'gewone woonplek'],
+                'words' => ['duration', 'duur', 'illness', 'siekte', 'ziekte'],
+                'context' => ['last', 'laaste', 'laatste', 'illness', 'siekte'],
             ],
             'Cause of Death' => [
                 'phrases' => ['cause of death', 'oorsaak van dood', 'doodsoorsaak'],
@@ -1354,23 +1356,49 @@ PY;
                 $boxW = max(200, (int)($imgWidth * 0.85) - $startX);
                 $boxH = max(35, $bestMatch['height'] + 15);
 
-                // For "Event Date" / "Date of Death" — answer is usually on the same line or line below
+                // Per-field box overrides from labelMap config
+                $boxConfig = $config['box'] ?? null;
+                if ($boxConfig) {
+                    if (isset($boxConfig['offset_x'])) {
+                        $startX = $labelRight + (int)($imgWidth * $boxConfig['offset_x']);
+                    }
+                    if (isset($boxConfig['w_pct'])) {
+                        $boxW = (int)($imgWidth * $boxConfig['w_pct']);
+                    }
+                    if (isset($boxConfig['h_extra'])) {
+                        $boxH = max(25, $bestMatch['height'] + $boxConfig['h_extra']);
+                    }
+                }
+
+                // Sex — small box, just enough for "Male"/"Female"
+                if ($fieldName === 'Sex') {
+                    $boxW = min($boxW, (int)($imgWidth * 0.12));
+                    $boxH = max(25, $bestMatch['height'] + 5);
+                }
+
+                // Age — compact box for number + unit
+                if ($fieldName === 'Age') {
+                    $boxW = min($boxW, (int)($imgWidth * 0.18));
+                    $boxH = max(30, $bestMatch['height'] + 10);
+                }
+
+                // Event Date — answer right after the full "Date of Death" label
                 if ($fieldName === 'Event Date') {
-                    $boxW = max(300, (int)($imgWidth * 0.70) - $startX);
+                    $boxW = max(250, (int)($imgWidth * 0.55) - $startX);
+                    $boxH = max(35, $bestMatch['height'] + 15);
+                }
+
+                // Residence Place — answer below or next to "Duration of last Illness"
+                if ($fieldName === 'Residence Place' || $fieldName === 'Event Place') {
+                    $boxW = max(350, (int)($imgWidth * 0.85) - $startX);
                     $boxH = max(40, $bestMatch['height'] + 20);
                 }
 
-                // For "Residence Place" / "Place of Death" — often multi-line, wider box
-                if ($fieldName === 'Residence Place' || $fieldName === 'Event Place') {
-                    $boxW = max(400, (int)($imgWidth * 0.90) - $startX);
-                    $boxH = max(50, $bestMatch['height'] + 30);
-                }
-
                 // If the answer area would be too narrow (label is far right), put box below label instead
-                if ($boxW < 150) {
+                if ($boxW < 100) {
                     $startX = $bestMatch['left'];
                     $startY = $bestMatch['top'] + $bestMatch['height'] + 3;
-                    $boxW = max(300, (int)($imgWidth * 0.85) - $startX);
+                    $boxW = max(250, (int)($imgWidth * 0.85) - $startX);
                 }
 
                 $positions[$fieldName] = [

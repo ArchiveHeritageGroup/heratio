@@ -94,11 +94,29 @@ class QubitUser extends QubitActor implements Authenticatable
     }
 
     /**
+     * Cached admin flag (avoids repeated DB queries within a request).
+     */
+    protected ?bool $cachedIsAdmin = null;
+
+    /**
      * Check if user is an administrator.
      */
     public function isAdministrator(): bool
     {
-        return $this->groups()->where('acl_group.id', 100)->exists();
+        if ($this->cachedIsAdmin === null) {
+            $this->cachedIsAdmin = $this->groups()->where('acl_group.id', 100)->exists();
+        }
+
+        return $this->cachedIsAdmin;
+    }
+
+    /**
+     * Accessor: $user->is_admin
+     * Used throughout the codebase for admin checks (publication status filter, action icons, etc.).
+     */
+    public function getIsAdminAttribute(): bool
+    {
+        return $this->isAdministrator();
     }
 
     /**
