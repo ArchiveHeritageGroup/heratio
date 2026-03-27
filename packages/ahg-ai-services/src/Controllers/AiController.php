@@ -1145,12 +1145,13 @@ PY;
             'Sex' => [
                 'phrases' => ['sex or gender', 'geslag of gender'],
                 'words' => ['sex', 'geslacht', 'geslag', 'gender'],
-                'box' => ['offset_x' => 0.02, 'w_pct' => 0.12, 'h_extra' => 0], // small box, shifted right
+                'numbered_label' => '2',
             ],
             'Age' => [
                 'phrases' => ['age at death', 'ouderdom by oorlye', 'age last birthday', 'ouderdom laaste verjaarsdag'],
                 'words' => ['age', 'ouderdom', 'leeftyd'],
                 'context' => ['death', 'dood', 'oorlye', 'birthday', 'verjaarsdag', 'last'],
+                'numbered_label' => '4',
             ],
             'Birth Date' => [
                 'phrases' => ['date of birth', 'geboortedatum'],
@@ -1162,13 +1163,26 @@ PY;
             ],
             'Event Date' => [
                 'phrases' => ['date of death', 'datum van oorlye', 'datum van dood', 'datum van sterfte', 'datum van overlijden', 'date of decease', 'date when death'],
-                'words' => [],  // no single-word fallback — "date" alone matches too many things
-                'context' => ['death', 'dood', 'oorlye', 'sterfte', 'overlijden', 'decease'],
+                'words' => ['date'],
+                'context' => ['of', 'death', 'dood', 'oorlye'],
+                'numbered_label' => '8',
+            ],
+            'Event Year' => [
+                // The printed "18__" / "19__" / "20__" year box — usually far right on the Date of Death line
+                'phrases' => [],
+                'words' => ['18', '19', '20'],
+                // Only match if on same line as Event Date (near y of "8. Date of Death")
+                // and in the right half of the image
+                'min_x_pct' => 0.60,
+                'max_y_pct' => 0.75,
             ],
             'Residence Place' => [
-                'phrases' => ['duration of last illness', 'duur van laaste siekte', 'duur van laatste ziekte', 'place of death', 'plek van oorlye', 'usual place of residence', 'gewone woonplek'],
-                'words' => ['duration', 'duur', 'illness', 'siekte', 'ziekte'],
-                'context' => ['last', 'laaste', 'laatste', 'illness', 'siekte'],
+                // Item 11a on the 1894 form: "Duration of last Illness"
+                'phrases' => ['duration of last illness', 'duur van laaste siekte', 'duur van laatste ziekte'],
+                'words' => ['duration', 'duur'],
+                'context' => ['last', 'illness', 'siekte', 'laaste'],
+                'numbered_label' => '11',
+                'max_y_pct' => 0.75,
             ],
             'Cause of Death' => [
                 'phrases' => ['cause of death', 'oorsaak van dood', 'doodsoorsaak'],
@@ -1297,10 +1311,46 @@ PY;
                 }
             }
 
+            // Strategy 1.5: Numbered label — find "8." or "12." near a keyword
+            // SA death certificates have numbered fields: "8. Date of Death", "12. Duration of last Illness"
+            $numberedLabel = $config['numbered_label'] ?? null;
+            $maxYPct = $config['max_y_pct'] ?? 1.0;
+            if (!$bestMatch && $numberedLabel) {
+                foreach ($words as $word) {
+                    // Look for the number label (e.g. "8" or "8." or "12" or "12.")
+                    $wClean = rtrim($word['text'], '.');
+                    if ($wClean !== $numberedLabel) continue;
+                    // Skip if in fine print area (bottom of page)
+                    if ($imgHeight > 0 && $word['top'] > $imgHeight * $maxYPct) continue;
+                    // Found the number — the answer region is to its right on the same line
+                    // Find the rightmost keyword on this line to get the full label span
+                    $labelEnd = $word['left'] + $word['width'];
+                    foreach ($words as $other) {
+                        if (abs($other['top'] - $word['top']) > 20) continue;
+                        if ($other['left'] <= $word['left']) continue;
+                        $labelEnd = max($labelEnd, $other['left'] + $other['width']);
+                        // Stop scanning after 500px — don't include handwritten answer
+                        if ($other['left'] - $word['left'] > 500) break;
+                    }
+                    $bestMatch = [
+                        'text' => $numberedLabel . '. ' . $fieldName,
+                        'left' => $word['left'],
+                        'top' => $word['top'],
+                        'width' => min($labelEnd - $word['left'], (int)($imgWidth * 0.35)),
+                        'height' => $word['height'],
+                        'conf' => $word['conf'],
+                    ];
+                    $bestConf = 800; // between phrase (1000) and keyword+context (500)
+                    break;
+                }
+            }
+
             // Strategy 2: Single keyword + context (e.g. "date" near "death")
             if (!$bestMatch && !empty($contextWords)) {
                 foreach ($words as $word) {
                     if ($word['width'] < 15 || $word['height'] < 8 || strlen($word['text']) < 3) continue;
+                    // Skip fine print area
+                    if ($imgHeight > 0 && $word['top'] > $imgHeight * $maxYPct) continue;
                     $wLower = strtolower($word['text']);
                     $kwMatch = false;
                     foreach ($keywords as $kw) {
@@ -1330,12 +1380,16 @@ PY;
             }
 
             // Strategy 3: Simple single keyword (fallback)
+            $minXPct = $config['min_x_pct'] ?? 0.0;
             if (!$bestMatch) {
                 foreach ($words as $word) {
-                    if ($word['width'] < 15 || $word['height'] < 8 || strlen($word['text']) < 3) continue;
+                    $minLen = (strlen($word['text']) <= 2 && in_array($word['text'], ['18', '19', '20'])) ? 2 : 3;
+                    if ($word['width'] < 15 || $word['height'] < 8 || strlen($word['text']) < $minLen) continue;
+                    if ($imgHeight > 0 && $word['top'] > $imgHeight * $maxYPct) continue;
+                    if ($imgWidth > 0 && $minXPct > 0 && $word['left'] < $imgWidth * $minXPct) continue;
                     $wLower = strtolower($word['text']);
                     foreach ($keywords as $kw) {
-                        if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false)) {
+                        if (stripos($wLower, $kw) !== false || (strlen($kw) > 3 && stripos($kw, $wLower) !== false) || $wLower === $kw) {
                             $score = $word['conf'] + ($word['width'] * 0.1);
                             if ($score > $bestConf) {
                                 $bestMatch = $word;
@@ -1357,43 +1411,47 @@ PY;
                 $boxW = max(250, (int)($imgWidth * 0.85) - $startX);
                 $boxH = max(45, $bestMatch['height'] + 25);
 
-                // Per-field box overrides from labelMap config
-                $boxConfig = $config['box'] ?? null;
-                if ($boxConfig) {
-                    if (isset($boxConfig['offset_x'])) {
-                        $startX = $labelRight + (int)($imgWidth * $boxConfig['offset_x']);
-                    }
-                    if (isset($boxConfig['w_pct'])) {
-                        $boxW = (int)($imgWidth * $boxConfig['w_pct']);
-                    }
-                    if (isset($boxConfig['h_extra'])) {
-                        $boxH = max(25, $bestMatch['height'] + $boxConfig['h_extra']);
-                    }
+                // Name — shift right, move up a bit, tall box
+                if ($fieldName === 'Name') {
+                    $startX = $labelRight + (int)($imgWidth * 0.02);
+                    $startY = $bestMatch['top'] - 10; // moved up
+                    $boxH = max(55, $bestMatch['height'] + 35);
                 }
 
-                // Sex — wider box, shifted further right from label
+                // Sex — just after label, wider, taller
                 if ($fieldName === 'Sex') {
-                    $startX = $labelRight + (int)($imgWidth * 0.03);
-                    $boxW = (int)($imgWidth * 0.20);
-                    $boxH = max(35, $bestMatch['height'] + 15);
+                    $startX = $labelRight + (int)($imgWidth * 0.01);
+                    $boxW = (int)($imgWidth * 0.22);
+                    $boxH = max(50, $bestMatch['height'] + 30);
                 }
 
-                // Age — compact box for number + unit
+                // Age — tight to the word "Age" + ~2mm gap, compact
                 if ($fieldName === 'Age') {
-                    $boxW = min($boxW, (int)($imgWidth * 0.18));
+                    $startX = $labelRight + 8; // ~2mm at 96dpi
+                    $boxW = (int)($imgWidth * 0.15);
                     $boxH = max(30, $bestMatch['height'] + 10);
                 }
 
-                // Event Date — answer right after the full "Date of Death" label
+                // Event Date — longer box, slightly higher
                 if ($fieldName === 'Event Date') {
-                    $boxW = max(250, (int)($imgWidth * 0.55) - $startX);
+                    $startX = $labelRight + (int)($imgWidth * 0.01);
+                    $startY = $bestMatch['top'] - 8; // 1mm higher
+                    $boxW = max(350, (int)($imgWidth * 0.58) - $startX);
+                    $boxH = max(55, $bestMatch['height'] + 35);
+                }
+
+                // Event Year — small box for 2-digit year, right side of page
+                if ($fieldName === 'Event Year') {
+                    $startX = $labelRight + 3;
+                    $boxW = (int)($imgWidth * 0.06); // small: just 2 digits
                     $boxH = max(35, $bestMatch['height'] + 15);
                 }
 
-                // Residence Place — answer below or next to "Duration of last Illness"
-                if ($fieldName === 'Residence Place' || $fieldName === 'Event Place') {
+                // Duration of last Illness (item 11a) — wide box after label
+                if ($fieldName === 'Residence Place') {
+                    $startX = $labelRight + (int)($imgWidth * 0.01);
                     $boxW = max(350, (int)($imgWidth * 0.85) - $startX);
-                    $boxH = max(40, $bestMatch['height'] + 20);
+                    $boxH = max(50, $bestMatch['height'] + 30);
                 }
 
                 // If the answer area would be too narrow (label is far right), put box below label instead

@@ -189,7 +189,13 @@
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
-  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Residence Place'];
+  const ALLOWED_FIELDS = ['Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place'];
+  // Display names — rename fields for the UI
+  const FIELD_LABELS = {
+    'Residence Place': 'Duration of last Illness',
+    'Event Year': 'Year (digits)',
+  };
+  function displayLabel(col) { return FIELD_LABELS[col] || col; }
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
 
   // ── De-duplicate repeated text (TrOCR decoder loop bug) ──
@@ -1381,7 +1387,7 @@
       const escapedVal = (val || '').replace(/"/g, '&quot;');
 
       div.innerHTML = skipBtn +
-        '<div class="ba-label" style="color:' + COLORS[i % COLORS.length] + '">' + (i + 1) + '. ' + col + '</div>' +
+        '<div class="ba-label" style="color:' + COLORS[i % COLORS.length] + '">' + (i + 1) + '. ' + displayLabel(col) + '</div>' +
         '<input class="ba-edit-input" type="text" value="' + escapedVal + '" data-field-idx="' + i + '" placeholder="Type value..." onclick="event.stopPropagation()">' +
         '<div class="ba-coords" id="ba-coords-' + i + '"></div>';
 
@@ -1692,7 +1698,7 @@
       ctx.strokeRect(ann.x * scale, ann.y * scale, ann.w * scale, ann.h * scale);
 
       // Label background (bigger, bolder)
-      const labelText = (i + 1) + '. ' + ann.label;
+      const labelText = (i + 1) + '. ' + displayLabel(ann.label);
       ctx.font = (isActive ? 'bold 14px' : '13px') + ' sans-serif';
       const tw = ctx.measureText(labelText).width + 12;
       ctx.fillStyle = color;
