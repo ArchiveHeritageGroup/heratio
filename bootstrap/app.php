@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'auth.required' => \App\Http\Middleware\RequireAuth::class,
+            'auth.forbid' => \App\Http\Middleware\RequireAuthForbid::class,
             'admin' => \App\Http\Middleware\RequireAdmin::class,
             'acl' => \App\Http\Middleware\CheckAcl::class,
         ]);

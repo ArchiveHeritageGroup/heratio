@@ -115,6 +115,85 @@ class InformationObjectController extends Controller
             ->limit(20)
             ->get();
 
+        // Creator facet (actors linked as creators via event table, event_type_id = 111 = creation)
+        $creatorFacets = DB::table('event')
+            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $culture)
+            ->where('event.type_id', 111)
+            ->whereNotNull('event.actor_id')
+            ->select(
+                'event.actor_id as id',
+                'actor_i18n.authorized_form_of_name as label',
+                DB::raw('COUNT(DISTINCT event.object_id) as count')
+            )
+            ->groupBy('event.actor_id', 'actor_i18n.authorized_form_of_name')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        // Subject facet (terms linked via object_term_relation, taxonomy_id = 35)
+        $subjectFacets = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('term.taxonomy_id', 35)
+            ->select(
+                'term.id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(DISTINCT object_term_relation.object_id) as count')
+            )
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        // Place facet (terms linked via object_term_relation, taxonomy_id = 42)
+        $placeFacets = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('term.taxonomy_id', 42)
+            ->select(
+                'term.id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(DISTINCT object_term_relation.object_id) as count')
+            )
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        // Genre facet (terms linked via object_term_relation, taxonomy_id = 78)
+        $genreFacets = DB::table('object_term_relation')
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term_i18n.culture', $culture)
+            ->where('term.taxonomy_id', 78)
+            ->select(
+                'term.id',
+                'term_i18n.name as label',
+                DB::raw('COUNT(DISTINCT object_term_relation.object_id) as count')
+            )
+            ->groupBy('term.id', 'term_i18n.name')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
+        // Digital objects count (for "X results with digital objects" banner)
+        $digitalObjectsCount = DB::table('digital_object')
+            ->join('information_object', 'digital_object.object_id', '=', 'information_object.id')
+            ->where('information_object.id', '!=', 1)
+            ->count();
+
+        // Levels of description for advanced search dropdown
+        $levelsOfDescription = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 34)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
         $facets = [
             'levels' => [
                 'label' => 'Level of description',
@@ -123,6 +202,22 @@ class InformationObjectController extends Controller
             'repository' => [
                 'label' => 'Repository',
                 'terms' => $repoFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'creators' => [
+                'label' => 'Creator',
+                'terms' => $creatorFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'subjects' => [
+                'label' => 'Subject',
+                'terms' => $subjectFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'places' => [
+                'label' => 'Place',
+                'terms' => $placeFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
+            ],
+            'genres' => [
+                'label' => 'Genre',
+                'terms' => $genreFacets->map(fn ($t) => ['id' => $t->id, 'label' => $t->label, 'count' => $t->count])->toArray(),
             ],
             'mediatypes' => [
                 'label' => 'Media type',
@@ -163,6 +258,62 @@ class InformationObjectController extends Controller
             }
         }
 
+        // Additional filter tags for new facets
+        $creatorId = $request->get('creators');
+        if ($creatorId) {
+            $creatorName = DB::table('actor_i18n')->where('id', $creatorId)->where('culture', $culture)->value('authorized_form_of_name');
+            if ($creatorName) {
+                $filterTags[] = [
+                    'label' => 'Creator: ' . $creatorName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['creators', 'page'])),
+                ];
+            }
+        }
+
+        $subjectId = $request->get('subjects');
+        if ($subjectId) {
+            $subjectName = DB::table('term_i18n')->where('id', $subjectId)->where('culture', $culture)->value('name');
+            if ($subjectName) {
+                $filterTags[] = [
+                    'label' => 'Subject: ' . $subjectName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['subjects', 'page'])),
+                ];
+            }
+        }
+
+        $placeId = $request->get('places');
+        if ($placeId) {
+            $placeName = DB::table('term_i18n')->where('id', $placeId)->where('culture', $culture)->value('name');
+            if ($placeName) {
+                $filterTags[] = [
+                    'label' => 'Place: ' . $placeName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['places', 'page'])),
+                ];
+            }
+        }
+
+        $genreId = $request->get('genres');
+        if ($genreId) {
+            $genreName = DB::table('term_i18n')->where('id', $genreId)->where('culture', $culture)->value('name');
+            if ($genreName) {
+                $filterTags[] = [
+                    'label' => 'Genre: ' . $genreName,
+                    'removeUrl' => route('informationobject.browse', $request->except(['genres', 'page'])),
+                ];
+            }
+        }
+
+        $onlyMedia = $request->get('onlyMedia');
+        if ($onlyMedia === '1' || $onlyMedia === 'true') {
+            $filterTags[] = [
+                'label' => 'With digital objects',
+                'removeUrl' => route('informationobject.browse', $request->except(['onlyMedia', 'page'])),
+            ];
+        }
+
+        // Top-level description filter state
+        $isTopLevel = ($topLevel === '1' || $topLevel === 'true') && !$hasQuery;
+
         return view('ahg-io-manage::browse', [
             'pager' => $pager,
             'levelNames' => $result['levelNames'] ?? [],
@@ -171,6 +322,9 @@ class InformationObjectController extends Controller
             'selectedRepository' => $repositoryId,
             'facets' => $facets,
             'filterTags' => $filterTags,
+            'digitalObjectsCount' => $digitalObjectsCount,
+            'levelsOfDescription' => $levelsOfDescription,
+            'isTopLevel' => $isTopLevel,
             'sortOptions' => [
                 'lastUpdated' => 'Date modified',
                 'alphabetic' => 'Title',

@@ -1138,8 +1138,9 @@ PY;
         // Multi-word phrases are matched by finding adjacent words on the same line
         $labelMap = [
             'Name' => [
-                'phrases' => ['christian names', 'voornamen en familienaam', 'surname of deceased', 'naam van oorledene'],
-                'words' => ['christian', 'voornamen', 'familienaam', 'surname', 'names'],
+                'phrases' => ['christian names and surname', 'christian names & surname', 'voornamen en familienaam', 'surname of deceased', 'naam van oorledene', 'name and surname', 'naam en van'],
+                'words' => ['surname', 'familienaam'],
+                'context' => ['christian', 'names', 'voornamen', 'deceased', 'oorledene'],
             ],
             'Sex' => [
                 'phrases' => ['sex or gender', 'geslag of gender'],

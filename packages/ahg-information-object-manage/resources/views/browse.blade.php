@@ -29,7 +29,7 @@
     <button class="btn btn-lg atom-btn-white collapsed text-wrap" type="button"
             data-bs-toggle="collapse" data-bs-target="#collapse-aggregations"
             aria-expanded="false" aria-controls="collapse-aggregations">
-      Narrow your results by:
+      {{ __('Narrow your results by:') }}
     </button>
   </h2>
 
@@ -65,28 +65,45 @@
 @endif
 
 @section('before-content')
-  {{-- Filter tags --}}
-  @if(isset($filterTags) && count($filterTags) > 0)
-    <div class="d-flex flex-wrap gap-2 mb-2">
+  {{-- Top-level descriptions + active filter tags --}}
+  <div class="d-flex flex-wrap gap-2">
+    @if(!empty($isTopLevel))
+      @php
+        $topLodParams = request()->except(['page']);
+        $topLodParams['topLevelDescription'] = '0';
+      @endphp
+      <a href="{{ route('informationobject.browse', $topLodParams) }}"
+         class="btn btn-sm atom-btn-white align-self-start mw-100 filter-tag d-flex">
+        <span class="visually-hidden">{{ __('Remove filter:') }}</span>
+        <span class="text-truncate d-inline-block">{{ __('Only top-level descriptions') }}</span>
+        <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
+      </a>
+    @endif
+
+    @if(isset($filterTags) && count($filterTags) > 0)
       @foreach($filterTags as $tag)
         <a href="{{ $tag['removeUrl'] ?? '#' }}" class="btn btn-sm atom-btn-white filter-tag d-flex">
-          <span class="visually-hidden">Remove filter:</span>
+          <span class="visually-hidden">{{ __('Remove filter:') }}</span>
           <span class="text-truncate d-inline-block">{{ $tag['label'] ?? '' }}</span>
           <i aria-hidden="true" class="fas fa-times ms-2 align-self-center"></i>
         </a>
       @endforeach
-    </div>
-  @endif
+    @endif
+  </div>
 @endsection
 
 @section('content')
+  {{-- Advanced search options accordion --}}
+  @include('ahg-io-manage::_advanced-search')
+
   @if(isset($pager) && $pager->getNbResults())
+
     <div class="d-flex flex-wrap gap-2 mb-3">
       @auth
         @if(Route::has('export.csv'))
           <a class="btn btn-sm atom-btn-white"
              href="{{ route('export.csv', request()->query()) }}">
-            <i class="fas fa-upload me-1" aria-hidden="true"></i>Export CSV
+            <i class="fas fa-upload me-1" aria-hidden="true"></i>{{ __('Export CSV') }}
           </a>
         @endif
       @endauth
@@ -99,16 +116,32 @@
       </div>
     </div>
 
+    {{-- Digital objects banner --}}
+    @if(!request('onlyMedia') && isset($digitalObjectsCount) && $digitalObjectsCount > 0)
+      <div class="d-grid d-sm-flex gap-2 align-items-center p-3 border-bottom mb-3">
+        {{ __(':count results with digital objects', ['count' => number_format($digitalObjectsCount)]) }}
+        @php
+          $doParams = request()->except(['page']);
+          $doParams['onlyMedia'] = '1';
+        @endphp
+        <a class="btn btn-sm atom-btn-white ms-auto text-wrap"
+           href="{{ route('informationobject.browse', $doParams) }}">
+          <i class="fas fa-search me-1" aria-hidden="true"></i>
+          {{ __('Show results with digital objects') }}
+        </a>
+      </div>
+    @endif
+
     <div class="table-responsive mb-3">
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Level of description</th>
-            <th>Repository</th>
-            <th>Identifier</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Level of description') }}</th>
+            <th>{{ __('Repository') }}</th>
+            <th>{{ __('Identifier') }}</th>
             @if(request('sort') === 'lastUpdated')
-              <th>Updated</th>
+              <th>{{ __('Updated') }}</th>
             @endif
           </tr>
         </thead>

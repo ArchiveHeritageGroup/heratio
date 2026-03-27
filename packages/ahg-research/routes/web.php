@@ -177,5 +177,5 @@ Route::match(['get','post'], '/collections/add-item', function() { return view('
 Route::match(['get','post'], '/bookings/check-out', function() { return view('research::check-out'); })->name('research.bookings.checkOut');
 });
 
-// Settings alias
-Route::get('/admin/ahg-settings', fn() => redirect()->route('settings.index'))->name('settings.ahgSettings');
+// Settings alias (admin middleware returns 403 to anon, matching AtoM behavior)
+Route::middleware('admin')->get('/admin/ahg-settings', fn() => redirect()->route('settings.index'))->name('settings.ahgSettings');

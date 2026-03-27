@@ -5,9 +5,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/actor/browse', [ActorController::class, 'browse'])->name('actor.browse');
 
-Route::middleware('auth')->group(function () {
+// Actor create returns 403 to anon (matches AtoM behavior), other auth routes redirect to login
+Route::middleware('auth.forbid')->group(function () {
     Route::get('/actor/add', [ActorController::class, 'create'])->name('actor.add');
     Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store');
+});
+
+Route::middleware('auth')->group(function () {
     Route::get('/actor/{slug}/edit', [ActorController::class, 'edit'])->name('actor.edit');
     Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
     Route::get('/actor/{slug}/rename', [ActorController::class, 'rename'])->name('actor.rename');
