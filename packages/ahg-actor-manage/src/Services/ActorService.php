@@ -809,6 +809,7 @@ class ActorService
             $actorFields = [
                 'entity_type_id', 'description_status_id', 'description_detail_id',
                 'description_identifier', 'source_standard', 'corporate_body_identifiers',
+                'parent_id',
             ];
             foreach ($actorFields as $field) {
                 if (array_key_exists($field, $data)) {

@@ -31,6 +31,8 @@
           <th>Accession number</th>
           <th>Title</th>
           <th>Acquisition date</th>
+          <th>Acquisition type</th>
+          <th>Resource type</th>
           <th>Status</th>
           <th>Priority</th>
           @if(request('sort') === 'lastUpdated')
@@ -53,6 +55,16 @@
             </td>
             <td class="w-20">
               {{ $doc['accession_date'] ? \Carbon\Carbon::parse($doc['accession_date'])->format('Y-m-d') : '' }}
+            </td>
+            <td>
+              @if(!empty($doc['acquisition_type_id']) && isset($termNames[$doc['acquisition_type_id']]))
+                {{ $termNames[$doc['acquisition_type_id']] }}
+              @endif
+            </td>
+            <td>
+              @if(!empty($doc['resource_type_id']) && isset($termNames[$doc['resource_type_id']]))
+                {{ $termNames[$doc['resource_type_id']] }}
+              @endif
             </td>
             <td>
               @if(!empty($doc['processing_status_id']) && isset($termNames[$doc['processing_status_id']]))

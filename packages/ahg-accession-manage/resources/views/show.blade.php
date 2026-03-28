@@ -309,6 +309,27 @@
         </div>
       </div>
 
+      @if($accession->created_at ?? null)
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date created</h3>
+        <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->created_at)->format('j F Y') }}</div>
+      </div>
+      @endif
+
+      @if($accession->updated_at ?? null)
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date modified</h3>
+        <div class="col-9 p-2">{{ \Carbon\Carbon::parse($accession->updated_at)->format('j F Y') }}</div>
+      </div>
+      @endif
+
+      @if(isset($sourceLangName) && $sourceLangName)
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+        <div class="col-9 p-2">{{ $sourceLangName }}</div>
+      </div>
+      @endif
+
     </div>
   </section>
 

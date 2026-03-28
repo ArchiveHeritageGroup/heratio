@@ -1139,6 +1139,15 @@ class InformationObjectController extends Controller
                 ->value('name');
         }
 
+        // Collection type name
+        $collectionTypeName = null;
+        if ($io->collection_type_id) {
+            $collectionTypeName = DB::table('term_i18n')
+                ->where('id', $io->collection_type_id)
+                ->where('culture', $culture)
+                ->value('name');
+        }
+
         // Languages of description (from property table — serialized PHP arrays)
         $languagesOfDescriptionRaw = DB::table('property')
             ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
@@ -1419,6 +1428,7 @@ class InformationObjectController extends Controller
             'accessions' => $accessions,
             'descriptionStatusName' => $descriptionStatusName,
             'descriptionDetailName' => $descriptionDetailName,
+            'collectionTypeName' => $collectionTypeName,
             'languagesOfDescription' => $languagesOfDescription,
             'scriptsOfDescription' => $scriptsOfDescription,
             'materialLanguages' => $materialLanguages,
@@ -1810,7 +1820,16 @@ class InformationObjectController extends Controller
             ->select('id', 'name', 'image_file')
             ->get();
 
-        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes', 'noteTypes', 'securityClassifications', 'watermarkTypes');
+        // Collection type options (taxonomy_id = 12)
+        $collectionTypes = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 12)
+            ->where('term_i18n.culture', $culture)
+            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term_i18n.name')
+            ->get();
+
+        return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes', 'noteTypes', 'securityClassifications', 'watermarkTypes', 'collectionTypes');
     }
 
     /**
@@ -2123,6 +2142,7 @@ class InformationObjectController extends Controller
         $ioUpdate = [
             'identifier' => $request->input('identifier'),
             'level_of_description_id' => $request->input('level_of_description_id') ?: null,
+            'collection_type_id' => $request->input('collection_type_id') ?: null,
             'repository_id' => $request->input('repository_id') ?: null,
             'description_status_id' => $request->input('description_status_id') ?: null,
             'description_detail_id' => $request->input('description_detail_id') ?: null,

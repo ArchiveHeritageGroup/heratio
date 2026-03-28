@@ -338,6 +338,32 @@
     </div>
   </div>
 
+  {{-- Admin area --}}
+  @auth
+    @if(auth()->user()->is_admin && $storage->source_culture)
+      <section class="section border-bottom mb-3" id="adminArea">
+        <h2 class="h5 mb-0 atom-section-header">
+          <div class="d-flex p-3 border-bottom text-primary">
+            Administration area
+          </div>
+        </h2>
+        <div>
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3>
+            <div class="col-9 p-2">
+              @php
+                $displayLang = function_exists('locale_get_display_language')
+                  ? locale_get_display_language($storage->source_culture, app()->getLocale())
+                  : $storage->source_culture;
+              @endphp
+              {{ $displayLang }}
+            </div>
+          </div>
+        </div>
+      </section>
+    @endif
+  @endauth
+
   {{-- Bottom action bar --}}
   @auth
   <ul class="actions mb-3 nav gap-2">

@@ -92,6 +92,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/authority/ner/{id}/reject', [ActorController::class, 'apiNerReject'])->name('actor.api.ner.reject');
 
     // =========================================================================
+    // Contact Information
+    // =========================================================================
+    Route::get('/actor/authority/contact/{actorId}', [ActorController::class, 'contact'])->name('actor.contact')->whereNumber('actorId');
+
+    // =========================================================================
+    // EAC-CPF Export
+    // =========================================================================
+    Route::get('/api/authority/eac-export/{actorId}', [ActorController::class, 'apiEacExport'])->name('actor.api.eac.export')->whereNumber('actorId');
+
+    // =========================================================================
     // Configuration (admin only)
     // =========================================================================
     Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config');

@@ -176,6 +176,13 @@ class RepositoryController extends Controller
         // Sidebar: maintained actors
         $maintainedActorsList = $this->service->getMaintainedActors($repository->id, 10, (int) request('actors_page', 1));
 
+        // Source language name
+        $sourceLangName = null;
+        if ($repository->source_culture ?? null) {
+            $langNames = ['en' => 'English', 'fr' => 'French', 'es' => 'Spanish', 'pt' => 'Portuguese', 'de' => 'German', 'nl' => 'Dutch', 'it' => 'Italian', 'af' => 'Afrikaans', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Southern Sotho', 'tn' => 'Tswana', 'ar' => 'Arabic', 'ja' => 'Japanese', 'zh' => 'Chinese'];
+            $sourceLangName = $langNames[$repository->source_culture] ?? $repository->source_culture;
+        }
+
         return view('ahg-repository-manage::show', [
             'repository' => $repository,
             'contacts' => $contacts,
@@ -193,6 +200,7 @@ class RepositoryController extends Controller
             'maintenanceNotes' => $maintenanceNotes,
             'thematicAreas' => $thematicAreas,
             'geographicSubregions' => $geographicSubregions,
+            'sourceLangName' => $sourceLangName,
         ]);
     }
 

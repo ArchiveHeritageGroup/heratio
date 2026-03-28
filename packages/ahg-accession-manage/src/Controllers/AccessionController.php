@@ -270,6 +270,13 @@ class AccessionController extends Controller
         // Get physical objects for context menu
         $physicalObjects = $this->service->getPhysicalObjects($accession->id);
 
+        // Source language name
+        $sourceLangName = null;
+        if ($accession->source_culture ?? null) {
+            $langNames = ['en' => 'English', 'fr' => 'French', 'es' => 'Spanish', 'pt' => 'Portuguese', 'de' => 'German', 'nl' => 'Dutch', 'it' => 'Italian', 'af' => 'Afrikaans', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Southern Sotho', 'tn' => 'Tswana', 'ar' => 'Arabic', 'ja' => 'Japanese', 'zh' => 'Chinese'];
+            $sourceLangName = $langNames[$accession->source_culture] ?? $accession->source_culture;
+        }
+
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
             'termNames' => $termNames,
@@ -286,6 +293,7 @@ class AccessionController extends Controller
             'informationObjects' => $informationObjects,
             'rights' => $rights,
             'physicalObjects' => $physicalObjects,
+            'sourceLangName' => $sourceLangName,
         ]);
     }
 

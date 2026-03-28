@@ -249,6 +249,33 @@
 
   </section>
 
+  {{-- ===== Administration area ===== --}}
+  @auth
+    @if(auth()->user()->is_admin && ($user->created_at || $user->updated_at))
+      <section id="userAdmin" class="mt-3">
+        <h2 class="h5 mb-0 atom-section-header">
+          <div class="d-flex p-3 border-bottom text-primary">
+            Administration area
+          </div>
+        </h2>
+        <div>
+          @if($user->created_at)
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Created at</h3>
+              <div class="col-9 p-2">{{ \Carbon\Carbon::parse($user->created_at)->format('Y-m-d H:i:s') }}</div>
+            </div>
+          @endif
+          @if($user->updated_at)
+            <div class="field row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Updated at</h3>
+              <div class="col-9 p-2">{{ \Carbon\Carbon::parse($user->updated_at)->format('Y-m-d H:i:s') }}</div>
+            </div>
+          @endif
+        </div>
+      </section>
+    @endif
+  @endauth
+
 @endsection
 
 @section('after-content')

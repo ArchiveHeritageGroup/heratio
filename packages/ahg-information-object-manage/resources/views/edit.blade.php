@@ -102,6 +102,20 @@
               <div class="form-text text-muted small">Provide either a formal title or a concise supplied title in accordance with the rules of multilevel description and national conventions. (ISAD 3.1.2)</div>
             </div>
 
+            <div class="mb-3">
+              <label for="alternate_title" class="form-label">Alternate title <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" class="form-control" id="alternate_title" name="alternate_title"
+                     value="{{ old('alternate_title', $io->alternate_title) }}">
+              <div class="form-text text-muted small">Use this field to record any alternative or parallel title(s) for the unit of description.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="edition" class="form-label">Edition <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" class="form-control" id="edition" name="edition"
+                     value="{{ old('edition', $io->edition) }}">
+              <div class="form-text text-muted small">Record the edition statement for the unit of description, if applicable.</div>
+            </div>
+
             {{-- Events (dates) multi-row --}}
             <div class="mb-3">
               <label class="form-label">Date(s) <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -712,6 +726,13 @@
               <div class="form-text text-muted small">Record citations for any external sources used in the archival description (such as the Scope and Content, Archival History, or Notes fields).</div>
             </div>
 
+            <div class="mb-3">
+              <label for="source_standard" class="form-label">Source standard <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" class="form-control" id="source_standard" name="source_standard"
+                     value="{{ old('source_standard', $io->source_standard) }}">
+              <div class="form-text text-muted small">Record the standard used when entering the description of the archival material (e.g. ISAD(G), RAD, DACS).</div>
+            </div>
+
             {{-- Archivist's notes multi-row --}}
             <div class="mb-3">
               <label class="form-label">Archivist's notes <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -816,6 +837,16 @@
             <select name="publication_status_id" id="publication_status_id" class="form-select">
               <option value="159" @selected(($publicationStatusId ?? 159) == 159)>Draft</option>
               <option value="160" @selected(($publicationStatusId ?? 159) == 160)>Published</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="collection_type_id" class="form-label">Collection type <span class="badge bg-secondary ms-1">Optional</span></label>
+            <select name="collection_type_id" id="collection_type_id" class="form-select">
+              <option value="">-- None --</option>
+              @foreach($collectionTypes ?? [] as $ct)
+                <option value="{{ $ct->id }}" @selected(old('collection_type_id', $io->collection_type_id) == $ct->id)>{{ $ct->name }}</option>
+              @endforeach
             </select>
           </div>
 

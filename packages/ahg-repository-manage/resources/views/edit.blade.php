@@ -490,6 +490,25 @@
         </div>
       </div>
 
+      {{-- ===== Administration area ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="admin-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#admin-collapse" aria-expanded="false" aria-controls="admin-collapse">
+            Administration area
+          </button>
+        </h2>
+        <div id="admin-collapse" class="accordion-collapse collapse" aria-labelledby="admin-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="upload_limit" class="form-label">Upload limit (MB) <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="number" name="upload_limit" id="upload_limit" class="form-control" min="0" step="1"
+                     value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="0 = disabled">
+              <div class="form-text text-muted small">Set the maximum upload size in megabytes for digital objects associated with this repository. Set to 0 or leave blank to use the global default.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <ul class="actions mb-3 nav gap-2">

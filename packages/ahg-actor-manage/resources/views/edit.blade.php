@@ -158,6 +158,15 @@
                      value="{{ old('corporate_body_identifiers', $actor->corporate_body_identifiers ?? '') }}">
               <div class="form-text text-muted small">"Record where possible any official number or other identifier (e.g. a company registration number) for the corporate body and reference the jurisdiction and scheme under which it has been allocated." (ISAAR 5.1.6)</div>
             </div>
+
+            <div class="mb-3">
+              <label for="parent_id" class="form-label">Parent actor <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" name="parent_actor_name" id="parent_actor_name" class="form-control"
+                     value="{{ old('parent_actor_name', $parentActorName ?? '') }}" placeholder="Type to search parent actor..." autocomplete="off">
+              <input type="hidden" name="parent_id" id="parent_id"
+                     value="{{ old('parent_id', $actor->parent_id ?? '') }}">
+              <div class="form-text text-muted small">Select the parent authority record to create a hierarchical relationship. Type to search for an existing authority record.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -533,6 +542,13 @@
               <label for="maintenance_notes" class="form-label">Maintenance notes <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="maintenance_notes" id="maintenance_notes" class="form-control" rows="4">{{ old('maintenance_notes', $maintenanceNotes ?? '') }}</textarea>
               <div class="form-text text-muted small">"Record notes pertinent to the creation and maintenance of the authority record. The names of persons responsible for creating the authority record may be recorded here." (ISAAR 5.4.9)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="source_standard" class="form-label">Source standard <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" name="source_standard" id="source_standard" class="form-control"
+                     value="{{ old('source_standard', $actor->source_standard ?? '') }}">
+              <div class="form-text text-muted small">Record the standard used when entering the authority record description (e.g. ISAAR(CPF)).</div>
             </div>
           </div>
         </div>

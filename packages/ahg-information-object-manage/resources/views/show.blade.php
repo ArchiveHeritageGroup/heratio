@@ -814,6 +814,20 @@
         </div>
       @endif
 
+      @if($io->alternate_title ?? null)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Alternate title</h3>
+          <div class="col-9 p-2">{{ $io->alternate_title }}</div>
+        </div>
+      @endif
+
+      @if($io->edition ?? null)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Edition</h3>
+          <div class="col-9 p-2">{{ $io->edition }}</div>
+        </div>
+      @endif
+
       @if(isset($events) && $events->isNotEmpty())
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Date(s)</h3>
@@ -1428,6 +1442,13 @@
       @endif
       @endif
 
+      @if($io->source_standard ?? null)
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source standard</h3>
+          <div class="col-9 p-2">{{ $io->source_standard }}</div>
+        </div>
+      @endif
+
     </div>
   </section>
   @endif {{-- end isad_description_control_area visibility --}}
@@ -1492,6 +1513,14 @@
                           <p class="mb-1">{{ $keymap->source_name }}</p>
                         @endforeach
                       </div>
+                    </div>
+                  @endif
+
+                  {{-- Collection type --}}
+                  @if(isset($collectionTypeName) && $collectionTypeName)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Collection type</h3>
+                      <div class="col-8 p-2">{{ $collectionTypeName }}</div>
                     </div>
                   @endif
                 </div>

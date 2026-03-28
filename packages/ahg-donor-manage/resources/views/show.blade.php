@@ -43,6 +43,106 @@
     </div>
   </section>
 
+  {{-- ===== Description area ===== --}}
+  <section class="section border-bottom" id="descriptionArea">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#description-collapse" class="text-primary text-decoration-none">Description area</a>@else Description area @endauth</div></h2>
+    <div id="description-collapse">
+
+      @if($donor->dates_of_existence ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of existence</h3>
+          <div class="col-9 p-2">{{ $donor->dates_of_existence }}</div>
+        </div>
+      @endif
+
+      @if($donor->history ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">History</h3>
+          <div class="col-9 p-2">{!! nl2br(e($donor->history)) !!}</div>
+        </div>
+      @endif
+
+      @if($donor->places ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Places</h3>
+          <div class="col-9 p-2">{{ $donor->places }}</div>
+        </div>
+      @endif
+
+      @if($donor->legal_status ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Legal status</h3>
+          <div class="col-9 p-2">{{ $donor->legal_status }}</div>
+        </div>
+      @endif
+
+      @if($donor->functions ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Functions, occupations and activities</h3>
+          <div class="col-9 p-2">{{ $donor->functions }}</div>
+        </div>
+      @endif
+
+      @if($donor->mandates ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Mandates/sources of authority</h3>
+          <div class="col-9 p-2">{{ $donor->mandates }}</div>
+        </div>
+      @endif
+
+      @if($donor->internal_structures ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Internal structures/genealogy</h3>
+          <div class="col-9 p-2">{{ $donor->internal_structures }}</div>
+        </div>
+      @endif
+
+      @if($donor->general_context ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">General context</h3>
+          <div class="col-9 p-2">{{ $donor->general_context }}</div>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
+  {{-- ===== Control area ===== --}}
+  <section class="section border-bottom" id="controlArea">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#control-collapse" class="text-primary text-decoration-none">Control area</a>@else Control area @endauth</div></h2>
+    <div id="control-collapse">
+
+      @if($donor->institution_responsible_identifier ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Institution identifier</h3>
+          <div class="col-9 p-2">{{ $donor->institution_responsible_identifier }}</div>
+        </div>
+      @endif
+
+      @if($donor->rules ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Rules and/or conventions used</h3>
+          <div class="col-9 p-2">{!! nl2br(e($donor->rules)) !!}</div>
+        </div>
+      @endif
+
+      @if($donor->sources ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Sources</h3>
+          <div class="col-9 p-2">{!! nl2br(e($donor->sources)) !!}</div>
+        </div>
+      @endif
+
+      @if($donor->revision_history ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Dates of creation, revision and deletion</h3>
+          <div class="col-9 p-2">{!! nl2br(e($donor->revision_history)) !!}</div>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact area</a>@else Contact area @endauth</div></h2>

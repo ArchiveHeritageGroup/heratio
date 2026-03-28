@@ -185,7 +185,182 @@ class UserController extends Controller
             ->with('success', 'User deleted successfully.');
     }
 
-    public function registrationPending(Request $request) { return view('ahg-user-manage::registration-pending', ['rows' => collect()]); }
+    public function registrationPending(Request $request)
+    {
+        $statusFilter = $request->get('status');
+        $rows = collect();
+        $groups = collect();
+
+        if ($statusFilter && !in_array($statusFilter, ['pending', 'verified', 'approved', 'rejected', 'expired'])) {
+            $statusFilter = null;
+        }
+
+        try {
+            if (\Schema::hasTable('user_registration_request')) {
+                $query = \DB::table('user_registration_request');
+                if ($statusFilter) {
+                    $query->where('status', $statusFilter);
+                }
+                $rows = $query->orderByDesc('created_at')->get();
+            }
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        try {
+            $culture = app()->getLocale();
+            $groups = \DB::table('acl_group')
+                ->leftJoin('acl_group_i18n', function ($join) use ($culture) {
+                    $join->on('acl_group.id', '=', 'acl_group_i18n.id')
+                         ->where('acl_group_i18n.culture', '=', $culture);
+                })
+                ->where('acl_group.id', '>', 99)
+                ->select(['acl_group.id', 'acl_group_i18n.name'])
+                ->orderBy('acl_group_i18n.name')
+                ->get();
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return view('ahg-user-manage::registration-pending', [
+            'rows' => $rows,
+            'statusFilter' => $statusFilter,
+            'groups' => $groups,
+        ]);
+    }
+
+    public function registrationApprove(Request $request)
+    {
+        $requestId = (int) $request->input('request_id');
+        $notes = $request->input('admin_notes', '');
+        $groupId = $request->input('group_id') ? (int) $request->input('group_id') : null;
+        $adminId = auth()->id();
+
+        try {
+            if (\Schema::hasTable('user_registration_request')) {
+                $regRequest = \DB::table('user_registration_request')->where('id', $requestId)->first();
+
+                if (!$regRequest) {
+                    return response()->json(['success' => false, 'error' => 'Registration request not found']);
+                }
+
+                if ($regRequest->status !== 'verified' && $regRequest->status !== 'pending') {
+                    return response()->json(['success' => false, 'error' => 'Request is not in a valid state for approval']);
+                }
+
+                \DB::beginTransaction();
+
+                // Create the user account
+                $userId = null;
+                try {
+                    // Insert into object table first
+                    $objectId = \DB::table('object')->insertGetId([
+                        'class_name' => 'QubitUser',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    // Insert into actor table
+                    \DB::table('actor')->insert([
+                        'id' => $objectId,
+                    ]);
+
+                    // Insert actor_i18n
+                    \DB::table('actor_i18n')->insert([
+                        'id' => $objectId,
+                        'culture' => app()->getLocale(),
+                        'authorized_form_of_name' => $regRequest->full_name ?? $regRequest->username,
+                    ]);
+
+                    // Create slug
+                    $slug = \Str::slug($regRequest->username);
+                    $originalSlug = $slug;
+                    $counter = 1;
+                    while (\DB::table('slug')->where('slug', $slug)->exists()) {
+                        $slug = $originalSlug . '-' . $counter++;
+                    }
+                    \DB::table('slug')->insert([
+                        'object_id' => $objectId,
+                        'slug' => $slug,
+                    ]);
+
+                    // Insert into user table
+                    \DB::table('user')->insert([
+                        'id' => $objectId,
+                        'username' => $regRequest->username,
+                        'email' => $regRequest->email,
+                        'password_hash' => $regRequest->password_hash ?? bcrypt('changeme'),
+                        'active' => 1,
+                    ]);
+
+                    $userId = $objectId;
+
+                    // Add to group if specified
+                    if ($groupId) {
+                        \DB::table('acl_user_group')->insert([
+                            'user_id' => $userId,
+                            'group_id' => $groupId,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \DB::rollBack();
+                    return response()->json(['success' => false, 'error' => 'Failed to create user: ' . $e->getMessage()]);
+                }
+
+                // Update registration request
+                \DB::table('user_registration_request')
+                    ->where('id', $requestId)
+                    ->update([
+                        'status' => 'approved',
+                        'admin_notes' => $notes,
+                        'reviewed_by' => $adminId,
+                        'reviewed_at' => now(),
+                        'user_id' => $userId,
+                    ]);
+
+                \DB::commit();
+
+                return response()->json(['success' => true, 'message' => 'Registration approved. User account created.']);
+            }
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => false, 'error' => 'Registration table not available']);
+    }
+
+    public function registrationReject(Request $request)
+    {
+        $requestId = (int) $request->input('request_id');
+        $notes = $request->input('admin_notes', '');
+        $adminId = auth()->id();
+
+        try {
+            if (\Schema::hasTable('user_registration_request')) {
+                $regRequest = \DB::table('user_registration_request')->where('id', $requestId)->first();
+
+                if (!$regRequest) {
+                    return response()->json(['success' => false, 'error' => 'Registration request not found']);
+                }
+
+                \DB::table('user_registration_request')
+                    ->where('id', $requestId)
+                    ->update([
+                        'status' => 'rejected',
+                        'admin_notes' => $notes,
+                        'reviewed_by' => $adminId,
+                        'reviewed_at' => now(),
+                    ]);
+
+                return response()->json(['success' => true, 'message' => 'Registration rejected.']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => false, 'error' => 'Registration table not available']);
+    }
 
     public function register(Request $request) { return view('ahg-user-manage::registration-register'); }
 

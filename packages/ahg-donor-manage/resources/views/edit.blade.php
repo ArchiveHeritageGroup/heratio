@@ -48,6 +48,104 @@
         </div>
       </div>
 
+      {{-- ===== Description area ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="description-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
+            Description area
+          </button>
+        </h2>
+        <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="dates_of_existence" class="form-label">Dates of existence <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" name="dates_of_existence" id="dates_of_existence" class="form-control"
+                     value="{{ old('dates_of_existence', $donor->dates_of_existence ?? '') }}">
+              <div class="form-text text-muted small">Record the dates of existence of the entity being described.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="history" class="form-label">History <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $donor->history ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record in narrative form or as a chronology the main life events, activities, achievements and/or roles of the entity being described.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="places" class="form-label">Places <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="places" id="places" class="form-control" rows="4">{{ old('places', $donor->places ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the predominant places and/or jurisdictions where the entity was based, lived or resided.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="legal_status" class="form-label">Legal status <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="legal_status" id="legal_status" class="form-control" rows="4">{{ old('legal_status', $donor->legal_status ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the legal status and where appropriate the type of corporate body.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="functions" class="form-label">Functions, occupations and activities <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="functions" id="functions" class="form-control" rows="4">{{ old('functions', $donor->functions ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the functions, occupations and activities performed by the entity being described.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="mandates" class="form-label">Mandates/sources of authority <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="mandates" id="mandates" class="form-control" rows="4">{{ old('mandates', $donor->mandates ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record any document, law, directive or charter which acts as a source of authority.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="internal_structures" class="form-label">Internal structures/genealogy <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="internal_structures" id="internal_structures" class="form-control" rows="4">{{ old('internal_structures', $donor->internal_structures ?? '') }}</textarea>
+              <div class="form-text text-muted small">Describe the internal structure of a corporate body or the genealogy of a family.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="general_context" class="form-label">General context <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="general_context" id="general_context" class="form-control" rows="4">{{ old('general_context', $donor->general_context ?? '') }}</textarea>
+              <div class="form-text text-muted small">Provide any significant information on the social, cultural, economic, political and/or historical context.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- ===== Control area ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="control-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#control-collapse" aria-expanded="false" aria-controls="control-collapse">
+            Control area
+          </button>
+        </h2>
+        <div id="control-collapse" class="accordion-collapse collapse" aria-labelledby="control-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="text" name="institution_responsible_identifier" id="institution_responsible_identifier" class="form-control"
+                     value="{{ old('institution_responsible_identifier', $donor->institution_responsible_identifier ?? '') }}">
+              <div class="form-text text-muted small">Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="rules" class="form-label">Rules and/or conventions used <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="rules" id="rules" class="form-control" rows="4">{{ old('rules', $donor->rules ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the names and where useful the editions or publication dates of the conventions or rules applied.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="sources" class="form-label">Sources <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="sources" id="sources" class="form-control" rows="4">{{ old('sources', $donor->sources ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the sources consulted in establishing the authority record.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
+              <textarea name="revision_history" id="revision_history" class="form-control" rows="4">{{ old('revision_history', $donor->revision_history ?? '') }}</textarea>
+              <div class="form-text text-muted small">Record the date the authority record was created and the dates of any revisions to the record.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{-- ===== Contact area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="contact-heading">

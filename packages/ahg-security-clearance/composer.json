@@ -1,0 +1,20 @@
+{
+    "name": "ahg/security-clearance",
+    "description": "Security clearance management for Heratio — clearances, compartments, classification, 2FA, audit trail",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgSecurityClearance\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgSecurityClearance\\Providers\\AhgSecurityClearanceServiceProvider"
+            ]
+        }
+    }
+}

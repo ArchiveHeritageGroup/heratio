@@ -473,6 +473,15 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Script(s)</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach($scripts ?? [] as $scr)<li>{{ $scr }}</li>@endforeach</ul></div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Sources</h3><div class="col-9 p-2">{!! ($actor->sources ?? '') ? nl2br(e($actor->sources)) : '' !!}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Maintenance notes</h3><div class="col-9 p-2">{!! ($maintenanceNotes ?? '') ? nl2br(e($maintenanceNotes)) : '' !!}</div></div>
+    @if($actor->source_standard ?? null)
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source standard</h3><div class="col-9 p-2">{{ $actor->source_standard }}</div></div>
+    @endif
+    @if(isset($sourceLangName) && $sourceLangName)
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Source language</h3><div class="col-9 p-2">{{ $sourceLangName }}</div></div>
+    @endif
+    @if(isset($parentActor) && $parentActor)
+    <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Parent authority record</h3><div class="col-9 p-2"><a href="{{ route('actor.show', $parentActor->slug) }}">{{ $parentActor->authorized_form_of_name ?: '[Untitled]' }}</a></div></div>
+    @endif
   </section>
 
   {{-- ===== Digital object metadata (matching AtoM sfIsaarPlugin) ===== --}}

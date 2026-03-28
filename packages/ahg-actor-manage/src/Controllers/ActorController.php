@@ -227,6 +227,27 @@ class ActorController extends Controller
             // function_object table may not exist
         }
 
+        // Parent actor (hierarchical actors — parent_id=3 is ROOT)
+        $parentActor = null;
+        if ($actor->parent_id && $actor->parent_id != 3) {
+            $parentActor = DB::table('actor')
+                ->join('actor_i18n', function ($j) {
+                    $j->on('actor.id', '=', 'actor_i18n.id')
+                      ->where('actor_i18n.culture', '=', app()->getLocale());
+                })
+                ->join('slug', 'actor.id', '=', 'slug.object_id')
+                ->where('actor.id', $actor->parent_id)
+                ->select('actor.id', 'actor_i18n.authorized_form_of_name', 'slug.slug')
+                ->first();
+        }
+
+        // Source language name
+        $sourceLangName = null;
+        if ($actor->source_culture) {
+            $langNames = ['en' => 'English', 'fr' => 'French', 'es' => 'Spanish', 'pt' => 'Portuguese', 'de' => 'German', 'nl' => 'Dutch', 'it' => 'Italian', 'af' => 'Afrikaans', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Southern Sotho', 'tn' => 'Tswana', 'ar' => 'Arabic', 'ja' => 'Japanese', 'zh' => 'Chinese'];
+            $sourceLangName = $langNames[$actor->source_culture] ?? $actor->source_culture;
+        }
+
         // AHG extended: completeness, external identifiers, structured occupations
         $completeness = $this->service->getActorCompleteness($actor->id);
         $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
@@ -263,6 +284,8 @@ class ActorController extends Controller
             'languages' => $languages,
             'scripts' => $scripts,
             'maintainingRepository' => $maintainingRepository,
+            'parentActor' => $parentActor,
+            'sourceLangName' => $sourceLangName,
             'completeness' => $completeness,
             'externalIdentifiers' => $externalIdentifiers,
             'structuredOccupations' => $structuredOccupations,
@@ -379,6 +402,16 @@ class ActorController extends Controller
         $places = $this->service->getPlaceAccessPoints($actor->id);
         $maintainingRepository = $this->service->getMaintainingRepository($actor->id);
 
+        // Parent actor name for the parent_id autocomplete field
+        $parentActorName = '';
+        if ($actor->parent_id && $actor->parent_id != 3) {
+            $culture = app()->getLocale();
+            $parentActorName = DB::table('actor_i18n')
+                ->where('id', $actor->parent_id)
+                ->where('culture', $culture)
+                ->value('authorized_form_of_name') ?? '';
+        }
+
         return view('ahg-actor-manage::edit', [
             'actor' => $actor,
             'contacts' => $contacts,
@@ -390,6 +423,7 @@ class ActorController extends Controller
             'subjects' => $subjects,
             'places' => $places,
             'maintainingRepository' => $maintainingRepository,
+            'parentActorName' => $parentActorName,
         ]);
     }
 
@@ -482,6 +516,7 @@ class ActorController extends Controller
             'dates_of_existence' => 'nullable|string|max:1024',
             'description_identifier' => 'nullable|string|max:1024',
             'corporate_body_identifiers' => 'nullable|string|max:1024',
+            'parent_id' => 'nullable|integer',
             'source_standard' => 'nullable|string|max:1024',
             'description_status_id' => 'nullable|integer',
             'description_detail_id' => 'nullable|integer',
@@ -520,8 +555,8 @@ class ActorController extends Controller
 
         $data = $request->only([
             'authorized_form_of_name', 'entity_type_id', 'dates_of_existence',
-            'description_identifier', 'corporate_body_identifiers', 'source_standard',
-            'description_status_id', 'description_detail_id',
+            'description_identifier', 'corporate_body_identifiers', 'parent_id',
+            'source_standard', 'description_status_id', 'description_detail_id',
             'institution_responsible_identifier', 'history', 'places', 'legal_status',
             'functions', 'mandates', 'internal_structures', 'general_context',
             'rules', 'sources', 'revision_history', 'maintenance_notes',
@@ -1326,6 +1361,79 @@ class ActorController extends Controller
 
         return view('ahg-actor-manage::authority.config', [
             'config' => $config,
+        ]);
+    }
+
+    // =========================================================================
+    // CONTACT INFORMATION
+    // =========================================================================
+
+    public function contact(int $actorId)
+    {
+        $actor = $this->getActorById($actorId);
+        if (!$actor) {
+            abort(404);
+        }
+
+        $contacts = $this->service->getContacts($actorId);
+
+        return view('ahg-actor-manage::authority.contact', [
+            'actor'    => $actor,
+            'contacts' => $contacts,
+        ]);
+    }
+
+    // =========================================================================
+    // EAC-CPF EXPORT
+    // =========================================================================
+
+    public function apiEacExport(Request $request, int $actorId)
+    {
+        $actor = $this->getActorById($actorId);
+        if (!$actor) {
+            return response()->json(['success' => false, 'error' => 'Actor not found'], 404);
+        }
+
+        // Retrieve external identifiers for EAC-CPF enrichment
+        $identifiers = DB::table('ahg_actor_identifier')
+            ->where('actor_id', $actorId)
+            ->get();
+
+        $otherRecordIds = [];
+        $sources = [];
+
+        $sourceLabels = [
+            'wikidata' => 'Wikidata',
+            'viaf'     => 'Virtual International Authority File (VIAF)',
+            'ulan'     => 'Getty Union List of Artist Names (ULAN)',
+            'lcnaf'    => 'Library of Congress Name Authority File (LCNAF)',
+            'isni'     => 'International Standard Name Identifier (ISNI)',
+            'orcid'    => 'ORCID',
+            'gnd'      => 'Gemeinsame Normdatei (GND)',
+        ];
+
+        foreach ($identifiers as $ident) {
+            $otherRecordIds[] = [
+                'localType'  => $ident->identifier_type,
+                'value'      => $ident->identifier_value,
+                'uri'        => $ident->uri ?? '',
+                'isVerified' => (bool) ($ident->is_verified ?? false),
+            ];
+
+            if (!empty($ident->uri)) {
+                $sources[] = [
+                    'href'  => $ident->uri,
+                    'label' => $ident->label ?? ($sourceLabels[$ident->identifier_type] ?? ucfirst($ident->identifier_type)),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'eac_data' => [
+                'otherRecordIds' => $otherRecordIds,
+                'sources'        => $sources,
+            ],
         ]);
     }
 

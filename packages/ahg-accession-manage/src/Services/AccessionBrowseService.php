@@ -31,6 +31,8 @@ class AccessionBrowseService extends BrowseService
             'accession.date as accession_date',
             'accession.processing_status_id',
             'accession.processing_priority_id',
+            'accession.acquisition_type_id',
+            'accession.resource_type_id',
             'object.updated_at',
             'slug.slug',
         ];
@@ -88,6 +90,8 @@ class AccessionBrowseService extends BrowseService
             'accession_date' => $row->accession_date ?? '',
             'processing_status_id' => $row->processing_status_id ?? null,
             'processing_priority_id' => $row->processing_priority_id ?? null,
+            'acquisition_type_id' => $row->acquisition_type_id ?? null,
+            'resource_type_id' => $row->resource_type_id ?? null,
             'updated_at' => $row->updated_at ?? '',
             'slug' => $row->slug ?? '',
         ];
@@ -102,6 +106,8 @@ class AccessionBrowseService extends BrowseService
         foreach ($hits as $h) {
             if (!empty($h['processing_status_id'])) $ids[] = $h['processing_status_id'];
             if (!empty($h['processing_priority_id'])) $ids[] = $h['processing_priority_id'];
+            if (!empty($h['acquisition_type_id'])) $ids[] = $h['acquisition_type_id'];
+            if (!empty($h['resource_type_id'])) $ids[] = $h['resource_type_id'];
         }
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) return [];

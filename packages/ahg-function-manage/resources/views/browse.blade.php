@@ -43,6 +43,8 @@
         <thead>
           <tr>
             <th>Name</th>
+            <th>Classification</th>
+            <th>Dates</th>
             @if(request('sort', 'alphabetic') === 'alphabetic')
               <th>Type</th>
             @else
@@ -58,6 +60,8 @@
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
+              <td>{{ $doc['classification'] ?? '' }}</td>
+              <td>{{ $doc['dates'] ?? '' }}</td>
               @if(request('sort', 'alphabetic') === 'alphabetic')
                 <td>{{ $doc['type_name'] ?? '' }}</td>
               @else
