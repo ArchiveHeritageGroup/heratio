@@ -10,5 +10,6 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'discovery');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-discovery');
     }
 }
