@@ -26,40 +26,40 @@ Route::get('/media/snippets/{id}', [MediaController::class, 'snippetsList'])->na
 Route::get('/media/snippets', [MediaController::class, 'snippetsListByQuery'])->name('media.snippets.listByQuery');
 Route::get('/media/export-snippet', [MediaController::class, 'exportSnippet'])->name('media.export-snippet');
 
-// Media routes — mutating actions require auth
+// Media routes — mutating actions require auth + ACL
 Route::middleware('auth')->group(function () {
-    Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->where('id', '[0-9]+');
-    Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->where('id', '[0-9]+');
-    Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->where('id', '[0-9]+');
-    Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store');
-    Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->where('id', '[0-9]+');
+    Route::delete('/media/transcription/{id}', [MediaController::class, 'transcriptionDelete'])->name('media.transcription.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+    Route::post('/media/extract/{id}', [MediaController::class, 'extract'])->name('media.extract')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::post('/media/transcribe/{id}', [MediaController::class, 'transcribe'])->name('media.transcribe')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::post('/media/snippets', [MediaController::class, 'snippetStore'])->name('media.snippets.store')->middleware('acl:create');
+    Route::delete('/media/snippets/{id}', [MediaController::class, 'snippetDelete'])->name('media.snippets.delete')->middleware('acl:delete')->where('id', '[0-9]+');
 });
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
 
-// IO CRUD routes require auth
+// IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {
     Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
-    Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store');
+    Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store')->middleware('acl:create');
     Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
     Route::get('/informationobject/{slug}/rename', [InformationObjectController::class, 'rename'])->name('informationobject.rename');
-    Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate');
+    Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate')->middleware('acl:update');
     Route::get('/informationobject/{slug}/inventory', [InformationObjectController::class, 'inventory'])->name('informationobject.inventory');
     Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit');
-    Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update');
+    Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update')->middleware('acl:update');
 });
 
 Route::middleware('admin')->group(function () {
     Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
-    Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy');
+    Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy')->middleware('acl:delete');
 });
 
 // Treeview API (public for viewing)
 Route::get('/informationobject/treeview', [TreeviewController::class, 'treeview'])->name('io.treeview');
 Route::get('/informationobject/treeview-data', [TreeviewController::class, 'treeviewData'])->name('io.treeviewData');
-Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'treeviewSort'])->middleware('auth')->name('io.treeviewSort');
+Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'treeviewSort'])->middleware(['auth', 'acl:update'])->name('io.treeviewSort');
 
 // Export
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
@@ -71,13 +71,13 @@ Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'cs
 Route::middleware('auth')->group(function () {
     // Publication status update (GET = show form, POST = process)
     Route::get('/informationobject/{slug}/update-status', [InformationObjectController::class, 'showUpdateStatus'])->name('io.showUpdateStatus');
-    Route::post('/informationobject/{slug}/update-status', [InformationObjectController::class, 'updateStatus'])->name('io.updateStatus');
+    Route::post('/informationobject/{slug}/update-status', [InformationObjectController::class, 'updateStatus'])->name('io.updateStatus')->middleware('acl:publish');
 
     // Calculate dates
-    Route::post('/informationobject/{slug}/calculate-dates', [InformationObjectController::class, 'calculateDates'])->name('informationobject.calculateDates');
+    Route::post('/informationobject/{slug}/calculate-dates', [InformationObjectController::class, 'calculateDates'])->name('informationobject.calculateDates')->middleware('acl:update');
 
     // Display standard update (Administration area form)
-    Route::post('/informationobject/{slug}/display-standard', [InformationObjectController::class, 'updateDisplayStandard'])->name('io.updateDisplayStandard');
+    Route::post('/informationobject/{slug}/display-standard', [InformationObjectController::class, 'updateDisplayStandard'])->name('io.updateDisplayStandard')->middleware('acl:update');
 
     // Import
     Route::get('/informationobject/import/xml/{slug?}', [ImportController::class, 'xml'])->name('informationobject.import.xml');
@@ -90,34 +90,34 @@ Route::middleware('auth')->group(function () {
             ? route('informationobject.import.csv')
             : route('informationobject.import.xml'));
     });
-    Route::post('/informationobject/import/process', [ImportController::class, 'process'])->name('informationobject.import.process');
+    Route::post('/informationobject/import/process', [ImportController::class, 'process'])->name('informationobject.import.process')->middleware('acl:create');
 
     // Validate CSV (menu path: object/validateCsv)
     Route::get('/object/validateCsv', [ImportController::class, 'validateCsv'])->name('object.validateCsv');
-    Route::post('/object/validateCsv', [ImportController::class, 'validateCsvProcess'])->name('object.validateCsv.process');
+    Route::post('/object/validateCsv', [ImportController::class, 'validateCsvProcess'])->name('object.validateCsv.process')->middleware('acl:create');
 
     // SKOS Import (menu path: sfSkosPlugin/import)
     Route::get('/sfSkosPlugin/import', [ImportController::class, 'skosImport'])->name('sfSkosPlugin.import');
-    Route::post('/sfSkosPlugin/import', [ImportController::class, 'skosImportProcess'])->name('sfSkosPlugin.import.process');
+    Route::post('/sfSkosPlugin/import', [ImportController::class, 'skosImportProcess'])->name('sfSkosPlugin.import.process')->middleware('acl:create');
 
     // Finding aid
     Route::get('/informationobject/{slug}/findingaid/generate', [FindingAidController::class, 'generate'])->name('informationobject.findingaid.generate');
     Route::get('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'uploadForm'])->name('informationobject.findingaid.upload.form');
-    Route::post('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'upload'])->name('informationobject.findingaid.upload');
+    Route::post('/informationobject/{slug}/findingaid/upload', [FindingAidController::class, 'upload'])->name('informationobject.findingaid.upload')->middleware('acl:create');
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
-    Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete');
+    Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete')->middleware('acl:delete');
 
     // Collections Management — Provenance
     Route::get('/informationobject/{slug}/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
     Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
-    Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store');
-    Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->where('id', '[0-9]+');
-    Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->where('id', '[0-9]+');
+    Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store')->middleware('acl:create');
+    Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->middleware('acl:delete')->where('id', '[0-9]+');
 
     // Collections Management — Condition
     Route::get('/condition/{slug}', [ConditionController::class, 'index'])->name('io.condition');
     Route::get('/condition/{slug}/create', [ConditionController::class, 'create'])->name('io.condition.create');
-    Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store');
+    Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store')->middleware('acl:create');
     Route::get('/condition/report/{id}', [ConditionController::class, 'show'])->name('io.condition.show')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
@@ -138,15 +138,15 @@ Route::middleware('auth')->group(function () {
 
     // Extended Rights
     Route::get('/rights/extended/{slug}', [ExtendedRightsController::class, 'add'])->name('io.rights.extended');
-    Route::post('/rights/extended/{slug}/store', [ExtendedRightsController::class, 'store'])->name('io.rights.extended.store');
+    Route::post('/rights/extended/{slug}/store', [ExtendedRightsController::class, 'store'])->name('io.rights.extended.store')->middleware('acl:create');
     Route::get('/rights/embargo/{slug}', [ExtendedRightsController::class, 'embargo'])->name('io.rights.embargo');
-    Route::post('/rights/embargo/{slug}/store', [ExtendedRightsController::class, 'storeEmbargo'])->name('io.rights.embargo.store');
-    Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->where('id', '[0-9]+');
+    Route::post('/rights/embargo/{slug}/store', [ExtendedRightsController::class, 'storeEmbargo'])->name('io.rights.embargo.store')->middleware('acl:create');
+    Route::post('/rights/embargo/{id}/lift', [ExtendedRightsController::class, 'liftEmbargo'])->name('io.rights.embargo.lift')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/rights/export/{slug}', [ExtendedRightsController::class, 'exportJsonLd'])->name('io.rights.export');
 
     // Digital Object upload/delete
-    Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload');
-    Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->where('id', '[0-9]+');
+    Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
+    Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
     // Research Tools

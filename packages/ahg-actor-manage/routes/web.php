@@ -8,14 +8,14 @@ Route::get('/actor/browse', [ActorController::class, 'browse'])->name('actor.bro
 // Actor create returns 403 to anon (matches AtoM behavior), other auth routes redirect to login
 Route::middleware('auth.forbid')->group(function () {
     Route::get('/actor/add', [ActorController::class, 'create'])->name('actor.add');
-    Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store');
+    Route::post('/actor/add', [ActorController::class, 'store'])->name('actor.store')->middleware('acl:create');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/actor/{slug}/edit', [ActorController::class, 'edit'])->name('actor.edit');
-    Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update');
+    Route::post('/actor/{slug}/edit', [ActorController::class, 'update'])->name('actor.update')->middleware('acl:update');
     Route::get('/actor/{slug}/rename', [ActorController::class, 'rename'])->name('actor.rename');
-    Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename');
+    Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename')->middleware('acl:update');
 
     // =========================================================================
     // Authority Dashboard & Workqueue
@@ -27,8 +27,8 @@ Route::middleware('auth')->group(function () {
     // External Identifiers
     // =========================================================================
     Route::get('/actor/authority/identifiers/{actorId}', [ActorController::class, 'identifiers'])->name('actor.identifiers');
-    Route::post('/api/authority/identifier/save', [ActorController::class, 'apiIdentifierSave'])->name('actor.api.identifier.save');
-    Route::post('/api/authority/identifier/{id}/delete', [ActorController::class, 'apiIdentifierDelete'])->name('actor.api.identifier.delete');
+    Route::post('/api/authority/identifier/save', [ActorController::class, 'apiIdentifierSave'])->name('actor.api.identifier.save')->middleware('acl:update');
+    Route::post('/api/authority/identifier/{id}/delete', [ActorController::class, 'apiIdentifierDelete'])->name('actor.api.identifier.delete')->middleware('acl:delete');
     Route::post('/api/authority/identifier/{id}/verify', [ActorController::class, 'apiIdentifierVerify'])->name('actor.api.identifier.verify');
 
     // =========================================================================
@@ -56,40 +56,40 @@ Route::middleware('auth')->group(function () {
     Route::get('/actor/authority/merge/{id}', [ActorController::class, 'merge'])->name('actor.merge');
     Route::get('/actor/authority/split/{id}', [ActorController::class, 'split'])->name('actor.split');
     Route::post('/api/authority/merge/preview', [ActorController::class, 'apiMergePreview'])->name('actor.api.merge.preview');
-    Route::post('/api/authority/merge/execute', [ActorController::class, 'apiMergeExecute'])->name('actor.api.merge.execute');
-    Route::post('/api/authority/split/execute', [ActorController::class, 'apiSplitExecute'])->name('actor.api.split.execute');
+    Route::post('/api/authority/merge/execute', [ActorController::class, 'apiMergeExecute'])->name('actor.api.merge.execute')->middleware('acl:update');
+    Route::post('/api/authority/split/execute', [ActorController::class, 'apiSplitExecute'])->name('actor.api.split.execute')->middleware('acl:update');
 
     // =========================================================================
     // Occupations
     // =========================================================================
     Route::get('/actor/authority/occupations/{actorId}', [ActorController::class, 'occupations'])->name('actor.occupations');
-    Route::post('/api/authority/occupation/save', [ActorController::class, 'apiOccupationSave'])->name('actor.api.occupation.save');
-    Route::post('/api/authority/occupation/{id}/delete', [ActorController::class, 'apiOccupationDelete'])->name('actor.api.occupation.delete');
+    Route::post('/api/authority/occupation/save', [ActorController::class, 'apiOccupationSave'])->name('actor.api.occupation.save')->middleware('acl:update');
+    Route::post('/api/authority/occupation/{id}/delete', [ActorController::class, 'apiOccupationDelete'])->name('actor.api.occupation.delete')->middleware('acl:delete');
 
     // =========================================================================
     // Functions
     // =========================================================================
     Route::get('/actor/authority/functions/{actorId}', [ActorController::class, 'functions'])->name('actor.functions');
     Route::get('/actor/authority/function-browse', [ActorController::class, 'functionBrowse'])->name('actor.function.browse');
-    Route::post('/api/authority/function/save', [ActorController::class, 'apiFunctionSave'])->name('actor.api.function.save');
-    Route::post('/api/authority/function/{id}/delete', [ActorController::class, 'apiFunctionDelete'])->name('actor.api.function.delete');
+    Route::post('/api/authority/function/save', [ActorController::class, 'apiFunctionSave'])->name('actor.api.function.save')->middleware('acl:update');
+    Route::post('/api/authority/function/{id}/delete', [ActorController::class, 'apiFunctionDelete'])->name('actor.api.function.delete')->middleware('acl:delete');
 
     // =========================================================================
     // Deduplication
     // =========================================================================
     Route::get('/actor/authority/dedup', [ActorController::class, 'dedupIndex'])->name('actor.dedup');
-    Route::match(['get', 'post'], '/actor/authority/dedup/scan', [ActorController::class, 'dedupScan'])->name('actor.dedup.scan');
+    Route::match(['get', 'post'], '/actor/authority/dedup/scan', [ActorController::class, 'dedupScan'])->name('actor.dedup.scan'); // ACL check in controller for POST only
     Route::get('/actor/authority/dedup/compare/{id}', [ActorController::class, 'dedupCompare'])->name('actor.dedup.compare');
-    Route::post('/api/authority/dedup/{id}/dismiss', [ActorController::class, 'apiDedupDismiss'])->name('actor.api.dedup.dismiss');
-    Route::post('/api/authority/dedup/{id}/merge', [ActorController::class, 'apiDedupMerge'])->name('actor.api.dedup.merge');
+    Route::post('/api/authority/dedup/{id}/dismiss', [ActorController::class, 'apiDedupDismiss'])->name('actor.api.dedup.dismiss')->middleware('acl:update');
+    Route::post('/api/authority/dedup/{id}/merge', [ActorController::class, 'apiDedupMerge'])->name('actor.api.dedup.merge')->middleware('acl:update');
 
     // =========================================================================
     // NER Pipeline
     // =========================================================================
     Route::get('/actor/authority/ner', [ActorController::class, 'nerIndex'])->name('actor.ner');
-    Route::post('/api/authority/ner/create-stub', [ActorController::class, 'apiNerCreateStub'])->name('actor.api.ner.create-stub');
-    Route::post('/api/authority/ner/{id}/promote', [ActorController::class, 'apiNerPromote'])->name('actor.api.ner.promote');
-    Route::post('/api/authority/ner/{id}/reject', [ActorController::class, 'apiNerReject'])->name('actor.api.ner.reject');
+    Route::post('/api/authority/ner/create-stub', [ActorController::class, 'apiNerCreateStub'])->name('actor.api.ner.create-stub')->middleware('acl:create');
+    Route::post('/api/authority/ner/{id}/promote', [ActorController::class, 'apiNerPromote'])->name('actor.api.ner.promote')->middleware('acl:update');
+    Route::post('/api/authority/ner/{id}/reject', [ActorController::class, 'apiNerReject'])->name('actor.api.ner.reject')->middleware('acl:delete');
 
     // =========================================================================
     // Contact Information
@@ -104,12 +104,12 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     // Configuration (admin only)
     // =========================================================================
-    Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config');
+    Route::match(['get', 'post'], '/actor/authority/config', [ActorController::class, 'config'])->name('actor.config'); // ACL check in controller for POST only
 });
 
 Route::middleware('admin')->group(function () {
     Route::get('/actor/{slug}/delete', [ActorController::class, 'confirmDelete'])->name('actor.confirmDelete');
-    Route::delete('/actor/{slug}/delete', [ActorController::class, 'destroy'])->name('actor.destroy');
+    Route::delete('/actor/{slug}/delete', [ActorController::class, 'destroy'])->name('actor.destroy')->middleware('acl:delete');
 });
 
 // Autocomplete (used by AJAX lookups)

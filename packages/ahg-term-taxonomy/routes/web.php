@@ -15,11 +15,11 @@ Route::get('/term/browse', [TermController::class, 'browse'])->name('term.browse
 
 Route::middleware('auth')->group(function () {
     Route::get('/term/add', [TermController::class, 'create'])->name('term.create');
-    Route::post('/term/store', [TermController::class, 'store'])->name('term.store');
+    Route::post('/term/store', [TermController::class, 'store'])->name('term.store')->middleware('acl:createTerm');
     Route::get('/term/{slug}/edit', [TermController::class, 'edit'])->name('term.edit');
-    Route::put('/term/{slug}', [TermController::class, 'update'])->name('term.update');
+    Route::put('/term/{slug}', [TermController::class, 'update'])->name('term.update')->middleware('acl:update');
     Route::get('/term/{slug}/delete', [TermController::class, 'confirmDelete'])->name('term.confirmDelete');
-    Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy');
+    Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy')->middleware('acl:delete');
 });
 
 Route::get('/term/autocomplete', [TermController::class, 'autocomplete'])->name('term.autocomplete');

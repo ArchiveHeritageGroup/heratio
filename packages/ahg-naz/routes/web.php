@@ -10,14 +10,14 @@ Route::prefix('admin/naz')->middleware(['web', 'auth'])->group(function () {
 
     // Config (settings)
     Route::get('/config', [$c, 'config'])->name('ahgnaz.config');
-    Route::post('/config', [$c, 'configStore'])->name('ahgnaz.config.store');
+    Route::post('/config', [$c, 'configStore'])->name('ahgnaz.config.store')->middleware('acl:update');
 
     // Closure periods
     Route::get('/closures', [$c, 'closures'])->name('ahgnaz.closures');
     Route::get('/closures/create', [$c, 'closureCreate'])->name('ahgnaz.closure-create');
-    Route::post('/closures/create', [$c, 'closureStore'])->name('ahgnaz.closure-store');
+    Route::post('/closures/create', [$c, 'closureStore'])->name('ahgnaz.closure-store')->middleware('acl:create');
     Route::get('/closures/{id}/edit', [$c, 'closureEdit'])->name('ahgnaz.closure-edit');
-    Route::post('/closures/{id}/edit', [$c, 'closureUpdate'])->name('ahgnaz.closure-update');
+    Route::post('/closures/{id}/edit', [$c, 'closureUpdate'])->name('ahgnaz.closure-update')->middleware('acl:update');
 
     // Protected records
     Route::get('/protected-records', [$c, 'protectedRecords'])->name('ahgnaz.protected-records');
@@ -25,30 +25,30 @@ Route::prefix('admin/naz')->middleware(['web', 'auth'])->group(function () {
     // Retention schedules
     Route::get('/schedules', [$c, 'schedules'])->name('ahgnaz.schedules');
     Route::get('/schedules/create', [$c, 'scheduleCreate'])->name('ahgnaz.schedule-create');
-    Route::post('/schedules/create', [$c, 'scheduleStore'])->name('ahgnaz.schedule-store');
+    Route::post('/schedules/create', [$c, 'scheduleStore'])->name('ahgnaz.schedule-store')->middleware('acl:create');
     Route::get('/schedules/{id}', [$c, 'scheduleView'])->name('ahgnaz.schedule-view');
-    Route::post('/schedules/{id}', [$c, 'scheduleUpdate'])->name('ahgnaz.schedule-update');
+    Route::post('/schedules/{id}', [$c, 'scheduleUpdate'])->name('ahgnaz.schedule-update')->middleware('acl:update');
 
     // Research permits
     Route::get('/permits', [$c, 'permits'])->name('ahgnaz.permits');
     Route::get('/permits/create', [$c, 'permitCreate'])->name('ahgnaz.permit-create');
-    Route::post('/permits/create', [$c, 'permitStore'])->name('ahgnaz.permit-store');
+    Route::post('/permits/create', [$c, 'permitStore'])->name('ahgnaz.permit-store')->middleware('acl:create');
     Route::get('/permits/{id}', [$c, 'permitView'])->name('ahgnaz.permit-view');
-    Route::post('/permits/{id}', [$c, 'permitUpdate'])->name('ahgnaz.permit-update');
+    Route::post('/permits/{id}', [$c, 'permitUpdate'])->name('ahgnaz.permit-update')->middleware('acl:update');
 
     // Researchers
     Route::get('/researchers', [$c, 'researchers'])->name('ahgnaz.researchers');
     Route::get('/researchers/create', [$c, 'researcherCreate'])->name('ahgnaz.researcher-create');
-    Route::post('/researchers/create', [$c, 'researcherStore'])->name('ahgnaz.researcher-store');
+    Route::post('/researchers/create', [$c, 'researcherStore'])->name('ahgnaz.researcher-store')->middleware('acl:create');
     Route::get('/researchers/{id}', [$c, 'researcherView'])->name('ahgnaz.researcher-view');
-    Route::post('/researchers/{id}', [$c, 'researcherUpdate'])->name('ahgnaz.researcher-update');
+    Route::post('/researchers/{id}', [$c, 'researcherUpdate'])->name('ahgnaz.researcher-update')->middleware('acl:update');
 
     // Transfers
     Route::get('/transfers', [$c, 'transfers'])->name('ahgnaz.transfers');
     Route::get('/transfers/create', [$c, 'transferCreate'])->name('ahgnaz.transfer-create');
-    Route::post('/transfers/create', [$c, 'transferStore'])->name('ahgnaz.transfer-store');
+    Route::post('/transfers/create', [$c, 'transferStore'])->name('ahgnaz.transfer-store')->middleware('acl:create');
     Route::get('/transfers/{id}', [$c, 'transferView'])->name('ahgnaz.transfer-view');
-    Route::post('/transfers/{id}', [$c, 'transferUpdate'])->name('ahgnaz.transfer-update');
+    Route::post('/transfers/{id}', [$c, 'transferUpdate'])->name('ahgnaz.transfer-update')->middleware('acl:update');
 
     // Reports
     Route::get('/reports', [$c, 'reports'])->name('ahgnaz.reports');

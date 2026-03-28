@@ -1,0 +1,546 @@
+#!/bin/bash
+#===============================================================================
+# Heratio Parity Check — Page-by-Page AtoM vs Heratio Comparison
+#===============================================================================
+# Compares HTTP responses and DOM structure between AtoM and Heratio for all
+# GET routes, generating both terminal output and an HTML report.
+#
+# Usage:
+#   ./bin/parity-check [OPTIONS]
+#
+# Options:
+#   --heratio-url URL   Heratio base URL (default: http://localhost)
+#   --atom-url URL      AtoM base URL (default: http://psis.theahg.co.za)
+#   --output FILE       HTML report output path (default: /tmp/parity-report.html)
+#   --routes-only       Just list routes without testing
+#   --filter PATTERN    Only test routes matching pattern (e.g. "information")
+#   --timeout SECS      Curl timeout per request (default: 15)
+#   --cookie FILE       Cookie file for authenticated requests
+#   --verbose           Show detailed per-route output
+#   --help              Show this help
+#
+# Examples:
+#   ./bin/parity-check
+#   ./bin/parity-check --filter "actor" --verbose
+#   ./bin/parity-check --routes-only
+#   ./bin/parity-check --heratio-url http://192.168.0.112 --atom-url http://psis.theahg.co.za
+#===============================================================================
+set -euo pipefail
+
+# ── Defaults ──────────────────────────────────────────────────────────────────
+HERATIO_URL="http://localhost"
+ATOM_URL="http://psis.theahg.co.za"
+OUTPUT="/tmp/parity-report.html"
+ROUTES_ONLY=0
+FILTER=""
+TIMEOUT=15
+COOKIE_FILE=""
+VERBOSE=0
+HERATIO_ROOT="/usr/share/nginx/heratio"
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m' # No Color
+
+# ── Parse arguments ──────────────────────────────────────────────────────────
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --heratio-url) HERATIO_URL="$2"; shift 2 ;;
+        --atom-url)    ATOM_URL="$2"; shift 2 ;;
+        --output)      OUTPUT="$2"; shift 2 ;;
+        --routes-only) ROUTES_ONLY=1; shift ;;
+        --filter)      FILTER="$2"; shift 2 ;;
+        --timeout)     TIMEOUT="$2"; shift 2 ;;
+        --cookie)      COOKIE_FILE="$2"; shift 2 ;;
+        --verbose)     VERBOSE=1; shift ;;
+        --help)
+            head -30 "$0" | tail -27
+            exit 0
+            ;;
+        *) echo -e "${RED}Unknown option: $1${NC}"; exit 1 ;;
+    esac
+done
+
+# ── Temp directory ───────────────────────────────────────────────────────────
+TMPDIR=$(mktemp -d /tmp/parity-check.XXXXXX)
+trap "rm -rf $TMPDIR" EXIT
+
+# ── Extract routes ───────────────────────────────────────────────────────────
+echo -e "${BOLD}${CYAN}=== Heratio Parity Check ===${NC}"
+echo -e "${DIM}Heratio: ${HERATIO_URL}${NC}"
+echo -e "${DIM}AtoM:    ${ATOM_URL}${NC}"
+echo -e "${DIM}Output:  ${OUTPUT}${NC}"
+echo ""
+
+echo -e "${BLUE}Extracting Heratio GET routes...${NC}"
+
+php "$HERATIO_ROOT/artisan" route:list --json 2>/dev/null | python3 -c "
+import sys, json
+routes = json.load(sys.stdin)
+seen = set()
+for r in routes:
+    method = r.get('method', '')
+    uri = r.get('uri', '')
+    name = r.get('name', '') or ''
+    action = r.get('action', '') or ''
+    if 'GET' in method and uri not in seen:
+        seen.add(uri)
+        print(f'{uri}\t{name}\t{action}')
+" | sort > "$TMPDIR/all_routes.tsv"
+
+TOTAL_ROUTES=$(wc -l < "$TMPDIR/all_routes.tsv")
+echo -e "${GREEN}Found ${TOTAL_ROUTES} GET routes${NC}"
+
+# Apply filter if set
+if [[ -n "$FILTER" ]]; then
+    grep -i "$FILTER" "$TMPDIR/all_routes.tsv" > "$TMPDIR/filtered_routes.tsv" || true
+    FILTERED=$(wc -l < "$TMPDIR/filtered_routes.tsv")
+    echo -e "${YELLOW}Filter '$FILTER' matched ${FILTERED} routes${NC}"
+    cp "$TMPDIR/filtered_routes.tsv" "$TMPDIR/test_routes.tsv"
+else
+    cp "$TMPDIR/all_routes.tsv" "$TMPDIR/test_routes.tsv"
+fi
+
+# ── Routes-only mode ────────────────────────────────────────────────────────
+if [[ $ROUTES_ONLY -eq 1 ]]; then
+    echo ""
+    echo -e "${BOLD}All GET routes:${NC}"
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    while IFS=$'\t' read -r uri name action; do
+        printf "  ${GREEN}%-50s${NC} ${DIM}%-30s${NC} %s\n" "/$uri" "$name" "$action"
+    done < "$TMPDIR/test_routes.tsv"
+    echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+    echo -e "${BOLD}Total: ${TOTAL_ROUTES} routes${NC}"
+    exit 0
+fi
+
+# ── Helper: build curl command ───────────────────────────────────────────────
+do_curl() {
+    local url="$1"
+    local output_file="$2"
+    local cookie_args=""
+    if [[ -n "$COOKIE_FILE" ]]; then
+        cookie_args="-b $COOKIE_FILE"
+    fi
+    curl -sS -o "$output_file" -w '%{http_code}\t%{time_total}\t%{size_download}' \
+        --max-time "$TIMEOUT" \
+        -L \
+        -H "User-Agent: Heratio-Parity-Check/1.0" \
+        $cookie_args \
+        "$url" 2>/dev/null || echo "000	0	0"
+}
+
+# ── Helper: extract DOM counts from HTML ─────────────────────────────────────
+extract_dom_stats() {
+    local html_file="$1"
+    local stats_file="$2"
+
+    python3 << 'PYEOF' "$html_file" "$stats_file"
+import sys, re
+from html.parser import HTMLParser
+
+html_file = sys.argv[1]
+stats_file = sys.argv[2]
+
+try:
+    with open(html_file, 'r', encoding='utf-8', errors='replace') as f:
+        html = f.read()
+except:
+    with open(stats_file, 'w') as f:
+        f.write("title=\ninputs=0\nselects=0\ntextareas=0\ntotal_fields=0\ntable_rows=0\nh1=0\nh2=0\nh3=0\nh4=0\nh5=0\nh6=0\ntotal_headings=0\nlinks=0\nbuttons=0\n")
+    sys.exit(0)
+
+class DOMCounter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.counts = {
+            'input': 0, 'select': 0, 'textarea': 0,
+            'tr': 0, 'a': 0, 'button': 0,
+            'h1': 0, 'h2': 0, 'h3': 0, 'h4': 0, 'h5': 0, 'h6': 0,
+        }
+        self.in_title = False
+        self.title = ''
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        if tag in self.counts:
+            # Skip hidden inputs for field count
+            if tag == 'input':
+                attr_dict = dict(attrs)
+                if attr_dict.get('type', '').lower() == 'hidden':
+                    return
+            self.counts[tag] += 1
+        if tag == 'title':
+            self.in_title = True
+            self.title = ''
+
+    def handle_data(self, data):
+        if self.in_title:
+            self.title += data
+
+    def handle_endtag(self, tag):
+        if tag.lower() == 'title':
+            self.in_title = False
+
+counter = DOMCounter()
+try:
+    counter.handle_data  # verify parser is ready
+    counter.feed(html)
+except:
+    pass
+
+c = counter.counts
+total_fields = c['input'] + c['select'] + c['textarea']
+total_headings = c['h1'] + c['h2'] + c['h3'] + c['h4'] + c['h5'] + c['h6']
+
+with open(stats_file, 'w') as f:
+    f.write(f"title={counter.title.strip()}\n")
+    f.write(f"inputs={c['input']}\n")
+    f.write(f"selects={c['select']}\n")
+    f.write(f"textareas={c['textarea']}\n")
+    f.write(f"total_fields={total_fields}\n")
+    f.write(f"table_rows={c['tr']}\n")
+    f.write(f"h1={c['h1']}\n")
+    f.write(f"h2={c['h2']}\n")
+    f.write(f"h3={c['h3']}\n")
+    f.write(f"h4={c['h4']}\n")
+    f.write(f"h5={c['h5']}\n")
+    f.write(f"h6={c['h6']}\n")
+    f.write(f"total_headings={total_headings}\n")
+    f.write(f"links={c['a']}\n")
+    f.write(f"buttons={c['button']}\n")
+PYEOF
+}
+
+# ── Helper: read a stats value ───────────────────────────────────────────────
+get_stat() {
+    local file="$1"
+    local key="$2"
+    grep "^${key}=" "$file" 2>/dev/null | cut -d= -f2- || echo "0"
+}
+
+# ── Build URL for a route ───────────────────────────────────────────────────
+# Routes with {parameters} need sample slugs to be testable.
+# We skip parameterized routes or use known test slugs.
+build_url() {
+    local base="$1"
+    local uri="$2"
+
+    # Skip routes with unresolvable parameters
+    if echo "$uri" | grep -q '{'; then
+        echo ""
+        return
+    fi
+
+    echo "${base}/${uri}"
+}
+
+# ── Map Heratio URI to AtoM URI ─────────────────────────────────────────────
+# AtoM and Heratio may have different URL patterns for the same page.
+map_to_atom_uri() {
+    local uri="$1"
+
+    # Most Heratio routes map 1:1 to AtoM paths
+    # Some require translation:
+    case "$uri" in
+        # Heratio uses /user/browse, AtoM uses /user/list
+        user/browse) echo "user/list" ;;
+        # Default: same path
+        *) echo "$uri" ;;
+    esac
+}
+
+# ── Main test loop ──────────────────────────────────────────────────────────
+echo ""
+echo -e "${BOLD}Testing routes...${NC}"
+echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+
+# Counters
+COUNT_TESTED=0
+COUNT_SKIPPED=0
+COUNT_BOTH_200=0
+COUNT_HERATIO_500=0
+COUNT_HERATIO_404=0
+COUNT_ATOM_FAIL=0
+COUNT_FIELD_DIFF=0
+COUNT_MATCH=0
+
+# Result arrays stored as files
+mkdir -p "$TMPDIR/results"
+
+while IFS=$'\t' read -r uri name action; do
+    # Build URLs
+    heratio_url=$(build_url "$HERATIO_URL" "$uri")
+    atom_uri=$(map_to_atom_uri "$uri")
+    atom_url=$(build_url "$ATOM_URL" "$atom_uri")
+
+    # Skip parameterized routes
+    if [[ -z "$heratio_url" ]]; then
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo -e "  ${DIM}SKIP /$uri (parameterized)${NC}"
+        fi
+        echo "SKIP	$uri	$name	parameterized	0	0	0	0" >> "$TMPDIR/results/all.tsv"
+        continue
+    fi
+
+    COUNT_TESTED=$((COUNT_TESTED + 1))
+
+    # Fetch Heratio
+    heratio_response=$(do_curl "$heratio_url" "$TMPDIR/heratio_body.html")
+    heratio_code=$(echo "$heratio_response" | cut -f1)
+    heratio_time=$(echo "$heratio_response" | cut -f2)
+    heratio_size=$(echo "$heratio_response" | cut -f3)
+
+    # Fetch AtoM
+    atom_response=$(do_curl "$atom_url" "$TMPDIR/atom_body.html")
+    atom_code=$(echo "$atom_response" | cut -f1)
+    atom_time=$(echo "$atom_response" | cut -f2)
+    atom_size=$(echo "$atom_response" | cut -f3)
+
+    # Determine status
+    status="UNKNOWN"
+    detail=""
+
+    if [[ "$heratio_code" == "500" && "$atom_code" != "500" ]]; then
+        status="HERATIO_500"
+        COUNT_HERATIO_500=$((COUNT_HERATIO_500 + 1))
+        echo -e "  ${RED}500  /${uri}${NC} ${DIM}(AtoM: ${atom_code})${NC}"
+    elif [[ "$heratio_code" == "404" && "$atom_code" == "200" ]]; then
+        status="HERATIO_404"
+        COUNT_HERATIO_404=$((COUNT_HERATIO_404 + 1))
+        echo -e "  ${YELLOW}404  /${uri}${NC} ${DIM}(AtoM: 200)${NC}"
+    elif [[ "$heratio_code" == "200" && "$atom_code" == "200" ]]; then
+        COUNT_BOTH_200=$((COUNT_BOTH_200 + 1))
+
+        # Extract DOM stats for both
+        extract_dom_stats "$TMPDIR/heratio_body.html" "$TMPDIR/heratio_stats.txt"
+        extract_dom_stats "$TMPDIR/atom_body.html" "$TMPDIR/atom_stats.txt"
+
+        h_fields=$(get_stat "$TMPDIR/heratio_stats.txt" "total_fields")
+        a_fields=$(get_stat "$TMPDIR/atom_stats.txt" "total_fields")
+        h_headings=$(get_stat "$TMPDIR/heratio_stats.txt" "total_headings")
+        a_headings=$(get_stat "$TMPDIR/atom_stats.txt" "total_headings")
+        h_rows=$(get_stat "$TMPDIR/heratio_stats.txt" "table_rows")
+        a_rows=$(get_stat "$TMPDIR/atom_stats.txt" "table_rows")
+        h_title=$(get_stat "$TMPDIR/heratio_stats.txt" "title")
+        a_title=$(get_stat "$TMPDIR/atom_stats.txt" "title")
+
+        field_diff=$((h_fields - a_fields))
+        heading_diff=$((h_headings - a_headings))
+        row_diff=$((h_rows - a_rows))
+
+        # Determine if there are significant differences
+        if [[ $field_diff -ne 0 || $heading_diff -ne 0 ]]; then
+            status="DIFF"
+            COUNT_FIELD_DIFF=$((COUNT_FIELD_DIFF + 1))
+            detail="fields:${a_fields}->${h_fields}(${field_diff:+${field_diff}}) headings:${a_headings}->${h_headings}"
+            if [[ $VERBOSE -eq 1 ]]; then
+                echo -e "  ${YELLOW}DIFF /${uri}${NC} ${DIM}${detail}${NC}"
+            else
+                echo -e "  ${YELLOW}DIFF${NC} /${uri} ${DIM}[fields:${field_diff} headings:${heading_diff}]${NC}"
+            fi
+        else
+            status="MATCH"
+            COUNT_MATCH=$((COUNT_MATCH + 1))
+            if [[ $VERBOSE -eq 1 ]]; then
+                echo -e "  ${GREEN}OK   /${uri}${NC} ${DIM}(fields:${h_fields} headings:${h_headings})${NC}"
+            fi
+        fi
+
+        # Save detailed stats
+        cp "$TMPDIR/heratio_stats.txt" "$TMPDIR/results/heratio_${COUNT_TESTED}.txt"
+        cp "$TMPDIR/atom_stats.txt" "$TMPDIR/results/atom_${COUNT_TESTED}.txt"
+
+    elif [[ "$atom_code" == "000" || "$atom_code" == "404" || "$atom_code" == "302" ]]; then
+        status="ATOM_FAIL"
+        COUNT_ATOM_FAIL=$((COUNT_ATOM_FAIL + 1))
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo -e "  ${DIM}N/A  /${uri} (AtoM: ${atom_code}, Heratio: ${heratio_code})${NC}"
+        fi
+    else
+        status="OTHER"
+        if [[ $VERBOSE -eq 1 ]]; then
+            echo -e "  ${DIM}${heratio_code}/${atom_code} /${uri}${NC}"
+        fi
+    fi
+
+    # Record result
+    echo "${status}	${uri}	${name}	${heratio_code}	${atom_code}	${heratio_time}	${atom_time}	${heratio_size}	${atom_size}	${detail}" >> "$TMPDIR/results/all.tsv"
+
+done < "$TMPDIR/test_routes.tsv"
+
+# ── Summary ──────────────────────────────────────────────────────────────────
+echo ""
+echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+echo -e "${BOLD}${CYAN}Summary${NC}"
+echo -e "${DIM}────────────────────────────────────────────────────────────────${NC}"
+echo -e "  Total GET routes:       ${BOLD}${TOTAL_ROUTES}${NC}"
+echo -e "  Tested:                 ${BOLD}${COUNT_TESTED}${NC}"
+echo -e "  Skipped (parameterized):${BOLD}${COUNT_SKIPPED}${NC}"
+echo -e ""
+echo -e "  ${GREEN}Both 200 (matched):     ${COUNT_MATCH}${NC}"
+echo -e "  ${YELLOW}Both 200 (DOM diffs):   ${COUNT_FIELD_DIFF}${NC}"
+echo -e "  ${RED}Heratio 500:            ${COUNT_HERATIO_500}${NC}"
+echo -e "  ${YELLOW}Heratio 404 (AtoM 200): ${COUNT_HERATIO_404}${NC}"
+echo -e "  ${DIM}AtoM unavailable:       ${COUNT_ATOM_FAIL}${NC}"
+
+# ── Generate HTML report ────────────────────────────────────────────────────
+echo ""
+echo -e "${BLUE}Generating HTML report: ${OUTPUT}${NC}"
+
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+cat > "$OUTPUT" << 'HTMLHEAD'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heratio Parity Report</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #212529; padding: 2rem; }
+  h1 { color: #2c3e50; margin-bottom: 0.5rem; }
+  .meta { color: #6c757d; margin-bottom: 2rem; font-size: 0.9rem; }
+  .summary { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+  .card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1.25rem; min-width: 160px; flex: 1; }
+  .card .number { font-size: 2rem; font-weight: 700; }
+  .card .label { color: #6c757d; font-size: 0.85rem; }
+  .card.green .number { color: #198754; }
+  .card.yellow .number { color: #ffc107; }
+  .card.red .number { color: #dc3545; }
+  .card.blue .number { color: #0d6efd; }
+  .card.gray .number { color: #6c757d; }
+  .section { margin-bottom: 2rem; }
+  .section h2 { color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #dee2e6; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; }
+  th { background: #2c3e50; color: #fff; text-align: left; padding: 0.75rem 1rem; font-size: 0.85rem; }
+  td { padding: 0.5rem 1rem; border-bottom: 1px solid #dee2e6; font-size: 0.85rem; }
+  tr:hover { background: #f1f3f5; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+  .badge-red { background: #f8d7da; color: #842029; }
+  .badge-yellow { background: #fff3cd; color: #664d03; }
+  .badge-green { background: #d1e7dd; color: #0f5132; }
+  .badge-gray { background: #e9ecef; color: #495057; }
+  .badge-blue { background: #cfe2ff; color: #084298; }
+  .diff-neg { color: #dc3545; font-weight: 600; }
+  .diff-pos { color: #ffc107; font-weight: 600; }
+  .diff-zero { color: #198754; }
+  .mono { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.8rem; }
+  .filter-bar { margin-bottom: 1rem; }
+  .filter-bar input { padding: 0.5rem 1rem; border: 1px solid #dee2e6; border-radius: 4px; width: 300px; }
+  @media (max-width: 768px) { .summary { flex-direction: column; } }
+</style>
+</head>
+<body>
+HTMLHEAD
+
+cat >> "$OUTPUT" << EOF
+<h1>Heratio Parity Report</h1>
+<p class="meta">Generated: ${TIMESTAMP} | Heratio: ${HERATIO_URL} | AtoM: ${ATOM_URL}</p>
+
+<div class="summary">
+  <div class="card blue"><div class="number">${COUNT_TESTED}</div><div class="label">Routes Tested</div></div>
+  <div class="card green"><div class="number">${COUNT_MATCH}</div><div class="label">Matched (200)</div></div>
+  <div class="card yellow"><div class="number">${COUNT_FIELD_DIFF}</div><div class="label">DOM Differences</div></div>
+  <div class="card red"><div class="number">${COUNT_HERATIO_500}</div><div class="label">Heratio 500</div></div>
+  <div class="card yellow"><div class="number">${COUNT_HERATIO_404}</div><div class="label">Missing (404)</div></div>
+  <div class="card gray"><div class="number">${COUNT_SKIPPED}</div><div class="label">Skipped</div></div>
+</div>
+EOF
+
+# Section: Heratio 500 errors
+if [[ $COUNT_HERATIO_500 -gt 0 ]]; then
+    cat >> "$OUTPUT" << 'EOF'
+<div class="section">
+<h2>Heratio 500 Errors (Work in AtoM)</h2>
+<table>
+<thead><tr><th>Route</th><th>Name</th><th>Heratio</th><th>AtoM</th></tr></thead>
+<tbody>
+EOF
+    grep "^HERATIO_500" "$TMPDIR/results/all.tsv" | while IFS=$'\t' read -r status uri rname hcode acode htime atime hsize asize detail; do
+        echo "<tr><td class=\"mono\">/${uri}</td><td>${rname}</td><td><span class=\"badge badge-red\">${hcode}</span></td><td><span class=\"badge badge-green\">${acode}</span></td></tr>" >> "$OUTPUT"
+    done
+    echo "</tbody></table></div>" >> "$OUTPUT"
+fi
+
+# Section: Heratio 404 (AtoM 200)
+if [[ $COUNT_HERATIO_404 -gt 0 ]]; then
+    cat >> "$OUTPUT" << 'EOF'
+<div class="section">
+<h2>Missing in Heratio (404, AtoM returns 200)</h2>
+<table>
+<thead><tr><th>Route</th><th>Name</th><th>Heratio</th><th>AtoM</th></tr></thead>
+<tbody>
+EOF
+    grep "^HERATIO_404" "$TMPDIR/results/all.tsv" | while IFS=$'\t' read -r status uri rname hcode acode htime atime hsize asize detail; do
+        echo "<tr><td class=\"mono\">/${uri}</td><td>${rname}</td><td><span class=\"badge badge-yellow\">${hcode}</span></td><td><span class=\"badge badge-green\">${acode}</span></td></tr>" >> "$OUTPUT"
+    done
+    echo "</tbody></table></div>" >> "$OUTPUT"
+fi
+
+# Section: DOM Differences
+if [[ $COUNT_FIELD_DIFF -gt 0 ]]; then
+    cat >> "$OUTPUT" << 'EOF'
+<div class="section">
+<h2>DOM Differences (Both 200, Field/Heading Count Mismatch)</h2>
+<table>
+<thead><tr><th>Route</th><th>Name</th><th>Detail</th></tr></thead>
+<tbody>
+EOF
+    grep "^DIFF" "$TMPDIR/results/all.tsv" | while IFS=$'\t' read -r status uri rname hcode acode htime atime hsize asize detail; do
+        echo "<tr><td class=\"mono\">/${uri}</td><td>${rname}</td><td>${detail}</td></tr>" >> "$OUTPUT"
+    done
+    echo "</tbody></table></div>" >> "$OUTPUT"
+fi
+
+# Section: All results
+cat >> "$OUTPUT" << 'EOF'
+<div class="section">
+<h2>All Results</h2>
+<div class="filter-bar"><input type="text" id="filter" placeholder="Filter routes..." onkeyup="filterTable()"></div>
+<table id="allResults">
+<thead><tr><th>Route</th><th>Name</th><th>Status</th><th>Heratio</th><th>AtoM</th><th>Detail</th></tr></thead>
+<tbody>
+EOF
+
+while IFS=$'\t' read -r status uri rname hcode acode htime atime hsize asize detail; do
+    case "$status" in
+        MATCH)       badge_class="badge-green"; badge_text="Match" ;;
+        DIFF)        badge_class="badge-yellow"; badge_text="Diff" ;;
+        HERATIO_500) badge_class="badge-red"; badge_text="500" ;;
+        HERATIO_404) badge_class="badge-yellow"; badge_text="404" ;;
+        ATOM_FAIL)   badge_class="badge-gray"; badge_text="AtoM N/A" ;;
+        SKIP)        badge_class="badge-gray"; badge_text="Skipped" ;;
+        *)           badge_class="badge-gray"; badge_text="$status" ;;
+    esac
+    echo "<tr><td class=\"mono\">/${uri}</td><td>${rname}</td><td><span class=\"badge ${badge_class}\">${badge_text}</span></td><td>${hcode}</td><td>${acode}</td><td>${detail}</td></tr>" >> "$OUTPUT"
+done < "$TMPDIR/results/all.tsv"
+
+cat >> "$OUTPUT" << 'EOF'
+</tbody></table></div>
+
+<script>
+function filterTable() {
+  var input = document.getElementById('filter').value.toLowerCase();
+  var rows = document.querySelectorAll('#allResults tbody tr');
+  rows.forEach(function(row) {
+    var text = row.textContent.toLowerCase();
+    row.style.display = text.includes(input) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
+EOF
+
+echo -e "${GREEN}HTML report written to: ${OUTPUT}${NC}"
+echo ""
+echo -e "${BOLD}Done.${NC}"

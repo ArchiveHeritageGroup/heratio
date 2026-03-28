@@ -13,18 +13,18 @@ Route::middleware('auth')->group(function () {
 
     // Add new rights record
     Route::get('/{slug}/ext-rights/add', [RightsController::class, 'add'])->name('ext-rights.add');
-    Route::post('/{slug}/ext-rights/add', [RightsController::class, 'store'])->name('ext-rights.store');
+    Route::post('/{slug}/ext-rights/add', [RightsController::class, 'store'])->name('ext-rights.store')->middleware('acl:create');
 
     // Edit existing rights record
     Route::get('/{slug}/ext-rights/{id}/edit', [RightsController::class, 'edit'])->name('ext-rights.edit')->where('id', '[0-9]+');
-    Route::post('/{slug}/ext-rights/{id}/edit', [RightsController::class, 'store'])->name('ext-rights.update')->where('id', '[0-9]+');
+    Route::post('/{slug}/ext-rights/{id}/edit', [RightsController::class, 'store'])->name('ext-rights.update')->where('id', '[0-9]+')->middleware('acl:update');
 
     // Delete rights record
-    Route::post('/{slug}/ext-rights/{id}/delete', [RightsController::class, 'delete'])->name('ext-rights.delete')->where('id', '[0-9]+');
+    Route::post('/{slug}/ext-rights/{id}/delete', [RightsController::class, 'delete'])->name('ext-rights.delete')->where('id', '[0-9]+')->middleware('acl:delete');
 
     // Embargo per object
     Route::get('/{slug}/ext-rights/embargo', [RightsController::class, 'editEmbargo'])->name('ext-rights.edit-embargo');
-    Route::post('/{slug}/ext-rights/embargo', [RightsController::class, 'storeEmbargo'])->name('ext-rights.store-embargo');
+    Route::post('/{slug}/ext-rights/embargo', [RightsController::class, 'storeEmbargo'])->name('ext-rights.store-embargo')->middleware('acl:create');
     Route::post('/{slug}/ext-rights/embargo/{id}/release', [RightsController::class, 'releaseEmbargo'])->name('ext-rights.release-embargo')->where('id', '[0-9]+');
 
     // TK Labels per object
