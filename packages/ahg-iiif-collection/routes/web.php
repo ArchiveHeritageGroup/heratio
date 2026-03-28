@@ -24,18 +24,18 @@ Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name(
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::get('/manifest-collection/new', [IiifCollectionController::class, 'create'])->name('iiif-collection.create');
-    Route::post('/manifest-collection', [IiifCollectionController::class, 'store'])->name('iiif-collection.store');
+    Route::post('/manifest-collection', [IiifCollectionController::class, 'store'])->name('iiif-collection.store')->middleware('acl:create');
     Route::get('/manifest-collection/{id}/edit', [IiifCollectionController::class, 'edit'])->name('iiif-collection.edit');
-    Route::put('/manifest-collection/{id}', [IiifCollectionController::class, 'update'])->name('iiif-collection.update');
-    Route::delete('/manifest-collection/{id}', [IiifCollectionController::class, 'destroy'])->name('iiif-collection.destroy');
-    Route::match(['get', 'post'], '/manifest-collection/{id}/items/add', [IiifCollectionController::class, 'addItems'])->name('iiif-collection.add-items');
+    Route::put('/manifest-collection/{id}', [IiifCollectionController::class, 'update'])->name('iiif-collection.update')->middleware('acl:update');
+    Route::delete('/manifest-collection/{id}', [IiifCollectionController::class, 'destroy'])->name('iiif-collection.destroy')->middleware('acl:delete');
+    Route::match(['get', 'post'], '/manifest-collection/{id}/items/add', [IiifCollectionController::class, 'addItems'])->name('iiif-collection.add-items'); // ACL must be checked in controller (Route::match)
     Route::get('/manifest-collection/remove-item', [IiifCollectionController::class, 'removeItem'])->name('iiif-collection.remove-item');
-    Route::post('/manifest-collection/reorder', [IiifCollectionController::class, 'reorder'])->name('iiif-collection.reorder');
+    Route::post('/manifest-collection/reorder', [IiifCollectionController::class, 'reorder'])->name('iiif-collection.reorder')->middleware('acl:update');
     Route::get('/manifest-collections/autocomplete', [IiifCollectionController::class, 'autocomplete'])->name('iiif-collection.autocomplete');
 
     // IIIF Settings — under /admin/ to avoid nginx /iiif/ proxy
     Route::get('/admin/iiif-settings', [IiifCollectionController::class, 'settings'])->name('iiif.settings');
-    Route::post('/admin/iiif-settings', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update');
+    Route::post('/admin/iiif-settings', [IiifCollectionController::class, 'settingsUpdate'])->name('iiif.settings.update')->middleware('acl:update');
 
     // IIIF Validation
     Route::get('/admin/iiif-validation', [IiifCollectionController::class, 'validationDashboard'])->name('iiif.validation-dashboard');
@@ -43,7 +43,7 @@ Route::middleware('auth')->group(function () {
     // Media Settings
     Route::get('/admin/iiif-media/queue', [IiifCollectionController::class, 'mediaQueue'])->name('iiif.media-settings.queue');
     Route::get('/admin/iiif-media/test', [IiifCollectionController::class, 'mediaTest'])->name('iiif.media-settings.test');
-    Route::post('/admin/iiif-media/test', [IiifCollectionController::class, 'mediaTestRun'])->name('iiif.media-settings.test.run');
+    Route::post('/admin/iiif-media/test', [IiifCollectionController::class, 'mediaTestRun'])->name('iiif.media-settings.test.run')->middleware('acl:update');
 
     // 3D Reports
     Route::get('/admin/iiif-3d-reports', [IiifCollectionController::class, 'threeDIndex'])->name('iiif.three-d-reports.index');

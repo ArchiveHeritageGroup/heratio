@@ -9,32 +9,69 @@ use Illuminate\Support\Facades\Route;
 
 // Public heritage landing page
 Route::get('/heritage', [HeritageController::class, 'landing'])->name('heritage.landing');
+Route::get('/heritage/index', [HeritageController::class, 'landing'])->name('heritage.index');
 
 // Heritage sub-pages (match AtoM URL structure)
 Route::get('/heritage/search', [HeritageController::class, 'search'])->name('heritage.search');
 Route::get('/heritage/timeline', [HeritageController::class, 'timeline'])->name('heritage.timeline');
+Route::get('/heritage/timeline/{period_id}', [HeritageController::class, 'timelinePeriod'])->name('heritage.timeline-period');
 Route::get('/heritage/creators', [HeritageController::class, 'creators'])->name('heritage.creators');
+Route::get('/heritage/creators/autocomplete', [HeritageController::class, 'creatorsAutocomplete'])->name('heritage.creators-autocomplete');
 Route::get('/heritage/explore', [HeritageController::class, 'explore'])->name('heritage.explore');
+Route::get('/heritage/explore/{category}', [HeritageController::class, 'exploreCategory'])->name('heritage.explore-category');
 Route::get('/heritage/graph', [HeritageController::class, 'graph'])->name('heritage.graph');
+Route::get('/heritage/graph/data', [HeritageController::class, 'graphData'])->name('heritage.graph-data');
 Route::get('/heritage/trending', [HeritageController::class, 'trending'])->name('heritage.trending');
 Route::get('/heritage/login', [HeritageController::class, 'login'])->name('heritage.login');
 Route::get('/heritage/collections', [HeritageController::class, 'collections'])->name('heritage.collections');
+Route::get('/heritage/collection/{id}', [HeritageController::class, 'collectionDetail'])->name('heritage.collection-detail');
+Route::get('/heritage/entity/{type}/{value}', [HeritageController::class, 'entityByTypeValue'])->name('heritage.entity-by-type-value')->where('value', '.*');
 Route::get('/heritage/entity/{id}', [HeritageController::class, 'entity'])->name('heritage.entity');
 Route::get('/heritage/error', [HeritageController::class, 'landingError'])->name('heritage.landing-error');
 Route::get('/heritage/search-error', [HeritageController::class, 'searchError'])->name('heritage.search-error');
 
+// Public API endpoints (JSON)
+Route::get('/heritage/api/landing', [HeritageController::class, 'apiLanding'])->name('heritage.api.landing');
+Route::get('/heritage/api/discover', [HeritageController::class, 'apiDiscover'])->name('heritage.api.discover');
+Route::get('/heritage/api/autocomplete', [HeritageController::class, 'apiAutocomplete'])->name('heritage.api.autocomplete');
+Route::post('/heritage/api/click', [HeritageController::class, 'apiClick'])->name('heritage.api.click');
+Route::post('/heritage/api/dwell', [HeritageController::class, 'apiDwell'])->name('heritage.api.dwell');
+Route::get('/heritage/api/hero-slides', [HeritageController::class, 'apiHeroSlides'])->name('heritage.api.hero-slides');
+Route::get('/heritage/api/featured-collections', [HeritageController::class, 'apiFeaturedCollections'])->name('heritage.api.featured-collections');
+Route::get('/heritage/api/explore-categories', [HeritageController::class, 'apiExploreCategories'])->name('heritage.api.explore-categories');
+Route::get('/heritage/api/explore/{category}/items', [HeritageController::class, 'apiExploreCategoryItems'])->name('heritage.api.explore-category-items');
+Route::get('/heritage/api/timeline-periods', [HeritageController::class, 'apiTimelinePeriods'])->name('heritage.api.timeline-periods');
+Route::get('/heritage/api/timeline/{period_id}/items', [HeritageController::class, 'apiTimelinePeriodItems'])->name('heritage.api.timeline-period-items');
+Route::get('/heritage/api/suggest-tags', [HeritageController::class, 'apiSuggestTags'])->name('heritage.api.suggest-tags');
+Route::get('/heritage/api/entity/{type}/{value}', [HeritageController::class, 'apiEntity'])->name('heritage.api.entity')->where('value', '.*');
+Route::get('/heritage/api/entity/{id}/related', [HeritageController::class, 'apiEntityRelated'])->name('heritage.api.entity-related');
+Route::get('/heritage/api/entity/search', [HeritageController::class, 'apiEntitySearch'])->name('heritage.api.entity-search');
+Route::get('/heritage/api/graph/stats', [HeritageController::class, 'apiGraphStats'])->name('heritage.api.graph-stats');
+
+// Access request (public GET, auth POST)
+Route::match(['get', 'post'], '/heritage/access/request/{slug}', [HeritageController::class, 'requestAccessBySlug'])->name('heritage.access-request'); // ACL must be checked in controller (Route::match)
+
 // Contributor routes (auth required)
 Route::middleware('auth')->group(function () {
+    Route::match(['get', 'post'], '/heritage/contribute/{slug}', [HeritageController::class, 'contributeToItem'])->name('heritage.contribute-to-item'); // ACL must be checked in controller (Route::match)
     Route::get('/heritage/contribute', [HeritageController::class, 'contribute'])->name('heritage.contribute');
-    Route::get('/heritage/my-contributions', [HeritageController::class, 'myContributions'])->name('heritage.my-contributions');
-    Route::get('/heritage/my-access-requests', [HeritageController::class, 'myAccessRequests'])->name('heritage.my-access-requests');
+    Route::get('/heritage/my/contributions', [HeritageController::class, 'myContributions'])->name('heritage.my-contributions');
+    Route::get('/heritage/my/access-requests', [HeritageController::class, 'myAccessRequests'])->name('heritage.my-access-requests');
     Route::get('/heritage/request-access/{id?}', [HeritageController::class, 'requestAccess'])->name('heritage.request-access');
+    Route::get('/heritage/contributor/{id}', [HeritageController::class, 'contributorProfileById'])->name('heritage.contributor-profile-by-id');
     Route::get('/heritage/contributor/profile', [HeritageController::class, 'contributorProfile'])->name('heritage.contributor-profile');
+
+    // API endpoints requiring auth
+    Route::post('/heritage/api/contribution/submit', [HeritageController::class, 'apiSubmitContribution'])->name('heritage.api.contribution-submit')->middleware('acl:create');
+    Route::get('/heritage/api/contribution/{id}', [HeritageController::class, 'apiContributionStatus'])->name('heritage.api.contribution-status');
+    Route::get('/heritage/api/analytics', [HeritageController::class, 'apiAnalytics'])->name('heritage.api.analytics');
 });
 
 // Contributor auth (public)
+Route::match(['get', 'post'], '/heritage/register', [HeritageController::class, 'contributorRegister'])->name('heritage.contributor-register'); // ACL must be checked in controller (Route::match)
+Route::get('/heritage/logout', [HeritageController::class, 'contributorLogout'])->name('heritage.contributor-logout');
+Route::get('/heritage/verify/{token}', [HeritageController::class, 'contributorVerifyToken'])->name('heritage.contributor-verify-token');
 Route::get('/heritage/contributor/login', [HeritageController::class, 'contributorLogin'])->name('heritage.contributor-login');
-Route::get('/heritage/contributor/register', [HeritageController::class, 'contributorRegister'])->name('heritage.contributor-register');
 Route::get('/heritage/contributor/verify', [HeritageController::class, 'contributorVerify'])->name('heritage.contributor-verify');
 
 // Admin heritage routes
@@ -63,8 +100,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/heritage/custodian/batch', [HeritageController::class, 'custodianBatch'])->name('heritage.custodian-batch');
     Route::get('/heritage/custodian/history', [HeritageController::class, 'custodianHistory'])->name('heritage.custodian-history');
     Route::get('/heritage/custodian/item/{id}', [HeritageController::class, 'custodianItem'])->name('heritage.custodian-item');
+    Route::get('/heritage/custodian/{slug}', [HeritageController::class, 'custodianItemBySlug'])->name('heritage.custodian-item-slug')->where('slug', '[a-z0-9\-]+');
 
     // Review & leaderboard
+    Route::get('/heritage/review', [HeritageController::class, 'reviewQueue'])->name('heritage.review');
     Route::get('/heritage/review-queue', [HeritageController::class, 'reviewQueue'])->name('heritage.review-queue');
     Route::get('/heritage/review/{id}', [HeritageController::class, 'reviewContribution'])->name('heritage.review-contribution');
     Route::get('/heritage/leaderboard', [HeritageController::class, 'leaderboard'])->name('heritage.leaderboard');
@@ -74,9 +113,9 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [HeritageAccountingController::class, 'dashboard'])->name('heritage.accounting.dashboard');
         Route::get('/browse', [HeritageAccountingController::class, 'browse'])->name('heritage.accounting.browse');
         Route::get('/add', [HeritageAccountingController::class, 'add'])->name('heritage.accounting.add');
-        Route::post('/store', [HeritageAccountingController::class, 'store'])->name('heritage.accounting.store');
+        Route::post('/store', [HeritageAccountingController::class, 'store'])->name('heritage.accounting.store')->middleware('acl:create');
         Route::get('/{id}/edit', [HeritageAccountingController::class, 'edit'])->name('heritage.accounting.edit');
-        Route::put('/{id}', [HeritageAccountingController::class, 'update'])->name('heritage.accounting.update');
+        Route::put('/{id}', [HeritageAccountingController::class, 'update'])->name('heritage.accounting.update')->middleware('acl:update');
         Route::get('/{id}', [HeritageAccountingController::class, 'view'])->name('heritage.accounting.view');
         Route::get('/by-object/{id}', [HeritageAccountingController::class, 'viewByObject'])->name('heritage.accounting.view-by-object');
         Route::get('/add-valuation/{id?}', [HeritageAccountingController::class, 'addValuation'])->name('heritage.accounting.add-valuation');

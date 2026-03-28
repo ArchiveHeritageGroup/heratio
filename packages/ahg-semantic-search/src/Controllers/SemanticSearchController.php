@@ -163,4 +163,32 @@ class SemanticSearchController extends Controller
 
         return redirect()->back()->with('error', 'Invalid action.');
     }
+
+    /**
+     * AJAX: Run synonym/term sync.
+     */
+    public function runSync()
+    {
+        $result = $this->service->syncTerms();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sync completed.',
+            'result' => $result,
+        ]);
+    }
+
+    /**
+     * AJAX: Test term expansion for a given query.
+     */
+    public function testExpand(Request $request)
+    {
+        $query = $request->input('query', '');
+        $expanded = $this->service->expandQuery($query);
+
+        return response()->json([
+            'original' => $query,
+            'expanded' => $expanded,
+        ]);
+    }
 }

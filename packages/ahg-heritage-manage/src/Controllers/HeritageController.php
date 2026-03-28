@@ -253,28 +253,110 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage timeline — redirects to GLAM browse sorted by date.
+     * Heritage timeline — shows all periods or redirects to browse with date filter.
      */
     public function timeline(Request $request)
     {
-        $params = ['sort' => 'date'];
-        if ($request->has('period_id')) {
-            $period = null;
-            try {
-                $period = DB::table('heritage_timeline_period')
-                    ->where('id', $request->input('period_id'))
-                    ->first();
-            } catch (\Exception $e) {
-                // ignore
+        $culture = 'en';
+        $periods = collect();
+
+        try {
+            if (Schema::hasTable('heritage_timeline_period')) {
+                $periods = DB::table('heritage_timeline_period')
+                    ->where('is_enabled', 1)
+                    ->orderBy('start_year')
+                    ->get();
             }
-            if ($period) {
-                $params['date_start'] = $period->start_year;
-                if ($period->end_year) {
-                    $params['date_end'] = $period->end_year;
+        } catch (\Exception $e) {
+            $periods = collect();
+        }
+
+        return view('ahg-heritage-manage::timeline', [
+            'periods' => $periods,
+            'currentPeriod' => null,
+            'items' => collect(),
+            'totalItems' => 0,
+            'page' => 1,
+            'totalPages' => 1,
+        ]);
+    }
+
+    /**
+     * Heritage timeline for a specific period.
+     */
+    public function timelinePeriod(Request $request, int $period_id)
+    {
+        $culture = 'en';
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = 24;
+        $offset = ($page - 1) * $limit;
+
+        $periods = collect();
+        $currentPeriod = null;
+        $items = collect();
+        $totalItems = 0;
+
+        try {
+            if (Schema::hasTable('heritage_timeline_period')) {
+                $periods = DB::table('heritage_timeline_period')
+                    ->where('is_enabled', 1)
+                    ->orderBy('start_year')
+                    ->get();
+
+                $currentPeriod = DB::table('heritage_timeline_period')
+                    ->where('id', $period_id)
+                    ->first();
+
+                if ($currentPeriod) {
+                    $baseQuery = DB::table('information_object as io')
+                        ->join('object', 'io.id', '=', 'object.id')
+                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                            $join->on('io.id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', $culture);
+                        })
+                        ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                        ->join('status as pub', function ($join) {
+                            $join->on('io.id', '=', 'pub.object_id')
+                                ->where('pub.type_id', '=', 158);
+                        })
+                        ->where('pub.status_id', 160)
+                        ->where('io.id', '!=', 1);
+
+                    // Filter by event dates within period range
+                    if (Schema::hasTable('event')) {
+                        $baseQuery->join('event as ev', 'io.id', '=', 'ev.object_id');
+                        if ($currentPeriod->start_year) {
+                            $baseQuery->where('ev.start_date', '>=', $currentPeriod->start_year . '-01-01');
+                        }
+                        if ($currentPeriod->end_year) {
+                            $baseQuery->where('ev.start_date', '<=', $currentPeriod->end_year . '-12-31');
+                        }
+                    }
+
+                    $totalItems = (clone $baseQuery)->distinct('io.id')->count('io.id');
+
+                    $items = $baseQuery
+                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->distinct()
+                        ->offset($offset)
+                        ->limit($limit)
+                        ->get();
                 }
             }
+        } catch (\Exception $e) {
+            // Fallback
         }
-        return redirect()->route('informationobject.browse', $params);
+
+        $totalPages = $totalItems > 0 ? (int) ceil($totalItems / $limit) : 1;
+
+        return view('ahg-heritage-manage::timeline', [
+            'periods' => $periods,
+            'currentPeriod' => $currentPeriod,
+            'items' => $items,
+            'totalItems' => $totalItems,
+            'page' => $page,
+            'totalPages' => $totalPages,
+        ]);
     }
 
     /**
@@ -286,6 +368,55 @@ class HeritageController extends Controller
     }
 
     /**
+     * Creators autocomplete for search (JSON).
+     */
+    public function creatorsAutocomplete(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+        $culture = 'en';
+        $results = [];
+
+        if (strlen($query) >= 2) {
+            try {
+                $creators = DB::table('actor as a')
+                    ->join('actor_i18n as ai', function ($join) use ($culture) {
+                        $join->on('a.id', '=', 'ai.id')
+                            ->where('ai.culture', '=', $culture);
+                    })
+                    ->join('slug as s', 'a.id', '=', 's.object_id')
+                    ->leftJoin('relation as r', function ($join) {
+                        $join->on('a.id', '=', 'r.object_id');
+                    })
+                    ->where('ai.authorized_form_of_name', 'LIKE', "%{$query}%")
+                    ->where('a.id', '!=', 3) // Exclude root actor
+                    ->select(
+                        'a.id',
+                        'ai.authorized_form_of_name as name',
+                        's.slug',
+                        DB::raw('COUNT(DISTINCT r.id) as item_count')
+                    )
+                    ->groupBy('a.id', 'ai.authorized_form_of_name', 's.slug')
+                    ->orderByRaw('COUNT(DISTINCT r.id) DESC')
+                    ->limit(15)
+                    ->get();
+
+                foreach ($creators as $creator) {
+                    $results[] = [
+                        'id' => $creator->id,
+                        'name' => $creator->name,
+                        'slug' => $creator->slug,
+                        'count' => (int) $creator->item_count,
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Fallback
+            }
+        }
+
+        return response()->json(['results' => $results]);
+    }
+
+    /**
      * Heritage explore — redirects to GLAM browse with category filter.
      */
     public function explore(Request $request)
@@ -294,11 +425,178 @@ class HeritageController extends Controller
     }
 
     /**
-     * Heritage knowledge graph — redirects to GLAM browse with graph view.
+     * Explore a specific category.
+     */
+    public function exploreCategory(Request $request, string $category)
+    {
+        $culture = 'en';
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = 24;
+        $offset = ($page - 1) * $limit;
+
+        $categories = collect();
+        $currentCategory = null;
+        $items = collect();
+        $totalItems = 0;
+
+        try {
+            if (Schema::hasTable('heritage_explore_category')) {
+                $categories = DB::table('heritage_explore_category')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get();
+
+                $currentCategory = DB::table('heritage_explore_category')
+                    ->where('code', $category)
+                    ->where('is_enabled', 1)
+                    ->first();
+
+                if ($currentCategory && $currentCategory->query_type === 'taxonomy') {
+                    $baseQuery = DB::table('information_object as io')
+                        ->join('object_term_relation as otr', 'io.id', '=', 'otr.object_id')
+                        ->join('term_i18n as ti', function ($join) use ($culture) {
+                            $join->on('otr.term_id', '=', 'ti.id')
+                                ->where('ti.culture', '=', $culture);
+                        })
+                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                            $join->on('io.id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', $culture);
+                        })
+                        ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                        ->join('status as pub', function ($join) {
+                            $join->on('io.id', '=', 'pub.object_id')
+                                ->where('pub.type_id', '=', 158);
+                        })
+                        ->where('pub.status_id', 160)
+                        ->where('io.id', '!=', 1);
+
+                    if ($currentCategory->query_value) {
+                        $baseQuery->where('ti.name', $currentCategory->query_value);
+                    }
+
+                    $totalItems = (clone $baseQuery)->distinct('io.id')->count('io.id');
+
+                    $items = $baseQuery
+                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->distinct()
+                        ->offset($offset)
+                        ->limit($limit)
+                        ->get();
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+
+        $totalPages = $totalItems > 0 ? (int) ceil($totalItems / $limit) : 1;
+
+        return view('ahg-heritage-manage::explore', [
+            'categories' => $categories,
+            'currentCategory' => $currentCategory,
+            'items' => $items,
+            'totalItems' => $totalItems,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'category' => $category,
+        ]);
+    }
+
+    /**
+     * Heritage knowledge graph visualization page.
      */
     public function graph()
     {
-        return redirect()->route('informationobject.browse', ['view' => 'graph']);
+        $entityTypes = ['person', 'organization', 'place', 'date', 'event', 'work'];
+        $stats = [];
+
+        try {
+            if (Schema::hasTable('heritage_entity_graph_node')) {
+                $stats['total_nodes'] = DB::table('heritage_entity_graph_node')->count();
+                $stats['total_edges'] = Schema::hasTable('heritage_entity_graph_edge')
+                    ? DB::table('heritage_entity_graph_edge')->count() : 0;
+                $stats['by_type'] = DB::table('heritage_entity_graph_node')
+                    ->select('entity_type', DB::raw('COUNT(*) as count'))
+                    ->groupBy('entity_type')
+                    ->pluck('count', 'entity_type')
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            $stats = ['total_nodes' => 0, 'total_edges' => 0, 'by_type' => []];
+        }
+
+        return view('ahg-heritage-manage::graph', [
+            'entityTypes' => $entityTypes,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Knowledge graph data endpoint (JSON for D3.js).
+     */
+    public function graphData(Request $request)
+    {
+        $filters = [
+            'entity_type' => $request->input('entity_type'),
+            'search' => $request->input('search'),
+            'min_occurrences' => (int) $request->input('min_occurrences', 1),
+        ];
+        $limit = min(200, max(10, (int) $request->input('limit', 100)));
+
+        $nodes = [];
+        $links = [];
+        $stats = [];
+
+        try {
+            if (Schema::hasTable('heritage_entity_graph_node')) {
+                $nodeQuery = DB::table('heritage_entity_graph_node')
+                    ->where('occurrence_count', '>=', $filters['min_occurrences']);
+
+                if ($filters['entity_type']) {
+                    $nodeQuery->where('entity_type', $filters['entity_type']);
+                }
+                if ($filters['search']) {
+                    $nodeQuery->where('canonical_value', 'LIKE', '%' . $filters['search'] . '%');
+                }
+
+                $nodes = $nodeQuery
+                    ->select('id', 'entity_type', 'canonical_value as value', 'display_label as label', 'occurrence_count')
+                    ->orderByDesc('occurrence_count')
+                    ->limit($limit)
+                    ->get()
+                    ->toArray();
+
+                $nodeIds = array_column($nodes, 'id');
+
+                if (!empty($nodeIds) && Schema::hasTable('heritage_entity_graph_edge')) {
+                    $links = DB::table('heritage_entity_graph_edge')
+                        ->whereIn('source_node_id', $nodeIds)
+                        ->whereIn('target_node_id', $nodeIds)
+                        ->select('source_node_id as source', 'target_node_id as target', 'relation_type', 'weight')
+                        ->get()
+                        ->toArray();
+                }
+
+                $stats = [
+                    'total_nodes' => DB::table('heritage_entity_graph_node')->count(),
+                    'total_edges' => Schema::hasTable('heritage_entity_graph_edge')
+                        ? DB::table('heritage_entity_graph_edge')->count() : 0,
+                    'displayed_nodes' => count($nodes),
+                    'displayed_edges' => count($links),
+                ];
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'nodes' => $nodes,
+            'links' => $links,
+            'stats' => $stats,
+        ]);
     }
 
     /**
@@ -733,16 +1031,423 @@ class HeritageController extends Controller
     // ──────────────────────────────────────────────────────────────────────
 
     public function collections() { return view('ahg-heritage-manage::collections', ['items' => collect()]); }
+
+    /**
+     * Single collection detail page.
+     */
+    public function collectionDetail(int $id)
+    {
+        $culture = 'en';
+        $collection = null;
+
+        try {
+            if (Schema::hasTable('heritage_featured_collection')) {
+                $fc = DB::table('heritage_featured_collection')
+                    ->where('id', $id)
+                    ->where('is_enabled', 1)
+                    ->first();
+
+                if ($fc) {
+                    if ($fc->source_type === 'iiif' && Schema::hasTable('iiif_collection')) {
+                        $source = DB::table('iiif_collection as c')
+                            ->leftJoin('iiif_collection_i18n as ci', function ($join) use ($culture) {
+                                $join->on('c.id', '=', 'ci.collection_id')
+                                    ->where('ci.culture', '=', $culture);
+                            })
+                            ->where('c.id', $fc->source_id)
+                            ->select('c.*', DB::raw('COALESCE(ci.name, c.name) as display_name'), DB::raw('COALESCE(ci.description, c.description) as display_description'))
+                            ->first();
+
+                        $items = $source ? DB::table('iiif_collection_item')
+                            ->where('collection_id', $source->id)
+                            ->orderBy('sort_order')
+                            ->get() : collect();
+
+                        $collection = (object) [
+                            'featured' => $fc,
+                            'source' => $source,
+                            'type' => 'iiif',
+                            'items' => $items,
+                        ];
+                    } else {
+                        $source = DB::table('information_object as io')
+                            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                                $join->on('io.id', '=', 'ioi.id')
+                                    ->where('ioi.culture', '=', $culture);
+                            })
+                            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                            ->where('io.id', $fc->source_id)
+                            ->select('io.*', 'ioi.title', 'ioi.scope_and_content as description', 's.slug')
+                            ->first();
+
+                        $collection = (object) [
+                            'featured' => $fc,
+                            'source' => $source,
+                            'type' => 'archival',
+                            'items' => collect(),
+                        ];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+
+        if (!$collection) {
+            abort(404);
+        }
+
+        return view('ahg-heritage-manage::collection-detail', ['collection' => $collection]);
+    }
+
+    /**
+     * Entity page by type and value (knowledge graph).
+     */
+    public function entityByTypeValue(string $type, string $value)
+    {
+        $value = urldecode($value);
+        $entity = null;
+        $relatedEntities = collect();
+        $objects = collect();
+
+        try {
+            if (Schema::hasTable('heritage_entity_graph_node')) {
+                $entity = DB::table('heritage_entity_graph_node')
+                    ->where('entity_type', $type)
+                    ->where('canonical_value', $value)
+                    ->first();
+
+                if ($entity && Schema::hasTable('heritage_entity_graph_edge')) {
+                    $relatedEntities = DB::table('heritage_entity_graph_edge as e')
+                        ->join('heritage_entity_graph_node as n', function ($join) use ($entity) {
+                            $join->on(DB::raw("CASE WHEN e.source_node_id = {$entity->id} THEN e.target_node_id ELSE e.source_node_id END"), '=', 'n.id');
+                        })
+                        ->where(function ($q) use ($entity) {
+                            $q->where('e.source_node_id', $entity->id)
+                              ->orWhere('e.target_node_id', $entity->id);
+                        })
+                        ->select('n.*', 'e.relation_type', 'e.weight')
+                        ->orderByDesc('e.weight')
+                        ->limit(20)
+                        ->get();
+                }
+
+                if ($entity && Schema::hasTable('heritage_entity_graph_mention')) {
+                    $objects = DB::table('heritage_entity_graph_mention as m')
+                        ->join('information_object_i18n as ioi', function ($join) {
+                            $join->on('m.object_id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', 'en');
+                        })
+                        ->leftJoin('slug as s', 'm.object_id', '=', 's.object_id')
+                        ->where('m.node_id', $entity->id)
+                        ->select('m.object_id', 'ioi.title', 's.slug', 'm.context_snippet', 'm.confidence')
+                        ->orderByDesc('m.confidence')
+                        ->limit(20)
+                        ->get();
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+
+        if (!$entity) {
+            abort(404);
+        }
+
+        return view('ahg-heritage-manage::entity', [
+            'entity' => $entity,
+            'relatedEntities' => $relatedEntities,
+            'objects' => $objects,
+        ]);
+    }
+
     public function entity(int $id) { return view('ahg-heritage-manage::entity', ['items' => collect()]); }
     public function landingError() { return view('ahg-heritage-manage::landing-error'); }
     public function searchError() { return view('ahg-heritage-manage::search-error'); }
     public function contribute() { return view('ahg-heritage-manage::contribute', ['items' => collect()]); }
+
+    /**
+     * Contribute to a specific item by slug.
+     */
+    public function contributeToItem(Request $request, string $slug)
+    {
+        $culture = 'en';
+
+        $item = DB::table('information_object as io')
+            ->join('slug as s', 'io.id', '=', 's.object_id')
+            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                $join->on('io.id', '=', 'ioi.id')
+                    ->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('digital_object as do', function ($join) {
+                $join->on('io.id', '=', 'do.object_id')
+                    ->where('do.usage_id', '=', 140);
+            })
+            ->where('s.slug', $slug)
+            ->select(
+                'io.id',
+                's.slug',
+                'ioi.title',
+                'ioi.scope_and_content',
+                'do.path as thumbnail_path',
+                'do.name as thumbnail_name',
+                'do.mime_type'
+            )
+            ->first();
+
+        if (!$item) {
+            abort(404);
+        }
+
+        $thumbnail = null;
+        if ($item->thumbnail_path && $item->thumbnail_name) {
+            $path = rtrim($item->thumbnail_path, '/');
+            $basename = pathinfo($item->thumbnail_name, PATHINFO_FILENAME);
+            $thumbnail = $path . '/' . $basename . '_142.jpg';
+        }
+
+        // Handle POST submission
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'type_code' => 'required|string',
+                'content' => 'required|string',
+            ]);
+
+            try {
+                if (Schema::hasTable('heritage_contribution')) {
+                    DB::table('heritage_contribution')->insert([
+                        'object_id' => $item->id,
+                        'contributor_id' => auth()->id(),
+                        'type_code' => $request->input('type_code'),
+                        'content' => $request->input('content'),
+                        'status' => 'pending',
+                        'created_at' => now(),
+                    ]);
+                }
+
+                return redirect()->route('heritage.my-contributions')
+                    ->with('success', 'Contribution submitted successfully');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to submit contribution: ' . $e->getMessage());
+            }
+        }
+
+        return view('ahg-heritage-manage::contribute', [
+            'item' => $item,
+            'slug' => $slug,
+            'thumbnail' => $thumbnail,
+        ]);
+    }
+
     public function myContributions() { return view('ahg-heritage-manage::my-contributions', ['items' => collect()]); }
     public function myAccessRequests() { return view('ahg-heritage-manage::my-access-requests', ['items' => collect()]); }
     public function requestAccess(int $id = null) { return view('ahg-heritage-manage::request-access', ['items' => collect()]); }
+
+    /**
+     * Request access to an item by slug (GET shows form, POST submits).
+     */
+    public function requestAccessBySlug(Request $request, string $slug)
+    {
+        $culture = 'en';
+
+        $object = DB::table('information_object as io')
+            ->join('slug as s', 'io.id', '=', 's.object_id')
+            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                $join->on('io.id', '=', 'ioi.id')
+                    ->where('ioi.culture', '=', $culture);
+            })
+            ->where('s.slug', $slug)
+            ->select('io.*', 'ioi.title', 's.slug')
+            ->first();
+
+        if (!$object) {
+            abort(404);
+        }
+
+        $purposes = [];
+        try {
+            if (Schema::hasTable('heritage_access_purpose')) {
+                $purposes = DB::table('heritage_access_purpose')
+                    ->where('is_active', 1)
+                    ->orderBy('display_order')
+                    ->get()
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            $purposes = [];
+        }
+
+        if ($request->isMethod('post') && auth()->check()) {
+            $request->validate([
+                'purpose_id' => 'required|integer',
+                'justification' => 'required|string',
+            ]);
+
+            try {
+                if (Schema::hasTable('heritage_access_request')) {
+                    DB::table('heritage_access_request')->insert([
+                        'user_id' => auth()->id(),
+                        'object_id' => $object->id,
+                        'purpose_id' => $request->input('purpose_id'),
+                        'justification' => $request->input('justification'),
+                        'research_description' => $request->input('research_description'),
+                        'institution_affiliation' => $request->input('institution_affiliation'),
+                        'status' => 'pending',
+                        'created_at' => now(),
+                    ]);
+                }
+
+                return redirect()->route('heritage.my-access-requests')
+                    ->with('success', 'Access request submitted successfully');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to submit request');
+            }
+        }
+
+        return view('ahg-heritage-manage::request-access', [
+            'resource' => $object,
+            'purposes' => $purposes,
+        ]);
+    }
+
     public function contributorLogin() { return redirect()->route('login'); }
-    public function contributorRegister() { return view('ahg-heritage-manage::contributor-register', ['items' => collect()]); }
+
+    /**
+     * Contributor registration (GET shows form, POST submits).
+     */
+    public function contributorRegister(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'email' => 'required|email',
+                'display_name' => 'required|string|max:255',
+                'password' => 'required|string|min:8',
+                'confirm_password' => 'required|same:password',
+                'agree_terms' => 'accepted',
+            ]);
+
+            try {
+                if (Schema::hasTable('heritage_contributor')) {
+                    $token = bin2hex(random_bytes(32));
+
+                    DB::table('heritage_contributor')->insert([
+                        'email' => $request->input('email'),
+                        'display_name' => $request->input('display_name'),
+                        'password_hash' => bcrypt($request->input('password')),
+                        'verify_token' => $token,
+                        'is_active' => 0,
+                        'is_verified' => 0,
+                        'points' => 0,
+                        'created_at' => now(),
+                    ]);
+
+                    return view('ahg-heritage-manage::contributor-register', [
+                        'success' => true,
+                        'items' => collect(),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                return back()->with('error', 'Registration failed: ' . $e->getMessage());
+            }
+        }
+
+        return view('ahg-heritage-manage::contributor-register', [
+            'items' => collect(),
+            'success' => false,
+        ]);
+    }
+
+    /**
+     * Contributor logout — clear session and redirect to landing.
+     */
+    public function contributorLogout()
+    {
+        session()->forget(['contributor_id', 'contributor_token', 'contributor_name']);
+
+        return redirect()->route('heritage.landing')
+            ->with('success', 'You have been logged out');
+    }
+
+    /**
+     * Verify contributor email with token.
+     */
+    public function contributorVerifyToken(string $token)
+    {
+        $success = false;
+        $error = null;
+
+        try {
+            if (Schema::hasTable('heritage_contributor')) {
+                $contributor = DB::table('heritage_contributor')
+                    ->where('verify_token', $token)
+                    ->where('is_verified', 0)
+                    ->first();
+
+                if ($contributor) {
+                    DB::table('heritage_contributor')
+                        ->where('id', $contributor->id)
+                        ->update([
+                            'is_verified' => 1,
+                            'is_active' => 1,
+                            'verify_token' => null,
+                            'verified_at' => now(),
+                        ]);
+                    $success = true;
+                } else {
+                    $error = 'Invalid or expired verification token';
+                }
+            }
+        } catch (\Exception $e) {
+            $error = 'Verification failed';
+        }
+
+        return view('ahg-heritage-manage::contributor-verify', [
+            'success' => $success,
+            'error' => $error,
+            'items' => collect(),
+        ]);
+    }
+
     public function contributorVerify() { return view('ahg-heritage-manage::contributor-verify', ['items' => collect()]); }
+
+    /**
+     * Contributor profile by ID.
+     */
+    public function contributorProfileById(int $id)
+    {
+        $contributor = null;
+        $contributions = collect();
+
+        try {
+            if (Schema::hasTable('heritage_contributor')) {
+                $contributor = DB::table('heritage_contributor')
+                    ->where('id', $id)
+                    ->where('is_active', 1)
+                    ->first();
+            }
+
+            if ($contributor && Schema::hasTable('heritage_contribution')) {
+                $contributions = DB::table('heritage_contribution')
+                    ->where('contributor_id', $id)
+                    ->where('status', 'approved')
+                    ->orderByDesc('created_at')
+                    ->limit(20)
+                    ->get();
+            }
+        } catch (\Exception $e) {
+            // Fallback
+        }
+
+        if (!$contributor) {
+            abort(404);
+        }
+
+        return view('ahg-heritage-manage::contributor-profile', [
+            'contributor' => $contributor,
+            'contributions' => $contributions,
+        ]);
+    }
+
     public function contributorProfile() { return view('ahg-heritage-manage::contributor-profile', ['items' => collect()]); }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -764,9 +1469,726 @@ class HeritageController extends Controller
     public function custodianBatch() { return view('ahg-heritage-manage::custodian-batch', ['items' => collect()]); }
     public function custodianHistory() { return view('ahg-heritage-manage::custodian-history', ['items' => collect()]); }
     public function custodianItem(int $id) { return view('ahg-heritage-manage::custodian-item', ['items' => collect()]); }
+
+    /**
+     * Custodian item by slug.
+     */
+    public function custodianItemBySlug(string $slug)
+    {
+        $culture = 'en';
+
+        $item = DB::table('information_object as io')
+            ->join('slug as s', 'io.id', '=', 's.object_id')
+            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                $join->on('io.id', '=', 'ioi.id')
+                    ->where('ioi.culture', '=', $culture);
+            })
+            ->where('s.slug', $slug)
+            ->select('io.*', 'ioi.title', 's.slug')
+            ->first();
+
+        if (!$item) {
+            abort(404);
+        }
+
+        return view('ahg-heritage-manage::custodian-item', [
+            'item' => $item,
+            'items' => collect(),
+        ]);
+    }
     public function reviewQueue() { return view('ahg-heritage-manage::review-queue', ['items' => collect()]); }
     public function reviewContribution(int $id) { return view('ahg-heritage-manage::review-contribution', ['items' => collect()]); }
     public function leaderboard() { return view('ahg-heritage-manage::leaderboard', ['items' => collect()]); }
+
+    // ────��────────────────────────────────────��────────────────────────────
+    // API Endpoints (JSON responses)
+    // ───────────��──────────────────────────────────────────────────────────
+
+    /**
+     * API: Landing page data (JSON).
+     */
+    public function apiLanding(Request $request)
+    {
+        $culture = 'en';
+        $data = [];
+
+        try {
+            // Config
+            $config = null;
+            if (Schema::hasTable('heritage_landing_config')) {
+                $config = DB::table('heritage_landing_config')->first();
+            }
+            $data['config'] = $config ? (array) $config : [];
+
+            // Hero images
+            if (Schema::hasTable('heritage_hero_slide')) {
+                $data['hero_images'] = DB::table('heritage_hero_slide')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get()
+                    ->toArray();
+            } else {
+                $data['hero_images'] = [];
+            }
+
+            // Stats
+            $data['stats'] = [
+                'total_items' => DB::table('information_object')->where('id', '!=', 1)->count(),
+                'total_digital_objects' => DB::table('digital_object')->where('usage_id', 140)->count(),
+                'total_creators' => DB::table('actor')->where('id', '!=', 3)->count(),
+            ];
+
+            // Curated collections
+            $data['curated_collections'] = $this->getCuratedCollections($culture, 12);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    /**
+     * API: Search/discover (JSON).
+     */
+    public function apiDiscover(Request $request)
+    {
+        $culture = 'en';
+        $query = trim($request->input('q', ''));
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = min(100, max(1, (int) $request->input('limit', 20)));
+        $filters = $request->input('filters', []);
+        if (is_string($filters)) {
+            $filters = json_decode($filters, true) ?: [];
+        }
+
+        try {
+            $searchService = new \AhgHeritageManage\Services\HeritageSearchService($culture);
+            $results = $searchService->search($query, $filters, $page, $limit);
+
+            return response()->json(['success' => true, 'data' => $results]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Autocomplete suggestions (JSON).
+     */
+    public function apiAutocomplete(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+        $limit = min(20, max(1, (int) $request->input('limit', 10)));
+        $culture = 'en';
+
+        if (strlen($query) < 2) {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+
+        try {
+            $results = DB::table('information_object_i18n')
+                ->where('culture', $culture)
+                ->where('title', 'LIKE', '%' . $query . '%')
+                ->whereNotNull('title')
+                ->where('title', '!=', '')
+                ->select('id', 'title')
+                ->limit($limit)
+                ->get()
+                ->map(function ($row) {
+                    $slug = DB::table('slug')->where('object_id', $row->id)->value('slug');
+                    return [
+                        'id' => $row->id,
+                        'title' => $row->title,
+                        'slug' => $slug,
+                    ];
+                })
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $results]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Log a click on a search result (POST, JSON).
+     */
+    public function apiClick(Request $request)
+    {
+        $data = $request->json()->all();
+
+        try {
+            if (Schema::hasTable('heritage_search_click')) {
+                DB::table('heritage_search_click')->insert([
+                    'search_id' => $data['search_id'] ?? null,
+                    'object_id' => $data['object_id'] ?? null,
+                    'position' => $data['position'] ?? null,
+                    'ip_address' => $request->ip(),
+                    'created_at' => now(),
+                ]);
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Update dwell time for a click (POST, JSON).
+     */
+    public function apiDwell(Request $request)
+    {
+        $data = $request->json()->all();
+
+        try {
+            if (Schema::hasTable('heritage_search_click') && !empty($data['click_id'])) {
+                DB::table('heritage_search_click')
+                    ->where('id', $data['click_id'])
+                    ->update([
+                        'dwell_time_ms' => $data['dwell_time_ms'] ?? 0,
+                    ]);
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Get search analytics (admin only, JSON).
+     */
+    public function apiAnalytics(Request $request)
+    {
+        $days = min(90, max(1, (int) $request->input('days', 30)));
+        $since = now()->subDays($days);
+
+        $data = [];
+
+        try {
+            if (Schema::hasTable('ahg_audit_log')) {
+                $data['searches'] = DB::table('ahg_audit_log')
+                    ->where('action', 'search')
+                    ->where('created_at', '>=', $since)
+                    ->count();
+
+                $data['page_views'] = DB::table('ahg_audit_log')
+                    ->whereIn('action', ['view', 'browse', 'index'])
+                    ->where('created_at', '>=', $since)
+                    ->count();
+
+                $data['unique_visitors'] = DB::table('ahg_audit_log')
+                    ->where('created_at', '>=', $since)
+                    ->whereNotNull('user_id')
+                    ->distinct('user_id')
+                    ->count('user_id');
+            }
+
+            if (Schema::hasTable('heritage_analytics_daily')) {
+                $data['daily_metrics'] = DB::table('heritage_analytics_daily')
+                    ->where('date', '>=', $since->toDateString())
+                    ->orderBy('date')
+                    ->get()
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    /**
+     * API: Hero slides (JSON).
+     */
+    public function apiHeroSlides(Request $request)
+    {
+        $slides = [];
+
+        try {
+            if (Schema::hasTable('heritage_hero_slide')) {
+                $slides = DB::table('heritage_hero_slide')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get()
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'data' => $slides]);
+    }
+
+    /**
+     * API: Featured collections (JSON).
+     */
+    public function apiFeaturedCollections(Request $request)
+    {
+        $culture = 'en';
+        $limit = min(20, max(1, (int) $request->input('limit', 6)));
+
+        try {
+            $collections = $this->getCuratedCollections($culture, $limit);
+            return response()->json(['success' => true, 'data' => $collections]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Explore categories (JSON).
+     */
+    public function apiExploreCategories(Request $request)
+    {
+        $categories = [];
+
+        try {
+            if (Schema::hasTable('heritage_explore_category')) {
+                $categories = DB::table('heritage_explore_category')
+                    ->where('is_enabled', 1)
+                    ->orderBy('display_order')
+                    ->get()
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'data' => $categories]);
+    }
+
+    /**
+     * API: Explore category items (JSON).
+     */
+    public function apiExploreCategoryItems(Request $request, string $category)
+    {
+        $culture = 'en';
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = min(100, max(1, (int) $request->input('limit', 24)));
+        $offset = ($page - 1) * $limit;
+
+        try {
+            $items = [];
+            $total = 0;
+
+            if (Schema::hasTable('heritage_explore_category')) {
+                $cat = DB::table('heritage_explore_category')
+                    ->where('code', $category)
+                    ->where('is_enabled', 1)
+                    ->first();
+
+                if ($cat) {
+                    $baseQuery = DB::table('information_object as io')
+                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                            $join->on('io.id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', $culture);
+                        })
+                        ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                        ->join('status as pub', function ($join) {
+                            $join->on('io.id', '=', 'pub.object_id')
+                                ->where('pub.type_id', '=', 158);
+                        })
+                        ->where('pub.status_id', 160)
+                        ->where('io.id', '!=', 1);
+
+                    if ($cat->query_type === 'taxonomy' && $cat->query_value) {
+                        $baseQuery->join('object_term_relation as otr', 'io.id', '=', 'otr.object_id')
+                            ->join('term_i18n as ti', function ($join) use ($culture, $cat) {
+                                $join->on('otr.term_id', '=', 'ti.id')
+                                    ->where('ti.culture', '=', $culture)
+                                    ->where('ti.name', '=', $cat->query_value);
+                            });
+                    }
+
+                    $total = (clone $baseQuery)->distinct('io.id')->count('io.id');
+                    $items = $baseQuery
+                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->distinct()
+                        ->offset($offset)
+                        ->limit($limit)
+                        ->get()
+                        ->toArray();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $items,
+                'meta' => [
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => $total > 0 ? (int) ceil($total / $limit) : 1,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Timeline periods (JSON).
+     */
+    public function apiTimelinePeriods(Request $request)
+    {
+        $periods = [];
+
+        try {
+            if (Schema::hasTable('heritage_timeline_period')) {
+                $periods = DB::table('heritage_timeline_period')
+                    ->where('is_enabled', 1)
+                    ->orderBy('start_year')
+                    ->get()
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'data' => $periods]);
+    }
+
+    /**
+     * API: Timeline period items (JSON).
+     */
+    public function apiTimelinePeriodItems(Request $request, int $period_id)
+    {
+        $culture = 'en';
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = min(100, max(1, (int) $request->input('limit', 24)));
+        $offset = ($page - 1) * $limit;
+
+        try {
+            $period = null;
+            $items = [];
+            $total = 0;
+
+            if (Schema::hasTable('heritage_timeline_period')) {
+                $period = DB::table('heritage_timeline_period')
+                    ->where('id', $period_id)
+                    ->first();
+
+                if ($period) {
+                    $baseQuery = DB::table('information_object as io')
+                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
+                            $join->on('io.id', '=', 'ioi.id')
+                                ->where('ioi.culture', '=', $culture);
+                        })
+                        ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                        ->join('status as pub', function ($join) {
+                            $join->on('io.id', '=', 'pub.object_id')
+                                ->where('pub.type_id', '=', 158);
+                        })
+                        ->where('pub.status_id', 160)
+                        ->where('io.id', '!=', 1);
+
+                    if (Schema::hasTable('event')) {
+                        $baseQuery->join('event as ev', 'io.id', '=', 'ev.object_id');
+                        if ($period->start_year) {
+                            $baseQuery->where('ev.start_date', '>=', $period->start_year . '-01-01');
+                        }
+                        if ($period->end_year) {
+                            $baseQuery->where('ev.start_date', '<=', $period->end_year . '-12-31');
+                        }
+                    }
+
+                    $total = (clone $baseQuery)->distinct('io.id')->count('io.id');
+                    $items = $baseQuery
+                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->distinct()
+                        ->offset($offset)
+                        ->limit($limit)
+                        ->get()
+                        ->toArray();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $items,
+                'period' => $period,
+                'meta' => [
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total_pages' => $total > 0 ? (int) ceil($total / $limit) : 1,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Submit contribution (POST, JSON).
+     */
+    public function apiSubmitContribution(Request $request)
+    {
+        $data = $request->json()->all();
+
+        if (empty($data['item_id']) || empty($data['type_code']) || empty($data['content'])) {
+            return response()->json(['success' => false, 'error' => 'Missing required fields: item_id, type_code, content']);
+        }
+
+        try {
+            $id = null;
+            if (Schema::hasTable('heritage_contribution')) {
+                $id = DB::table('heritage_contribution')->insertGetId([
+                    'object_id' => (int) $data['item_id'],
+                    'contributor_id' => auth()->id(),
+                    'type_code' => $data['type_code'],
+                    'content' => $data['content'],
+                    'status' => 'pending',
+                    'created_at' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => ['id' => $id, 'status' => 'pending'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Get contribution status (JSON).
+     */
+    public function apiContributionStatus(Request $request, int $id)
+    {
+        try {
+            $contribution = null;
+            if (Schema::hasTable('heritage_contribution')) {
+                $contribution = DB::table('heritage_contribution')
+                    ->where('id', $id)
+                    ->first();
+            }
+
+            if (!$contribution) {
+                return response()->json(['success' => false, 'error' => 'Contribution not found']);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $contribution->id,
+                    'status' => $contribution->status,
+                    'created_at' => $contribution->created_at ?? null,
+                    'reviewed_at' => $contribution->reviewed_at ?? null,
+                    'review_notes' => $contribution->review_notes ?? null,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Suggest tags (JSON).
+     */
+    public function apiSuggestTags(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+        $limit = min(20, max(1, (int) $request->input('limit', 10)));
+        $culture = 'en';
+
+        if (strlen($query) < 2) {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+
+        try {
+            $terms = DB::table('term_i18n as ti')
+                ->join('term as t', 'ti.id', '=', 't.id')
+                ->where('t.taxonomy_id', 35) // Subjects taxonomy
+                ->where('ti.culture', $culture)
+                ->where('ti.name', 'LIKE', '%' . $query . '%')
+                ->orderBy('ti.name')
+                ->limit($limit)
+                ->pluck('ti.name')
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $terms]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Entity detail by type and value (JSON).
+     */
+    public function apiEntity(Request $request, string $type, string $value)
+    {
+        $value = urldecode($value);
+
+        try {
+            $entity = null;
+            $relatedEntities = [];
+            $objects = [];
+
+            if (Schema::hasTable('heritage_entity_graph_node')) {
+                $entity = DB::table('heritage_entity_graph_node')
+                    ->where('entity_type', $type)
+                    ->where('canonical_value', $value)
+                    ->first();
+
+                if ($entity) {
+                    if (Schema::hasTable('heritage_entity_graph_edge')) {
+                        $relatedEntities = DB::table('heritage_entity_graph_edge as e')
+                            ->join('heritage_entity_graph_node as n', function ($join) use ($entity) {
+                                $join->on(DB::raw("CASE WHEN e.source_node_id = {$entity->id} THEN e.target_node_id ELSE e.source_node_id END"), '=', 'n.id');
+                            })
+                            ->where(function ($q) use ($entity) {
+                                $q->where('e.source_node_id', $entity->id)
+                                  ->orWhere('e.target_node_id', $entity->id);
+                            })
+                            ->select('n.*', 'e.relation_type', 'e.weight')
+                            ->orderByDesc('e.weight')
+                            ->limit(20)
+                            ->get()
+                            ->toArray();
+                    }
+
+                    if (Schema::hasTable('heritage_entity_graph_mention')) {
+                        $objects = DB::table('heritage_entity_graph_mention as m')
+                            ->join('information_object_i18n as ioi', function ($join) {
+                                $join->on('m.object_id', '=', 'ioi.id')
+                                    ->where('ioi.culture', '=', 'en');
+                            })
+                            ->leftJoin('slug as s', 'm.object_id', '=', 's.object_id')
+                            ->where('m.node_id', $entity->id)
+                            ->select('m.object_id', 'ioi.title', 's.slug', 'm.context_snippet', 'm.confidence')
+                            ->orderByDesc('m.confidence')
+                            ->limit(20)
+                            ->get()
+                            ->toArray();
+                    }
+                }
+            }
+
+            if (!$entity) {
+                return response()->json(['success' => false, 'error' => 'Entity not found']);
+            }
+
+            return response()->json([
+                'success' => true,
+                'entity' => $entity,
+                'related_entities' => $relatedEntities,
+                'objects' => $objects,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Related entities for a node (JSON).
+     */
+    public function apiEntityRelated(Request $request, int $id)
+    {
+        $depth = min(3, max(1, (int) $request->input('depth', 1)));
+        $limit = min(50, max(5, (int) $request->input('limit', 20)));
+
+        try {
+            $related = [];
+
+            if (Schema::hasTable('heritage_entity_graph_edge') && Schema::hasTable('heritage_entity_graph_node')) {
+                $related = DB::table('heritage_entity_graph_edge as e')
+                    ->join('heritage_entity_graph_node as n', function ($join) use ($id) {
+                        $join->on(DB::raw("CASE WHEN e.source_node_id = {$id} THEN e.target_node_id ELSE e.source_node_id END"), '=', 'n.id');
+                    })
+                    ->where(function ($q) use ($id) {
+                        $q->where('e.source_node_id', $id)
+                          ->orWhere('e.target_node_id', $id);
+                    })
+                    ->select('n.*', 'e.relation_type', 'e.weight')
+                    ->orderByDesc('e.weight')
+                    ->limit($limit)
+                    ->get()
+                    ->toArray();
+            }
+
+            return response()->json(['success' => true, 'related_entities' => $related]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Entity search/autocomplete (JSON).
+     */
+    public function apiEntitySearch(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+        $type = $request->input('type');
+        $limit = min(20, max(5, (int) $request->input('limit', 10)));
+
+        if (strlen($query) < 2) {
+            return response()->json(['success' => true, 'results' => []]);
+        }
+
+        try {
+            $queryBuilder = DB::table('heritage_entity_graph_node')
+                ->where('canonical_value', 'LIKE', '%' . $query . '%')
+                ->orderByDesc('occurrence_count')
+                ->limit($limit);
+
+            if ($type) {
+                $queryBuilder->where('entity_type', $type);
+            }
+
+            $results = $queryBuilder->select(
+                'id',
+                'entity_type',
+                'canonical_value as value',
+                'display_label as label',
+                'occurrence_count'
+            )->get()->toArray();
+
+            return response()->json(['success' => true, 'results' => $results]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * API: Graph statistics (JSON).
+     */
+    public function apiGraphStats(Request $request)
+    {
+        try {
+            $stats = [];
+            $topEntities = [];
+
+            if (Schema::hasTable('heritage_entity_graph_node')) {
+                $stats['total_nodes'] = DB::table('heritage_entity_graph_node')->count();
+                $stats['total_edges'] = Schema::hasTable('heritage_entity_graph_edge')
+                    ? DB::table('heritage_entity_graph_edge')->count() : 0;
+                $stats['by_type'] = DB::table('heritage_entity_graph_node')
+                    ->select('entity_type', DB::raw('COUNT(*) as count'))
+                    ->groupBy('entity_type')
+                    ->pluck('count', 'entity_type')
+                    ->toArray();
+
+                $topEntities = DB::table('heritage_entity_graph_node')
+                    ->orderByDesc('occurrence_count')
+                    ->limit(10)
+                    ->select('id', 'entity_type', 'canonical_value as value', 'display_label as label', 'occurrence_count')
+                    ->get()
+                    ->toArray();
+            }
+
+            return response()->json([
+                'success' => true,
+                'stats' => $stats,
+                'top_entities' => $topEntities,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
 
     /**
      * Heritage Custodian Dashboard.

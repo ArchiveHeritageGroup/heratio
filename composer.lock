@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3aa65b45600cc6c1d7fccdc6d8f94771",
+    "content-hash": "35af0c7b02ae038ecb9aaed29521272c",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2293,6 +2293,36 @@
                 }
             },
             "description": "Global search with Elasticsearch for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/security-clearance",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-security-clearance",
+                "reference": "b302e53658b68038f9a9ce5ef580fb1172de34db"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSecurityClearance\\Providers\\AhgSecurityClearanceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSecurityClearance\\": "src/"
+                }
+            },
+            "description": "Security clearance management for Heratio — clearances, compartments, classification, 2FA, audit trail",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11487,6 +11517,7 @@
         "ahg/ric": 20,
         "ahg/rights-holder-manage": 20,
         "ahg/search": 20,
+        "ahg/security-clearance": 20,
         "ahg/semantic-search": 20,
         "ahg/settings": 20,
         "ahg/spectrum": 20,

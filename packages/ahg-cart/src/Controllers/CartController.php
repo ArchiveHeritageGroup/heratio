@@ -208,4 +208,62 @@ class CartController extends Controller
     }
 
     public function payment(int $id) { return view('ahg-cart::payment'); }
+
+    /**
+     * Download a cart export via token authentication.
+     */
+    public function download(string $token)
+    {
+        $download = DB::table('ahg_cart_downloads')
+            ->where('token', $token)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$download) {
+            abort(404, 'Download link has expired or is invalid.');
+        }
+
+        $filePath = $download->file_path ?? null;
+        if (!$filePath || !file_exists($filePath)) {
+            abort(404, 'File not found.');
+        }
+
+        // Mark as downloaded
+        DB::table('ahg_cart_downloads')
+            ->where('id', $download->id)
+            ->update(['downloaded_at' => now()]);
+
+        return response()->download($filePath);
+    }
+
+    /**
+     * Payment gateway notification (ITN / webhook).
+     */
+    public function paymentNotify(Request $request)
+    {
+        $data = $request->all();
+
+        // Log the notification
+        DB::table('ahg_payment_notifications')->insert([
+            'gateway' => 'payfast',
+            'payload' => json_encode($data),
+            'status' => $data['payment_status'] ?? 'unknown',
+            'order_id' => $data['m_payment_id'] ?? null,
+            'created_at' => now(),
+        ]);
+
+        // Update order status if we have a valid order
+        if (!empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
+            DB::table('ahg_orders')
+                ->where('id', $data['m_payment_id'])
+                ->update([
+                    'status' => 'paid',
+                    'payment_reference' => $data['pf_payment_id'] ?? null,
+                    'paid_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        }
+
+        return response('OK', 200);
+    }
 }

@@ -98,6 +98,7 @@
         "ahg/ric": "@dev",
         "ahg/rights-holder-manage": "@dev",
         "ahg/search": "@dev",
+        "ahg/security-clearance": "@dev",
         "ahg/semantic-search": "@dev",
         "ahg/settings": "@dev",
         "ahg/spectrum": "@dev",

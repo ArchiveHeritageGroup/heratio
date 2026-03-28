@@ -48,6 +48,47 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::match(['get','post'], '/condition/training', [AiController::class, 'conditionTraining'])->name('admin.ai.condition.training');
     Route::get('/condition/{id}', [AiController::class, 'conditionView'])->name('admin.ai.condition.view')->whereNumber('id');
 
+    // ─── NER Entity Management ─────────────────────────────────────
+    Route::get('/ner/extract/{id}', [AiController::class, 'nerExtract'])->name('admin.ai.ner.extract')->whereNumber('id');
+    Route::get('/ner/entities/{id}', [AiController::class, 'nerGetEntities'])->name('admin.ai.ner.entities')->whereNumber('id');
+    Route::post('/ner/entity/update', [AiController::class, 'nerUpdateEntity'])->name('admin.ai.ner.entity.update');
+    Route::post('/ner/create/actor', [AiController::class, 'nerCreateActor'])->name('admin.ai.ner.create.actor');
+    Route::post('/ner/create/place', [AiController::class, 'nerCreatePlace'])->name('admin.ai.ner.create.place');
+    Route::post('/ner/create/subject', [AiController::class, 'nerCreateSubject'])->name('admin.ai.ner.create.subject');
+    Route::get('/ner/health', [AiController::class, 'nerHealth'])->name('admin.ai.ner.health');
+    Route::post('/ner/bulk-save', [AiController::class, 'nerBulkSave'])->name('admin.ai.ner.bulk-save');
+    Route::get('/ner/pdf-overlay/{id}', [AiController::class, 'nerPdfOverlay'])->name('admin.ai.ner.pdf-overlay')->whereNumber('id');
+    Route::get('/ner/approved-entities/{id}', [AiController::class, 'nerGetApprovedEntities'])->name('admin.ai.ner.approved-entities')->whereNumber('id');
+
+    // ─── HTR (single object) ───────────────────────────────────────
+    Route::get('/htr/{id}', [AiController::class, 'htrForObject'])->name('admin.ai.htr.object')->whereNumber('id');
+
+    // ─── Summarize (single object) ─────────────────────────────────
+    Route::get('/summarize/{id}', [AiController::class, 'summarizeObject'])->name('admin.ai.summarize.object')->whereNumber('id');
+
+    // ─── LLM Description Suggestion ────────────────────────────────
+    Route::get('/suggest/{id}', [AiController::class, 'suggest'])->name('admin.ai.suggest')->whereNumber('id');
+    Route::get('/suggest/{id}/preview', [AiController::class, 'suggestPreview'])->name('admin.ai.suggest.preview')->whereNumber('id');
+    Route::get('/suggest/{id}/view', [AiController::class, 'suggestView'])->name('admin.ai.suggest.view')->whereNumber('id');
+    Route::post('/suggest/{id}/decision', [AiController::class, 'suggestDecision'])->name('admin.ai.suggest.decision')->whereNumber('id');
+    Route::get('/suggest/object/{id}', [AiController::class, 'suggestObject'])->name('admin.ai.suggest.object')->whereNumber('id');
+
+    // ─── LLM Configurations & Health ───────────────────────────────
+    Route::get('/llm/configs', [AiController::class, 'llmConfigs'])->name('admin.ai.llm.configs');
+    Route::get('/llm/health', [AiController::class, 'llmHealth'])->name('admin.ai.llm.health');
+
+    // ─── Prompt Templates ──────────────────────────────────────────
+    Route::get('/templates', [AiController::class, 'templates'])->name('admin.ai.templates');
+
+    // ─── Batch Queue Management ────────────────────────────────────
+    Route::match(['get', 'post'], '/batch/create', [AiController::class, 'batchCreate'])->name('admin.ai.batch.create');
+    Route::get('/batch/{id}/progress', [AiController::class, 'batchProgress'])->name('admin.ai.batch.progress')->whereNumber('id');
+    Route::post('/batch/{id}/action', [AiController::class, 'batchAction'])->name('admin.ai.batch.action')->whereNumber('id');
+    Route::post('/batch/{id}/process', [AiController::class, 'batchProcess'])->name('admin.ai.batch.process')->whereNumber('id');
+
+    // ─── Individual Job View ───────────────────────────────────────
+    Route::get('/job/{id}', [AiController::class, 'jobView'])->name('admin.ai.job.view')->whereNumber('id');
+
     // HTR routes
     Route::get('/htr', [AiController::class, 'htrDashboard'])->name('admin.ai.htr.dashboard');
     Route::get('/htr/extract', [AiController::class, 'htrExtract'])->name('admin.ai.htr.extract');
@@ -85,4 +126,51 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/htr/add-town', [AiController::class, 'htrAddTown'])->name('admin.ai.htr.addTown');
     Route::get('/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Legacy NER routes (backward compatibility with AtoM URLs)
+|--------------------------------------------------------------------------
+| These redirect /ai/... and /ner/... paths to the admin/ai/... equivalents.
+*/
+Route::middleware(['auth'])->group(function () {
+    // /ai/ner/* → /admin/ai/ner/*
+    Route::get('/ai/ner/extract/{id}', fn ($id) => redirect()->route('admin.ai.ner.extract', $id))->whereNumber('id');
+    Route::get('/ai/ner/entities/{id}', fn ($id) => redirect()->route('admin.ai.ner.entities', $id))->whereNumber('id');
+    Route::get('/ai/ner/health', fn () => redirect()->route('admin.ai.ner.health'));
+    Route::get('/ai/ner/pdf-overlay/{id}', fn ($id) => redirect()->route('admin.ai.ner.pdf-overlay', $id))->whereNumber('id');
+    Route::get('/ai/ner/approved-entities/{id}', fn ($id) => redirect()->route('admin.ai.ner.approved-entities', $id))->whereNumber('id');
+
+    // /ai/htr/:id → /admin/ai/htr/:id
+    Route::get('/ai/htr/{id}', fn ($id) => redirect()->route('admin.ai.htr.object', $id))->whereNumber('id');
+
+    // /ai/summarize/:id → /admin/ai/summarize/:id
+    Route::get('/ai/summarize/{id}', fn ($id) => redirect()->route('admin.ai.summarize.object', $id))->whereNumber('id');
+
+    // /ai/suggest/* → /admin/ai/suggest/*
+    Route::get('/ai/suggest/{id}', fn ($id) => redirect()->route('admin.ai.suggest', $id))->whereNumber('id');
+    Route::get('/ai/suggest/{id}/preview', fn ($id) => redirect()->route('admin.ai.suggest.preview', $id))->whereNumber('id');
+    Route::get('/ai/suggest/{id}/view', fn ($id) => redirect()->route('admin.ai.suggest.view', $id))->whereNumber('id');
+    Route::get('/ai/suggest/object/{id}', fn ($id) => redirect()->route('admin.ai.suggest.object', $id))->whereNumber('id');
+    Route::get('/ai/suggest/review', fn () => redirect()->route('admin.ai.suggest-review'));
+
+    // /ai/llm/* → /admin/ai/llm/*
+    Route::get('/ai/llm/configs', fn () => redirect()->route('admin.ai.llm.configs'));
+    Route::get('/ai/llm/health', fn () => redirect()->route('admin.ai.llm.health'));
+
+    // /ai/templates → /admin/ai/templates
+    Route::get('/ai/templates', fn () => redirect()->route('admin.ai.templates'));
+
+    // /ai/batch/* → /admin/ai/batch/*
+    Route::get('/ai/batch', fn () => redirect()->route('admin.ai.batch'));
+    Route::get('/ai/batch/{id}', fn ($id) => redirect()->route('admin.ai.batch.view', $id))->whereNumber('id');
+    Route::get('/ai/job/{id}', fn ($id) => redirect()->route('admin.ai.job.view', $id))->whereNumber('id');
+
+    // /ner/* legacy aliases → /admin/ai/ner/*
+    Route::get('/ner/extract/{id}', fn ($id) => redirect()->route('admin.ai.ner.extract', $id))->whereNumber('id');
+    Route::get('/ner/review', fn () => redirect()->route('admin.ai.review'));
+    Route::get('/ner/entities/{id}', fn ($id) => redirect()->route('admin.ai.ner.entities', $id))->whereNumber('id');
+    Route::get('/ner/summarize/{id}', fn ($id) => redirect()->route('admin.ai.summarize.object', $id))->whereNumber('id');
+    Route::get('/ner/htr/{id}', fn ($id) => redirect()->route('admin.ai.htr.object', $id))->whereNumber('id');
 });

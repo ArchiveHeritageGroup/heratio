@@ -39,6 +39,16 @@ Route::match(['get','post'], '/user/register', [UserController::class, 'register
 Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');
 Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view');
 
+// Authenticated user self-service routes
+Route::middleware('auth')->group(function () {
+    Route::get('/user/passwordEdit', [UserController::class, 'passwordEdit'])->name('user.passwordEdit');
+    Route::match(['get', 'post'], '/user/passwordReset', [UserController::class, 'passwordReset'])->name('user.passwordReset');
+    Route::get('/user/clipboard', [UserController::class, 'clipboard'])->name('user.clipboard');
+});
+
+// Legacy browse redirect
+Route::get('/user', fn () => redirect('/admin/users', 301));
+
 Route::middleware('admin')->group(function () {
     Route::get('/user/registration/pending', [UserController::class, 'registrationPending'])->name('user.registration.pending');
     Route::post('/user/registration/approve', [UserController::class, 'registrationApprove'])->name('user.registration.approve')->middleware('acl:update');

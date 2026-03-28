@@ -14,3 +14,6 @@ Route::middleware(['auth', 'admin'])->prefix('tenant')->group(function () {
 
 Route::get('/tenant-error/unknown-domain', [TenantController::class, 'unknownDomain'])->name('tenant.unknownDomain');
 Route::get('/tenant-error/unknown-tenant', [TenantController::class, 'unknownTenant'])->name('tenant.unknownTenant');
+
+// Tenant switcher JSON endpoint
+Route::middleware('auth')->get('/tenant/switcher', [TenantController::class, 'switcher'])->name('tenant.switcher');

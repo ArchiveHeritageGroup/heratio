@@ -414,4 +414,76 @@ class AuditTrailController extends Controller
     public function securityAccess(Request $request) { return view('ahg-audit-trail::security-access', ['rows' => collect()]); }
 
     public function userActivity(Request $request) { return view('ahg-audit-trail::user-activity', ['rows' => collect()]); }
+
+    /**
+     * Compare old/new data for a specific audit entry.
+     */
+    public function compareData(int $id)
+    {
+        $table = $this->resolveTable();
+
+        if ($table === 'ahg_audit_log') {
+            $entry = DB::table('ahg_audit_log')->where('id', $id)
+                ->select(['id', 'entity_type', 'entity_id', 'entity_title', 'action', 'old_values', 'new_values', 'changed_fields', 'username', 'created_at'])
+                ->first();
+        } else {
+            $entry = DB::table('audit_log')->where('id', $id)
+                ->select(['id', 'table_name', 'record_id', 'action', 'old_value', 'new_value', 'old_record', 'new_record', 'field_name', 'username', 'created_at'])
+                ->first();
+        }
+
+        if (!$entry) {
+            abort(404);
+        }
+
+        return view('ahg-audit-trail::compare', [
+            'entry' => $entry,
+            'table' => $table,
+        ]);
+    }
+
+    /**
+     * User activity filtered by user ID (legacy URL).
+     */
+    public function userActivityById(int $userId)
+    {
+        $table = $this->resolveTable();
+
+        $rows = DB::table($table)
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->limit(200)
+            ->get();
+
+        $username = DB::table('user')->where('id', $userId)->value('username') ?? "User #{$userId}";
+
+        return view('ahg-audit-trail::user-activity', [
+            'rows' => $rows,
+            'username' => $username,
+        ]);
+    }
+
+    /**
+     * Entity history filtered by type + ID (legacy URL).
+     */
+    public function entityHistoryByType(string $entityType, int $entityId)
+    {
+        $table = $this->resolveTable();
+
+        if ($table === 'ahg_audit_log') {
+            $rows = DB::table('ahg_audit_log')
+                ->where('entity_type', $entityType)
+                ->where('entity_id', $entityId)
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $rows = DB::table('audit_log')
+                ->where('table_name', $entityType)
+                ->where('record_id', $entityId)
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        return view('ahg-audit-trail::entity-history', ['rows' => $rows]);
+    }
 }

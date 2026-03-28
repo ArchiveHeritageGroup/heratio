@@ -7,6 +7,10 @@ Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/search/advanced', [SearchController::class, 'advanced'])->name('search.advanced');
 Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->name('search.autocomplete');
 
+// Legacy aliases
+Route::get('/search/index', fn () => redirect('/search', 301));
+Route::get('/search/semantic', [SearchController::class, 'search'])->name('search.semantic');
+
 // Admin search pages
 Route::middleware('admin')->group(function () {
     Route::get('/search/descriptionUpdates', [SearchController::class, 'descriptionUpdates'])->name('search.descriptionUpdates');

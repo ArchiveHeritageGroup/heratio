@@ -40,21 +40,25 @@ Route::middleware('admin')->group(function () {
 
     // Grant clearance (POST)
     Route::post('/admin/security-clearance/grant', [SecurityClearanceController::class, 'grant'])
-        ->name('security-clearance.grant');
+        ->name('security-clearance.grant')
+        ->middleware('acl:create');
 
     // Revoke clearance (POST)
     Route::post('/admin/security-clearance/revoke/{id}', [SecurityClearanceController::class, 'revoke'])
         ->name('security-clearance.revoke')
-        ->where('id', '[0-9]+');
+        ->where('id', '[0-9]+')
+        ->middleware('acl:delete');
 
     // Bulk grant (POST)
     Route::post('/admin/security-clearance/bulk-grant', [SecurityClearanceController::class, 'bulkGrant'])
-        ->name('security-clearance.bulk-grant');
+        ->name('security-clearance.bulk-grant')
+        ->middleware('acl:create');
 
     // Revoke object access grant (POST)
     Route::post('/admin/security-clearance/revoke-access/{id}', [SecurityClearanceController::class, 'revokeAccess'])
         ->name('security-clearance.revoke-access')
-        ->where('id', '[0-9]+');
+        ->where('id', '[0-9]+')
+        ->middleware('acl:delete');
 
     // Compartments
     Route::get('/admin/security-clearance/compartments', [SecurityClearanceController::class, 'compartments'])
@@ -67,14 +71,16 @@ Route::middleware('admin')->group(function () {
         ->name('security-clearance.classify')
         ->where('id', '[0-9]+');
     Route::post('/admin/security-clearance/classify', [SecurityClearanceController::class, 'classifyStore'])
-        ->name('security-clearance.classify-store');
+        ->name('security-clearance.classify-store')
+        ->middleware('acl:create');
 
     // Declassification
     Route::get('/admin/security-clearance/declassification/{id}', [SecurityClearanceController::class, 'declassification'])
         ->name('security-clearance.declassification')
         ->where('id', '[0-9]+');
     Route::post('/admin/security-clearance/declassify', [SecurityClearanceController::class, 'declassifyStore'])
-        ->name('security-clearance.declassify-store');
+        ->name('security-clearance.declassify-store')
+        ->middleware('acl:update');
 
     // Reports
     Route::get('/admin/security-clearance/report', [SecurityClearanceController::class, 'report'])
@@ -88,13 +94,15 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/security-clearance/watermark-settings', [SecurityClearanceController::class, 'watermarkSettings'])
         ->name('security-clearance.watermark-settings');
     Route::post('/admin/security-clearance/watermark-settings', [SecurityClearanceController::class, 'watermarkSettingsStore'])
-        ->name('security-clearance.watermark-settings-store');
+        ->name('security-clearance.watermark-settings-store')
+        ->middleware('acl:update');
 
     // Trace watermark
     Route::get('/admin/security-clearance/trace-watermark', [SecurityClearanceController::class, 'traceWatermark'])
         ->name('security-clearance.trace-watermark');
     Route::post('/admin/security-clearance/trace-watermark', [SecurityClearanceController::class, 'traceWatermarkResult'])
-        ->name('security-clearance.trace-watermark-result');
+        ->name('security-clearance.trace-watermark-result')
+        ->middleware('acl:update');
 
     // User clearance management by slug
     Route::get('/admin/security-clearance/user/{slug}', [SecurityClearanceController::class, 'user'])
@@ -102,22 +110,26 @@ Route::middleware('admin')->group(function () {
         ->where('slug', '[a-zA-Z0-9_-]+');
     Route::post('/admin/security-clearance/user/{slug}', [SecurityClearanceController::class, 'userUpdate'])
         ->name('security-clearance.user-update')
-        ->where('slug', '[a-zA-Z0-9_-]+');
+        ->where('slug', '[a-zA-Z0-9_-]+')
+        ->middleware('acl:update');
 
     // Remove 2FA for user (admin)
     Route::post('/admin/security-clearance/remove-2fa/{id}', [SecurityClearanceController::class, 'removeTwoFactor'])
         ->name('security-clearance.remove-2fa')
-        ->where('id', '[0-9]+');
+        ->where('id', '[0-9]+')
+        ->middleware('acl:delete');
 
     // Access requests (admin review)
     Route::get('/admin/security-clearance/access-requests', [SecurityClearanceController::class, 'accessRequests'])
         ->name('security-clearance.access-requests');
     Route::post('/admin/security-clearance/access-requests/{id}/approve', [SecurityClearanceController::class, 'approveRequest'])
         ->name('security-clearance.approve-request')
-        ->where('id', '[0-9]+');
+        ->where('id', '[0-9]+')
+        ->middleware('acl:update');
     Route::post('/admin/security-clearance/access-requests/{id}/deny', [SecurityClearanceController::class, 'denyRequest'])
         ->name('security-clearance.deny-request')
-        ->where('id', '[0-9]+');
+        ->where('id', '[0-9]+')
+        ->middleware('acl:update');
     Route::get('/admin/security-clearance/access-requests/{id}', [SecurityClearanceController::class, 'viewRequest'])
         ->name('security-clearance.view-request')
         ->where('id', '[0-9]+');
@@ -142,7 +154,8 @@ Route::middleware('auth')->group(function () {
 
     // Submit access request
     Route::post('/security-clearance/access-request', [SecurityClearanceController::class, 'submitAccessRequest'])
-        ->name('security-clearance.submit-access-request');
+        ->name('security-clearance.submit-access-request')
+        ->middleware('acl:create');
 
     // Access denied
     Route::get('/security-clearance/denied', [SecurityClearanceController::class, 'accessDenied'])
@@ -152,17 +165,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/security-clearance/two-factor', [SecurityClearanceController::class, 'twoFactor'])
         ->name('security-clearance.two-factor');
     Route::post('/security-clearance/verify-2fa', [SecurityClearanceController::class, 'verifyTwoFactor'])
-        ->name('security-clearance.verify-2fa');
+        ->name('security-clearance.verify-2fa')
+        ->middleware('acl:update');
     Route::get('/security-clearance/setup-2fa', [SecurityClearanceController::class, 'setupTwoFactor'])
         ->name('security-clearance.setup-2fa');
     Route::post('/security-clearance/confirm-2fa', [SecurityClearanceController::class, 'confirmTwoFactor'])
-        ->name('security-clearance.confirm-2fa');
+        ->name('security-clearance.confirm-2fa')
+        ->middleware('acl:create');
     Route::post('/security-clearance/send-email-code', [SecurityClearanceController::class, 'sendEmailCode'])
-        ->name('security-clearance.send-email-code');
+        ->name('security-clearance.send-email-code')
+        ->middleware('acl:create');
 });
 
-// ── Legacy redirect ─────────────────────────────────────────────────────────
+// ── Legacy redirects (ahgSecurityClearancePlugin compatibility) ─────────────
 Route::get('/security/clearances', fn () => redirect('/admin/security-clearance', 301));
 Route::get('/security/dashboard', fn () => redirect('/admin/security-clearance/dashboard', 301));
 Route::get('/security/report', fn () => redirect('/admin/security-clearance/report', 301));
 Route::get('/security/compartments', fn () => redirect('/admin/security-clearance/compartments', 301));
+Route::get('/admin/security/compliance', fn () => redirect('/admin/security-clearance/compliance', 301));
+Route::get('/security/clearance/{id}', fn ($id) => redirect("/admin/security-clearance/view/{$id}", 301))->where('id', '[0-9]+');
+Route::post('/security/clearance/grant', fn () => redirect()->route('security-clearance.grant', [], 307));
+Route::post('/security/clearance/{id}/revoke', fn ($id) => redirect("/admin/security-clearance/revoke/{$id}", 307))->where('id', '[0-9]+');
+Route::post('/security/clearance/bulk-grant', fn () => redirect()->route('security-clearance.bulk-grant', [], 307));
+Route::post('/security/access/{id}/revoke', fn ($id) => redirect("/admin/security-clearance/revoke-access/{$id}", 307))->where('id', '[0-9]+');
+Route::get('/security/clearance/user/{slug}', fn ($slug) => redirect("/admin/security-clearance/user/{$slug}", 301));
+Route::post('/security/request/submit', fn () => redirect()->route('security-clearance.submit-access-request', [], 307));

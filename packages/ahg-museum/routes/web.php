@@ -7,10 +7,10 @@ Route::get('/museum/browse', [MuseumController::class, 'browse'])->name('museum.
 
 Route::middleware('auth')->group(function () {
     Route::get('/museum/add', [MuseumController::class, 'create'])->name('museum.create');
-    Route::post('/museum/store', [MuseumController::class, 'store'])->name('museum.store');
+    Route::post('/museum/store', [MuseumController::class, 'store'])->name('museum.store')->middleware('acl:create');
     Route::get('/museum/{slug}/edit', [MuseumController::class, 'edit'])->name('museum.edit')->where('slug', '[a-z0-9][a-z0-9-]*');
-    Route::put('/museum/{slug}', [MuseumController::class, 'update'])->name('museum.update')->where('slug', '[a-z0-9][a-z0-9-]*');
-    Route::post('/museum/{slug}/delete', [MuseumController::class, 'destroy'])->name('museum.destroy')->where('slug', '[a-z0-9][a-z0-9-]*');
+    Route::put('/museum/{slug}', [MuseumController::class, 'update'])->name('museum.update')->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('acl:update');
+    Route::post('/museum/{slug}/delete', [MuseumController::class, 'destroy'])->name('museum.destroy')->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('acl:delete');
 });
 
 Route::get('/museum/{slug}', [MuseumController::class, 'show'])->name('museum.show')->where('slug', '[a-z0-9][a-z0-9-]*');
@@ -30,14 +30,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/museum/{slug}/grap-dashboard', [MuseumController::class, 'grapDashboard'])->name('museum.grap-dashboard')->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::get('/museum/{slug}/loan-dashboard', [MuseumController::class, 'loanDashboard'])->name('museum.loan-dashboard')->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::get('/museum/{slug}/multi-upload', [MuseumController::class, 'multiFileUpload'])->name('museum.multi-upload')->where('slug', '[a-z0-9][a-z0-9-]*');
-    Route::post('/museum/{slug}/multi-upload', [MuseumController::class, 'multiUploadStore'])->name('museum.multi-upload-store')->where('slug', '[a-z0-9][a-z0-9-]*');
+    Route::post('/museum/{slug}/multi-upload', [MuseumController::class, 'multiUploadStore'])->name('museum.multi-upload-store')->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('acl:create');
     Route::get('/museum/{slug}/provenance', [MuseumController::class, 'provenance'])->name('museum.provenance')->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::get('/museum/{slug}/object-comparison', [MuseumController::class, 'objectComparison'])->name('museum.object-comparison')->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::get('/museum/quality-dashboard', [MuseumController::class, 'qualityDashboard'])->name('museum.quality-dashboard');
     Route::get('/museum/quality-dashboard/missing/{field}', [MuseumController::class, 'missingField'])->name('museum.missing-field');
     Route::get('/museum/cidoc-export', [MuseumController::class, 'cidocExport'])->name('museum.cidoc-export');
-    Route::post('/museum/cidoc-export', [MuseumController::class, 'cidocExportDownload'])->name('museum.cidoc-export-download');
+    Route::post('/museum/cidoc-export', [MuseumController::class, 'cidocExportDownload'])->name('museum.cidoc-export-download')->middleware('acl:create');
     Route::get('/museum/authority/{slug}/link', [MuseumController::class, 'authorityLink'])->name('museum.authority-link');
-    Route::post('/museum/authority/{slug}/link', [MuseumController::class, 'authorityLinkStore'])->name('museum.authority-link-store');
-    Route::post('/museum/authority/{slug}/unlink', [MuseumController::class, 'authorityUnlink'])->name('museum.authority-unlink');
+    Route::post('/museum/authority/{slug}/link', [MuseumController::class, 'authorityLinkStore'])->name('museum.authority-link-store')->middleware('acl:create');
+    Route::post('/museum/authority/{slug}/unlink', [MuseumController::class, 'authorityUnlink'])->name('museum.authority-unlink')->middleware('acl:delete');
 });

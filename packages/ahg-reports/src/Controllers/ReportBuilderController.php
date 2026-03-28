@@ -1314,6 +1314,51 @@ class ReportBuilderController extends Controller
     }
 
     /**
+     * Store/update a schedule for a report (POST).
+     */
+    public function scheduleStore(Request $request, int $id)
+    {
+        $request->validate([
+            'frequency' => 'required|string|in:daily,weekly,monthly',
+            'day_of_week' => 'nullable|integer|min:0|max:6',
+            'day_of_month' => 'nullable|integer|min:1|max:31',
+            'time' => 'required|string',
+            'email_recipients' => 'nullable|string',
+            'format' => 'nullable|string|in:csv,pdf,xlsx',
+        ]);
+
+        try {
+            if (Schema::hasTable('ahg_report_schedule')) {
+                $data = [
+                    'report_id' => $id,
+                    'frequency' => $request->input('frequency'),
+                    'day_of_week' => $request->input('day_of_week'),
+                    'day_of_month' => $request->input('day_of_month'),
+                    'time' => $request->input('time'),
+                    'email_recipients' => $request->input('email_recipients'),
+                    'format' => $request->input('format', 'csv'),
+                    'is_active' => 1,
+                    'updated_at' => now(),
+                ];
+
+                $existing = DB::table('ahg_report_schedule')->where('report_id', $id)->first();
+                if ($existing) {
+                    DB::table('ahg_report_schedule')->where('report_id', $id)->update($data);
+                } else {
+                    $data['created_at'] = now();
+                    DB::table('ahg_report_schedule')->insert($data);
+                }
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('reports.builder.schedule', $id)
+                ->with('error', 'Failed to save schedule: ' . $e->getMessage());
+        }
+
+        return redirect()->route('reports.builder.schedule', $id)
+            ->with('success', 'Schedule saved.');
+    }
+
+    /**
      * Get a single report by ID.
      */
     private function getReport(int $id): ?object

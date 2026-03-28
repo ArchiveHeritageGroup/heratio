@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/', [ExhibitionController::class, 'index'])->name('exhibition.index');
     Route::get('/dashboard', [ExhibitionController::class, 'dashboard'])->name('exhibition.dashboard');
-    Route::match(['get', 'post'], '/add', [ExhibitionController::class, 'add'])->name('exhibition.add');
-    Route::match(['get', 'post'], '/{id}/edit', [ExhibitionController::class, 'edit'])->name('exhibition.edit');
+    Route::match(['get', 'post'], '/add', [ExhibitionController::class, 'add'])->name('exhibition.add'); // ACL must be checked in controller (Route::match)
+    Route::match(['get', 'post'], '/{id}/edit', [ExhibitionController::class, 'edit'])->name('exhibition.edit'); // ACL must be checked in controller (Route::match)
     Route::get('/{id}/objects', [ExhibitionController::class, 'objects'])->name('exhibition.objects');
     Route::get('/{id}/object-list', [ExhibitionController::class, 'objectList'])->name('exhibition.objectList');
     Route::get('/{id}/object-list/csv', [ExhibitionController::class, 'objectListCsv'])->name('exhibition.objectListCsv');

@@ -17,6 +17,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart/orders', [CartController::class, 'orders'])->name('cart.orders');
 });
 
+// Download route (public — token-authenticated)
+Route::get('/cart/download/{token}', [CartController::class, 'download'])->name('cart.download');
+
+// Payment notification webhook (no auth — called by payment gateway)
+Route::post('/cart/payment/notify', [CartController::class, 'paymentNotify'])->name('cart.paymentNotify');
+
 // Admin routes
 Route::middleware('admin')->group(function () {
     Route::get('/admin/orders', [CartController::class, 'adminOrders'])->name('cart.admin.orders');

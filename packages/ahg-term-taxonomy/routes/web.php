@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/taxonomy/index', [TermController::class, 'taxonomyIndex'])->name('taxonomy.index');
 Route::get('/taxonomy/index/id/{id}', [TermController::class, 'taxonomyIndexById']);
+Route::get('/taxonomy/{id}', [TermController::class, 'taxonomyIndexById'])->name('taxonomy.show')->where('id', '[0-9]+');
 
 Route::middleware('auth')->group(function () {
     Route::get('/taxonomy/browse', [TermController::class, 'taxonomyIndex'])->name('taxonomy.browse');

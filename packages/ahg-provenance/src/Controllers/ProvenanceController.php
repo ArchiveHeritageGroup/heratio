@@ -88,4 +88,77 @@ class ProvenanceController extends Controller
 
         return response()->json($results);
     }
+
+    /**
+     * Update provenance record.
+     */
+    public function update(Request $request, string $slug)
+    {
+        $data = $this->service->getBySlug($slug);
+        abort_unless($data['resource'], 404);
+
+        $this->service->update($slug, $request->all());
+
+        return redirect()->route('provenance.view', $slug)->with('notice', 'Provenance updated.');
+    }
+
+    /**
+     * Add a provenance event to an IO.
+     */
+    public function addEvent(Request $request, string $slug)
+    {
+        $request->validate([
+            'event_type' => 'required|string',
+            'date' => 'nullable|string',
+            'agent_id' => 'nullable|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        $this->service->addEvent($slug, $request->all());
+
+        return redirect()->route('provenance.edit', $slug)->with('notice', 'Event added.');
+    }
+
+    /**
+     * Delete a provenance event.
+     */
+    public function deleteEvent(string $slug, int $eventId)
+    {
+        $this->service->deleteEvent($slug, $eventId);
+
+        return redirect()->route('provenance.edit', $slug)->with('notice', 'Event deleted.');
+    }
+
+    /**
+     * Delete a provenance document.
+     */
+    public function deleteDocument(string $slug, int $id)
+    {
+        $this->service->deleteDocument($id);
+
+        return redirect()->route('provenance.edit', $slug)->with('notice', 'Document deleted.');
+    }
+
+    /**
+     * Legacy addEvent (POST /provenance/addEvent with slug in body).
+     */
+    public function addEventLegacy(Request $request)
+    {
+        $slug = $request->input('slug');
+        abort_unless($slug, 400, 'Missing slug parameter.');
+
+        return $this->addEvent($request, $slug);
+    }
+
+    /**
+     * Legacy deleteEvent (POST /provenance/deleteEvent with slug + eventId in body).
+     */
+    public function deleteEventLegacy(Request $request)
+    {
+        $slug = $request->input('slug');
+        $eventId = (int) $request->input('event_id');
+        abort_unless($slug && $eventId, 400, 'Missing slug or event_id parameter.');
+
+        return $this->deleteEvent($slug, $eventId);
+    }
 }

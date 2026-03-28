@@ -267,6 +267,28 @@ class MetadataExtractionController extends Controller
     }
 
     /**
+     * Legacy extract: ID passed in request body instead of URL.
+     */
+    public function extractLegacy(Request $request)
+    {
+        $id = (int) $request->input('id');
+        abort_unless($id, 400, 'Missing id parameter.');
+
+        return $this->extract($request, $id);
+    }
+
+    /**
+     * Legacy delete: ID passed in request body instead of URL.
+     */
+    public function deleteLegacy(Request $request)
+    {
+        $id = (int) $request->input('id');
+        abort_unless($id, 400, 'Missing id parameter.');
+
+        return $this->delete($request, $id);
+    }
+
+    /**
      * Status page: tool versions and extraction statistics.
      */
     public function status()

@@ -24,3 +24,25 @@ Route::middleware(['auth', 'admin'])->prefix('access-request')->group(function (
     Route::delete('/approvers/{id}', [AccessRequestController::class, 'removeApprover'])->name('accessRequest.removeApprover');
 });
 
+Route::middleware('auth')->prefix('access-request')->group(function () {
+    Route::post('/{id}/cancel', [AccessRequestController::class, 'cancel'])->name('accessRequest.cancel')->where('id', '[0-9]+');
+    Route::post('/request-object/create', [AccessRequestController::class, 'storeObjectRequest'])->name('accessRequest.storeObjectRequest');
+});
+
+// ── Legacy URL redirects (ahgAccessRequestPlugin compatibility) ─────────────
+Route::get('/accessRequest', fn () => redirect()->route('accessRequest.pending', [], 301));
+Route::get('/security/request', fn () => redirect()->route('accessRequest.pending', [], 301));
+Route::get('/security/request-access', fn () => redirect()->route('accessRequest.create', [], 301));
+Route::post('/security/request-access/create', [AccessRequestController::class, 'store'])->middleware('auth')->name('accessRequest.legacyStore');
+Route::get('/security/request-object', fn () => redirect()->route('accessRequest.create', [], 301));
+Route::post('/security/request-object/create', [AccessRequestController::class, 'storeObjectRequest'])->middleware('auth')->name('accessRequest.legacyObjectStore');
+Route::post('/security/request/{id}/cancel', [AccessRequestController::class, 'cancel'])->middleware('auth')->name('accessRequest.legacyCancel')->where('id', '[0-9]+');
+Route::get('/security/request/{id}', [AccessRequestController::class, 'view'])->middleware('auth')->name('accessRequest.legacyView')->where('id', '[0-9]+');
+Route::post('/security/request/{id}/approve', [AccessRequestController::class, 'approve'])->middleware('admin')->name('accessRequest.legacyApprove')->where('id', '[0-9]+');
+Route::post('/security/request/{id}/deny', [AccessRequestController::class, 'deny'])->middleware('admin')->name('accessRequest.legacyDeny')->where('id', '[0-9]+');
+Route::get('/security/request/{id}/review', [AccessRequestController::class, 'view'])->middleware('admin')->name('accessRequest.legacyReview')->where('id', '[0-9]+');
+Route::get('/security/approvers', [AccessRequestController::class, 'approvers'])->middleware('admin')->name('accessRequest.legacyApprovers');
+Route::post('/security/approvers/add', [AccessRequestController::class, 'addApprover'])->middleware('admin')->name('accessRequest.legacyAddApprover');
+Route::post('/security/approvers/{id}/remove', [AccessRequestController::class, 'removeApprover'])->middleware('admin')->name('accessRequest.legacyRemoveApprover')->where('id', '[0-9]+');
+Route::get('/security/requests', fn () => redirect()->route('accessRequest.pending', [], 301));
+

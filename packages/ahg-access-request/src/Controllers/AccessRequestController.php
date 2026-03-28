@@ -138,4 +138,29 @@ class AccessRequestController extends Controller
 
         return redirect()->route('accessRequest.approvers')->with('notice', 'Approver removed.');
     }
+
+    /**
+     * Cancel an access request (by the requesting user).
+     */
+    public function cancel(string $id)
+    {
+        $this->service->cancelRequest((int) $id, auth()->id());
+
+        return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request cancelled.');
+    }
+
+    /**
+     * Store a new object-specific access request.
+     */
+    public function storeObjectRequest(Request $request)
+    {
+        $validated = $request->validate([
+            'object_id' => 'required|integer',
+            'reason' => 'required|string|max:2000',
+        ]);
+
+        $this->service->createRequest(auth()->id(), $validated);
+
+        return redirect()->route('accessRequest.myRequests')->with('notice', 'Object access request submitted.');
+    }
 }

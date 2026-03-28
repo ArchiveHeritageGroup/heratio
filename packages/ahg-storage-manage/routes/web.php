@@ -24,3 +24,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])->name('physicalobject.show');
 Route::get('/physicalobject/autocomplete', [StorageController::class, 'autocomplete'])->name('physicalobject.autocomplete');
+
+// Legacy alias
+Route::get('/physicalobject/boxList', fn () => redirect('/physicalobject/box-list', 301));

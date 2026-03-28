@@ -140,4 +140,18 @@ class TenantController extends Controller
 
         return redirect()->back()->with('error', 'Invalid action.');
     }
+
+    /**
+     * Return available tenants as JSON for the tenant switcher dropdown.
+     */
+    public function switcher()
+    {
+        $tenants = $this->service->getTenants();
+        $current = $this->service->getCurrentTenant();
+
+        return response()->json([
+            'tenants' => $tenants,
+            'current' => $current,
+        ]);
+    }
 }

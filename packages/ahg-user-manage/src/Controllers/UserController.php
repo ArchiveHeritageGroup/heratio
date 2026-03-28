@@ -368,6 +368,71 @@ class UserController extends Controller
 
     public function userView(string $slug) { return $this->show(request(), $slug); }
 
+    /**
+     * User profile page (self-service).
+     */
+    public function profile()
+    {
+        $user = $this->service->getById(auth()->id());
+        if (!$user) {
+            abort(404);
+        }
+
+        return view('ahg-user-manage::show', [
+            'user' => $user,
+            'groups' => collect($user->groups ?? []),
+        ]);
+    }
+
+    /**
+     * Password edit form.
+     */
+    public function passwordEdit()
+    {
+        return view('ahg-user-manage::password-edit');
+    }
+
+    /**
+     * Password reset (self-service).
+     */
+    public function passwordReset(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'current_password' => 'required|string',
+                'password' => 'required|string|min:6',
+                'password_confirmation' => 'required|same:password',
+            ]);
+
+            $user = \Illuminate\Support\Facades\DB::table('user')->where('id', auth()->id())->first();
+            if (!$user || !password_verify($request->input('current_password'), $user->password_hash)) {
+                return redirect()->back()->with('error', 'Current password is incorrect.');
+            }
+
+            \Illuminate\Support\Facades\DB::table('user')
+                ->where('id', auth()->id())
+                ->update(['password_hash' => bcrypt($request->input('password'))]);
+
+            return redirect()->route('user.profile')->with('success', 'Password updated successfully.');
+        }
+
+        return view('ahg-user-manage::password-edit');
+    }
+
+    /**
+     * User clipboard page.
+     */
+    public function clipboard()
+    {
+        $userId = auth()->id();
+        $items = \Illuminate\Support\Facades\DB::table('clipboard')
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('ahg-user-manage::clipboard', compact('items'));
+    }
+
     // ── ACL Methods ──────────────────────────────────────────────────
 
     /**

@@ -49,25 +49,25 @@ Route::middleware('admin')->prefix('ext-rights-admin')->group(function () {
     // Embargoes
     Route::get('/embargoes', [RightsAdminController::class, 'embargoes'])->name('ext-rights-admin.embargoes');
     Route::get('/embargoes/new', [RightsAdminController::class, 'embargoEdit'])->name('ext-rights-admin.embargo-new');
-    Route::post('/embargoes/new', [RightsAdminController::class, 'embargoStore'])->name('ext-rights-admin.embargo-create');
+    Route::post('/embargoes/new', [RightsAdminController::class, 'embargoStore'])->name('ext-rights-admin.embargo-create')->middleware('acl:create');
     Route::get('/embargoes/{id}/edit', [RightsAdminController::class, 'embargoEdit'])->name('ext-rights-admin.embargo-edit')->where('id', '[0-9]+');
-    Route::post('/embargoes/{id}/edit', [RightsAdminController::class, 'embargoStore'])->name('ext-rights-admin.embargo-update')->where('id', '[0-9]+');
-    Route::post('/embargoes/{id}/lift', [RightsAdminController::class, 'embargoLift'])->name('ext-rights-admin.embargo-lift')->where('id', '[0-9]+');
-    Route::post('/embargoes/{id}/extend', [RightsAdminController::class, 'embargoExtend'])->name('ext-rights-admin.embargo-extend')->where('id', '[0-9]+');
+    Route::post('/embargoes/{id}/edit', [RightsAdminController::class, 'embargoStore'])->name('ext-rights-admin.embargo-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/embargoes/{id}/lift', [RightsAdminController::class, 'embargoLift'])->name('ext-rights-admin.embargo-lift')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/embargoes/{id}/extend', [RightsAdminController::class, 'embargoExtend'])->name('ext-rights-admin.embargo-extend')->where('id', '[0-9]+')->middleware('acl:update');
     Route::get('/embargoes/process-expired', [RightsAdminController::class, 'processExpired'])->name('ext-rights-admin.process-expired');
 
     // Orphan Works
     Route::get('/orphan-works', [RightsAdminController::class, 'orphanWorks'])->name('ext-rights-admin.orphan-works');
     Route::get('/orphan-works/new', [RightsAdminController::class, 'orphanWorkEdit'])->name('ext-rights-admin.orphan-work-new');
-    Route::post('/orphan-works/new', [RightsAdminController::class, 'orphanWorkStore'])->name('ext-rights-admin.orphan-work-create');
+    Route::post('/orphan-works/new', [RightsAdminController::class, 'orphanWorkStore'])->name('ext-rights-admin.orphan-work-create')->middleware('acl:create');
     Route::get('/orphan-works/{id}/edit', [RightsAdminController::class, 'orphanWorkEdit'])->name('ext-rights-admin.orphan-work-edit')->where('id', '[0-9]+');
-    Route::post('/orphan-works/{id}/edit', [RightsAdminController::class, 'orphanWorkStore'])->name('ext-rights-admin.orphan-work-update')->where('id', '[0-9]+');
-    Route::post('/orphan-works/{id}/search-step', [RightsAdminController::class, 'addSearchStep'])->name('ext-rights-admin.add-search-step')->where('id', '[0-9]+');
+    Route::post('/orphan-works/{id}/edit', [RightsAdminController::class, 'orphanWorkStore'])->name('ext-rights-admin.orphan-work-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/orphan-works/{id}/search-step', [RightsAdminController::class, 'addSearchStep'])->name('ext-rights-admin.add-search-step')->where('id', '[0-9]+')->middleware('acl:create');
     Route::get('/orphan-works/{id}/complete', [RightsAdminController::class, 'completeOrphanSearch'])->name('ext-rights-admin.complete-orphan-search')->where('id', '[0-9]+');
 
     // TK Labels
     Route::get('/tk-labels', [RightsAdminController::class, 'tkLabels'])->name('ext-rights-admin.tk-labels');
-    Route::post('/tk-labels/assign', [RightsAdminController::class, 'assignTkLabel'])->name('ext-rights-admin.assign-tk-label');
+    Route::post('/tk-labels/assign', [RightsAdminController::class, 'assignTkLabel'])->name('ext-rights-admin.assign-tk-label')->middleware('acl:create');
     Route::get('/tk-labels/remove', [RightsAdminController::class, 'removeTkLabel'])->name('ext-rights-admin.remove-tk-label');
 
     // Statements & Licenses

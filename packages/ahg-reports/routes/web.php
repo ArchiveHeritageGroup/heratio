@@ -66,12 +66,40 @@ Route::middleware('admin')->prefix('admin/reports')->group(function () {
         Route::get('/{id}/view', [ReportBuilderController::class, 'view'])->name('reports.builder.view');
         Route::get('/{id}/query', [ReportBuilderController::class, 'query'])->name('reports.builder.query');
         Route::get('/{id}/schedule', [ReportBuilderController::class, 'schedule'])->name('reports.builder.schedule');
+        Route::post('/{id}/schedule', [ReportBuilderController::class, 'scheduleStore'])->name('reports.builder.schedule-store');
         Route::get('/{id}/share', [ReportBuilderController::class, 'share'])->name('reports.builder.share');
         Route::get('/{id}/history', [ReportBuilderController::class, 'history'])->name('reports.builder.history');
         Route::get('/{id}/widget', [ReportBuilderController::class, 'widget'])->name('reports.builder.widget');
+        Route::get('/{id}/export/{format}', [ReportBuilderController::class, 'export'])->name('reports.builder.export');
+        Route::get('/{id}/clone', [ReportBuilderController::class, 'cloneReport'])->name('reports.builder.clone');
+        Route::post('/{id}/delete', [ReportBuilderController::class, 'apiDelete'])->name('reports.builder.delete');
         Route::get('/template/{id}/edit', [ReportBuilderController::class, 'editTemplate'])->name('reports.builder.edit-template');
         Route::get('/template/{id}/preview', [ReportBuilderController::class, 'previewTemplate'])->name('reports.builder.preview-template');
         Route::delete('/template/{id}', [ReportBuilderController::class, 'deleteTemplate'])->name('reports.builder.delete-template');
     });
 
+});
+
+// Public custom report view
+Route::middleware('auth')->group(function () {
+    Route::get('/reports/custom/{id}', [ReportBuilderController::class, 'view'])->name('reports.custom.view')->where('id', '[0-9]+');
+});
+
+// Report Builder API routes
+Route::middleware('admin')->group(function () {
+    Route::post('/api/report-builder/save', [ReportBuilderController::class, 'apiSave'])->name('reports.api.save');
+    Route::post('/api/report-builder/data', [ReportBuilderController::class, 'apiData'])->name('reports.api.data');
+    Route::get('/api/report-builder/columns/{source}', [ReportBuilderController::class, 'apiColumns'])->name('reports.api.columns');
+    Route::post('/api/report-builder/delete/{id}', [ReportBuilderController::class, 'apiDelete'])->name('reports.api.delete')->where('id', '[0-9]+');
+});
+
+// Legacy camelCase aliases
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/report-builder', fn () => redirect('/admin/reports/builder', 301));
+    Route::get('/admin/report-builder/create', fn () => redirect('/admin/reports/builder/create', 301));
+    Route::get('/admin/report-builder/{id}/edit', fn ($id) => redirect("/admin/reports/builder/{$id}/edit", 301))->where('id', '[0-9]+');
+    Route::get('/admin/report-builder/{id}/preview', fn ($id) => redirect("/admin/reports/builder/{$id}/preview", 301))->where('id', '[0-9]+');
+    Route::get('/admin/report-builder/{id}/export/{format}', fn ($id, $format) => redirect("/admin/reports/builder/{$id}/export/{$format}", 301))->where('id', '[0-9]+');
+    Route::get('/admin/report-builder/{id}/clone', fn ($id) => redirect("/admin/reports/builder/{$id}/clone", 301))->where('id', '[0-9]+');
+    Route::get('/admin/report-builder/archive', fn () => redirect('/admin/reports/builder/archive', 301));
 });

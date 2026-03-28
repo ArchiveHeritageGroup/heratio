@@ -25,3 +25,13 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/metadata-extraction/batch-extract', [MetadataExtractionController::class, 'batchExtract'])
         ->name('metadata-extraction.batchExtract');
 });
+
+// Legacy camelCase aliases (ahgMetadataExtractionPlugin compatibility)
+Route::middleware('admin')->group(function () {
+    Route::get('/metadataExtraction', fn () => redirect('/admin/metadata-extraction', 301));
+    Route::get('/metadataExtraction/view/{id}', fn ($id) => redirect("/admin/metadata-extraction/{$id}/view", 301))->where('id', '[0-9]+');
+    Route::post('/metadataExtraction/extract', [MetadataExtractionController::class, 'extractLegacy'])->name('metadata-extraction.extract-legacy');
+    Route::post('/metadataExtraction/batchExtract', [MetadataExtractionController::class, 'batchExtract'])->name('metadata-extraction.batchExtract-legacy');
+    Route::post('/metadataExtraction/delete', [MetadataExtractionController::class, 'deleteLegacy'])->name('metadata-extraction.delete-legacy');
+    Route::get('/metadataExtraction/status', [MetadataExtractionController::class, 'status'])->name('metadata-extraction.status-legacy');
+});

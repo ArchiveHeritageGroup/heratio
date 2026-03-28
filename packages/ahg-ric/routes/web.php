@@ -45,4 +45,16 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/ric/ajax-clear-queue-item', [RicController::class, 'ajaxClearQueueItem'])->name('ric.ajax-clear-queue-item');
     Route::post('/admin/ric/ajax-update-orphan', [RicController::class, 'ajaxUpdateOrphan'])->name('ric.ajax-update-orphan');
     Route::get('/admin/ric/ajax-stats', [RicController::class, 'ajaxStats'])->name('ric.ajax-stats');
+
+    // Legacy camelCase AJAX aliases (ahgRicExplorerPlugin compatibility)
+    Route::get('/admin/ric/ajax/stats', [RicController::class, 'ajaxStats'])->name('ric.ajax-stats-legacy');
+    Route::get('/admin/ric/ajax/integrity-check', [RicController::class, 'ajaxIntegrityCheck'])->name('ric.ajax-integrity-legacy');
+    Route::post('/admin/ric/ajax/cleanup-orphans', [RicController::class, 'ajaxCleanupOrphans'])->name('ric.ajax-cleanup-legacy');
+    Route::post('/admin/ric/ajax/resync', [RicController::class, 'ajaxResync'])->name('ric.ajax-resync-legacy');
+    Route::post('/admin/ric/ajax/queue-item', [RicController::class, 'ajaxClearQueueItem'])->name('ric.ajax-queue-item-legacy');
+    Route::post('/admin/ric/ajax/update-orphan', [RicController::class, 'ajaxUpdateOrphan'])->name('ric.ajax-update-orphan-legacy');
 });
+
+// Legacy camelCase public endpoints (ricExplorer prefix)
+Route::get('/ricExplorer/getData', [RicController::class, 'getData'])->name('ric.getData-legacy');
+Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete-legacy');
