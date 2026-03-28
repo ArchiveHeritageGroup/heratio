@@ -155,6 +155,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
     Route::get('/research/trust/{slug}', [ResearchController::class, 'trustScore'])->name('io.research.trust');
     Route::get('/research/tools', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
+
+    // Legacy AtoM autocomplete/identifier aliases
+    Route::get('/informationobject/actorAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.actorAutocomplete');
+    Route::get('/informationobject/repositoryAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.repositoryAutocomplete');
+    Route::get('/informationobject/termAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.termAutocomplete');
+    Route::get('/informationobject/generateIdentifierJson', [InformationObjectController::class, 'generateIdentifier'])->name('io.generateIdentifier');
+
+    // Legacy digital object URL aliases
+    Route::post('/digitalobject/upload', [DigitalObjectController::class, 'upload'])->middleware('acl:create');
+    Route::get('/digitalobject/{id}/edit', [DigitalObjectController::class, 'show'])->whereNumber('id');
+    Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete');
 });
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');

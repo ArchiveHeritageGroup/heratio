@@ -424,6 +424,1823 @@ class AiController extends Controller
         return view('ahg-ai-services::suggest-review', ['rows' => collect()]);
     }
 
+    /* ================================================================== */
+    /*  NER Entity Management (ported from AtoM ahgAIPlugin)              */
+    /* ================================================================== */
+
+    private const CORPORATE_BODY_ID      = 131;
+    private const PERSON_ID              = 132;
+    private const NAME_ACCESS_POINT_ID   = 161;
+    private const TAXONOMY_PLACE_ID      = 42;
+    private const TAXONOMY_SUBJECT_ID    = 35;
+
+    /**
+     * GET /admin/ai/ner/extract/{id}
+     * Run NER extraction on an information object.
+     */
+    public function nerExtract(int $id)
+    {
+        $culture = app()->getLocale();
+        $object  = $this->getInformationObject($id, $culture);
+
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        $text    = $this->getObjectText($object);
+        $pdfPath = $this->getDigitalObjectPath($id, 'pdf');
+
+        $apiUrl = $this->getAiApiUrl();
+        $apiKey = $this->getAiApiKey();
+
+        $result = null;
+
+        if ($pdfPath && file_exists($pdfPath)) {
+            $result = $this->callNerApi($apiUrl, $apiKey, null, $pdfPath);
+            // Merge metadata entities if text also available
+            if ($result && ($result['success'] ?? false) && !empty($text)) {
+                $metaResult = $this->callNerApi($apiUrl, $apiKey, $text);
+                if ($metaResult && ($metaResult['success'] ?? false)) {
+                    foreach ($metaResult['entities'] as $type => $values) {
+                        if (!isset($result['entities'][$type])) {
+                            $result['entities'][$type] = [];
+                        }
+                        $result['entities'][$type] = array_values(array_unique(
+                            array_merge($result['entities'][$type], $values)
+                        ));
+                    }
+                    $result['entity_count'] = array_sum(array_map('count', $result['entities']));
+                }
+            }
+        } else {
+            if (empty(trim($text))) {
+                return response()->json(['success' => false, 'error' => 'No text content found']);
+            }
+            $result = $this->callNerApi($apiUrl, $apiKey, $text);
+        }
+
+        if (!$result || !($result['success'] ?? false)) {
+            return response()->json($result ?: ['success' => false, 'error' => 'NER extraction failed']);
+        }
+
+        $this->saveExtraction($id, $result['entities']);
+
+        return response()->json([
+            'success'            => true,
+            'entities'           => $result['entities'],
+            'entity_count'       => $result['entity_count'] ?? 0,
+            'processing_time_ms' => $result['processing_time_ms'] ?? 0,
+            'source'             => $pdfPath ? 'pdf+metadata' : 'metadata',
+        ]);
+    }
+
+    /**
+     * GET /admin/ai/ner/entities/{id}
+     * Get pending NER entities for an information object.
+     */
+    public function nerGetEntities(int $id)
+    {
+        $entities = DB::table('ahg_ner_entity')
+            ->where('object_id', $id)
+            ->where('status', 'pending')
+            ->orderBy('entity_type')
+            ->orderBy('entity_value')
+            ->get();
+
+        $grouped = [];
+        foreach ($entities as $entity) {
+            $type = $entity->entity_type;
+            if (!isset($grouped[$type])) {
+                $grouped[$type] = [];
+            }
+
+            if ($type === 'PERSON' || $type === 'ORG') {
+                $matches = $this->findMatchingActors($entity->entity_value);
+            } elseif ($type === 'GPE') {
+                $matches = $this->findMatchingPlaces($entity->entity_value);
+            } else {
+                $matches = ['exact' => [], 'partial' => []];
+            }
+
+            $grouped[$type][] = [
+                'id'              => $entity->id,
+                'value'           => $entity->entity_value,
+                'status'          => $entity->status,
+                'exact_matches'   => $matches['exact'],
+                'partial_matches' => $matches['partial'],
+            ];
+        }
+
+        return response()->json(['success' => true, 'entities' => $grouped]);
+    }
+
+    /**
+     * POST /admin/ai/ner/entity/update
+     * Update a single NER entity decision.
+     */
+    public function nerUpdateEntity(Request $request)
+    {
+        $entityId = $request->input('entity_id');
+        $action   = $request->input('decision');
+        $targetId = $request->input('target_id');
+        $userId   = auth()->id();
+
+        $entity = DB::table('ahg_ner_entity')->where('id', $entityId)->first();
+        if (!$entity) {
+            return response()->json(['success' => false, 'error' => 'Entity not found']);
+        }
+
+        $update = [
+            'status'      => $action === 'link' ? 'linked' : $action,
+            'reviewed_by' => $userId,
+            'reviewed_at' => now(),
+        ];
+        if ($targetId) {
+            $update['linked_actor_id'] = $targetId;
+        }
+
+        DB::table('ahg_ner_entity')->where('id', $entityId)->update($update);
+
+        if ($action === 'link' && $targetId) {
+            if (in_array($entity->entity_type, ['PERSON', 'ORG'])) {
+                $this->linkActorToObject($entity->object_id, $targetId);
+            } elseif ($entity->entity_type === 'GPE') {
+                $this->linkPlaceToObject($entity->object_id, $targetId);
+            } elseif ($entity->entity_type === 'DATE') {
+                $this->linkSubjectToObject($entity->object_id, $targetId);
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * POST /admin/ai/ner/create/actor
+     */
+    public function nerCreateActor(Request $request)
+    {
+        $entityId   = $request->input('entity_id');
+        $entityType = $request->input('entity_type', 'PERSON');
+        $culture    = app()->getLocale();
+
+        $entity = DB::table('ahg_ner_entity')->where('id', $entityId)->first();
+        if (!$entity) {
+            return response()->json(['success' => false, 'error' => 'Entity not found']);
+        }
+
+        // Check existing
+        $existing = DB::table('actor_i18n')
+            ->where('authorized_form_of_name', $entity->entity_value)
+            ->first();
+
+        if ($existing) {
+            $this->linkActorToObject($entity->object_id, $existing->id);
+            DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+                'status'          => 'linked',
+                'linked_actor_id' => $existing->id,
+                'reviewed_at'     => now(),
+            ]);
+            return response()->json(['success' => true, 'action' => 'linked_existing', 'id' => $existing->id]);
+        }
+
+        $entityTypeId = ($entityType === 'ORG') ? self::CORPORATE_BODY_ID : self::PERSON_ID;
+
+        $actorId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitActor',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('actor')->insert([
+            'id'             => $actorId,
+            'entity_type_id' => $entityTypeId,
+            'source_culture' => $culture,
+        ]);
+
+        DB::table('actor_i18n')->insert([
+            'id'                       => $actorId,
+            'culture'                  => $culture,
+            'authorized_form_of_name'  => $entity->entity_value,
+        ]);
+
+        DB::table('slug')->insert([
+            'object_id' => $actorId,
+            'slug'      => $this->generateUniqueSlug($entity->entity_value),
+        ]);
+
+        $this->linkActorToObject($entity->object_id, $actorId);
+
+        DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+            'status'          => 'linked',
+            'linked_actor_id' => $actorId,
+            'reviewed_at'     => now(),
+        ]);
+
+        return response()->json(['success' => true, 'action' => 'created', 'id' => $actorId]);
+    }
+
+    /**
+     * POST /admin/ai/ner/create/place
+     */
+    public function nerCreatePlace(Request $request)
+    {
+        $entityId = $request->input('entity_id');
+        $culture  = app()->getLocale();
+
+        $entity = DB::table('ahg_ner_entity')->where('id', $entityId)->first();
+        if (!$entity) {
+            return response()->json(['success' => false, 'error' => 'Entity not found']);
+        }
+
+        $existing = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', self::TAXONOMY_PLACE_ID)
+            ->where('term_i18n.name', $entity->entity_value)
+            ->first();
+
+        if ($existing) {
+            $this->linkPlaceToObject($entity->object_id, $existing->id);
+            DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+                'status'          => 'linked',
+                'linked_actor_id' => $existing->id,
+                'reviewed_at'     => now(),
+            ]);
+            return response()->json(['success' => true, 'action' => 'linked_existing', 'id' => $existing->id]);
+        }
+
+        $termId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitTerm',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('term')->insert([
+            'id'             => $termId,
+            'taxonomy_id'    => self::TAXONOMY_PLACE_ID,
+            'source_culture' => $culture,
+        ]);
+
+        DB::table('term_i18n')->insert([
+            'id'      => $termId,
+            'culture' => $culture,
+            'name'    => $entity->entity_value,
+        ]);
+
+        DB::table('slug')->insert([
+            'object_id' => $termId,
+            'slug'      => $this->generateUniqueSlug($entity->entity_value),
+        ]);
+
+        $this->linkPlaceToObject($entity->object_id, $termId);
+
+        DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+            'status'          => 'linked',
+            'linked_actor_id' => $termId,
+            'reviewed_at'     => now(),
+        ]);
+
+        return response()->json(['success' => true, 'action' => 'created', 'id' => $termId]);
+    }
+
+    /**
+     * POST /admin/ai/ner/create/subject
+     */
+    public function nerCreateSubject(Request $request)
+    {
+        $entityId = $request->input('entity_id');
+        $culture  = app()->getLocale();
+
+        $entity = DB::table('ahg_ner_entity')->where('id', $entityId)->first();
+        if (!$entity) {
+            return response()->json(['success' => false, 'error' => 'Entity not found']);
+        }
+
+        $existing = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', self::TAXONOMY_SUBJECT_ID)
+            ->where('term_i18n.name', $entity->entity_value)
+            ->first();
+
+        if ($existing) {
+            $this->linkSubjectToObject($entity->object_id, $existing->id);
+            DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+                'status'          => 'linked',
+                'linked_actor_id' => $existing->id,
+                'reviewed_at'     => now(),
+            ]);
+            return response()->json(['success' => true, 'action' => 'linked_existing', 'id' => $existing->id]);
+        }
+
+        $termId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitTerm',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('term')->insert([
+            'id'             => $termId,
+            'taxonomy_id'    => self::TAXONOMY_SUBJECT_ID,
+            'source_culture' => $culture,
+        ]);
+
+        DB::table('term_i18n')->insert([
+            'id'      => $termId,
+            'culture' => $culture,
+            'name'    => $entity->entity_value,
+        ]);
+
+        DB::table('slug')->insert([
+            'object_id' => $termId,
+            'slug'      => $this->generateUniqueSlug($entity->entity_value),
+        ]);
+
+        $this->linkSubjectToObject($entity->object_id, $termId);
+
+        DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+            'status'          => 'linked',
+            'linked_actor_id' => $termId,
+            'reviewed_at'     => now(),
+        ]);
+
+        return response()->json(['success' => true, 'action' => 'created', 'id' => $termId]);
+    }
+
+    /**
+     * GET /admin/ai/ner/health
+     */
+    public function nerHealth()
+    {
+        $apiUrl = $this->getAiApiUrl();
+        $apiKey = $this->getAiApiKey();
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withHeaders(['X-API-Key' => $apiKey])
+                ->get($apiUrl . '/ai/v1/health');
+
+            return response()->json($response->json());
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * POST /admin/ai/ner/bulk-save
+     */
+    public function nerBulkSave(Request $request)
+    {
+        $data = $request->json()->all();
+        if (!isset($data['decisions'])) {
+            $data = ['decisions' => $request->input('decisions', [])];
+        }
+        if (is_string($data['decisions'])) {
+            $data['decisions'] = json_decode($data['decisions'], true) ?: [];
+        }
+
+        $culture = app()->getLocale();
+        $userId  = auth()->id();
+        $results = ['success' => 0, 'failed' => 0, 'errors' => []];
+
+        foreach ($data['decisions'] as $decision) {
+            try {
+                $entityId = $decision['entity_id'];
+                $action   = $decision['action'];
+
+                $entity = DB::table('ahg_ner_entity')->where('id', $entityId)->first();
+                if (!$entity) {
+                    $results['failed']++;
+                    $results['errors'][] = "Entity {$entityId} not found";
+                    continue;
+                }
+
+                // Apply edits if any
+                $hasValueEdit = isset($decision['edited_value']) && !empty($decision['edited_value']) && $decision['edited_value'] !== $entity->entity_value;
+                $hasTypeEdit  = isset($decision['edited_type']) && !empty($decision['edited_type']) && $decision['edited_type'] !== $entity->entity_type;
+
+                $updateData = [];
+                if ($hasValueEdit) {
+                    $updateData['original_value'] = $entity->entity_value;
+                    $updateData['entity_value']   = $decision['edited_value'];
+                    $entity->entity_value = $decision['edited_value'];
+                }
+                if ($hasTypeEdit) {
+                    $updateData['original_type'] = $entity->entity_type;
+                    $updateData['entity_type']   = $decision['edited_type'];
+                    $entity->entity_type = $decision['edited_type'];
+                }
+                if ($hasValueEdit && $hasTypeEdit) {
+                    $updateData['correction_type'] = 'both';
+                } elseif ($hasValueEdit) {
+                    $updateData['correction_type'] = 'value_edit';
+                } elseif ($hasTypeEdit) {
+                    $updateData['correction_type'] = 'type_change';
+                }
+
+                if (!empty($updateData)) {
+                    DB::table('ahg_ner_entity')->where('id', $entityId)->update($updateData);
+                }
+
+                if ($action === 'create') {
+                    $createType = $decision['create_type'] ?? 'create_subject';
+                    $this->processNerCreate($entity, $createType, $culture);
+                } elseif ($action === 'create_date') {
+                    $this->processDateCreate($entity);
+                } elseif ($action === 'link') {
+                    $this->processNerLink($entity, $decision['target_id']);
+                } elseif (in_array($action, ['reject', 'approved'])) {
+                    DB::table('ahg_ner_entity')->where('id', $entityId)->update([
+                        'status'          => $action,
+                        'correction_type' => $action === 'reject' ? 'rejected' : 'approved',
+                        'reviewed_at'     => now(),
+                    ]);
+                }
+
+                $results['success']++;
+            } catch (\Exception $e) {
+                $results['failed']++;
+                $results['errors'][] = $e->getMessage();
+            }
+        }
+
+        return response()->json(['success' => true, 'results' => $results]);
+    }
+
+    /**
+     * GET /admin/ai/ner/pdf-overlay/{id}
+     * PDF overlay viewer for NER entity highlights.
+     */
+    public function nerPdfOverlay(int $id)
+    {
+        $culture = app()->getLocale();
+        $object  = $this->getInformationObject($id, $culture);
+        if (!$object) {
+            abort(404, 'Object not found');
+        }
+
+        $digitalObject = DB::table('digital_object')
+            ->where('object_id', $id)
+            ->whereNull('parent_id')
+            ->orderByDesc('id')
+            ->first();
+
+        $docInfo = null;
+        if ($digitalObject) {
+            $mimeType = $digitalObject->mime_type ?? '';
+            $isPdf    = str_contains($mimeType, 'pdf');
+            $webPath  = rtrim($digitalObject->path ?? '', '/') . '/' . ($digitalObject->name ?? '');
+            $absolutePath = '/mnt/nas/heratio/archive/' . ltrim($webPath, '/');
+
+            $pageCount = 1;
+            if ($isPdf && file_exists($absolutePath)) {
+                $output = [];
+                exec("pdfinfo " . escapeshellarg($absolutePath) . " 2>/dev/null | grep Pages", $output);
+                if (!empty($output[0])) {
+                    $pageCount = (int) preg_replace('/[^0-9]/', '', $output[0]);
+                }
+            }
+
+            $docInfo = [
+                'is_pdf'     => $isPdf,
+                'mime_type'  => $mimeType,
+                'url'        => $webPath,
+                'page_count' => $pageCount,
+                'filename'   => $digitalObject->name ?? '',
+            ];
+        }
+
+        $entityCounts = DB::table('ahg_ner_entity')
+            ->where('object_id', $id)
+            ->whereIn('status', ['approved', 'linked'])
+            ->select('entity_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('entity_type')
+            ->pluck('count', 'entity_type')
+            ->toArray();
+
+        return view('ahg-ai-services::ner-pdf-overlay', [
+            'object'        => $object,
+            'objectId'      => $id,
+            'docInfo'       => $docInfo,
+            'entityCounts'  => $entityCounts,
+            'totalEntities' => array_sum($entityCounts),
+        ]);
+    }
+
+    /**
+     * GET /admin/ai/ner/approved-entities/{id}
+     * Get approved/linked NER entities for an object (JSON).
+     */
+    public function nerGetApprovedEntities(int $id)
+    {
+        $culture = app()->getLocale();
+
+        $entities = DB::table('ahg_ner_entity')
+            ->where('object_id', $id)
+            ->whereIn('status', ['approved', 'linked'])
+            ->select('id', 'entity_type', 'entity_value', 'confidence', 'status', 'linked_actor_id')
+            ->orderBy('entity_type')
+            ->orderBy('entity_value')
+            ->get();
+
+        $typeConfig = [
+            'PERSON'      => ['color' => 'rgba(78, 121, 167, 0.35)', 'border' => '#4e79a7', 'label' => 'Person'],
+            'PER'         => ['color' => 'rgba(78, 121, 167, 0.35)', 'border' => '#4e79a7', 'label' => 'Person'],
+            'ORG'         => ['color' => 'rgba(89, 161, 79, 0.35)', 'border' => '#59a14f', 'label' => 'Organization'],
+            'GPE'         => ['color' => 'rgba(225, 87, 89, 0.35)', 'border' => '#e15759', 'label' => 'Place'],
+            'LOC'         => ['color' => 'rgba(225, 87, 89, 0.35)', 'border' => '#e15759', 'label' => 'Location'],
+            'DATE'        => ['color' => 'rgba(176, 122, 161, 0.35)', 'border' => '#b07aa1', 'label' => 'Date'],
+            'TIME'        => ['color' => 'rgba(176, 122, 161, 0.35)', 'border' => '#b07aa1', 'label' => 'Time'],
+            'EVENT'       => ['color' => 'rgba(118, 183, 178, 0.35)', 'border' => '#76b7b2', 'label' => 'Event'],
+            'WORK_OF_ART' => ['color' => 'rgba(255, 157, 167, 0.35)', 'border' => '#ff9da7', 'label' => 'Work'],
+        ];
+
+        $grouped = [];
+        foreach ($entities as $entity) {
+            $type = $entity->entity_type;
+            if (!isset($grouped[$type])) {
+                $config = $typeConfig[$type] ?? ['color' => 'rgba(186, 186, 186, 0.35)', 'border' => '#bababa', 'label' => $type];
+                $grouped[$type] = [
+                    'type'        => $type,
+                    'label'       => $config['label'],
+                    'color'       => $config['color'],
+                    'borderColor' => $config['border'],
+                    'entities'    => [],
+                ];
+            }
+
+            $linkedName = null;
+            if ($entity->linked_actor_id) {
+                $linkedName = $this->getLinkedEntityName($entity->linked_actor_id, $type, $culture);
+            }
+
+            $grouped[$type]['entities'][] = [
+                'id'            => $entity->id,
+                'value'         => $entity->entity_value,
+                'confidence'    => (float) $entity->confidence,
+                'status'        => $entity->status,
+                'linkedActorId' => $entity->linked_actor_id,
+                'linkedName'    => $linkedName,
+            ];
+        }
+
+        return response()->json([
+            'success'      => true,
+            'object_id'    => $id,
+            'entity_count' => count($entities),
+            'entity_types' => array_values($grouped),
+        ]);
+    }
+
+    /**
+     * GET /admin/ai/htr/{id}
+     * HTR (Handwriting Text Recognition) for a single object.
+     */
+    public function htrForObject(Request $request, int $id)
+    {
+        $culture = app()->getLocale();
+        $object  = $this->getInformationObject($id, $culture);
+
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        $imagePath = $this->getDigitalObjectPath($id, 'image');
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'No image found for HTR']);
+        }
+
+        $mode     = $request->input('mode', 'all');
+        $useZones = $request->boolean('use_zones', true);
+
+        $apiUrl = $this->getAiApiUrl();
+        $apiKey = $this->getAiApiKey();
+
+        $startTime = microtime(true);
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(120)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-API-Key'    => $apiKey,
+                ])
+                ->post($apiUrl . '/ai/v1/htr', [
+                    'image_path' => $imagePath,
+                    'mode'       => $mode,
+                    'use_zones'  => $useZones,
+                ]);
+
+            $elapsed = round((microtime(true) - $startTime) * 1000);
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'error'   => $response->json('error') ?? 'HTTP ' . $response->status(),
+                ]);
+            }
+
+            $result = $response->json();
+
+            $data = [
+                'success'            => true,
+                'mode'               => $mode,
+                'use_zones'          => $result['use_zones'] ?? $useZones,
+                'results'            => $result['results'] ?? [],
+                'text'               => $result['text'] ?? '',
+                'count'              => count($result['results'] ?? []),
+                'processing_time_ms' => $elapsed,
+                'image_path'         => $imagePath,
+            ];
+
+            if (!empty($result['zones'])) {
+                $data['zones']          = $result['zones'];
+                $data['zones_detected'] = $result['zones_detected'] ?? count($result['zones']);
+            }
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Connection error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * GET /admin/ai/summarize/{id}
+     * Summarize an information object's content.
+     */
+    public function summarizeObject(Request $request, int $id)
+    {
+        $culture   = app()->getLocale();
+        $maxLength = (int) $request->input('max_length', 1000);
+        $minLength = (int) $request->input('min_length', 100);
+
+        $object = $this->getInformationObject($id, $culture);
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        $apiUrl = $this->getAiApiUrl();
+        $apiKey = $this->getAiApiKey();
+
+        $pdfPath = $this->getDigitalObjectPath($id);
+        $text    = $this->getObjectTextForSummary($object);
+
+        if (empty(trim($text)) && (!$pdfPath || !file_exists($pdfPath))) {
+            return response()->json(['success' => false, 'error' => 'No text content found to summarize']);
+        }
+
+        $startTime = microtime(true);
+
+        try {
+            $payload = ['max_length' => $maxLength, 'min_length' => $minLength];
+            if ($pdfPath && file_exists($pdfPath)) {
+                $payload['pdf_path'] = $pdfPath;
+            } else {
+                $payload['text'] = $text;
+            }
+
+            $response = \Illuminate\Support\Facades\Http::timeout(120)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-API-Key'    => $apiKey,
+                ])
+                ->post($apiUrl . '/ai/v1/summarize', $payload);
+
+            $elapsed = round((microtime(true) - $startTime) * 1000);
+
+            if (!$response->successful()) {
+                return response()->json(['success' => false, 'error' => $response->json('error') ?? 'Summarization failed']);
+            }
+
+            $result  = $response->json();
+            $summary = $result['summary'] ?? null;
+
+            if (empty($summary)) {
+                return response()->json(['success' => false, 'error' => 'No summary generated']);
+            }
+
+            $saved = $this->saveScopeAndContent($id, $summary, $culture);
+
+            return response()->json([
+                'success'            => true,
+                'summary'            => $summary,
+                'summary_length'     => strlen($summary),
+                'original_length'    => $result['original_length'] ?? 0,
+                'processing_time_ms' => $elapsed,
+                'saved'              => $saved,
+                'source'             => $pdfPath ? 'pdf' : 'metadata',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /* ================================================================== */
+    /*  LLM Description Suggestion (ported from AtoM ahgAIPlugin)         */
+    /* ================================================================== */
+
+    /**
+     * GET /admin/ai/suggest/{id}
+     * Generate a description suggestion for an object.
+     */
+    public function suggest(Request $request, int $id)
+    {
+        $templateId  = $request->input('template_id');
+        $llmConfigId = $request->input('llm_config_id');
+        $userId      = auth()->id();
+
+        $object = $this->getInformationObject($id, app()->getLocale());
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        $result = $this->llmService->generateSuggestion($id, $templateId, $llmConfigId, $userId);
+        return response()->json($result);
+    }
+
+    /**
+     * GET /admin/ai/suggest/{id}/preview
+     * Preview a suggestion without saving.
+     */
+    public function suggestPreview(Request $request, int $id)
+    {
+        $templateId  = $request->input('template_id');
+        $llmConfigId = $request->input('llm_config_id');
+
+        $object = $this->getInformationObject($id, app()->getLocale());
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        $context = $this->llmService->gatherContext($id);
+        if (!($context['success'] ?? false)) {
+            return response()->json($context);
+        }
+
+        $template = $this->llmService->getTemplateForObject($id, $templateId);
+        if (!$template) {
+            return response()->json(['success' => false, 'error' => 'No template available']);
+        }
+
+        $prompts = $this->llmService->buildPrompt($template, $context['data']);
+        $result  = $this->llmService->complete($prompts['system'], $prompts['user'], $llmConfigId);
+
+        if (!($result['success'] ?? false)) {
+            return response()->json($result);
+        }
+
+        return response()->json([
+            'success'           => true,
+            'preview_text'      => $result['text'],
+            'existing_text'     => $context['data']['scope_and_content'] ?? null,
+            'tokens_used'       => $result['tokens_used'] ?? 0,
+            'model_used'        => $result['model'] ?? '',
+            'generation_time_ms'=> $result['generation_time_ms'] ?? 0,
+            'template_name'     => $template->name ?? '',
+            'has_ocr'           => !empty($context['data']['ocr_text']),
+            'context_summary'   => [
+                'title'      => $context['data']['title'] ?? '',
+                'identifier' => $context['data']['identifier'] ?? '',
+                'level'      => $context['data']['level_of_description'] ?? '',
+                'date_range' => $context['data']['date_range'] ?? '',
+            ],
+        ]);
+    }
+
+    /**
+     * GET /admin/ai/suggest/{id}/view
+     * View a single suggestion detail.
+     */
+    public function suggestView(int $id)
+    {
+        $culture = app()->getLocale();
+
+        $suggestion = DB::table('ahg_ai_suggestion')->where('id', $id)->first();
+        if (!$suggestion) {
+            return response()->json(['success' => false, 'error' => 'Suggestion not found']);
+        }
+
+        $objectTitle = DB::table('information_object_i18n')
+            ->where('id', $suggestion->object_id)
+            ->where('culture', $culture)
+            ->value('title') ?? 'Untitled';
+
+        $objectSlug = DB::table('slug')
+            ->where('object_id', $suggestion->object_id)
+            ->value('slug');
+
+        return response()->json([
+            'success'      => true,
+            'suggestion'   => $suggestion,
+            'object_title' => $objectTitle,
+            'object_slug'  => $objectSlug,
+        ]);
+    }
+
+    /**
+     * POST /admin/ai/suggest/{id}/decision
+     * Process suggestion decision (approve/reject).
+     */
+    public function suggestDecision(Request $request, int $id)
+    {
+        $decision   = $request->input('decision', '');
+        $editedText = $request->input('edited_text');
+        $notes      = $request->input('notes');
+        $userId     = auth()->id();
+
+        $suggestion = DB::table('ahg_ai_suggestion')->where('id', $id)->first();
+        if (!$suggestion) {
+            return response()->json(['success' => false, 'error' => 'Suggestion not found']);
+        }
+
+        if ($decision === 'approve') {
+            $culture = app()->getLocale();
+            $text    = $editedText ?: $suggestion->suggested_text;
+
+            DB::table('information_object_i18n')
+                ->where('id', $suggestion->object_id)
+                ->where('culture', $culture)
+                ->update(['scope_and_content' => $text]);
+
+            DB::table('ahg_ai_suggestion')->where('id', $id)->update([
+                'status'      => 'approved',
+                'reviewed_by' => $userId,
+                'reviewed_at' => now(),
+                'notes'       => $notes,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Suggestion approved and applied']);
+        } elseif ($decision === 'reject') {
+            DB::table('ahg_ai_suggestion')->where('id', $id)->update([
+                'status'      => 'rejected',
+                'reviewed_by' => $userId,
+                'reviewed_at' => now(),
+                'notes'       => $notes,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Suggestion rejected']);
+        }
+
+        return response()->json(['success' => false, 'error' => 'Invalid decision']);
+    }
+
+    /**
+     * GET /admin/ai/suggest/object/{id}
+     * Get suggestions for a specific object.
+     */
+    public function suggestObject(Request $request, int $id)
+    {
+        $status = $request->input('status');
+
+        $query = DB::table('ahg_ai_suggestion')->where('object_id', $id);
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $suggestions = $query->orderByDesc('created_at')->get();
+
+        return response()->json(['success' => true, 'suggestions' => $suggestions]);
+    }
+
+    /* ================================================================== */
+    /*  LLM Configurations & Health                                        */
+    /* ================================================================== */
+
+    /**
+     * GET /admin/ai/llm/configs
+     */
+    public function llmConfigs(Request $request)
+    {
+        $activeOnly = $request->input('active', '1') === '1';
+
+        $configs = $this->llmService->getConfigurations($activeOnly);
+
+        // Remove encrypted API keys from response
+        foreach ($configs as &$config) {
+            $hasKey = !empty($config->api_key_encrypted);
+            unset($config->api_key_encrypted);
+            $config->has_api_key = $hasKey;
+        }
+
+        return response()->json(['success' => true, 'configs' => $configs]);
+    }
+
+    /**
+     * GET /admin/ai/llm/health
+     */
+    public function llmHealth()
+    {
+        $health = $this->llmService->getAllHealth();
+        return response()->json(['success' => true, 'providers' => $health]);
+    }
+
+    /**
+     * GET /admin/ai/templates
+     * Get prompt templates.
+     */
+    public function templates(Request $request)
+    {
+        $activeOnly = $request->input('active', '1') === '1';
+
+        $query = DB::table('ahg_ai_prompt_template');
+        if ($activeOnly) {
+            $query->where('is_active', 1);
+        }
+
+        $templates = $query->orderBy('name')->get();
+
+        // Template variables
+        $variables = [
+            'title', 'identifier', 'scope_and_content', 'level_of_description',
+            'date_range', 'repository_name', 'parent_title', 'extent_and_medium',
+            'archival_history', 'arrangement', 'access_conditions', 'ocr_text',
+        ];
+
+        return response()->json([
+            'success'   => true,
+            'templates' => $templates,
+            'variables' => $variables,
+        ]);
+    }
+
+    /* ================================================================== */
+    /*  Batch Queue Management                                             */
+    /* ================================================================== */
+
+    /**
+     * GET/POST /admin/ai/batch/create
+     */
+    public function batchCreate(Request $request)
+    {
+        if ($request->isMethod('get')) {
+            $culture      = app()->getLocale();
+            $repositories = DB::table('actor')
+                ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+                ->where('actor.class_name', 'QubitRepository')
+                ->where('actor_i18n.culture', $culture)
+                ->orderBy('actor_i18n.authorized_form_of_name')
+                ->select('actor.id', 'actor_i18n.authorized_form_of_name as name')
+                ->get();
+
+            return view('ahg-ai-services::batch-create', ['repositories' => $repositories]);
+        }
+
+        // POST - create batch
+        $data = $request->all();
+
+        if (empty($data['name']) || empty($data['task_types'])) {
+            return response()->json(['success' => false, 'error' => 'Name and task types are required']);
+        }
+
+        try {
+            $batchId = DB::table('ahg_ai_batch')->insertGetId([
+                'name'             => $data['name'],
+                'description'      => $data['description'] ?? null,
+                'task_types'       => is_array($data['task_types']) ? implode(',', $data['task_types']) : $data['task_types'],
+                'status'           => 'pending',
+                'priority'         => $data['priority'] ?? 5,
+                'max_concurrent'   => $data['max_concurrent'] ?? 5,
+                'delay_between_ms' => $data['delay_between_ms'] ?? 1000,
+                'max_retries'      => $data['max_retries'] ?? 3,
+                'total_items'      => 0,
+                'completed_items'  => 0,
+                'failed_items'     => 0,
+                'progress_percent' => 0,
+                'created_by'       => auth()->id(),
+                'created_at'       => now(),
+            ]);
+
+            // Get object IDs
+            $objectIds = [];
+            if (!empty($data['object_ids'])) {
+                $objectIds = is_array($data['object_ids']) ? $data['object_ids'] : explode(',', $data['object_ids']);
+            } elseif (!empty($data['repository_id'])) {
+                $query = DB::table('information_object')
+                    ->where('repository_id', $data['repository_id'])
+                    ->where('id', '!=', 1);
+
+                if (!empty($data['level_id'])) {
+                    $query->where('level_of_description_id', $data['level_id']);
+                }
+                $objectIds = $query->limit($data['limit'] ?? 1000)->pluck('id')->toArray();
+            }
+
+            if (empty($objectIds)) {
+                DB::table('ahg_ai_batch')->where('id', $batchId)->delete();
+                return response()->json(['success' => false, 'error' => 'No objects selected']);
+            }
+
+            // Add items
+            $taskTypes = is_array($data['task_types']) ? $data['task_types'] : explode(',', $data['task_types']);
+            $itemCount = 0;
+            foreach ($objectIds as $objectId) {
+                foreach ($taskTypes as $taskType) {
+                    DB::table('ahg_ai_job')->insert([
+                        'batch_id'   => $batchId,
+                        'object_id'  => (int) $objectId,
+                        'task_type'  => trim($taskType),
+                        'status'     => 'pending',
+                        'priority'   => $data['priority'] ?? 5,
+                        'created_at' => now(),
+                    ]);
+                    $itemCount++;
+                }
+            }
+
+            DB::table('ahg_ai_batch')->where('id', $batchId)->update(['total_items' => $itemCount]);
+
+            if (!empty($data['auto_start'])) {
+                DB::table('ahg_ai_batch')->where('id', $batchId)->update(['status' => 'running', 'started_at' => now()]);
+            }
+
+            return response()->json([
+                'success'    => true,
+                'batch_id'   => $batchId,
+                'item_count' => $itemCount,
+                'message'    => "Batch created with {$itemCount} items",
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * GET /admin/ai/batch/{id}/progress
+     */
+    public function batchProgress(int $id)
+    {
+        $batch = DB::table('ahg_ai_batch')->where('id', $id)->first();
+        if (!$batch) {
+            return response()->json(['success' => false, 'error' => 'Batch not found']);
+        }
+
+        $stats = DB::table('ahg_ai_job')
+            ->where('batch_id', $id)
+            ->select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        return response()->json([
+            'success'          => true,
+            'status'           => $batch->status,
+            'progress_percent' => (float) $batch->progress_percent,
+            'total'            => (int) $batch->total_items,
+            'completed'        => (int) $batch->completed_items,
+            'failed'           => (int) $batch->failed_items,
+            'stats'            => $stats,
+        ]);
+    }
+
+    /**
+     * POST /admin/ai/batch/{id}/action
+     * Batch actions: start, pause, resume, cancel, retry, delete.
+     */
+    public function batchAction(Request $request, int $id)
+    {
+        $action = $request->input('action', '');
+
+        $batch = DB::table('ahg_ai_batch')->where('id', $id)->first();
+        if (!$batch) {
+            return response()->json(['success' => false, 'error' => 'Batch not found']);
+        }
+
+        try {
+            switch ($action) {
+                case 'start':
+                    DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'running', 'started_at' => now()]);
+                    $message = 'Batch started';
+                    break;
+
+                case 'pause':
+                    DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'paused']);
+                    $message = 'Batch paused';
+                    break;
+
+                case 'resume':
+                    DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'running']);
+                    $message = 'Batch resumed';
+                    break;
+
+                case 'cancel':
+                    DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'cancelled']);
+                    DB::table('ahg_ai_job')->where('batch_id', $id)->where('status', 'pending')->update(['status' => 'cancelled']);
+                    $message = 'Batch cancelled';
+                    break;
+
+                case 'retry':
+                    $count = DB::table('ahg_ai_job')->where('batch_id', $id)->where('status', 'failed')
+                        ->update(['status' => 'pending', 'error_message' => null, 'attempts' => 0]);
+                    if ($count > 0) {
+                        DB::table('ahg_ai_batch')->where('id', $id)->update(['status' => 'running']);
+                    }
+                    $message = $count > 0 ? "Retrying {$count} failed jobs" : 'No failed jobs to retry';
+                    break;
+
+                case 'delete':
+                    DB::table('ahg_ai_job')->where('batch_id', $id)->delete();
+                    DB::table('ahg_ai_batch')->where('id', $id)->delete();
+                    $message = 'Batch deleted';
+                    break;
+
+                default:
+                    return response()->json(['success' => false, 'error' => 'Unknown action']);
+            }
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * POST /admin/ai/batch/{id}/process
+     * Process next pending jobs in a batch.
+     */
+    public function batchProcess(int $id)
+    {
+        $batch = DB::table('ahg_ai_batch')->where('id', $id)->where('status', 'running')->first();
+        if (!$batch) {
+            return response()->json(['success' => false, 'error' => 'Batch not found or not running']);
+        }
+
+        $jobs = DB::table('ahg_ai_job')
+            ->where('batch_id', $id)
+            ->where('status', 'pending')
+            ->orderBy('priority')
+            ->limit($batch->max_concurrent ?? 5)
+            ->get();
+
+        $processed = 0;
+        foreach ($jobs as $job) {
+            try {
+                DB::table('ahg_ai_job')->where('id', $job->id)->update([
+                    'status'     => 'processing',
+                    'started_at' => now(),
+                ]);
+
+                // Dispatch to appropriate handler based on task_type
+                $this->processAiJob($job);
+
+                DB::table('ahg_ai_job')->where('id', $job->id)->update([
+                    'status'       => 'completed',
+                    'completed_at' => now(),
+                ]);
+
+                $processed++;
+
+                // Apply delay
+                if (($batch->delay_between_ms ?? 0) > 0) {
+                    usleep($batch->delay_between_ms * 1000);
+                }
+            } catch (\Exception $e) {
+                DB::table('ahg_ai_job')->where('id', $job->id)->update([
+                    'status'        => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'completed_at'  => now(),
+                ]);
+            }
+        }
+
+        // Update batch progress
+        $total     = DB::table('ahg_ai_job')->where('batch_id', $id)->count();
+        $completed = DB::table('ahg_ai_job')->where('batch_id', $id)->where('status', 'completed')->count();
+        $failed    = DB::table('ahg_ai_job')->where('batch_id', $id)->where('status', 'failed')->count();
+        $percent   = $total > 0 ? round(($completed + $failed) / $total * 100, 1) : 0;
+
+        $batchUpdate = [
+            'completed_items'  => $completed,
+            'failed_items'     => $failed,
+            'progress_percent' => $percent,
+        ];
+        if (($completed + $failed) >= $total) {
+            $batchUpdate['status']       = 'completed';
+            $batchUpdate['completed_at'] = now();
+        }
+
+        DB::table('ahg_ai_batch')->where('id', $id)->update($batchUpdate);
+
+        return response()->json(['success' => true, 'processed' => $processed]);
+    }
+
+    /**
+     * GET /admin/ai/job/{id}
+     * View individual job details.
+     */
+    public function jobView(int $id)
+    {
+        $culture = app()->getLocale();
+
+        $job = DB::table('ahg_ai_job')->where('id', $id)->first();
+        if (!$job) {
+            return response()->json(['success' => false, 'error' => 'Job not found']);
+        }
+
+        $object = DB::table('information_object')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
+                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                     ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->where('information_object.id', $job->object_id)
+            ->select('slug.slug', 'information_object_i18n.title')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'job'     => $job,
+            'object'  => $object,
+        ]);
+    }
+
+    /* ================================================================== */
+    /*  Private helper methods for NER/Suggest/Batch                       */
+    /* ================================================================== */
+
+    private function getAiApiUrl(): string
+    {
+        return DB::table('ahg_ai_settings')
+            ->where('feature', 'general')
+            ->where('setting_key', 'api_url')
+            ->value('setting_value') ?? 'http://192.168.0.112:5004';
+    }
+
+    private function getAiApiKey(): string
+    {
+        return DB::table('ahg_ai_settings')
+            ->where('feature', 'general')
+            ->where('setting_key', 'api_key')
+            ->value('setting_value') ?? '';
+    }
+
+    private function getInformationObject(int $id, string $culture = 'en'): ?object
+    {
+        return DB::table('information_object')
+            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
+                $join->on('information_object.id', '=', 'information_object_i18n.id')
+                     ->where('information_object_i18n.culture', '=', $culture);
+            })
+            ->where('information_object.id', $id)
+            ->select(
+                'information_object.id',
+                'information_object.parent_id',
+                'information_object.repository_id',
+                'information_object.level_of_description_id',
+                'information_object_i18n.title',
+                'information_object_i18n.scope_and_content as scopeAndContent',
+                'information_object_i18n.archival_history as archivalHistory',
+                'information_object_i18n.extent_and_medium as extentAndMedium',
+                'information_object_i18n.arrangement',
+                'information_object_i18n.physical_characteristics as physicalCharacteristics',
+                'information_object_i18n.acquisition'
+            )
+            ->first();
+    }
+
+    private function getObjectText(object $object): string
+    {
+        $parts = [];
+        if (!empty($object->title))             $parts[] = $object->title;
+        if (!empty($object->scopeAndContent))    $parts[] = $object->scopeAndContent;
+        if (!empty($object->archivalHistory))    $parts[] = $object->archivalHistory;
+        if (!empty($object->extentAndMedium))    $parts[] = $object->extentAndMedium;
+        if (!empty($object->arrangement))        $parts[] = $object->arrangement;
+        return implode("\n\n", $parts);
+    }
+
+    private function getObjectTextForSummary(object $object): string
+    {
+        $parts = [];
+        if (!empty($object->title))                $parts[] = $object->title;
+        if (!empty($object->archivalHistory))       $parts[] = $object->archivalHistory;
+        if (!empty($object->extentAndMedium))       $parts[] = $object->extentAndMedium;
+        if (!empty($object->arrangement))           $parts[] = $object->arrangement;
+        if (!empty($object->physicalCharacteristics)) $parts[] = $object->physicalCharacteristics;
+        if (!empty($object->acquisition))           $parts[] = $object->acquisition;
+        return implode("\n\n", $parts);
+    }
+
+    private function getDigitalObjectPath(int $objectId, string $type = 'any'): ?string
+    {
+        $digitalObject = DB::table('digital_object')
+            ->where('object_id', $objectId)
+            ->whereNull('parent_id')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$digitalObject) {
+            return null;
+        }
+
+        $pdfExts   = ['pdf'];
+        $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'bmp', 'webp'];
+
+        $allowedExts = match ($type) {
+            'pdf'   => $pdfExts,
+            'image' => $imageExts,
+            default => array_merge($pdfExts, $imageExts),
+        };
+
+        $path = $digitalObject->path ?? null;
+        $name = $digitalObject->name ?? null;
+
+        if ($path && $name) {
+            // Try Heratio uploads path
+            $fullPath = '/mnt/nas/heratio/archive/' . ltrim($path, '/') . $name;
+            if (file_exists($fullPath)) {
+                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                if (in_array($ext, $allowedExts)) {
+                    return $fullPath;
+                }
+            }
+
+            // Try AtoM path
+            $fullPath = '/usr/share/nginx/archive/' . ltrim($path, '/') . $name;
+            if (file_exists($fullPath)) {
+                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                if (in_array($ext, $allowedExts)) {
+                    return $fullPath;
+                }
+            }
+
+            // Try AtoM uploads
+            $fullPath = '/usr/share/nginx/archive/uploads/' . ltrim(str_replace('/uploads/', '', $path), '/') . $name;
+            if (file_exists($fullPath)) {
+                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                if (in_array($ext, $allowedExts)) {
+                    return $fullPath;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function callNerApi(string $apiUrl, string $apiKey, ?string $text = null, ?string $pdfPath = null): ?array
+    {
+        try {
+            $payload = [];
+            if ($pdfPath) {
+                $payload['pdf_path'] = $pdfPath;
+            } else {
+                $payload['text'] = $text;
+            }
+
+            $response = \Illuminate\Support\Facades\Http::timeout(120)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-API-Key'    => $apiKey,
+                ])
+                ->post($apiUrl . '/ai/v1/ner/extract', $payload);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    private function saveExtraction(int $objectId, array $entities): void
+    {
+        try {
+            DB::table('ahg_ner_entity')
+                ->where('object_id', $objectId)
+                ->where('status', 'pending')
+                ->delete();
+
+            $extractionId = DB::table('ahg_ner_extraction')->insertGetId([
+                'object_id'    => $objectId,
+                'backend_used' => 'local',
+                'status'       => 'pending',
+                'extracted_at' => now(),
+            ]);
+
+            $uniqueEntities = [];
+            foreach ($entities as $type => $values) {
+                $seen = [];
+                foreach ($values as $value) {
+                    $key = strtolower(trim($value));
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = $value;
+                    }
+                }
+                $uniqueEntities[$type] = array_values($seen);
+            }
+
+            foreach ($uniqueEntities as $type => $values) {
+                foreach ($values as $value) {
+                    DB::table('ahg_ner_entity')->insert([
+                        'extraction_id' => $extractionId,
+                        'object_id'     => $objectId,
+                        'entity_type'   => $type,
+                        'entity_value'  => $value,
+                        'status'        => 'pending',
+                        'created_at'    => now(),
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error("NER save error: " . $e->getMessage());
+        }
+    }
+
+    private function findMatchingActors(string $entityValue): array
+    {
+        $exact = DB::table('actor_i18n')
+            ->join('actor', 'actor.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.authorized_form_of_name', $entityValue)
+            ->select('actor.id', 'actor_i18n.authorized_form_of_name as name')
+            ->get()->toArray();
+
+        $partial = DB::table('actor_i18n')
+            ->join('actor', 'actor.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $entityValue . '%')
+            ->whereNotIn('actor.id', array_column($exact, 'id'))
+            ->select('actor.id', 'actor_i18n.authorized_form_of_name as name')
+            ->limit(5)->get()->toArray();
+
+        return ['exact' => $exact, 'partial' => $partial];
+    }
+
+    private function findMatchingPlaces(string $entityValue): array
+    {
+        $exact = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', self::TAXONOMY_PLACE_ID)
+            ->where('term_i18n.name', $entityValue)
+            ->select('term.id', 'term_i18n.name')
+            ->get()->toArray();
+
+        $partial = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', self::TAXONOMY_PLACE_ID)
+            ->where('term_i18n.name', 'LIKE', '%' . $entityValue . '%')
+            ->whereNotIn('term.id', array_column($exact, 'id'))
+            ->select('term.id', 'term_i18n.name')
+            ->limit(5)->get()->toArray();
+
+        return ['exact' => $exact, 'partial' => $partial];
+    }
+
+    private function linkActorToObject(int $objectId, int $actorId): void
+    {
+        $culture = app()->getLocale();
+
+        $exists = DB::table('relation')
+            ->where('subject_id', $objectId)
+            ->where('object_id', $actorId)
+            ->where('type_id', self::NAME_ACCESS_POINT_ID)
+            ->exists();
+
+        if (!$exists) {
+            $nextId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('relation')->insert([
+                'source_culture' => $culture,
+                'id'             => $nextId,
+                'subject_id'     => $objectId,
+                'object_id'      => $actorId,
+                'type_id'        => self::NAME_ACCESS_POINT_ID,
+            ]);
+        }
+    }
+
+    private function linkPlaceToObject(int $objectId, int $termId): void
+    {
+        $exists = DB::table('object_term_relation')
+            ->where('object_id', $objectId)
+            ->where('term_id', $termId)
+            ->exists();
+
+        if (!$exists) {
+            $nextId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitObjectTermRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('object_term_relation')->insert([
+                'id'        => $nextId,
+                'object_id' => $objectId,
+                'term_id'   => $termId,
+            ]);
+        }
+    }
+
+    private function linkSubjectToObject(int $objectId, int $termId): void
+    {
+        $this->linkPlaceToObject($objectId, $termId);
+    }
+
+    private function generateUniqueSlug(string $name): string
+    {
+        $slug = Str::slug($name);
+        if (empty($slug)) {
+            $slug = 'untitled';
+        }
+
+        $baseSlug = $slug;
+        $counter  = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    private function getLinkedEntityName(int $linkedId, string $entityType, string $culture): ?string
+    {
+        if (in_array($entityType, ['PERSON', 'PER', 'ORG'])) {
+            $name = DB::table('actor_i18n')
+                ->where('id', $linkedId)
+                ->where('culture', $culture)
+                ->value('authorized_form_of_name');
+            if ($name) {
+                return $name;
+            }
+        }
+
+        return DB::table('term_i18n')
+            ->where('id', $linkedId)
+            ->where('culture', $culture)
+            ->value('name');
+    }
+
+    private function processNerCreate(object $entity, string $createType, string $culture): void
+    {
+        $type = str_replace('create_', '', $createType);
+
+        if ($type === 'actor') {
+            $existing = DB::table('actor_i18n')
+                ->where('authorized_form_of_name', $entity->entity_value)
+                ->first();
+
+            if ($existing) {
+                $this->linkActorToObject($entity->object_id, $existing->id);
+                $actorId = $existing->id;
+            } else {
+                $entityTypeId = ($entity->entity_type === 'ORG') ? self::CORPORATE_BODY_ID : self::PERSON_ID;
+
+                $actorId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitActor',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::table('actor')->insert([
+                    'id' => $actorId, 'entity_type_id' => $entityTypeId, 'source_culture' => $culture,
+                ]);
+                DB::table('actor_i18n')->insert([
+                    'id' => $actorId, 'culture' => $culture, 'authorized_form_of_name' => $entity->entity_value,
+                ]);
+                DB::table('slug')->insert([
+                    'object_id' => $actorId, 'slug' => $this->generateUniqueSlug($entity->entity_value),
+                ]);
+                $this->linkActorToObject($entity->object_id, $actorId);
+            }
+            DB::table('ahg_ner_entity')->where('id', $entity->id)->update([
+                'status' => 'linked', 'linked_actor_id' => $actorId, 'reviewed_at' => now(),
+            ]);
+
+        } elseif ($type === 'place') {
+            $existing = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', self::TAXONOMY_PLACE_ID)
+                ->where('term_i18n.name', $entity->entity_value)
+                ->first();
+
+            if ($existing) {
+                $this->linkPlaceToObject($entity->object_id, $existing->id);
+                $termId = $existing->id;
+            } else {
+                $termId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitTerm', 'created_at' => now(), 'updated_at' => now(),
+                ]);
+                DB::table('term')->insert([
+                    'id' => $termId, 'taxonomy_id' => self::TAXONOMY_PLACE_ID, 'source_culture' => $culture,
+                ]);
+                DB::table('term_i18n')->insert([
+                    'id' => $termId, 'culture' => $culture, 'name' => $entity->entity_value,
+                ]);
+                DB::table('slug')->insert([
+                    'object_id' => $termId, 'slug' => $this->generateUniqueSlug($entity->entity_value),
+                ]);
+                $this->linkPlaceToObject($entity->object_id, $termId);
+            }
+            DB::table('ahg_ner_entity')->where('id', $entity->id)->update([
+                'status' => 'linked', 'linked_actor_id' => $termId, 'reviewed_at' => now(),
+            ]);
+
+        } elseif ($type === 'subject') {
+            $existing = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->where('term.taxonomy_id', self::TAXONOMY_SUBJECT_ID)
+                ->where('term_i18n.name', $entity->entity_value)
+                ->first();
+
+            if ($existing) {
+                $this->linkSubjectToObject($entity->object_id, $existing->id);
+                $termId = $existing->id;
+            } else {
+                $termId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitTerm', 'created_at' => now(), 'updated_at' => now(),
+                ]);
+                DB::table('term')->insert([
+                    'id' => $termId, 'taxonomy_id' => self::TAXONOMY_SUBJECT_ID, 'source_culture' => $culture,
+                ]);
+                DB::table('term_i18n')->insert([
+                    'id' => $termId, 'culture' => $culture, 'name' => $entity->entity_value,
+                ]);
+                DB::table('slug')->insert([
+                    'object_id' => $termId, 'slug' => $this->generateUniqueSlug($entity->entity_value),
+                ]);
+                $this->linkSubjectToObject($entity->object_id, $termId);
+            }
+            DB::table('ahg_ner_entity')->where('id', $entity->id)->update([
+                'status' => 'linked', 'linked_actor_id' => $termId, 'reviewed_at' => now(),
+            ]);
+
+        } elseif ($type === 'date') {
+            $this->processDateCreate($entity);
+        }
+    }
+
+    private function processNerLink(object $entity, int $targetId): void
+    {
+        if (in_array($entity->entity_type, ['PERSON', 'ORG'])) {
+            $this->linkActorToObject($entity->object_id, $targetId);
+        } elseif ($entity->entity_type === 'GPE') {
+            $this->linkPlaceToObject($entity->object_id, $targetId);
+        } else {
+            $this->linkSubjectToObject($entity->object_id, $targetId);
+        }
+
+        DB::table('ahg_ner_entity')->where('id', $entity->id)->update([
+            'status' => 'linked', 'linked_actor_id' => $targetId, 'reviewed_at' => now(),
+        ]);
+    }
+
+    private function processDateCreate(object $entity): void
+    {
+        $culture = app()->getLocale();
+        $parsed  = $this->parseDateString($entity->entity_value);
+
+        if ($parsed) {
+            $exists = DB::table('event')
+                ->where('object_id', $entity->object_id)
+                ->where('type_id', 111)
+                ->where('start_date', $parsed['start'])
+                ->exists();
+
+            if (!$exists) {
+                $nextId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitEvent', 'created_at' => now(), 'updated_at' => now(),
+                ]);
+                DB::table('event')->insert([
+                    'id' => $nextId, 'object_id' => $entity->object_id,
+                    'type_id' => 111, 'start_date' => $parsed['start'],
+                    'end_date' => $parsed['end'], 'source_culture' => $culture,
+                ]);
+                DB::table('event_i18n')->insert([
+                    'id' => $nextId, 'culture' => $culture, 'date' => $entity->entity_value,
+                ]);
+
+                DB::table('ahg_ner_entity')->where('id', $entity->id)->update([
+                    'status' => 'linked', 'linked_actor_id' => $nextId, 'reviewed_at' => now(),
+                ]);
+            }
+        }
+    }
+
+    private function parseDateString(string $dateString): ?array
+    {
+        $dateString = trim($dateString);
+        $months = [
+            'january' => '01', 'february' => '02', 'march' => '03', 'april' => '04',
+            'may' => '05', 'june' => '06', 'july' => '07', 'august' => '08',
+            'september' => '09', 'october' => '10', 'november' => '11', 'december' => '12',
+        ];
+
+        if (preg_match('/^(\d{1,2})\s+(\w+)\s+(\d{4})$/i', $dateString, $m)) {
+            $day   = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+            $month = $months[strtolower($m[2])] ?? null;
+            if ($month) {
+                $date = "{$m[3]}-{$month}-{$day}";
+                return ['start' => $date, 'end' => $date];
+            }
+        }
+        if (preg_match('/^(\w+)\s+(\d{4})$/i', $dateString, $m)) {
+            $month = $months[strtolower($m[1])] ?? null;
+            if ($month) {
+                $start   = "{$m[2]}-{$month}-01";
+                $lastDay = date('t', strtotime($start));
+                return ['start' => $start, 'end' => "{$m[2]}-{$month}-{$lastDay}"];
+            }
+        }
+        if (preg_match('/^(\d{4})$/', $dateString, $m)) {
+            return ['start' => "{$m[1]}-01-01", 'end' => "{$m[1]}-12-31"];
+        }
+        if (preg_match('/^(\d{4})-(\d{4})$/', $dateString, $m)) {
+            return ['start' => "{$m[1]}-01-01", 'end' => "{$m[2]}-12-31"];
+        }
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $dateString)) {
+            return ['start' => $dateString, 'end' => $dateString];
+        }
+
+        return null;
+    }
+
+    private function saveScopeAndContent(int $objectId, string $summary, string $culture): bool
+    {
+        try {
+            $taggedSummary = '[AI Summarized] ' . $summary;
+
+            $existing = DB::table('information_object_i18n')
+                ->where('id', $objectId)
+                ->where('culture', $culture)
+                ->first();
+
+            if ($existing) {
+                $currentText = $existing->scope_and_content ?? '';
+                if (!empty(trim($currentText)) && !str_starts_with($currentText, '[AI Summarized]')) {
+                    return false;
+                }
+
+                DB::table('information_object_i18n')
+                    ->where('id', $objectId)
+                    ->where('culture', $culture)
+                    ->update(['scope_and_content' => $taggedSummary]);
+            } else {
+                DB::table('information_object_i18n')->insert([
+                    'id' => $objectId, 'culture' => $culture, 'scope_and_content' => $taggedSummary,
+                ]);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            \Log::error("Error saving scope and content: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function processAiJob(object $job): void
+    {
+        $taskType = $job->task_type;
+        $objectId = $job->object_id;
+
+        switch ($taskType) {
+            case 'ner_extract':
+                $culture = app()->getLocale();
+                $object  = $this->getInformationObject($objectId, $culture);
+                if ($object) {
+                    $text    = $this->getObjectText($object);
+                    $apiUrl  = $this->getAiApiUrl();
+                    $apiKey  = $this->getAiApiKey();
+                    $result  = $this->callNerApi($apiUrl, $apiKey, $text);
+                    if ($result && ($result['success'] ?? false)) {
+                        $this->saveExtraction($objectId, $result['entities']);
+                    }
+                }
+                break;
+
+            case 'summarize':
+                $culture = app()->getLocale();
+                $object  = $this->getInformationObject($objectId, $culture);
+                if ($object) {
+                    $text = $this->getObjectTextForSummary($object);
+                    if (!empty(trim($text))) {
+                        $apiUrl = $this->getAiApiUrl();
+                        $apiKey = $this->getAiApiKey();
+                        try {
+                            $response = \Illuminate\Support\Facades\Http::timeout(120)
+                                ->withHeaders(['Content-Type' => 'application/json', 'X-API-Key' => $apiKey])
+                                ->post($apiUrl . '/ai/v1/summarize', ['text' => $text]);
+                            if ($response->successful()) {
+                                $summary = $response->json('summary');
+                                if ($summary) {
+                                    $this->saveScopeAndContent($objectId, $summary, $culture);
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            throw $e;
+                        }
+                    }
+                }
+                break;
+
+            case 'suggest_description':
+                $result = $this->llmService->generateSuggestion($objectId, null, null, null);
+                if (!($result['success'] ?? false)) {
+                    throw new \Exception($result['error'] ?? 'Suggestion failed');
+                }
+                break;
+
+            default:
+                throw new \Exception("Unknown task type: {$taskType}");
+        }
+    }
+
     public function conditionAssess(Request $request) { return view('ahg-ai-services::condition-assess', ['rows' => collect()]); }
 
     public function conditionBrowse(Request $request) { return view('ahg-ai-services::condition-browse', ['rows' => collect()]); }

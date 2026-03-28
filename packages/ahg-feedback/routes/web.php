@@ -21,4 +21,9 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/feedback/{id}/update', [FeedbackController::class, 'update'])->name('feedback.update')->whereNumber('id');
     Route::post('/admin/feedback/{id}/delete', [FeedbackController::class, 'destroy'])->name('feedback.destroy')->whereNumber('id');
     Route::get('/feedback/view/{id}', [FeedbackController::class, 'view'])->name('feedback.view')->whereNumber('id');
+
+    // Legacy AtoM URL aliases
+    Route::get('/feedback/{id}/edit', fn ($id) => redirect()->route('feedback.edit', $id))->whereNumber('id');
+    Route::post('/feedback/{id}/delete', [FeedbackController::class, 'destroy'])->whereNumber('id');
+    Route::get('/feedback/{id}', [FeedbackController::class, 'view'])->whereNumber('id');
 });
