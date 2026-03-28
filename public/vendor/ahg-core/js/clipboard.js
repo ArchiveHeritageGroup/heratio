@@ -40,6 +40,10 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }
 
+  function clearItems() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
   function totalCount(items) {
     var total = 0;
     TYPES.forEach(function (t) {
@@ -122,13 +126,24 @@
     updateMenuBadge(items);
 
     // Fetch server-side clipboard and merge (for logged-in users)
-    var csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
+    // Skip merge if clipboard was just cleared (session flag via flash)
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
       fetch('/clipboard/count', {
         headers: { 'Accept': 'application/json' }
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
+        // If server clipboard is empty, trust it — don't push local items back
+        if (data.count === 0) {
+          // Server is empty: clear local to match
+          if (totalCount(getItems()) > 0) {
+            clearItems();
+            updateAllButtons(initItems());
+            updateMenuBadge(initItems());
+          }
+          return;
+        }
         if (data.items) {
           // Merge server items into localStorage
           var localItems = getItems();
@@ -151,6 +166,59 @@
         }
       })
       .catch(function() { /* silent — not logged in or endpoint unavailable */ });
+    }
+
+    // Clear button (header menu) — pure JS, no form
+    var clearBtn = document.getElementById('clipboard-clear-btn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        // 1. Clear localStorage immediately
+        clearItems();
+        updateMenuBadge(initItems());
+        updateAllButtons(initItems());
+
+        // 2. Clear server session
+        var url = this.getAttribute('data-clear-url');
+        var token = this.getAttribute('data-csrf');
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({})
+        }).then(function() {
+          window.location.reload();
+        }).catch(function() {
+          window.location.reload();
+        });
+      });
+    }
+
+    // Clear form on clipboard index page
+    var clearForm = document.getElementById('clipboard-clear-form');
+    if (clearForm) {
+      clearForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearItems();
+        updateMenuBadge(initItems());
+        updateAllButtons(initItems());
+
+        var formData = new FormData(clearForm);
+        fetch(clearForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrfMeta ? csrfMeta.getAttribute('content') : '',
+            'Accept': 'application/json'
+          },
+          body: formData
+        }).then(function() {
+          window.location.reload();
+        }).catch(function() {
+          window.location.reload();
+        });
+      });
     }
 
     // Toggle clipboard item on button click
@@ -179,13 +247,12 @@
       updateMenuBadge(items);
 
       // Sync to server session (fire-and-forget)
-      var csrfToken = document.querySelector('meta[name="csrf-token"]');
-      if (csrfToken) {
+      if (csrfMeta) {
         fetch('/clipboard/sync', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            'X-CSRF-TOKEN': csrfMeta.getAttribute('content'),
             'Accept': 'application/json'
           },
           body: JSON.stringify({ items: items })

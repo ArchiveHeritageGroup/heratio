@@ -33,13 +33,11 @@
       </span>
     </li>
     <li>
-      <form method="POST" action="{{ route('clipboard.clear') }}" id="clipboard-clear-form"
-            onsubmit="localStorage.removeItem('clipboard');">
-        @csrf
-        <button type="submit" class="dropdown-item" title="Clear all selections">
-          <i class="fas fa-trash-alt me-2"></i>Clear all selections
-        </button>
-      </form>
+      <button type="button" class="dropdown-item" id="clipboard-clear-btn" title="Clear all selections"
+              data-clear-url="{{ route('clipboard.clear') }}"
+              data-csrf="{{ csrf_token() }}">
+        <i class="fas fa-trash-alt me-2"></i>Clear all selections
+      </button>
     </li>
     <li>
       <a class="dropdown-item" href="{{ route('clipboard.view') }}" title="Go to clipboard">
