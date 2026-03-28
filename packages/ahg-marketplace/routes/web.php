@@ -2,51 +2,134 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin/marketplace')->middleware(['web', 'auth'])->group(function () {
-    Route::get('/admin-categories', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminCategories'])->name('ahgmarketplace.admin-categories');
-    Route::get('/admin-currencies', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminCurrencies'])->name('ahgmarketplace.admin-currencies');
-    Route::get('/admin-dashboard', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminDashboard'])->name('ahgmarketplace.admin-dashboard');
-    Route::get('/admin-listing-review', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminListingReview'])->name('ahgmarketplace.admin-listing-review');
-    Route::get('/admin-listings', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminListings'])->name('ahgmarketplace.admin-listings');
-    Route::get('/admin-payouts', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminPayouts'])->name('ahgmarketplace.admin-payouts');
-    Route::get('/admin-reports', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminReports'])->name('ahgmarketplace.admin-reports');
-    Route::get('/admin-reviews', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminReviews'])->name('ahgmarketplace.admin-reviews');
-    Route::get('/admin-seller-verify', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminSellerVerify'])->name('ahgmarketplace.admin-seller-verify');
-    Route::get('/admin-sellers', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminSellers'])->name('ahgmarketplace.admin-sellers');
-    Route::get('/admin-settings', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminSettings'])->name('ahgmarketplace.admin-settings');
-    Route::get('/admin-transactions', [\AhgMarketplace\Controllers\MarketplaceController::class, 'adminTransactions'])->name('ahgmarketplace.admin-transactions');
-    Route::get('/auction-browse', [\AhgMarketplace\Controllers\MarketplaceController::class, 'auctionBrowse'])->name('ahgmarketplace.auction-browse');
-    Route::get('/bid-form', [\AhgMarketplace\Controllers\MarketplaceController::class, 'bidForm'])->name('ahgmarketplace.bid-form');
-    Route::get('/browse', [\AhgMarketplace\Controllers\MarketplaceController::class, 'browse'])->name('ahgmarketplace.browse');
-    Route::get('/category', [\AhgMarketplace\Controllers\MarketplaceController::class, 'category'])->name('ahgmarketplace.category');
-    Route::get('/collection', [\AhgMarketplace\Controllers\MarketplaceController::class, 'collection'])->name('ahgmarketplace.collection');
-    Route::get('/dashboard', [\AhgMarketplace\Controllers\MarketplaceController::class, 'dashboard'])->name('ahgmarketplace.dashboard');
-    Route::get('/enquiry-form', [\AhgMarketplace\Controllers\MarketplaceController::class, 'enquiryForm'])->name('ahgmarketplace.enquiry-form');
-    Route::get('/featured', [\AhgMarketplace\Controllers\MarketplaceController::class, 'featured'])->name('ahgmarketplace.featured');
-    Route::get('/listing', [\AhgMarketplace\Controllers\MarketplaceController::class, 'listing'])->name('ahgmarketplace.listing');
-    Route::get('/my-bids', [\AhgMarketplace\Controllers\MarketplaceController::class, 'myBids'])->name('ahgmarketplace.my-bids');
-    Route::get('/my-following', [\AhgMarketplace\Controllers\MarketplaceController::class, 'myFollowing'])->name('ahgmarketplace.my-following');
-    Route::get('/my-offers', [\AhgMarketplace\Controllers\MarketplaceController::class, 'myOffers'])->name('ahgmarketplace.my-offers');
-    Route::get('/my-purchases', [\AhgMarketplace\Controllers\MarketplaceController::class, 'myPurchases'])->name('ahgmarketplace.my-purchases');
-    Route::get('/offer-form', [\AhgMarketplace\Controllers\MarketplaceController::class, 'offerForm'])->name('ahgmarketplace.offer-form');
-    Route::get('/review-form', [\AhgMarketplace\Controllers\MarketplaceController::class, 'reviewForm'])->name('ahgmarketplace.review-form');
-    Route::get('/search', [\AhgMarketplace\Controllers\MarketplaceController::class, 'search'])->name('ahgmarketplace.search');
-    Route::get('/sector', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sector'])->name('ahgmarketplace.sector');
-    Route::get('/seller-analytics', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerAnalytics'])->name('ahgmarketplace.seller-analytics');
-    Route::get('/seller-collection-create', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerCollectionCreate'])->name('ahgmarketplace.seller-collection-create');
-    Route::get('/seller-collections', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerCollections'])->name('ahgmarketplace.seller-collections');
-    Route::get('/seller-enquiries', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerEnquiries'])->name('ahgmarketplace.seller-enquiries');
-    Route::get('/seller-listing-create', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerListingCreate'])->name('ahgmarketplace.seller-listing-create');
-    Route::get('/seller-listing-edit', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerListingEdit'])->name('ahgmarketplace.seller-listing-edit');
-    Route::get('/seller-listing-images', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerListingImages'])->name('ahgmarketplace.seller-listing-images');
-    Route::get('/seller-listings', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerListings'])->name('ahgmarketplace.seller-listings');
-    Route::get('/seller-offer-respond', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerOfferRespond'])->name('ahgmarketplace.seller-offer-respond');
-    Route::get('/seller-offers', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerOffers'])->name('ahgmarketplace.seller-offers');
-    Route::get('/seller-payouts', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerPayouts'])->name('ahgmarketplace.seller-payouts');
-    Route::get('/seller-profile', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerProfile'])->name('ahgmarketplace.seller-profile');
-    Route::get('/seller-register', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerRegister'])->name('ahgmarketplace.seller-register');
-    Route::get('/seller-reviews', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerReviews'])->name('ahgmarketplace.seller-reviews');
-    Route::get('/seller', [\AhgMarketplace\Controllers\MarketplaceController::class, 'seller'])->name('ahgmarketplace.seller');
-    Route::get('/seller-transaction-detail', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerTransactionDetail'])->name('ahgmarketplace.seller-transaction-detail');
-    Route::get('/seller-transactions', [\AhgMarketplace\Controllers\MarketplaceController::class, 'sellerTransactions'])->name('ahgmarketplace.seller-transactions');
+$controller = \AhgMarketplace\Controllers\MarketplaceController::class;
+
+// ─── Public routes (no auth required) ─────────────────────────────
+Route::prefix('marketplace')->middleware(['web'])->group(function () use ($controller) {
+    Route::get('/browse', [$controller, 'browse'])->name('ahgmarketplace.browse');
+    Route::get('/search', [$controller, 'search'])->name('ahgmarketplace.search');
+    Route::get('/listing', [$controller, 'listing'])->name('ahgmarketplace.listing');
+    Route::get('/category', [$controller, 'category'])->name('ahgmarketplace.category');
+    Route::get('/sector', [$controller, 'sector'])->name('ahgmarketplace.sector');
+    Route::get('/featured', [$controller, 'featured'])->name('ahgmarketplace.featured');
+    Route::get('/auction-browse', [$controller, 'auctionBrowse'])->name('ahgmarketplace.auction-browse');
+    Route::get('/collection', [$controller, 'collection'])->name('ahgmarketplace.collection');
+    Route::get('/seller', [$controller, 'seller'])->name('ahgmarketplace.seller');
+
+    // Enquiry form (may allow guest)
+    Route::get('/enquiry-form', [$controller, 'enquiryForm'])->name('ahgmarketplace.enquiry-form');
+    Route::post('/enquiry-form', [$controller, 'enquiryFormPost'])->name('ahgmarketplace.enquiry-form.post');
+});
+
+// ─── Authenticated user routes (buyer) ────────────────────────────
+Route::prefix('marketplace')->middleware(['web', 'auth'])->group(function () use ($controller) {
+    // Dashboard
+    Route::get('/dashboard', [$controller, 'dashboard'])->name('ahgmarketplace.dashboard');
+
+    // Bid form
+    Route::get('/bid-form', [$controller, 'bidForm'])->name('ahgmarketplace.bid-form');
+    Route::post('/bid-form', [$controller, 'bidFormPost'])->name('ahgmarketplace.bid-form.post');
+
+    // Offer form
+    Route::get('/offer-form', [$controller, 'offerForm'])->name('ahgmarketplace.offer-form');
+    Route::post('/offer-form', [$controller, 'offerFormPost'])->name('ahgmarketplace.offer-form.post');
+
+    // Review form
+    Route::get('/review-form', [$controller, 'reviewForm'])->name('ahgmarketplace.review-form');
+    Route::post('/review-form', [$controller, 'reviewFormPost'])->name('ahgmarketplace.review-form.post');
+
+    // My pages
+    Route::get('/my-bids', [$controller, 'myBids'])->name('ahgmarketplace.my-bids');
+    Route::get('/my-following', [$controller, 'myFollowing'])->name('ahgmarketplace.my-following');
+
+    Route::get('/my-offers', [$controller, 'myOffers'])->name('ahgmarketplace.my-offers');
+    Route::post('/my-offers', [$controller, 'myOffersPost'])->name('ahgmarketplace.my-offers.post');
+
+    Route::get('/my-purchases', [$controller, 'myPurchases'])->name('ahgmarketplace.my-purchases');
+    Route::post('/my-purchases', [$controller, 'myPurchasesPost'])->name('ahgmarketplace.my-purchases.post');
+});
+
+// ─── Seller routes (authenticated) ───────────────────────────────
+Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function () use ($controller) {
+    // Registration
+    Route::get('/register', [$controller, 'sellerRegister'])->name('ahgmarketplace.seller-register');
+    Route::post('/register', [$controller, 'sellerRegisterPost'])->name('ahgmarketplace.seller-register.post');
+
+    // Profile
+    Route::get('/profile', [$controller, 'sellerProfile'])->name('ahgmarketplace.seller-profile');
+    Route::post('/profile', [$controller, 'sellerProfilePost'])->name('ahgmarketplace.seller-profile.post');
+
+    // Listings
+    Route::get('/listings', [$controller, 'sellerListings'])->name('ahgmarketplace.seller-listings');
+
+    Route::get('/listing-create', [$controller, 'sellerListingCreate'])->name('ahgmarketplace.seller-listing-create');
+    Route::post('/listing-create', [$controller, 'sellerListingCreatePost'])->name('ahgmarketplace.seller-listing-create.post');
+
+    Route::get('/listing-edit', [$controller, 'sellerListingEdit'])->name('ahgmarketplace.seller-listing-edit');
+    Route::post('/listing-edit', [$controller, 'sellerListingEditPost'])->name('ahgmarketplace.seller-listing-edit.post');
+
+    Route::get('/listing-images', [$controller, 'sellerListingImages'])->name('ahgmarketplace.seller-listing-images');
+    Route::post('/listing-images', [$controller, 'sellerListingImagesPost'])->name('ahgmarketplace.seller-listing-images.post');
+
+    // Collections
+    Route::get('/collections', [$controller, 'sellerCollections'])->name('ahgmarketplace.seller-collections');
+    Route::post('/collections', [$controller, 'sellerCollectionsPost'])->name('ahgmarketplace.seller-collections.post');
+
+    Route::get('/collection-create', [$controller, 'sellerCollectionCreate'])->name('ahgmarketplace.seller-collection-create');
+    Route::post('/collection-create', [$controller, 'sellerCollectionCreatePost'])->name('ahgmarketplace.seller-collection-create.post');
+
+    // Offers
+    Route::get('/offers', [$controller, 'sellerOffers'])->name('ahgmarketplace.seller-offers');
+
+    Route::get('/offer-respond', [$controller, 'sellerOfferRespond'])->name('ahgmarketplace.seller-offer-respond');
+    Route::post('/offer-respond', [$controller, 'sellerOfferRespondPost'])->name('ahgmarketplace.seller-offer-respond.post');
+
+    // Transactions
+    Route::get('/transactions', [$controller, 'sellerTransactions'])->name('ahgmarketplace.seller-transactions');
+
+    Route::get('/transaction-detail', [$controller, 'sellerTransactionDetail'])->name('ahgmarketplace.seller-transaction-detail');
+    Route::post('/transaction-detail', [$controller, 'sellerTransactionDetailPost'])->name('ahgmarketplace.seller-transaction-detail.post');
+
+    // Enquiries
+    Route::get('/enquiries', [$controller, 'sellerEnquiries'])->name('ahgmarketplace.seller-enquiries');
+    Route::post('/enquiries', [$controller, 'sellerEnquiriesPost'])->name('ahgmarketplace.seller-enquiries.post');
+
+    // Analytics, Payouts, Reviews (read-only)
+    Route::get('/analytics', [$controller, 'sellerAnalytics'])->name('ahgmarketplace.seller-analytics');
+    Route::get('/payouts', [$controller, 'sellerPayouts'])->name('ahgmarketplace.seller-payouts');
+    Route::get('/reviews', [$controller, 'sellerReviews'])->name('ahgmarketplace.seller-reviews');
+});
+
+// ─── Admin routes ─────────────────────────────────────────────────
+Route::prefix('admin/marketplace')->middleware(['web', 'auth'])->group(function () use ($controller) {
+    Route::get('/dashboard', [$controller, 'adminDashboard'])->name('ahgmarketplace.admin-dashboard');
+
+    Route::get('/listings', [$controller, 'adminListings'])->name('ahgmarketplace.admin-listings');
+
+    Route::get('/listing-review', [$controller, 'adminListingReview'])->name('ahgmarketplace.admin-listing-review');
+    Route::post('/listing-review', [$controller, 'adminListingReviewPost'])->name('ahgmarketplace.admin-listing-review.post');
+
+    Route::get('/categories', [$controller, 'adminCategories'])->name('ahgmarketplace.admin-categories');
+    Route::post('/categories', [$controller, 'adminCategoriesPost'])->name('ahgmarketplace.admin-categories.post');
+
+    Route::get('/currencies', [$controller, 'adminCurrencies'])->name('ahgmarketplace.admin-currencies');
+    Route::post('/currencies', [$controller, 'adminCurrenciesPost'])->name('ahgmarketplace.admin-currencies.post');
+
+    Route::get('/sellers', [$controller, 'adminSellers'])->name('ahgmarketplace.admin-sellers');
+
+    Route::get('/seller-verify', [$controller, 'adminSellerVerify'])->name('ahgmarketplace.admin-seller-verify');
+    Route::post('/seller-verify', [$controller, 'adminSellerVerifyPost'])->name('ahgmarketplace.admin-seller-verify.post');
+
+    Route::get('/transactions', [$controller, 'adminTransactions'])->name('ahgmarketplace.admin-transactions');
+
+    Route::get('/payouts', [$controller, 'adminPayouts'])->name('ahgmarketplace.admin-payouts');
+    Route::post('/payouts-batch', [$controller, 'adminPayoutsBatchPost'])->name('ahgmarketplace.admin-payouts-batch.post');
+
+    Route::get('/reports', [$controller, 'adminReports'])->name('ahgmarketplace.admin-reports');
+
+    Route::get('/reviews', [$controller, 'adminReviews'])->name('ahgmarketplace.admin-reviews');
+    Route::post('/reviews', [$controller, 'adminReviewsPost'])->name('ahgmarketplace.admin-reviews.post');
+
+    Route::get('/settings', [$controller, 'adminSettings'])->name('ahgmarketplace.admin-settings');
+    Route::post('/settings', [$controller, 'adminSettingsPost'])->name('ahgmarketplace.admin-settings.post');
 });
