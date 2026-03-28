@@ -5,7 +5,11 @@
 @section('content')
 <h1>Translation settings</h1>
 
-<form method="POST">
+@if (session('notice'))
+  <div class="alert alert-success">{{ session('notice') }}</div>
+@endif
+
+<form method="POST" action="{{ route('ahgtranslation.settings') }}">
   @csrf
 
   <div class="accordion mb-3">
@@ -15,6 +19,21 @@
       </h2>
       <div id="main-collapse" class="accordion-collapse collapse show">
         <div class="accordion-body">
+          <div class="mb-3">
+            <label class="form-label">MT endpoint</label>
+            <input class="form-control" name="endpoint" value="{{ $endpoint }}" />
+            <small class="form-text text-muted">Example: http://192.168.0.112:5004/ai/v1/translate</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Timeout (seconds)</label>
+            <input class="form-control" name="timeout" value="{{ $timeout }}" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">API Key</label>
+            <input class="form-control" name="api_key" value="{{ $apiKey }}" type="password" />
+          </div>
         </div>
       </div>
     </div>
@@ -25,4 +44,10 @@
     <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
   </ul>
 </form>
+
+<hr/>
+<p>
+  Health check:
+  <a href="{{ route('ahgtranslation.health') }}" target="_blank">{{ route('ahgtranslation.health') }}</a>
+</p>
 @endsection
