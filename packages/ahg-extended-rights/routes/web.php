@@ -25,11 +25,11 @@ Route::middleware('auth')->group(function () {
     // Embargo per object
     Route::get('/{slug}/ext-rights/embargo', [RightsController::class, 'editEmbargo'])->name('ext-rights.edit-embargo');
     Route::post('/{slug}/ext-rights/embargo', [RightsController::class, 'storeEmbargo'])->name('ext-rights.store-embargo')->middleware('acl:create');
-    Route::post('/{slug}/ext-rights/embargo/{id}/release', [RightsController::class, 'releaseEmbargo'])->name('ext-rights.release-embargo')->where('id', '[0-9]+');
+    Route::post('/{slug}/ext-rights/embargo/{id}/release', [RightsController::class, 'releaseEmbargo'])->name('ext-rights.release-embargo')->where('id', '[0-9]+')->middleware('acl:update');
 
     // TK Labels per object
     Route::get('/{slug}/ext-rights/tk-labels', [RightsController::class, 'tkLabels'])->name('ext-rights.tk-labels');
-    Route::post('/{slug}/ext-rights/tk-labels/assign', [RightsController::class, 'assignTkLabel'])->name('ext-rights.assign-tk-label');
+    Route::post('/{slug}/ext-rights/tk-labels/assign', [RightsController::class, 'assignTkLabel'])->name('ext-rights.assign-tk-label')->middleware('acl:create');
 
     // Orphan work per object
     Route::get('/{slug}/ext-rights/orphan-work', [RightsController::class, 'orphanWork'])->name('ext-rights.orphan-work');
