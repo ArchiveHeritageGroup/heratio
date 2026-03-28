@@ -522,14 +522,63 @@
 
             <div class="mb-3">
               <label for="language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="hidden" id="language" name="language" value="{{ old('language') }}">
-              <div class="form-text text-muted small">Select the language(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
+              <select name="language[]" id="language" class="form-select" multiple size="4">
+                @php
+                  $langCodes = is_array($languages ?? null) ? $languages : (is_object($languages ?? null) ? $languages->toArray() : []);
+                  $allLanguages = [
+                    'aa'=>'Afar','ab'=>'Abkhazian','af'=>'Afrikaans','am'=>'Amharic','ar'=>'Arabic','as'=>'Assamese',
+                    'ay'=>'Aymara','az'=>'Azerbaijani','ba'=>'Bashkir','be'=>'Belarusian','bg'=>'Bulgarian','bh'=>'Bihari',
+                    'bn'=>'Bengali','bo'=>'Tibetan','br'=>'Breton','ca'=>'Catalan','co'=>'Corsican','cs'=>'Czech',
+                    'cy'=>'Welsh','da'=>'Danish','de'=>'German','dz'=>'Dzongkha','el'=>'Greek','en'=>'English',
+                    'eo'=>'Esperanto','es'=>'Spanish','et'=>'Estonian','eu'=>'Basque','fa'=>'Persian','fi'=>'Finnish',
+                    'fj'=>'Fijian','fo'=>'Faroese','fr'=>'French','fy'=>'Frisian','ga'=>'Irish','gd'=>'Scottish Gaelic',
+                    'gl'=>'Galician','gn'=>'Guarani','gu'=>'Gujarati','ha'=>'Hausa','he'=>'Hebrew','hi'=>'Hindi',
+                    'hr'=>'Croatian','hu'=>'Hungarian','hy'=>'Armenian','ia'=>'Interlingua','id'=>'Indonesian',
+                    'ik'=>'Inupiaq','is'=>'Icelandic','it'=>'Italian','iu'=>'Inuktitut','ja'=>'Japanese','jv'=>'Javanese',
+                    'ka'=>'Georgian','kk'=>'Kazakh','kl'=>'Kalaallisut','km'=>'Khmer','kn'=>'Kannada','ko'=>'Korean',
+                    'ks'=>'Kashmiri','ku'=>'Kurdish','ky'=>'Kyrgyz','la'=>'Latin','ln'=>'Lingala','lo'=>'Lao',
+                    'lt'=>'Lithuanian','lv'=>'Latvian','mg'=>'Malagasy','mi'=>'Maori','mk'=>'Macedonian','ml'=>'Malayalam',
+                    'mn'=>'Mongolian','mr'=>'Marathi','ms'=>'Malay','mt'=>'Maltese','my'=>'Burmese','na'=>'Nauru',
+                    'ne'=>'Nepali','nl'=>'Dutch','no'=>'Norwegian','nr'=>'South Ndebele','nso'=>'Northern Sotho',
+                    'oc'=>'Occitan','om'=>'Oromo','or'=>'Oriya','pa'=>'Punjabi','pl'=>'Polish','ps'=>'Pashto',
+                    'pt'=>'Portuguese','qu'=>'Quechua','rm'=>'Romansh','rn'=>'Rundi','ro'=>'Romanian','ru'=>'Russian',
+                    'rw'=>'Kinyarwanda','sa'=>'Sanskrit','sd'=>'Sindhi','si'=>'Sinhala','sk'=>'Slovak','sl'=>'Slovenian',
+                    'sm'=>'Samoan','sn'=>'Shona','so'=>'Somali','sq'=>'Albanian','sr'=>'Serbian','ss'=>'Swati',
+                    'st'=>'Southern Sotho','su'=>'Sundanese','sv'=>'Swedish','sw'=>'Swahili','ta'=>'Tamil','te'=>'Telugu',
+                    'tg'=>'Tajik','th'=>'Thai','ti'=>'Tigrinya','tk'=>'Turkmen','tl'=>'Tagalog','tn'=>'Tswana',
+                    'to'=>'Tongan','tr'=>'Turkish','ts'=>'Tsonga','tt'=>'Tatar','tw'=>'Twi','uk'=>'Ukrainian',
+                    'ur'=>'Urdu','uz'=>'Uzbek','ve'=>'Venda','vi'=>'Vietnamese','vo'=>'Volapük','wo'=>'Wolof',
+                    'xh'=>'Xhosa','yi'=>'Yiddish','yo'=>'Yoruba','za'=>'Zhuang','zh'=>'Chinese','zu'=>'Zulu',
+                  ];
+                @endphp
+                @foreach($allLanguages as $code => $name)
+                  <option value="{{ $code }}" @selected(in_array($code, $langCodes))>{{ $name }}</option>
+                @endforeach
+              </select>
+              <div class="form-text text-muted small">Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)</div>
             </div>
 
             <div class="mb-3">
               <label for="script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="hidden" id="script" name="script" value="{{ old('script') }}">
-              <div class="form-text text-muted small">Select the script(s) of the authority record from the drop-down menu; enter the first few letters to narrow the choices. (ISAAR 5.4.7)</div>
+              <select name="script[]" id="script" class="form-select" multiple size="4">
+                @php
+                  $scriptCodes = is_array($scripts ?? null) ? $scripts : (is_object($scripts ?? null) ? $scripts->toArray() : []);
+                  $allScripts = [
+                    'Arab'=>'Arabic','Armn'=>'Armenian','Beng'=>'Bengali','Bopo'=>'Bopomofo','Cyrl'=>'Cyrillic',
+                    'Deva'=>'Devanagari','Ethi'=>'Ethiopic','Geor'=>'Georgian','Grek'=>'Greek','Gujr'=>'Gujarati',
+                    'Guru'=>'Gurmukhi','Hang'=>'Hangul','Hani'=>'Han','Hans'=>'Han (Simplified)','Hant'=>'Han (Traditional)',
+                    'Hebr'=>'Hebrew','Hira'=>'Hiragana','Jpan'=>'Japanese','Kana'=>'Katakana','Khmr'=>'Khmer',
+                    'Knda'=>'Kannada','Kore'=>'Korean','Laoo'=>'Lao','Latn'=>'Latin','Mlym'=>'Malayalam',
+                    'Mong'=>'Mongolian','Mymr'=>'Myanmar','Orya'=>'Oriya','Sinh'=>'Sinhala','Taml'=>'Tamil',
+                    'Telu'=>'Telugu','Thaa'=>'Thaana','Thai'=>'Thai','Tibt'=>'Tibetan','Zmth'=>'Mathematical',
+                    'Zsym'=>'Symbols','Zyyy'=>'Common',
+                  ];
+                @endphp
+                @foreach($allScripts as $code => $name)
+                  <option value="{{ $code }}" @selected(in_array($code, $scriptCodes))>{{ $name }} ({{ $code }})</option>
+                @endforeach
+              </select>
+              <div class="form-text text-muted small">Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)</div>
             </div>
 
             <div class="mb-3">

@@ -412,6 +412,9 @@ class ActorController extends Controller
                 ->value('authorized_form_of_name') ?? '';
         }
 
+        $languages = $this->service->getLanguages($actor->id);
+        $scripts = $this->service->getScripts($actor->id);
+
         return view('ahg-actor-manage::edit', [
             'actor' => $actor,
             'contacts' => $contacts,
@@ -424,6 +427,8 @@ class ActorController extends Controller
             'places' => $places,
             'maintainingRepository' => $maintainingRepository,
             'parentActorName' => $parentActorName,
+            'languages' => $languages,
+            'scripts' => $scripts,
         ]);
     }
 
