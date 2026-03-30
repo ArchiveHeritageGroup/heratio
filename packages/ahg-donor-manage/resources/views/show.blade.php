@@ -277,6 +277,9 @@
     </div>
   </section>
 
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $donor->id])
+
 @endsection
 
 @section('after-content')

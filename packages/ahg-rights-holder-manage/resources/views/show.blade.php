@@ -353,6 +353,9 @@
     </section>
   @endif
 
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $rightsHolder->id])
+
 @endsection
 
 @section('after-content')

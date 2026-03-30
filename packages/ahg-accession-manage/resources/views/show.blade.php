@@ -401,6 +401,9 @@
     </div>
   </section>
 
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $accession->id])
+
 @endsection
 
 @section('after-content')

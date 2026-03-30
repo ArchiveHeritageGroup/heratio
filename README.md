@@ -1,20 +1,22 @@
 # Heratio
 
-**A standalone open-source Laravel framework for AI-assisted archival records management.**
+**The operational GLAM, archival, DAM, and records management platform with RiC as a first-class capability.**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple)](https://php.net)
-[![Laravel](https://img.shields.io/badge/Laravel-10%2B-red)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3-purple)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-12-red)](https://laravel.com)
 
 ---
 
 ## Overview
 
-Heratio is designed and developed by **[Plain Sailing Information Systems](https://www.theahg.co.za)**. It is the intellectual property of Plain Sailing Information Systems, developed independently using company time and resources.
+Heratio is a pure Laravel 12 application designed and developed by **[The Archive and Heritage Group (Pty) Ltd](https://www.theahg.co.za)**. It is the operational platform for AI-assisted archival records management, digital asset management, and GLAM workflows.
 
-Heratio is a standalone Laravel application for AI-assisted archival records management. It connects directly to an archival MySQL database using Laravel's Eloquent ORM, operating entirely through its own independent application stack with no dependency on any third-party archival platform's codebase.
+Heratio connects directly to an archival MySQL database using Laravel's Eloquent ORM and operates as an independent application stack. It addresses a critical challenge in public sector archives: transforming large volumes of unmanaged, unstructured content into governed, accessible, and legislatively-compliant archival holdings.
 
-Heratio addresses a critical challenge in public sector archives: the vast majority of organisational records reside outside formal records management control, making them inaccessible for compliance, audit, and institutional memory purposes. By providing AI-assisted metadata enrichment, a researcher self-description portal, and privacy-preserving digital object management, Heratio enables institutions to transform large volumes of previously unmanaged, unstructured content into governed, accessible, and legislatively-compliant archival holdings.
+**RiC (Records in Contexts)** is a first-class capability within Heratio — not a hidden add-on. Every major entity page supports both a traditional archival view and a RiC contextual view over the same data, permissions, and identifiers.
+
+The RiC-native semantic framework, documentation, and ecosystem is centralised under **[OpenRiC](https://openric.org)**.
 
 A live demonstration instance is available at **[https://heratio.theahg.co.za](https://heratio.theahg.co.za)**.
 
@@ -22,61 +24,95 @@ A live demonstration instance is available at **[https://heratio.theahg.co.za](h
 
 ## Key Features
 
-### 🤖 AI-Assisted Metadata Enrichment
-- NLP-based Named Entity Recognition (NER) pipeline extracts persons, organisations, dates, geographic locations, and subjects from unstructured document text
-- Extracted entities are mapped to archival description fields and authority record structures
-- Human-in-the-loop review interface — AI suggestions are presented for archivist approval before being committed to the authoritative description
-- Model-agnostic architecture supports locally hosted models via Ollama-compatible interfaces, ensuring data sovereignty compliance under POPIA
+### Operational Platform
+- Full archival description, hierarchy, workflows, editing, and administration
+- Plugin architecture with modular packages for every functional domain
+- Role-based access controls and institutional deployment support
+- Import/export flows and digital object management
 
-### 👤 Researcher Self-Description Portal
-- Dedicated portal for field researchers, subject matter experts, and contributing institutions to upload digital objects and describe their collections
+### AI-Assisted Metadata Enrichment
+- NLP-based Named Entity Recognition (NER) pipeline extracts persons, organisations, dates, locations, and subjects
+- Extracted entities mapped to archival description fields and authority records
+- Human-in-the-loop review — AI suggestions presented for archivist approval before committing
+- Model-agnostic architecture supports locally hosted models via Ollama, ensuring data sovereignty under POPIA
+
+### RiC — First-Class Contextual Mode
+- Dual-view on every major entity page: traditional archival view and RiC contextual view
+- RiC Explorer with interactive 2D/3D graph visualization (Cytoscape.js, Three.js)
+- Automatic sync to Apache Jena Fuseki triplestore
+- SPARQL endpoint queryable by external systems
+- JSON-LD / RDF outputs and multi-standard export (EAD3, EAC-CPF, Turtle, RDF/XML)
+- Semantic search across the archival graph (Qdrant vector search + Elasticsearch)
+- EAD/ISAD to RiC-O mapping
+- Integrity checking, orphan management, and provenance tracking
+
+### Researcher Self-Description Portal
+- Dedicated portal for field researchers, subject matter experts, and contributing institutions
 - Simplified ISAD(G)-mapped description forms accessible to non-archivists
-- Five-stage workflow: **Draft → Submitted → Under Review → Published → Returned for Revision**
-- Role-based access controls ensure researchers manage only their own submissions
+- Five-stage workflow: Draft, Submitted, Under Review, Published, Returned for Revision
 - Archivist review gate maintains description quality before public accessibility
 
-### 🔒 Privacy-Preserving Digital Object Management
-- Automated POPIA/GDPR sensitivity screening — NLP classifiers flag documents containing personal information categories prior to broader accessibility
+### Privacy-Preserving Digital Object Management
+- Automated POPIA/GDPR sensitivity screening
 - AES-256-GCM digital object encryption for restricted holdings
-- Key management architecture with master keys stored outside the web root; per-collection key configuration available
-- On-the-fly decryption for authorised access with streaming delivery — no intermediate plaintext storage
-- Full audit logging of access and encryption events for compliance demonstration
+- On-the-fly decryption for authorised access with streaming delivery
+- Full audit logging of access and encryption events
 
 ---
 
 ## Architecture
 
-Heratio is designed to operate alongside [AtoM (Access to Memory)](https://www.accesstomemory.org), the widely-deployed open-source archival description platform. Heratio connects directly to the AtoM MySQL database via Laravel's Eloquent ORM, coexisting with AtoM as an independent application on the same database. AtoM and Heratio each operate through their own application stack with no code dependency between them — AtoM through its Symfony/Propel layer, Heratio through Laravel/Eloquent.
+```
+┌─────────────────────────────────────────────────────────┐
+│  Heratio (Laravel 12 / PHP 8.3) — Application Layer     │
+├──────────────┬──────────────┬────────────┬──────────────┤
+│  MySQL       │  Fuseki      │ Elastic    │  Qdrant      │
+│  Archival DB │  RiC-O graph │ Full-text  │  Semantic    │
+│  (AtoM-      │  17.9M+      │ search     │  search      │
+│  compatible) │  triples     │            │              │
+├──────────────┴──────────────┴────────────┴──────────────┤
+│  RiC Explorer — Graph visualization (Flask/Cytoscape.js) │
+│  Bootstrap 5 — WCAG 2.1 Level AA                        │
+└─────────────────────────────────────────────────────────┘
+```
 
-This coexistence model means that metadata enriched by Heratio's AI pipeline is immediately surfaced through AtoM's standard public discovery interface without any synchronisation step or middleware layer.
+Heratio operates alongside the existing AtoM MySQL database. Both application stacks coexist with no code dependency — metadata enriched by Heratio is immediately available through both platforms.
 
-AtoM is an independent open-source project governed by the [AtoM Foundation](https://www.accesstomemory.org/en/foundation/) and released under AGPL-3.0. Heratio is released under the same licence in the spirit of open-source archival community collaboration.
+---
+
+## Package Architecture
+
+Heratio uses a monorepo plugin architecture:
 
 ```
-┌─────────────────────────┐   ┌─────────────────────────┐
-│    Heratio (Laravel)     │   │      AtoM (Symfony)      │
-│                         │   │                         │
-│  ┌───────────────────┐  │   │  Archival description   │
-│  │ AI / NER Pipeline │  │   │  Public discovery       │
-│  └───────────────────┘  │   │  User management        │
-│  ┌───────────────────┐  │   │                         │
-│  │ Researcher Portal │  │   │                         │
-│  └───────────────────┘  │   │                         │
-│  ┌───────────────────┐  │   │                         │
-│  │ Encryption Service│  │   │                         │
-│  └───────────────────┘  │   │                         │
-│  ┌───────────────────┐  │   │                         │
-│  │ Audit / Access    │  │   │                         │
-│  └───────────────────┘  │   │                         │
-└────────────┬────────────┘   └────────────┬────────────┘
-             │  Eloquent ORM               │  Propel ORM
-             │                             │
-             └──────────────┬──────────────┘
-                            │
-               ┌────────────▼────────────┐
-               │      AtoM MySQL DB       │
-               └─────────────────────────┘
+packages/
+├── ahg-core/                  — Models, base services, pagination, components
+├── ahg-theme-b5/              — Layouts, nav, footer, static assets
+├── ahg-information-object-manage/ — IO browse/show (ISAD)
+├── ahg-actor-manage/          — Actor browse/show
+├── ahg-repository-manage/     — Repository browse/show (ISDIAH)
+├── ahg-accession-manage/      — Accession browse/show
+├── ahg-donor-manage/          — Donor browse/show
+├── ahg-rights-holder-manage/  — Rights holder browse/show
+├── ahg-storage-manage/        — Physical object browse/show
+├── ahg-term-taxonomy/         — Term + taxonomy browse/show
+├── ahg-function-manage/       — Function browse/show (ISDF)
+├── ahg-user-manage/           — User browse/show (admin)
+├── ahg-settings/              — Settings dashboard (admin)
+├── ahg-jobs-manage/           — Jobs browse/show (admin)
+├── ahg-iiif-collection/       — IIIF Collection management
+└── ...                        — Additional domain packages
 ```
+
+---
+
+## Heratio and OpenRiC
+
+**Heratio** is the operational platform institutions use.
+
+**[OpenRiC](https://openric.org)** is the public RiC-native initiative that centralises RiC implementation guidance, semantic architecture, graph capabilities, documentation, mappings, and ecosystem collaboration.
+
+OpenRiC powers the RiC capabilities within Heratio and is available as a standalone framework for the broader archival community.
 
 ---
 
@@ -84,11 +120,11 @@ AtoM is an independent open-source project governed by the [AtoM Foundation](htt
 
 | Requirement | Version |
 |---|---|
-| PHP | 8.1 or higher |
-| Laravel | 10 or higher |
-| AtoM | 2.9 or higher |
-| MySQL / MariaDB | 5.7+ / 10.3+ |
+| PHP | 8.3 or higher |
+| Laravel | 12 |
+| MySQL / MariaDB | 8.0+ / 10.3+ |
 | Nginx | 1.18+ |
+| Apache Jena Fuseki | 4.10+ (for RiC) |
 | Ollama (optional) | Latest stable |
 
 ---
@@ -134,31 +170,13 @@ php artisan migrate
 
 ### 5. Configure your web server
 
-Point a subdomain (e.g. `heratio.yourdomain.com`) to Heratio's `public/` directory. A sample Nginx configuration is provided in `docs/nginx.conf.example`.
+Point a subdomain (e.g. `heratio.yourdomain.com`) to Heratio's `public/` directory.
 
-### 6. Set up the encryption key (optional)
-
-If using digital object encryption, generate and store a master key outside the web root:
+### 6. Set up encryption key (optional)
 
 ```bash
 php artisan heratio:generate-encryption-key
 ```
-
-Follow the prompts to store the key securely at `/etc/heratio/encryption.key` or equivalent.
-
----
-
-## Configuration
-
-Key configuration options are managed through `config/heratio.php` after installation:
-
-| Option | Description |
-|---|---|
-| `ner.provider` | NER provider: `ollama`, `spacy`, or `api` |
-| `ner.model` | Model name for NER processing |
-| `encryption.enabled` | Enable/disable digital object encryption |
-| `encryption.key_path` | Path to master encryption key |
-| `popia.screening_enabled` | Enable/disable sensitivity screening |
 
 ---
 
@@ -173,18 +191,22 @@ Heratio is designed to support compliance with:
 - **ISO 15489** — Records management principles
 - **ISO 23081** — Metadata for records
 
-Heratio does not make compliance guarantees. Institutions are responsible for configuring the system appropriately for their legislative context and conducting their own compliance assessments.
+Institutions are responsible for configuring the system appropriately for their legislative context.
 
 ---
 
 ## Roadmap
 
-- [ ] Full NER pipeline integration with continuous learning feedback loop
-- [ ] Archivematica integration for preservation processing of ingested digital objects
-- [ ] RiC-O (Records in Contexts Ontology) linked data export
-- [ ] IIIF manifest generation for digitised collections
-- [ ] Bulk shared drive ingestion agent with automated classification
+- [x] Full NER pipeline integration with human-in-the-loop review
+- [x] RiC Explorer with 2D/3D graph visualization
+- [x] Fuseki triplestore sync and SPARQL endpoint
+- [x] IIIF manifest generation for digitised collections
+- [ ] RiC dual-view on all major entity pages
+- [ ] Relation-aware editing widgets
+- [ ] SHACL and semantic validation in admin workflows
+- [ ] PostgreSQL Heratio-native domains (workflow, audit, enrichment)
 - [ ] Multi-language NER support (including isiZulu, Sesotho, Afrikaans)
+- [ ] Bulk shared drive ingestion agent with automated classification
 
 ---
 
@@ -197,12 +219,6 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 ## License
 
 Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
-
-- You may use, modify, and distribute Heratio freely
-- Modifications must be released under the same licence
-- If you run a modified version as a network service, you must make the source available to users
-
-The AGPL-3.0 licence was selected in alignment with AtoM, which is also released under AGPL-3.0, supporting open community collaboration across the archival software ecosystem. Proprietary extensions that communicate with Heratio via its HTTP API are considered independent works and are not subject to AGPL copyleft requirements, provided they do not incorporate AGPL-licensed code directly.
 
 ---
 
@@ -226,9 +242,9 @@ If you use Heratio in your research, please cite:
 
 ## Contact
 
-**Plain Sailing Information Systems**
+**The Archive and Heritage Group (Pty) Ltd**
 Johan Pieterse — johan@theahg.co.za
 
 ---
 
-*Developed in South Africa. Built for archives everywhere.*
+*Heratio in front. RiC beside it. OpenRiC above and beneath it.*

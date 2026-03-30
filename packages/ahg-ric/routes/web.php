@@ -9,6 +9,7 @@ Route::prefix('ric-api')->group(function () {
     Route::get('/autocomplete', [RicController::class, 'autocomplete'])->name('ric.public-autocomplete');
     Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');
     Route::get('/stats', [RicController::class, 'ajaxStats'])->name('ric.public-stats');
+    Route::post('/view-mode', [RicController::class, 'setViewMode'])->name('ric.set-view-mode');
 });
 
 Route::middleware('admin')->group(function () {

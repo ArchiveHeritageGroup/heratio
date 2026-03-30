@@ -22,6 +22,19 @@ class RicController extends Controller
     }
 
     /**
+     * Set view mode (heratio/ric) in session.
+     */
+    public function setViewMode(Request $request)
+    {
+        $mode = $request->input('mode', 'heratio');
+        if (in_array($mode, ['heratio', 'ric'])) {
+            session(['ric_view_mode' => $mode]);
+        }
+
+        return response()->json(['success' => true, 'mode' => session('ric_view_mode', 'heratio')]);
+    }
+
+    /**
      * RiC Dashboard — index page.
      */
     public function index()

@@ -642,4 +642,7 @@
     </li>
   </ul>
   @endauth
+
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
 @endsection
