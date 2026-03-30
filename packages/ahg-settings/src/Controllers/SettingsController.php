@@ -1465,7 +1465,8 @@ class SettingsController extends Controller
         $page = max(1, (int) $request->get('page', 1));
         $limit = 25;
 
-        $query = DB::table('ahg_error_log');
+        $query = DB::table('ahg_error_log')
+            ->where('url', 'LIKE', '%' . $request->getHost() . '%');
 
         if ($statusFilter === 'open') {
             $query->whereNull('resolved_at');
@@ -1494,11 +1495,12 @@ class SettingsController extends Controller
             ->limit($limit)
             ->get();
 
-        // Stats
-        $openCount = DB::table('ahg_error_log')->whereNull('resolved_at')->count();
-        $resolvedCount = DB::table('ahg_error_log')->whereNotNull('resolved_at')->count();
-        $unreadCount = DB::table('ahg_error_log')->where('is_read', 0)->count();
-        $todayCount = DB::table('ahg_error_log')
+        // Stats (scoped to this instance)
+        $hostFilter = fn ($q) => $q->where('url', 'LIKE', '%' . $request->getHost() . '%');
+        $openCount = DB::table('ahg_error_log')->where($hostFilter)->whereNull('resolved_at')->count();
+        $resolvedCount = DB::table('ahg_error_log')->where($hostFilter)->whereNotNull('resolved_at')->count();
+        $unreadCount = DB::table('ahg_error_log')->where($hostFilter)->where('is_read', 0)->count();
+        $todayCount = DB::table('ahg_error_log')->where($hostFilter)
             ->where('created_at', '>=', now()->startOfDay())
             ->count();
 
