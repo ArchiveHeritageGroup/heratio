@@ -720,6 +720,10 @@
 
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-io', ['io' => $io])
+  @else
+
   {{-- TTS (Text-to-Speech) controls — Web Speech API --}}
   @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
 
@@ -2079,6 +2083,8 @@
 
     </section>
   @endif
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $io->id])

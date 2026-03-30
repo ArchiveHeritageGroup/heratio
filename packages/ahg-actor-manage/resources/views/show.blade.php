@@ -182,6 +182,10 @@
 
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-actor', ['actor' => $actor])
+  @else
+
   <h1>
     {{ $actor->authorized_form_of_name }}
     @if($completeness ?? null)
@@ -644,6 +648,8 @@
     </li>
   </ul>
   @endauth
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])
