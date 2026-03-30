@@ -6,6 +6,10 @@
 @section('content')
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-storage', ['storage' => $storage])
+  @else
+
   <div class="multiline-header d-flex align-items-center mb-3">
     <a href="{{ route('physicalobject.box-list', ['slug' => $storage->slug]) }}" class="text-reset">
       <i class="fas fa-3x fa-print me-3" aria-hidden="true"></i>
@@ -378,6 +382,8 @@
     <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>Browse</a></li>
   </ul>
   @endauth
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $storage->id])

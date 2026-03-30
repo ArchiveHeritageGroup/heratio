@@ -68,6 +68,10 @@
 
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-repository', ['repository' => $repository])
+  @else
+
   <h1>{{ $repository->authorized_form_of_name }}</h1>
 
   {{-- Breadcrumb (matching AtoM) --}}
@@ -419,6 +423,8 @@
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
   </ul>
   @endauth
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $repository->id])

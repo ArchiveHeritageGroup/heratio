@@ -2,6 +2,16 @@
 
 namespace AhgCore\Providers;
 
+use AhgCore\Contracts\AgentRepository;
+use AhgCore\Contracts\DescriptionRepository;
+use AhgCore\Contracts\FunctionRepository;
+use AhgCore\Contracts\PlaceRepository;
+use AhgCore\Contracts\RelationRepository;
+use AhgCore\Repositories\MysqlAgentRepository;
+use AhgCore\Repositories\MysqlDescriptionRepository;
+use AhgCore\Repositories\MysqlFunctionRepository;
+use AhgCore\Repositories\MysqlPlaceRepository;
+use AhgCore\Repositories\MysqlRelationRepository;
 use AhgCore\Services\CronSchedulerService;
 use AhgCore\Services\SettingHelper;
 use Illuminate\Support\ServiceProvider;
@@ -11,6 +21,13 @@ class AhgCoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(CronSchedulerService::class);
+
+        // Repository contracts → MySQL implementations
+        $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
+        $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);
+        $this->app->bind(RelationRepository::class, MysqlRelationRepository::class);
+        $this->app->bind(FunctionRepository::class, MysqlFunctionRepository::class);
+        $this->app->bind(PlaceRepository::class, MysqlPlaceRepository::class);
     }
 
     public function boot(): void

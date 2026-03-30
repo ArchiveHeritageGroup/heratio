@@ -19,6 +19,10 @@
 
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-function', ['function' => $function])
+  @else
+
   @if(!empty($translations))
     @include('ahg-core::_translation-links')
   @endif
@@ -391,6 +395,8 @@
 
     </div>
   </section>
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $function->id])

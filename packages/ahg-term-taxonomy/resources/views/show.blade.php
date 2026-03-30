@@ -6,6 +6,10 @@
 @section('content')
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-term', ['term' => $term])
+  @else
+
   <div class="row">
     {{-- LEFT SIDEBAR --}}
     <div class="col-md-3">
@@ -414,6 +418,8 @@
       @endforeach
     </div>
   </div>
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $term->id])

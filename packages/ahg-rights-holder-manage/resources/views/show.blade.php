@@ -30,6 +30,10 @@
 
   @include('ahg-ric::_view-switch')
 
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-view-rights-holder', ['rightsHolder' => $rightsHolder])
+  @else
+
   {{-- ===== Identity area ===== --}}
   <section class="section border-bottom" id="identityArea">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>@else Identity area @endauth</div></h2>
@@ -354,6 +358,8 @@
       </div>
     </section>
   @endif
+
+  @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $rightsHolder->id])
