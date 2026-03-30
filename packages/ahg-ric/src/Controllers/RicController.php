@@ -2,6 +2,7 @@
 
 namespace AhgRic\Controllers;
 
+use AhgRic\Services\RelationshipService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -19,6 +20,59 @@ class RicController extends Controller
             && Schema::hasTable('ric_sync_queue')
             && Schema::hasTable('ric_orphan_tracking')
             && Schema::hasTable('ric_sync_log');
+    }
+
+    /**
+     * Get related entities for an entity via RelationshipService.
+     */
+    public function getRelations(Request $request, int $id)
+    {
+        $service = app(RelationshipService::class);
+        $type = $request->input('type');
+
+        return response()->json([
+            'success' => true,
+            'relations' => $service->getRelatedEntities($id, $type),
+        ]);
+    }
+
+    /**
+     * Get graph summary for an entity.
+     */
+    public function getGraphSummary(int $id)
+    {
+        $service = app(RelationshipService::class);
+
+        return response()->json([
+            'success' => true,
+            'graph' => $service->getGraphSummary($id),
+        ]);
+    }
+
+    /**
+     * Get timeline context for an entity.
+     */
+    public function getTimeline(int $id)
+    {
+        $service = app(RelationshipService::class);
+
+        return response()->json([
+            'success' => true,
+            'events' => $service->getTimelineContext($id),
+        ]);
+    }
+
+    /**
+     * Explain why two entities are related.
+     */
+    public function explainRelation(int $sourceId, int $targetId)
+    {
+        $service = app(RelationshipService::class);
+
+        return response()->json([
+            'success' => true,
+            'explanations' => $service->explainRelationship($sourceId, $targetId),
+        ]);
     }
 
     /**

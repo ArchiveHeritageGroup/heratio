@@ -2,13 +2,14 @@
 
 namespace AhgRic\Providers;
 
+use AhgRic\Services\RelationshipService;
 use Illuminate\Support\ServiceProvider;
 
 class AhgRicServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(RelationshipService::class);
     }
 
     public function boot(): void

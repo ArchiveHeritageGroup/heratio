@@ -10,6 +10,10 @@ Route::prefix('ric-api')->group(function () {
     Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');
     Route::get('/stats', [RicController::class, 'ajaxStats'])->name('ric.public-stats');
     Route::post('/view-mode', [RicController::class, 'setViewMode'])->name('ric.set-view-mode');
+    Route::get('/relations/{id}', [RicController::class, 'getRelations'])->name('ric.public-relations');
+    Route::get('/graph-summary/{id}', [RicController::class, 'getGraphSummary'])->name('ric.public-graph-summary');
+    Route::get('/timeline/{id}', [RicController::class, 'getTimeline'])->name('ric.public-timeline');
+    Route::get('/explain/{sourceId}/{targetId}', [RicController::class, 'explainRelation'])->name('ric.public-explain');
 });
 
 Route::middleware('admin')->group(function () {
