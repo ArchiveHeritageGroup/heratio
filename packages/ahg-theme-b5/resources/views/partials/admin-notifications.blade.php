@@ -33,14 +33,23 @@
         }
     } catch (\Exception $e) {}
 
-    // Unread error log entries
+    // Unread error log entries (only Heratio errors, not AtoM/registry)
     try {
+        $heratioHost = request()->getHost();
         $unreadErrors = \Illuminate\Support\Facades\DB::table('ahg_error_log')
             ->where('is_read', 0)
+            ->where(function ($q) use ($heratioHost) {
+                $q->where('url', 'LIKE', '%' . $heratioHost . '%')
+                  ->orWhere('hostname', gethostname());
+            })
             ->count();
         if ($unreadErrors > 0) {
             $recentError = \Illuminate\Support\Facades\DB::table('ahg_error_log')
                 ->where('is_read', 0)
+                ->where(function ($q) use ($heratioHost) {
+                    $q->where('url', 'LIKE', '%' . $heratioHost . '%')
+                      ->orWhere('hostname', gethostname());
+                })
                 ->orderByDesc('created_at')
                 ->first();
             $errorMsg = $unreadErrors . ' unread error' . ($unreadErrors > 1 ? 's' : '');
@@ -51,7 +60,7 @@
                 'type' => 'danger',
                 'icon' => 'fa-bug',
                 'message' => $errorMsg,
-                'url' => url('/admin/ahg-settings/error-log'),
+                'url' => route('settings.error-log'),
             ];
         }
     } catch (\Exception $e) {}
