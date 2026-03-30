@@ -180,6 +180,8 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+
   <h1>
     {{ $actor->authorized_form_of_name }}
     @if($completeness ?? null)
@@ -642,6 +644,9 @@
     </li>
   </ul>
   @endauth
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])

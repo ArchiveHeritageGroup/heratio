@@ -4,6 +4,8 @@
 @section('body-class', 'view term')
 
 @section('content')
+  @include('ahg-ric::_view-switch')
+
   <div class="row">
     {{-- LEFT SIDEBAR --}}
     <div class="col-md-3">
@@ -412,6 +414,9 @@
       @endforeach
     </div>
   </div>
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $term->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $term->id])

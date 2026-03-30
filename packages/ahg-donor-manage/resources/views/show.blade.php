@@ -28,6 +28,8 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#identity-collapse" class="text-primary text-decoration-none">Basic info</a>@else Basic info @endauth</div></h2>
@@ -276,6 +278,9 @@
 
     </div>
   </section>
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $donor->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $donor->id])

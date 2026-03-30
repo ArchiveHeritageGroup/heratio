@@ -66,6 +66,8 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+
   <h1>{{ $repository->authorized_form_of_name }}</h1>
 
   {{-- Breadcrumb (matching AtoM) --}}
@@ -417,6 +419,9 @@
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
   </ul>
   @endauth
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $repository->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $repository->id])

@@ -20,6 +20,8 @@
 
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+
   @if(!empty($translations))
     @include('ahg-core::_translation-links')
   @endif
@@ -400,6 +402,9 @@
       @endif
     </div>
   </section>
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $accession->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $accession->id])

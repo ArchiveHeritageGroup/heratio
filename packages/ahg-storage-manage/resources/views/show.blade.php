@@ -4,6 +4,8 @@
 @section('body-class', 'view physicalobject')
 
 @section('content')
+  @include('ahg-ric::_view-switch')
+
   <div class="multiline-header d-flex align-items-center mb-3">
     <a href="{{ route('physicalobject.box-list', ['slug' => $storage->slug]) }}" class="text-reset">
       <i class="fas fa-3x fa-print me-3" aria-hidden="true"></i>
@@ -376,6 +378,9 @@
     <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>Browse</a></li>
   </ul>
   @endauth
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $storage->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $storage->id])

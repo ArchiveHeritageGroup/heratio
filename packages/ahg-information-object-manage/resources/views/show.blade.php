@@ -717,6 +717,8 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  @include('ahg-ric::_view-switch')
+
   {{-- TTS (Text-to-Speech) controls — Web Speech API --}}
   @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
 
@@ -2076,6 +2078,9 @@
 
     </section>
   @endif
+
+  {{-- RiC Context Sidebar --}}
+  @include('ahg-ric::_context-sidebar', ['resourceId' => $io->id])
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
