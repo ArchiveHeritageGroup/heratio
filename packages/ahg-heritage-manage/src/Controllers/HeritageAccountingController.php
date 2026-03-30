@@ -40,7 +40,36 @@ class HeritageAccountingController extends Controller
         return view('ahg-heritage-manage::heritage-accounting.browse', compact('items', 'columns'));
     }
 
-    public function add() { return view('ahg-heritage-manage::heritage-accounting.add', ['fields' => [], 'formAction' => route('heritage.accounting.store')]); }
+    public function add(Request $request)
+    {
+        $io = null;
+        if ($request->filled('io_id')) {
+            $culture = app()->getLocale();
+            $io = DB::table('information_object as io')
+                ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+                })
+                ->where('io.id', $request->input('io_id'))
+                ->select('io.id', 'i18n.title')
+                ->first();
+        }
+
+        $standards = collect();
+        try {
+            if (Schema::hasTable('heritage_accounting_standard')) {
+                $standards = DB::table('heritage_accounting_standard')->orderBy('code')->get();
+            }
+        } catch (\Exception $e) {}
+
+        $classes = collect();
+        try {
+            if (Schema::hasTable('heritage_asset_class')) {
+                $classes = DB::table('heritage_asset_class')->orderBy('name')->get();
+            }
+        } catch (\Exception $e) {}
+
+        return view('ahg-heritage-manage::heritage-accounting.add', compact('io', 'standards', 'classes'));
+    }
     public function store(Request $request) { return redirect()->route('heritage.accounting.browse')->with('success', 'Asset created.'); }
     public function edit(int $id) { $asset = null; try { if (Schema::hasTable('heritage_asset')) $asset = DB::table('heritage_asset')->where('id', $id)->first(); } catch (\Exception $e) {} return view('ahg-heritage-manage::heritage-accounting.edit', ['asset' => $asset, 'fields' => [], 'formAction' => route('heritage.accounting.update', $id)]); }
     public function update(Request $request, int $id) { return redirect()->route('heritage.accounting.view', $id)->with('success', 'Asset updated.'); }
