@@ -390,6 +390,9 @@
     </div>
   </section>
 
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $function->id])
+
 @endsection
 
 @section('after-content')

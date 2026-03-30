@@ -376,4 +376,7 @@
     <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>Browse</a></li>
   </ul>
   @endauth
+
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $storage->id])
 @endsection

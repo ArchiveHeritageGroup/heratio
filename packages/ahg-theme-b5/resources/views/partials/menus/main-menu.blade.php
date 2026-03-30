@@ -170,6 +170,17 @@
 @endif
 @endif
 
+{{-- RiC EXPLORER --}}
+@if($isAdmin || $isEditor)
+<li class="nav-item d-flex flex-column">
+  <a class="nav-link d-flex align-items-center p-0" href="/explorer" title="RiC Explorer">
+    <i class="fas fa-2x fa-fw fa-project-diagram px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="RiC Explorer" aria-hidden="true"></i>
+    <span class="d-lg-none mx-1" aria-hidden="true">RiC Explorer</span>
+    <span class="visually-hidden">RiC Explorer</span>
+  </a>
+</li>
+@endif
+
 {{-- ADMIN menu --}}
 @if($isAdmin)
 @if(count($adminItems) > 0)

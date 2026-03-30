@@ -417,4 +417,7 @@
     <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
   </ul>
   @endauth
+
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $repository->id])
 @endsection

@@ -412,4 +412,7 @@
       @endforeach
     </div>
   </div>
+
+  {{-- RiC Explorer Panel --}}
+  @include('ahg-ric::_ric-panel', ['resourceId' => $term->id])
 @endsection
