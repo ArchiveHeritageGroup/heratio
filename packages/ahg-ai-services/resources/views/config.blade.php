@@ -12,9 +12,7 @@
   </div>
   <p class="text-muted mb-4">Configure LLM providers, API keys, models, and AI feature settings</p>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  {{-- LLM Provider Configurations --}}
+{{-- LLM Provider Configurations --}}
   <div class="card shadow-sm mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <strong><i class="fas fa-server"></i> LLM Provider Configurations</strong>

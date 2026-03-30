@@ -11,9 +11,7 @@
     </a>
   </div>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  {{-- Filter Tabs --}}
+{{-- Filter Tabs --}}
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('workflow.my-tasks') }}">All Active</a>

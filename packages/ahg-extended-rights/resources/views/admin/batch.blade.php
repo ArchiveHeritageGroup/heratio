@@ -8,14 +8,7 @@
 
   <h1><i class="fas fa-layer-group"></i> Batch Rights Operations</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  <div class="card mb-4">
+<div class="card mb-4">
     <div class="card-header"><h5 class="mb-0">Batch Assign Rights</h5></div>
     <div class="card-body">
       <form method="POST" action="{{ route('ext-rights-admin.batch-store') }}">

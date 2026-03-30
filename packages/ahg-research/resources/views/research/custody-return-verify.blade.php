@@ -7,7 +7,6 @@
 @section('content')
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Verify Return</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-clipboard-check text-primary me-2"></i>Verify Return</h1>
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 <div class="card">
     <div class="card-body">
         <form method="POST">

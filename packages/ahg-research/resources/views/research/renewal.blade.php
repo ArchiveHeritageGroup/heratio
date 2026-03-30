@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-sync-alt me-2"></i>Researcher Access Renewal</h1>@endsection
 @section('content')
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="card mb-3">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Current Researcher Card</h5></div>
     <div class="card-body">

@@ -13,10 +13,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
   <div class="col-md-9">
     <h1><i class="fas fa-images me-2"></i>Hero Slides Management</h1>
 
-    @if(session('success'))<div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
-    @if(session('error'))<div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>@endif
-
-    <div class="card border-0 shadow-sm mb-4">
+<div class="card border-0 shadow-sm mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ $editSlideData ? 'Edit Hero Slide' : 'Add New Hero Slide' }}</h2></div>
       <div class="card-body">
         <form action="{{ route('heritage.admin-hero-slides') }}" method="post" enctype="multipart/form-data">@csrf

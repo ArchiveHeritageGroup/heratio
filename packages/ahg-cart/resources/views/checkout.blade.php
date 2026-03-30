@@ -5,8 +5,6 @@
 @section('content')
 <h1><i class="fas fa-credit-card me-2"></i>Checkout</h1>
 
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <form method="post" action="{{ route('cart.checkout') }}">
   @csrf
   <div class="row">

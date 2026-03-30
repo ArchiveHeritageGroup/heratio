@@ -14,11 +14,7 @@
       </div>
     </div>
 
-    @if(session('success'))
-      <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    @endif
-
-    {{-- Stats --}}
+{{-- Stats --}}
     <div class="row mb-4">
       <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h6 class="mb-0 text-white-50">Total Reports</h6><h2 class="mb-0">{{ $statistics['total_reports'] ?? 0 }}</h2></div></div></div>
       @foreach(array_slice($statistics['by_source'] ?? [], 0, 3) as $source => $count)

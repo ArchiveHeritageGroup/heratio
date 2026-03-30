@@ -8,11 +8,7 @@
     </ol>
   </nav>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">@php echo session('success') @endphp<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  <form method="post">
+<form method="post">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="mb-0">
         <i class="bi bi-@php echo $item ? 'pencil' : 'plus-circle' @endphp me-2"></i>

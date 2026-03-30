@@ -12,11 +12,7 @@
 
   <h1><i class="fas fa-clipboard-check"></i> Review Access Request</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  <div class="row">
+<div class="row">
     <div class="col-md-6">
       <div class="card mb-3">
         <div class="card-header"><h5 class="mb-0">Request Details</h5></div>

@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-door-open me-2"></i>{{ $isNew ? 'Add Reading Room' : 'Edit Reading Room' }}</h1>@endsection
 @section('content')
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="card">
     <div class="card-body">
         <form method="POST">

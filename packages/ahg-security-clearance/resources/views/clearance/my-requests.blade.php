@@ -6,14 +6,7 @@
 <div class="container-fluid mt-3">
   <h1><i class="fas fa-file-alt"></i> My Access Requests</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  {{-- Current Clearance --}}
+{{-- Current Clearance --}}
   @if(!empty($currentClearance))
   <div class="card mb-4">
     <div class="card-header"><h5 class="mb-0"><i class="fas fa-shield-alt"></i> My Clearance</h5></div>

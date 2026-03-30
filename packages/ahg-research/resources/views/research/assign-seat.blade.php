@@ -18,9 +18,6 @@
 
 <h1 class="h2 mb-4"><i class="fas fa-chair text-primary me-2"></i>Assign Seat</h1>
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="row">
     <div class="col-md-6">
         <div class="card mb-4">

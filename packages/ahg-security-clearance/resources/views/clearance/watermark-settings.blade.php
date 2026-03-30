@@ -11,11 +11,7 @@
 
   <h1><i class="fas fa-stamp"></i> Watermark Settings</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  <form method="POST" action="{{ route('security-clearance.watermark-settings-store') }}">
+<form method="POST" action="{{ route('security-clearance.watermark-settings-store') }}">
     @csrf
 
     <div class="card mb-4">

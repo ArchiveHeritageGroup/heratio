@@ -11,10 +11,7 @@
     </a>
   </div>
 
-  @if(session('notice'))<div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('notice') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>@endif
-  @if(session('error'))<div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>@endif
-
-  {{-- Stats Cards --}}
+{{-- Stats Cards --}}
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card bg-primary text-white h-100">

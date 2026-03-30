@@ -17,9 +17,7 @@
     </div>
   </div>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  <div class="row">
+<div class="row">
     <div class="col-lg-8">
       <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">

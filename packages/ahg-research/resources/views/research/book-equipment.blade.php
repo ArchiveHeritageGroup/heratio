@@ -18,8 +18,6 @@
 
 <h1 class="h2 mb-4"><i class="fas fa-tools text-primary me-2"></i>Book Equipment</h1>
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">

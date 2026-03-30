@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-project-diagram me-2"></i>{{ e($project->title) }}</h1>@endsection
 @section('content')
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="row mb-4">
     <div class="col-md-8">
         <div class="card mb-3">

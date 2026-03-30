@@ -18,8 +18,6 @@
 
 <h1 class="h2 mb-4"><i class="fas fa-undo text-primary me-2"></i>Batch Return</h1>
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 <form method="POST">
     @csrf
     <div class="card mb-4">

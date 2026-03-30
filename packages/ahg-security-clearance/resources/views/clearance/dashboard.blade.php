@@ -6,14 +6,7 @@
 <div class="container-fluid mt-3">
   <h1><i class="fas fa-shield-alt"></i> Security Dashboard</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  {{-- Statistics Cards --}}
+{{-- Statistics Cards --}}
   <div class="row mb-4">
     <div class="col-md-3">
       <div class="card bg-primary text-white">

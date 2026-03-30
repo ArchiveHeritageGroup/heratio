@@ -7,9 +7,7 @@
   <div class="col-md-3">@include('ahg-settings::_menu')</div>
   <div class="col-md-9">
     <h1>Diacritics settings</h1>
-    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-    <div class="alert alert-info">
+<div class="alert alert-info">
       <p>Please rebuild the search index after uploading diacritics mappings.</p>
       <pre>$ php artisan search:populate</pre>
     </div>

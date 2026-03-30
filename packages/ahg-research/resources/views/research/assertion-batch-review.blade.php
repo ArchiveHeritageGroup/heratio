@@ -20,8 +20,6 @@
     <span class="badge bg-secondary">{{ count($assertions ?? []) }} pending</span>
 </div>
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
 @if(!empty($assertions))
 <form method="POST">
     @csrf

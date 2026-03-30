@@ -17,9 +17,7 @@
     </div>
   </div>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  <div class="alert alert-warning">
+<div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
     <strong>Warning:</strong> Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.
   </div>

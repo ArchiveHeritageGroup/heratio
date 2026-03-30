@@ -12,9 +12,7 @@
     </div>
   </div>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  <div class="row">
+<div class="row">
     {{-- Task Details --}}
     <div class="col-lg-8 mb-4">
       <div class="card">

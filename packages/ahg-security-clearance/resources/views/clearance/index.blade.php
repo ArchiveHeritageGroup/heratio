@@ -6,14 +6,7 @@
 <div class="container-fluid mt-3">
   <h1><i class="fas fa-user-shield"></i> Security Clearances</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  {{-- Stats --}}
+{{-- Stats --}}
   <div class="row mb-4">
     <div class="col-md-4">
       <div class="card bg-primary text-white"><div class="card-body"><h5>Total Users</h5><h2>{{ $stats['total_users'] ?? 0 }}</h2></div></div>

@@ -9,14 +9,7 @@
   </nav>
 
   <!-- Flash messages -->
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">@php echo session('success') @endphp<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">@php echo session('error') @endphp<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  @php $statusColors = [
+@php $statusColors = [
       'draft' => 'secondary', 'submitted' => 'warning', 'under_review' => 'info',
       'approved' => 'success', 'published' => 'primary', 'returned' => 'danger', 'rejected' => 'dark',
     ];

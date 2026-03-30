@@ -20,7 +20,6 @@
     </div>
   </div>
 
-  @if(session('notice'))<div class="alert alert-success">{{ session('notice') }}</div>@endif
 
   <div class="card">
     <div class="card-body p-0">

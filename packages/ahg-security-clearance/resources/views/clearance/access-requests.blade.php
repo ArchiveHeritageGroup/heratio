@@ -11,14 +11,7 @@
 
   <h1><i class="fas fa-inbox"></i> Pending Access Requests</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  {{-- Stats --}}
+{{-- Stats --}}
   <div class="row mb-4">
     <div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body"><h6>Pending</h6><h3>{{ $stats['pending'] ?? 0 }}</h3></div></div></div>
     <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body"><h6>Approved Today</h6><h3>{{ $stats['approved_today'] ?? 0 }}</h3></div></div></div>

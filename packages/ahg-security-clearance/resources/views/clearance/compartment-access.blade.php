@@ -12,11 +12,7 @@
 
   <h1><i class="fas fa-key"></i> Compartment Access Grants</h1>
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  <div class="card">
+<div class="card">
     <div class="card-body table-responsive">
       <table class="table table-striped table-hover">
         <thead>

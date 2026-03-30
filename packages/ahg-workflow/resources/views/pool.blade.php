@@ -9,9 +9,7 @@
     <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  <p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>
+<p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>
 
   @if(count($tasks) === 0)
     <div class="alert alert-info">No tasks available in the pool.</div>

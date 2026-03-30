@@ -6,8 +6,6 @@
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-file-import me-2"></i>Extract Vital Record</h1>
 
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="card">
   <div class="card-body">
     <form method="POST" action="{{ route('admin.ai.htr.doExtract') }}" enctype="multipart/form-data">

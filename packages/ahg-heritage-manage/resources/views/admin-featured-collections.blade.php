@@ -14,9 +14,7 @@ $archivalCollections = (array) ($archivalCollections ?? []);
   <div class="col-md-9">
     <h1><i class="fas fa-star me-2"></i>Featured Collections</h1>
 
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
-    <div class="card border-0 shadow-sm mb-4">
+<div class="card border-0 shadow-sm mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add Collection to Featured</h5></div>
       <div class="card-body">
         <form action="{{ route('heritage.admin-featured-collections') }}" method="post">@csrf

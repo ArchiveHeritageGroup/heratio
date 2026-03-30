@@ -6,9 +6,6 @@
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-graduation-cap me-2"></i>HTR Model Training</h1>
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="card mb-4">
   <div class="card-header" style="background: var(--ahg-primary); color: white;">Annotation Counts</div>
   <div class="card-body table-responsive">

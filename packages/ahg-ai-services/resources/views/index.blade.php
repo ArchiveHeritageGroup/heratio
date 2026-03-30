@@ -12,9 +12,7 @@
   </div>
   <p class="text-muted mb-4">LLM integration, NER, summarization, translation, and spellcheck services</p>
 
-  @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-  {{-- Provider Status Cards --}}
+{{-- Provider Status Cards --}}
   <div class="row mb-4">
     @forelse($providerHealth as $name => $health)
     <div class="col-lg-4 col-md-6 mb-3">

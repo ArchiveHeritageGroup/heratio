@@ -6,8 +6,6 @@
 @include('ahg-ai-services::htr._nav')
 <h1><i class="fas fa-layer-group me-2"></i>Batch HTR Processing</h1>
 
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="card mb-4">
   <div class="card-body">
     <form method="POST" action="{{ route('admin.ai.htr.doBatch') }}" enctype="multipart/form-data">

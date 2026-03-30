@@ -2,8 +2,6 @@
 @section('sidebar')@include('research::research._sidebar')@endsection
 @section('title-block')<h1><i class="fas fa-copy me-2"></i>Reproduction Requests</h1>@endsection
 @section('content')
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <form method="GET" class="d-inline-flex gap-2">

@@ -8,9 +8,7 @@
   <div class="col-md-9">
     <h1>Languages</h1>
 
-    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-    <div class="accordion mb-3">
+<div class="accordion mb-3">
       <div class="accordion-item">
         <h2 class="accordion-header" id="lang-heading">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#lang-collapse" aria-expanded="true">

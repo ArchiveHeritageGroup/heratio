@@ -40,9 +40,7 @@ $heroImagesArray = $heroImages ?? [];
   <div class="col-md-9">
     <h1><i class="fas fa-cog me-2"></i>Heritage Landing Configuration</h1>
 
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-
-    <form action="{{ route('heritage.admin-config') }}" method="post">@csrf
+<form action="{{ route('heritage.admin-config') }}" method="post">@csrf
 
       <div class="card border-0 shadow-sm mb-4" id="section-hero">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">Hero Section</h2></div>

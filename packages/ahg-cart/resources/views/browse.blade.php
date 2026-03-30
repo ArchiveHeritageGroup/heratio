@@ -15,9 +15,6 @@
   </div>
 </div>
 
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-@if(session('info'))<div class="alert alert-info">{{ session('info') }}</div>@endif
-
 @if($items->isEmpty())
   <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Your cart is empty. Browse the collection and add items.</div>
 @else

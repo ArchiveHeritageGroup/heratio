@@ -10,11 +10,7 @@
 @section('content')
 <h1><i class="fas fa-book-reader text-primary me-2"></i>Research Services</h1>
 
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-
-  {{-- Registration Banners --}}
+{{-- Registration Banners --}}
   @guest
     <div class="alert alert-info mb-4">
       <div class="row align-items-center">
