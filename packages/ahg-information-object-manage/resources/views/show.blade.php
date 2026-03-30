@@ -2084,6 +2084,8 @@
     </section>
   @endif
 
+  </div>{{-- /data-tts-content --}}
+
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}
@@ -2091,8 +2093,6 @@
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
-
-  </div>{{-- /data-tts-content --}}
 
 @endsection
 

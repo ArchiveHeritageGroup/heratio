@@ -72,7 +72,7 @@
       ->join('term', 'object_term_relation.term_id', '=', 'term.id')
       ->leftJoin('slug', 'object_term_relation.term_id', '=', 'slug.object_id')
       ->where('object_term_relation.object_id', $io->id)
-      ->where('term.taxonomy_id', 42) {{-- Places taxonomy --}}
+      ->where('term.taxonomy_id', 42) // Places taxonomy
       ->where('term_i18n.culture', $culture)
       ->select('term_i18n.name', 'slug.slug')
       ->get();
