@@ -283,3 +283,379 @@ To run this audit on a new AtoM → Heratio migration:
 | `bin/parity-check.php` | `$mapping` array (same structure) |
 | `bin/audit-urls-v2.php` | AtoM template base path |
 | `bin/missing-views.php` | AtoM plugin glob paths |
+
+---
+
+## Part 2: AI-Assisted Testing & Playwright End-to-End Testing
+
+### Overview
+
+Beyond the PHP audit scripts, the parity process uses two additional testing layers:
+
+1. **AI-assisted visual QA** — Claude reads live pages from both AtoM and Heratio, compares DOM structure, identifies discrepancies, and generates fixes
+2. **Playwright E2E tests** — Automated browser tests that navigate every page, validate DOM elements, take screenshots, and run regression checks
+
+---
+
+### AI-Assisted Testing Process
+
+#### How it works
+
+Claude (the AI) acts as a visual QA tester by:
+
+1. **Reading the AtoM source template** — the original Symfony PHP template from `/usr/share/nginx/archive/`
+2. **Reading the Heratio blade view** — the Laravel equivalent from `/usr/share/nginx/heratio/packages/`
+3. **Comparing element-by-element** — headings, links, buttons, form fields, sections, badges, sidebar, layout
+4. **Generating a comparison table** — AtoM count vs Heratio count vs delta per control type
+5. **Writing the fix** — modifying the Heratio blade to close the delta to zero
+6. **Verifying after fix** — re-reading both files and confirming 0 delta
+
+#### The `bin/visual-qa.php` script
+
+This PHP script automates the structural comparison by fetching live pages:
+
+```bash
+# Compare a single page
+php bin/visual-qa.php /plaas-welgelegen
+
+# Compare all predefined pages
+php bin/visual-qa.php --all
+```
+
+**What it extracts from each page:**
+- Headings (h1–h5) with text content
+- Links with href and text (URLs normalized, `index.php` stripped)
+- Buttons and submit inputs
+- Card/accordion section headers
+- Forms with method and action
+
+**What it reports:**
+- MISSING: element exists in AtoM but not Heratio
+- EXTRA: element exists in Heratio but not AtoM
+- Per-page summary table with issue counts
+
+**Configuration:**
+```php
+$atomBase    = 'https://psis.theahg.co.za/index.php';
+$heratioBase = 'https://heratio.theahg.co.za';
+```
+
+Update these URLs for a new instance.
+
+#### AI workflow per page (The 12 Rules applied)
+
+```
+1. READ AtoM template    → extract every control (headings, links, buttons, fields, labels, badges, icons, text)
+2. READ Heratio blade    → extract same
+3. GENERATE table        → | Type | AtoM | Heratio | Delta |
+4. IDENTIFY gaps         → list every missing/extra element
+5. FIX blade file        → add missing elements, remove extras, match CSS classes
+6. VERIFY layout         → 1col/2col/3col, sidebar left/right, container width
+7. VERIFY URLs           → every href routes to correct Heratio equivalent
+8. REGENERATE table      → confirm all deltas = 0
+```
+
+This process is repeated for every view in every package, prioritized by gap size.
+
+---
+
+### Playwright E2E Testing
+
+#### Purpose
+
+Playwright provides automated browser-level testing that the PHP scripts cannot:
+- **Real rendering** — tests what the user actually sees (CSS applied, JS executed)
+- **Screenshots** — visual regression detection via screenshot comparison
+- **Interactive testing** — form submissions, navigation flows, authentication
+- **Cross-browser** — Chrome, Firefox, Safari
+
+#### Setup
+
+Install Playwright in the Heratio project:
+
+```bash
+cd /usr/share/nginx/heratio
+npm install -D @playwright/test
+npx playwright install
+```
+
+Add to `package.json`:
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  }
+}
+```
+
+#### Configuration — `playwright.config.ts`
+
+```typescript
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  timeout: 30000,
+  retries: 1,
+  use: {
+    baseURL: process.env.HERATIO_URL || 'https://heratio.theahg.co.za',
+    screenshot: 'on',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+  ],
+});
+```
+
+#### Test Structure
+
+```
+tests/
+└── e2e/
+    ├── auth.setup.ts              ← Login once, save session
+    ├── parity/
+    │   ├── browse-pages.spec.ts   ← All browse pages render correctly
+    │   ├── show-pages.spec.ts     ← All show pages render correctly
+    │   ├── edit-pages.spec.ts     ← All edit forms have correct fields
+    │   ├── admin-pages.spec.ts    ← Admin/settings pages
+    │   └── navigation.spec.ts     ← Menu items, breadcrumbs, links
+    ├── visual/
+    │   ├── screenshots.spec.ts    ← Screenshot comparison vs baseline
+    │   └── layout.spec.ts         ← Column layout, sidebar, responsive
+    └── functional/
+        ├── search.spec.ts         ← Search works correctly
+        ├── clipboard.spec.ts      ← Clipboard add/remove/clear
+        └── crud.spec.ts           ← Create/edit/delete flows
+```
+
+#### Parity Test Pattern
+
+Each parity test compares Heratio against expected DOM structure (derived from AtoM):
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+// Define expected structure from AtoM audit
+const ATOM_EXPECTED = {
+  '/informationobject/browse': {
+    title: 'Browse archival descriptions',
+    headings: { h1: 1, h2: 2 },
+    formFields: 5,
+    tableRows: { min: 1 },
+    links: { min: 20 },
+    buttons: 3,
+    sections: ['Title', 'Level of description', 'Date range'],
+  },
+  '/actor/browse': {
+    title: 'Browse authority records',
+    headings: { h1: 1, h2: 1 },
+    formFields: 3,
+    links: { min: 10 },
+    buttons: 2,
+  },
+};
+
+for (const [path, expected] of Object.entries(ATOM_EXPECTED)) {
+  test(`Parity: ${path}`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page).toHaveTitle(new RegExp(expected.title, 'i'));
+
+    // Heading counts
+    if (expected.headings) {
+      for (const [tag, count] of Object.entries(expected.headings)) {
+        await expect(page.locator(tag)).toHaveCount(count);
+      }
+    }
+
+    // Form field count
+    if (expected.formFields) {
+      const fields = page.locator('input, select, textarea').filter({ hasNot: page.locator('[type="hidden"]') });
+      await expect(fields).toHaveCount(expected.formFields);
+    }
+
+    // Minimum link count
+    if (expected.links?.min) {
+      const links = page.locator('a[href]');
+      expect(await links.count()).toBeGreaterThanOrEqual(expected.links.min);
+    }
+
+    // Screenshot for visual regression
+    await expect(page).toHaveScreenshot(`${path.replace(/\//g, '_')}.png`, {
+      fullPage: true,
+      threshold: 0.1,
+    });
+  });
+}
+```
+
+#### Visual Regression Testing
+
+Playwright's built-in screenshot comparison:
+
+```typescript
+test('Visual regression: homepage', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('homepage.png', {
+    fullPage: true,
+    threshold: 0.05,      // 5% pixel difference tolerance
+    maxDiffPixels: 100,    // or max absolute pixel diff
+  });
+});
+```
+
+**Workflow:**
+1. First run creates baseline screenshots in `tests/e2e/screenshots/`
+2. Subsequent runs compare against baselines
+3. Differences flagged as test failures with visual diff report
+4. After verified changes: `npx playwright test --update-snapshots`
+
+#### AtoM vs Heratio Side-by-Side Screenshots
+
+For cross-system visual comparison, take screenshots of both:
+
+```typescript
+import { chromium } from '@playwright/test';
+
+const pages = [
+  '/informationobject/browse',
+  '/actor/browse',
+  '/repository/browse',
+  // ... all pages from visual-qa.php
+];
+
+async function captureAll(baseURL: string, prefix: string) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  for (const path of pages) {
+    await page.goto(`${baseURL}${path}`);
+    await page.screenshot({
+      path: `screenshots/${prefix}${path.replace(/\//g, '_')}.png`,
+      fullPage: true,
+    });
+  }
+  await browser.close();
+}
+
+// Capture both systems
+await captureAll('https://psis.theahg.co.za/index.php', 'atom_');
+await captureAll('https://heratio.theahg.co.za', 'heratio_');
+```
+
+Then use an image diff tool (e.g., `pixelmatch`, `looks-same`) or AI vision to compare.
+
+#### Authenticated Testing
+
+Most admin pages require login:
+
+```typescript
+// tests/e2e/auth.setup.ts
+import { test as setup } from '@playwright/test';
+
+setup('authenticate', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('input[name="email"]', process.env.TEST_USER || 'admin@example.com');
+  await page.fill('input[name="password"]', process.env.TEST_PASS || 'password');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('/');
+  await page.context().storageState({ path: 'tests/e2e/.auth/user.json' });
+});
+```
+
+Reference in config:
+```typescript
+projects: [
+  { name: 'setup', testMatch: /auth\.setup\.ts/ },
+  {
+    name: 'authenticated',
+    dependencies: ['setup'],
+    use: { storageState: 'tests/e2e/.auth/user.json' },
+  },
+]
+```
+
+#### Running Tests
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run specific test file
+npx playwright test tests/e2e/parity/browse-pages.spec.ts
+
+# Run with UI mode (interactive)
+npm run test:e2e:ui
+
+# View HTML report
+npm run test:e2e:report
+
+# Update screenshot baselines
+npx playwright test --update-snapshots
+
+# Run against specific URL
+HERATIO_URL=http://localhost npx playwright test
+```
+
+---
+
+### Combined AI + Playwright Workflow
+
+The full testing pipeline combines all layers:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Layer 1: PHP Audit Scripts (static analysis)         │
+│   bin/parity-routes.php     → route coverage         │
+│   bin/audit-controls.php    → control counts         │
+│   bin/parity-check.php      → form field names       │
+│   bin/audit-all-urls.php    → broken route() calls   │
+│   bin/missing-views.php     → template coverage      │
+├─────────────────────────────────────────────────────┤
+│ Layer 2: HTTP Parity (live server comparison)        │
+│   bin/parity-check (bash)   → status + DOM counts    │
+│   bin/visual-qa.php         → structural comparison  │
+├─────────────────────────────────────────────────────┤
+│ Layer 3: Playwright E2E (browser-level)              │
+│   Parity tests              → DOM element counts     │
+│   Visual regression         → screenshot baselines   │
+│   Functional tests          → CRUD, search, auth     │
+│   Cross-system screenshots  → AtoM vs Heratio diffs  │
+├─────────────────────────────────────────────────────┤
+│ Layer 4: AI-Assisted QA (Claude)                     │
+│   Template comparison       → line-by-line review    │
+│   Fix generation            → write corrected blade  │
+│   Verification              → re-read and confirm    │
+│   Screenshot analysis       → visual diff review     │
+└─────────────────────────────────────────────────────┘
+```
+
+**Order of execution:**
+1. Run PHP audit scripts → identify gaps at code level
+2. Run HTTP parity check → identify gaps at rendered page level
+3. AI reviews gaps → generates fixes following the 12 Rules
+4. Run Playwright tests → verify fixes in real browser
+5. Update screenshot baselines → lock in verified state
+6. Re-run all layers → confirm zero delta
+
+---
+
+### Replicating on Another Instance
+
+1. **PHP scripts:** Copy `bin/` audit scripts, update paths (see Part 1)
+2. **visual-qa.php:** Update `$atomBase` and `$heratioBase` URLs
+3. **Playwright:**
+   - `npm install -D @playwright/test && npx playwright install`
+   - Copy `playwright.config.ts` and `tests/e2e/` directory
+   - Update `baseURL` in config
+   - Update `ATOM_EXPECTED` data from the new instance's audit results
+   - Run `npx playwright test --update-snapshots` to create baselines
+4. **AI workflow:** Use Claude with the same 12 Rules and CLAUDE.md instructions
+5. **Environment variables:**
+   ```bash
+   export HERATIO_URL=https://new-heratio-instance.example.com
+   export ATOM_URL=https://new-atom-instance.example.com
+   export TEST_USER=admin@example.com
+   export TEST_PASS=password
+   ```
