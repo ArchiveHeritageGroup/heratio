@@ -32,6 +32,9 @@
     </div>
   @endif
 
+  {{-- Static pages menu (visible to all users, matching AtoM context menu) --}}
+  @include('ahg-menu-manage::_static-pages-menu')
+
   {{-- Dynamic treeview hierarchy --}}
   @include('ahg-io-manage::partials._treeview', ['io' => $io])
 
@@ -233,8 +236,6 @@
 
   @endauth
 
-  {{-- Static pages menu (visible to all users, matching AtoM context menu) --}}
-  @include('ahg-menu-manage::_static-pages-menu')
 
 @endsection
 
