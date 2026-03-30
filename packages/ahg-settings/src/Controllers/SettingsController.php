@@ -1415,7 +1415,7 @@ class SettingsController extends Controller
             if ($request->filled('resolve_id')) {
                 DB::table('ahg_error_log')
                     ->where('id', $request->input('resolve_id'))
-                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser]);
+                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
                 return redirect()->route('settings.error-log')->with('success', 'Error resolved.');
             }
 
@@ -1436,7 +1436,7 @@ class SettingsController extends Controller
             if ($request->has('resolve_all')) {
                 DB::table('ahg_error_log')
                     ->whereNull('resolved_at')
-                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser]);
+                    ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
                 return redirect()->route('settings.error-log')->with('success', 'All open errors resolved.');
             }
 

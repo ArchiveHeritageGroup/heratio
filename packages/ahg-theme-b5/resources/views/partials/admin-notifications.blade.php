@@ -38,18 +38,12 @@
         $heratioHost = request()->getHost();
         $unreadErrors = \Illuminate\Support\Facades\DB::table('ahg_error_log')
             ->where('is_read', 0)
-            ->where(function ($q) use ($heratioHost) {
-                $q->where('url', 'LIKE', '%' . $heratioHost . '%')
-                  ->orWhere('hostname', gethostname());
-            })
+            ->where('url', 'LIKE', '%' . $heratioHost . '%')
             ->count();
         if ($unreadErrors > 0) {
             $recentError = \Illuminate\Support\Facades\DB::table('ahg_error_log')
                 ->where('is_read', 0)
-                ->where(function ($q) use ($heratioHost) {
-                    $q->where('url', 'LIKE', '%' . $heratioHost . '%')
-                      ->orWhere('hostname', gethostname());
-                })
+                ->where('url', 'LIKE', '%' . $heratioHost . '%')
                 ->orderByDesc('created_at')
                 ->first();
             $errorMsg = $unreadErrors . ' unread error' . ($unreadErrors > 1 ? 's' : '');
