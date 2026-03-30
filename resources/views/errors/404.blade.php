@@ -14,6 +14,38 @@
         {{ __('Did you follow a broken link?') }}
       </p>
 
+      @if(($themeData['isAdmin'] ?? false))
+        <div class="alert alert-warning mt-3 text-start">
+          <h6 class="fw-bold mb-2"><i class="fas fa-shield-alt me-1"></i> Admin debug info</h6>
+          <table class="table table-sm table-borderless mb-0 small">
+            <tr><td class="fw-bold text-nowrap pe-3">URL</td><td><code>{{ request()->fullUrl() }}</code></td></tr>
+            <tr><td class="fw-bold text-nowrap pe-3">Method</td><td><code>{{ request()->method() }}</code></td></tr>
+            <tr><td class="fw-bold text-nowrap pe-3">IP</td><td>{{ request()->ip() }}</td></tr>
+            <tr><td class="fw-bold text-nowrap pe-3">Time</td><td>{{ now()->format('Y-m-d H:i:s') }}</td></tr>
+            @if($exception ?? null)
+              <tr><td class="fw-bold text-nowrap pe-3">Message</td><td>{{ $exception->getMessage() ?: 'No matching route found' }}</td></tr>
+            @endif
+            <tr><td class="fw-bold text-nowrap pe-3">Slug lookup</td><td>
+              @php
+                $path = trim(request()->path(), '/');
+                $slugMatch = \Illuminate\Support\Facades\DB::table('slug')->where('slug', $path)->first();
+              @endphp
+              @if($slugMatch)
+                Slug <code>{{ $path }}</code> exists (object_id={{ $slugMatch->object_id }}) but no route handled it.
+                @php
+                  $obj = \Illuminate\Support\Facades\DB::table('object')->where('id', $slugMatch->object_id)->first();
+                @endphp
+                @if($obj)
+                  <br>Object class: <code>{{ $obj->class_name }}</code>
+                @endif
+              @else
+                No slug <code>{{ $path }}</code> found in the database.
+              @endif
+            </td></tr>
+          </table>
+        </div>
+      @endif
+
       <p class="mb-0">
         <a href="javascript:history.go(-1)">
           {{ __('Back to previous page.') }}
