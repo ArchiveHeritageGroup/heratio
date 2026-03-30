@@ -4,6 +4,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ThrottleRequestsException;
 
@@ -23,6 +26,38 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Log all exceptions to ahg_error_log table
+        $exceptions->report(function (\Throwable $e) {
+            try {
+                $request = request();
+                $statusCode = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+                $level = $statusCode >= 500 ? 'error' : ($statusCode >= 400 ? 'warning' : 'error');
+
+                DB::table('ahg_error_log')->insert([
+                    'level' => $level,
+                    'status_code' => $statusCode,
+                    'message' => mb_substr($e->getMessage() ?: get_class($e), 0, 65535),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'exception_class' => get_class($e),
+                    'request_id' => $request?->header('X-Request-ID'),
+                    'url' => mb_substr($request?->fullUrl() ?? '', 0, 2000),
+                    'http_method' => $request?->method(),
+                    'client_ip' => $request?->ip(),
+                    'user_agent' => mb_substr($request?->userAgent() ?? '', 0, 500),
+                    'user_id' => Auth::id(),
+                    'hostname' => gethostname(),
+                    'trace' => mb_substr($e->getTraceAsString(), 0, 65535),
+                    'is_read' => 0,
+                    'created_at' => now(),
+                ]);
+            } catch (\Throwable $logException) {
+                // Don't let logging failure break the app
+            }
+
+            return false; // Continue to default Laravel logging as well
+        });
+
         // Return JSON error responses for API routes
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
