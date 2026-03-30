@@ -150,77 +150,32 @@ class SpectrumController extends Controller
             abort(404);
         }
 
-        // Fetch current valuation
+        // Fetch heritage asset record for this IO
+        $asset = null;
         try {
-            $currentValuation = DB::table('spectrum_valuation')
-                ->where('object_id', $io->id)
-                ->where('is_current', 1)
+            $asset = DB::table('heritage_asset as ha')
+                ->leftJoin('heritage_accounting_standard as std', 'std.id', '=', 'ha.accounting_standard_id')
+                ->leftJoin('heritage_asset_class as cls', 'cls.id', '=', 'ha.asset_class_id')
+                ->where('ha.information_object_id', $io->id)
+                ->select('ha.*', 'std.code as standard_code', 'std.name as standard_name', 'cls.name as class_name')
                 ->first();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $currentValuation = null;
+        } catch (\Exception $e) {
+            $asset = null;
         }
 
-        // Fetch valuation history
-        try {
-            $valuationHistory = DB::table('spectrum_valuation')
-                ->where('object_id', $io->id)
-                ->orderBy('valuation_date', 'desc')
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $valuationHistory = collect();
+        $valuations = collect();
+        $impairments = collect();
+        $movements = collect();
+        $journals = collect();
+
+        if ($asset) {
+            try { $valuations = DB::table('heritage_asset_valuation')->where('heritage_asset_id', $asset->id)->orderByDesc('valuation_date')->get(); } catch (\Exception $e) {}
+            try { $impairments = DB::table('heritage_asset_impairment')->where('heritage_asset_id', $asset->id)->orderByDesc('assessment_date')->get(); } catch (\Exception $e) {}
+            try { $movements = DB::table('heritage_asset_movement')->where('heritage_asset_id', $asset->id)->orderByDesc('movement_date')->get(); } catch (\Exception $e) {}
+            try { $journals = DB::table('heritage_asset_journal')->where('heritage_asset_id', $asset->id)->orderByDesc('journal_date')->get(); } catch (\Exception $e) {}
         }
 
-        // Fetch GRAP heritage asset data if exists
-        try {
-            $grapAsset = DB::table('grap_heritage_asset')
-                ->where('object_id', $io->id)
-                ->first();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $grapAsset = null;
-        }
-
-        // Fetch GRAP data record for this object (links depreciation/revaluation)
-        try {
-            $grapData = DB::table('spectrum_grap_data')
-                ->where('information_object_id', $io->id)
-                ->first();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $grapData = null;
-        }
-
-        // Fetch GRAP depreciation schedule if GRAP data exists
-        try {
-            $grapDepreciation = $grapData
-                ? DB::table('spectrum_grap_depreciation_schedule')
-                    ->where('grap_data_id', $grapData->id)
-                    ->orderBy('fiscal_year', 'desc')
-                    ->get()
-                : collect();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $grapDepreciation = collect();
-        }
-
-        // Fetch GRAP revaluation history
-        try {
-            $grapRevaluations = $grapData
-                ? DB::table('spectrum_grap_revaluation_history')
-                    ->where('grap_data_id', $grapData->id)
-                    ->orderBy('revaluation_date', 'desc')
-                    ->get()
-                : collect();
-        } catch (\Illuminate\Database\QueryException $e) {
-            $grapRevaluations = collect();
-        }
-
-        return view('ahg-io-manage::spectrum.heritage', [
-            'io'                => $io,
-            'currentValuation'  => $currentValuation,
-            'valuationHistory'  => $valuationHistory,
-            'grapAsset'         => $grapAsset,
-            'grapData'          => $grapData ?? null,
-            'grapDepreciation'  => $grapDepreciation,
-            'grapRevaluations'  => $grapRevaluations,
-        ]);
+        return view('ahg-io-manage::spectrum.heritage', compact('io', 'asset', 'valuations', 'impairments', 'movements', 'journals'));
     }
 
     /**
