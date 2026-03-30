@@ -4430,6 +4430,12 @@ PY;
             ->with('error', 'Failed to start training. The service may be offline.');
     }
 
+    public function htrTrainingStatus()
+    {
+        $remote = $this->htrService->trainingStatus();
+        return response()->json($remote ?? ['training_active' => false]);
+    }
+
     /**
      * Crop annotated field regions from an image and save as separate files.
      * Each crop is saved with its label and text in the filename for training.

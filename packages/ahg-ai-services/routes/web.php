@@ -126,6 +126,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/htr/add-town', [AiController::class, 'htrAddTown'])->name('admin.ai.htr.addTown');
     Route::get('/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
+    Route::get('/htr/training/status', [AiController::class, 'htrTrainingStatus'])->name('admin.ai.htr.trainingStatus');
 });
 
 /*
