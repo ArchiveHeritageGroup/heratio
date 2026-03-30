@@ -58,17 +58,21 @@
     }
 @endphp
 
-<div class="mb-3 ahg-autocomplete" id="{{ $acId }}" data-config='@json([
-    "url"          => $acRouteUrl,
-    "minChars"     => $acMinChars,
-    "queryParam"   => $acQueryParam,
-    "idField"      => $acIdField,
-    "nameField"    => $acNameField,
-    "extraFields"  => $acExtraFields,
-    "allowFreeText"=> $acAllowFreeText,
-    "multi"        => $acMulti,
-    "multiName"    => $acMultiName,
-])'>
+@php
+    $acConfig = json_encode([
+        'url'          => $acRouteUrl,
+        'minChars'     => $acMinChars,
+        'queryParam'   => $acQueryParam,
+        'idField'      => $acIdField,
+        'nameField'    => $acNameField,
+        'extraFields'  => $acExtraFields,
+        'allowFreeText'=> $acAllowFreeText,
+        'multi'        => $acMulti,
+        'multiName'    => $acMultiName,
+    ], JSON_HEX_APOS | JSON_HEX_QUOT);
+@endphp
+
+<div class="mb-3 ahg-autocomplete" id="{{ $acId }}" data-config='{{ $acConfig }}'>
 
     @if($acLabel)
         <label for="{{ $acId }}-input" class="form-label">
