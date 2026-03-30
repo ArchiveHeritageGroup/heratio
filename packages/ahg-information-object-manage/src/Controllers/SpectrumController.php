@@ -175,7 +175,15 @@ class SpectrumController extends Controller
             try { $journals = DB::table('heritage_asset_journal')->where('heritage_asset_id', $asset->id)->orderByDesc('journal_date')->get(); } catch (\Exception $e) {}
         }
 
-        return view('ahg-io-manage::spectrum.heritage', compact('io', 'asset', 'valuations', 'impairments', 'movements', 'journals'));
+        // If no asset, load standards/classes for the add form
+        $standards = collect();
+        $classes = collect();
+        if (!$asset) {
+            try { if (\Illuminate\Support\Facades\Schema::hasTable('heritage_accounting_standard')) { $standards = DB::table('heritage_accounting_standard')->orderBy('code')->get(); } } catch (\Exception $e) {}
+            try { if (\Illuminate\Support\Facades\Schema::hasTable('heritage_asset_class')) { $classes = DB::table('heritage_asset_class')->orderBy('name')->get(); } } catch (\Exception $e) {}
+        }
+
+        return view('ahg-io-manage::spectrum.heritage', compact('io', 'asset', 'valuations', 'impairments', 'movements', 'journals', 'standards', 'classes'));
     }
 
     /**
