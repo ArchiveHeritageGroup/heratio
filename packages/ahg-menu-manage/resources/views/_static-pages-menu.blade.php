@@ -1,32 +1,35 @@
 @php
-  // Build static pages sidebar from DB
+  // Match AtoM: show children of the "staticPagesMenu" menu item (id 61)
   $culture = app()->getLocale();
-  $staticPages = \Illuminate\Support\Facades\DB::table('static_page')
-      ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
-      ->join('slug', 'static_page.id', '=', 'slug.object_id')
-      ->where('static_page_i18n.culture', $culture)
-      ->whereNotNull('static_page_i18n.title')
-      ->select('static_page.id', 'static_page_i18n.title', 'slug.slug')
-      ->orderBy('static_page_i18n.title')
-      ->get();
+  $staticPagesMenu = \Illuminate\Support\Facades\DB::table('menu')
+      ->join('menu_i18n', 'menu.id', '=', 'menu_i18n.id')
+      ->where('menu.name', 'staticPagesMenu')
+      ->where('menu_i18n.culture', $culture)
+      ->first();
+
+  $menuItems = collect();
+  if ($staticPagesMenu) {
+      $menuItems = \Illuminate\Support\Facades\DB::table('menu')
+          ->join('menu_i18n', 'menu.id', '=', 'menu_i18n.id')
+          ->where('menu.parent_id', $staticPagesMenu->id)
+          ->where('menu_i18n.culture', $culture)
+          ->orderBy('menu.lft')
+          ->select('menu.id', 'menu_i18n.label', 'menu.path')
+          ->get();
+  }
 @endphp
 
-@if($staticPages->count())
+@if($menuItems->count())
   <section class="card mb-3">
     <h2 class="h5 p-3 mb-0">
-      {{ __('Static pages') }}
+      {{ $staticPagesMenu->label ?? __('Static pages') }}
     </h2>
     <div class="list-group list-group-flush">
-      @foreach($staticPages as $sp)
-        @php
-          $href = in_array($sp->slug, ['about', 'contact', 'privacy', 'terms'])
-              ? url('/' . $sp->slug)
-              : url('/pages/' . $sp->slug);
-        @endphp
+      @foreach($menuItems as $item)
         <a
-          class="list-group-item list-group-item-action{{ request()->is($sp->slug) || request()->is('pages/' . $sp->slug) ? ' active' : '' }}"
-          href="{{ $href }}">
-          {{ $sp->title }}
+          class="list-group-item list-group-item-action{{ request()->is(ltrim($item->path, '/')) ? ' active' : '' }}"
+          href="{{ url($item->path) }}">
+          {{ $item->label }}
         </a>
       @endforeach
     </div>
