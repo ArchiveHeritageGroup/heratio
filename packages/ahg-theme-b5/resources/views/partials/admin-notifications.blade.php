@@ -32,6 +32,29 @@
             ];
         }
     } catch (\Exception $e) {}
+
+    // Unread error log entries
+    try {
+        $unreadErrors = \Illuminate\Support\Facades\DB::table('ahg_error_log')
+            ->where('is_read', 0)
+            ->count();
+        if ($unreadErrors > 0) {
+            $recentError = \Illuminate\Support\Facades\DB::table('ahg_error_log')
+                ->where('is_read', 0)
+                ->orderByDesc('created_at')
+                ->first();
+            $errorMsg = $unreadErrors . ' unread error' . ($unreadErrors > 1 ? 's' : '');
+            if ($recentError) {
+                $errorMsg .= ' — latest: ' . \Illuminate\Support\Str::limit($recentError->message, 80);
+            }
+            $notifications[] = [
+                'type' => 'danger',
+                'icon' => 'fa-bug',
+                'message' => $errorMsg,
+                'url' => url('/admin/ahg-settings/error-log'),
+            ];
+        }
+    } catch (\Exception $e) {}
   @endphp
 
   @foreach($notifications as $notif)
