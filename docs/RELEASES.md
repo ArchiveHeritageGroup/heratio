@@ -79,7 +79,7 @@ All releases pushed via `./bin/release`. Current version: **0.32.105** (2026-03-
 | **0.32.37** | Heritage landing page: clone AtoM exactly — fix hero image, config parse, suggested searches, all URLs |
 | **0.32.36** | Heritage landing page: Rijksstudio-style with 7 sections |
 | **0.32.35** | Browse pages AtoM clone: grid view cards, pagination, taxonomy URL route |
-| **0.32.34** | Taxonomy: add AtoM-compatible URL route with redirect |
+| **0.32.34** | Taxonomy: add Heratio-compatible URL route with redirect |
 | **0.32.33** | Browse pages: AtoM clone — GLAM, repository, function, taxonomy browse all match |
 | **0.32.32** | Taxonomy browse + pager: AtoM clone — 2col layout, sidebar treeview, Results text |
 | **0.32.31** | Taxonomy browse: AtoM clone — 2col layout with sidebar treeview, section slots |
@@ -170,7 +170,7 @@ All releases pushed via `./bin/release`. Current version: **0.32.105** (2026-03-
 | **0.30.23–0.30.20** | Fix login, dashboard, research pages, clipboard errors (multiple iterations) |
 | **0.30.19** | Fix login, add 5 missing research pages from AtoM |
 | **0.30.18** | Port AtoM iiif-manifest.php to Laravel route |
-| **0.30.17** | Add AtoM-style security pages |
+| **0.30.17** | Add Heratio-style security pages |
 | **0.30.16–0.30.10** | Fix research package (sidebar, routes, columns, Carbon, pagination) |
 | **0.30.9–0.30.1** | Research dashboard alignment with AtoM (multiple iterations) |
 

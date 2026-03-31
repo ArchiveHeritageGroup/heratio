@@ -1,0 +1,15 @@
+:root {
+  --md-primary-fg-color: #005837;
+  --md-primary-fg-color--light: #007a4d;
+  --md-primary-fg-color--dark: #003d25;
+  --md-accent-fg-color: #007a4d;
+}
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #007a4d;
+  --md-primary-fg-color--light: #009960;
+  --md-primary-fg-color--dark: #005837;
+  --md-accent-fg-color: #009960;
+}
+.md-typeset .grid.cards > ul > li {
+  border-left: 4px solid var(--md-primary-fg-color);
+}

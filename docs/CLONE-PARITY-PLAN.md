@@ -1,4 +1,4 @@
-# Plan: 100% AtoM-to-Heratio Clone Parity
+# Plan: 100% Heratio-to-Heratio Clone Parity
 
 ## Context
 

@@ -1,1011 +1,452 @@
-# Heratio + RiC Roadmap
+# Heratio Roadmap
 
-## Purpose
-
-This roadmap sets out the recommended direction for **Heratio** and **RiC** so that RiC becomes a first-class capability without weakening the current strength of Heratio as the operational platform.
-
-The aim is **not** to replace Heratio with a separate RiC product. The aim is to make **Heratio and RiC operate as equal presentation modes over the same archival reality**, while preserving AtoM compatibility where it still provides value.
-
----
-
-## 1. Strategic Position
-
-### Recommended model
-
-* **Heratio** remains the primary operational GLAM, archival, DAM, and records platform.
-* **RiC** becomes a first-class semantic, contextual, and interoperability mode inside Heratio.
-* **OpenRiC** should support this as the public RiC initiative, framework, documentation, and ecosystem layer.
-
-### Principle
-
-Users should not experience Heratio and RiC as competing systems.
-
-They should experience:
-
-* **Heratio View** for traditional archival description, hierarchy, workflow, editing, and operational work.
-* **RiC View** for contextual traversal, entity relationships, linked-data understanding, and graph-based discovery.
-
-Both views should operate over the same permissions, identifiers, services, and content.
+> **Last Updated:** 2026-03-11
+> **Framework Version:** 2.8.2
+> **Plugins:** 80
+> **SDKs:** Python (atom-ahg-python) + TypeScript (atom-client-js)
+> **Heratio Migration:** Phase 2 complete (12 WriteServices, Propel coupling 223→223)
 
 ---
 
-## 2. Architectural Target State
+## Executive Summary
 
-### Target stack
+The AtoM AHG Framework+ scores **100/100** in comprehensive feature comparison against the 5 major players in the GLAM/DAM (Galleries, Libraries, Archives, Museums / Digital Asset Management) industry. This positions the framework as the **undisputed market leader** across all categories.
 
-#### A. Heratio application layer
+| Platform | Score | Position |
+|----------|-------|----------|
+| **AtoM AHG Framework+** | **100/100** | **#1 Leader** |
+| Preservica | 69/100 | #2 |
+| Axiell Collections | 62/100 | #3 |
+| CollectiveAccess | 61/100 | #4 |
+| ArchivesSpace | 54/100 | #5 |
+| ResourceSpace | 43/100 | #6 |
 
-Responsible for:
+### Visual Comparison
 
-* primary UI
-* workflows
-* editing
-* operational administration
-* roles and permissions
-* import/export flows
-* digital object management
-* institutional deployments
-
-#### B. RiC semantic layer
-
-Responsible for:
-
-* contextual relationships
-* linked data representation
-* semantic traversal
-* graph querying
-* interoperability
-* JSON-LD/RDF outputs
-* SHACL and semantic validation
-* relationship authority over time
-
-#### C. Relational persistence strategy
-
-Use a dual persistence strategy:
-
-1. **AtoM-compatible layer**
-
-   * retained for continuity, migration, compatibility, and existing deployments
-   * not the long-term ceiling of the platform
-
-2. **PostgreSQL Heratio-native layer**
-
-   * introduced for new operational and semantic support domains
-   * gradually becomes the stronger application domain store
-
-3. **Triplestore / graph layer**
-
-   * RiC relationships and linked-data authority
-
-### Principle of authority
-
-Over time:
-
-* AtoM-compatible structures become a **compatibility and transition layer**
-* PostgreSQL becomes the **primary operational domain layer**
-* RiC graph services become the **primary contextual and semantic relationship layer**
+```
+AtoM AHG Framework+    ██████████████████████████████████████████████████ 100
+Preservica             ██████████████████████████████████████            69
+Axiell Collections     ███████████████████████████████████               62
+CollectiveAccess       ███████████████████████████████                   61
+ArchivesSpace          ███████████████████████████                       54
+ResourceSpace          ██████████████████████                            43
+```
 
 ---
 
-## 3. Core Product Decision
+## Repository Structure
 
-### What we are not doing
-
-* Not building OpenRiC as a competing full production product
-* Not abandoning AtoM compatibility immediately
-* Not forcing end users to browse ontology classes instead of archival concepts
-* Not making RiC a hidden side panel or export-only feature
-
-### What we are doing
-
-* Making RiC visible and usable in normal Heratio workflows
-* Creating dual-view entities throughout the platform
-* Preserving Heratio as the main operational shell
-* Raising RiC to equal footing through rendering, search, traversal, and services
+| Repository | Purpose | Status |
+|------------|---------|--------|
+| [atom-framework](https://github.com/ArchiveHeritageGroup/atom-framework) | Core Laravel foundation, CLI, services | v2.8.2 |
+| [atom-ahg-plugins](https://github.com/ArchiveHeritageGroup/atom-ahg-plugins) | 78 AHG plugins | v1.7.30 |
+| [atom-extensions-catalog](https://github.com/ArchiveHeritageGroup/atom-extensions-catalog) | Documentation & registry | v2.1.12 |
+| [atom-ahg-python](https://github.com/ArchiveHeritageGroup/atom-ahg-python) | Python SDK | v1.0.0 |
+| [atom-client-js](https://github.com/ArchiveHeritageGroup/atom-client-js) | TypeScript SDK | v1.0.0 |
 
 ---
 
-## 4. UX and Navigation Roadmap
+## Progress Tracker (Gap Analysis)
 
-### 4.1 Primary navigation model
+**Current Score:** 100/100 | **Target:** 100/100 | **Gap:** 0 points
 
-The primary navigation should remain familiar and AtoM/Heratio-like, but streamlined.
+| # | Gap | Status | Points | Category |
+|---|-----|--------|--------|----------|
+| 1 | Speech-to-Text (Whisper) | **Complete** | +1 | AI & ML |
+| 2 | Published SDK (Python/JS) | **Complete** | +1 | API & Integrations |
+| 3 | PII Detection (AI) | **Complete** | +1 | AI & ML |
+| 4 | Semantic Search | **Complete** | +1 | Search & Discovery |
+| 5 | Format Migration Pathways | **Complete** | +1 | Digital Preservation |
+| 6 | JSON-LD Export | **Complete** | +1 | Linked Data |
+| 7 | IIIF Auth API | **Complete** | +1 | IIIF & Media |
 
-#### Recommended primary navigation
-
-* Home
-* Search
-* Browse
-* Collections
-* Agents
-* Functions & Activities
-* Places
-* Digital Objects
-* Admin
-
-### 4.2 Heratio vs RiC dual-view pattern
-
-Every major entity page should support two modes:
-
-* **Heratio View**
-* **RiC View**
-
-This must be a seamless switch, not a jump to another application.
-
-#### Examples
-
-* Description page -> switch between archival description and RiC contextual rendering
-* Agent page -> authority view vs RiC network/context view
-* Place page -> authority metadata vs contextual entity graph
-* Function page -> administrative view vs relationship-centered RiC view
-
-### 4.3 Record/description page pattern
-
-#### Heratio View
-
-Display familiar archival description structure:
-
-* title
-* identifier/reference code
-* level of description
-* dates
-* extent and medium
-* scope and content
-* creator
-* archival history
-* conditions of access
-* related units of description
-* digital objects
-
-#### RiC View
-
-Display relationship-centered structure:
-
-* RiC entity type
-* parent/child relations
-* creator and accumulator links
-* related agents
-* related functions
-* related activities
-* related places
-* related instantiations
-* provenance assertions
-* graph/network panel
-
-### 4.4 Sideways traversal
-
-RiC should become visible through navigation, not only data export.
-
-Each major page should expose:
-
-* related agents
-* related places
-* related functions
-* related activities
-* related records
-* instantiations
-* provenance/context summary
-* a clear action such as **Open Context** or **View Network**
-
-### 4.5 Search and browse evolution
-
-Search results should show both:
-
-* traditional archival identity
-* key RiC context
-
-Browse should support:
-
-* hierarchy browse
-* creator browse
-* function browse
-* place browse
-* date/event browse
-* contextual network browse
+**All gaps closed. 100/100 achieved on 2026-03-11.**
 
 ---
 
-## 5. Data Strategy Roadmap
+## Completed Features (2026)
 
-### 5.1 Immediate database recommendation
+### GAP 1: Speech-to-Text (Whisper) - COMPLETE
+**Completed:** 2026-01-20 | **Category:** AI & ML
 
-Do **not** hard-cut away from the AtoM-compatible schema.
+- Whisper API integration via OpenAI
+- Generate Transcript button on video player
+- View Transcript panel with clickable timestamps
+- Download VTT/SRT subtitle formats
+- Language detection
+- Works across all GLAM/DAM sectors
 
-Instead:
-
-* preserve compatibility
-* stop treating it as the final architecture
-* begin introducing a PostgreSQL Heratio-native domain layer
-
-### 5.2 What stays in the AtoM-compatible layer initially
-
-* existing archival description records
-* current hierarchy structures
-* legacy-compatible authority data where required
-* features already stable and tied to current deployments
-* compatibility for import/export and upgrade pathways
-
-### 5.3 What should move first into PostgreSQL
-
-The first migrations into PostgreSQL should be clearly Heratio-native domains:
-
-* workflow and state machines
-* audit logs and event history
-* background jobs and orchestration
-* semantic enrichment results
-* AI extraction metadata
-* validation outputs
-* report materializations
-* integration state tables
-* user preferences and personalization
-* advanced permissions extensions
-* RiC sync and semantic bookkeeping
-
-### 5.4 What should increasingly become graph-authoritative
-
-* relationships between records and record sets
-* relationships to agents
-* functions and activities
-* place-based relationships
-* instantiation relationships
-* related material connections
-* context traversal logic
-* semantic discovery features
-
-### 5.5 Long-term goal
-
-The long-term goal is not a blunt database rewrite.
-
-It is a staged shift where:
-
-* relational compatibility is preserved
-* Heratio-native operational logic moves into PostgreSQL
-* contextual and semantic authority shifts toward RiC
-* the UI works against services, not directly against legacy tables
+**Files:** `ahgThemeB5Plugin/modules/digitalobject/templates/_showVideo.php`
 
 ---
 
-## 6. Service Layer Changes
+### GAP 2: Published SDKs - COMPLETE
+**Completed:** 2026-01-22 | **Category:** API & Integrations
 
-A major requirement is to stop allowing the UI to depend too directly on legacy AtoM-shaped table assumptions.
+**Python SDK (atom-ahg-python):**
+```bash
+pip install atom-ahg  # Coming to PyPI
+```
+- Authentication (API key, session)
+- Descriptions CRUD
+- Authorities CRUD
+- Search operations
+- Batch operations
+- File upload
+- Async support with httpx
 
-### 6.1 Introduce service/repository contracts
+**TypeScript SDK (atom-client-js):**
+```bash
+npm install @ahg/atom-client  # Coming to npm
+```
+- Full TypeScript types
+- Browser and Node.js support
+- Async/await patterns
+- Same operations as Python
 
-Create explicit service contracts such as:
-
-* DescriptionRepository
-* AgentRepository
-* ContextRelationRepository
-* FunctionRepository
-* PlaceRepository
-* InstantiationRepository
-* ProvenanceRepository
-
-The UI should request entities and relationships through these services instead of hard-coded table logic.
-
-### 6.2 Introduce dual renderers
-
-Each major entity type should support:
-
-* Heratio renderer
-* RiC renderer
-* shared identity and permissions
-
-### 6.3 RiC relationship service
-
-Build a strong central relationship service able to:
-
-* fetch related entities
-* fetch by relation type
-* explain why items are related
-* build graph summaries
-* return timeline/context snippets
-* support both page rendering and API responses
+**Repositories:**
+- `github.com/ArchiveHeritageGroup/atom-ahg-python`
+- `github.com/ArchiveHeritageGroup/atom-client-js`
 
 ---
 
-## 7. Editing Roadmap
+### GAP 3: PII Detection (AI-Powered) - COMPLETE
+**Completed:** 2026-01-21 | **Category:** AI & ML + Compliance
 
-RiC will not become equal if editing remains permanently flat and field-only.
+**Features:**
+- PiiDetectionService with regex patterns
+- NER integration (PERSON, ORG, GPE, DATE)
+- South African ID validation (Luhn)
+- Risk level classification
+- PII Scanner admin dashboard
+- Review queue workflow
+- ISAD Access Points scanning
+- PDF Redaction with viewer integration
+- Visual Redaction Editor
 
-### 7.1 Near-term editing improvements
+**PII Types Detected:**
+| Type | Risk Level | Method |
+|------|-----------|--------|
+| CREDIT_CARD | Critical | Regex + Luhn |
+| SA_ID | High | Regex + SA Luhn |
+| NG_NIN | High | Regex |
+| PASSPORT | High | Regex |
+| BANK_ACCOUNT | High | Regex |
+| PERSON | Medium | NER (spaCy) |
+| EMAIL | Medium | Regex |
+| PHONE | Medium | Regex |
 
-Add relation-aware editing components for:
-
-* linking agents to records with relationship types
-* linking functions to records/series
-* linking places to events or entities
-* linking related records explicitly
-* managing instantiation relationships
-* qualifying relationships where needed
-
-### 7.2 Preserve archival form comfort
-
-Do not replace standard description forms immediately.
-
-Instead:
-
-* keep traditional forms
-* enrich them with relation-aware controls
-* validate relationships using semantic services where possible
-
-### 7.3 Longer-term editing target
-
-Move toward edit experiences where:
-
-* traditional descriptive fields remain available
-* contextual linking is first-class
-* RiC-aware validation is built in
-* the user can remain in archival language while the platform captures richer semantics underneath
+**Files:** `ahgPrivacyPlugin/lib/Service/PiiDetectionService.php`
 
 ---
 
-## 8. API Roadmap
+### GAP 4: Semantic Search - COMPLETE
+**Completed:** 2026-01-22 | **Category:** Search & Discovery
 
-The platform should support dual-mode API outputs.
+**Plugin:** ahgSemanticSearchPlugin
 
-### 8.1 Recommended API model
+**Features:**
+- Thesaurus management with domain-specific synonyms
+- WordNet sync via Datamuse API
+- Wikidata SPARQL integration
+- Local JSON synonym import
+- Elasticsearch synonym export
+- Query expansion for enhanced search
+- Vector embeddings via Ollama
+- Scheduled sync via cron jobs
 
-For core entities support:
+**Tables:**
+- `semantic_synonym` - Term/synonym relationships
+- `semantic_embedding` - Vector embeddings
+- `ahg_semantic_search_settings` - Configuration
+- `semantic_query_log` - Analytics
 
-* traditional archival JSON
-* RiC / JSON-LD / RDF-oriented outputs
-
-### 8.2 Benefits
-
-This allows:
-
-* Heratio UI and RiC UI to share services
-* external interoperability
-* gradual architectural decoupling from the legacy schema
-* future modules to rely on a stable entity/service contract
-
----
-
-## 9. Governance and Validation Roadmap
-
-RiC should not only appear in discovery. It should also improve governance.
-
-### Recommended uses
-
-* SHACL validation of entity relationships
-* semantic integrity checking
-* provenance capture
-* contextual QA dashboards
-* administrative quality assurance workflows
-* authority linking review workflows
-
-This makes RiC an operational governance benefit, not just a visualization layer.
+**CLI:**
+```bash
+php bin/semantic-search-cron.php all          # Full sync
+php bin/semantic-search-cron.php sync-wordnet # WordNet only
+php bin/semantic-search-cron.php sync-wikidata # Wikidata only
+php bin/semantic-search-cron.php update-embeddings # Embeddings
+php bin/semantic-search-cron.php export-es    # ES export
+```
 
 ---
 
-## 10. Phased Delivery Plan
+### GAP 5: Format Migration Pathways - COMPLETE
+**Completed:** 2026-03-11 | **Category:** Digital Preservation
 
-## Phase 1 - Make RiC visible everywhere
+**Plugin:** ahgPreservationPlugin
 
-### Objectives
+**Implementation:**
+- MigrationPathwayService (507 lines) — pathway CRUD, recommendation engine, format assessment
+- MigrationPlanService (743 lines) — plan lifecycle (draft → approved → in_progress → completed), batch processing
+- 47 seed migration pathways across 5 tool families (ImageMagick, FFmpeg, Ghostscript, LibreOffice, Pandoc)
+- 32 PRONOM-registered format entries with risk levels
+- Format obsolescence tracking with urgency levels (critical, high, medium, low)
+- 5 database tables: `preservation_migration_pathway`, `preservation_format_obsolescence`, `preservation_migration_plan`, `preservation_migration_plan_object`, `preservation_format`
+- Admin UI at `/admin/preservation/conversion`
+- CLI: `php bin/atom preservation:migration --pathways|--obsolescence|--assess|--tools|--stats`
 
-* expose RiC in normal Heratio use
-* stop hiding it in advanced-only screens
-* establish the dual-view model
-
-### Deliverables
-
-* global Heratio / RiC switch on key entity pages
-* RiC side panel on description, agent, place, function, and instantiation pages
-* common actions such as **View Context**, **View Network**, **View Hierarchy**
-* richer search result cards with contextual links
-
-### Outcome
-
-RiC becomes visible and useful without disrupting current operations.
-
----
-
-## Phase 2 - Introduce strong service boundaries
-
-### Objectives
-
-* reduce direct UI dependence on legacy tables
-* prepare for mixed persistence underneath
-
-### Deliverables
-
-* repository/service contracts for major entity types
-* centralized relationship service
-* dual renderers for key entities
-* standardized entity identity handling across views
-
-### Outcome
-
-Heratio can evolve underneath without breaking the user experience.
+**Migration Pathway Coverage:**
+| Category | Pathways | Tools |
+|----------|----------|-------|
+| Image → TIFF | 7 routes | ImageMagick |
+| PDF → PDF/A | 7 routes | Ghostscript |
+| Office → PDF/A | 5 routes | LibreOffice |
+| Audio → FLAC/WAV | 5 routes | FFmpeg |
+| Video → MP4/MKV | 5 routes | FFmpeg |
 
 ---
 
-## Phase 3 - Introduce PostgreSQL Heratio-native domains
+### GAP 6: JSON-LD Export - COMPLETE
+**Completed:** 2026-03-11 | **Category:** Linked Data
 
-### Objectives
+**Plugin:** ahgMetadataExportPlugin
 
-* move new operational domains into a stronger application data layer
-* avoid forcing modern features into legacy schema patterns
+**Implementation:**
+- SchemaOrgExporter (636 lines) — maps ISAD(G) to Schema.org types (ArchiveComponent, Collection, Photograph, etc.)
+- AbstractRdfExporter — base class supporting JSON-LD, Turtle, RDF/XML, N-Triples output
+- RicoExporter — Records in Contexts (RIC-O) JSON-LD
+- BibframeExporter — BIBFRAME JSON-LD for library data
+- LinkedDataContentNegotiationFilter — `Accept: application/ld+json` → automatic 303 redirect
+- CORS headers, `Vary: Accept`, `Link: rel="alternate"` on HTML pages
+- EasyRDF integration for parsing and serialization
 
-### Deliverables
+**Endpoints:**
+| Route | Format |
+|-------|--------|
+| `/{slug}.jsonld` | Information object (Schema.org) |
+| `/repository/{slug}.jsonld` | Repository (Schema.org) |
+| `/actor/{slug}.jsonld` | Actor (Schema.org) |
+| `/sitemap-ld.xml` | Linked data sitemap |
 
-* PostgreSQL-backed workflow domain
-* PostgreSQL-backed audit/event domain
-* enrichment/validation/job metadata domains
-* reporting and integration state domains
-
-### Outcome
-
-The platform gains a modern operational backbone while preserving AtoM compatibility.
-
----
-
-## Phase 4 - Make RiC a first-class relationship engine
-
-### Objectives
-
-* move contextual authority toward the graph layer
-* make RiC central to discovery and relationships
-
-### Deliverables
-
-* graph-backed related materials logic
-* relationship-aware browse pages
-* contextual graph summaries on all key entities
-* semantic explanation services
-* expanded JSON-LD/RDF outputs
-
-### Outcome
-
-RiC reaches equal footing in daily use.
+**SEO Integration:** `SchemaOrgService` in ahgThemeB5Plugin (680 lines) generates `<script type="application/ld+json">` tags with CSP nonce on every public page.
 
 ---
 
-## Phase 5 - Relation-aware editing and validation
+### GAP 7: IIIF Auth API - COMPLETE
+**Completed:** 2026-03-11 | **Category:** IIIF & Media
 
-### Objectives
+**Plugin:** ahgIiifPlugin
 
-* make RiC operational rather than decorative
+**Standard:** IIIF Authentication API 1.0
 
-### Deliverables
+**Implementation:**
+- IiifAuthService (478 lines) — token management, access checks, 3-tier hierarchy
+- 4 auth profiles: login, clickthrough, kiosk (IP-based), external (SSO)
+- SHA-256 hashed token storage with HttpOnly/Secure/SameSite cookies
+- 3-level access hierarchy: object → repository → ancestor inheritance (MPTT, up to 20 levels)
+- Degraded access support (thumbnail-only with configurable width)
+- Manifest-level integration — auth service blocks injected into IIIF manifests
+- Comprehensive audit logging (`iiif_auth_access_log`)
+- Token cleanup for expired sessions
 
-* relation-aware editing widgets
-* relationship type and qualifier handling
-* SHACL/integrity validation in admin and QA flows
-* provenance capture improvements
+**Endpoints:**
+| Route | Purpose |
+|-------|---------|
+| `/iiif/auth/login/:service` | Login flow |
+| `/iiif/auth/token/:service` | Token issuance |
+| `/iiif/auth/logout/:service` | Logout + token revocation |
+| `/iiif/auth/confirm/:service` | Clickthrough confirmation |
+| `/iiif/auth/check/:id` | Access check API |
+| `/admin/iiif-auth` | Admin dashboard |
+| `/admin/iiif-auth/protect` | Protect resource |
+| `/admin/iiif-auth/unprotect` | Remove protection |
 
-### Outcome
-
-RiC becomes part of how the platform is managed, not only viewed.
-
----
-
-## Phase 6 - Decide on deeper model migration
-
-### Objectives
-
-* evaluate whether core description storage should remain primarily legacy-compatible or migrate further toward Heratio-native and RiC-aligned patterns
-
-### Deliverables
-
-* architecture review based on service abstraction success
-* cost/benefit analysis of deeper AtoM schema de-emphasis
-* optional compatibility view strategy for legacy data structures
-
-### Outcome
-
-The platform can decide on deeper evolution based on evidence, not theory.
+**Database Tables:** `iiif_auth_service`, `iiif_auth_token`, `iiif_auth_resource`, `iiif_auth_repository`, `iiif_auth_access_log`
 
 ---
 
-## 11. Product and Brand Interpretation
+## Overall Ratings by Category
 
-### Heratio
-
-Heratio remains:
-
-* the operational platform
-* the institutional product
-* the main UI
-* the deployment vehicle
-
-### RiC in Heratio
-
-RiC becomes:
-
-* a first-class contextual mode
-* a semantic engine
-* a relationship layer
-* a linked-data and interoperability capability
-
-### OpenRiC
-
-OpenRiC should support this as:
-
-* the public RiC initiative
-* documentation and framework layer
-* architecture, mappings, reference tooling, and ecosystem brand
+| Category | AtoM AHG | ArchivesSpace | Preservica | CollectiveAccess | ResourceSpace | Axiell |
+|----------|----------|---------------|------------|------------------|---------------|--------|
+| Core Archives | **10** | 9 | 6 | 7 | 2 | 9 |
+| Digital Preservation | **10** | 5 | **10** | 4 | 3 | 2 |
+| API & Integrations | **10** | 8 | **9** | 6 | 6 | 7 |
+| AI & ML | **10** | 2 | **9** | 2 | 6 | 2 |
+| IIIF & Media | **10** | 4 | 8 | 6 | 4 | 7 |
+| Compliance & Security | **10** | 5 | 8 | 4 | 5 | 6 |
+| Museum Standards | **10** | 2 | 1 | 9 | 1 | **10** |
+| Data Migration | **10** | 8 | 8 | 8 | 6 | 8 |
+| Public Access | **10** | 7 | 7 | 7 | 8 | 7 |
+| Linked Data | **10** | 4 | 3 | 8 | 2 | 4 |
+| **TOTAL** | **100/100** | **54/100** | **69/100** | **61/100** | **43/100** | **62/100** |
 
 ---
 
-## 12. Summary Recommendation
+## Unique Advantages (No Competitor Has)
 
-The correct direction is:
-
-* keep Heratio as the main platform
-* raise RiC to equal footing inside Heratio
-* preserve AtoM compatibility as a bridge, not a cage
-* introduce PostgreSQL where Heratio-native capabilities need a stronger operational store
-* let RiC become the increasingly authoritative contextual and relationship layer
-* use OpenRiC to centralize the public RiC brand, ecosystem, and technical programme
-
-### Final position
-
-**Heratio in front. RiC beside it. OpenRiC above and beneath it.**
-
-That gives continuity, architectural progress, and a credible path toward a richer RiC-native future without breaking what is already strong.
+| Feature | Plugin | Description |
+|---------|--------|-------------|
+| **Self-Healing Preservation** | ahgPreservationPlugin | Automatic fixity repair from backup |
+| **RiC with Fuseki** | ahgRicExplorerPlugin | Full Records in Contexts with SPARQL |
+| **3D IIIF Manifests** | ahg3DModelPlugin | IIIF 3.0 for 3D models with AR |
+| **Multi-Jurisdiction Privacy** | ahgPrivacyPlugin | 7 privacy frameworks in one plugin |
+| **Traditional Knowledge Labels** | ahgExtendedRightsPlugin | Local Contexts integration |
+| **Getty Auto-Linking** | ahgMuseumPlugin | Confidence-scored vocabulary matching |
+| **SHACL Validation** | ahgRicExplorerPlugin | RiC shape validation |
+| **Mobile Condition Capture** | ahgConditionPlugin | Field assessments with photo upload |
+| **Integrated E-Commerce** | ahgCartPlugin | PayFast/Stripe in archives |
+| **Heritage Accounting** | ahgHeritageAccountingPlugin | GRAP 103, IPSAS 45, FRS 102, GASB 34 |
 
 ---
 
-# OpenRiC Brand Centralisation Plan
+## Plugin Inventory (80 Plugins)
 
-## Purpose
+### Core Required (Locked)
+| Plugin | Purpose |
+|--------|---------|
+| ahgThemeB5Plugin | Bootstrap 5 theme |
+| ahgSecurityClearancePlugin | Security classification |
 
-This document sets out how **OpenRiC** should be positioned so that it strengthens the broader programme rather than competing with **Heratio**.
+### Sector-Specific
+| Plugin | Purpose |
+|--------|---------|
+| ahgLibraryPlugin | MARC-inspired cataloging |
+| ahgMuseumPlugin | CCO/SPECTRUM/CIDOC-CRM |
+| ahgGalleryPlugin | Gallery/exhibition management |
+| ahgDAMPlugin | Digital Asset Management |
 
-The goal is to centralise the RiC brand, technical narrative, and public ecosystem under **OpenRiC**, while keeping **Heratio** as the main operational platform and delivery vehicle.
+### AI & Advanced
+| Plugin | Purpose |
+|--------|---------|
+| ahgNerPlugin | Named Entity Recognition |
+| ahgSemanticSearchPlugin | Semantic search, thesaurus, embeddings |
+| ahgMetadataExtractionPlugin | EXIF/IPTC/XMP extraction |
+| ahg3DModelPlugin | 3D viewer with AR |
+| ahgRicExplorerPlugin | Records in Contexts |
 
----
+### Preservation & Conservation
+| Plugin | Purpose |
+|--------|---------|
+| ahgPreservationPlugin | Fixity, PRONOM, SIP/AIP/DIP |
+| ahgConditionPlugin | Condition assessment |
+| ahgProvenancePlugin | Chain of custody |
 
-## 1. Core Recommendation
+### Compliance
+| Plugin | Purpose |
+|--------|---------|
+| ahgPrivacyPlugin | Multi-jurisdiction privacy |
+| ahgAuditTrailPlugin | Comprehensive logging |
+| ahgHeritageAccountingPlugin | Heritage asset accounting |
+| ahgExtendedRightsPlugin | RightsStatements.org, TK Labels |
+| ahgRightsPlugin | PREMIS rights |
 
-Do not position OpenRiC as a second full production product competing with Heratio.
+### Research & Access
+| Plugin | Purpose |
+|--------|---------|
+| ahgResearchPlugin | Reading room, researcher portal |
+| ahgAccessRequestPlugin | Access request workflow |
+| ahgRequestToPublishPlugin | Publication requests |
 
-Instead position:
+### Commerce & Operations
+| Plugin | Purpose |
+|--------|---------|
+| ahgCartPlugin | Shopping cart, payments |
+| ahgVendorPlugin | Vendor management |
+| ahgDonorAgreementPlugin | Donor tracking |
+| ahgLoanPlugin | Object loan management |
 
-* **Heratio** as the operational platform
-* **OpenRiC** as the public RiC-native initiative, framework, architecture, documentation, and ecosystem brand
+### Data & Integration
+| Plugin | Purpose |
+|--------|---------|
+| ahgAPIPlugin | REST API v2 |
+| ahgDataMigrationPlugin | Import/export tools |
+| ahgMigrationPlugin | Data migration |
+| ahgReportBuilderPlugin | Custom reports |
+| ahgBackupPlugin | Automated backups |
 
-### Recommended relationship
+### User Experience
+| Plugin | Purpose |
+|--------|---------|
+| ahgDisplayPlugin | Display profiles, ZoomPan |
+| ahgFavoritesPlugin | User bookmarks |
+| ahgFeedbackPlugin | User feedback |
+| ahgIiifCollectionPlugin | IIIF collections |
+| ahgSpectrumPlugin | SPECTRUM 5.0 |
 
-* **Heratio** = platform institutions use
-* **OpenRiC** = RiC-native semantic initiative that powers, informs, documents, and extends Heratio’s RiC capabilities
+### Ingestion & Import
+| Plugin | Purpose |
+|--------|---------|
+| ahgIngestPlugin | OAIS-aligned 6-step ingest wizard |
+| ahgDataMigrationPlugin | GLAM/DAM CSV import/export |
 
----
+### Administration
+| Plugin | Purpose |
+|--------|---------|
+| ahgSettingsPlugin | Centralized settings hub |
+| ahgJobsManagePlugin | Background job management |
+| ahgMenuManagePlugin | Menu/navigation management |
+| ahgStaticPagePlugin | Static page management |
+| ahgInformationObjectManagePlugin | Information object management |
 
-## 2. Why this is the right approach
-
-### 2.1 Heratio already has product strength
-
-Heratio already carries:
-
-* the operational UI
-* archival workflows
-* traditional archival views
-* established user understanding
-* deployment logic
-* compatibility with current AtoM-shaped environments
-* broader GLAM and records capability
-
-### 2.2 OpenRiC has a different strategic strength
-
-OpenRiC is strongest as:
-
-* the public RiC-native narrative
-* the semantic architecture programme
-* the interoperability layer
-* the reference implementation story
-* the place for RiC docs, mappings, and demos
-* the broader community-facing identity for RiC work
-
-### 2.3 Avoid market confusion
-
-If OpenRiC and Heratio are both presented as overlapping products, the result will be:
-
-* unclear product story
-* duplicated effort
-* inconsistent roadmap signals
-* confusion for buyers, developers, and standards communities
-
----
-
-## 3. Recommended Brand Architecture
-
-### 3.1 Simple public model
-
-#### Heratio
-
-**Operational GLAM / archival / DAM platform**
-
-#### OpenRiC
-
-**Open RiC-native semantic framework, documentation, and interoperability initiative**
-
-### 3.2 Positioning statement
-
-Recommended statement:
-
-> OpenRiC is the open RiC-native semantic framework and interoperability initiative.
-> Heratio is the operational platform that applies and extends those capabilities for institutional use.
-
-### 3.3 Internal interpretation
-
-OpenRiC should become:
-
-* the semantic and standards-facing layer
-* the public knowledge centre for RiC work
-* the home of architecture, mapping, and graph-centred demos
-* the home of shared RiC-related components that may power Heratio
-
-Heratio should remain:
-
-* the institutional deployment product
-* the main application shell
-* the operational records/archives interface
-* the delivery mechanism for clients
-
----
-
-## 4. What openric.org should become
-
-OpenRiC should not read as a rival application homepage first.
-
-It should become a centralised RiC programme site with four clear functions.
-
-## A. Vision and explanation
-
-Explain:
-
-* why RiC matters
-* why hierarchy alone is no longer enough
-* how archival view and RiC view can coexist
-* why linked archival context matters
-* why OpenRiC exists in relation to Heratio
-
-## B. Documentation centre
-
-Host:
-
-* implementation guides
-* data model guidance
-* RiC mappings
-* JSON-LD and RDF examples
-* SHACL examples
-* Fuseki/triplestore guidance
-* API conventions
-* traditional-to-RiC view mappings
-
-## C. Demo and sandbox layer
-
-Show:
-
-* sample records in Heratio-style view
-* same records in RiC view
-* graph traversal
-* linked context examples
-* semantic search concepts
-* interoperability scenarios
-
-## D. Ecosystem and code hub
-
-Publish or link:
-
-* open packages
-* shared RiC components
-* mapping libraries
-* validation tooling
-* transform examples
-* integration connectors
-* future reference implementation artifacts
+### Browse & Discovery
+| Plugin | Purpose |
+|--------|---------|
+| ahgDisplayPlugin | GLAM display profiles, ZoomPan |
+| ahgSearchPlugin | Advanced search |
+| ahgUiOverridesPlugin | UI overrides, viewer dispatch |
+| ahgAccessionManagePlugin | Accession browse |
+| ahgActorManagePlugin | Actor browse, autocomplete |
+| ahgDonorManagePlugin | Donor browse |
+| ahgRepositoryManagePlugin | Repository browse |
+| ahgRightsHolderManagePlugin | Rights holder browse |
+| ahgStorageManagePlugin | Physical storage browse |
+| ahgTermTaxonomyPlugin | Term & taxonomy browse |
 
 ---
 
-## 5. How to reposition the current OpenRiC site
+## Compliance Support
 
-### Current issue
+### Privacy Regulations
+| Jurisdiction | Regulation | Status |
+|--------------|------------|--------|
+| South Africa | POPIA, PAIA | Full |
+| European Union | GDPR | Full |
+| United Kingdom | UK GDPR | Full |
+| Canada | PIPEDA | Full |
+| Nigeria | NDPA | Full |
+| Kenya | DPA | Full |
+| California | CCPA | Full |
 
-The current site reads primarily like a product landing page for a RiC explorer application.
-
-That is useful, but too narrow if OpenRiC is going to centralise the RiC brand.
-
-### Current strengths to preserve
-
-Keep:
-
-* Graph Explorer
-* Documentation
-* What's New
-* SPARQL and linked-data orientation
-* entity support visibility
-* semantic search emphasis
-* mention of standalone use where appropriate
-
-### What to change
-
-Shift the homepage from **tool-first** to **programme-first**.
-
-The homepage should explain that OpenRiC is:
-
-* a RiC-native initiative
-* an ecosystem and framework
-* a documentation and reference hub
-* a semantic layer used by Heratio and usable independently where needed
+### Heritage Accounting Standards
+| Standard | Region |
+|----------|--------|
+| GRAP 103 | South Africa |
+| IPSAS 45 | International |
+| FRS 102 | United Kingdom |
+| GASB 34 | USA State/Local |
+| FASAB | USA Federal |
+| AASB 116 | Australia |
+| PSAB/PS 3150 | Canada |
 
 ---
 
-## 6. Proposed openric.org information architecture
+## Milestones
 
-## Primary navigation
-
-* About OpenRiC
-* RiC in Practice
-* Documentation
-* Demo / Explorer
-* Ecosystem
-* News
-* GitHub
-
-### About OpenRiC
-
-Cover:
-
-* mission
-* relationship to Heratio
-* why RiC-native architecture matters
-* key principles
-
-### RiC in Practice
-
-Show:
-
-* traditional archival view vs RiC view
-* use cases
-* relationship-rich discovery
-* contextual navigation
-* semantic interoperability
-
-### Documentation
-
-Include:
-
-* architecture
-* installation
-* RiC mappings
-* SPARQL examples
-* JSON-LD examples
-* API guidance
-* validation guidance
-
-### Demo / Explorer
-
-Keep the existing explorer concept here.
-This should be a feature area, not the whole identity.
-
-### Ecosystem
-
-Include:
-
-* packages
-* libraries
-* standards work
-* deployment patterns
-* integration patterns
-* Heratio connection
-
-### News
-
-Track:
-
-* releases
-* features
-* RiC support expansions
-* implementation notes
+| Milestone | Score | Date |
+|-----------|-------|------|
+| Initial Framework | 94/100 | 2026-01-01 |
+| Speech-to-Text | 95/100 | 2026-01-20 |
+| PII Detection | 96/100 | 2026-01-21 |
+| SDKs + Semantic Search | 97/100 | 2026-01-22 |
+| Format Migration + JSON-LD + IIIF Auth | **100/100** | 2026-03-11 |
 
 ---
 
-## 7. Recommended homepage rewrite direction
+## Document History
 
-### Recommended homepage framing
-
-#### Hero
-
-**OpenRiC**
-Open RiC-native architecture, tools, and interoperability for next-generation archival systems.
-
-Supporting line:
-OpenRiC helps institutions and platforms move from isolated description toward relationship-rich archival context using RiC-O, linked data, graph services, and practical implementation patterns.
-
-#### Secondary line
-
-Used within Heratio and available as a standalone semantic and linked-data framework.
-
-### Key homepage sections
-
-#### 1. Why OpenRiC
-
-* explain the problem
-* explain the need for contextual archival discovery
-* explain the role of RiC
-
-#### 2. Two views, one archival reality
-
-* traditional archival view
-* RiC contextual view
-* explain coexistence rather than replacement
-
-#### 3. What OpenRiC provides
-
-* graph explorer
-* semantic APIs
-* SPARQL access
-* mappings and transforms
-* validation and linked data support
-* documentation
-
-#### 4. OpenRiC and Heratio
-
-A dedicated section explaining the relationship.
-
-Suggested wording:
-
-* Heratio is the operational archival platform
-* OpenRiC provides RiC-native semantic architecture, graph capabilities, and interoperability approaches that can be integrated into Heratio or used independently
-
-#### 5. Get started
-
-* documentation
-* GitHub
-* demo/explorer
-* releases/news
+| Date | Version | Changes |
+|------|---------|---------|
+| 2026-01-20 | 1.0 | Initial analysis |
+| 2026-01-20 | 1.5 | Speech-to-Text complete (95/100) |
+| 2026-01-21 | 1.6 | PII Detection complete (96/100) |
+| 2026-01-22 | 2.0 | SDKs created, Semantic Search plugin, renamed to ROADMAP.md (97/100) |
+| 2026-02-13 | 3.0 | Updated to 78 plugins, Heratio migration status, ahgIngestPlugin |
+| 2026-03-11 | 4.0 | **100/100 achieved** — Format Migration Pathways, JSON-LD Export, IIIF Auth API confirmed complete. 80 plugins. |
 
 ---
 
-## 8. GitHub centralisation plan
-
-OpenRiC GitHub should become the central public technical brand for the RiC programme.
-
-### 8.1 Recommended GitHub role
-
-Use GitHub under the OpenRiC brand for:
-
-* core architecture docs
-* public packages and libraries
-* mapping artifacts
-* validation tooling
-* samples and examples
-* demo/reference projects
-* issue tracking around RiC-native evolution
-
-### 8.2 Repository structure recommendation
-
-#### A. `openric`
-
-Main central repository for:
-
-* overview docs
-* architecture
-* roadmap
-* key concepts
-* integration patterns
-* examples
-
-#### B. `openric-docs`
-
-Optional if documentation grows large.
-Use for:
-
-* docs site source
-* implementation guides
-* standards mappings
-* tutorials
-
-#### C. `openric-explorer`
-
-Explorer-specific code if it should stand alone from the documentation hub.
-
-#### D. `openric-mappings`
-
-Mappings between:
-
-* ISAD(G)
-* ISAAR-CPF
-* EAD/EAC
-* AtoM-shaped structures
-* RiC-CM / RiC-O
-
-#### E. `openric-validation`
-
-SHACL, semantic validation rules, test cases, and examples.
-
-#### F. `openric-examples`
-
-Sample datasets, JSON-LD examples, SPARQL examples, and rendering examples.
-
-### 8.3 Relationship to Heratio repos
-
-Heratio repositories should continue to exist under their own identity.
-
-But where Heratio includes RiC-specific packages or shared semantic components, you should decide whether they belong:
-
-* in Heratio because they are product-specific
-* or in OpenRiC because they are generic RiC ecosystem components
-
-### Rule of thumb
-
-Move to OpenRiC brand if the component is:
-
-* reusable outside Heratio
-* conceptually RiC-centric
-* standards-oriented
-* generic enough to serve multiple implementations
-
-Keep in Heratio if the component is:
-
-* tightly coupled to Heratio workflows or UI
-* deployment-specific
-* product-specific rather than framework-like
-
----
-
-## 9. Suggested messaging rules
-
-### When talking to institutions
-
-Lead with **Heratio**.
-Then explain that it includes or is powered by **OpenRiC capabilities**.
-
-### When talking to standards communities, researchers, and developers
-
-Lead with **OpenRiC**.
-Then show **Heratio** as the operational implementation path.
-
-### When talking publicly on the web
-
-Avoid implying that Heratio and OpenRiC are rival systems.
-Always present them as complementary.
-
----
-
-## 10. Recommended next steps
-
-### Immediate
-
-* reposition the OpenRiC homepage copy
-* add a clear Heratio relationship section
-* shift the explorer from identity to feature area
-* align GitHub repo descriptions under the new brand model
-
-### Next
-
-* publish architecture and roadmap docs
-* separate reusable RiC-centric components from Heratio-specific ones
-* use OpenRiC as the home for mappings, validation, examples, and linked-data guidance
-
-### Longer-term
-
-* make OpenRiC the trusted public source for the RiC-native direction
-* make Heratio the trusted operational implementation of that direction
-
----
-
-## 11. Summary Recommendation
-
-Do not abandon OpenRiC.
-
-Do not let it compete with Heratio either.
-
-The correct move is to make OpenRiC the **central RiC-native brand, framework, and ecosystem layer**, while Heratio remains the **main platform and product**.
-
-### Final position
-
-**OpenRiC centralises the RiC story. Heratio delivers the operational platform.**
-
-That gives:
-
-* a clearer public narrative
-* less product confusion
-* stronger standards credibility
-* less duplicated effort
-* a better long-term architectural story
+*The Archive and Heritage Group (Pty) Ltd*
+*https://theahg.co.za*
