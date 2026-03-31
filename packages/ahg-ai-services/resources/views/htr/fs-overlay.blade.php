@@ -206,6 +206,7 @@
   let currentFolder = '';
   let currentFormType = '';
   let donutYear = ''; // Donut-extracted year for the current image
+  let autoRecogTimers = []; // track staggered HTR timeouts so we can cancel on save/next
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
@@ -389,10 +390,13 @@
 
     // Apply fixes word by word
     const words = s.split(/\s+/);
+    const skipWords = ['of','the','and','in','on','at','to','van','die','en','op','te'];
     const fixed = words.map(w => {
       const clean = w.replace(/[.,;:]/g, '');
       // Skip pure numbers (years like 1920)
       if (/^\d+$/.test(clean)) return w;
+      // Skip common short words that aren't date components
+      if (skipWords.includes(clean.toLowerCase())) return w;
       const lower = clean.toLowerCase();
       // Check exact fixes first
       if (monthFixes[lower]) return monthFixes[lower];
@@ -840,10 +844,12 @@
       // Step 2: data loaded
       images = data.images;
       // Snapshot original CSV values — these are ground truth, never overwrite
+      // Exclude fields that are always cleared (user reads from document)
+      const CSV_CLEAR = ['Event Date'];
       images.forEach(img => {
         img._csvFields = {};
         for (const [k, v] of Object.entries(img.fields || {})) {
-          if (v && v.trim()) img._csvFields[k] = v.trim();
+          if (v && v.trim() && !CSV_CLEAR.includes(k)) img._csvFields[k] = v.trim();
         }
       });
       COLUMNS = (data.columns || []).filter(col => !shouldSkip(col));
@@ -872,6 +878,14 @@
       }
 
       currentFolder = folder;
+
+      // Resume from where we left off (saved in localStorage per folder)
+      const resumeKey = 'fs-overlay-resume-' + folder.replace(/[^a-zA-Z0-9]/g, '_');
+      const resumeIdx = parseInt(localStorage.getItem(resumeKey) || '0', 10);
+      if (resumeIdx > 0 && resumeIdx < images.length) {
+        imgIdx = resumeIdx - 1; // nextImage() will increment
+        console.log('[FS Overlay] Resuming from image', resumeIdx + 1, '/', images.length);
+      }
 
       // Form type: use dropdown selection or default
       const selType = document.getElementById('ba-form-type').value;
@@ -904,6 +918,8 @@
     const donutCard = document.getElementById('ba-donut-card');
     if (donutCard) donutCard.style.display = 'none';
     donutYear = '';
+    autoRecogTimers.forEach(t => clearTimeout(t));
+    autoRecogTimers = [];
     loadImage(); // buildFieldList() is called inside afterFieldsPlaced() after image loads
     updateCounters();
   }
@@ -1800,13 +1816,21 @@
       const conf = data.confidence ? (data.confidence * 100).toFixed(0) + '%' : '?';
       console.log('[Donut] Values:', filled, 'Positions:', positioned, '(confidence:', conf + ')');
 
-      // Auto-recognise all fields that have boxes placed (by Donut or saved positions)
-      const boxCount = annotations.filter(a => a && a.w > 5 && a.h > 5).length;
-      if (boxCount > 0) {
-        setTimeout(() => {
-          console.log('[Donut] Auto-triggering HTR on', boxCount, 'fields with boxes');
-          baRecognise();
-        }, 500);
+      // Auto-recognise each field individually (better accuracy than bulk)
+      const fieldsWithBoxes = [];
+      annotations.forEach((a, i) => {
+        if (a && a.w > 5 && a.h > 5 && !hasCsvValue(a.label)) fieldsWithBoxes.push(i);
+      });
+      if (fieldsWithBoxes.length > 0) {
+        console.log('[Donut] Auto-triggering HTR on', fieldsWithBoxes.length, 'fields');
+        autoRecogTimers.forEach(t => clearTimeout(t));
+        autoRecogTimers = [];
+        let delay = 300;
+        fieldsWithBoxes.forEach(idx => {
+          const t = setTimeout(() => recogniseSingleField(idx), delay);
+          autoRecogTimers.push(t);
+          delay += 200;
+        });
       }
 
       // Fix Event Date year with Donut's year if HTR already filled it (skip if CSV had Event Date)
@@ -2362,6 +2386,9 @@
         sessionDone++;
         sessionFields += annotations.filter(a => a).length;
         updateCounters();
+        // Remember position for resume
+        const resumeKey = 'fs-overlay-resume-' + currentFolder.replace(/[^a-zA-Z0-9]/g, '_');
+        localStorage.setItem(resumeKey, String(imgIdx + 1));
         nextImage();
       } else {
         alert(data.error || 'Save failed');

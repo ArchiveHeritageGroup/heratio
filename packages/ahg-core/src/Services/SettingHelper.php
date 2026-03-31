@@ -42,14 +42,18 @@ class SettingHelper
             return self::$cache[$key];
         }
 
-        $value = DB::table('setting')
-            ->leftJoin('setting_i18n', function ($j) use ($culture) {
-                $j->on('setting.id', '=', 'setting_i18n.id')
-                  ->where('setting_i18n.culture', '=', $culture);
-            })
-            ->where('setting.name', $name)
-            ->whereNull('setting.scope')
-            ->value('setting_i18n.value');
+        try {
+            $value = DB::table('setting')
+                ->leftJoin('setting_i18n', function ($j) use ($culture) {
+                    $j->on('setting.id', '=', 'setting_i18n.id')
+                      ->where('setting_i18n.culture', '=', $culture);
+                })
+                ->where('setting.name', $name)
+                ->whereNull('setting.scope')
+                ->value('setting_i18n.value');
+        } catch (\Exception $e) {
+            $value = null;
+        }
 
         self::$cache[$key] = $value ?? $default;
 
@@ -123,17 +127,21 @@ class SettingHelper
      */
     public static function loadElementVisibility(string $culture = 'en'): void
     {
-        $settings = DB::table('setting')
-            ->leftJoin('setting_i18n', function ($j) use ($culture) {
-                $j->on('setting.id', '=', 'setting_i18n.id')
-                  ->where('setting_i18n.culture', '=', $culture);
-            })
-            ->where('setting.scope', 'element_visibility')
-            ->select('setting.name', 'setting_i18n.value')
-            ->get();
+        try {
+            $settings = DB::table('setting')
+                ->leftJoin('setting_i18n', function ($j) use ($culture) {
+                    $j->on('setting.id', '=', 'setting_i18n.id')
+                      ->where('setting_i18n.culture', '=', $culture);
+                })
+                ->where('setting.scope', 'element_visibility')
+                ->select('setting.name', 'setting_i18n.value')
+                ->get();
 
-        foreach ($settings as $row) {
-            config(["atom.element_visibility.{$row->name}" => (bool) (int) ($row->value ?? '1')]);
+            foreach ($settings as $row) {
+                config(["atom.element_visibility.{$row->name}" => (bool) (int) ($row->value ?? '1')]);
+            }
+        } catch (\Exception $e) {
+            // setting table doesn't exist yet — skip
         }
     }
 
@@ -144,14 +152,17 @@ class SettingHelper
     {
         $value = self::get('audit_log_enabled', '');
         if ($value === '') {
-            // Also check the setting without scope (global)
-            $value = DB::table('setting')
-                ->leftJoin('setting_i18n', function ($j) {
-                    $j->on('setting.id', '=', 'setting_i18n.id')
-                      ->where('setting_i18n.culture', '=', 'en');
-                })
-                ->where('setting.name', 'audit_log_enabled')
-                ->value('setting_i18n.value');
+            try {
+                $value = DB::table('setting')
+                    ->leftJoin('setting_i18n', function ($j) {
+                        $j->on('setting.id', '=', 'setting_i18n.id')
+                          ->where('setting_i18n.culture', '=', 'en');
+                    })
+                    ->where('setting.name', 'audit_log_enabled')
+                    ->value('setting_i18n.value');
+            } catch (\Exception $e) {
+                $value = null;
+            }
         }
         // Default to true if the setting does not exist
         return $value === '' || $value === null || (bool) (int) $value;
