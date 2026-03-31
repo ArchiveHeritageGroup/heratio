@@ -4614,6 +4614,22 @@ PY;
         return response()->json($result);
     }
 
+    /**
+     * Return median field positions from training annotations.
+     */
+    public function donutPositions(Request $request)
+    {
+        $docType = $request->input('doc_type', 'type_a');
+        $result = $this->donutService->positions($docType);
+
+        if (!$result) {
+            return response()->json(['success' => false, 'error' => 'Donut service unavailable']);
+        }
+
+        $result['success'] = true;
+        return response()->json($result);
+    }
+
     public function donutDashboard()
     {
         $health = $this->donutService->health();

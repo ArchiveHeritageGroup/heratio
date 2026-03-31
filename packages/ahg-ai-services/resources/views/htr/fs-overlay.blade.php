@@ -1639,74 +1639,121 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Donut...';
     const imgPath = entry.path.startsWith('/') ? entry.path : '/' + entry.path;
 
-    fetch('{{ route("admin.ai.donut.prefill") }}', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-      body: JSON.stringify({ image_path: imgPath }),
-    })
-    .then(r => r.json())
-    .then(data => {
+    // Fetch ILM values AND field positions in parallel
+    Promise.all([
+      fetch('{{ route("admin.ai.donut.prefill") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+        body: JSON.stringify({ image_path: imgPath }),
+      }).then(r => r.json()),
+      fetch('{{ route("admin.ai.donut.positions") }}?doc_type=type_a').then(r => r.json()),
+    ])
+    .then(([data, posData]) => {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut';
 
-      if (!data.success) {
-        console.warn('[Donut] Failed:', data.error || 'unknown');
-        return;
-      }
-
-      // Map Donut output to field names used in the sidebar
-      const donutFields = {};
-      if (data.FS_RECORD_TYPE) {
-        // Map record type to Event Type value
-        const typeMap = {
-          'Death Records': 'Death', 'Birth Records': 'Birth',
-          'Marriage Records': 'Marriage', 'Christenings': 'Baptism',
-          'Burials': 'Burial', 'Church Records': 'Church',
-          'Civil Registration': 'Civil', 'Census': 'Census',
-        };
-        donutFields['Event Type'] = typeMap[data.FS_RECORD_TYPE] || data.FS_RECORD_TYPE;
-      }
-      if (data.EVENT_YEAR_ORIG) {
-        donutFields['Event Date'] = data.EVENT_YEAR_ORIG;
-        donutFields['Event Year'] = data.EVENT_YEAR_ORIG;
-      }
-      if (data.EVENT_PLACE_ORIG) {
-        donutFields['Event Place'] = data.EVENT_PLACE_ORIG;
-        donutFields['Place of Marriage'] = data.EVENT_PLACE_ORIG;
-        donutFields['District'] = data.EVENT_PLACE_ORIG;
-      }
-
-      // Fill empty fields only
       let filled = 0;
-      COLUMNS.forEach((col, i) => {
-        if (!donutFields[col]) return;
-        const currentVal = (entry.fields[col] || '').trim();
-        if (currentVal) return; // CSV already has data — don't overwrite
+      let positioned = 0;
 
-        entry.fields[col] = donutFields[col];
-        filled++;
+      // --- 1. Apply field positions from training data ---
+      if (posData.success && posData.fields) {
+        // Map annotation labels → FS Overlay field names
+        const posMap = {
+          'EVENT_YEAR_ORIG': 'Event Date',
+          'EVENT_PLACE_ORIG': 'Event Place',
+          'Name': 'Name',
+          'Sex': 'Sex',
+          'Age': 'Age',
+          'Residence Place': 'Residence Place',
+          'Place of Marriage': 'Place of Marriage',
+          'District': 'District',
+          'Province': 'Province',
+        };
 
-        // Update sidebar input
-        const inp = document.querySelector('.ba-edit-input[data-field-idx="' + i + '"]');
-        if (inp) {
-          inp.value = donutFields[col];
-          inp.style.background = '#e8f5e9'; // light green = Donut-filled
-          setTimeout(() => { inp.style.background = ''; }, 3000);
+        COLUMNS.forEach((col, i) => {
+          if (skipped.includes(i)) return;
+          // Find matching position from training data
+          let posKey = null;
+          for (const [annLabel, fieldName] of Object.entries(posMap)) {
+            if (fieldName === col) { posKey = annLabel; break; }
+          }
+          // Also try direct match on column name
+          if (!posKey && posData.fields[col]) posKey = col;
+          if (!posKey) return;
+
+          const pos = posData.fields[posKey];
+          if (!pos) return;
+
+          // Only apply if no saved position exists or box not yet drawn
+          if (!annotations[i] || (annotations[i].w < 5 && annotations[i].h < 5)) {
+            const sx = scale;
+            annotations[i] = {
+              label: col,
+              value: entry.fields[col] || '',
+              x: Math.round(pos.x * sx),
+              y: Math.round(pos.y * sx),
+              w: Math.round(pos.w * sx),
+              h: Math.round(pos.h * sx),
+            };
+            positioned++;
+          }
+        });
+
+        if (positioned > 0) {
+          redraw();
+          updateProgress();
+        }
+      }
+
+      // --- 2. Fill ILM field values ---
+      if (data.success) {
+        const donutFields = {};
+        if (data.FS_RECORD_TYPE) {
+          const typeMap = {
+            'Death Records': 'Death', 'Birth Records': 'Birth',
+            'Marriage Records': 'Marriage', 'Christenings': 'Baptism',
+            'Burials': 'Burial', 'Church Records': 'Church',
+            'Civil Registration': 'Civil', 'Census': 'Census',
+          };
+          donutFields['Event Type'] = typeMap[data.FS_RECORD_TYPE] || data.FS_RECORD_TYPE;
+        }
+        if (data.EVENT_YEAR_ORIG) {
+          donutFields['Event Date'] = data.EVENT_YEAR_ORIG;
+          donutFields['Event Year'] = data.EVENT_YEAR_ORIG;
+        }
+        if (data.EVENT_PLACE_ORIG) {
+          donutFields['Event Place'] = data.EVENT_PLACE_ORIG;
+          donutFields['Place of Marriage'] = data.EVENT_PLACE_ORIG;
+          donutFields['District'] = data.EVENT_PLACE_ORIG;
         }
 
-        // Update annotation value if box exists
-        if (annotations[i]) annotations[i].value = donutFields[col];
-      });
+        COLUMNS.forEach((col, i) => {
+          if (!donutFields[col]) return;
+          const currentVal = (entry.fields[col] || '').trim();
+          if (currentVal) return; // CSV already has data — don't overwrite
+
+          entry.fields[col] = donutFields[col];
+          filled++;
+
+          const inp = document.querySelector('.ba-edit-input[data-field-idx="' + i + '"]');
+          if (inp) {
+            inp.value = donutFields[col];
+            inp.style.background = '#e8f5e9';
+            setTimeout(() => { inp.style.background = ''; }, 3000);
+          }
+          if (annotations[i]) annotations[i].value = donutFields[col];
+        });
+      }
 
       const conf = data.confidence ? (data.confidence * 100).toFixed(0) + '%' : '?';
-      console.log('[Donut] Pre-filled', filled, 'fields (confidence:', conf + ')', data);
+      console.log('[Donut] Values:', filled, 'Positions:', positioned, '(confidence:', conf + ')');
 
-      if (filled > 0) {
-        btn.innerHTML = '<i class="fas fa-check me-1"></i>Donut (' + filled + ')';
-        setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 3000);
-      } else {
-        btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut (0)';
-        setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 3000);
+      const label = [];
+      if (filled > 0) label.push(filled + ' values');
+      if (positioned > 0) label.push(positioned + ' boxes');
+      if (label.length > 0) {
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>' + label.join(', ');
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 4000);
       }
     })
     .catch(err => {

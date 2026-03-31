@@ -121,6 +121,22 @@ class DonutService
     }
 
     /**
+     * Get median field positions from training annotations.
+     */
+    public function positions(string $docType = 'type_a'): ?array
+    {
+        try {
+            $response = Http::timeout(15)->get("{$this->baseUrl}/positions", [
+                'doc_type' => $docType,
+            ]);
+            return $response->successful() ? $response->json() : null;
+        } catch (\Exception $e) {
+            Log::error('Donut positions failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Download results for a completed extraction job.
      */
     public function downloadResult(string $jobId): ?array

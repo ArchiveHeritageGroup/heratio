@@ -130,6 +130,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
 
     // --- Donut (Document Understanding) ---
     Route::post('/donut/prefill', [AiController::class, 'donutPrefill'])->name('admin.ai.donut.prefill');
+    Route::get('/donut/positions', [AiController::class, 'donutPositions'])->name('admin.ai.donut.positions');
     Route::get('/donut', [AiController::class, 'donutDashboard'])->name('admin.ai.donut.dashboard');
     Route::get('/donut/extract', [AiController::class, 'donutExtract'])->name('admin.ai.donut.extract');
     Route::post('/donut/extract', [AiController::class, 'donutDoExtract'])->name('admin.ai.donut.doExtract');
