@@ -49,7 +49,7 @@ This document defines the trust boundaries, authentication model, secret managem
 │  • MySQL 8 (localhost, no remote access)     │
 │  • Elasticsearch 7.x (localhost)             │
 │  • TrueNAS (NFS mount, digital objects)      │
-│  • Fuseki triplestore (localhost:3030)        │
+│  • Fuseki RiC-O triplestore (localhost:3030)        │
 └──────────────────────────────────────────────┘
 ```
 

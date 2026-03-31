@@ -4034,7 +4034,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ric_sync_queue.entity_id ──► polymorphic (information_object.id, actor.id, etc.)
    • ric_sync_status.entity_id ──► polymorphic (via entity_type dispatch)
    • ric_sync_log.entity_id ──► polymorphic (via entity_type dispatch)
-   NOTE: RiC sync tracks ANY AtoM entity type for triplestore synchronization
+   NOTE: RiC sync tracks ANY AtoM entity type for RiC-O triplestore synchronization
   ════════════════════════════════════════════════════════════════════════════════════════
 ```
 

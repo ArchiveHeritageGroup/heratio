@@ -543,8 +543,8 @@ To add a target:
 
 ### IIIF Import/Export
 
-**Import:** Click "Import IIIF" to upload a W3C Web Annotation JSON-LD file
-**Export:** Click "Export IIIF" to download annotations as a JSON-LD annotation list
+**Import:** Click "Import IIIF" to upload a W3C Web Annotation RiC-O JSON-LD file
+**Export:** Click "Export IIIF" to download annotations as a RiC-O JSON-LD annotation list
 
 The export follows the IIIF Presentation API 3.0 annotation format, compatible with:
 - Mirador
@@ -611,7 +611,7 @@ Generate citations in 6 styles:
 |--------|-------------|----------------|
 | RIS | Research Information Systems | EndNote, Zotero, Mendeley |
 | BibTeX | LaTeX bibliography format | LaTeX, Overleaf, JabRef |
-| Zotero RDF | Zotero native format | Zotero |
+| Zotero RiC-O (Records in Contexts Ontology)/RDF | Zotero native format | Zotero |
 | Mendeley JSON | Mendeley export format | Mendeley |
 | CSL-JSON | Citation Style Language JSON | Pandoc, Citeproc |
 
@@ -1608,11 +1608,11 @@ Package a research project as an RO-Crate (Research Object Crate):
 
 Package a single collection as an RO-Crate.
 
-### JSON-LD Export
+### RiC-O JSON-LD Export
 
 **URL:** `/research/json-ld/:project_id`
 
-Export project metadata as JSON-LD for linked data applications.
+Export project metadata as RiC-O JSON-LD for RiC (Records in Contexts) linked data applications.
 
 ### DOI Minting
 

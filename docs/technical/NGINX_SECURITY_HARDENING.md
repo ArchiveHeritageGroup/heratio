@@ -36,7 +36,7 @@ Heratio uses a hybrid architecture:
 ├─────────────────────────────────────────────┤
 │  Data Layer (localhost only)                │
 │  • MySQL 8, Elasticsearch 7.x              │
-│  • Fuseki triplestore, TrueNAS NFS         │
+│  • Fuseki RiC-O triplestore, TrueNAS NFS         │
 └─────────────────────────────────────────────┘
 ```
 
@@ -113,7 +113,7 @@ The following endpoints are publicly accessible without authentication:
 
 | Endpoint | Risk |
 |----------|------|
-| `/sparql/` | Full SPARQL query access to triplestore — data exfiltration |
+| `/sparql/` | Full SPARQL query access to RiC-O triplestore — data exfiltration |
 | `/api/ric/` | RiC semantic search API — information disclosure |
 | `/api/provenance/` | Provenance API — information disclosure |
 | `/api/editor/` | RiC editor API — potential data modification |
@@ -371,7 +371,7 @@ resolver_timeout 5s;
 - [x] Elasticsearch 7.x (localhost only)
 - [x] TLS 1.2+ with strong ciphers
 - [x] Let's Encrypt auto-renewal
-- [ ] Fuseki triplestore not exposed to network (verify firewall)
+- [ ] Fuseki RiC-O triplestore not exposed to network (verify firewall)
 
 ---
 

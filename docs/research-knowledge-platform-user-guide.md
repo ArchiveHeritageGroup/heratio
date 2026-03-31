@@ -240,7 +240,7 @@ Track research hypotheses with evidence for/against each.
 Export your project as a Research Object Crate (RO-Crate) package. RO-Crate is a standard for packaging research data, metadata, and provenance information.
 
 **Package includes:**
-- Project metadata (JSON-LD)
+- Project metadata (RiC-O JSON-LD)
 - Assertions and evidence
 - Knowledge graph data
 - Linked archival references

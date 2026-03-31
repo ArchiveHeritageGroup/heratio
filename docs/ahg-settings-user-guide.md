@@ -213,7 +213,7 @@ Manage AHG plugin settings organized by category:
 | Photos | Condition documentation | Thumbnails, EXIF, rotation |
 | Ingest | Data ingestion defaults | AI processing, output, derivatives |
 | Jobs | Background processing | Queue settings, notifications |
-| Fuseki / RIC | Linked data | RDF sync, cascade deletes |
+| Fuseki / RIC | Linked data | RiC-O (Records in Contexts Ontology)/RDF sync, cascade deletes |
 
 ---
 

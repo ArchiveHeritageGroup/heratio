@@ -22,10 +22,10 @@ The GLAM Metadata Export plugin allows you to export your archival descriptions 
 | Format | Sector | Output | Best For |
 |--------|--------|--------|----------|
 | **EAD3** | Archives | XML | Finding aids, ArchivesSpace, ArchivesHub |
-| **RIC-O** | Archives | JSON-LD | Linked data, semantic web |
+| **RIC-O** | Archives | RiC-O JSON-LD | Linked data, semantic web |
 | **LIDO** | Museums | XML | Europeana, museum aggregators |
 | **MARC21** | Libraries | XML | Library catalogs (Koha, Alma) |
-| **BIBFRAME** | Libraries | JSON-LD | Library of Congress linked data |
+| **BIBFRAME** | Libraries | RiC-O JSON-LD | Library of Congress RiC (Records in Contexts) linked data |
 | **VRA Core 4** | Visual | XML | Art/photography collections |
 | **PBCore** | Media | XML | Public broadcasting, video archives |
 | **EBUCore** | Media | XML | European broadcasters |
@@ -52,7 +52,7 @@ The GLAM Metadata Export plugin allows you to export your archival descriptions 
 ┌──────────────────────────┐
 │  Select format:          │
 │  • EAD3                  │
-│  • RIC-O (JSON-LD)       │
+│  • RIC-O (RiC-O JSON-LD)       │
 │  • LIDO                  │
 │  • MARC21                │
 │  • PREMIS                │
@@ -119,7 +119,7 @@ php symfony metadata:export --format=all --slug=my-fonds --output=/exports/
 php symfony metadata:export --format=ead3 --slug=smith-family-papers --output=/exports/
 ```
 
-**Export entire repository to RIC-O linked data:**
+**Export entire repository to RIC-O RiC (Records in Contexts) linked data:**
 ```bash
 php symfony metadata:export --format=rico --repository=5 --include-children --output=/exports/rico/
 ```
@@ -180,7 +180,7 @@ Linked data format from the International Council on Archives.
 }
 ```
 
-**Use for:** Semantic web, linked data publishing, knowledge graphs
+**Use for:** Semantic web, RiC (Records in Contexts) linked data publishing, knowledge graphs
 
 ---
 
@@ -207,7 +207,7 @@ Standard library catalog format.
 
 #### BIBFRAME
 
-Library of Congress linked data format.
+Library of Congress RiC (Records in Contexts) linked data format.
 
 ```json
 {
@@ -220,7 +220,7 @@ Library of Congress linked data format.
 }
 ```
 
-**Use for:** Library linked data, id.loc.gov
+**Use for:** Library RiC (Records in Contexts) linked data, id.loc.gov
 
 ---
 
@@ -474,13 +474,13 @@ Set up regular exports for data synchronization:
 ### For Archives (EAD3, RIC-O)
 
 - EAD3 is best for traditional finding aid systems
-- RIC-O is best for linked data / semantic web projects
+- RIC-O is best for RiC (Records in Contexts) linked data / semantic web projects
 - Include children for complete hierarchies
 
 ### For Libraries (MARC21, BIBFRAME)
 
 - MARC21 for traditional ILS systems
-- BIBFRAME for modern linked data catalogs
+- BIBFRAME for modern RiC (Records in Contexts) linked data catalogs
 - Check field mappings match your catalog's needs
 
 ### For Museums (LIDO)
@@ -504,7 +504,7 @@ Set up regular exports for data synchronization:
 | Export is empty | Check the slug/repository ID is correct |
 | Missing fields | Some fields may not map to the target format |
 | File won't validate | Check the exported XML with an online validator |
-| JSON-LD won't parse | Verify UTF-8 encoding |
+| RiC-O JSON-LD won't parse | Verify UTF-8 encoding |
 | Export too slow | Use smaller batches or schedule overnight |
 | Permission denied | Check output directory is writable |
 

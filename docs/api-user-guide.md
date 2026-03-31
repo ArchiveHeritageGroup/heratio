@@ -1,6 +1,21 @@
 # REST API - User Guide
 
-Connect your applications to AtoM and access your archival collections programmatically.
+Connect your applications to Heratio and access your archival collections programmatically.
+
+---
+
+## Table of Contents
+
+1. [What is the API?](#what-is-the-api)
+2. [RIC-O Linked Data API](#ric-o-linked-data-api)
+3. [Getting Your API Key](#getting-your-api-key)
+4. [Making Your First Request](#making-your-first-request)
+5. [Finding Records](#finding-records)
+6. [Searching](#searching)
+7. [Webhooks](#webhooks)
+8. [Common Tasks](#common-tasks)
+9. [Troubleshooting](#troubleshooting)
+10. [Quick Reference](#quick-reference)
 
 ---
 

@@ -14,7 +14,7 @@ Heratio provides a comprehensive backup and restore system for archival data, di
 ## Key Features
 
 ### Backup Types
-- **Full Backup** — complete snapshot of all selected components (database, uploads, plugins, framework, Fuseki triplestore)
+- **Full Backup** — complete snapshot of all selected components (database, uploads, plugins, framework, Fuseki RiC-O triplestore)
 - **Incremental Backup** — captures only files changed since the last full backup; database is always dumped fully
 - **Database Only** — fast MySQL dump for daily use
 - **5 Presets** — db, atom_base, content, ahg, full — for one-click backup creation
@@ -34,7 +34,7 @@ Heratio provides a comprehensive backup and restore system for archival data, di
 - **Restore from upload** — upload a backup file (.tar.gz, .sql.gz, .zip) and restore
 - **Selective restore** — choose which components to restore (database, uploads, plugins, framework)
 - **Safety rollback** — original files backed up before restoration; rolled back on failure
-- **Fuseki triplestore** — RDF data backup and restore via N-Quads export
+- **Fuseki RiC-O triplestore** — RiC-O (Records in Contexts Ontology)/RDF data backup and restore via N-Quads export
 
 ### Email Notifications
 - **Success/failure alerts** — configurable per event type

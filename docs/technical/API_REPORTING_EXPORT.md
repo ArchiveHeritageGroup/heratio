@@ -648,24 +648,24 @@ Denormalized SQL views for Power BI, Tableau, Metabase, and other BI tools:
 | Format | Sector | Output |
 |--------|--------|--------|
 | EAD3 | Archives | XML |
-| RIC-O | Archives | RDF/JSON-LD |
+| RIC-O | Archives | RiC-O (Records in Contexts Ontology)/RDF/RiC-O JSON-LD |
 | LIDO | Museums | XML |
-| CIDOC-CRM | Museums | RDF/JSON-LD |
+| CIDOC-CRM | Museums | RiC-O (Records in Contexts Ontology)/RDF/RiC-O JSON-LD |
 | MARC21 | Libraries | MARCXML |
-| BIBFRAME | Libraries | RDF/JSON-LD |
+| BIBFRAME | Libraries | RiC-O (Records in Contexts Ontology)/RDF/RiC-O JSON-LD |
 | VRA Core 4 | Visual Arts | XML |
 | PBCore | Media | XML |
 | EBUCore | Media | XML |
 | PREMIS | Preservation | XML |
-| Schema.org | Web/SEO | JSON-LD |
+| Schema.org | Web/SEO | RiC-O JSON-LD |
 
 #### Linked Data Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
-| `/{slug}.jsonld` | JSON-LD for any description |
-| `/repository/{slug}.jsonld` | JSON-LD for repository |
-| `/actor/{slug}.jsonld` | JSON-LD for actor |
+| `/{slug}.jsonld` | RiC-O JSON-LD for any description |
+| `/repository/{slug}.jsonld` | RiC-O JSON-LD for repository |
+| `/actor/{slug}.jsonld` | RiC-O JSON-LD for actor |
 | `/sitemap-ld.xml` | Linked data sitemap |
 
 #### CLI Command
@@ -1012,7 +1012,7 @@ arTiffPdfMergeJob                   - Multi-TIFF to PDF conversion
 
 ### 11.2 Apache Jena Fuseki
 
-- RIC triplestore for linked data and semantic search
+- RIC RiC-O triplestore for RiC (Records in Contexts) linked data and semantic search
 - SPARQL queries via ahgRicExplorerPlugin
 - ahgSearchPlugin semantic search mode
 
@@ -1070,10 +1070,10 @@ Admin → API → Webhooks. Configure target URL, events, and HMAC secret per we
 
 | Item | Description | Status |
 |------|-------------|--------|
-| **JSON-LD Export** | Structured data for search engines/linked data | Partially implemented (ahgMetadataExportPlugin Schema.org format) |
+| **RiC-O JSON-LD Export** | Structured data for search engines/RiC (Records in Contexts) linked data | Partially implemented (ahgMetadataExportPlugin Schema.org format) |
 | **Wikidata/VIAF Linking** | Authority record enrichment | Not started |
 | **Researcher Finding Aid** | PDF export from custom collection lists | Not started |
-| **Public SPARQL Endpoint** | External query access to RIC triplestore | Not started |
+| **Public SPARQL Endpoint** | External query access to RIC RiC-O triplestore | Not started |
 | **Mobile App API** | Extended REST API for mobile (sync endpoints exist) | Partial |
 
 ---
@@ -1095,7 +1095,7 @@ Admin → API → Webhooks. Configure target URL, events, and HMAC secret per we
 | Usage Statistics | ahgStatisticsPlugin | Complete | 14 endpoints |
 | Standard Export | Base AtoM | Complete | EAD, DC, CSV, MODS, SKOS |
 | AHG Export UI | ahgExportPlugin | Complete | 10 endpoints |
-| Metadata Export | ahgMetadataExportPlugin | Complete | 11 formats + linked data + CLI |
+| Metadata Export | ahgMetadataExportPlugin | Complete | 11 formats + RiC (Records in Contexts) linked data + CLI |
 | Portable Export | ahgPortableExportPlugin | Complete | 16 endpoints + 4 CLI |
 | Configurable Forms | ahgFormsPlugin | Complete | 19 endpoints + 3 CLI |
 | Label Printing | ahgLabelPlugin | Complete | 1 endpoint |

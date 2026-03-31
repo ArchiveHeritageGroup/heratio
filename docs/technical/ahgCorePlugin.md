@@ -269,7 +269,7 @@ class AhgTaxonomyService
     public const CREATOR_ROLE = 'creator_role';
     public const DOCUMENT_TYPE = 'document_type';
     public const REMINDER_TYPE = 'reminder_type';
-    public const RDF_FORMAT = 'rdf_format';
+    public const RiC-O (Records in Contexts Ontology)/RDF_FORMAT = 'rdf_format';
     // ... many more
 
     // Core Methods

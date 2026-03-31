@@ -78,7 +78,7 @@ The competitive position table is accurate. Heratio IS the only open-source plat
 
 Build Heratio into a full records management + digital memory platform covering ISO 15489, MoReq2010, DoD 5015.2, ISAD(G), RiC-O, and Spectrum 5.0 end-to-end.
 
-No other open-source platform covers both RM and GLAM description with RiC-O linked data.
+No other open-source platform covers both RM and GLAM description with RiC-O RiC (Records in Contexts) linked data.
 
 ### What's Already Built (25 capabilities)
 
@@ -93,11 +93,11 @@ No other open-source platform covers both RM and GLAM description with RiC-O lin
 - RiC function classification (ahg-ric, 28 routes, Fuseki 17.9M triples)
 - Version control (core)
 - Workflow & approvals (ahg-workflow, 29 routes, gates, steps)
-- Record relationships via RiC-O (Fuseki triplestore)
+- Record relationships via RiC-O (Fuseki RiC-O triplestore)
 - OAIS preservation pipeline (ahg-preservation, 31 routes)
 - ISAD(G) multi-level description (81 routes, 108 views)
 - ISAAR-CPF authority records (49 routes, 31 views)
-- RiC-O triplestore (17.9M triples, graph explorer, SPARQL)
+- RiC-O RiC-O triplestore (17.9M triples, graph explorer, SPARQL)
 - IIIF delivery (34 routes)
 - 3D objects (27 routes)
 - HTR/OCR (TrOCR fine-tuned, 736 training pairs)

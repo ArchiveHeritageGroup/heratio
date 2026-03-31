@@ -8,7 +8,7 @@
 
 ## Overview
 
-GLAM Metadata Export plugin providing standards-compliant export to 9 international metadata formats across archives, libraries, museums, visual resources, media, and digital preservation sectors. Implements a clean architecture with abstract base classes for XML and RDF exports.
+GLAM Metadata Export plugin providing standards-compliant export to 9 international metadata formats across archives, libraries, museums, visual resources, media, and digital preservation sectors. Implements a clean architecture with abstract base classes for XML and RiC-O (Records in Contexts Ontology)/RDF exports.
 
 ---
 
@@ -32,8 +32,8 @@ GLAM Metadata Export plugin providing standards-compliant export to 9 internatio
 │            ▼                        ▼   ▼                      ▼            │
 │  ┌──────────────────────┐    ┌──────────────────────┐                       │
 │  │  AbstractXmlExporter │    │  AbstractRdfExporter │                       │
-│  │  • DOMDocument       │    │  • JSON-LD context   │                       │
-│  │  • Namespaces        │    │  • RDF prefixes      │                       │
+│  │  • DOMDocument       │    │  • RiC-O JSON-LD context   │                       │
+│  │  • Namespaces        │    │  • RiC-O (Records in Contexts Ontology)/RDF prefixes      │                       │
 │  │  • XML validation    │    │  • Serialization     │                       │
 │  └──────────┬───────────┘    └──────────┬───────────┘                       │
 │             │                           │                                    │
@@ -102,10 +102,10 @@ ahgMetadataExportPlugin/
 | Code | Format | Sector | Output | Namespace/Context |
 |------|--------|--------|--------|-------------------|
 | `ead3` | EAD3 | Archives | XML | `http://ead3.archivists.org/schema/` |
-| `rico` | RIC-O | Archives | JSON-LD | `https://www.ica.org/standards/RiC/ontology#` |
+| `rico` | RIC-O | Archives | RiC-O JSON-LD | `https://www.ica.org/standards/RiC/ontology#` |
 | `lido` | LIDO | Museums | XML | `http://www.lido-schema.org` |
 | `marc21` | MARC21 | Libraries | XML | `http://www.loc.gov/MARC21/slim` |
-| `bibframe` | BIBFRAME | Libraries | JSON-LD | `http://id.loc.gov/ontologies/bibframe/` |
+| `bibframe` | BIBFRAME | Libraries | RiC-O JSON-LD | `http://id.loc.gov/ontologies/bibframe/` |
 | `vra-core` | VRA Core 4 | Visual | XML | `http://www.vraweb.org/vracore4.htm` |
 | `pbcore` | PBCore | Media | XML | `http://www.pbcore.org/PBCore/PBCoreNamespace.html` |
 | `ebucore` | EBUCore | Media | XML | `urn:ebu:metadata-schema:ebucore` |
@@ -165,7 +165,7 @@ abstract class AbstractXmlExporter implements ExporterInterface
 
 ### AbstractRdfExporter
 
-Base class for RDF/JSON-LD exporters (RIC-O, BIBFRAME).
+Base class for RiC-O (Records in Contexts Ontology)/RDF/RiC-O JSON-LD exporters (RIC-O, BIBFRAME).
 
 ```php
 namespace AhgMetadataExport\Exporters;
@@ -395,7 +395,7 @@ php symfony metadata:export --format=lido --repository=3 \
 </ead>
 ```
 
-### RIC-O (JSON-LD)
+### RIC-O (RiC-O JSON-LD)
 
 ```json
 {
@@ -628,7 +628,7 @@ protected function getDoi($resource): ?array
 </control>
 ```
 
-#### RIC-O (JSON-LD)
+#### RIC-O (RiC-O JSON-LD)
 ```json
 {
   "@type": "rico:RecordSet",
@@ -738,7 +738,7 @@ xmllint --schema https://www.loc.gov/ead/ead3.xsd export.xml
 ### RIC-O Validation
 
 ```bash
-# Using rapper (Raptor RDF tools)
+# Using rapper (Raptor RiC-O (Records in Contexts Ontology)/RDF tools)
 rapper -i guess -c export.jsonld
 ```
 
@@ -757,9 +757,9 @@ xmllint --schema https://www.loc.gov/standards/premis/premis.xsd export.xml
 - **json_encode** with JSON_PRETTY_PRINT (PHP core)
 - **atom-framework** (Laravel Query Builder)
 
-Optional for RDF serialization:
-- **EasyRdf** (for Turtle/RDF-XML output)
-- **ML\JsonLD** (for JSON-LD processing)
+Optional for RiC-O (Records in Contexts Ontology)/RDF serialization:
+- **EasyRdf** (for Turtle/RiC-O (Records in Contexts Ontology)/RDF-XML output)
+- **ML\JsonLD** (for RiC-O JSON-LD processing)
 
 ---
 

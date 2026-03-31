@@ -3298,8 +3298,8 @@ Complete listing of every function available in the Heratio framework and plugin
 - Faceted search
 
 ### Data Export
-- Export RiC data (RDF)
-- Export RiC data (JSON-LD)
+- Export RiC data (RiC-O (Records in Contexts Ontology)/RDF)
+- Export RiC data (RiC-O JSON-LD)
 - Export entity relationships
 
 ---
@@ -3507,7 +3507,7 @@ Complete listing of every function available in the Heratio framework and plugin
 
 ### CIDOC CRM Mapping
 - Map Spectrum to CIDOC-CRM
-- Export CIDOC-CRM RDF
+- Export CIDOC-CRM RiC-O (Records in Contexts Ontology)/RDF
 - Import CIDOC-CRM data
 
 ### Validation

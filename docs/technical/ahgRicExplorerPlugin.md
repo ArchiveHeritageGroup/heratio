@@ -8,7 +8,7 @@
 
 ## Overview
 
-The ahgRicExplorerPlugin implements the ICA's Records in Contexts Ontology (RiC-O) for archival descriptions, providing extraction, storage, visualization, and semantic search capabilities. It transforms AtoM's relational data into RDF linked data and synchronizes it with an Apache Jena Fuseki triplestore.
+The ahgRicExplorerPlugin implements the ICA's Records in Contexts Ontology (RiC-O) for archival descriptions, providing extraction, storage, visualization, and semantic search capabilities. It transforms AtoM's relational data into RiC-O (Records in Contexts Ontology)/RDF RiC (Records in Contexts) linked data and synchronizes it with an Apache Jena Fuseki RiC-O triplestore.
 
 ---
 
@@ -23,7 +23,7 @@ The ahgRicExplorerPlugin implements the ICA's Records in Contexts Ontology (RiC-
 |  |  RiC Extractor v5   |     |    Fuseki Triplestore       |      |
 |  |  (Python)           |---->|    (Apache Jena)            |      |
 |  |  - MySQL Reader     |     |    - SPARQL Endpoint        |      |
-|  |  - JSON-LD Writer   |     |    - RDF Storage            |      |
+|  |  - RiC-O JSON-LD Writer   |     |    - RiC-O (Records in Contexts Ontology)/RDF Storage            |      |
 |  +---------------------+     +-----------------------------+      |
 |           |                              ^                        |
 |           v                              |                        |
@@ -358,7 +358,7 @@ Operations are queued with priority levels:
 
 ### ric_extractor_v5.py
 
-The main extraction tool converts AtoM MySQL data to RiC-O JSON-LD:
+The main extraction tool converts AtoM MySQL data to RiC-O RiC-O JSON-LD:
 
 ```bash
 # List available fonds
@@ -411,7 +411,7 @@ SHACL validation for RiC-O conformance:
 # Validate data in Fuseki
 python3 ric_shacl_validator.py --validate --summary
 
-# Validate JSON-LD file
+# Validate RiC-O JSON-LD file
 python3 ric_shacl_validator.py --file output.jsonld --validate
 
 # Generate HTML report
@@ -468,7 +468,7 @@ Shell script for batch synchronization:
 
 ---
 
-## JSON-LD Output Structure
+## RiC-O JSON-LD Output Structure
 
 ```json
 {
@@ -525,7 +525,7 @@ all:
 | Issue | Solution |
 |-------|----------|
 | Panel not loading | Check Fuseki endpoint accessibility |
-| No graph data | Verify JSON-LD was loaded to Fuseki |
+| No graph data | Verify RiC-O JSON-LD was loaded to Fuseki |
 | CORS errors | Configure Fuseki CORS or use PHP proxy |
 | Sync queue stuck | Check ric_sync_queue for failed items |
 | Orphaned triples | Run integrity check from dashboard |

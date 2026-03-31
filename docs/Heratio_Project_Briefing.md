@@ -181,7 +181,7 @@ GLAM and DAM institutions internationally:
 | ahgIngestPlugin | OAIS-aligned 6-step batch ingest wizard with 9 AI processing options |
 | ahgDataMigrationPlugin | Field mapping between GLAM sectors |
 | ahgExportPlugin | CSV, EAD, bulk export |
-| ahgMetadataExportPlugin | GLAM metadata export (JSON-LD, Schema.org, RIC-O, BIBFRAME) |
+| ahgMetadataExportPlugin | GLAM metadata export (RiC-O JSON-LD, Schema.org, RIC-O, BIBFRAME) |
 | ahgPortableExportPlugin | Standalone offline catalogue viewer (CD/USB/ZIP) |
 | ahgLabelPlugin | Label generation with barcodes |
 | ahgFormsPlugin | Configurable metadata entry forms per repository |
@@ -258,7 +258,7 @@ GLAM and DAM institutions internationally:
 |--------|----------|
 | ahgIiifPlugin | IIIF manifests, viewer, collections, OCR, Auth API 1.0 |
 | ahg3DModelPlugin | 3D viewing, Google Model Viewer, AR, hotspots |
-| ahgRicExplorerPlugin | Records in Context (RiC), Fuseki SPARQL triplestore |
+| ahgRicExplorerPlugin | Records in Context (RiC), Fuseki SPARQL RiC-O triplestore |
 | ahgGraphQLPlugin | GraphQL API endpoint |
 | ahgAPIPlugin | REST API, webhooks |
 | ahgDoiPlugin | DOI minting via DataCite |

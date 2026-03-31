@@ -633,7 +633,7 @@ DataCite integration for minting Digital Object Identifiers.
 
 ### 14.4 Records in Contexts (RiC)
 
-SPARQL/Fuseki triplestore integration for linked data.
+SPARQL/Fuseki RiC-O triplestore integration for RiC (Records in Contexts) linked data.
 
 ---
 

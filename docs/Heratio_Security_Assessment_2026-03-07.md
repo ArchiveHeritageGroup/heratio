@@ -41,7 +41,7 @@ The primary risk for public-facing deployments is the use of Symfony 1.x (end-of
 
 ### 2.2 Disk Usage Finding
 
-During the assessment, the server disk usage was found at **87%** (2.7 TB of 3.3 TB), up from 16% one week prior. Root cause: the Apache Jena Fuseki triplestore (`/var/lib/fuseki/databases/ric`) grew to **1.8 TB** due to a runaway RiC sync process that executed **1.8 million POST requests** continuously since Feb 27.
+During the assessment, the server disk usage was found at **87%** (2.7 TB of 3.3 TB), up from 16% one week prior. Root cause: the Apache Jena Fuseki RiC-O triplestore (`/var/lib/fuseki/databases/ric`) grew to **1.8 TB** due to a runaway RiC sync process that executed **1.8 million POST requests** continuously since Feb 27.
 
 **Recommendation:** Stop the Fuseki container, purge the database, and implement sync job safeguards (record limits, disk usage checks) before re-enabling.
 
@@ -52,7 +52,7 @@ During the assessment, the server disk usage was found at **87%** (2.7 TB of 3.3
 ### Finding 1: SPARQL Endpoint Publicly Accessible (CRITICAL)
 
 **Location:** `/sparql/` proxy in Nginx config
-**Risk:** Data exfiltration — anyone on the internet can execute arbitrary SPARQL queries against the triplestore
+**Risk:** Data exfiltration — anyone on the internet can execute arbitrary SPARQL queries against the RiC-O triplestore
 
 **Evidence:**
 ```nginx

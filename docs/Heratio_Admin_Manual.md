@@ -177,7 +177,7 @@ Controls the background job system.
 
 ### 2.8 Fuseki — RiC Triplestore
 
-Controls the Records in Contexts (RiC) linked data integration.
+Controls the Records in Contexts (RiC) RiC (Records in Contexts) linked data integration.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|

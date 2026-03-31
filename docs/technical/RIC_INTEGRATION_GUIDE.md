@@ -136,7 +136,7 @@ Access via: **Admin → RiC Management** or `/admin/ric`
 - **Richer description** with multi-dimensional relationships
 - **Flexible arrangement** without breaking hierarchies
 - **Standards compliance** with ICA's latest model
-- **Future-proof** metadata that exports to linked data formats
+- **Future-proof** metadata that exports to RiC (Records in Contexts) linked data formats
 
 ### For Institutions
 
