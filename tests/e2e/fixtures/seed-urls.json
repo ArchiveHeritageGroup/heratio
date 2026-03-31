@@ -1,0 +1,40 @@
+{
+  "psis": {
+    "name": "PSIS (AtoM)",
+    "baseUrl": "https://psis.theahg.co.za",
+    "urls": [
+      "/",
+      "/informationobject/browse",
+      "/informationobject/add",
+      "/actor/browse",
+      "/actor/add",
+      "/repository/browse",
+      "/repository/add",
+      "/accession/browse",
+      "/accession/add",
+      "/term/browse",
+      "/term/add",
+      "/search"
+    ]
+  },
+  "heratio": {
+    "name": "Heratio (Laravel)",
+    "baseUrl": "https://heratio.theahg.co.za",
+    "urls": [
+      "/",
+      "/records/browse",
+      "/records/add",
+      "/actor/browse",
+      "/actor/add",
+      "/repository/browse",
+      "/repository/add",
+      "/accession/browse",
+      "/accession/add",
+      "/term/browse",
+      "/term/add",
+      "/search",
+      "/admin",
+      "/admin/settings"
+    ]
+  }
+}

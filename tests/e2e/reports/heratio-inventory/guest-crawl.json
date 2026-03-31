@@ -1,0 +1,1616 @@
+{
+  "role": "guest",
+  "timestamp": "2026-03-31T20:31:05.702Z",
+  "baseUrl": "https://heratio.theahg.co.za",
+  "pagesCrawled": 5,
+  "results": [
+    {
+      "url": "https://heratio.theahg.co.za/",
+      "finalUrl": "https://heratio.theahg.co.za/",
+      "status": 200,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "Welcome",
+      "links": [
+        "/",
+        "/glam/browse",
+        "/actor/browse",
+        "/repository/browse",
+        "/function/browse",
+        "/taxonomy/index?id=35",
+        "/taxonomy/index?id=42",
+        "/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/search/advanced",
+        "/admin/ric",
+        "/admin/ric/sync-status",
+        "/admin/ric/queue",
+        "/admin/ric/logs",
+        "/admin/ahg-settings/section?section=fuseki",
+        "/help",
+        "/clipboard/view",
+        "/clipboard/load",
+        "/?sf_culture=en",
+        "/?sf_culture=fr",
+        "/?sf_culture=es",
+        "/?sf_culture=nl",
+        "/?sf_culture=pt",
+        "/?sf_culture=af",
+        "/?sf_culture=zu",
+        "/about",
+        "/contact",
+        "/user/password-reset",
+        "/user/register",
+        "/research/register",
+        "/research/dashboard",
+        "/favorites/browse",
+        "/feedback/general",
+        "/cart/browse",
+        "/egyptian-boat",
+        "/cat-in-arms",
+        "/glb-2025-11-14-glb-1",
+        "/glb-2025-11-14-glb-3",
+        "/title-of-object",
+        "/hendrik-and-debora-engelbrecht",
+        "/mp3-1963riv-25363-h1030ds001-005-mp3-2",
+        "/historical",
+        "/image-01-1",
+        "/mp3-1963riv-25363-h1030ds001-005-mp3",
+        "/manifest-collection/2/view",
+        "/rosa-engelbrecht-first-born-daughter",
+        "/debora-first-grandchild",
+        "/bernardth-papenvoes-rosa-se-man",
+        "/wild-mushroom-in-natural-habitat-macro-study",
+        "/flower-2",
+        "/flower-more-uner-2",
+        "/engelbrecht-family-bible",
+        "/privacy",
+        "/pages/terms-of-use",
+        "/pages/cookie-policy",
+        "/pages/paia",
+        "/pages/accessibility",
+        "/pages/copyright-notice",
+        "/pages/data-governance",
+        "/pages/sitemap"
+      ],
+      "forms": [
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Previous",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Next",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "jsErrors": [
+        "Identifier 'DisplayMode' has already been declared",
+        "Identifier 'AHGVoiceCommands' has already been declared"
+      ]
+    },
+    {
+      "url": "https://heratio.theahg.co.za/records/browse",
+      "finalUrl": "https://heratio.theahg.co.za/records/browse",
+      "status": 404,
+      "statusText": "",
+      "title": "404 - Page not found",
+      "h1": "\n      \n      Sorry, page not found\n    ",
+      "links": [
+        "/",
+        "/glam/browse",
+        "/actor/browse",
+        "/repository/browse",
+        "/function/browse",
+        "/taxonomy/index?id=35",
+        "/taxonomy/index?id=42",
+        "/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/search/advanced",
+        "/admin/ric",
+        "/admin/ric/sync-status",
+        "/admin/ric/queue",
+        "/admin/ric/logs",
+        "/admin/ahg-settings/section?section=fuseki",
+        "/help",
+        "/clipboard/view",
+        "/clipboard/load",
+        "/records/browse?sf_culture=en",
+        "/records/browse?sf_culture=fr",
+        "/records/browse?sf_culture=es",
+        "/records/browse?sf_culture=nl",
+        "/records/browse?sf_culture=pt",
+        "/records/browse?sf_culture=af",
+        "/records/browse?sf_culture=zu",
+        "/about",
+        "/contact",
+        "/user/password-reset",
+        "/user/register",
+        "/research/register",
+        "/research/dashboard",
+        "/privacy",
+        "/pages/terms-of-use",
+        "/pages/cookie-policy",
+        "/pages/paia",
+        "/pages/accessibility",
+        "/pages/copyright-notice",
+        "/pages/data-governance",
+        "/pages/sitemap"
+      ],
+      "forms": [
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "jsErrors": [
+        "Identifier 'DisplayMode' has already been declared",
+        "Identifier 'AHGVoiceCommands' has already been declared"
+      ]
+    },
+    {
+      "url": "https://heratio.theahg.co.za/records/add",
+      "finalUrl": "https://heratio.theahg.co.za/records/add",
+      "status": 404,
+      "statusText": "",
+      "title": "404 - Page not found",
+      "h1": "\n      \n      Sorry, page not found\n    ",
+      "links": [
+        "/",
+        "/glam/browse",
+        "/actor/browse",
+        "/repository/browse",
+        "/function/browse",
+        "/taxonomy/index?id=35",
+        "/taxonomy/index?id=42",
+        "/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/search/advanced",
+        "/admin/ric",
+        "/admin/ric/sync-status",
+        "/admin/ric/queue",
+        "/admin/ric/logs",
+        "/admin/ahg-settings/section?section=fuseki",
+        "/help",
+        "/clipboard/view",
+        "/clipboard/load",
+        "/records/add?sf_culture=en",
+        "/records/add?sf_culture=fr",
+        "/records/add?sf_culture=es",
+        "/records/add?sf_culture=nl",
+        "/records/add?sf_culture=pt",
+        "/records/add?sf_culture=af",
+        "/records/add?sf_culture=zu",
+        "/about",
+        "/contact",
+        "/user/password-reset",
+        "/user/register",
+        "/research/register",
+        "/research/dashboard",
+        "/privacy",
+        "/pages/terms-of-use",
+        "/pages/cookie-policy",
+        "/pages/paia",
+        "/pages/accessibility",
+        "/pages/copyright-notice",
+        "/pages/data-governance",
+        "/pages/sitemap"
+      ],
+      "forms": [
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "jsErrors": [
+        "Identifier 'DisplayMode' has already been declared",
+        "Identifier 'AHGVoiceCommands' has already been declared"
+      ]
+    },
+    {
+      "url": "https://heratio.theahg.co.za/actor/browse",
+      "finalUrl": "https://heratio.theahg.co.za/actor/browse",
+      "status": 200,
+      "statusText": "",
+      "title": "Authority records",
+      "h1": "\n                  Showing 340 results\n              ",
+      "links": [
+        "/",
+        "/glam/browse",
+        "/actor/browse",
+        "/repository/browse",
+        "/function/browse",
+        "/taxonomy/index?id=35",
+        "/taxonomy/index?id=42",
+        "/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/search/advanced",
+        "/admin/ric",
+        "/admin/ric/sync-status",
+        "/admin/ric/queue",
+        "/admin/ric/logs",
+        "/admin/ahg-settings/section?section=fuseki",
+        "/help",
+        "/clipboard/view",
+        "/clipboard/load",
+        "/actor/browse?sf_culture=en",
+        "/actor/browse?sf_culture=fr",
+        "/actor/browse?sf_culture=es",
+        "/actor/browse?sf_culture=nl",
+        "/actor/browse?sf_culture=pt",
+        "/actor/browse?sf_culture=af",
+        "/actor/browse?sf_culture=zu",
+        "/about",
+        "/contact",
+        "/user/password-reset",
+        "/user/register",
+        "/research/register",
+        "/research/dashboard",
+        "/actor/browse?displayMode=list",
+        "/actor/browse?displayMode=grid",
+        "/actor/browse?displayMode=tree",
+        "/actor/browse?sort=lastUpdated",
+        "/actor/browse?sort=alphabetic",
+        "/actor/browse?sort=identifier",
+        "/actor/browse?sortDir=asc",
+        "/actor/browse?sortDir=desc",
+        "/actor/african-national-congress",
+        "/actor/african-oral-history-project",
+        "/actor/akira-kurosawa",
+        "/actor/albert",
+        "/actor/albert-einstein",
+        "/actor/alen-turing",
+        "/actor/alexander-graham-bell",
+        "/actor/allied-conferences",
+        "/actor/alphonse-mucha",
+        "/actor/anc",
+        "/actor/browse?page=2",
+        "/actor/browse?page=3",
+        "/actor/browse?page=4",
+        "/actor/browse?page=5",
+        "/actor/browse?page=6",
+        "/actor/browse?page=7",
+        "/actor/browse?page=34",
+        "/privacy",
+        "/pages/terms-of-use",
+        "/pages/cookie-policy",
+        "/pages/paia",
+        "/pages/accessibility",
+        "/pages/copyright-notice",
+        "/pages/data-governance",
+        "/pages/sitemap"
+      ],
+      "forms": [
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/actor/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "subquery",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/actor/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "so0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "sq0",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "sf0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "repository",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "hasDigitalObject",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "entityType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "emptyField",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedAuthority",
+              "type": "input:text",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/actor/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "subquery",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/actor/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "so0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "sq0",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "sf0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "repository",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "hasDigitalObject",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "entityType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "emptyField",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedAuthority",
+              "type": "input:text",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Advanced search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Sort by: Name",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Direction: Ascending",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Advanced search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Sort by: Name",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Direction: Ascending",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "jsErrors": [
+        "Identifier 'DisplayMode' has already been declared",
+        "Identifier 'AHGVoiceCommands' has already been declared"
+      ]
+    },
+    {
+      "url": "https://heratio.theahg.co.za/actor/add",
+      "finalUrl": "https://heratio.theahg.co.za/actor/add",
+      "status": 403,
+      "statusText": "",
+      "title": "403 - Forbidden",
+      "h1": "\n      \n      Sorry, you must log in to access that page\n    ",
+      "links": [
+        "/",
+        "/glam/browse",
+        "/actor/browse",
+        "/repository/browse",
+        "/function/browse",
+        "/taxonomy/index?id=35",
+        "/taxonomy/index?id=42",
+        "/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/search/advanced",
+        "/admin/ric",
+        "/admin/ric/sync-status",
+        "/admin/ric/queue",
+        "/admin/ric/logs",
+        "/admin/ahg-settings/section?section=fuseki",
+        "/help",
+        "/clipboard/view",
+        "/clipboard/load",
+        "/actor/add?sf_culture=en",
+        "/actor/add?sf_culture=fr",
+        "/actor/add?sf_culture=es",
+        "/actor/add?sf_culture=nl",
+        "/actor/add?sf_culture=pt",
+        "/actor/add?sf_culture=af",
+        "/actor/add?sf_culture=zu",
+        "/about",
+        "/contact",
+        "/user/password-reset",
+        "/user/register",
+        "/research/register",
+        "/research/dashboard",
+        "/privacy",
+        "/pages/terms-of-use",
+        "/pages/cookie-policy",
+        "/pages/paia",
+        "/pages/accessibility",
+        "/pages/copyright-notice",
+        "/pages/data-governance",
+        "/pages/sitemap"
+      ],
+      "forms": [
+        {
+          "action": "https://heratio.theahg.co.za/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/clipboard/save",
+          "method": "POST",
+          "fields": []
+        },
+        {
+          "action": "https://heratio.theahg.co.za/login",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": true
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": true
+            }
+          ]
+        },
+        {
+          "action": "https://heratio.theahg.co.za/feedback/general",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "feed_name",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_surname",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_email",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "rating",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "feed_type_id",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "subject",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "remarks",
+              "type": "textarea:text",
+              "required": true
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Clear all selections",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Save clipboard",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Feedback",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Send Feedback",
+          "type": "submit",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "jsErrors": []
+    }
+  ]
+}

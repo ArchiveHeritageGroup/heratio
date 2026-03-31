@@ -1,0 +1,1409 @@
+{
+  "role": "guest",
+  "timestamp": "2026-03-31T20:27:28.219Z",
+  "baseUrl": "https://psis.theahg.co.za",
+  "pagesCrawled": 5,
+  "results": [
+    {
+      "url": "https://psis.theahg.co.za/",
+      "finalUrl": "https://psis.theahg.co.za/heritage",
+      "status": 200,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "Discover Our Heritage",
+      "links": [
+        "/",
+        "/index.php/",
+        "/index.php/glam/browse",
+        "/index.php/actor/browse",
+        "/index.php/repository/browse",
+        "/index.php/function/browse",
+        "/index.php/taxonomy/index/id/35",
+        "/index.php/taxonomy/index/id/42",
+        "/index.php/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/index.php/glam/browse?showAdvanced=true&topLevel=0",
+        "/index.php/admin/ric",
+        "/index.php/admin/ric/sync-status",
+        "/index.php/admin/ric/queue",
+        "/index.php/admin/ric/logs",
+        "/index.php/admin/ahg-settings/section/?section=fuseki",
+        "/index.php/help",
+        "/index.php/staticpage/list/",
+        "/index.php/clipboard/view",
+        "/index.php/clipboard/load",
+        "/index.php/clipboard/save",
+        "/index.php/heritage?sf_culture=en",
+        "/index.php/heritage?sf_culture=fr",
+        "/index.php/heritage?sf_culture=es",
+        "/index.php/heritage?sf_culture=nl",
+        "/index.php/heritage?sf_culture=pt",
+        "/index.php/heritage?sf_culture=af",
+        "/index.php/heritage?sf_culture=zu",
+        "/index.php/about",
+        "/index.php/contact",
+        "/index.php/user/passwordReset/",
+        "/index.php/register",
+        "/index.php/research/register-researcher/",
+        "/index.php/research/dashboard/",
+        "/index.php/heritage/search?q=Egyptian+artifacts",
+        "/index.php/heritage/search?q=Victorian+photographs",
+        "/index.php/heritage/search?q=Cape+Town+maps",
+        "/index.php/heritage/search?q=medieval+manuscripts",
+        "/index.php/heritage/search?q=African+art",
+        "/index.php/heritage/search?q=3D+sculptures",
+        "/index.php/heritage/search?q=landscape+paintings",
+        "/index.php/heritage/search?q=World+War+documents",
+        "/index.php/heritage/timeline",
+        "/index.php/heritage/explore?category=place",
+        "/index.php/heritage/creators",
+        "/index.php/heritage/explore?category=theme",
+        "/index.php/heritage/explore?category=format",
+        "/index.php/heritage/trending",
+        "/index.php/heritage/graph",
+        "/index.php/informationobject/browse",
+        "/index.php/manifest-collection/1/view/",
+        "/index.php/manifest-collection/2/view/",
+        "/index.php/informationobject/browse?collection=829",
+        "/index.php/informationobject/browse?collection=983",
+        "/index.php/informationobject/browse?collection=1463",
+        "/index.php/informationobject/browse?collection=902707",
+        "/index.php/portsmouth-historic-dockyard-kronan",
+        "/index.php/hein-jacobsson",
+        "/index.php/following-hybertsson",
+        "/index.php/neptune-salvage-company",
+        "/index.php/the-battle-of-oland",
+        "/index.php/scandinavian-shipping",
+        "/index.php/hms-victory",
+        "/index.php/sofring-hansson",
+        "/index.php/archives",
+        "/index.php/woodstock-palace-jean",
+        "/index.php/heritage/timeline?period_id=1",
+        "/index.php/heritage/timeline?period_id=2",
+        "/index.php/heritage/timeline?period_id=3",
+        "/index.php/heritage/timeline?period_id=4",
+        "/index.php/heritage/timeline?period_id=5",
+        "/index.php/heritage/timeline?period_id=6",
+        "/index.php/heritage/search?sort=recent",
+        "/index.php/plaas-welgelegen",
+        "/index.php/railing-pillar",
+        "/index.php/statue-of-the-ram-of-amun",
+        "/index.php/egyptian-boat",
+        "/index.php/the-rosetta-stone",
+        "/index.php/kagle-mask",
+        "/index.php/thoth",
+        "/index.php/ai-test-25",
+        "/index.php/main-library",
+        "/index.php/beautiful-in-beaufort-wes-2006-53-47",
+        "/index.php/long-walk-to-freedom",
+        "/index.php/heritage/login",
+        "/index.php/privacy",
+        "/index.php/terms"
+      ],
+      "forms": [
+        {
+          "action": "/index.php/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/user/login/",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "_csrf_token",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/heritage/search",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "q",
+              "type": "input:text",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "jsErrors": []
+    },
+    {
+      "url": "https://psis.theahg.co.za/informationobject/browse",
+      "finalUrl": "https://psis.theahg.co.za/informationobject/browse",
+      "status": 200,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "Showing 156 results",
+      "links": [
+        "/",
+        "/index.php/",
+        "/index.php/glam/browse",
+        "/index.php/actor/browse",
+        "/index.php/repository/browse",
+        "/index.php/function/browse",
+        "/index.php/taxonomy/index/id/35",
+        "/index.php/taxonomy/index/id/42",
+        "/index.php/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/index.php/glam/browse?showAdvanced=true&topLevel=0",
+        "/index.php/admin/ric",
+        "/index.php/admin/ric/sync-status",
+        "/index.php/admin/ric/queue",
+        "/index.php/admin/ric/logs",
+        "/index.php/admin/ahg-settings/section/?section=fuseki",
+        "/index.php/help",
+        "/index.php/staticpage/list/",
+        "/index.php/clipboard/view",
+        "/index.php/clipboard/load",
+        "/index.php/clipboard/save",
+        "/index.php/display/browse?sf_culture=en",
+        "/index.php/display/browse?sf_culture=fr",
+        "/index.php/display/browse?sf_culture=es",
+        "/index.php/display/browse?sf_culture=nl",
+        "/index.php/display/browse?sf_culture=pt",
+        "/index.php/display/browse?sf_culture=af",
+        "/index.php/display/browse?sf_culture=zu",
+        "/index.php/about",
+        "/index.php/contact",
+        "/index.php/user/passwordReset/",
+        "/index.php/register",
+        "/index.php/research/register-researcher/",
+        "/index.php/research/dashboard/",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&type=archive",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&type=dam",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&type=library",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&type=museum",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=880",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=830",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=715",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=726",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=900001",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=900004",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=900008",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=900013",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=737",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&creator=839",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901207",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901212",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901059",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901298",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901201",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901205",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=902996",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=626",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901292",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&place=901363",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=898",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=964",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=893",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=894",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=892",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=896",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=897",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=918",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=919",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&subject=920",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=387",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=388",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=389",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=390",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=391",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=1046",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=900327",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=900393",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=905186",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&genre=905202",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=242",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=1700",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=1161",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=236",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=1701",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=380",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=434",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=241",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=237",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&level=1755",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=image",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=application",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=video",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=audio",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=model",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&media=text",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=731",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=630",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=982",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=836",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=905206",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=877",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=900171",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=900145",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=905173",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&repo=711",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&topLevel=0",
+        "/index.php/display/browse?showAdvanced=1",
+        "/index.php/display/browse?type=archive&showAdvanced=1",
+        "/index.php/display/browse?type=library&showAdvanced=1",
+        "/index.php/display/browse?type=museum&showAdvanced=1",
+        "/index.php/display/browse?type=gallery&showAdvanced=1",
+        "/index.php/display/browse?type=dam&showAdvanced=1",
+        "/index.php/display/browse",
+        "/index.php/glam/print/?view=card&limit=10&sort=date&dir=desc",
+        "/index.php/glam/exportCsv/?view=card&limit=10&sort=date&dir=desc",
+        "/index.php/display/browse?view=grid&limit=10&sort=date&dir=desc",
+        "/index.php/display/browse?view=table&limit=10&sort=date&dir=desc",
+        "/index.php/display/browse?view=full&limit=10&sort=date&dir=desc",
+        "/index.php/display/browse?view=card&limit=30&sort=date&dir=desc",
+        "/index.php/display/browse?view=card&limit=50&sort=date&dir=desc",
+        "/index.php/display/browse?view=card&limit=100&sort=date&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=title&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=identifier&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=refcode&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=startdate&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=enddate&dir=desc",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=asc",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&hasDigital=1",
+        "/index.php/plaas-welgelegen",
+        "/index.php/railing-pillar",
+        "/index.php/statue-of-the-ram-of-amun",
+        "/index.php/egyptian-boat",
+        "/index.php/the-rosetta-stone",
+        "/index.php/thoth",
+        "/index.php/kagle-mask",
+        "/index.php/format-test-dam",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&parent=904381",
+        "/index.php/format-test-library",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&parent=904182",
+        "/index.php/format-test-gallery",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&parent=903983",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&page=0",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&page=1",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&page=2",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&page=3",
+        "/index.php/display/browse?view=card&limit=10&sort=date&dir=desc&page=4"
+      ],
+      "forms": [
+        {
+          "action": "/index.php/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/user/login/",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "_csrf_token",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/display/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "query",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "title",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "identifier",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "referenceCode",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "scopeAndContent",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "extentAndMedium",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "archivalHistory",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "acquisition",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "creatorSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "subjectSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "placeSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "genreSearch",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "startDate",
+              "type": "input:date",
+              "required": false
+            },
+            {
+              "name": "endDate",
+              "type": "input:date",
+              "required": false
+            },
+            {
+              "name": "rangeType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "type",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "level",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "repo",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "hasDigital",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "topLevel",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "topLevel",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "showAdvanced",
+              "type": "input:hidden",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/display/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "query",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "view",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "limit",
+              "type": "input:hidden",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Semantic Search\n      Search",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Advanced search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Basic",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Content",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Access Points",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Dates",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Filters",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add criterion",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "10/page",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Sort: Date modified",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Desc",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Cancel",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "jsErrors": []
+    },
+    {
+      "url": "https://psis.theahg.co.za/informationobject/add",
+      "finalUrl": "https://psis.theahg.co.za/informationobject/add",
+      "status": 403,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "\n      \n      Sorry, you do not have permission to access that page    ",
+      "links": [
+        "/",
+        "/index.php/",
+        "/index.php/glam/browse",
+        "/index.php/actor/browse",
+        "/index.php/repository/browse",
+        "/index.php/function/browse",
+        "/index.php/taxonomy/index/id/35",
+        "/index.php/taxonomy/index/id/42",
+        "/index.php/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/index.php/glam/browse?showAdvanced=true&topLevel=0",
+        "/index.php/admin/ric",
+        "/index.php/admin/ric/sync-status",
+        "/index.php/admin/ric/queue",
+        "/index.php/admin/ric/logs",
+        "/index.php/admin/ahg-settings/section/?section=fuseki",
+        "/index.php/help",
+        "/index.php/staticpage/list/",
+        "/index.php/clipboard/view",
+        "/index.php/clipboard/load",
+        "/index.php/clipboard/save",
+        "/index.php/informationobject/add/?sf_culture=en",
+        "/index.php/informationobject/add/?sf_culture=fr",
+        "/index.php/informationobject/add/?sf_culture=es",
+        "/index.php/informationobject/add/?sf_culture=nl",
+        "/index.php/informationobject/add/?sf_culture=pt",
+        "/index.php/informationobject/add/?sf_culture=af",
+        "/index.php/informationobject/add/?sf_culture=zu",
+        "/index.php/about",
+        "/index.php/contact",
+        "/index.php/user/passwordReset/",
+        "/index.php/register",
+        "/index.php/research/register-researcher/",
+        "/index.php/research/dashboard/"
+      ],
+      "forms": [
+        {
+          "action": "/index.php/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/user/login/",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "_csrf_token",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "jsErrors": []
+    },
+    {
+      "url": "https://psis.theahg.co.za/actor/browse",
+      "finalUrl": "https://psis.theahg.co.za/actor/browse",
+      "status": 200,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "\n                  Showing 340 results              ",
+      "links": [
+        "/",
+        "/index.php/",
+        "/index.php/glam/browse",
+        "/index.php/actor/browse",
+        "/index.php/repository/browse",
+        "/index.php/function/browse",
+        "/index.php/taxonomy/index/id/35",
+        "/index.php/taxonomy/index/id/42",
+        "/index.php/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/index.php/glam/browse?showAdvanced=true&topLevel=0",
+        "/index.php/admin/ric",
+        "/index.php/admin/ric/sync-status",
+        "/index.php/admin/ric/queue",
+        "/index.php/admin/ric/logs",
+        "/index.php/admin/ahg-settings/section/?section=fuseki",
+        "/index.php/help",
+        "/index.php/staticpage/list/",
+        "/index.php/clipboard/view",
+        "/index.php/clipboard/load",
+        "/index.php/clipboard/save",
+        "/index.php/actor/browse/?sf_culture=en",
+        "/index.php/actor/browse/?sf_culture=fr",
+        "/index.php/actor/browse/?sf_culture=es",
+        "/index.php/actor/browse/?sf_culture=nl",
+        "/index.php/actor/browse/?sf_culture=pt",
+        "/index.php/actor/browse/?sf_culture=af",
+        "/index.php/actor/browse/?sf_culture=zu",
+        "/index.php/about",
+        "/index.php/contact",
+        "/index.php/user/passwordReset/",
+        "/index.php/register",
+        "/index.php/research/register-researcher/",
+        "/index.php/research/dashboard/",
+        "/index.php/actor/browse/",
+        "/index.php/actor/browse/?entityType=132",
+        "/index.php/actor/browse/?entityType=131",
+        "/index.php/actor/browse/?entityType=133",
+        "/index.php/actor/browse/?displayMode=grid",
+        "/index.php/actor/browse/?displayMode=list",
+        "/index.php/actor/browse/?sort=lastUpdated",
+        "/index.php/actor/browse/?sort=alphabetic",
+        "/index.php/actor/browse/?sort=identifier",
+        "/index.php/actor/browse/?sortDir=asc",
+        "/index.php/actor/browse/?sortDir=desc",
+        "/index.php/actor/retro",
+        "/index.php/actor/mobrey-family",
+        "/index.php/actor/engelbrecht-family",
+        "/index.php/actor/naros",
+        "/index.php/actor/photographer-tomo-muttyan-stereophoto-mkr",
+        "/index.php/actor/binneman-family",
+        "/index.php/actor/plain-sailing-information-systems",
+        "/index.php/actor/photographer-phase-one-iq3-100mp",
+        "/index.php/actor/described-radebe-nomsa-technical-digital-preservation-unit-nwu",
+        "/index.php/actor/neil-lee",
+        "/index.php/actor/siphiwe",
+        "/index.php/actor/mobile-photographer-samsung-sm-s908e",
+        "/index.php/actor/creator-authority",
+        "/index.php/actor/professional-nature-photographer-nature-field-photographer",
+        "/index.php/actor/un-named",
+        "/index.php/actor/ludwig-van-beethoven",
+        "/index.php/actor/pieterse-ai",
+        "/index.php/actor/maria-santos",
+        "/index.php/actor/thandi-mbeki",
+        "/index.php/actor/johannesburg-historical-society",
+        "/index.php/actor/pretoria-technical-institute",
+        "/index.php/actor/james-nkosi",
+        "/index.php/actor/robert-chen",
+        "/index.php/actor/grace-dlamini",
+        "/index.php/actor/south-african-heritage-foundation",
+        "/index.php/actor/cape-archives-trust",
+        "/index.php/actor/liberation-movement-documentation-centre",
+        "/index.php/actor/dr-sarah-van-der-merwe",
+        "/index.php/actor/van-der-berg-family",
+        "/index.php/actor/african-oral-history-project",
+        "/index.php/actor/browse/?page=2",
+        "/index.php/actor/browse/?page=3",
+        "/index.php/actor/browse/?page=4",
+        "/index.php/actor/browse/?page=5",
+        "/index.php/actor/browse/?page=6",
+        "/index.php/actor/browse/?page=7",
+        "/index.php/actor/browse/?page=12"
+      ],
+      "forms": [
+        {
+          "action": "/index.php/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/user/login/",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/actor/browse/",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "subquery",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/actor/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sortDir",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "so0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "sq0",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "sf0",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "repository",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "hasDigitalObject",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "entityType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "emptyField",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedType",
+              "type": "select:text",
+              "required": false
+            },
+            {
+              "name": "relatedAuthority",
+              "type": "input:text",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Narrow your results by:",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Entity type",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Advanced search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Sort by: Date modified",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Direction: Ascending",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Add to clipboard",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "jsErrors": []
+    },
+    {
+      "url": "https://psis.theahg.co.za/actor/add",
+      "finalUrl": "https://psis.theahg.co.za/actor/add",
+      "status": 403,
+      "statusText": "",
+      "title": "Archive",
+      "h1": "\n      \n      Sorry, you do not have permission to access that page    ",
+      "links": [
+        "/",
+        "/index.php/",
+        "/index.php/glam/browse",
+        "/index.php/actor/browse",
+        "/index.php/repository/browse",
+        "/index.php/function/browse",
+        "/index.php/taxonomy/index/id/35",
+        "/index.php/taxonomy/index/id/42",
+        "/index.php/display/browse?hasDigital=1&topLevel=0&view=grid",
+        "/index.php/glam/browse?showAdvanced=true&topLevel=0",
+        "/index.php/admin/ric",
+        "/index.php/admin/ric/sync-status",
+        "/index.php/admin/ric/queue",
+        "/index.php/admin/ric/logs",
+        "/index.php/admin/ahg-settings/section/?section=fuseki",
+        "/index.php/help",
+        "/index.php/staticpage/list/",
+        "/index.php/clipboard/view",
+        "/index.php/clipboard/load",
+        "/index.php/clipboard/save",
+        "/index.php/actor/add/?sf_culture=en",
+        "/index.php/actor/add/?sf_culture=fr",
+        "/index.php/actor/add/?sf_culture=es",
+        "/index.php/actor/add/?sf_culture=nl",
+        "/index.php/actor/add/?sf_culture=pt",
+        "/index.php/actor/add/?sf_culture=af",
+        "/index.php/actor/add/?sf_culture=zu",
+        "/index.php/about",
+        "/index.php/contact",
+        "/index.php/user/passwordReset/",
+        "/index.php/register",
+        "/index.php/research/register-researcher/",
+        "/index.php/research/dashboard/"
+      ],
+      "forms": [
+        {
+          "action": "/index.php/glam/browse",
+          "method": "GET",
+          "fields": [
+            {
+              "name": "topLod",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "sort",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "repos",
+              "type": "input:radio",
+              "required": false
+            },
+            {
+              "name": "semantic",
+              "type": "input:checkbox",
+              "required": false
+            },
+            {
+              "name": "query",
+              "type": "input:search",
+              "required": false
+            }
+          ]
+        },
+        {
+          "action": "/index.php/user/login/",
+          "method": "POST",
+          "fields": [
+            {
+              "name": "_csrf_token",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "next",
+              "type": "input:hidden",
+              "required": false
+            },
+            {
+              "name": "email",
+              "type": "input:text",
+              "required": false
+            },
+            {
+              "name": "password",
+              "type": "input:password",
+              "required": false
+            }
+          ]
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Toggle navigation",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Browse",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search options",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Search in browse page",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "button",
+          "disabled": false
+        },
+        {
+          "text": "Log in",
+          "type": "submit",
+          "disabled": false
+        },
+        {
+          "text": "Close",
+          "type": "button",
+          "disabled": false
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "jsErrors": []
+    }
+  ]
+}

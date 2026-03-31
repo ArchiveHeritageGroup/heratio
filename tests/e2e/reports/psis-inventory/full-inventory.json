@@ -1,0 +1,668 @@
+{
+  "generatedAt": "2026-03-31T20:28:01.401Z",
+  "baseUrl": "https://psis.theahg.co.za",
+  "totalUniquePages": 5,
+  "totalForms": 15,
+  "totalButtons": 85,
+  "byStatus": {
+    "2xx": 3,
+    "3xx": 0,
+    "4xx": 2,
+    "5xx": 0,
+    "failed": 0
+  },
+  "urls": [
+    {
+      "url": "https://psis.theahg.co.za/",
+      "status": 200,
+      "title": "Archive",
+      "forms": 3,
+      "buttons": 7
+    },
+    {
+      "url": "https://psis.theahg.co.za/informationobject/browse",
+      "status": 200,
+      "title": "Archive",
+      "forms": 4,
+      "buttons": 21
+    },
+    {
+      "url": "https://psis.theahg.co.za/informationobject/add",
+      "status": 403,
+      "title": "Archive",
+      "forms": 2,
+      "buttons": 7
+    },
+    {
+      "url": "https://psis.theahg.co.za/actor/browse",
+      "status": 200,
+      "title": "Archive",
+      "forms": 4,
+      "buttons": 43
+    },
+    {
+      "url": "https://psis.theahg.co.za/actor/add",
+      "status": 403,
+      "title": "Archive",
+      "forms": 2,
+      "buttons": 7
+    }
+  ],
+  "forms": [
+    {
+      "page": "https://psis.theahg.co.za/",
+      "action": "/index.php/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "action": "/index.php/user/login/",
+      "method": "POST",
+      "fields": [
+        "_csrf_token",
+        "next",
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "action": "/index.php/heritage/search",
+      "method": "GET",
+      "fields": [
+        "q"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "action": "/index.php/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "action": "/index.php/user/login/",
+      "method": "POST",
+      "fields": [
+        "_csrf_token",
+        "next",
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "action": "/index.php/display/browse",
+      "method": "GET",
+      "fields": [
+        "query",
+        "title",
+        "identifier",
+        "referenceCode",
+        "scopeAndContent",
+        "extentAndMedium",
+        "archivalHistory",
+        "acquisition",
+        "creatorSearch",
+        "subjectSearch",
+        "placeSearch",
+        "genreSearch",
+        "startDate",
+        "endDate",
+        "rangeType",
+        "type",
+        "level",
+        "repo",
+        "hasDigital",
+        "topLevel",
+        "topLevel",
+        "showAdvanced"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "action": "/index.php/display/browse",
+      "method": "GET",
+      "fields": [
+        "query",
+        "semantic",
+        "view",
+        "limit"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "action": "/index.php/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "action": "/index.php/user/login/",
+      "method": "POST",
+      "fields": [
+        "_csrf_token",
+        "next",
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "action": "/index.php/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "action": "/index.php/user/login/",
+      "method": "POST",
+      "fields": [
+        "next",
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "action": "/index.php/actor/browse/",
+      "method": "GET",
+      "fields": [
+        "subquery"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "action": "/index.php/actor/browse",
+      "method": "GET",
+      "fields": [
+        "sort",
+        "sortDir",
+        "so0",
+        "sq0",
+        "sf0",
+        "repository",
+        "hasDigitalObject",
+        "entityType",
+        "emptyField",
+        "relatedType",
+        "relatedAuthority"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "action": "/index.php/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "action": "/index.php/user/login/",
+      "method": "POST",
+      "fields": [
+        "_csrf_token",
+        "next",
+        "email",
+        "password"
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Semantic Search\n      Search",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Advanced search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Basic",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Content",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Access Points",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Dates",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Filters",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Add criterion",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Search",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "10/page",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Sort: Date modified",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Desc",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Cancel",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Search",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/browse",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/informationobject/add",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Narrow your results by:",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Entity type",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Search",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Advanced search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Sort by: Date modified",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Direction: Ascending",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/browse",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://psis.theahg.co.za/actor/add",
+      "text": "Close",
+      "type": "button"
+    }
+  ]
+}

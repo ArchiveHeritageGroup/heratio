@@ -1,0 +1,10 @@
+{
+  "role": "guest",
+  "totalPages": 5,
+  "uniqueUrls": 5,
+  "pagesWith200": 3,
+  "pagesWithErrors": 2,
+  "totalForms": 15,
+  "totalButtons": 85,
+  "pagesWithJsErrors": 0
+}

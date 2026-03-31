@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-03-31T19:24:56.523Z",
+  "psisBaseUrl": "https://psis.theahg.co.za",
+  "heratioBaseUrl": "https://heratio.theahg.co.za",
+  "summary": {
+    "totalCompared": 0,
+    "matched": 0,
+    "matchedDifferentUrl": 0,
+    "partial": 0,
+    "missing": 0,
+    "broken": 0,
+    "intentionallyRetired": 0,
+    "coverage": "NaN%"
+  },
+  "counts": {
+    "matched": 0,
+    "matched_different_url": 0,
+    "partial": 0,
+    "missing": 0,
+    "broken": 0,
+    "intentionally_retired": 0
+  },
+  "results": []
+}

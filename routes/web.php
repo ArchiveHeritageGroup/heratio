@@ -46,6 +46,11 @@ Route::get('/home', fn () => redirect('/'));
 Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
 Route::get('/favorites/browse', fn () => redirect('/favorites'));
 Route::get('/cart/browse', fn () => redirect('/cart'));
+
+// Records (information object) aliases
+Route::get('/records/browse', fn () => redirect('/informationobject/browse'));
+Route::get('/records/add', fn () => redirect('/informationobject/add'));
+Route::get('/records/autocomplete', fn () => redirect('/informationobject/autocomplete'));
 // Feedback routes are in ahg-feedback package
 
 // Homepage

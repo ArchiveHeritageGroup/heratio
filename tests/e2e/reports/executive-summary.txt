@@ -1,0 +1,37 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     HERATIO PARITY TESTING SUMMARY                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  Generated: 2026-03-31T19:24:56.523Z                              ║
+║                                                                              ║
+║  SYSTEM COMPARISON                                                           ║
+║  ─────────────────────────────────────────────────────────────────────────   ║
+║  Baseline:  https://psis.theahg.co.za                           ║
+║  Target:    https://heratio.theahg.co.za                        ║
+║                                                                              ║
+║  COVERAGE METRICS                                                            ║
+║  ─────────────────────────────────────────────────────────────────────────   ║
+║  Total Pages Compared:           0                                 ║
+║                                                                              ║
+║  ✓ Matched:                     0    (functionality confirmed)          ║
+║  ↔ Different URL:               0    (URL changed, works)              ║
+║  ⚠ Partial:                    0    (partial implementation)            ║
+║  ✗ Missing:                    0    (not yet migrated)                 ║
+║  ✗ Broken:                     0    (implemented but broken)           ║
+║  ○ Retired:                    0    (intentionally removed)            ║
+║                                                                              ║
+║  OVERALL COVERAGE: NaN%                                                    ║
+║                                                                              ║
+║  PRIORITY GAPS (Missing/Broken)                                              ║
+║  ─────────────────────────────────────────────────────────────────────────   ║
+
+║                                                                              ║
+║  FILES GENERATED                                                             ║
+║  ─────────────────────────────────────────────────────────────────────────   ║
+║  • parity-report.json     - Full parity data                                 ║
+║  • parity-report.csv     - CSV format for spreadsheet analysis               ║
+║  • missing-pages.json    - Pages missing from Heratio                        ║
+║  • missing-forms.json    - Forms missing from Heratio                        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝

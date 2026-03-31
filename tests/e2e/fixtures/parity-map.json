@@ -1,0 +1,75 @@
+{
+  "urlMappings": [
+    {
+      "psis": { "url": "/" },
+      "heratio": { "url": "/" },
+      "function": "Homepage",
+      "status": "matched",
+      "notes": "Both systems have homepage"
+    },
+    {
+      "psis": { "url": "/informationobject/browse" },
+      "heratio": { "url": "/records/browse" },
+      "function": "Browse Descriptions",
+      "status": "matched_different_url",
+      "notes": "URL changed from informationobject to records"
+    },
+    {
+      "psis": { "url": "/informationobject/add" },
+      "heratio": { "url": "/records/add" },
+      "function": "Create Description",
+      "status": "matched_different_url",
+      "notes": "URL changed"
+    },
+    {
+      "psis": { "url": "/actor/browse" },
+      "heratio": { "url": "/actor/browse" },
+      "function": "Browse Actors",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    },
+    {
+      "psis": { "url": "/actor/add" },
+      "heratio": { "url": "/actor/add" },
+      "function": "Create Actor",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    },
+    {
+      "psis": { "url": "/repository/browse" },
+      "heratio": { "url": "/repository/browse" },
+      "function": "Browse Repositories",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    },
+    {
+      "psis": { "url": "/accession/browse" },
+      "heratio": { "url": "/accession/browse" },
+      "function": "Browse Accessions",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    },
+    {
+      "psis": { "url": "/term/browse" },
+      "heratio": { "url": "/term/browse" },
+      "function": "Browse Terms",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    },
+    {
+      "psis": { "url": "/search" },
+      "heratio": { "url": "/search" },
+      "function": "Global Search",
+      "status": "matched",
+      "notes": "Same URL pattern"
+    }
+  ],
+  "statusDefinitions": {
+    "matched": "Functionality exists and works on both systems",
+    "matched_different_url": "Functionality exists but URL has changed",
+    "partial": "Functionality partially implemented",
+    "missing": "Exists in PSIS but not yet in Heratio",
+    "broken": "Implemented in Heratio but not working correctly",
+    "intentionally_retired": "Feature intentionally removed in Heratio"
+  }
+}

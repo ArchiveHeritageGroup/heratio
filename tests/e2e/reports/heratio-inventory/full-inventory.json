@@ -1,0 +1,835 @@
+{
+  "generatedAt": "2026-03-31T20:32:00.693Z",
+  "baseUrl": "https://heratio.theahg.co.za",
+  "totalUniquePages": 5,
+  "totalForms": 28,
+  "totalButtons": 96,
+  "byStatus": {
+    "2xx": 2,
+    "3xx": 0,
+    "4xx": 3,
+    "5xx": 0,
+    "failed": 0
+  },
+  "urls": [
+    {
+      "url": "https://heratio.theahg.co.za/",
+      "status": 200,
+      "title": "Archive",
+      "forms": 4,
+      "buttons": 13
+    },
+    {
+      "url": "https://heratio.theahg.co.za/records/browse",
+      "status": 404,
+      "title": "404 - Page not found",
+      "forms": 4,
+      "buttons": 11
+    },
+    {
+      "url": "https://heratio.theahg.co.za/records/add",
+      "status": 404,
+      "title": "404 - Page not found",
+      "forms": 4,
+      "buttons": 11
+    },
+    {
+      "url": "https://heratio.theahg.co.za/actor/browse",
+      "status": 200,
+      "title": "Authority records",
+      "forms": 12,
+      "buttons": 50
+    },
+    {
+      "url": "https://heratio.theahg.co.za/actor/add",
+      "status": 403,
+      "title": "403 - Forbidden",
+      "forms": 4,
+      "buttons": 11
+    }
+  ],
+  "forms": [
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/actor/browse",
+      "method": "GET",
+      "fields": [
+        "subquery"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/actor/browse",
+      "method": "GET",
+      "fields": [
+        "so0",
+        "sq0",
+        "sf0",
+        "repository",
+        "hasDigitalObject",
+        "entityType",
+        "emptyField",
+        "relatedType",
+        "relatedAuthority"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/actor/browse",
+      "method": "GET",
+      "fields": [
+        "subquery"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/actor/browse",
+      "method": "GET",
+      "fields": [
+        "so0",
+        "sq0",
+        "sf0",
+        "repository",
+        "hasDigitalObject",
+        "entityType",
+        "emptyField",
+        "relatedType",
+        "relatedAuthority"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "action": "https://heratio.theahg.co.za/glam/browse",
+      "method": "GET",
+      "fields": [
+        "topLod",
+        "sort",
+        "repos",
+        "semantic",
+        "query"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "action": "https://heratio.theahg.co.za/clipboard/save",
+      "method": "POST",
+      "fields": []
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "action": "https://heratio.theahg.co.za/login",
+      "method": "POST",
+      "fields": [
+        "email",
+        "password"
+      ]
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "action": "https://heratio.theahg.co.za/feedback/general",
+      "method": "POST",
+      "fields": [
+        "feed_name",
+        "feed_surname",
+        "feed_email",
+        "feed_type_id",
+        "rating",
+        "feed_type_id",
+        "subject",
+        "remarks"
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Previous",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Next",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/",
+      "text": "Send Feedback",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/browse",
+      "text": "Send Feedback",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/records/add",
+      "text": "Send Feedback",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Advanced search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Sort by: Name",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Direction: Ascending",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Send Feedback",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Search",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Advanced search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Sort by: Name",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Direction: Ascending",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Add to clipboard",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/browse",
+      "text": "Send Feedback",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Toggle navigation",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Browse",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Search options",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Search in browse page",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Clear all selections",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Save clipboard",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Log in",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Log in",
+      "type": "submit"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Close",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Feedback",
+      "type": "button"
+    },
+    {
+      "page": "https://heratio.theahg.co.za/actor/add",
+      "text": "Send Feedback",
+      "type": "submit"
+    }
+  ]
+}
