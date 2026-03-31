@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgSemanticSearch\Controllers;
+
 use AhgSemanticSearch\Services\SemanticSearchService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

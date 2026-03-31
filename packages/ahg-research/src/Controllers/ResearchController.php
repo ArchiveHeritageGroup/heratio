@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgResearch\Controllers;
+
 use App\Http\Controllers\Controller;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\CollaborationService;

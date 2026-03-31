@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgHeritageManage\Services;
+
 use Illuminate\Support\Facades\DB;
 
 /**

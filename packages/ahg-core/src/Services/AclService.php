@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCore\Services;
+
 use AhgCore\Models\AclGroup;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;

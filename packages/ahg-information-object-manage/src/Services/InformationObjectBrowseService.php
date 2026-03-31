@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Services;
+
 use AhgCore\Constants\TermId;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;

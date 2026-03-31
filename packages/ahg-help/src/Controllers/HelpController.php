@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgHelp\Controllers;
+
 use AhgHelp\Services\HelpArticleService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

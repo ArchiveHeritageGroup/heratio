@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRightsHolderManage\Controllers;
+
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use AhgRightsHolderManage\Services\RightsHolderBrowseService;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMultiTenant\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class TenantService

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgGallery\Services;
+
 use AhgCore\Services\SettingHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

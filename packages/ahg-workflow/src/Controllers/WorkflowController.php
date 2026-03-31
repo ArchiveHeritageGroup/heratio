@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgWorkflow\Controllers;
+
 use AhgWorkflow\Services\WorkflowService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

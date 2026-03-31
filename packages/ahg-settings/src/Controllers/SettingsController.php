@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgSettings\Controllers;
+
 use AhgSettings\Services\SettingsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

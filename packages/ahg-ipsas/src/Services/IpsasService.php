@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgIpsas\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class IpsasService

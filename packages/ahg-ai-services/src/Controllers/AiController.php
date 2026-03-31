@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgAiServices\Controllers;
+
 use AhgAiServices\Services\DonutService;
 use AhgAiServices\Services\HtrService;
 use AhgAiServices\Services\LlmService;

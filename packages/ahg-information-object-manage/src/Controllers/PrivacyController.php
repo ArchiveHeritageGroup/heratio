@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgInformationObjectManage\Services\AiNerService;
 use AhgInformationObjectManage\Services\PrivacyService;
 use App\Http\Controllers\Controller;

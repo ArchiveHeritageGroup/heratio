@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgExhibition\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class ExhibitionService

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
 use AhgCore\Services\SettingHelper;

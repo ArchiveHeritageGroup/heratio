@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgLoan\Controllers;
+
 use App\Http\Controllers\Controller;
 use AhgLoan\Services\LoanService;
 use Illuminate\Http\Request;

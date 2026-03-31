@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgForms\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class FormService

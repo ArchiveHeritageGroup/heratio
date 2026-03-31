@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgExtendedRights\Controllers;
+
 use AhgExtendedRights\Services\ExtendedRightsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

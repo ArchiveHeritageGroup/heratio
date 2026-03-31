@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRightsHolderManage\Services;
+
 use AhgCore\Services\BrowseService;
 
 class RightsHolderBrowseService extends BrowseService

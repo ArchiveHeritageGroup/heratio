@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgPdfTools\Services;
+
 use Illuminate\Support\Facades\Log;
 
 /**

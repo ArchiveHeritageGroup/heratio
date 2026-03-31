@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgApi\Services;
+
 use Illuminate\Support\Facades\Http;
 
 /**

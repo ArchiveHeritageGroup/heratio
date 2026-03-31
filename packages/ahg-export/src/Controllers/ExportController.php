@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgExport\Controllers;
+
 use AhgExport\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

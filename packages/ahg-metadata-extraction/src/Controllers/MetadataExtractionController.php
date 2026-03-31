@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMetadataExtraction\Controllers;
+
 use AhgMetadataExtraction\Services\MetadataExtractionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

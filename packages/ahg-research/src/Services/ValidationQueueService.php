@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgResearch\Services;
+
 use Illuminate\Support\Facades\DB;
 
 /**

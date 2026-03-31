@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgIngest\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class IngestService

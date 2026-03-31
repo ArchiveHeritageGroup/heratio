@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCart\Controllers;
+
 use AhgCart\Services\CartService;
 use AhgCart\Services\EcommerceService;
 use App\Http\Controllers\Controller;

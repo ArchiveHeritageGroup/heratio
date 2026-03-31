@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMenuManage\Controllers;
+
 use AhgMenuManage\Services\MenuService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

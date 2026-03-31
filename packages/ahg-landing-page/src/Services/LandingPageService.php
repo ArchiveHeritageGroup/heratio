@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgLandingPage\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class LandingPageService

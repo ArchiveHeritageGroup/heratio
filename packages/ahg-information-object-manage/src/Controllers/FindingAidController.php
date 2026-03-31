@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use App\Http\Controllers\Controller;
 use App\Jobs\FindingAidJob;
 use Illuminate\Http\Request;

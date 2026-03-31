@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRegistry\Controllers;
+
 use AhgRegistry\Services\RegistryService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

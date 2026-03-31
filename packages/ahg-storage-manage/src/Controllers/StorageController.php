@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgStorageManage\Controllers;
+
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageService;
 use AhgCore\Pagination\SimplePager;

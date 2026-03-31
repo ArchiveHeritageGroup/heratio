@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFavorites\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class FavoritesService

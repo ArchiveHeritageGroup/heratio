@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgDonorManage\Controllers;
+
 use AhgDonorManage\Services\DonorBrowseService;
 use AhgDonorManage\Services\DonorService;
 use AhgCore\Pagination\SimplePager;

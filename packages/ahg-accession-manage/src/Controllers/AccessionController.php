@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgAccessionManage\Controllers;
+
 use AhgAccessionManage\Services\AccessionBrowseService;
 use AhgAccessionManage\Services\AccessionService;
 use AhgCore\Pagination\SimplePager;

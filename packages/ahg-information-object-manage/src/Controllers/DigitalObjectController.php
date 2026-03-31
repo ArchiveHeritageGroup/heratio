@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgCore\Services\DigitalObjectService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

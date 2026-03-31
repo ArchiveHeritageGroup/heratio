@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCore\Services;
+
 use AhgCore\Models\ClipboardSave;
 use AhgCore\Models\ClipboardSaveItem;
 use Illuminate\Support\Facades\DB;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFederation\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class FederationService

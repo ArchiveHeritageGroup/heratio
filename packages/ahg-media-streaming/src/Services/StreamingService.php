@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMediaStreaming\Services;
+
 use AhgCore\Models\QubitDigitalObject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgStorageManage\Services;
+
 use AhgCore\Services\BrowseService;
 
 class StorageBrowseService extends BrowseService

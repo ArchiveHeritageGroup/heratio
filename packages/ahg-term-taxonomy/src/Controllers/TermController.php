@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgTermTaxonomy\Controllers;
+
 use AhgTermTaxonomy\Services\TermBrowseService;
 use AhgTermTaxonomy\Services\TermService;
 use AhgCore\Pagination\SimplePager;

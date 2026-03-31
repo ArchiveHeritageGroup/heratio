@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgIiifCollection\Controllers;
+
 use App\Http\Controllers\Controller;
 use AhgIiifCollection\Services\IiifCollectionService;
 use Illuminate\Http\Request;

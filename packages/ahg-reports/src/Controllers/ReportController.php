@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgReports\Controllers;
+
 use AhgReports\Services\ReportService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

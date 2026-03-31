@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFtpUpload\Controllers;
+
 use AhgFtpUpload\Services\FtpService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

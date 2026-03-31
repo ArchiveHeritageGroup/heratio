@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgActorManage\Services;
+
 use Illuminate\Support\Facades\DB;
 
 /**

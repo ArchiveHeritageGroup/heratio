@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgUserManage\Controllers;
+
 use AhgUserManage\Services\UserBrowseService;
 use AhgUserManage\Services\UserService;
 use AhgCore\Pagination\SimplePager;

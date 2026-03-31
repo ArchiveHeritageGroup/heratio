@@ -24,6 +24,9 @@
  */
 
 
+
+namespace Ahg3dModel\Controllers;
+
 use Ahg3dModel\Services\ThreeDThumbnailService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;

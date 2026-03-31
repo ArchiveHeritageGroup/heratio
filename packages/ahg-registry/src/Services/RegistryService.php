@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRegistry\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class RegistryService

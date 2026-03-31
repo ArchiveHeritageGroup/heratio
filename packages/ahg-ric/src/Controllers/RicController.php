@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRic\Controllers;
+
 use AhgRic\Services\RelationshipService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

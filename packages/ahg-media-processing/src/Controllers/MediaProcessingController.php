@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMediaProcessing\Controllers;
+
 use AhgMediaProcessing\Services\DerivativeService;
 use AhgMediaProcessing\Services\WatermarkService;
 use App\Http\Controllers\Controller;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgRequestPublish\Controllers;
+
 use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgAcl\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class AclService

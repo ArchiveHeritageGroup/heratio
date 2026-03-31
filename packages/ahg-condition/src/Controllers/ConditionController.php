@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCondition\Controllers;
+
 use AhgCondition\Services\ConditionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

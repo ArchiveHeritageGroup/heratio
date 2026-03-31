@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCore\Controllers;
+
 use AhgCore\Services\ClipboardService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

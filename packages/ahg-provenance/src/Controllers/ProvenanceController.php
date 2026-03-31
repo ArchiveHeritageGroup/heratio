@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgProvenance\Controllers;
+
 use AhgProvenance\Services\ProvenanceService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

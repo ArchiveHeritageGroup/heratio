@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgInformationObjectManage\Services\TreeviewService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;

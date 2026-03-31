@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgActorManage\Controllers;
+
 use AhgActorManage\Services\ActorBrowseService;
 use AhgActorManage\Services\ActorService;
 use AhgActorManage\Services\AuthorityCompletenessService;

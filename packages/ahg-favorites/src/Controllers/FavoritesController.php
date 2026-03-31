@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFavorites\Controllers;
+
 use AhgFavorites\Services\FavoritesService;
 use AhgFavorites\Services\FolderService;
 use App\Http\Controllers\Controller;

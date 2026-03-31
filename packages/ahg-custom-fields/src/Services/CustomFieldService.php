@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCustomFields\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class CustomFieldService

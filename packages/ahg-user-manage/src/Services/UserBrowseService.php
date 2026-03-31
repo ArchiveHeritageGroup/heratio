@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgUserManage\Services;
+
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 

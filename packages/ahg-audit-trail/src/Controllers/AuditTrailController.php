@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgAuditTrail\Controllers;
+
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;

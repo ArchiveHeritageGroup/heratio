@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgStatistics\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class StatisticsService

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFunctionManage\Controllers;
+
 use AhgFunctionManage\Services\FunctionBrowseService;
 use AhgFunctionManage\Services\FunctionService;
 use AhgCore\Pagination\SimplePager;

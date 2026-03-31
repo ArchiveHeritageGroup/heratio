@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgExport\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class ExportService

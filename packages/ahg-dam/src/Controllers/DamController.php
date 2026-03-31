@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgDam\Controllers;
+
 use AhgDam\Services\DamService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgProvenance\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class ProvenanceService

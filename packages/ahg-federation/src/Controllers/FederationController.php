@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFederation\Controllers;
+
 use AhgFederation\Services\FederationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgSearch\Controllers;
+
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\AclService;
 use AhgCore\Services\SettingHelper;

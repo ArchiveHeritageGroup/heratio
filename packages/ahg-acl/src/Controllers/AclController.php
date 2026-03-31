@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgAcl\Controllers;
+
 use AhgAcl\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

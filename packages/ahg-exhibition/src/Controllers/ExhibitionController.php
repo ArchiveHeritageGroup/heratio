@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgExhibition\Controllers;
+
 use AhgExhibition\Services\ExhibitionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

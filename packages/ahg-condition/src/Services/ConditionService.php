@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCondition\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class ConditionService

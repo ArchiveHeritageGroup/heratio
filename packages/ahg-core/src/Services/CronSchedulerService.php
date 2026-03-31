@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCore\Services;
+
 use Carbon\Carbon;
 use Cron\CronExpression;
 use Illuminate\Support\Collection;

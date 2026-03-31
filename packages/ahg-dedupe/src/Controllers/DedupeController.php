@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgDedupe\Controllers;
+
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;

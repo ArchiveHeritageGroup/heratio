@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgDisplay\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class DisplayService

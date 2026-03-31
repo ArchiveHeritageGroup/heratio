@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgStatistics\Controllers;
+
 use AhgStatistics\Services\StatisticsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

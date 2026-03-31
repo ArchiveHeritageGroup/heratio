@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgFunctionManage\Services;
+
 use AhgCore\Services\BrowseService;
 
 class FunctionBrowseService extends BrowseService

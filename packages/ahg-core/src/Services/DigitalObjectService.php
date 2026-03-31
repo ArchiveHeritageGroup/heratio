@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgCore\Services;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

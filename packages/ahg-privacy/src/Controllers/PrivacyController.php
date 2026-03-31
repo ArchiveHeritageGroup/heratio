@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgPrivacy\Controllers;
+
 use App\Http\Controllers\Controller;
 
 class PrivacyController extends Controller

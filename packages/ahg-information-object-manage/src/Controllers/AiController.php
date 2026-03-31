@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgInformationObjectManage\Services\AiNerService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;

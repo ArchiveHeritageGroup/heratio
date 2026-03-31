@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgLandingPage\Controllers;
+
 use AhgLandingPage\Services\LandingPageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

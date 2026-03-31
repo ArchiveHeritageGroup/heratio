@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgSecurityClearance\Controllers;
+
 use AhgSecurityClearance\Services\SecurityClearanceService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

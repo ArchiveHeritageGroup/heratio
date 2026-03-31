@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgIpsas\Controllers;
+
 use AhgIpsas\Services\IpsasService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

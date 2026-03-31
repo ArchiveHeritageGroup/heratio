@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgSemanticSearch\Services;
+
 use Illuminate\Support\Facades\DB;
 
 class SemanticSearchService

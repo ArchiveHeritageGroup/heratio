@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportJob;
 use Illuminate\Http\Request;

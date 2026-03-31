@@ -23,6 +23,9 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+namespace AhgOai\Controllers;
+
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;

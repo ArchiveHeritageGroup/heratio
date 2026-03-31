@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgInformationObjectManage\Controllers;
+
 use AhgInformationObjectManage\Services\PreservationService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgPdfTools\Controllers;
+
 use AhgPdfTools\Services\PdfTextExtractService;
 use AhgPdfTools\Services\TiffPdfMergeService;
 use App\Http\Controllers\Controller;

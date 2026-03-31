@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMultiTenant\Controllers;
+
 use AhgMultiTenant\Services\TenantService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

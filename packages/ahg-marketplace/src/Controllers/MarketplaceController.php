@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMarketplace\Controllers;
+
 use AhgMarketplace\Services\MarketplaceService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

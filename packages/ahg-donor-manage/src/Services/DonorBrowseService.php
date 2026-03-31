@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgDonorManage\Services;
+
 use AhgCore\Services\BrowseService;
 
 class DonorBrowseService extends BrowseService

@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgIngest\Controllers;
+
 use AhgIngest\Services\IngestService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

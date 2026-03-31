@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgThemeB5\Services;
+
 use AhgCore\Services\AclService;
 use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\MenuService;

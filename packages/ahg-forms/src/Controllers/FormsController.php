@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgForms\Controllers;
+
 use AhgForms\Services\FormService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

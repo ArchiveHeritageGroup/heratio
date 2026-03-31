@@ -23,6 +23,7 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
+namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
 

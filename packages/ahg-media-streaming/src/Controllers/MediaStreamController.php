@@ -24,6 +24,9 @@
  */
 
 
+
+namespace AhgMediaStreaming\Controllers;
+
 use AhgCore\Models\QubitDigitalObject;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
