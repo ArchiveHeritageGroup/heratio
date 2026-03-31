@@ -167,6 +167,19 @@
         </div>
       </div>
     </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+          <strong><i class="fas fa-file-invoice"></i> Document Understanding (Donut)</strong>
+        </div>
+        <div class="card-body">
+          <p class="small">End-to-end document image understanding for FamilySearch ILM field extraction. Classifies document type and extracts typed metadata (record type, event year, event place).</p>
+        </div>
+        <div class="card-footer">
+          <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>Open Donut Dashboard</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   {{-- Quick Test Section --}}

@@ -9,6 +9,7 @@
       'admin.ai.htr.bulkAnnotate' => ['icon' => 'fa-th', 'label' => 'Bulk Annotate'],
       'admin.ai.htr.fsOverlay' => ['icon' => 'fa-layer-group', 'label' => 'FS Overlay'],
       'admin.ai.htr.training' => ['icon' => 'fa-graduation-cap', 'label' => 'Training'],
+      'admin.ai.donut.dashboard' => ['icon' => 'fa-file-invoice', 'label' => 'Donut'],
   ];
 @endphp
 <nav class="mb-3">
