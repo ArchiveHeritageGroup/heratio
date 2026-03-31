@@ -108,6 +108,7 @@
           <input class="form-check-input" type="checkbox" id="ba-auto-recog" onchange="baToggleAutoRecog(this.checked)" style="cursor:pointer">
           <label class="form-check-label small" for="ba-auto-recog" style="cursor:pointer">Auto</label>
         </div>
+        <button class="btn btn-sm btn-outline-success" onclick="baDonutPrefill()" id="ba-donut-btn" title="Donut: pre-fill ILM fields from document image"><i class="fas fa-file-invoice me-1"></i>Donut</button>
         <button class="btn btn-sm btn-outline-danger" onclick="baRecognise()" id="ba-recognise-btn" title="HTR: recognise text in drawn boxes"><i class="fas fa-brain me-1"></i>Recognise</button>
         <button class="btn btn-sm btn-outline-info" onclick="ocrAndPlace(images[imgIdx]); redraw();" title="OCR the form to detect printed labels"><i class="fas fa-eye me-1"></i>Detect labels</button>
         <button class="btn btn-sm btn-outline-secondary" onclick="baStartCropDraw()" id="ba-crop-draw-btn" title="Draw crop rectangle"><i class="fas fa-crop-alt me-1"></i>Mark area</button>
@@ -1626,6 +1627,89 @@
   window.baAutoPlace = function() {
     autoPlaceFields();
     redraw();
+  };
+
+  // ── Donut pre-fill: extract ILM fields from document image ──
+  // Fills empty fields only — never overwrites CSV data
+  window.baDonutPrefill = function() {
+    if (imgIdx < 0 || !images[imgIdx]) return;
+    const entry = images[imgIdx];
+    const btn = document.getElementById('ba-donut-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Donut...';
+
+    fetch('{{ route("admin.ai.donut.prefill") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+      body: JSON.stringify({ image_path: entry.path }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut';
+
+      if (!data.success) {
+        console.warn('[Donut] Failed:', data.error || 'unknown');
+        return;
+      }
+
+      // Map Donut output to field names used in the sidebar
+      const donutFields = {};
+      if (data.FS_RECORD_TYPE) {
+        // Map record type to Event Type value
+        const typeMap = {
+          'Death Records': 'Death', 'Birth Records': 'Birth',
+          'Marriage Records': 'Marriage', 'Christenings': 'Baptism',
+          'Burials': 'Burial', 'Church Records': 'Church',
+          'Civil Registration': 'Civil', 'Census': 'Census',
+        };
+        donutFields['Event Type'] = typeMap[data.FS_RECORD_TYPE] || data.FS_RECORD_TYPE;
+      }
+      if (data.EVENT_YEAR_ORIG) {
+        donutFields['Event Date'] = data.EVENT_YEAR_ORIG;
+        donutFields['Event Year'] = data.EVENT_YEAR_ORIG;
+      }
+      if (data.EVENT_PLACE_ORIG) {
+        donutFields['Event Place'] = data.EVENT_PLACE_ORIG;
+        donutFields['Place of Marriage'] = data.EVENT_PLACE_ORIG;
+        donutFields['District'] = data.EVENT_PLACE_ORIG;
+      }
+
+      // Fill empty fields only
+      let filled = 0;
+      COLUMNS.forEach((col, i) => {
+        if (!donutFields[col]) return;
+        const currentVal = (entry.fields[col] || '').trim();
+        if (currentVal) return; // CSV already has data — don't overwrite
+
+        entry.fields[col] = donutFields[col];
+        filled++;
+
+        // Update sidebar input
+        const inp = document.querySelector('.ba-edit-input[data-field-idx="' + i + '"]');
+        if (inp) {
+          inp.value = donutFields[col];
+          inp.style.background = '#e8f5e9'; // light green = Donut-filled
+          setTimeout(() => { inp.style.background = ''; }, 3000);
+        }
+
+        // Update annotation value if box exists
+        if (annotations[i]) annotations[i].value = donutFields[col];
+      });
+
+      const conf = data.confidence ? (data.confidence * 100).toFixed(0) + '%' : '?';
+      console.log('[Donut] Pre-filled', filled, 'fields (confidence:', conf + ')');
+
+      if (filled > 0) {
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>Donut (' + filled + ')';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 3000);
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut';
+      console.error('[Donut] Error:', err);
+    });
   };
 
   function buildFieldList() {

@@ -4589,6 +4589,27 @@ PY;
     // Donut — Document Understanding (FamilySearch ILM Field Extraction)
     // =====================================================================
 
+    /**
+     * Donut pre-fill: extract ILM fields from a document image by path.
+     * Used by FS Overlay to pre-populate empty fields.
+     */
+    public function donutPrefill(Request $request)
+    {
+        $imagePath = $request->input('image_path', '');
+        if (!$imagePath || !file_exists($imagePath)) {
+            return response()->json(['success' => false, 'error' => 'Image not found']);
+        }
+
+        $result = $this->donutService->extractByPath($imagePath);
+
+        if (!$result) {
+            return response()->json(['success' => false, 'error' => 'Donut service unavailable']);
+        }
+
+        $result['success'] = true;
+        return response()->json($result);
+    }
+
     public function donutDashboard()
     {
         $health = $this->donutService->health();
