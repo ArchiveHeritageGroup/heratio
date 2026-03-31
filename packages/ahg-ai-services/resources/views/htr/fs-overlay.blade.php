@@ -1637,11 +1637,12 @@
     const btn = document.getElementById('ba-donut-btn');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Donut...';
+    const imgPath = entry.path.startsWith('/') ? entry.path : '/' + entry.path;
 
     fetch('{{ route("admin.ai.donut.prefill") }}', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-      body: JSON.stringify({ image_path: entry.path }),
+      body: JSON.stringify({ image_path: imgPath }),
     })
     .then(r => r.json())
     .then(data => {
@@ -1698,10 +1699,13 @@
       });
 
       const conf = data.confidence ? (data.confidence * 100).toFixed(0) + '%' : '?';
-      console.log('[Donut] Pre-filled', filled, 'fields (confidence:', conf + ')');
+      console.log('[Donut] Pre-filled', filled, 'fields (confidence:', conf + ')', data);
 
       if (filled > 0) {
         btn.innerHTML = '<i class="fas fa-check me-1"></i>Donut (' + filled + ')';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 3000);
+      } else {
+        btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut (0)';
         setTimeout(() => { btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i>Donut'; }, 3000);
       }
     })

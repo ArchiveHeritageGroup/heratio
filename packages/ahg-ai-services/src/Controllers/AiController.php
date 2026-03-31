@@ -4600,10 +4600,11 @@ PY;
     {
         $imagePath = $request->input('image_path', '');
         if (!$imagePath || !file_exists($imagePath)) {
-            return response()->json(['success' => false, 'error' => 'Image not found']);
+            return response()->json(['success' => false, 'error' => 'Image not found: ' . $imagePath]);
         }
 
-        $result = $this->donutService->extractByPath($imagePath);
+        // Upload the file to Donut service (runs on a different server)
+        $result = $this->donutService->extract($imagePath);
 
         if (!$result) {
             return response()->json(['success' => false, 'error' => 'Donut service unavailable']);
