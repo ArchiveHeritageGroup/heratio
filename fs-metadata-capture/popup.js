@@ -55,9 +55,10 @@ function loadRows() {
       const name = r.fields?.Name || r.name || '-';
       const event = r.fields?.['Event Type'] || r.recordType || '-';
       const date = r.fields?.['Event Date'] || r.eventDate || '-';
+      const rowLabel = r.rowNum ? `${i + 1}.${r.rowNum}` : `${i + 1}`;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${i + 1}</td>
+        <td>${rowLabel}</td>
         <td title="${esc(r.arkId)}">${esc(truncate(r.arkId, 16) || '-')}</td>
         <td title="${esc(name)}">${esc(truncate(name, 18))}</td>
         <td>${esc(truncate(event, 10))}</td>

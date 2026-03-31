@@ -1,4 +1,4 @@
-/* FS Metadata Capture — content styles */
+/* FS Metadata Capture — content styles v3 (multi-row) */
 
 /* Panel — compact strip at bottom */
 #fs-capture-result-panel {
@@ -12,6 +12,19 @@
   color: #333;
 }
 
+/* Multi-row mode — allow more height */
+#fs-capture-result-panel.fs-multi-mode {
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#fs-capture-result-panel.fs-multi-mode .fs-rp-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .fs-rp-header {
   display: flex;
   align-items: center;
@@ -19,6 +32,7 @@
   padding: 5px 12px;
   border-bottom: 1px solid #e5e5e5;
   background: #fafafa;
+  flex-shrink: 0;
 }
 
 .fs-rp-title { font-weight: 700; font-size: 13px; color: #1D9E75; }
@@ -33,6 +47,15 @@
 }
 
 .fs-rp-img-num { font-size: 11px; color: #888; }
+
+.fs-rp-row-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: #2c7be5;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
 
 .fs-rp-auto {
   font-size: 10px;
@@ -74,12 +97,12 @@
 
 .fs-rp-body {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   padding: 8px 12px;
   gap: 12px;
 }
 
-/* Dynamic fields grid */
+/* Single-row: dynamic fields grid */
 .fs-rp-fields {
   flex: 1;
   display: grid;
@@ -111,6 +134,94 @@
 .fs-rp-field input:focus {
   outline: none;
   border-color: #1D9E75;
+  box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
+}
+
+/* Multi-row: scrollable table */
+.fs-rp-multi-wrap {
+  flex: 1;
+  overflow: auto;
+  max-height: 40vh;
+  min-width: 0;
+}
+
+.fs-rp-multi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.fs-rp-multi-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fs-rp-multi-table th {
+  background: #1D9E75;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 6px;
+  text-align: left;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.fs-rp-multi-table td {
+  padding: 2px 3px;
+  border-bottom: 1px solid #eee;
+}
+
+.fs-rp-multi-table tbody tr:hover {
+  background: #f0faf6;
+}
+
+.fs-rp-multi-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.fs-rp-multi-table tbody tr:nth-child(even):hover {
+  background: #f0faf6;
+}
+
+.fs-rp-row-num {
+  width: 28px;
+  text-align: center;
+  color: #999;
+  font-size: 11px;
+}
+
+.fs-rp-row-check {
+  width: 24px;
+  text-align: center;
+}
+
+.fs-rp-row-check input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.fs-rp-cell-input {
+  width: 100%;
+  min-width: 80px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 12px;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.fs-rp-cell-input:hover {
+  border-color: #ddd;
+  background: #fff;
+}
+
+.fs-rp-cell-input:focus {
+  outline: none;
+  border-color: #1D9E75;
+  background: #fff;
   box-shadow: 0 0 0 2px rgba(29,158,117,0.12);
 }
 

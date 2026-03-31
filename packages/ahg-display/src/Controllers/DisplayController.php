@@ -1,6 +1,28 @@
 <?php
 
-namespace AhgDisplay\Controllers;
+/**
+ * DisplayController - Controller for Heratio
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ * Email: johan@plansailingisystems
+ *
+ * This file is part of Heratio.
+ *
+ * Heratio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Heratio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -900,12 +922,23 @@ class DisplayController extends Controller
         }
 
         if ($this->creatorFilter) {
-            $query->whereExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('event')
-                    ->whereRaw('event.object_id = io.id')
-                    ->where('event.actor_id', $this->creatorFilter);
-            });
+            // For DAM type, use dam_iptc_metadata.creator field (stores actor name as string)
+            // For other types, use event.actor_id (stores actor ID)
+            if ($this->typeFilter === 'dam') {
+                $query->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('dam_iptc_metadata')
+                        ->whereColumn('dam_iptc_metadata.object_id', 'io.id')
+                        ->where('dam_iptc_metadata.creator', $this->creatorFilter);
+                });
+            } else {
+                $query->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('event')
+                        ->whereRaw('event.object_id = io.id')
+                        ->where('event.actor_id', $this->creatorFilter);
+                });
+            }
         }
 
         if ($this->subjectFilter) {

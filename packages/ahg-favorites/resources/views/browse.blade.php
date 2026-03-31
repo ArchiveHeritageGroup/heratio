@@ -556,6 +556,9 @@
                         else { toggleBtn.classList.remove('text-warning'); }
                     }
                     input.classList.add('is-valid');
+                    // Close the notes row after successful save
+                    var row = document.getElementById('notes-row-' + favId);
+                    if (row) { row.style.display = 'none'; }
                     setTimeout(function() { input.classList.remove('is-valid'); }, 1500);
                 }
             });

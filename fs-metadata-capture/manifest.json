@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FS Metadata Capture",
-  "version": "2.0.0",
-  "description": "Scrape FamilySearch metadata, download full document images, export CSV.",
+  "version": "3.0.0",
+  "description": "Scrape FamilySearch metadata (single + multi-row), download full document images, export CSV.",
   "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html"

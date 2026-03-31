@@ -1,0 +1,22 @@
+{
+    "name": "ahg/jobs",
+    "description": "AHG Jobs - Background job management for Heratio",
+    "type": "project",
+    "license": "AGPL-3.0-or-later",
+    "copyright": "Copyright (C) 2026 Johan Pieterse - Plain Sailing Information Systems",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ahg\\Jobs\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ahg\\Jobs\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

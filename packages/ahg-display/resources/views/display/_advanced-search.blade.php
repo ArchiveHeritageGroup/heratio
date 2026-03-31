@@ -33,11 +33,11 @@
 <div class="accordion mb-3" id="glamAdvancedSearchAccordion">
   <div class="accordion-item">
     <h2 class="accordion-header">
-      <button class="accordion-button{{ $showAdvanced ? '' : ' collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#glamAdvancedSearchPanel">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#glamAdvancedSearchPanel">
         <i class="fas fa-sliders-h me-2"></i>Advanced search options
       </button>
     </h2>
-    <div id="glamAdvancedSearchPanel" class="accordion-collapse collapse{{ $showAdvanced ? ' show' : '' }}">
+    <div id="glamAdvancedSearchPanel" class="accordion-collapse collapse">
       <div class="accordion-body">
         <form method="get" action="{{ url('/glam/browse') }}" id="glam-advanced-search-form">
 

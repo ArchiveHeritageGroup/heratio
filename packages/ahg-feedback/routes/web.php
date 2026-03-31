@@ -11,8 +11,9 @@ Route::get('/feedback/submit-success', [FeedbackController::class, 'submitSucces
 // IO-specific feedback (legacy URL)
 Route::post('/informationobject/{slug}/feedback', [FeedbackController::class, 'general'])->name('feedback.io-submit');
 
-// Legacy browse redirect
+// Legacy browse redirects
 Route::get('/feedback', fn () => redirect('/admin/feedback', 301));
+Route::get('/feedback/browse', fn () => redirect('/admin/feedback', 301));
 
 Route::middleware('admin')->group(function () {
     Route::get('/feedback/index', [FeedbackController::class, 'browse']);

@@ -1,4 +1,4 @@
-/* FS Metadata Capture — background service worker */
+/* FS Metadata Capture — background service worker v3 */
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
@@ -7,10 +7,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) { sendResponse({ ok: false }); return; }
       const tabId = tabs[0].id;
-      // Try sending to existing content script first
       chrome.tabs.sendMessage(tabId, { action: 'showPanel' }, (resp) => {
         if (chrome.runtime.lastError) {
-          // Content script not loaded yet — inject it, then send message
           chrome.scripting.executeScript({
             target: { tabId },
             files: ['content.js'],
@@ -30,16 +28,29 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
       });
     });
-    return true; // async response
+    return true;
   }
 
-  // Save a row to session storage
+  // Save a single row
   if (msg.action === 'saveRow') {
     chrome.storage.session.get({ rows: [] }, (data) => {
       const rows = data.rows || [];
       rows.push(msg.row);
       chrome.storage.session.set({ rows }, () => {
         sendResponse({ ok: true, count: rows.length });
+      });
+    });
+    return true;
+  }
+
+  // Save multiple rows at once (atomic — avoids race conditions)
+  if (msg.action === 'saveRows') {
+    chrome.storage.session.get({ rows: [] }, (data) => {
+      const rows = data.rows || [];
+      const newRows = msg.rows || [];
+      newRows.forEach(r => rows.push(r));
+      chrome.storage.session.set({ rows }, () => {
+        sendResponse({ ok: true, count: rows.length, added: newRows.length });
       });
     });
     return true;
