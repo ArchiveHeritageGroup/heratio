@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitStaticPage extends Model
+class StaticPage extends Model
 {
     use HasI18n;
 

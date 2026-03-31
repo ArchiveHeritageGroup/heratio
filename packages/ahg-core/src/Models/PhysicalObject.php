@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitPhysicalObject extends Model
+class PhysicalObject extends Model
 {
     use HasI18n;
 
@@ -22,13 +22,13 @@ class QubitPhysicalObject extends Model
 
     public function type()
     {
-        return $this->belongsTo(QubitTerm::class, 'type_id');
+        return $this->belongsTo(Term::class, 'type_id');
     }
 
     public function informationObjects()
     {
         return $this->belongsToMany(
-            QubitInformationObject::class,
+            InformationObject::class,
             'relation',
             'object_id',
             'subject_id'

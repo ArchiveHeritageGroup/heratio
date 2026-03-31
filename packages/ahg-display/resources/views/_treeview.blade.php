@@ -1,7 +1,7 @@
 {{-- Treeview component --}}
 @php
 $treeviewType = $treeviewType ?? 'sidebar';
-$rootId = 1; // QubitInformationObject::ROOT_ID
+$rootId = 1; // InformationObject::ROOT_ID
 @endphp
 <ul class="nav nav-tabs border-0" id="treeview-menu" role="tablist">
 

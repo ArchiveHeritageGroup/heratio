@@ -65,20 +65,20 @@
               @endif
             </td>
             <td data-field-id="@php echo $form->type->renderId(); @endphp">
-              @if(QubitTerm::ROOT_ID == $item->type->parentId)
+              @if(AhgCoreModelsTerm::ROOT_ID == $item->type->parentId)
                 {{ $item->type }}
               @else
                 {{ $item->type->parent->authorized_form_of_name ?? $item->type->parent->title ?? '' }}
               @endif
             </td>
             <td data-field-id="@php echo $form->subType->renderId(); @endphp">
-              @if(QubitTerm::ROOT_ID != $item->type->parentId)
+              @if(AhgCoreModelsTerm::ROOT_ID != $item->type->parentId)
                 @if($resource->id != $item->objectId)
                   {{ ($item->type->authorized_form_of_name ?? $item->type->title ?? '') . ' ' . ($resource->authorized_form_of_name ?? $resource->title ?? '') }}
                 @elseif(
-                    0 < count($converseTerms = QubitRelation::getBySubjectOrObjectId(
+                    0 < count($converseTerms = AhgCoreModelsRelation::getBySubjectOrObjectId(
                         $item->type->id,
-                        ['typeId' => QubitTerm::CONVERSE_TERM_ID]
+                        ['typeId' => AhgCoreModelsTerm::CONVERSE_TERM_ID]
                     ))
                 )
                   @php $opposed = $converseTerms[0]->getOpposedObject($item->type); @endphp
@@ -161,7 +161,7 @@
 
           @php $extraInputs = '<input class="list" type="hidden" value="'
                   .route('term.autocomplete', [
-                      'taxonomy' => \AhgCore\Constants\QubitTaxonomy::ACTOR_RELATION_TYPE_ID,
+                      'taxonomy' => \AhgCore\Models\Taxonomy::ACTOR_RELATION_TYPE_ID,
                       'addWords' => isset($resource->id)
                           ? ($resource->authorized_form_of_name ?? $resource->title ?? '')
                           : '',

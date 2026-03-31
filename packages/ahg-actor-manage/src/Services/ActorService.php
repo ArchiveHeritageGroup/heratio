@@ -781,7 +781,7 @@ class ActorService
                 'description_identifier' => $data['description_identifier'] ?? null,
                 'source_standard' => $data['source_standard'] ?? null,
                 'corporate_body_identifiers' => $data['corporate_body_identifiers'] ?? null,
-                'parent_id' => 3, // QubitActor::ROOT_ID
+                'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
             ]);
 

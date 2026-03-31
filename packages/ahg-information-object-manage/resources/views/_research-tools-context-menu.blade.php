@@ -2,7 +2,7 @@
  * Research Tools Context Menu - shown on information object view for approved researchers.
  * Provides links to Source Assessment, Annotation Studio, and Add to Collection.
  *
- * @param QubitInformationObject $resource  The information object
+ * @param InformationObject $resource  The information object
  */
 $showResearch = false;
 $researcherId = null;

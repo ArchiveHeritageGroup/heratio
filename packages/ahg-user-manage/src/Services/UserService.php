@@ -240,7 +240,7 @@ class UserService
             // Actor row (user extends actor via class table inheritance)
             DB::table('actor')->insert([
                 'id' => $id,
-                'parent_id' => 3, // QubitActor::ROOT_ID
+                'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
             ]);
 

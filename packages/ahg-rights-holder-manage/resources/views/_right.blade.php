@@ -57,7 +57,7 @@
         <div>{{ $resource->getRightsNote(['cultureFallback' => true]) }}</div>
       </div>
 
-      @if(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_COPYRIGHT_ID == $resource->basisId)
+      @if(\AhgCore\Models\Term::RIGHT_BASIS_COPYRIGHT_ID == $resource->basisId)
 
         <div class="field">
           <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Copyright status') }}</h3>
@@ -79,7 +79,7 @@
           <div>{{ $resource->getCopyrightNote(['cultureFallback' => true]) }}</div>
         </div>
 
-      @elseif(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_LICENSE_ID == $resource->basisId)
+      @elseif(\AhgCore\Models\Term::RIGHT_BASIS_LICENSE_ID == $resource->basisId)
 
         <div class="field">
           <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('License identifier') }}</h3>
@@ -96,7 +96,7 @@
           <div>{{ $resource->getLicenseNote(['cultureFallback' => true]) }}</div>
         </div>
 
-      @elseif(\AhgCore\Constants\QubitTerm::RIGHT_BASIS_STATUTE_ID == $resource->basisId)
+      @elseif(\AhgCore\Models\Term::RIGHT_BASIS_STATUTE_ID == $resource->basisId)
 
         <div class="field">
           <h3 class="fs-6 fw-semibold text-body-secondary">{{ __('Statute jurisdiction') }}</h3>

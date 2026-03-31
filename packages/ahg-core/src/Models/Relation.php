@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitRelation extends Model
+class Relation extends Model
 {
     use HasI18n;
 
@@ -30,16 +30,16 @@ class QubitRelation extends Model
 
     public function subject()
     {
-        return $this->belongsTo(QubitObject::class, 'subject_id');
+        return $this->belongsTo(BaseObject::class, 'subject_id');
     }
 
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'object_id');
+        return $this->belongsTo(BaseObject::class, 'object_id');
     }
 
     public function type()
     {
-        return $this->belongsTo(QubitTerm::class, 'type_id');
+        return $this->belongsTo(Term::class, 'type_id');
     }
 }

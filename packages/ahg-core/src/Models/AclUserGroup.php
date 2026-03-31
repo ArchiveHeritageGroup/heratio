@@ -13,7 +13,7 @@ class AclUserGroup extends Model
 
     public function user()
     {
-        return $this->belongsTo(QubitUser::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function group()

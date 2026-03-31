@@ -27,7 +27,7 @@
 
 namespace AhgMediaStreaming\Services;
 
-use AhgCore\Models\QubitDigitalObject;
+use AhgCore\Models\DigitalObject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -151,7 +151,7 @@ class StreamingService
      */
     public function streamWithTranscode(int $digitalObjectId): Response
     {
-        $digitalObject = QubitDigitalObject::find($digitalObjectId);
+        $digitalObject = DigitalObject::find($digitalObjectId);
 
         if (! $digitalObject) {
             abort(404, 'Digital object not found.');

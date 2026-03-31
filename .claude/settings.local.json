@@ -229,7 +229,8 @@
       "Bash(rsync:*)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-plugins --no-scripts 2>&1)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-plugins --no-scripts)",
-      "Bash(zcat /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-29_01-00.sql.gz)"
+      "Bash(zcat /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-29_01-00.sql.gz)",
+      "Bash(python3 -c \":*)"
     ]
   }
 }

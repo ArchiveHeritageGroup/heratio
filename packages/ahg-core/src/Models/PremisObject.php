@@ -22,6 +22,6 @@ class PremisObject extends Model
 
     public function informationObject()
     {
-        return $this->belongsTo(QubitInformationObject::class, 'information_object_id');
+        return $this->belongsTo(InformationObject::class, 'information_object_id');
     }
 }

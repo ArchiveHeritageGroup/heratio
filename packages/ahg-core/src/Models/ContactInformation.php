@@ -34,6 +34,6 @@ class ContactInformation extends Model
 
     public function actor()
     {
-        return $this->belongsTo(QubitActor::class, 'actor_id');
+        return $this->belongsTo(Actor::class, 'actor_id');
     }
 }

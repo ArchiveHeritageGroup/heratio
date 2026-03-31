@@ -6,7 +6,7 @@ use AhgCore\Traits\HasI18n;
 use AhgCore\Traits\HasNestedSet;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitTerm extends Model
+class Term extends Model
 {
     use HasI18n, HasNestedSet;
 
@@ -25,7 +25,7 @@ class QubitTerm extends Model
 
     public function taxonomy()
     {
-        return $this->belongsTo(QubitTaxonomy::class, 'taxonomy_id');
+        return $this->belongsTo(Taxonomy::class, 'taxonomy_id');
     }
 
     public function parent()

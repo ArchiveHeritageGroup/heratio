@@ -19,11 +19,11 @@ class ObjectTermRelation extends Model
 
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'object_id');
+        return $this->belongsTo(BaseObject::class, 'object_id');
     }
 
     public function term()
     {
-        return $this->belongsTo(QubitTerm::class, 'term_id');
+        return $this->belongsTo(Term::class, 'term_id');
     }
 }

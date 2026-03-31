@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitEvent extends Model
+class Event extends Model
 {
     use HasI18n;
 
@@ -30,17 +30,17 @@ class QubitEvent extends Model
 
     public function type()
     {
-        return $this->belongsTo(QubitTerm::class, 'type_id');
+        return $this->belongsTo(Term::class, 'type_id');
     }
 
     public function informationObject()
     {
-        return $this->belongsTo(QubitInformationObject::class, 'object_id');
+        return $this->belongsTo(InformationObject::class, 'object_id');
     }
 
     public function actor()
     {
-        return $this->belongsTo(QubitActor::class, 'actor_id');
+        return $this->belongsTo(Actor::class, 'actor_id');
     }
 
     const CREATION_ID = 111;

@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class QubitJob extends Model
+class Job extends Model
 {
     protected $table = 'job';
     public $incrementing = false;
@@ -21,11 +21,11 @@ class QubitJob extends Model
 
     public function user()
     {
-        return $this->belongsTo(QubitUser::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function status()
     {
-        return $this->belongsTo(QubitTerm::class, 'status_id');
+        return $this->belongsTo(Term::class, 'status_id');
     }
 }

@@ -166,7 +166,8 @@
       </div>
       <div class="card-body p-2">
         <table class="table table-sm table-borderless mb-0" style="font-size:12px">
-          <tr><td class="text-muted" style="width:40%">Record Type</td><td id="ba-donut-type">—</td></tr>
+          <tr><td class="text-muted" style="width:40%">Form Type</td><td id="ba-donut-form-type" style="font-family:monospace">—</td></tr>
+          <tr><td class="text-muted">Record Type</td><td id="ba-donut-type">—</td></tr>
           <tr><td class="text-muted">Type ID</td><td id="ba-donut-type-id" style="font-family:monospace">—</td></tr>
           <tr><td class="text-muted">Event Year</td><td id="ba-donut-year">—</td></tr>
           <tr><td class="text-muted">Event Place</td><td id="ba-donut-place">—</td></tr>
@@ -1859,6 +1860,7 @@
       const card = document.getElementById('ba-donut-card');
       card.style.display = '';
       document.getElementById('ba-donut-conf').textContent = conf;
+      document.getElementById('ba-donut-form-type').textContent = data.FORM_TYPE || '—';
       document.getElementById('ba-donut-type').textContent = data.FS_RECORD_TYPE || '—';
       document.getElementById('ba-donut-type-id').textContent = data.FS_RECORD_TYPE_ID || '—';
       document.getElementById('ba-donut-year').textContent = data.EVENT_YEAR_ORIG || '—';
@@ -1869,6 +1871,23 @@
       document.getElementById('ba-donut-positions').textContent = positioned > 0
         ? positioned + ' fields placed'
         : 'Using saved positions';
+
+      // Auto-select form type from Donut classification
+      const donutFormType = data.FORM_TYPE || '';
+      if (donutFormType && FORM_TEMPLATES[donutFormType]) {
+        const formSelect = document.getElementById('ba-form-type');
+        if (formSelect && formSelect.value === 'auto') {
+          formSelect.value = donutFormType;
+          currentFormType = donutFormType;
+          console.log('[Donut] Auto-selected form type:', donutFormType);
+          // Apply the template positions if we don't have saved positions
+          if (!Object.keys(savedPositions).length) {
+            applyFormTemplate(donutFormType);
+            buildFieldList();
+            redraw();
+          }
+        }
+      }
 
       const label = [];
       if (filled > 0) label.push(filled + ' values');

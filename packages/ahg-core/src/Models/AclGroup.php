@@ -26,7 +26,7 @@ class AclGroup extends Model
 
     public function users()
     {
-        return $this->belongsToMany(QubitUser::class, 'acl_user_group', 'group_id', 'user_id');
+        return $this->belongsToMany(User::class, 'acl_user_group', 'group_id', 'user_id');
     }
 
     public function permissions()

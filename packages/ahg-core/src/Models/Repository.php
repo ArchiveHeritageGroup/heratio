@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use AhgCore\Traits\HasI18n;
 
-class QubitRepository extends QubitActor
+class Repository extends Actor
 {
     protected $table = 'repository';
 
@@ -29,12 +29,12 @@ class QubitRepository extends QubitActor
 
     public function informationObjects()
     {
-        return $this->hasMany(QubitInformationObject::class, 'repository_id');
+        return $this->hasMany(InformationObject::class, 'repository_id');
     }
 
     public function descStatus()
     {
-        return $this->belongsTo(QubitTerm::class, 'desc_status_id');
+        return $this->belongsTo(Term::class, 'desc_status_id');
     }
 
     const ROOT_ID = 6;

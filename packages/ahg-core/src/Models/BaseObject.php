@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class QubitObject extends Model
+class BaseObject extends Model
 {
     protected $table = 'object';
 
@@ -40,7 +40,7 @@ class QubitObject extends Model
 
     public function terms()
     {
-        return $this->belongsToMany(QubitTerm::class, 'object_term_relation', 'object_id', 'term_id');
+        return $this->belongsToMany(Term::class, 'object_term_relation', 'object_id', 'term_id');
     }
 
     public function statuses()
@@ -55,22 +55,22 @@ class QubitObject extends Model
 
     public function digitalObjects()
     {
-        return $this->hasMany(QubitDigitalObject::class, 'object_id');
+        return $this->hasMany(DigitalObject::class, 'object_id');
     }
 
     public function relations()
     {
-        return $this->hasMany(QubitRelation::class, 'subject_id');
+        return $this->hasMany(Relation::class, 'subject_id');
     }
 
     public function inverseRelations()
     {
-        return $this->hasMany(QubitRelation::class, 'object_id');
+        return $this->hasMany(Relation::class, 'object_id');
     }
 
     public function events()
     {
-        return $this->hasMany(QubitEvent::class, 'object_id');
+        return $this->hasMany(Event::class, 'object_id');
     }
 
     /**

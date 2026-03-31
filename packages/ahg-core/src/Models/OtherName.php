@@ -21,11 +21,11 @@ class OtherName extends Model
 
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'object_id');
+        return $this->belongsTo(BaseObject::class, 'object_id');
     }
 
     public function type()
     {
-        return $this->belongsTo(QubitTerm::class, 'type_id');
+        return $this->belongsTo(Term::class, 'type_id');
     }
 }

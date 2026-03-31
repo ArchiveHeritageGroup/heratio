@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitRights extends Model
+class Rights extends Model
 {
     use HasI18n;
 
@@ -33,7 +33,7 @@ class QubitRights extends Model
 
     public function rightsHolder()
     {
-        return $this->belongsTo(QubitRightsHolder::class, 'rights_holder_id');
+        return $this->belongsTo(RightsHolder::class, 'rights_holder_id');
     }
 
     public function grantedRights()
@@ -43,6 +43,6 @@ class QubitRights extends Model
 
     public function basis()
     {
-        return $this->belongsTo(QubitTerm::class, 'basis_id');
+        return $this->belongsTo(Term::class, 'basis_id');
     }
 }

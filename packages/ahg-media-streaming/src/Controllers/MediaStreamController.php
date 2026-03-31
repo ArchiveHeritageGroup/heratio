@@ -27,7 +27,7 @@
 
 namespace AhgMediaStreaming\Controllers;
 
-use AhgCore\Models\QubitDigitalObject;
+use AhgCore\Models\DigitalObject;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
 use Illuminate\Http\JsonResponse;
@@ -60,7 +60,7 @@ class MediaStreamController extends Controller
      */
     public function thumbnail(int $id): Response
     {
-        $digitalObject = QubitDigitalObject::find($id);
+        $digitalObject = DigitalObject::find($id);
 
         if (! $digitalObject) {
             abort(404, 'Digital object not found.');
@@ -106,7 +106,7 @@ class MediaStreamController extends Controller
      */
     public function info(int $id): JsonResponse
     {
-        $digitalObject = QubitDigitalObject::find($id);
+        $digitalObject = DigitalObject::find($id);
 
         if (! $digitalObject) {
             return response()->json(['error' => 'Digital object not found.'], 404);

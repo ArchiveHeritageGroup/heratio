@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 
-class QubitUser extends QubitActor implements Authenticatable
+class User extends Actor implements Authenticatable
 {
     protected $table = 'user';
 
@@ -51,7 +51,7 @@ class QubitUser extends QubitActor implements Authenticatable
      */
     public function jobs()
     {
-        return $this->hasMany(QubitJob::class, 'user_id');
+        return $this->hasMany(Job::class, 'user_id');
     }
 
     // ========================================

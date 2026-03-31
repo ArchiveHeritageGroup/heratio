@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use AhgCore\Traits\HasI18n;
 
-class QubitActor extends QubitObject
+class Actor extends BaseObject
 {
     use HasI18n;
 
@@ -48,7 +48,7 @@ class QubitActor extends QubitObject
 
     public function entityType()
     {
-        return $this->belongsTo(QubitTerm::class, 'entity_type_id');
+        return $this->belongsTo(Term::class, 'entity_type_id');
     }
 
     /**
@@ -56,6 +56,6 @@ class QubitActor extends QubitObject
      */
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'id');
+        return $this->belongsTo(BaseObject::class, 'id');
     }
 }

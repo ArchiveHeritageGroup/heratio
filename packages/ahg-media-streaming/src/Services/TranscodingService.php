@@ -27,7 +27,7 @@
 
 namespace AhgMediaStreaming\Services;
 
-use AhgCore\Models\QubitDigitalObject;
+use AhgCore\Models\DigitalObject;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -398,7 +398,7 @@ class TranscodingService
      */
     public function getTranscodedPath(int $digitalObjectId): ?string
     {
-        $digitalObject = QubitDigitalObject::find($digitalObjectId);
+        $digitalObject = DigitalObject::find($digitalObjectId);
 
         if (! $digitalObject) {
             Log::warning('TranscodingService: Digital object not found.', ['id' => $digitalObjectId]);

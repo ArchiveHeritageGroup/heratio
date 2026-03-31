@@ -21,7 +21,7 @@ class Aip extends Model
 
     public function type()
     {
-        return $this->belongsTo(QubitTerm::class, 'type_id');
+        return $this->belongsTo(Term::class, 'type_id');
     }
 
     public function partOf()

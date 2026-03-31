@@ -19,7 +19,7 @@
 
   @include('ahg-term-taxonomy::_errors', ['errorSchema' => $errorSchema])
 
-  @if(\AhgCore\Constants\QubitTerm::ROOT_ID != $resource->parentId)
+  @if(\AhgCore\Models\Term::ROOT_ID != $resource->parentId)
     @include('ahg-core::_breadcrumb',
                  ['resource' => $resource, 'objects' => $resource->getAncestors()->push($resource)->sortBy('lft')])
   @endif

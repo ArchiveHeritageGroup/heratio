@@ -21,6 +21,6 @@ class Property extends Model
 
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'object_id');
+        return $this->belongsTo(BaseObject::class, 'object_id');
     }
 }

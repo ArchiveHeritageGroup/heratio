@@ -16,7 +16,7 @@ if (!isset($resource)) {
 
 // Get resource ID safely
 $resourceId = null;
-if ($resource instanceof QubitInformationObject) {
+if ($resource instanceof AhgCoreModelsInformationObject) {
     $resourceId = $resource->id;
 } elseif (is_object($resource) && isset($resource->id)) {
     $resourceId = $resource->id;
@@ -29,9 +29,9 @@ if (!$resourceId) {
 // Check if user can see detailed rights
 $canSeeDetails = auth()->check();
 
-// Safe ACL check - only if resource is a proper Qubit object
+// Safe ACL check - only if resource is a proper model object
 $canEdit = false;
-if ($resource instanceof QubitInformationObject) {
+if ($resource instanceof AhgCoreModelsInformationObject) {
     try {
         $canEdit = \AtomExtensions\Services\AclService::check($resource, 'update');
     } catch (Exception $e) {

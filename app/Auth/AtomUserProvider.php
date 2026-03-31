@@ -2,7 +2,7 @@
 
 namespace App\Auth;
 
-use AhgCore\Models\QubitUser;
+use AhgCore\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 
@@ -19,7 +19,7 @@ class AtomUserProvider implements UserProvider
 {
     public function retrieveById($identifier): ?Authenticatable
     {
-        return QubitUser::find($identifier);
+        return User::find($identifier);
     }
 
     public function retrieveByToken($identifier, $token): ?Authenticatable
@@ -42,10 +42,10 @@ class AtomUserProvider implements UserProvider
         }
 
         // Try email first, then username
-        $user = QubitUser::where('email', $emailOrUsername)->first();
+        $user = User::where('email', $emailOrUsername)->first();
 
         if (! $user) {
-            $user = QubitUser::where('username', $emailOrUsername)->first();
+            $user = User::where('username', $emailOrUsername)->first();
         }
 
         return $user;
@@ -53,7 +53,7 @@ class AtomUserProvider implements UserProvider
 
     public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
-        if (! $user instanceof QubitUser) {
+        if (! $user instanceof User) {
             return false;
         }
 

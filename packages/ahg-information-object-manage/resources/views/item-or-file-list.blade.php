@@ -23,8 +23,8 @@
     <div class="resource-hierarchy">
       <ul>
       @foreach($items[0]['resource']->getAncestors()->orderBy('lft') as $ancestor)
-        @if(QubitInformationObject::ROOT_ID != intval($ancestor->id))
-        <li>{{ QubitInformationObject::getStandardsBasedInstance($ancestor)->__toString() }}</li>
+        @if(AhgCoreModelsInformationObject::ROOT_ID != intval($ancestor->id))
+        <li>{{ AhgCoreModelsInformationObject::getStandardsBasedInstance($ancestor)->__toString() }}</li>
         @endif
       @endforeach
       </ul>

@@ -2,7 +2,7 @@
 
 namespace AhgCore\Models;
 
-class QubitDonor extends QubitActor
+class Donor extends Actor
 {
     protected $table = 'donor';
 

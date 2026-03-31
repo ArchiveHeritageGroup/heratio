@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class QubitDigitalObject extends Model
+class DigitalObject extends Model
 {
     protected $table = 'digital_object';
 
@@ -19,17 +19,17 @@ class QubitDigitalObject extends Model
 
     public function informationObject()
     {
-        return $this->belongsTo(QubitInformationObject::class, 'object_id');
+        return $this->belongsTo(InformationObject::class, 'object_id');
     }
 
     public function usage()
     {
-        return $this->belongsTo(QubitTerm::class, 'usage_id');
+        return $this->belongsTo(Term::class, 'usage_id');
     }
 
     public function mediaType()
     {
-        return $this->belongsTo(QubitTerm::class, 'media_type_id');
+        return $this->belongsTo(Term::class, 'media_type_id');
     }
 
     public function parentDigitalObject()

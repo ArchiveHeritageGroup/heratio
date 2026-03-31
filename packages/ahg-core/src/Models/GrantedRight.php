@@ -21,12 +21,12 @@ class GrantedRight extends Model
 
     public function rights()
     {
-        return $this->belongsTo(QubitRights::class, 'rights_id');
+        return $this->belongsTo(Rights::class, 'rights_id');
     }
 
     public function act()
     {
-        return $this->belongsTo(QubitTerm::class, 'act_id');
+        return $this->belongsTo(Term::class, 'act_id');
     }
 
     /**

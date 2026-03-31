@@ -461,7 +461,7 @@ class RepositoryService
             DB::table('actor')->insert([
                 'id' => $id,
                 'entity_type_id' => 131, // Corporate body (repositories are always corporate bodies)
-                'parent_id' => 3, // QubitActor::ROOT_ID
+                'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
             ]);
 

@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use Illuminate\Database\Eloquent\Model;
 
-class QubitTaxonomy extends Model
+class Taxonomy extends Model
 {
     use HasI18n;
 
@@ -24,7 +24,7 @@ class QubitTaxonomy extends Model
 
     public function terms()
     {
-        return $this->hasMany(QubitTerm::class, 'taxonomy_id');
+        return $this->hasMany(Term::class, 'taxonomy_id');
     }
 
     public function parent()

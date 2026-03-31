@@ -5,7 +5,7 @@ namespace AhgCore\Models;
 use AhgCore\Traits\HasI18n;
 use AhgCore\Traits\HasNestedSet;
 
-class QubitInformationObject extends QubitObject
+class InformationObject extends BaseObject
 {
     use HasI18n;
     use HasNestedSet;
@@ -50,27 +50,27 @@ class QubitInformationObject extends QubitObject
 
     public function repository()
     {
-        return $this->belongsTo(QubitRepository::class, 'repository_id');
+        return $this->belongsTo(Repository::class, 'repository_id');
     }
 
     public function levelOfDescription()
     {
-        return $this->belongsTo(QubitTerm::class, 'level_of_description_id');
+        return $this->belongsTo(Term::class, 'level_of_description_id');
     }
 
     public function collectionType()
     {
-        return $this->belongsTo(QubitTerm::class, 'collection_type_id');
+        return $this->belongsTo(Term::class, 'collection_type_id');
     }
 
     public function descriptionStatus()
     {
-        return $this->belongsTo(QubitTerm::class, 'description_status_id');
+        return $this->belongsTo(Term::class, 'description_status_id');
     }
 
     public function displayStandard()
     {
-        return $this->belongsTo(QubitTerm::class, 'display_standard_id');
+        return $this->belongsTo(Term::class, 'display_standard_id');
     }
 
     /**

@@ -23,7 +23,7 @@ class AhgSetting extends Model
 
     public function updatedBy()
     {
-        return $this->belongsTo(QubitUser::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**

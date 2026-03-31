@@ -15,7 +15,7 @@ class AclPermission extends Model
 
     public function user()
     {
-        return $this->belongsTo(QubitUser::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function group()
@@ -25,7 +25,7 @@ class AclPermission extends Model
 
     public function object()
     {
-        return $this->belongsTo(QubitObject::class, 'object_id');
+        return $this->belongsTo(BaseObject::class, 'object_id');
     }
 
     const GRANT = 1;

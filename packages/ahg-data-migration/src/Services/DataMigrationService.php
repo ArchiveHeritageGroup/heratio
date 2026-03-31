@@ -821,7 +821,7 @@ class DataMigrationService
     }
 
     /**
-     * Import a single repository record (repositories are actors with class_name QubitRepository).
+     * Import a single repository record (repositories are actors with class_name for repository).
      */
     private function importRepository(array $mapped, string $importType, string $culture, array &$legacyIdMap): int
     {

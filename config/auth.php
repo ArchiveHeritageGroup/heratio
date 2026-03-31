@@ -62,7 +62,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'atom',
-            'model' => AhgCore\Models\QubitUser::class,
+            'model' => AhgCore\Models\User::class,
         ],
     ],
 

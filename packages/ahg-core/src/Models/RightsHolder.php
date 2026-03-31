@@ -2,7 +2,7 @@
 
 namespace AhgCore\Models;
 
-class QubitRightsHolder extends QubitActor
+class RightsHolder extends Actor
 {
     protected $table = 'rights_holder';
 

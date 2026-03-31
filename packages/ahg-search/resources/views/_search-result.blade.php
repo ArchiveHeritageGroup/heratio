@@ -77,7 +77,7 @@
 
           @if(
               isset($doc['publicationStatusId'])
-              && $doc['publicationStatusId'] == \AhgCore\Constants\QubitTerm::PUBLICATION_STATUS_DRAFT_ID
+              && $doc['publicationStatusId'] == \AhgCore\Models\Term::PUBLICATION_STATUS_DRAFT_ID
           )
             @if($showDash)
               <span class="text-muted mx-2"> &middot; </span>

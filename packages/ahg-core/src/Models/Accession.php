@@ -4,7 +4,7 @@ namespace AhgCore\Models;
 
 use AhgCore\Traits\HasI18n;
 
-class QubitAccession extends QubitObject
+class Accession extends BaseObject
 {
     use HasI18n;
 
@@ -31,16 +31,16 @@ class QubitAccession extends QubitObject
 
     public function acquisitionType()
     {
-        return $this->belongsTo(QubitTerm::class, 'acquisition_type_id');
+        return $this->belongsTo(Term::class, 'acquisition_type_id');
     }
 
     public function processingPriority()
     {
-        return $this->belongsTo(QubitTerm::class, 'processing_priority_id');
+        return $this->belongsTo(Term::class, 'processing_priority_id');
     }
 
     public function processingStatus()
     {
-        return $this->belongsTo(QubitTerm::class, 'processing_status_id');
+        return $this->belongsTo(Term::class, 'processing_status_id');
     }
 }

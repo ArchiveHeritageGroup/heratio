@@ -1,5 +1,5 @@
 <ul class="actions mb-3 nav gap-2">
-  @if(QubitInformationObject::ROOT_ID != $resource->id)
+  @if(AhgCoreModelsInformationObject::ROOT_ID != $resource->id)
     <li><a href="{{ route('informationobject.show', ['slug' => $resource->slug]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
     @if(request()->input('parent'))
       <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
