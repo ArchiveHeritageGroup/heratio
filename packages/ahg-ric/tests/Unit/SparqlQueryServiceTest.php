@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ShaclValidationServiceTest - Unit tests for SHACL validation
+ * SparqlQueryServiceTest - Unit tests for SPARQL query service
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -26,48 +26,40 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
-use AhgRic\Services\ShaclValidationService;
+use AhgRic\Services\SparqlQueryService;
 
-class ShaclValidationServiceTest extends TestCase
+class SparqlQueryServiceTest extends TestCase
 {
-    private ShaclValidationService $service;
+    private SparqlQueryService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ShaclValidationService();
+        $this->service = new SparqlQueryService();
     }
 
     public function test_can_instantiate(): void
     {
-        $this->assertInstanceOf(ShaclValidationService::class, $this->service);
+        $this->assertInstanceOf(SparqlQueryService::class, $this->service);
     }
 
-    public function test_validate_returns_array(): void
+    public function test_search_returns_array(): void
     {
-        $entity = [
-            '@id' => 'http://example.org/test',
-            '@type' => 'rico:Record',
-            'rico:identifier' => 'TEST-001',
-        ];
-
-        $result = $this->service->validateBeforeSave($entity, 'Record');
+        $result = $this->service->search('test');
         
         $this->assertIsArray($result);
-        $this->assertArrayHasKey('valid', $result);
-        $this->assertArrayHasKey('errors', $result);
-        $this->assertArrayHasKey('warnings', $result);
     }
 
-    public function test_mandatory_fields_check(): void
+    public function test_get_statistics_returns_array(): void
     {
-        $entity = [
-            '@id' => 'http://example.org/test',
-            '@type' => 'rico:Person',
-        ];
-
-        $result = $this->service->validateBeforeSave($entity, 'Person');
+        $result = $this->service->getStatistics();
         
         $this->assertIsArray($result);
+    }
+
+    public function test_clear_cache_no_error(): void
+    {
+        $this->service->clearCache();
+        $this->assertTrue(true);
     }
 }
