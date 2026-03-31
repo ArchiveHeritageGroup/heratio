@@ -36,6 +36,7 @@ WITH Heratio installed (nginx includes heratio.conf):
 
 WITHOUT Heratio (standard AtoM):
   ALL routes        ──→ index.php  ──→ Symfony ──→ Full HTML page (unchanged)
+![wireframe](./images/wireframes/wireframe_56587971.png)
 ```
 
 ---

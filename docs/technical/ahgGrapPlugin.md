@@ -125,6 +125,7 @@ GRAP 103 (Generally Recognised Accounting Practice) heritage asset accounting mo
 │    condition_after VARCHAR              │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4acb08c7.png)
 ```
 
 ---
@@ -305,6 +306,7 @@ php symfony heritage:install --all-regions
 │  └── Display next steps                                      │
 │                                                               │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_436c9718.png)
 ```
 
 ---

@@ -33,6 +33,7 @@ The plugin implements an Entity-Attribute-Value (EAV) pattern for extensible met
 │  Database                                         │
 │  custom_field_definition + custom_field_value      │
 └──────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_58e9982e.png)
 ```
 
 ---

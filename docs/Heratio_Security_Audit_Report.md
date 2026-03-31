@@ -159,6 +159,7 @@ Request → SecurityHeadersMiddleware → AuthMiddleware → CsrfService → App
                     │ 3. Donor Restrictions    │
                     │ 4. Embargo Status        │
                     └─────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e3a1c38c.png)
 ```
 
 ### Password Policy Chain

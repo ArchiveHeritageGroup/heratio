@@ -62,6 +62,7 @@
 │  └────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bff86c89.png)
 ```
 
 ---
@@ -146,6 +147,7 @@ class FuzzySearchService
 │  Performance: PHP levenshtein() is C-implemented → <5ms per word                │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7a263307.png)
 ```
 
 ### Levenshtein Thresholds
@@ -304,6 +306,7 @@ The "Search instead for" link appends `&noCorrect=1` to bypass correction.
 │  All layers unavailable      │  Behaves exactly like pre-fuzzy search      │
 │                              │  (LIKE %term%)                              │
 └──────────────────────────────┴──────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_149b9a9a.png)
 ```
 
 Every layer is wrapped in try/catch. A failure in any layer never breaks the browse page.

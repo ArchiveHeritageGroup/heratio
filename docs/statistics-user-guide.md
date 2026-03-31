@@ -26,6 +26,7 @@ Track page views, downloads, and visitor analytics with geographic data, bot fil
 │              └─────────────────────┘                                │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aad6d68d.png)
 ```
 
 ---
@@ -65,6 +66,7 @@ Track page views, downloads, and visitor analytics with geographic data, bot fil
 │     • Fast dashboard performance                                    │
 │     • Configurable retention                                        │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9803b247.png)
 ```
 
 ---
@@ -137,6 +139,7 @@ Track page views, downloads, and visitor analytics with geographic data, bot fil
 │   └────────────────────────┴───────┘   └──────────────┴───────┘    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_81b942e6.png)
 ```
 
 ---
@@ -184,6 +187,7 @@ Go to **Statistics** → **Views**
 │   [Export CSV]                                                      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cdddbffd.png)
 ```
 
 ---
@@ -216,6 +220,7 @@ Go to **Statistics** → **Downloads**
 │   [Export CSV]                                                      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_58a39201.png)
 ```
 
 ---
@@ -252,6 +257,7 @@ Go to **Statistics** → **Top Items**
 │   Showing 1-10 of 50                            [Export CSV]        │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9854df9d.png)
 ```
 
 ---
@@ -298,6 +304,7 @@ Go to **Statistics** → **Geographic**
 │   [Export CSV]                                                      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f5e8ccc5.png)
 ```
 
 **Note:** Geographic data requires MaxMind GeoLite2 database. See Settings for setup.
@@ -334,6 +341,7 @@ Click on any repository name to view detailed statistics:
 │   └────┴──────────────────────────────────────────┴───────────────┘│
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c9dbe420.png)
 ```
 
 ---
@@ -390,6 +398,7 @@ Go to **Statistics** → **Settings**
 │   [Save Settings]                                                   │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_233da96d.png)
 ```
 
 ---
@@ -429,6 +438,7 @@ Go to **Statistics** → **Settings** → **Manage Bot List**
 │   └─────────────────────────────────────────────────────────────┘  │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_827dac0e.png)
 ```
 
 ---
@@ -458,6 +468,7 @@ All reports support CSV export for external analysis:
 │   [Download CSV]                                                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7b294766.png)
 ```
 
 ---
@@ -598,6 +609,7 @@ php symfony statistics:report --type=summary --format=json
 │   └─────────────────────────────────────────────────────────────┘  │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_466bb175.png)
 ```
 
 ### Data Retention
@@ -619,6 +631,7 @@ php symfony statistics:report --type=summary --format=json
 │   └── Long-term trend analysis                                      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8b3160de.png)
 ```
 
 ---
@@ -661,6 +674,7 @@ php symfony statistics:report --type=summary --format=json
 │     • More accurate human visitor counts                            │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e7bc4cee.png)
 ```
 
 ---

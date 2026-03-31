@@ -27,6 +27,7 @@ View high-resolution images, stream audio/video, browse 3D models, annotate cont
 │  Draw on images  of manifests     Token-based access        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_29ea6d32.png)
 ```
 
 ---
@@ -49,6 +50,7 @@ View high-resolution images, stream audio/video, browse 3D models, annotate cont
 │  Annotations     - Draw and comment on images               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40d6692e.png)
 ```
 
 ---
@@ -108,6 +110,7 @@ The system auto-selects the best viewer for your content. For images, you can sw
 │   zoom viewer    workspace   │  available in all viewers     │
 │                              │                               │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4b61dadf.png)
 ```
 
 Your viewer preference is saved in your browser for next time.
@@ -135,6 +138,7 @@ Your viewer preference is saved in your browser for next time.
 │  Best for: Fast browsing, examining details                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ad99a83b.png)
 ```
 
 ### Mirador (Rich IIIF Workspace)
@@ -157,6 +161,7 @@ Your viewer preference is saved in your browser for next time.
 │  Best for: Research, annotations, multi-window comparison   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_69726a4c.png)
 ```
 
 ### PDF.js (Document Viewer)
@@ -179,6 +184,7 @@ Your viewer preference is saved in your browser for next time.
 │  Best for: Reports, correspondence, scanned documents       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1eceeb01.png)
 ```
 
 ### 3D Model Viewer
@@ -203,6 +209,7 @@ Your viewer preference is saved in your browser for next time.
 │  Best for: Museum objects, archaeological finds, sculptures │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_16ec83a2.png)
 ```
 
 ### Audio/Video Player
@@ -226,6 +233,7 @@ Your viewer preference is saved in your browser for next time.
 │  Best for: Oral history, film archives, music recordings    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2f906e57.png)
 ```
 
 ---
@@ -245,6 +253,7 @@ Your viewer preference is saved in your browser for next time.
 │  [Home]            - Reset to full view                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e25dcf45.png)
 ```
 
 ### Panning
@@ -258,6 +267,7 @@ Your viewer preference is saved in your browser for next time.
   │           ↓                           │
   │                                       │
   └───────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_25ddb557.png)
 ```
 
 ### Multi-Page Documents
@@ -276,6 +286,7 @@ Your viewer preference is saved in your browser for next time.
 │  Multi-page TIFFs auto-detected (up to 100 pages).         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_29e55753.png)
 ```
 
 ---
@@ -303,6 +314,7 @@ The system plays any format by transcoding legacy files to browser-compatible fo
 │  Seeking (range requests) supported for native formats.     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_77f09c40.png)
 ```
 
 ### Transcription (Whisper)
@@ -328,6 +340,7 @@ Audio and video files can be transcribed to text:
 │  Languages: Auto-detected or manually specified             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1f49b301.png)
 ```
 
 ### Media Snippets
@@ -351,6 +364,7 @@ Create named clips from audio/video recordings:
 │  Playback auto-pauses at the end marker.                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e9722d9c.png)
 ```
 
 ### Metadata Extraction
@@ -372,6 +386,7 @@ Technical metadata is automatically extracted from media files:
 │  Tags:          Title, Artist, Album, Year, Copyright       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d4efa0d0.png)
 ```
 
 ---
@@ -396,6 +411,7 @@ The system can convert non-viewable formats for browser display:
 │  Conversions are cached — fast on repeat views.             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_22b963da.png)
 ```
 
 ---
@@ -427,6 +443,7 @@ With OpenSeadragon, you can annotate images using the Annotorious tool:
 │  other users viewing the same record.                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2d4a851a.png)
 ```
 
 ### Viewing Annotations
@@ -451,6 +468,7 @@ Existing annotations appear as colored overlays on the image:
 │  Click to edit or delete (if you created it).               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7ac648c6.png)
 ```
 
 ---
@@ -479,6 +497,7 @@ Collections are curated groups of IIIF manifests — your own records or externa
 │  [+ New Collection]                                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_add2f0dc.png)
 ```
 
 ### Creating a Collection (Admin)
@@ -513,6 +532,7 @@ Some images may require authentication to view at full resolution.
 │  Restricted      - Special permission needed                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6cf89f25.png)
 ```
 
 ### Clickthrough Access
@@ -533,6 +553,7 @@ Some content requires you to agree to terms before viewing:
 │                    [ I Agree ]                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3369addd.png)
 ```
 
 ### What You See Without Access
@@ -548,6 +569,7 @@ Without authentication:          After authentication:
 │  Login to view full  │        │  Full access granted  │
 │                      │        │                      │
 └──────────────────────┘        └──────────────────────┘
+![wireframe](./images/wireframes/wireframe_249481e1.png)
 ```
 
 ### Authentication Flow
@@ -584,6 +606,7 @@ Without authentication:          After authentication:
 │  R                │  Rotate 90 degrees                      │
 │  Escape           │  Exit fullscreen                        │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b40c0462.png)
 ```
 
 ---
@@ -604,6 +627,7 @@ Press **Escape** or click the button again to exit.
 │                                                             │
 │                                    [Press ESC to exit]      │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a3ff30f1.png)
 ```
 
 ---
@@ -621,6 +645,7 @@ Mirador allows side-by-side comparison in a multi-window workspace:
 └────────────────────────┴────────────────────────┘
 
   Both windows have independent zoom and pan.
+![wireframe](./images/wireframes/wireframe_6e924735.png)
 ```
 
 ### Dedicated Comparison Page
@@ -653,6 +678,7 @@ From the researcher workspace (ahgResearchPlugin), use the "Compare selected" bu
 │  Create collections for groups │  Bookmark individual items │
 │  Download originals when needed│  Save compressed copies    │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_dfa7d46c.png)
 ```
 
 ---

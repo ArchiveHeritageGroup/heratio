@@ -149,6 +149,7 @@ Researcher registration, reading room booking, workspace management, and citatio
 │    created_at TIMESTAMP                 │
 │    updated_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d1f5c3e7.png)
 ```
 
 ### Reading Room Operations Schema (v2.0)
@@ -310,6 +311,7 @@ Researcher registration, reading room booking, workspace management, and citatio
 │    recorded_by BIGINT                   │
 │    created_at                           │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_02f78da9.png)
 ```
 
 ### Default Queue Definitions

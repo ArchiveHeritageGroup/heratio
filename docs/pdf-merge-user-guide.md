@@ -291,6 +291,7 @@ Combine multiple images (TIFF, JPEG, PNG) into a single PDF document for archiva
 │ TIFF/JPG/PNG │    │ Drag & Drop  │    │ Background   │    │ Save or      │
 │ up to 100    │    │ to reorder   │    │ Processing   │    │ Attach       │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_c5e581b7.png)
 ```
 
 ---
@@ -305,6 +306,7 @@ Combine multiple images (TIFF, JPEG, PNG) into a single PDF document for archiva
 │  🖼️  TIFF preservation scans →  Access copy PDF             │
 │  📑 Loose papers            →  Combined file PDF            │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f8dbd48e.png)
 ```
 
 ---
@@ -346,6 +348,7 @@ Option A: From Menu                    Option B: From Record
 │     Maximum: 100 files, 500MB each                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a9ce0d14.png)
 ```
 
 ---
@@ -369,6 +372,7 @@ AFTER (correct order):
 └───┘ └───┘ └───┘ └───┘ └───┘
 
 Click [×] on any thumbnail to remove it
+![wireframe](./images/wireframes/wireframe_033facbe.png)
 ```
 
 ---
@@ -391,6 +395,7 @@ Click [×] on any thumbnail to remove it
 │                   (150/200/300/400/600)                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_411351c6.png)
 ```
 
 ---
@@ -415,6 +420,7 @@ Click [×] on any thumbnail to remove it
 │  Selected: ABC/002 - Annual General Meeting 1986           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e276b3cc.png)
 ```
 
 ---
@@ -446,6 +452,7 @@ Click [×] on any thumbnail to remove it
               │  📥 Download │           │  📎 Attached │
               │     PDF      │           │  to Record   │
               └──────────────┘           └──────────────┘
+![wireframe](./images/wireframes/wireframe_a41e0c6c.png)
 ```
 
 ---
@@ -462,6 +469,7 @@ Click [×] on any thumbnail to remove it
 └────────────────────────────────────────────────────────────┘
 
 View all jobs: Admin → Jobs
+![wireframe](./images/wireframes/wireframe_284da319.png)
 ```
 
 ---
@@ -477,6 +485,7 @@ View all jobs: Admin → Jobs
 │  Check page order before merge │  Rush - verify first!     │
 │  Use PDF/A-2b for archives     │  Use plain PDF for archive│
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_299e729c.png)
 ```
 
 ---
@@ -528,6 +537,7 @@ Combine multiple images (TIFF, JPEG, PNG) into a single PDF document for archiva
 │ TIFF/JPG/PNG │    │ Drag & Drop  │    │ Background   │    │ Save or      │
 │ up to 100    │    │ to reorder   │    │ Processing   │    │ Attach       │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_c5e581b7.png)
 ```
 
 ---
@@ -542,6 +552,7 @@ Combine multiple images (TIFF, JPEG, PNG) into a single PDF document for archiva
 │  🖼️  TIFF preservation scans →  Access copy PDF             │
 │  📑 Loose papers            →  Combined file PDF            │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f8dbd48e.png)
 ```
 
 ---
@@ -583,6 +594,7 @@ Option A: From Menu                    Option B: From Record
 │     Maximum: 100 files, 500MB each                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a9ce0d14.png)
 ```
 
 ---
@@ -606,6 +618,7 @@ AFTER (correct order):
 └───┘ └───┘ └───┘ └───┘ └───┘
 
 Click [×] on any thumbnail to remove it
+![wireframe](./images/wireframes/wireframe_033facbe.png)
 ```
 
 ---
@@ -628,6 +641,7 @@ Click [×] on any thumbnail to remove it
 │                   (150/200/300/400/600)                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_411351c6.png)
 ```
 
 ---
@@ -652,6 +666,7 @@ Click [×] on any thumbnail to remove it
 │  Selected: ABC/002 - Annual General Meeting 1986           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e276b3cc.png)
 ```
 
 ---
@@ -683,6 +698,7 @@ Click [×] on any thumbnail to remove it
               │  📥 Download │           │  📎 Attached │
               │     PDF      │           │  to Record   │
               └──────────────┘           └──────────────┘
+![wireframe](./images/wireframes/wireframe_a41e0c6c.png)
 ```
 
 ---
@@ -699,6 +715,7 @@ Click [×] on any thumbnail to remove it
 └────────────────────────────────────────────────────────────┘
 
 View all jobs: Admin → Jobs
+![wireframe](./images/wireframes/wireframe_284da319.png)
 ```
 
 ---
@@ -714,6 +731,7 @@ View all jobs: Admin → Jobs
 │  Check page order before merge │  Rush - verify first!     │
 │  Use PDF/A-2b for archives     │  Use plain PDF for archive│
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_299e729c.png)
 ```
 
 ---

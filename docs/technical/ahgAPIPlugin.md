@@ -76,6 +76,7 @@ Enhanced REST API v2 providing full CRUD operations, batch processing, search in
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4644c7ce.png)
 ```
 
 ---
@@ -155,6 +156,7 @@ Enhanced REST API v2 providing full CRUD operations, batch processing, search in
 │    delivered_at DATETIME    │
 │    created_at DATETIME      │
 └─────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b1e8a2f9.png)
 ```
 
 ### SQL Schema

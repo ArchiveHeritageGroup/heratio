@@ -17,6 +17,7 @@ The Favorites module allows you to save archival records for quick access later.
 │  Browse Records │ ──▶ │  Click Heart    │ ──▶ │  View Favorites │
 │                 │     │  Icon ❤️         │     │  /favorites     │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+![wireframe](./images/wireframes/wireframe_ed0f4d4e.png)
 ```
 
 ---
@@ -106,6 +107,7 @@ The Favorites module allows you to save archival records for quick access later.
     │  Saved to DB    │    │  Removed from   │    │  Browse/Remove  │
     │  Icon changes   │    │  Database       │    │  Items          │
     └─────────────────┘    └─────────────────┘    └─────────────────┘
+![wireframe](./images/wireframes/wireframe_e948c8ff.png)
 ```
 
 ---

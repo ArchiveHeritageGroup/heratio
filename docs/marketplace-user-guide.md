@@ -54,6 +54,7 @@ The marketplace supports all five GLAM/DAM sectors, each with sector-specific ca
 |   └──────────────┘          └──────────────┘                              |
 |                                                                           |
 +-------------------------------------------------------------------------+
+![wireframe](./images/wireframes/wireframe_d5e68720.png)
 ```
 
 ---
@@ -194,6 +195,7 @@ Each GLAM/DAM sector has its own set of item categories:
                         │ Counter  │   │ (withdraw│   │ (7 days   │
                         │          │   │  offer)  │   │  default) │
                         └──────────┘   └──────────┘   └───────────┘
+![wireframe](./images/wireframes/wireframe_b7714dc6.png)
 ```
 
 7. If the seller sends a **counter-offer**, you can:
@@ -446,6 +448,7 @@ Access your buyer account pages from **/marketplace/my/**:
       │    ┌─────────┐    ┌──────┐    ┌───────────┐                     │
       └─── │ EXPIRED │    │ SOLD │    │ WITHDRAWN │ <───────────────────┘
            └─────────┘    └──────┘    └───────────┘
+![wireframe](./images/wireframes/wireframe_5e4ae63b.png)
 ```
 
 > **Note:** If listing moderation is enabled by the administrator, your listing goes to "Pending Review" when you publish. If moderation is disabled, the listing goes directly to "Active".

@@ -157,6 +157,24 @@
         </div>
       </div>
     </div>
+
+    {{-- Donut ILM extraction results --}}
+    <div class="card mt-3" id="ba-donut-card" style="display:none">
+      <div class="card-header py-1" style="background:#2e7d32;color:#fff">
+        <span class="small"><i class="fas fa-file-invoice me-1"></i>Donut ILM</span>
+        <span class="badge bg-light text-dark float-end" id="ba-donut-conf"></span>
+      </div>
+      <div class="card-body p-2">
+        <table class="table table-sm table-borderless mb-0" style="font-size:12px">
+          <tr><td class="text-muted" style="width:40%">Record Type</td><td id="ba-donut-type">—</td></tr>
+          <tr><td class="text-muted">Type ID</td><td id="ba-donut-type-id" style="font-family:monospace">—</td></tr>
+          <tr><td class="text-muted">Event Year</td><td id="ba-donut-year">—</td></tr>
+          <tr><td class="text-muted">Event Place</td><td id="ba-donut-place">—</td></tr>
+          <tr><td class="text-muted">Non-genealogical</td><td id="ba-donut-nongeo">—</td></tr>
+          <tr><td class="text-muted">Positions</td><td id="ba-donut-positions">—</td></tr>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 @endsection
@@ -187,6 +205,7 @@
   let savedPositions = {};
   let currentFolder = '';
   let currentFormType = '';
+  let donutYear = ''; // Donut-extracted year for the current image
 
   // Fields to always skip
   // Only these 5 fields are used — everything else is skipped
@@ -202,6 +221,11 @@
   };
   function displayLabel(col) { return FIELD_LABELS[col] || col; }
   function shouldSkip(col) { return !ALLOWED_FIELDS.includes(col); }
+  // Check if a field was pre-filled from CSV — never overwrite these
+  function hasCsvValue(col) {
+    if (imgIdx < 0 || !images[imgIdx]) return false;
+    return !!(images[imgIdx]._csvFields && images[imgIdx]._csvFields[col]);
+  }
 
   // ── De-duplicate repeated text (TrOCR decoder loop bug) ──
   // "Femalefemalefemalefemale" → "Female"
@@ -230,6 +254,21 @@
       }
     }
     return s;
+  }
+
+  // ── Levenshtein distance (used by autoFixDate + spellcheckAge) ──
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m + 1}, (_, i) => Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++)
+      for (let j = 1; j <= n; j++)
+        dp[i][j] = Math.min(
+          dp[i-1][j] + 1, dp[i][j-1] + 1,
+          dp[i-1][j-1] + (a[i-1].toLowerCase() !== b[j-1].toLowerCase() ? 1 : 0)
+        );
+    return dp[m][n];
   }
 
   // ── Auto-fix date spelling ──
@@ -335,21 +374,6 @@
       'Agtiende','Negentiende','Twintigste','Dertigste',
     ];
     const allValidWords = [...validMonths, ...validOrdinals];
-
-    // Levenshtein distance
-    function levenshtein(a, b) {
-      const m = a.length, n = b.length;
-      const dp = Array.from({length: m + 1}, (_, i) => Array(n + 1).fill(0));
-      for (let i = 0; i <= m; i++) dp[i][0] = i;
-      for (let j = 0; j <= n; j++) dp[0][j] = j;
-      for (let i = 1; i <= m; i++)
-        for (let j = 1; j <= n; j++)
-          dp[i][j] = Math.min(
-            dp[i-1][j] + 1, dp[i][j-1] + 1,
-            dp[i-1][j-1] + (a[i-1].toLowerCase() !== b[j-1].toLowerCase() ? 1 : 0)
-          );
-      return dp[m][n];
-    }
 
     // Find closest valid word (max distance = 40% of word length)
     function fuzzyMatch(word) {
@@ -815,6 +839,13 @@
 
       // Step 2: data loaded
       images = data.images;
+      // Snapshot original CSV values — these are ground truth, never overwrite
+      images.forEach(img => {
+        img._csvFields = {};
+        for (const [k, v] of Object.entries(img.fields || {})) {
+          if (v && v.trim()) img._csvFields[k] = v.trim();
+        }
+      });
       COLUMNS = (data.columns || []).filter(col => !shouldSkip(col));
       imgIdx = -1;
       document.getElementById('ba-workspace').style.display = '';
@@ -870,6 +901,9 @@
     fieldIdx = 0;
     annotations = [];
     skipped = [];
+    const donutCard = document.getElementById('ba-donut-card');
+    if (donutCard) donutCard.style.display = 'none';
+    donutYear = '';
     loadImage(); // buildFieldList() is called inside afterFieldsPlaced() after image loads
     updateCounters();
   }
@@ -900,6 +934,8 @@
         buildFieldList();
         redraw();
         if (autoRecogEnabled) setTimeout(baRecognise, 500);
+        // Auto-trigger Donut to pre-fill ILM values + positions
+        setTimeout(baDonutPrefill, 300);
       }
 
       // If a specific form type is selected, always use template positions
@@ -1305,13 +1341,21 @@
             let cleanText = dedupeRepeats(text);
             // Auto-fix: dates get date spellcheck, age gets unit spellcheck
             let fixedText = cleanText;
-            if (label === 'Event Date') fixedText = autoFixDate(cleanText);
+            if (label === 'Event Date') {
+              fixedText = autoFixDate(cleanText);
+              // Replace year with Donut's year (far more accurate than OCR)
+              if (donutYear) {
+                fixedText = fixedText.replace(/\b(1[6-9]\d{2}|20[0-2]\d)\b\s*$/, donutYear);
+                if (!/\b(1[6-9]\d{2}|20[0-2]\d)\b/.test(fixedText)) {
+                  fixedText = fixedText.replace(/\s*$/, ' ' + donutYear);
+                }
+              }
+            }
             else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-            // Auto-populate — skip CSV-prefilled name fields (reference data)
-            const bulkCsvPrefilled = ['Husband Name', 'Spouse'];
+            // Auto-populate — never overwrite CSV spreadsheet values (ground truth)
             const inp = document.querySelector('.ba-edit-input[data-field-idx="' + idx + '"]');
-            if (inp && !bulkCsvPrefilled.includes(label)) {
+            if (inp && !hasCsvValue(label)) {
               inp.value = fixedText;
               entry.fields[label] = fixedText;
               if (annotations[idx]) annotations[idx].value = fixedText;
@@ -1479,13 +1523,22 @@
 
       let cleanText = dedupeRepeats(text);
       let fixedText = cleanText;
-      if (label === 'Event Date') fixedText = autoFixDate(cleanText);
+      if (label === 'Event Date') {
+        fixedText = autoFixDate(cleanText);
+        // Replace the year portion with Donut's year (far more accurate than OCR)
+        if (donutYear) {
+          fixedText = fixedText.replace(/\b(1[6-9]\d{2}|20[0-2]\d)\b\s*$/, donutYear);
+          // If no year found at end, append it
+          if (!/\b(1[6-9]\d{2}|20[0-2]\d)\b/.test(fixedText)) {
+            fixedText = fixedText.replace(/\s*$/, ' ' + donutYear);
+          }
+        }
+      }
       else if (label === 'Age') fixedText = spellcheckAge(cleanText);
 
-      // Overwrite field with recognised text — but skip CSV-prefilled fields (names are reference data)
-      const csvPrefilledFields = ['Husband Name', 'Spouse'];
+      // Never overwrite CSV spreadsheet values (ground truth)
       const inp = document.querySelector('.ba-edit-input[data-field-idx="' + annIdx + '"]');
-      if (inp && !csvPrefilledFields.includes(label)) {
+      if (inp && !hasCsvValue(label)) {
         inp.value = fixedText;
         entry.fields[label] = fixedText;
         if (annotations[annIdx]) annotations[annIdx].value = fixedText;
@@ -1718,8 +1771,8 @@
           donutFields['Event Type'] = typeMap[data.FS_RECORD_TYPE] || data.FS_RECORD_TYPE;
         }
         if (data.EVENT_YEAR_ORIG) {
-          donutFields['Event Date'] = data.EVENT_YEAR_ORIG;
           donutFields['Event Year'] = data.EVENT_YEAR_ORIG;
+          donutYear = data.EVENT_YEAR_ORIG;
         }
         if (data.EVENT_PLACE_ORIG) {
           donutFields['Event Place'] = data.EVENT_PLACE_ORIG;
@@ -1729,8 +1782,7 @@
 
         COLUMNS.forEach((col, i) => {
           if (!donutFields[col]) return;
-          const currentVal = (entry.fields[col] || '').trim();
-          if (currentVal) return; // CSV already has data — don't overwrite
+          if (hasCsvValue(col)) return; // CSV is ground truth — never overwrite
 
           entry.fields[col] = donutFields[col];
           filled++;
@@ -1747,6 +1799,52 @@
 
       const conf = data.confidence ? (data.confidence * 100).toFixed(0) + '%' : '?';
       console.log('[Donut] Values:', filled, 'Positions:', positioned, '(confidence:', conf + ')');
+
+      // Auto-recognise all fields that have boxes placed (by Donut or saved positions)
+      const boxCount = annotations.filter(a => a && a.w > 5 && a.h > 5).length;
+      if (boxCount > 0) {
+        setTimeout(() => {
+          console.log('[Donut] Auto-triggering HTR on', boxCount, 'fields with boxes');
+          baRecognise();
+        }, 500);
+      }
+
+      // Fix Event Date year with Donut's year if HTR already filled it (skip if CSV had Event Date)
+      if (donutYear) {
+        COLUMNS.forEach((col, i) => {
+          if (col !== 'Event Date') return;
+          if (hasCsvValue(col)) return;
+          const currentVal = (entry.fields[col] || '').trim();
+          if (!currentVal) return;
+          const fixed = currentVal.replace(/\b(1[6-9]\d{2}|20[0-2]\d)\b\s*$/, donutYear);
+          if (fixed !== currentVal) {
+            entry.fields[col] = fixed;
+            const inp = document.querySelector('.ba-edit-input[data-field-idx="' + i + '"]');
+            if (inp) {
+              inp.value = fixed;
+              inp.style.background = '#e8f5e9';
+              setTimeout(() => { inp.style.background = ''; }, 3000);
+            }
+            if (annotations[i]) annotations[i].value = fixed;
+            console.log('[Donut] Fixed Event Date year:', currentVal, '→', fixed);
+          }
+        });
+      }
+
+      // Update Donut card in sidebar
+      const card = document.getElementById('ba-donut-card');
+      card.style.display = '';
+      document.getElementById('ba-donut-conf').textContent = conf;
+      document.getElementById('ba-donut-type').textContent = data.FS_RECORD_TYPE || '—';
+      document.getElementById('ba-donut-type-id').textContent = data.FS_RECORD_TYPE_ID || '—';
+      document.getElementById('ba-donut-year').textContent = data.EVENT_YEAR_ORIG || '—';
+      document.getElementById('ba-donut-place').textContent = data.EVENT_PLACE_ORIG || '—';
+      document.getElementById('ba-donut-nongeo').innerHTML = data.non_genealogical
+        ? '<span class="badge bg-secondary">Yes</span>'
+        : '<span class="badge bg-success">No</span>';
+      document.getElementById('ba-donut-positions').textContent = positioned > 0
+        ? positioned + ' fields placed'
+        : 'Using saved positions';
 
       const label = [];
       if (filled > 0) label.push(filled + ' values');

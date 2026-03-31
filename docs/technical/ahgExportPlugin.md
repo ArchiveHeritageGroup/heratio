@@ -52,6 +52,7 @@ Comprehensive data export functionality for archival descriptions, authority rec
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5625633a.png)
 ```
 
 ---
@@ -310,6 +311,7 @@ $stats = $service
 │     └─> Return formatted string (CSV, XML)                     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ff9689d9.png)
 ```
 
 ### Hierarchy Traversal

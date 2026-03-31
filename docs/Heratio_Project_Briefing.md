@@ -86,6 +86,7 @@ GLAM and DAM institutions internationally:
 │  ├── 6 stable GLAM sector plugins                            │
 │  └── 58 optional feature plugins                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_214992de.png)
 ```
 
 ### Technology Stack

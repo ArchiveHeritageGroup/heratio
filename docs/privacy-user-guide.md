@@ -15,6 +15,7 @@ Data protection compliance for POPIA, GDPR, PAIA, and international privacy regu
 │ POPIA/GDPR   │    │ Scan records │    │ DSARs        │    │ Dashboard    │
 │ PAIA/CCPA    │    │ Review risks │    │ Breaches     │    │ Audit logs   │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_0861fafd.png)
 ```
 
 ---
@@ -50,6 +51,7 @@ Data protection compliance for POPIA, GDPR, PAIA, and international privacy regu
 │     Legal basis and retention records                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_52b6e986.png)
 ```
 
 ---
@@ -69,6 +71,7 @@ Option A: From Admin Menu              Option B: Quick Links
       │                              ▼       ▼       ▼
       ▼                           DSARs  Breaches  PII Scan
   Dashboard
+![wireframe](./images/wireframes/wireframe_c93ed79a.png)
 ```
 
 ---
@@ -102,6 +105,7 @@ Option A: From Admin Menu              Option B: Quick Links
 │  🇸🇬 Singapore    │ PDPA             │ 30 days  │ 3 days   │
 │                  │                   │          │          │
 └──────────────────┴───────────────────┴──────────┴──────────┘
+![wireframe](./images/wireframes/wireframe_5dabdfae.png)
 ```
 
 ---
@@ -158,6 +162,7 @@ Option A: From Admin Menu              Option B: Quick Links
                     │   Close DSAR     │
                     │   (within 30 days)│
                     └──────────────────┘
+![wireframe](./images/wireframes/wireframe_0c113ff0.png)
 ```
 
 ### Creating a DSAR
@@ -197,6 +202,7 @@ Option A: From Admin Menu              Option B: Quick Links
 │                              [ Cancel ]  [ Create DSAR ]   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_855a53a1.png)
 ```
 
 ### DSAR Dashboard
@@ -223,6 +229,7 @@ RECENT REQUESTS:
 │ DSAR-2026-0040│ Peter Brown  │ Access  │ 05 Feb 26 │ ⚠️ Due  │
 │ DSAR-2026-0039│ Sarah White  │ Access  │ 28 Jan 26 │ 🔴 Late│
 └───────────────┴──────────────┴─────────┴───────────┴────────┘
+![wireframe](./images/wireframes/wireframe_16caf1ba.png)
 ```
 
 ---
@@ -269,6 +276,7 @@ RECENT REQUESTS:
 │                              [ Cancel ]  [ Record Breach ] │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c3e8f3b2.png)
 ```
 
 ### Breach Notification Timeline
@@ -292,6 +300,7 @@ RECENT REQUESTS:
 │      72 hours of becoming aware of the breach              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0085a7fb.png)
 ```
 
 ---
@@ -325,6 +334,7 @@ RECENT REQUESTS:
 │     • Dates                                                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b4d4c15d.png)
 ```
 
 ### PII Scanner Dashboard
@@ -353,6 +363,7 @@ HIGH-RISK RECORDS (Review Required):
 │ GHI/007/001  │ Medical Records    │  95   │ 15     │[Review]│
 │ JKL/002/003  │ Financial Statements│ 68   │  6     │[Review]│
 └──────────────┴────────────────────┴───────┴────────┴────────┘
+![wireframe](./images/wireframes/wireframe_602dec28.png)
 ```
 
 ### Scanning a Record
@@ -396,6 +407,7 @@ HIGH-RISK RECORDS (Review Required):
 │  [ Mark for Redaction ]  [ Add Embargo ]  [ Dismiss ]      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e9a8fdb5.png)
 ```
 
 ---
@@ -421,6 +433,7 @@ HIGH-RISK RECORDS (Review Required):
 │   for redaction            replace PII                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9037f8d7.png)
 ```
 
 ### Marking Entities for Redaction
@@ -444,6 +457,7 @@ HIGH-RISK RECORDS (Review Required):
 │                    [ Apply Redactions ]  [ Cancel ]         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9a24e62e.png)
 ```
 
 ---
@@ -482,6 +496,7 @@ HIGH-RISK RECORDS (Review Required):
 │                              [ Cancel ]  [ Record Consent ] │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_81f05318.png)
 ```
 
 ---
@@ -516,6 +531,7 @@ HIGH-RISK RECORDS (Review Required):
 │  $ php symfony privacy:scan-pii --verbose                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9fe91d1f.png)
 ```
 
 ### Jurisdiction Management Commands
@@ -545,6 +561,7 @@ HIGH-RISK RECORDS (Review Required):
 │  $ php symfony privacy:jurisdiction --info=popia            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5916a913.png)
 ```
 
 ### Available Jurisdictions
@@ -574,6 +591,7 @@ HIGH-RISK RECORDS (Review Required):
 │                 │                                            │
 │  pdpa_sg        │  Singapore - PDPA                          │
 └─────────────────┴────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fdbe630d.png)
 ```
 
 ### Example CLI Output
@@ -617,6 +635,7 @@ $ php symfony privacy:scan-pii --stats
 │  Generate ROPA             │  Admin → Privacy → ROPA Export │
 │  Check overdue DSARs       │  Dashboard → Overdue section   │
 └────────────────────────────┴────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b9a8a87a.png)
 ```
 
 ---
@@ -639,6 +658,7 @@ $ php symfony privacy:scan-pii --stats
 │  21 - 50         │  🟡 Medium Risk  │  Review recommended   │
 │  51 - 100        │  🔴 High Risk    │  Immediate review     │
 └──────────────────┴──────────────────┴───────────────────────┘
+![wireframe](./images/wireframes/wireframe_2c5f54ab.png)
 ```
 
 ---
@@ -666,6 +686,7 @@ $ php symfony privacy:scan-pii --stats
 │  5. Upload Form C as supporting document                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fb354280.png)
 ```
 
 ---

@@ -36,6 +36,7 @@ If your password has expired, you will be prompted to change it.
 ├─────────────────────────────────────────────────────────────┤
 │                    [Footer]                                  │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a15313bc.png)
 ```
 
 | Menu | What It Contains |
@@ -82,6 +83,7 @@ The homepage displays:
 │  Media Type        │  Page 1 of 5  [< Prev] [Next >]      │
 │  Repository        │                                      │
 └────────────────────┴──────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b9f68bd9.png)
 ```
 
 **View modes:**
@@ -224,6 +226,7 @@ Standard archival descriptions following ISAD(G):
 ├─ Notes ──────────────────────────────────┤
 │  Archivist's note    Rules/conventions    │
 └──────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0aa5ecae.png)
 ```
 
 Other supported standards: **DACS**, **Dublin Core**, **MODS**, **RAD** — each with their own field sets accessible via the standard selector.
@@ -310,6 +313,7 @@ Track incoming transfers:
 │  Appraisal: ...                        │
 │  Donor agreement: [Attached]            │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_da1a72f3.png)
 ```
 
 ### 5.4 Repositories (Archival Institutions)
@@ -437,6 +441,7 @@ These features process text locally — no data is sent to external services (un
 │Configure│─>│ Upload  │─>│  Map &  │─>│Validate │─>│ Preview │─>│ Commit  │
 │         │  │         │  │ Enrich  │  │         │  │         │  │         │
 └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘
+![wireframe](./images/wireframes/wireframe_cc617174.png)
 ```
 
 **Step 1 — Configure:** Choose sector (archive/library/museum/gallery/DAM), standard, repository, parent record, and which AI processing to apply.

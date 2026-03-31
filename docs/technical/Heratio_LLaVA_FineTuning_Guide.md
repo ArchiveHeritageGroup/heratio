@@ -65,6 +65,7 @@ LLaVA (Large Language and Vision Assistant) = LLaMA text model + CLIP vision enc
                     Visual tokens          Text generation
                     (image features)       conditioned on
                                            image + prompt
+![wireframe](./images/wireframes/wireframe_06773439.png)
 ```
 
 ### License & Provenance

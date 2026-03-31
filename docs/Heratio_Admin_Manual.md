@@ -442,6 +442,7 @@ A **Service Availability** dashboard shows the status of each backend (installed
 │  └─ Weekly Full ✓  │                                  │
 │  Cron: 0 * * * *   │                                  │
 └────────────────────┴──────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7999a0d2.png)
 ```
 
 ### 3.2 Creating Backups

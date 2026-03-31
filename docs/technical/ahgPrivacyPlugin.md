@@ -43,6 +43,7 @@ Privacy compliance module supporting POPIA, GDPR, PAIA, and other data protectio
 │  └───────────┘      └───────────┘      └───────────┘          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3a24f941.png)
 ```
 
 ---
@@ -89,6 +90,7 @@ Privacy compliance module supporting POPIA, GDPR, PAIA, and other data protectio
 │  └───────────────┘    └───────────────┘    └───────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9b96709c.png)
 ```
 
 ### PII Types Detected
@@ -185,6 +187,7 @@ The PII scanner extracts potential PII from ISAD(G) access points:
 │ └────────────────────────────────────────────────────┘        │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6a516612.png)
 ```
 
 **Database Queries:**
@@ -494,6 +497,7 @@ PII scanning is integrated into the information object context menu:
 │ 📋 PII Review Queue         │  ← Review pending entities
 │ 📊 PII Dashboard            │  ← Statistics overview
 └─────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7248dee7.png)
 ```
 
 ### Risk Score Calculation
@@ -552,6 +556,7 @@ Maximum: 100
 │                      └──────────────────┘                      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9e3ce317.png)
 ```
 
 ### PdfRedactionService
@@ -855,6 +860,7 @@ public function executeDownloadPdf(sfWebRequest $request)
 │    created_at TIMESTAMP     │
 │    updated_at TIMESTAMP     │
 └─────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_db3638f7.png)
 ```
 
 ---
@@ -945,6 +951,7 @@ class PrivacyService
 │   └─────────────┘                                              │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_51e0d258.png)
 ```
 
 ---

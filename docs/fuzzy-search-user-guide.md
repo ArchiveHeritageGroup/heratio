@@ -24,6 +24,7 @@ Find records even when you misspell search terms. Fuzzy Search automatically det
 │  matching             matching                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ebd1f0fe.png)
 ```
 
 ---
@@ -75,6 +76,7 @@ When you search on the GLAM Browse page, fuzzy search runs automatically behind 
                    │  Results shown   │
                    │  with alerts     │
                    └──────────────────┘
+![wireframe](./images/wireframes/wireframe_13e49f22.png)
 ```
 
 ---
@@ -90,6 +92,7 @@ When fuzzy search detects a likely typo, you'll see a suggestion:
 │  ℹ️ Did you mean: archives?                                  │
 │     Click the link to search with the corrected term.       │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6f472485.png)
 ```
 
 Click the suggested term to re-run the search with the correction.
@@ -103,6 +106,7 @@ When the system is very confident about a correction, it automatically searches 
 │  ✅ Showing results for "archives"                           │
 │     Search instead for: archieves                           │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ab3dd106.png)
 ```
 
 Click "Search instead for" to see results for your original (uncorrected) term.
@@ -116,6 +120,7 @@ When no exact matches are found, the system uses the search index to find approx
 │  ⚠️ No exact matches found. Showing fuzzy matches from the  │
 │     search index.                                            │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9b4ef87b.png)
 ```
 
 ---
@@ -138,6 +143,7 @@ When no exact matches are found, the system uses the search index to find approx
 │  catalouge       →   catalogue                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6989d284.png)
 ```
 
 ### Phonetic Matching (Sounds-Like)
@@ -157,6 +163,7 @@ When no exact matches are found, the system uses the search index to find approx
 │  even when spelled very differently.                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f48a9131.png)
 ```
 
 ### Stemming and Natural Language
@@ -175,6 +182,7 @@ When no exact matches are found, the system uses the search index to find approx
 │  to match word variations automatically.                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_64a79b3c.png)
 ```
 
 ---
@@ -205,6 +213,7 @@ Fuzzy search combines four techniques for maximum coverage:
 │     finds approximate matches across all fields.            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_df8790e9.png)
 ```
 
 ---
@@ -221,6 +230,7 @@ If you want to search for your exact term without correction:
 │  Showing results for "archives"                             │
 │  Search instead for: archieves  ← Click this link          │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c8aef8a3.png)
 ```
 
 ---
@@ -247,6 +257,7 @@ Fuzzy search and semantic search are complementary features:
 │  expands your corrected query with related terms.           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e47a7c18.png)
 ```
 
 ---

@@ -61,6 +61,7 @@ The AI Services module provides intelligent automation for archival description:
   │  Review   │
   │ Dashboard │
   └───────────┘
+![wireframe](./images/wireframes/wireframe_93c0a8c9.png)
 ```
 
 ---
@@ -140,6 +141,7 @@ NER automatically identifies and classifies named entities in text into predefin
 │   Review     │◄─────│   Pending    │◄─────│   Entities   │
 │  Dashboard   │      │   Entities   │      │   Stored     │
 └──────────────┘      └──────────────┘      └──────────────┘
+![wireframe](./images/wireframes/wireframe_703b998b.png)
 ```
 
 ### Text Sources
@@ -189,6 +191,7 @@ AI Summarization automatically generates concise summaries from PDF documents an
                                             │  Saved to    │
                                             │ Scope&Content│
                                             └──────────────┘
+![wireframe](./images/wireframes/wireframe_18e20f0e.png)
 ```
 
 ### Requirements
@@ -260,6 +263,7 @@ Navigate to: `/ner/review` or **Admin** → **NER Review**
 │  Johannesburg    │ GPE    │ Report 1992   │ Approved│ [View]    │
 │  18 Jan 1993     │ DATE   │ Memo 1993     │ Pending │ [✓] [✗]   │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7f5289f5.png)
 ```
 
 ### Review Actions

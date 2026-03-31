@@ -45,6 +45,7 @@ Heratio is a comprehensive modernization of Access to Memory (AtoM) 2.10 — the
 │  ├─ PDF viewer         ├─ Federation                          │
 │  └─ Voice/TTS          └─ RiC/SPARQL                         │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5197d011.png)
 ```
 
 ### Key Numbers
@@ -92,6 +93,7 @@ The main navigation bar contains:
 │ [Logo]  Browse ▼  [Search Box]  Add ▼  Manage ▼        │
 │         Import ▼  Admin ▼  [User Menu ▼]  [Mic]        │
 └─────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_45e18b4a.png)
 ```
 
 | Menu | Contents |
@@ -145,6 +147,7 @@ The browse page shows records in a card layout with filtering:
 │  Media Type        │  [< Prev] Page 1 of 5 [Next >]      │
 │  Repository        │                                      │
 └────────────────────┴──────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b46797be.png)
 ```
 
 **View modes:**
@@ -448,6 +451,7 @@ Experimental face detection and matching to authority records. Backends: OpenCV 
 │ Commit   │<───│ Preview  │<───│ Validate │
 │          │    │          │    │          │
 └──────────┘    └──────────┘    └──────────┘
+![wireframe](./images/wireframes/wireframe_92843b13.png)
 ```
 
 **Step 1 — Configure:** Select sector, standard, repository, parent, output packages, AI options

@@ -48,6 +48,7 @@ An embargo restricts access to archival records for a specified period or indefi
 │                   │ ✗ No downloads           │              │
 │                   └──────────────────────────┘              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9d4be504.png)
 ```
 
 ---
@@ -90,6 +91,7 @@ When you have a **fonds** or **series** with many items, you can apply the embar
    ┌─┴─┐       ┌─┴─┐
    ↓   ↓       ↓   ↓
   📄  📄      📄  📄   ← All automatically embargoed!
+![wireframe](./images/wireframes/wireframe_81c30520.png)
 ```
 
 > ⚠️ **Warning:** Each child record gets its own embargo. To remove, you must lift each one individually or use bulk operations.
@@ -141,6 +143,7 @@ Shows:
          │                                       │
     Record                                   Record
     Hidden                                   Visible
+![wireframe](./images/wireframes/wireframe_28325517.png)
 ```
 
 ---

@@ -75,6 +75,7 @@
 │  │             │  │             │  │  (uploads)  │  │  Queue     │        │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
 └─────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6acfc737.png)
 ```
 
 ### 1.2 Directory Structure
@@ -137,6 +138,7 @@
 │ Preview  │────▶│  Import  │────▶│  Index   │
 │  Data    │     │  Records │     │  Search  │
 └──────────┘     └──────────┘     └──────────┘
+![wireframe](./images/wireframes/wireframe_9c27eee3.png)
 ```
 
 ---
@@ -202,6 +204,7 @@
 │    extent_and_medium    │
 │    ... (other i18n)     │
 └─────────────────────────┘
+![wireframe](./images/wireframes/wireframe_31da6267.png)
 ```
 
 ### 2.2 Table Definitions
@@ -638,6 +641,7 @@ if ($ext === 'myformat') {
 │ atom_migration  │     │   Job Queue     │     │ Process Import  │
 │ _job record     │     │   (in memory)   │     │ Update Progress │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+![wireframe](./images/wireframes/wireframe_1134863b.png)
 ```
 
 ### 6.2 Job Lifecycle
@@ -655,6 +659,7 @@ if ($ext === 'myformat') {
                                  ┌──────────┐
                                  │CANCELLED │
                                  └──────────┘
+![wireframe](./images/wireframes/wireframe_78ccb17e.png)
 ```
 
 ### 6.3 Progress Updates

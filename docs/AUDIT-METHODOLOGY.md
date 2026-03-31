@@ -629,6 +629,7 @@ The full testing pipeline combines all layers:
 │   Verification              → re-read and confirm    │
 │   Screenshot analysis       → visual diff review     │
 └─────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7497a54a.png)
 ```
 
 **Order of execution:**

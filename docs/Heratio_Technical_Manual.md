@@ -35,6 +35,7 @@ This manual covers architecture, plugin development, CLI commands, database sche
 │  ├── 6 stable GLAM sector plugins                            │
 │  └── 59 optional feature plugins                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7da7efc2.png)
 ```
 
 **Philosophy:** Modern data layer, legacy presentation layer. Laravel Query Builder handles all database operations while preserving Symfony's routing, templates, and ACL.

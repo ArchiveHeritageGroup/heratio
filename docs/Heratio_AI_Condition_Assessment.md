@@ -32,6 +32,7 @@ AI Condition Assessment uses a local vision model (LLaVA) to analyze photographs
 │  UI: Rating badge, Severity badge, Damage list,          │
 │       Recommendations, link to full condition check      │
 └──────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3d11b433.png)
 ```
 
 ## User Workflow

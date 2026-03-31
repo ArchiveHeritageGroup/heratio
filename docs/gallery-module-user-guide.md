@@ -20,6 +20,7 @@ Catalog visual artworks using CCO (Cataloging Cultural Objects) standards for pa
 │  Mixed Media     Installation     Albums                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1e02c5c7.png)
 ```
 
 ---
@@ -40,6 +41,7 @@ Catalog visual artworks using CCO (Cataloging Cultural Objects) standards for pa
 │  🏺 Decorative arts with artistic merit                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8896461f.png)
 ```
 
 ---
@@ -88,6 +90,7 @@ Go to **GLAM/DAM** → **Gallery** → **Add**
 │  ○ Decorative Art                                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9509a56c.png)
 ```
 
 ### Step 3: Fill in the Form
@@ -118,6 +121,7 @@ Go to **GLAM/DAM** → **Gallery** → **Add**
 │  Date Display:     [circa 1928               ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_47abe69b.png)
 ```
 
 ---
@@ -135,6 +139,7 @@ Go to **GLAM/DAM** → **Gallery** → **Add**
 │  Other Titles      │  Alternative names                     │
 │  Work Type         │  Painting, sculpture, print, etc.      │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_dcb39c1c.png)
 ```
 
 ### Creator Information
@@ -164,6 +169,7 @@ Go to **GLAM/DAM** → **Gallery** → **Add**
 │  [+ Add Another Creator]                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e8d7dbfd.png)
 ```
 
 ### Physical Description
@@ -191,6 +197,7 @@ Go to **GLAM/DAM** → **Gallery** → **Add**
 │  Other Marks:     [Gallery label verso       ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_975a4f73.png)
 ```
 
 ---
@@ -228,6 +235,7 @@ Describe what the artwork depicts:
 │  [and purple sky. Foreground shows Cape fynbos vegetation. ]│
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3a8c9611.png)
 ```
 
 ---
@@ -256,6 +264,7 @@ Describe what the artwork depicts:
 │  Credit Line:          [Gift of Standard Bank, 2015]        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_88c1a7b4.png)
 ```
 
 ---
@@ -286,6 +295,7 @@ Track where the artwork has been displayed:
 │  [+ Add Exhibition]                                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fd49728e.png)
 ```
 
 ---
@@ -311,6 +321,7 @@ For multiples (prints, photographs, sculptures):
 │  Print Date:       [1985                     ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5664b6c8.png)
 ```
 
 ---
@@ -337,6 +348,7 @@ For multiples (prints, photographs, sculptures):
 │  [+ Add Conservation Treatment]                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_eb44637f.png)
 ```
 
 ---
@@ -362,6 +374,7 @@ Link to related artworks:
 │  [+ Add Related Work]                                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7c246ebe.png)
 ```
 
 ---
@@ -379,6 +392,7 @@ Link to related artworks:
 │  Link to artist authority      │  Create duplicate artists │
 │  Photograph recto and verso    │  Only capture front       │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ffdcdfc4.png)
 ```
 
 ---

@@ -15,6 +15,7 @@ Document and track the physical condition of objects in your collection for cons
 │ Find item   │    │ Overall      │    │ Photos       │    │ Priority     │
 │ to assess    │    │ rating       │    │ Annotations  │    │ Follow-up    │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_d97724e2.png)
 ```
 
 ---
@@ -44,6 +45,7 @@ Document and track the physical condition of objects in your collection for cons
 │     Valuation and claims documentation                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c09c4697.png)
 ```
 
 ---
@@ -96,6 +98,7 @@ Option A: From a Record                Option B: From Dashboard
 │ 09 Jan 26  │ Oil Painting     │ 🟢 Good │ M Jones  │ Routine│
 │ 08 Jan 26  │ Textile Fragment │ 🔴 Poor │ J Smith  │ Incident│
 └────────────┴──────────────────┴─────────┴──────────┴────────┘
+![wireframe](./images/wireframes/wireframe_5559dfdb.png)
 ```
 
 ---
@@ -119,6 +122,7 @@ Option A: From a Record                Option B: From Dashboard
 │  Insurance         │  For valuation/claims                 │
 │  Deaccession       │  Before disposal/transfer             │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cc9e0ac9.png)
 ```
 
 ---
@@ -150,6 +154,7 @@ Option A: From a Record                Option B: From Dashboard
 │     Urgent intervention needed                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_509e97b7.png)
 ```
 
 ---
@@ -188,6 +193,7 @@ Option A: From a Record                Option B: From Dashboard
 │  [intact with minor foxing.                               ]│
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a826e255.png)
 ```
 
 ---
@@ -225,6 +231,7 @@ Option A: From a Record                Option B: From Dashboard
 │     Mould staining, musty odour                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bc9d4bef.png)
 ```
 
 ---
@@ -282,6 +289,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │                                   [ Cancel ]  [ Add ]       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bea560c5.png)
 ```
 
 ---
@@ -313,6 +321,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │     • Document all treatments                               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2e63c9d4.png)
 ```
 
 ---
@@ -346,6 +355,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │                              [ Clear All ]  [ Save ]        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e0c8f965.png)
 ```
 
 ---
@@ -365,6 +375,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │ able    │ │         │ │ needed  │ │ required│
 └─────────┘ └─────────┘ └─────────┘ └─────────┘
   Months      Weeks       Days        Now
+![wireframe](./images/wireframes/wireframe_fc9f5393.png)
 ```
 
 ---
@@ -397,6 +408,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │  [treatment.                                              ]│
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_913dd45f.png)
 ```
 
 ---
@@ -433,6 +445,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │                                            [ View Details ] │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9c519762.png)
 ```
 
 ---
@@ -453,6 +466,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │  Damage Statistics     │  Types and frequency of damage     │
 │  Cost Estimates        │  Treatment budget planning         │
 └────────────────────────┴────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_54c936fc.png)
 ```
 
 ---
@@ -481,6 +495,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │                              [ Cancel ]  [ Generate ]       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_10f58453.png)
 ```
 
 ---
@@ -499,6 +514,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │  Generate report           │  Dashboard → Reports           │
 │  View history              │  Record → Condition tab        │
 └────────────────────────────┴────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_250d44e4.png)
 ```
 
 ---
@@ -517,6 +533,7 @@ Example: Mould (1.5x) with Severe damage (7)
 │  Link to treatments            │  Leave recommendations    │
 │                                │  incomplete               │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bcbfc8fa.png)
 ```
 
 ---

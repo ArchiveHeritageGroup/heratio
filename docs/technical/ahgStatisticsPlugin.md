@@ -67,6 +67,7 @@ Usage statistics tracking system for AtoM, providing page view and download anal
 │  └───────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b48be555.png)
 ```
 
 ---
@@ -174,6 +175,7 @@ Usage statistics tracking system for AtoM, providing page view and download anal
 ├─────────────────────────────────────────┤
 │ UNIQUE KEY (config_key)                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0e89852f.png)
 ```
 
 ---
@@ -783,6 +785,7 @@ public function cleanupOldEvents(int $days = 90): int
 │   └── Slower but accurate                                           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c1b5b4e6.png)
 ```
 
 ### Indexes

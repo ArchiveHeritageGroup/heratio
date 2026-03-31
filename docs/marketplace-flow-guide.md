@@ -42,6 +42,7 @@ Think of it as an **online art gallery + auction house + shop**, all built into 
 │  Leave reviews   │  Get paid        │  Process payouts         │
 │                  │                  │                           │
 └──────────────────┴──────────────────┴───────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1de1b1ed.png)
 ```
 
 ---
@@ -69,6 +70,7 @@ Think of it as an **online art gallery + auction house + shop**, all built into 
                               │
                               ▼
                      View the listing
+![wireframe](./images/wireframes/wireframe_1ecf6fdc.png)
 ```
 
 You can browse by sector (Gallery, Museum, etc.), use filters to narrow down results, or search by keyword. Switch between grid and list view. Sort by newest, price, or popularity.
@@ -135,6 +137,7 @@ Like a traditional auction, but online with some clever features.
   │  Proceed to │         │  Better luck │
   │  payment    │         │  next time   │
   └──────────────┘         └──────────────┘
+![wireframe](./images/wireframes/wireframe_fb1abb59.png)
 ```
 
 **Key auction concepts in plain language:**
@@ -172,6 +175,7 @@ Like negotiating at a market stall, but in writing.
                                                   │
                                           You decide:
                                           Accept or Walk Away
+![wireframe](./images/wireframes/wireframe_33d04695.png)
 ```
 
 Offers expire after 7 days if the seller doesn't respond. You can withdraw your offer at any time.
@@ -230,6 +234,7 @@ Once you've been active on the marketplace, you have these personal pages:
          ▼
   Your seller profile is created!
   (Admin may need to verify you)
+![wireframe](./images/wireframes/wireframe_bd90d986.png)
 ```
 
 ### 2. Create a Listing
@@ -268,6 +273,7 @@ Once you've been active on the marketplace, you have these personal pages:
   │  - Save as Draft (come back later)                       │
   │  - Submit for Review (goes to admin for approval)        │
   └──────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b81a792a.png)
 ```
 
 ### 3. The Listing Lifecycle
@@ -292,6 +298,7 @@ Once you've been active on the marketplace, you have these personal pages:
       ├── 90 days pass ─────────► EXPIRED (you can renew)
       ├── You withdraw it ──────► WITHDRAWN
       └── Admin suspends it ───► SUSPENDED
+![wireframe](./images/wireframes/wireframe_49733a26.png)
 ```
 
 ### 4. When Someone Buys
@@ -352,6 +359,7 @@ Once you've been active on the marketplace, you have these personal pages:
   │  R900 sent to your bank account                           │
   │                                                           │
   └──────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9eaaf096.png)
 ```
 
 **Key points about payment:**
@@ -397,6 +405,7 @@ Your dashboard shows you everything at a glance:
   │  ⚠ 5 payouts ready to process                            │
   │                                                           │
   └──────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d03c5026.png)
 ```
 
 ### Daily Tasks

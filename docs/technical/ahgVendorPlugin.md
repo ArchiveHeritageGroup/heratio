@@ -142,6 +142,7 @@ Vendor and supplier management for conservation services, digitization, storage,
 │    evaluated_by INT                     │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f086e443.png)
 ```
 
 ---

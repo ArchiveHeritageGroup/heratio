@@ -15,6 +15,7 @@ Financial accounting and valuation management for heritage assets to meet govern
 │ Classification│    │ Cost/Fair   │    │ Movements    │    │ Disclosure   │
 │ Recognition  │    │ Value       │    │ Impairment   │    │ Asset Register│
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_5b43ec6d.png)
 ```
 
 ---
@@ -41,6 +42,7 @@ Financial accounting and valuation management for heritage assets to meet govern
 │  🇨🇦 Canada         →  PSAS 3150                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_eeea1cb1.png)
 ```
 
 ---
@@ -83,6 +85,7 @@ Option A: From a Record                Option B: From Admin
    │ GRAP    │ │ FRS     │ │ GASB    │ │ PSAS    │ │ IPSAS   │
    │ 103     │ │ 102     │ │ 34      │ │ 3150    │ │ 45      │
    └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘
+![wireframe](./images/wireframes/wireframe_f9d3ff96.png)
 ```
 
 ---
@@ -98,6 +101,7 @@ Option A: From a Record                Option B: From Admin
 │  Disclosure       │ Detailed │ Detailed│ Detailed│ Detailed│
 │  Financial year   │ Apr-Mar  │ Varies  │ Jul-Jun │ Apr-Mar │
 └───────────────────┴──────────┴─────────┴─────────┴─────────┘
+![wireframe](./images/wireframes/wireframe_4d208fbf.png)
 ```
 
 ---
@@ -132,6 +136,7 @@ Option A: From a Record                Option B: From Admin
 │     Visual media collections                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_afc6c794.png)
 ```
 
 ---
@@ -162,6 +167,7 @@ Option A: From a Record                Option B: From Admin
 │ Record   │    │  disclose    │
 │ value    │    └──────────────┘
 └──────────┘
+![wireframe](./images/wireframes/wireframe_666b8015.png)
 ```
 
 ---
@@ -175,6 +181,7 @@ Option A: From a Record                Option B: From Admin
 │  🔴 Not Recognised│  Cannot be reliably measured            │
 │  🟡 Pending       │  Awaiting valuation or decision         │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_43b8ff01.png)
 ```
 
 ---
@@ -203,6 +210,7 @@ Option A: From a Record                Option B: From Admin
 │     Common for donated items                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_24790dcd.png)
 ```
 
 ---
@@ -240,6 +248,7 @@ Option A: From a Record                Option B: From Admin
 │                              [ Cancel ]  [ Save Valuation ] │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e0c9fe50.png)
 ```
 
 ---
@@ -260,6 +269,7 @@ Option A: From a Record                Option B: From Admin
 │  Movement: +R 70,000 (+38.9%) since last valuation          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_682712fe.png)
 ```
 
 ---
@@ -297,6 +307,7 @@ Option A: From a Record                Option B: From Admin
 │     Record at: Fair value when found                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7b05a9ec.png)
 ```
 
 ---
@@ -327,6 +338,7 @@ Option A: From a Record                Option B: From Admin
 │                      (must be recorded)                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6249eda2.png)
 ```
 
 ---
@@ -366,6 +378,7 @@ Option A: From a Record                Option B: From Admin
 │                              [ Cancel ]  [ Record Loss ]    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6f6f8cf4.png)
 ```
 
 ---
@@ -388,6 +401,7 @@ Option A: From a Record                Option B: From Admin
 │  ⬆️  REVERSAL         Impairment reversed                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a65462bd.png)
 ```
 
 ---
@@ -416,6 +430,7 @@ Option A: From a Record                Option B: From Admin
 │  Closing Balance (31 Mar 2026):        R 45,545,000         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_80af181c.png)
 ```
 
 ---
@@ -451,6 +466,7 @@ Option A: From a Record                Option B: From Admin
 │     Reconciliation report                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fedb0d50.png)
 ```
 
 ---
@@ -477,6 +493,7 @@ Option A: From a Record                Option B: From Admin
 │                              [ Cancel ]  [ Generate ]       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_36716b57.png)
 ```
 
 ---
@@ -515,6 +532,7 @@ Option A: From a Record                Option B: From Admin
 │ Closing balance                    R 45,545,000             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ec6f67e9.png)
 ```
 
 ---
@@ -533,6 +551,7 @@ Option A: From a Record                Option B: From Admin
 │  View movements            │  Admin → Heritage → Movements  │
 │  Export data               │  Any report → Export button    │
 └────────────────────────────┴────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_37cecb3e.png)
 ```
 
 ---
@@ -550,6 +569,7 @@ Option A: From a Record                Option B: From Admin
 │  Reconcile annually            │  Wait until audit         │
 │  Match your country's standard │  Mix standards            │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_01c2b748.png)
 ```
 
 ---
@@ -572,6 +592,7 @@ Option A: From a Record                Option B: From Admin
 │  • 31 May     - AFS submission deadline                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_405f444e.png)
 ```
 
 ---
@@ -599,6 +620,7 @@ For system administrators, the plugin provides command-line tools for installati
 │  $ php symfony heritage:install --all-regions               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a3e724a4.png)
 ```
 
 ### Region Management Commands
@@ -631,6 +653,7 @@ For system administrators, the plugin provides command-line tools for installati
 │  $ php symfony heritage:region --info=africa_ipsas          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5412f395.png)
 ```
 
 ### Available Regions
@@ -662,6 +685,7 @@ For system administrators, the plugin provides command-line tools for installati
 │  international_private│  International Private (IAS 16)     │
 │                       │  Private sector compliance          │
 └───────────────────────┴─────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3ad3ece3.png)
 ```
 
 ### Region Output Example

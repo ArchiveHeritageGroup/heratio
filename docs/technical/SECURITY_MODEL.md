@@ -51,6 +51,7 @@ This document defines the trust boundaries, authentication model, secret managem
 │  • TrueNAS (NFS mount, digital objects)      │
 │  • Fuseki RiC-O triplestore (localhost:3030)        │
 └──────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_55f2abe6.png)
 ```
 
 ---

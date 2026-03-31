@@ -38,6 +38,7 @@ User favorites/bookmarks system allowing authenticated users to save archival re
 │    username VARCHAR                     │
 │    email VARCHAR                        │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fa11ab57.png)
 ```
 
 ### Table Definition
@@ -102,6 +103,7 @@ ahgFavoritesPlugin/
 │                    │     (Illuminate\Database)        │        │
 │                    └──────────────────────────────────┘        │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_545da167.png)
 ```
 
 ---

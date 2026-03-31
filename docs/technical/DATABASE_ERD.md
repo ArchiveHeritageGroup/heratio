@@ -75,6 +75,7 @@
      AhgSettingsService::getBool('key')
      AhgSettingsService::getGroup('group_name')
   ══════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_6ebe6723.png)
 ```
 
 ---
@@ -221,6 +222,7 @@
      ahg_audit_access.security_classification_id ► security_classification.id
      All tables: user_id ──────────────► user.id (extends actor.id in AtoM)
   ══════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_d0b3beb9.png)
 ```
 
 ---
@@ -547,6 +549,7 @@
                          repository.id (privacy_institution_config)
                          privacy_jurisdiction.code (jurisdiction_code)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_5950586f.png)
 ```
 
 ### Subsystem Summary
@@ -820,6 +823,7 @@
   │     security_2fa_session.user_id ────────────► user.id                                     │
   │   INTERNAL: security_classification.id, security_compartment.id (referenced by object_*)   │
   └────────────────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1fb3dc16.png)
 ```
 
 ### Subsystem Summary
@@ -969,6 +973,7 @@ User can access a record when:
                  ahg_loan_condition_report (ahgLoanPlugin) references condition data
                  ahg_ai_condition_assessment (ahgAIPlugin) AI-powered assessments
   ════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_6418e21e.png)
 ```
 
 ---
@@ -1159,6 +1164,7 @@ User can access a record when:
    Extended: ahg_loan + 15 ahg_loan_* tables for full lifecycle management
    GLAM SECTOR AWARE: sector ENUM drives UI/workflow per institution type
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_1763f485.png)
 ```
 
 ---
@@ -1583,6 +1589,7 @@ User can access a record when:
                  ipsas_valuation / ipsas_impairment → IPSAS 45 valuation standards
                  heritage_popia_flag links to ahgPrivacyPlugin compliance
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_6e00b2a6.png)
 ```
 
 ---
@@ -1787,6 +1794,7 @@ User can access a record when:
                  triposr_jobs → AI-powered 3D model generation
                  Manifests generated on-the-fly from information_object + digital_object
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_1a2ad4da.png)
 ```
 
 ---
@@ -2481,6 +2489,7 @@ Projects, Collections, Annotations, Bibliography, Evidence, Reports, API, Submis
                  research_material_request → links to physical storage for retrieval
                  research_reading_room → research_booking → research_researcher
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_8a29272f.png)
 ```
 
 ---
@@ -2822,6 +2831,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 
    EXTERNAL REFERENCES: user.id (for created_by, user_id fields)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_5b1dec71.png)
 ```
 
 ---
@@ -2962,6 +2972,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • preservation_migration_plan_object.digital_object_id ──► digital_object.id
    • preservation_replication_log.digital_object_id ──► digital_object.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_7c4a344f.png)
 ```
 
 ---
@@ -3129,6 +3140,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ahg_ai_usage.user_id ──► user.id
    • ahg_ai_condition_assessment.confirmed_by / created_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_5276f006.png)
 ```
 
 ---
@@ -3207,6 +3219,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • extended_rights_tk_label.assigned_by ──► user.id
    CROSS-PLUGIN: extended_rights_tk_label ↔ ahgICIPPlugin (TK Labels)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_995e25bb.png)
 ```
 
 ---
@@ -3302,6 +3315,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • exhibition_status_history.changed_by ──► user.id
    CROSS-PLUGIN: exhibition ↔ ahgLoanPlugin (exhibition_id on ahg_loan)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_612be3b0.png)
 ```
 
 ---
@@ -3376,6 +3390,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • donor_agreement.created_by ──► user.id
    • donor_agreement_history.performed_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_c1b3678b.png)
 ```
 
 ---
@@ -3423,6 +3438,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • report_template.created_by ──► user.id
    • report_section.sql_query may reference information_object and other core tables
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_010517fa.png)
 ```
 
 ---
@@ -3478,6 +3494,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • provenance_record.information_object_id ──► information_object.id
    • provenance_agent.actor_id ──► actor.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_90defa54.png)
 ```
 
 ---
@@ -3560,6 +3577,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ahg_workflow_sla_policy.escalation_user_id ──► user.id
    • ahg_workflow.created_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_20df8061.png)
 ```
 
 ---
@@ -3632,6 +3650,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    NOTE: CDPA tables do not directly reference information_object — they track
    organizational compliance (data controller licenses, processing activities)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_65d6e0a1.png)
 ```
 
 ---
@@ -3751,6 +3770,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • icip_consultation.conducted_by ──► user.id
    CROSS-PLUGIN: icip_tk_label ↔ ahgExtendedRightsPlugin (extended_rights_tk_label)
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_aed5e409.png)
 ```
 
 ---
@@ -3856,6 +3876,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • naz_research_permit.approved_by ──► user.id
    • naz_audit_log.performed_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_49387daf.png)
 ```
 
 ---
@@ -3915,6 +3936,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ahg_doi_log.performed_by ──► user.id
    • ahg_doi_queue.created_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_75837b5a.png)
 ```
 
 ---
@@ -3986,6 +4008,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ingest_row.information_object_id ──► information_object.id (created record)
    • ingest_session.user_id ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_f85fbc41.png)
 ```
 
 ---
@@ -4036,6 +4059,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • ric_sync_log.entity_id ──► polymorphic (via entity_type dispatch)
    NOTE: RiC sync tracks ANY AtoM entity type for RiC-O triplestore synchronization
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_a2c546fd.png)
 ```
 
 ---
@@ -4174,6 +4198,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
                                      │ subdivisions    JSON                     │
                                      │ created_at      TIMESTAMP                │
                                      └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3acb87f7.png)
 ```
 
 ### 25.2 Copy Management
@@ -4205,6 +4230,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 └─────────────────────────────────────────────────────────────┘
   Status values: available, checked_out, on_hold, in_transit,
                  in_repair, lost, missing, withdrawn
+![wireframe](./images/wireframes/wireframe_86d6c62c.png)
 ```
 
 ### 25.3 Patron Management
@@ -4246,6 +4272,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 └─────────────────────────────────────────────────────────────┘
   Patron types: public, student, faculty, staff, researcher, institutional
   Borrowing status: active, suspended, expired, barred
+![wireframe](./images/wireframes/wireframe_14675be2.png)
 ```
 
 ### 25.4 Circulation
@@ -4337,6 +4364,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 │ created_at       TIMESTAMP                          │
 └─────────────────────────────────────────────────────┘
   Lookup fallback: exact match → material_type + '*' → global default
+![wireframe](./images/wireframes/wireframe_f1efe9f8.png)
 ```
 
 ### 25.5 Acquisitions
@@ -4422,6 +4450,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 │ updated_at      TIMESTAMP                           │
 └─────────────────────────────────────────────────────┘
   Budget status: active, frozen, closed
+![wireframe](./images/wireframes/wireframe_db1dcc0e.png)
 ```
 
 ### 25.6 Serials
@@ -4477,6 +4506,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 │ updated_at      TIMESTAMP                           │
 └─────────────────────────────────────────────────────┘
   Issue status: expected, received, claimed, missing, bound
+![wireframe](./images/wireframes/wireframe_5dbacd31.png)
 ```
 
 ### 25.7 Interlibrary Loan
@@ -4520,6 +4550,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 └─────────────────────────────────────────────────────┘
   Direction: borrow, lend
   Status: requested, approved, shipped, received, in_use, returned, cancelled
+![wireframe](./images/wireframes/wireframe_df59b4f5.png)
 ```
 
 ### 25.8 Subject Authority & Settings
@@ -4573,6 +4604,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
 │ created_at      TIMESTAMP                           │
 │ updated_at      TIMESTAMP                           │
 └─────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_01e70f06.png)
 ```
 
 ### 25.9 Relationships
@@ -4701,6 +4733,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • gallery_space.repository_id ──► repository.id
    • gallery_facility_report.approved_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_a6d6fa4c.png)
 ```
 
 ---
@@ -4747,6 +4780,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • dam_version_links.created_by ──► user.id
    NOTE: All DAM tables attach directly to information_object — DAM is a sector overlay
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_a207ba1a.png)
 ```
 
 ---
@@ -4783,6 +4817,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • museum_metadata.repository_id ──► repository.id
    NOTE: Museum metadata is a 1:1 sector extension on information_object
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_16142d0c.png)
 ```
 
 ---
@@ -4829,6 +4864,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • contact_information.actor_id ──► actor.id
    NOTE: Contacts are linked to actors (persons, organizations), not directly to IO
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_460b6e77.png)
 ```
 
 ---
@@ -4891,6 +4927,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
      - function.id (entity_type='function')
    NOTE: EAV pattern — any entity type can have custom fields without schema changes
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_2887b7ed.png)
 ```
 
 ---
@@ -4932,6 +4969,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • feedback.user_id ──► user.id
    • feedback.resolved_by ──► user.id
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_8a3f6293.png)
 ```
 
 ---
@@ -4960,6 +4998,7 @@ Vendors, Instances, ERD Documentation, Discussions, Blog, Newsletter, User Group
    • No direct FK references — stores global configuration key-value pairs
    • Used by ALL plugins via AhgSettingsService::get('key', 'default')
   ════════════════════════════════════════════════════════════════════════════════════════
+![wireframe](./images/wireframes/wireframe_2a3fc289.png)
 ```
 
 ---
@@ -5044,6 +5083,7 @@ All plugin tables that reference `information_object.id` — the central archiva
 │                   └─────────────────┘                                                     │
 │                                                                                           │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ce1f745c.png)
 ```
 
 ### 33.2 Repository Links (repository_id)
@@ -5131,6 +5171,7 @@ The loan system uses `sector ENUM(museum, gallery, archive, library, dam)` to dr
 │  display_object_config.object_id ► information_object.id (GLAM display routing)          │
 │                                                                                           │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0b65f6d8.png)
 ```
 
 ### 33.6 Audit Trail Coverage

@@ -54,6 +54,7 @@ You might need to export data from your system to:
 ┌──────────────────┐
 │  Download file   │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_213ff0af.png)
 ```
 
 ### Steps
@@ -85,6 +86,7 @@ Navigate to `/export` to access the export dashboard with format options.
 │   with filtering by repository, level, and scope.           │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c5f6e0e1.png)
 ```
 
 ### CSV Export
@@ -149,6 +151,7 @@ The clipboard lets you collect records and export them together.
 ┌──────────────────┐
 │  Download file   │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_cab40e4b.png)
 ```
 
 ### Steps
@@ -217,6 +220,7 @@ Opens in Excel or Google Sheets. Each row is one record.
 │  F001/S1     │  Corres-  │  1920-1935        │             │
 │              │  pondence │                   │             │
 └──────────────┴───────────┴───────────────────┴─────────────┘
+![wireframe](./images/wireframes/wireframe_a4b9e2b1.png)
 ```
 
 ### EAD Files
@@ -275,6 +279,7 @@ Some exports let you choose which fields to include:
 │  ☑ Scope and content                    │
 │  ☐ Access conditions (skip)             │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d7d87aea.png)
 ```
 
 ---

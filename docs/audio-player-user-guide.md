@@ -18,6 +18,7 @@ Listen to audio recordings with enhanced playback features including waveform di
 │  ◀◀  │  ▶ Play  │  ▶▶  │  🔊 Volume  │  1x Speed           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f06b58ec.png)
 ```
 
 ---
@@ -33,6 +34,7 @@ Listen to audio recordings with enhanced playback features including waveform di
 │  OGG     - Open format                                      │
 │  M4A     - Apple format                                     │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e1855867.png)
 ```
 
 ---
@@ -52,6 +54,7 @@ Listen to audio recordings with enhanced playback features including waveform di
 │  1x       Change playback speed                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4c9deff9.png)
 ```
 
 ### Waveform Navigation
@@ -82,6 +85,7 @@ Adjust speed for transcription or review:
 │  1.5x    - Fast (for review)                                │
 │  2x      - Double speed (for scanning)                      │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_42c89d7c.png)
 ```
 
 ---
@@ -115,6 +119,7 @@ Click **Mark End** when the section finishes.
 │                                                             │
 │              [Cancel]    [Save Snippet]                     │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2ad171df.png)
 ```
 
 ### Viewing Saved Snippets
@@ -133,6 +138,7 @@ Click **Mark End** when the section finishes.
 │     [▶ Play]  [Edit]  [Delete]                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_18286ac2.png)
 ```
 
 ---
@@ -150,6 +156,7 @@ Click **Mark End** when the section finishes.
 │  M                │  Mute / Unmute                          │
 │  F                │  Fullscreen                             │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_25000429.png)
 ```
 
 ---
@@ -170,6 +177,7 @@ If transcription is available:
 │                                                             │
 │  Click any timestamp to jump to that point ↑                │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ed331dc2.png)
 ```
 
 ---
@@ -185,6 +193,7 @@ If transcription is available:
 │  Use keyboard shortcuts        │  Click for every action    │
 │  Note timestamps in research   │  Lose track of where you were│
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f84ee48f.png)
 ```
 
 ---

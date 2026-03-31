@@ -59,6 +59,7 @@ The API (Application Programming Interface) allows external applications to comm
 │   Display on webpage                │                           │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8e153d01.png)
 ```
 
 ---
@@ -96,6 +97,7 @@ Before using the API, you need an API key for authentication.
 │   └─────────────────────────────────────────────────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b6039cd8.png)
 ```
 
 **Important:** Keep your API key secret. Anyone with your key can access the system as you.
@@ -253,6 +255,7 @@ Webhooks notify your applications in real-time when records change in AtoM. Inst
 │       │ ─────────────────────────────────▶│                     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ebeaa5dd.png)
 ```
 
 ### Setting Up a Webhook
@@ -451,6 +454,7 @@ GET /api/v2/taxonomies/42/terms
 │  ?skip=50              Pagination offset                       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b13fb66a.png)
 ```
 
 ---

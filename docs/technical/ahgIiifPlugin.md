@@ -82,6 +82,7 @@ The ahgIiifPlugin provides comprehensive IIIF (International Image Interoperabil
 │  └────────────────────────────────────────────────────────────────────────────┘ │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9213b39a.png)
 ```
 
 ---

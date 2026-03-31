@@ -17,6 +17,7 @@ The Cart module allows you to collect multiple archival records and submit them 
 │  Browse Records │ ──▶ │  Add to Cart    │ ──▶ │  Submit All     │
 │  with Images    │     │  🛒              │     │  as Request     │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+![wireframe](./images/wireframes/wireframe_61d36f30.png)
 ```
 
 ---
@@ -144,6 +145,7 @@ Use the Cart when you need to:
               │     CART CLEARED                │
               │     Redirect to Request List    │
               └─────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_36552f50.png)
 ```
 
 ---

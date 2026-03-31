@@ -948,6 +948,7 @@ Plan and execute format conversions to ensure long-term accessibility.
 │  🟢 Low        - Open standard, well-supported              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cb353c99.png)
 ```
 
 ### Obsolescence Report
@@ -970,6 +971,7 @@ View formats at risk in your repository:
 │  [Generate Migration Plan]                                  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b5817c90.png)
 ```
 
 ### Migration Pathways
@@ -991,6 +993,7 @@ Pre-defined conversion routes:
 │  AVI           →   FFV1/MKV         Lossless     ✓         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ad568c49.png)
 ```
 
 ### Creating a Migration Plan
@@ -1032,6 +1035,7 @@ Step 7: Verify results
 │  [Pause]  [Resume]  [View Details]                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8ad2175c.png)
 ```
 
 ### Migration Best Practices
@@ -1047,6 +1051,7 @@ Step 7: Verify results
 │  Schedule during low-usage     │  Run during peak hours     │
 │  Monitor progress              │  Leave unattended          │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8701d891.png)
 ```
 
 ---

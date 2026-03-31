@@ -82,6 +82,7 @@ Time-based access restrictions for archival materials with automatic expiration,
 │    sent_at TIMESTAMP                    │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_275661d5.png)
 ```
 
 ---

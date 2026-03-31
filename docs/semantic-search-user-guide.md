@@ -33,6 +33,7 @@ When searching, you can enable semantic search from the search box:
 │        │     Expand with synonyms    │                  │
 │        └─────────────────────────────┘                  │
 └─────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_df85e6ce.png)
 ```
 
 ### Understanding Search Results
@@ -50,6 +51,7 @@ When Semantic Search expands your query, you'll see an information box showing w
 │                                                                       │
 │ ℹ️ Disable semantic search in options to search exact terms only.    │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ad897e2a.png)
 ```
 
 ---
@@ -93,6 +95,7 @@ When Semantic Search expands your query, you'll see an information box showing w
                    │  Search results  │
                    │    displayed     │
                    └──────────────────┘
+![wireframe](./images/wireframes/wireframe_62e574f1.png)
 ```
 
 ### Types of Term Relationships
@@ -134,6 +137,7 @@ Administrators can configure Semantic Search from the AHG Settings:
 │  └─────────────┘  └─────────────┘  └─────────────┘                  │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7f27ef66.png)
 ```
 
 ### Dashboard Overview
@@ -165,6 +169,7 @@ The Semantic Search dashboard shows:
 │  └───────────────────────────────────────────────────────────────┘   │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cfabcc98.png)
 ```
 
 ### Quick Actions Explained
@@ -196,6 +201,7 @@ Before enabling semantic search for all users, test how queries are expanded:
 │  manuscript → [document] [text] [codex] [script] [holograph]        │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1b93fe46.png)
 ```
 
 ---
@@ -243,6 +249,7 @@ Configure where synonyms come from:
 │      Uses AI models for semantic similarity (requires Ollama)        │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cc134649.png)
 ```
 
 ---
@@ -273,6 +280,7 @@ View all terms in your semantic search database:
 │ photograph    │ local    │ archival │ 7        │ Jan 15, 2026       │
 │ township      │ local    │ sa       │ 4        │ Jan 15, 2026       │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6d19c94f.png)
 ```
 
 ### Adding Custom Terms
@@ -307,6 +315,7 @@ Add organization-specific terminology:
 │                                                                       │
 │                                      [Cancel]  [💾 Save Term]        │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c70cb8a6.png)
 ```
 
 ### Viewing Term Details
@@ -336,6 +345,7 @@ Click on any term to see its full details and all associated synonyms:
 │  │                                                                  ││
 │  └──────────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_eb550db9.png)
 ```
 
 ---
@@ -391,6 +401,7 @@ Semantic Search includes curated terminology for:
 │ search with  │ ◄─── │ Semantic     │ ◄─── │ Settings,    │
 │ synonyms     │      │ Search       │      │ configure    │
 └──────────────┘      └──────────────┘      └──────────────┘
+![wireframe](./images/wireframes/wireframe_06523e6a.png)
 ```
 
 ### Workflow 2: Adding Organization-Specific Terms
@@ -418,6 +429,7 @@ Semantic Search includes curated terminology for:
  │ Export to Elasticsearch if      │
  │ using ES synonym filters        │
  └─────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_697bc1e1.png)
 ```
 
 ### Workflow 3: Syncing External Sources
@@ -463,6 +475,7 @@ Semantic Search includes curated terminology for:
                   │ Export to       │
                   │ Elasticsearch   │
                   └─────────────────┘
+![wireframe](./images/wireframes/wireframe_b4a53bf6.png)
 ```
 
 ---

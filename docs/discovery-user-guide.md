@@ -53,6 +53,7 @@ https://your-site.com/discovery
 │                                                                       │
 │                        [« 1 2 3 »]                                    │
 └───────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_242a9c9a.png)
 ```
 
 ---

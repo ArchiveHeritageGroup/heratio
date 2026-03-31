@@ -52,6 +52,7 @@ The ahgGraphQLPlugin provides a GraphQL API endpoint as an alternative to the RE
 │              (Reused from ahgAPIPlugin)                          │
 │  • Database queries via Laravel Query Builder                    │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_97682844.png)
 ```
 
 ## Directory Structure

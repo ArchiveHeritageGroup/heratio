@@ -80,6 +80,7 @@ The ahgCartPlugin provides shopping cart and e-commerce functionality for AtoM, 
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bc20711a.png)
 ```
 
 ---
@@ -189,6 +190,7 @@ The ahgCartPlugin provides shopping cart and e-commerce functionality for AtoM, 
 │  └─────────────────────────────────────────────────────────────────────┘
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_afd53536.png)
 ```
 
 ---

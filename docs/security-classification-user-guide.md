@@ -30,6 +30,7 @@ Manage access to sensitive records using security clearance levels and classific
 │  Users can only see records at or below their level         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1c576905.png)
 ```
 
 ---
@@ -54,6 +55,7 @@ Manage access to sensitive records using security clearance levels and classific
 │  🟢 PUBLIC       │  No restrictions                         │
 │                  │  Anyone can view                         │
 └──────────────────┴──────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ab98fa15.png)
 ```
 
 ---
@@ -73,6 +75,7 @@ Manage access to sensitive records using security clearance levels and classific
 │  Record is TOP SECRET  →  ❌ ACCESS DENIED                  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1e235668.png)
 ```
 
 ---
@@ -98,6 +101,7 @@ Manage access to sensitive records using security clearance levels and classific
 │  You can view records classified up to SECRET               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8a397026.png)
 ```
 
 ---
@@ -134,6 +138,7 @@ When creating or editing a record:
 │  Review Date:    [2030-01-01           ]                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d132c3a8.png)
 ```
 
 ### Classification Guidelines
@@ -168,6 +173,7 @@ When creating or editing a record:
 │     • General reference materials                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2965361d.png)
 ```
 
 ---
@@ -193,6 +199,7 @@ If you try to view a record above your clearance:
 │                      [Request Access]                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3786c5a4.png)
 ```
 
 ---
@@ -216,6 +223,7 @@ When you search, you only see records you have clearance for:
 │  ...                                                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3f9e52ba.png)
 ```
 
 ---
@@ -243,6 +251,7 @@ Classified records show their level clearly:
 │  Reason:        Contains personal employment information    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_896061bb.png)
 ```
 
 ---
@@ -273,6 +282,7 @@ Records may be reviewed and declassified over time:
 │  Date       Level                                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_93e6bb48.png)
 ```
 
 ---
@@ -292,6 +302,7 @@ All classification changes are logged:
 │  15 Dec 2024     M. Jones      Created as SECRET            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7603538d.png)
 ```
 
 ---
@@ -323,6 +334,7 @@ The system automatically performs security maintenance tasks:
 │     Remove access logs older than retention period         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1a5b57b2.png)
 ```
 
 ### Clearance Expiry Notifications
@@ -346,6 +358,7 @@ When your clearance is about to expire, you'll receive an email:
 │  Security Administration                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_72449334.png)
 ```
 
 **Note**: Warnings are sent once per week until the clearance expires or is renewed.
@@ -364,6 +377,7 @@ When your clearance is about to expire, you'll receive an email:
 │  Report security concerns      │  Ignore policy violations  │
 │  Respond to expiry notices     │  Ignore email warnings     │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4ee31876.png)
 ```
 
 ---

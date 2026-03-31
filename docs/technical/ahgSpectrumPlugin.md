@@ -156,6 +156,7 @@ UK Collections Trust Spectrum 5.0 procedures implementation for museum collectio
 │    notes TEXT                           │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_18df06f1.png)
 ```
 
 ---

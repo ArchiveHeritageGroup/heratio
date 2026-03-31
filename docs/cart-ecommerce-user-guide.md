@@ -50,6 +50,7 @@ The Shopping Cart system allows visitors to request reproductions of archival ma
 │                                               └──────────────────┘       │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_31e46f37.png)
 ```
 
 ---

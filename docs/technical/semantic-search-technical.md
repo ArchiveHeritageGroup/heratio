@@ -65,6 +65,7 @@ The Semantic Search system provides query expansion capabilities for AtoM archiv
 │   └─────────────────┘   └─────────────────┘   │ - Ollama        │          │
 │                                               └─────────────────┘          │
 └─────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e214ad62.png)
 ```
 
 ---
@@ -152,6 +153,7 @@ The Semantic Search system provides query expansion capabilities for AtoM archiv
 │    created_at    DATETIME│
 │    updated_at    DATETIME│
 └──────────────────────────┘
+![wireframe](./images/wireframes/wireframe_840b4fd1.png)
 ```
 
 ### Table Relationships
@@ -325,6 +327,7 @@ CREATE TABLE IF NOT EXISTS ahg_semantic_search_log (
 │ + isEnabled(): bool                                                       │
 │ + logSearch(original, expanded, userId): void                            │
 └──────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d903ca59.png)
 ```
 
 ---
@@ -412,6 +415,7 @@ User Input: "old photographs township"
 │    Return search results with         │
 │    expansion metadata for UI display  │
 └───────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a3889915.png)
 ```
 
 ---
@@ -487,6 +491,7 @@ User Input: "old photographs township"
 │ status='completed' │
 │ terms_synced = N   │
 └────────────────────┘
+![wireframe](./images/wireframes/wireframe_a98f66bb.png)
 ```
 
 ---
@@ -521,6 +526,7 @@ Examples:
   php bin/atom thesaurus:sync-wordnet --archival
   php bin/atom thesaurus:expand "old photographs"
   php bin/atom thesaurus:export-es --path=/etc/elasticsearch/synonyms/
+![wireframe](./images/wireframes/wireframe_25ae194b.png)
 ```
 
 ---
@@ -546,6 +552,7 @@ Examples:
 │ semantic_ollama_model          │ string   │ nomic-embed-text                 │
 │ semantic_es_synonyms_path      │ string   │ /etc/elasticsearch/synonyms/... │
 └────────────────────────────────┴──────────┴─────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4b355ce3.png)
 ```
 
 ### Accessing Settings

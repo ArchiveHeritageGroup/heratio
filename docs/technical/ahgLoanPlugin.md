@@ -63,6 +63,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
 │  └───────────────────────────────────────────────────────────────────┘   │
 │                                                                           │
 └───────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_367ee8c0.png)
 ```
 
 ### Component Diagram
@@ -107,6 +108,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
 │                                └─────────────────────────────────────┘   │
 │                                                                           │
 └───────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_595c24d5.png)
 ```
 
 ---
@@ -226,6 +228,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
               │    trigger_days_before      │         │    status                   │
               │    is_active                │         │    sent_at                  │
               └─────────────────────────────┘         └─────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f13b33fc.png)
 ```
 
 ---
@@ -293,6 +296,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
           │<───────────────────────────────────│                                  │
           │                                    │                                  │
           v                                    v                                  v
+![wireframe](./images/wireframes/wireframe_4104f655.png)
 ```
 
 ### Status Transition Flow
@@ -341,6 +345,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
           │<────────────────│                    │                   │
           │                 │                    │                   │
           v                 v                    v                   v
+![wireframe](./images/wireframes/wireframe_fa277c14.png)
 ```
 
 ---
@@ -446,6 +451,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
                                    ┌────────┐
                                    │ closed │
                                    └────────┘
+![wireframe](./images/wireframes/wireframe_cdf6ba11.png)
 ```
 
 ### Gallery Loan Workflow
@@ -513,6 +519,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
                                             ┌──────────┐
                                             │ returned │
                                             └──────────┘
+![wireframe](./images/wireframes/wireframe_d6dc36fa.png)
 ```
 
 ### DAM License Workflow
@@ -575,6 +582,7 @@ The `ahgLoanPlugin` is a shared loan management system for all GLAM (Galleries, 
                         │         │ renew
                         │         │
                         └────<────┘
+![wireframe](./images/wireframes/wireframe_e829f2e0.png)
 ```
 
 ---

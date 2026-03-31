@@ -48,6 +48,7 @@ Comprehensive audit trail system capturing all CRUD operations, authentication e
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_08b65ae2.png)
 ```
 
 ---
@@ -109,6 +110,7 @@ Comprehensive audit trail system capturing all CRUD operations, authentication e
 │ idx_ip_address (ip_address)         │
 │ idx_retention (retention_until)     │
 └─────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_08714eae.png)
 ```
 
 ### SQL Schema

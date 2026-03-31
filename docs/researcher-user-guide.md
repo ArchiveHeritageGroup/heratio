@@ -43,6 +43,7 @@ Create personal collections to organize materials for your research projects.
 │                                                              │
 │  [+ Create New Collection]                                   │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e5838ca8.png)
 ```
 
 **To add items to a collection:**
@@ -83,6 +84,7 @@ Book visits to the reading room to view physical materials.
 │                                                              │
 │  [Submit Booking Request]                                    │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4fc1dd89.png)
 ```
 
 **Booking Process:**
@@ -121,6 +123,7 @@ Add personal notes and annotations to archival materials.
 │  └─ 📌 "Compare with drawings in Box 12"                    │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_34c980c3.png)
 ```
 
 **To add an annotation:**
@@ -207,6 +210,7 @@ Your central hub for all research activities:
 │  • New materials added matching your interests               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bd106870.png)
 ```
 
 ---
@@ -269,6 +273,7 @@ Research accounts may require periodic renewal:
 │     Export finding aids as needed                              │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f5683532.png)
 ```
 
 ---
@@ -356,6 +361,7 @@ Manage reading room seats and track occupancy in real-time.
 │  A3      │ Accessible │ Accessible│ Main    │ 🟢 Available │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_eaca26fd.png)
 ```
 
 **Seat Types:**
@@ -404,6 +410,7 @@ Track and manage reading room equipment including microfilm readers, scanners, a
 │                                                              │
 │  [+ Add Equipment]                                           │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a49abae9.png)
 ```
 
 **Equipment Types:**
@@ -458,6 +465,7 @@ Manage material retrieval workflow with queue-based processing.
 │                                                              │
 │  Batch Actions: [Status ▼] [Notes: ____] [Update Selected]  │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_df5c952a.png)
 ```
 
 **Queue Stages:**
@@ -508,6 +516,7 @@ Generate and print call slips for material retrieval.
 │                    [BARCODE: REQ-123]                        │
 │  ═══════════════════════════════════════════════════════    │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7f0eedb1.png)
 ```
 
 **Printing Call Slips:**
@@ -546,6 +555,7 @@ Register and track visitors without researcher accounts.
 │  │ [Register & Check In]   │  │                         │   │
 │  └─────────────────────────┘  └─────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_958b58c2.png)
 ```
 
 **Walk-In vs Registered Researchers:**

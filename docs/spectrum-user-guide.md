@@ -28,6 +28,7 @@ Find it at: **Admin → Spectrum Dashboard**
 │  • 2 insurance renewals coming up                            │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_23f45fec.png)
 ```
 
 ---
@@ -75,6 +76,7 @@ Find it at: **Admin → Spectrum Dashboard**
 │ Acquisition   │   │ date          │
 │ Record        │   │               │
 └───────────────┘   └───────────────┘
+![wireframe](./images/wireframes/wireframe_68f52287.png)
 ```
 
 ### How to Record Entry
@@ -151,6 +153,7 @@ Find it at: **Admin → Spectrum Dashboard**
 │ Check condition  │
 │ when returned    │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_f6d08359.png)
 ```
 
 ### Creating a Loan
@@ -197,6 +200,7 @@ The dashboard shows overdue items in red. Click on any overdue loan to:
 │   ✓  Before photography or display      │
 │                                         │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_28c1a2e5.png)
 ```
 
 ### Condition Ratings
@@ -243,6 +247,7 @@ When someone asks "where is the blue vase?" you need to answer quickly. Good loc
 │   Position:   Shelf 3, Left Side        │
 │                                         │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a69383ac.png)
 ```
 
 ### Recording Movement
@@ -318,6 +323,7 @@ Manage museum collections using UK Collections Trust Spectrum 5.0 procedures for
 │  💰 Valuation          📷 Documentation     🗑️  Deaccession  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c2f779a5.png)
 ```
 
 ---
@@ -338,6 +344,7 @@ Manage museum collections using UK Collections Trust Spectrum 5.0 procedures for
 │  📸 Documentation        - Photography and records          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_792a918f.png)
 ```
 
 ---
@@ -392,6 +399,7 @@ Record objects coming into the building:
 │  Phone:           [+27 21 123 4567          ]               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bc3415bc.png)
 ```
 
 ### Step 2: Add Objects
@@ -413,6 +421,7 @@ Record objects coming into the building:
 │  Total objects: 2 (7 individual items)                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6346901c.png)
 ```
 
 ### Step 3: Set Return/Decision Date
@@ -433,6 +442,7 @@ Record objects coming into the building:
 │  Receipt Given:   [✓] Yes                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_804b6162.png)
 ```
 
 ---
@@ -470,6 +480,7 @@ Lend objects to other institutions:
 │  To:              [30 June 2026               ]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7e88e333.png)
 ```
 
 ### Loan Objects
@@ -492,6 +503,7 @@ Lend objects to other institutions:
 │  Total Insurance Value: R 2,500,000                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b1895427.png)
 ```
 
 ### Loan Conditions
@@ -518,6 +530,7 @@ Lend objects to other institutions:
 │  Credit Line:     [On loan from The Archive   ]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8bc2b3b0.png)
 ```
 
 ---
@@ -563,6 +576,7 @@ Lend objects to other institutions:
 │              Complete                                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a8591e36.png)
 ```
 
 ---
@@ -593,6 +607,7 @@ Track where objects are:
 │  [Move Object]  [View History]                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_acecbb50.png)
 ```
 
 ### Record a Movement
@@ -619,6 +634,7 @@ Track where objects are:
 │                [Cancel]    [Confirm Move]                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5222e929.png)
 ```
 
 ---
@@ -668,6 +684,7 @@ Assess and record object condition:
 │  ☐ Urgent attention required                               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c3c0e10b.png)
 ```
 
 ---
@@ -703,6 +720,7 @@ Record object values:
 │  [Attach Valuation Certificate]                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3b4f42d6.png)
 ```
 
 ---
@@ -736,6 +754,7 @@ Quick overview of collection activity:
 │  • MUS-2020-00045 - Condition check completed              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_86d944b1.png)
 ```
 
 ---
@@ -752,6 +771,7 @@ Quick overview of collection activity:
 │  Document all decisions        │  Leave gaps in records     │
 │  Keep valuations current       │  Let valuations expire     │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ad00b1c2.png)
 ```
 
 ---

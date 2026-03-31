@@ -45,6 +45,7 @@ This implementation integrates the ahgAIPlugin's Named Entity Recognition (NER) 
 │  └──────────────────┘      └──────────────────┘      └──────────────────┘  │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_98ddfe42.png)
 ```
 
 ---

@@ -91,6 +91,7 @@ Click **Save** to create the loan in draft status.
 │   └─────────┘    └──────────┘    └──────────┘    └─────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40e8d802.png)
 ```
 
 ### Status Descriptions

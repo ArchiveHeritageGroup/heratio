@@ -105,6 +105,7 @@ ahgAPIPlugin/
 │   JSON Response                                                 │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_271de83d.png)
 ```
 
 ### Technology Stack

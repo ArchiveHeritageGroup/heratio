@@ -397,6 +397,7 @@ Navigate to `/metadataExtraction` to access the metadata extraction management i
 │   2   │ doc.pdf     │ app/pdf    │ 1MB  │ Title   │ [View]  │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5870d1ec.png)
 ```
 
 ### Dashboard Features
@@ -434,6 +435,7 @@ The status page (`/metadataExtraction/status`) shows:
 │   └── video/mp4: 134 [Supported ✓]                          │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6a3500b9.png)
 ```
 
 ---
@@ -494,6 +496,7 @@ Navigate to `/metadataExtraction/view/:id` to see all extracted metadata:
 │   ▶ File (5 fields)                                         │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d9055db2.png)
 ```
 
 Metadata is organized into collapsible sections by source (EXIF, IPTC, XMP, File, etc.).

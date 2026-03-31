@@ -82,6 +82,7 @@ Security classification system implementing multi-level access controls for sens
 │    ip_address VARCHAR       │
 │    created_at TIMESTAMP     │
 └─────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9d664301.png)
 ```
 
 ---
@@ -135,6 +136,7 @@ Security classification system implementing multi-level access controls for sens
 │ GRANTED   DENIED                                               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_804ed910.png)
 ```
 
 ---

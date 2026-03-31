@@ -25,6 +25,7 @@ Manage born-digital and digitized assets including photographs, videos, audio fi
 │  TXT, RTF        STL, FBX        JSON                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3cf28816.png)
 ```
 
 ---
@@ -45,6 +46,7 @@ Manage born-digital and digitized assets including photographs, videos, audio fi
 │  💾 Software and code                                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8d526c14.png)
 ```
 
 ---
@@ -95,6 +97,7 @@ Go to **GLAM/DAM** → **Digital Assets** → **Add**
 │  Selected: photograph_001.tif (45.2 MB)                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fabba00f.png)
 ```
 
 ### Step 3: Auto-Detected Metadata
@@ -125,6 +128,7 @@ The system extracts metadata automatically:
 │     Copyright:     © 2025 Archive                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2d6e4869.png)
 ```
 
 ### Step 4: Add Descriptive Metadata
@@ -153,6 +157,7 @@ The system extracts metadata automatically:
 │  Place Created:   [Cape Town, South Africa   ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_24082064.png)
 ```
 
 ---
@@ -175,6 +180,7 @@ The system extracts metadata automatically:
 │     • Access copy (2000px JPEG)                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_26f4fca6.png)
 ```
 
 ### Audio
@@ -194,6 +200,7 @@ The system extracts metadata automatically:
 │     • Waveform visualization                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c24bb053.png)
 ```
 
 ### Video
@@ -213,6 +220,7 @@ The system extracts metadata automatically:
 │     • Thumbnail frames                                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_241c6ebd.png)
 ```
 
 ### 3D Models
@@ -231,6 +239,7 @@ The system extracts metadata automatically:
 │     • Polygon count                                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cff9b8ce.png)
 ```
 
 ---
@@ -260,6 +269,7 @@ Standard fields for images:
 │  Credit Line:     [Photo: John Smith/Archive  ]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_73818630.png)
 ```
 
 ---
@@ -292,6 +302,7 @@ Upload multiple files at once:
 │  [Start Upload]  [Clear Queue]                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2d9629ee.png)
 ```
 
 ### Step 2: Apply Common Metadata
@@ -311,6 +322,7 @@ Upload multiple files at once:
 │  ☐ Apply to existing parent record                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0800fb10.png)
 ```
 
 ---
@@ -347,6 +359,7 @@ View detailed file information:
 │  PRONOM ID:       fmt/353                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_182ab0c7.png)
 ```
 
 ---
@@ -370,6 +383,7 @@ How files are stored:
 │              └── Access     (2000px)                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0ebf6b50.png)
 ```
 
 ---
@@ -396,6 +410,7 @@ Control who can view and download:
 │  Watermark:       [✓] Apply watermark to downloads          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_36e8c3b7.png)
 ```
 
 ---
@@ -412,6 +427,7 @@ Control who can view and download:
 │  Verify checksums              │  Assume files are intact  │
 │  Tag with keywords             │  Skip subject access      │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c3bab85f.png)
 ```
 
 ---
@@ -436,6 +452,7 @@ The DAM module includes specialized fields for film and video heritage materials
 │  Season/Episode:    [   ] / [   ]                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f075cb06.png)
 ```
 
 ### Alternative Versions
@@ -456,6 +473,7 @@ Track different language versions, restorations, and edits:
 │  [+ Add Version]                                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d96afb3c.png)
 ```
 
 ### Format Holdings & Access
@@ -484,6 +502,7 @@ Document where physical copies are held:
 │  [+ Add Holding]                                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_30677330.png)
 ```
 
 ### External References
@@ -509,6 +528,7 @@ Link to film databases and resources:
 │  [+ Add Link]                                               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_55b98b96.png)
 ```
 
 ---
@@ -526,6 +546,7 @@ The DAM module integrates with the Loan plugin for managing loans:
 │  📊 Manage Loans   View and manage existing loans           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_28905560.png)
 ```
 
 ---

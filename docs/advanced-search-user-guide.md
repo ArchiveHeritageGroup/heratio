@@ -21,6 +21,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │                      Facet filters                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d0984aaa.png)
 ```
 
 ---
@@ -42,6 +43,7 @@ Find records using powerful search filters, field-specific queries, and saved se
    │  [Basic] [Content] [Access Points] [Dates] [Filters]   │
    │                                                         │
    └─────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_20c65b34.png)
 ```
 
 ---
@@ -68,6 +70,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │                   ○ Exact phrase                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c949b2c1.png)
 ```
 
 ### Content Tab
@@ -91,6 +94,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │  Finding Aids:             [                        ]       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_268735c1.png)
 ```
 
 ### Access Points Tab
@@ -115,6 +119,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │  Genre:           [                        ] [+ Add]        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a13cd878.png)
 ```
 
 ### Dates Tab
@@ -143,6 +148,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │  [19th Century] [1900-1950] [1950-2000] [This Year]        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1da1f86e.png)
 ```
 
 ### Filters Tab
@@ -176,6 +182,7 @@ Find records using powerful search filters, field-specific queries, and saved se
 │  ○ All            ○ Published Only         ○ Draft Only    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ccffd79b.png)
 ```
 
 ---
@@ -207,6 +214,7 @@ Combine search terms with operators:
 │            Example: wom?n (finds woman, women)              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6822da2c.png)
 ```
 
 ### Examples
@@ -236,6 +244,7 @@ Combine search terms with operators:
 │  correspondence NOT circular                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_afc5917f.png)
 ```
 
 ---
@@ -265,6 +274,7 @@ Combine search terms with operators:
 │     ...regulations governing gold extraction...             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7b4d897b.png)
 ```
 
 ### Facet Filters
@@ -301,6 +311,7 @@ Narrow results using facets on the side:
 │  [Clear All Filters]                                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4ff23dbe.png)
 ```
 
 ---
@@ -328,6 +339,7 @@ After searching, click **Save Search**:
 │              [Cancel]    [Save Search]                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a85bdab0.png)
 ```
 
 ### Access Saved Searches
@@ -348,6 +360,7 @@ After searching, click **Save Search**:
 │  [Run] [Edit] [Delete]                                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3e4cad72.png)
 ```
 
 ---
@@ -379,6 +392,7 @@ After searching, click **Save Search**:
 │  • coloni* (finds colonial, colonialism, colonies)          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4f0b8445.png)
 ```
 
 ### Best Practices
@@ -393,6 +407,7 @@ After searching, click **Save Search**:
 │  Save useful searches          │  Rebuild complex searches │
 │  Use quotes for phrases        │  Search phrase as words   │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_60a641e2.png)
 ```
 
 ---
@@ -420,6 +435,7 @@ The GLAM Browse page includes automatic typo detection and correction. When you 
 │     matches were found via the search index.                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_17b18bf5.png)
 ```
 
 ### How It Works
@@ -470,6 +486,7 @@ Search is slow                →  Narrow date range
 │  Escape           │  Clear search box                       │
 │  Tab              │  Move between fields                    │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_44be6bdb.png)
 ```
 
 ---

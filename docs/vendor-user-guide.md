@@ -15,6 +15,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 │ Contact info │    │ Add items    │    │ Monitor      │    │ Update       │
 │ Services     │    │ Set dates    │    │ Status       │    │ Condition    │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_44a44e02.png)
 ```
 
 ---
@@ -31,6 +32,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 │  🚚 Transport                 →  Items in transit           │
 │  🧹 Cleaning/Pest Treatment   →  Specialist services        │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_59be7345.png)
 ```
 
 ---
@@ -89,6 +91,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 └─────────────────────────────────────────────────────────────┘
 
 * Required fields
+![wireframe](./images/wireframes/wireframe_2c2a6750.png)
 ```
 
 ---
@@ -120,6 +123,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 │  Total Jobs: 24    Items Processed: 156    Active: 3       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ad72f924.png)
 ```
 
 ---
@@ -163,6 +167,7 @@ Track items sent to external vendors for conservation, restoration, digitization
                          ┌─────────────┐
                          │  DISPATCH   │
                          └─────────────┘
+![wireframe](./images/wireframes/wireframe_4f2bec21.png)
 ```
 
 ---
@@ -195,6 +200,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 │                     [_________________________]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3c80f6a3.png)
 ```
 
 ---
@@ -232,6 +238,7 @@ Track items sent to external vendors for conservation, restoration, digitization
 │  Total Estimated Cost: R 3,700.00                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d28f3a1c.png)
 ```
 
 ---
@@ -260,6 +267,7 @@ In Progress   →  Vendor working on items
 Completed     →  Work done, awaiting pickup
 Returned      →  Items back in-house
 Closed        →  Transaction complete
+![wireframe](./images/wireframes/wireframe_a4ba5841.png)
 ```
 
 ---
@@ -290,6 +298,7 @@ Closed        →  Transaction complete
 │ TXN-2026-003 │ Oil Painting      │ Art Restore │ 28 Feb    │
 │ TXN-2026-005 │ Maps (12)         │ DigiScan    │ 🔴 OVERDUE │
 └──────────────┴───────────────────┴─────────────┴───────────┘
+![wireframe](./images/wireframes/wireframe_752df138.png)
 ```
 
 ---
@@ -313,6 +322,7 @@ Closed        →  Transaction complete
 │     [ View ] [ Contact Vendor ] [ Extend Date ]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_61130ffa.png)
 ```
 
 ---
@@ -362,6 +372,7 @@ Closed        →  Transaction complete
     │   Close     │
     │ Transaction │
     └─────────────┘
+![wireframe](./images/wireframes/wireframe_6e692672.png)
 ```
 
 ---
@@ -399,6 +410,7 @@ Closed        →  Transaction complete
 │                    [ Cancel ]  [ Mark as Returned ]         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4fa69f4d.png)
 ```
 
 ---
@@ -421,6 +433,7 @@ Closed        →  Transaction complete
 │  Deacidification   │      14        │     -       │    -     │
 │  Encapsulation     │       7        │     -       │    -     │
 └────────────────────┴────────────────┴─────────────┴──────────┘
+![wireframe](./images/wireframes/wireframe_f87cc0b8.png)
 ```
 
 ---
@@ -437,6 +450,7 @@ Closed        →  Transaction complete
 │  Record all costs              │  Lose track of receipts   │
 │  Check items on return         │  Accept without inspection│
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0c9d4f13.png)
 ```
 
 ---
@@ -476,6 +490,7 @@ Item shows wrong vendor      →  Contact administrator
 │  Check overdue             │  Admin → Vendors → Overdue    │
 │  View transaction history  │  Admin → Vendors → Transactions│
 └────────────────────────────┴───────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_53479aea.png)
 ```
 
 ---

@@ -15,6 +15,7 @@ Manage copyright, licensing, access restrictions, and cultural heritage labels f
 │ Find item    │    │ Copyright    │    │ Dates        │    │ Record       │
 │ to manage    │    │ License      │    │ Holder       │    │ updated      │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_eeb6a0cd.png)
 ```
 
 ---
@@ -42,6 +43,7 @@ Manage copyright, licensing, access restrictions, and cultural heritage labels f
 │     (TK Labels from Local Contexts)                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_71261460.png)
 ```
 
 ---
@@ -94,6 +96,7 @@ Rights Statements are standardised indicators that tell users what they can do w
 │     └── No Known Copyright                                  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3a3dd161.png)
 ```
 
 ### Choosing a Rights Statement
@@ -118,6 +121,7 @@ Rights Statements are standardised indicators that tell users what they can do w
 │(choose   │    │(choose   │
 │ subtype) │    │ subtype) │
 └──────────┘    └──────────┘
+![wireframe](./images/wireframes/wireframe_d1ece984.png)
 ```
 
 ---
@@ -152,6 +156,7 @@ Rights Statements are standardised indicators that tell users what they can do w
 │                │ Most restrictive CC license                │
 │                │                                            │
 └────────────────┴────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d504ccf7.png)
 ```
 
 ### Which License to Choose?
@@ -175,6 +180,7 @@ Rights Statements are standardised indicators that tell users what they can do w
    │    │ │      │ │ND  │ │NC  │ │NC- │ │NC- │
    │    │ │      │ │    │ │    │ │SA  │ │ND  │
    └────┘ └──────┘ └────┘ └────┘ └────┘ └────┘
+![wireframe](./images/wireframes/wireframe_f5455947.png)
 ```
 
 ---
@@ -201,6 +207,7 @@ An embargo restricts access to a record until a specific date.
 │     only              │                                     │
 │                       │                                     │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0237458e.png)
 ```
 
 ### Setting an Embargo
@@ -232,6 +239,7 @@ An embargo restricts access to a record until a specific date.
 │                              [ Cancel ]  [ Apply Embargo ]  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_606c0ead.png)
 ```
 
 ### Embargo Status Dashboard
@@ -257,6 +265,7 @@ EXPIRING SOON:
 │ DEF/003/012  │ Board Minutes 1995 │ 28 Feb 26  │ [Review]  │
 │ GHI/007/001  │ Personnel File     │ 01 Mar 26  │ [Review]  │
 └──────────────┴────────────────────┴────────────┴───────────┘
+![wireframe](./images/wireframes/wireframe_93f2fd9b.png)
 ```
 
 ---
@@ -287,6 +296,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │     TK Open to Collaboration - Welcomes engagement          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_706ff36d.png)
 ```
 
 ### Applying TK Labels
@@ -315,6 +325,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │                              [ Cancel ]  [ Apply Labels ]   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e343681b.png)
 ```
 
 ---
@@ -377,6 +388,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
               │  Rights   │
               │  Applied  │
               └───────────┘
+![wireframe](./images/wireframes/wireframe_1857ddd5.png)
 ```
 
 ---
@@ -428,6 +440,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │  [Contact rights holder for publication permissions.      ] │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_45e27ae5.png)
 ```
 
 ---
@@ -463,6 +476,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │  └─────────────────────────────────────────────────────┘   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aa838660.png)
 ```
 
 ---
@@ -479,6 +493,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │  Apply TK labels           │  Edit Rights → TK Labels tab   │
 │  Bulk update rights        │  Admin → Rights → Batch Update │
 └────────────────────────────┴────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40b7abb1.png)
 ```
 
 ---
@@ -495,6 +510,7 @@ TK Labels are designed by indigenous communities to indicate cultural protocols 
 │  Review embargoes regularly    │  Forget expiring items    │
 │  Document your decisions       │  Skip the notes field     │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_91108b32.png)
 ```
 
 ---
@@ -525,6 +541,7 @@ For system administrators, the plugin provides command-line tools for automated 
 │  $ php symfony embargo:process --warn-days=14,7,3           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e0a7a18a.png)
 ```
 
 ### Cron Setup
@@ -542,6 +559,7 @@ For system administrators, the plugin provides command-line tools for automated 
 │            php symfony embargo:process                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3e276574.png)
 ```
 
 ### Embargo Reports
@@ -570,6 +588,7 @@ For system administrators, the plugin provides command-line tools for automated 
 │                               --output=/tmp/report.csv      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0c299d4b.png)
 ```
 
 ### Report Output Example

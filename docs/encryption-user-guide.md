@@ -22,6 +22,7 @@ Protect sensitive data at rest with two-layer encryption for digital objects and
 │   Chunked streaming              Per-value encryption       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d6da5737.png)
 ```
 
 ---
@@ -42,6 +43,7 @@ Protect sensitive data at rest with two-layer encryption for digital objects and
 │  If your server disk or database is compromised,            │
 │  encrypted data remains protected.                          │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5afcec97.png)
 ```
 
 ---
@@ -96,6 +98,7 @@ php bin/atom encryption:key --generate
 │    - Encrypted USB drive in safe                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3336cc46.png)
 ```
 
 ### Step 2: Verify Key
@@ -137,6 +140,7 @@ Encrypts uploaded digital objects (images, documents, audio, video) on disk.
 │   views      │◀────│   decrypts   │◀────│   reads      │
 │   file       │     │   on-the-fly │     │   encrypted  │
 └──────────────┘     └──────────────┘     └──────────────┘
+![wireframe](./images/wireframes/wireframe_ccd842aa.png)
 ```
 
 ### Enable File Encryption
@@ -199,6 +203,7 @@ Encrypts sensitive database columns so raw SQL access shows encrypted blobs inst
 │       Rights notes                                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7dc9d8e9.png)
 ```
 
 ### Enable Field Encryption
@@ -328,6 +333,7 @@ AUDIT LOG
 │    php bin/atom encryption:status                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_bd51ed17.png)
 ```
 
 ---

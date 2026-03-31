@@ -72,31 +72,48 @@ def ascii_to_image(ascii_art, output_path, font_size=12, padding=20):
     return output_path
 
 def process_markdown_file(md_path, output_dir):
-    """Process a markdown file and convert wireframes to images."""
+    """Process a markdown file and convert wireframes to images and insert references."""
     with open(md_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
-    # Find all ASCII wireframes
-    blocks = extract_ascii_blocks(content)
-    
-    if not blocks:
-        return []
     
     # Ensure output directory exists
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Generate unique filename based on content hash
+    # Split by code blocks and process
+    parts = content.split('```')
+    new_parts = []
     generated = []
-    for block in blocks:
-        content_hash = hashlib.md5(block.encode()).hexdigest()[:8]
-        filename = f"wireframe_{content_hash}.png"
-        output_path = output_dir / filename
+    
+    for part in parts:
+        if '┌' in part and ('─' in part or '│' in part or '└' in part):
+            lines = part.strip().split('\n')
+            # Filter out first line if it's a language hint
+            if lines and lines[0] and not lines[0].startswith('┌'):
+                lines = lines[1:]
+            if lines:
+                block = '\n'.join(lines)
+                if '┌' in block or '└' in block:
+                    # Generate image
+                    content_hash = hashlib.md5(block.encode()).hexdigest()[:8]
+                    filename = f"wireframe_{content_hash}.png"
+                    output_path = output_dir / filename
+                    
+                    if not output_path.exists():
+                        ascii_to_image(block, output_path)
+                    
+                    generated.append(filename)
+                    # Add image reference AFTER the wireframe block
+                    image_ref = f"\n![wireframe](./images/wireframes/{filename})\n"
+                    part = part.rstrip() + image_ref
         
-        if not output_path.exists():
-            ascii_to_image(block, output_path)
-        
-        generated.append((block, filename))
+        new_parts.append(part)
+    
+    # Write updated content back
+    if generated:
+        new_content = '```'.join(new_parts)
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
     
     return generated
 

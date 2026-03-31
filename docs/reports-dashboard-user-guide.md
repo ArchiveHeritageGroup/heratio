@@ -21,6 +21,7 @@ Generate and export reports about your archive's collections, users, activity, a
 │   Formats           Downloads        Registrations          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d255d4c4.png)
 ```
 
 ---
@@ -71,6 +72,7 @@ Generate and export reports about your archive's collections, users, activity, a
 │     Records missing required fields                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_55e2ab71.png)
 ```
 
 ### Running a Collection Report
@@ -106,6 +108,7 @@ Generate and export reports about your archive's collections, users, activity, a
 │     Where your users are located                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_72dd8d43.png)
 ```
 
 ---
@@ -134,6 +137,7 @@ Generate and export reports about your archive's collections, users, activity, a
 │     Records created/edited per user                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6bb1c940.png)
 ```
 
 ---
@@ -162,6 +166,7 @@ Generate and export reports about your archive's collections, users, activity, a
 │     Asset valuations and movements                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_af2a5bcf.png)
 ```
 
 ---
@@ -190,6 +195,7 @@ Choose from the categories above.
 │                                                             │
 │                     [Generate Report]                       │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e0475519.png)
 ```
 
 ### Step 3: View Results
@@ -208,6 +214,7 @@ Results appear on screen in a table format.
 │  [🔗 JSON]    - For technical/API integration               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b59bef2d.png)
 ```
 
 ### PDF Export
@@ -250,6 +257,7 @@ Set up automatic report generation:
 │                                                             │
 │                [Cancel]    [Schedule]                       │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_80750838.png)
 ```
 
 ---
@@ -265,6 +273,7 @@ Set up automatic report generation:
 │  Compare periods               │  Look at single snapshots  │
 │  Share with stakeholders       │  Keep insights to yourself │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1ed0dc7d.png)
 ```
 
 ---

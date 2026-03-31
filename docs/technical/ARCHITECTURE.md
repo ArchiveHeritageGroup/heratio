@@ -60,6 +60,7 @@ The AtoM AHG Framework is a **non-invasive modernization layer** that:
 │  └─────────────────────────────────────────────────────────────────┘   │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d2719eb8.png)
 ```
 
 ---
@@ -186,6 +187,7 @@ CREATE TABLE atom_plugin (
 │  conflicts during Symfony boot      │                                   │
 │                                     │                                   │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b80ab053.png)
 ```
 
 ---
@@ -260,6 +262,7 @@ CREATE TABLE atom_plugin (
 │             └── Assets accessible                                       │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_006313e2.png)
 ```
 
 ---
@@ -349,6 +352,7 @@ php bin/atom extension:enable ahgLibraryPlugin
 │  • Extensions add NEW routes only                                       │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aa514a1f.png)
 ```
 
 ---
@@ -468,6 +472,7 @@ class LibraryItemRepository extends BaseRepository
 │  --ahg-landing__hero--height: 400px;                                    │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ccdf6d4f.png)
 ```
 
 ---

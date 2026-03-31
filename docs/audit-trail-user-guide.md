@@ -19,6 +19,7 @@ Track all changes made to records in your archive, including who made changes an
 │  Name       Taken          Stamp          Affected         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_12a2c7cd.png)
 ```
 
 ---
@@ -36,6 +37,7 @@ Track all changes made to records in your archive, including who made changes an
 │  🔐 LOGIN     - User sign-ins                               │
 │  📋 PUBLISH   - Records made public                         │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_18d1ae4b.png)
 ```
 
 ---
@@ -80,6 +82,7 @@ You'll see a list of recent changes:
 │ 10 Jan 14:15 │ A. Brown     │ Published    │ Series A     │
 │ 10 Jan 13:45 │ J. Smith     │ Deleted      │ Duplicate    │
 └──────────────┴──────────────┴──────────────┴──────────────┘
+![wireframe](./images/wireframes/wireframe_60324f6a.png)
 ```
 
 ---
@@ -106,6 +109,7 @@ You'll see a list of recent changes:
 │                                                             │
 │                        [Search]                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a4b407ef.png)
 ```
 
 ---
@@ -133,6 +137,7 @@ Click on any audit entry to see full details:
 │  Date:        "1985" → "1985-1990"                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_33a529e9.png)
 ```
 
 ---
@@ -168,6 +173,7 @@ The file will download to your computer
 │  🔐 Monitor security events                                 │
 │  📋 Support audits and inspections                          │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b8fab15c.png)
 ```
 
 ---
@@ -182,6 +188,7 @@ The file will download to your computer
 │  Use filters to narrow search  │  Search without filters    │
 │  Review before major changes   │  Make changes blindly      │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2afadecd.png)
 ```
 
 ---
@@ -214,6 +221,7 @@ Track all changes made to records in your archive, including who made changes an
 │  Name       Taken          Stamp          Affected         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_12a2c7cd.png)
 ```
 
 ---
@@ -231,6 +239,7 @@ Track all changes made to records in your archive, including who made changes an
 │  🔐 LOGIN     - User sign-ins                               │
 │  📋 PUBLISH   - Records made public                         │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_18d1ae4b.png)
 ```
 
 ---
@@ -275,6 +284,7 @@ You'll see a list of recent changes:
 │ 10 Jan 14:15 │ A. Brown     │ Published    │ Series A     │
 │ 10 Jan 13:45 │ J. Smith     │ Deleted      │ Duplicate    │
 └──────────────┴──────────────┴──────────────┴──────────────┘
+![wireframe](./images/wireframes/wireframe_60324f6a.png)
 ```
 
 ---
@@ -292,6 +302,7 @@ You'll see a list of recent changes:
 │  Record Type:    [All Types          ▼]                     │
 │                        [Search]                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f3770e2d.png)
 ```
 
 ---
@@ -313,6 +324,7 @@ Click on any audit entry to see full details:
 │  Scope:       Added 250 characters                          │
 │  Date:        "1985" → "1985-1990"                          │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_51b20cb7.png)
 ```
 
 ---
@@ -335,6 +347,7 @@ Click on any audit entry to see full details:
 │  📊 Generate compliance reports                             │
 │  🔐 Monitor security events                                 │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ff1accf9.png)
 ```
 
 ---

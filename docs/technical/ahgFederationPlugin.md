@@ -32,6 +32,7 @@ The Federation Plugin enables inter-institutional data sharing for Heratio insta
 │  Dropdown Integration (ahgCorePlugin)                            │
 │  └── AhgTaxonomyService        Status/config values             │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0b490a9a.png)
 ```
 
 ## File Structure

@@ -23,6 +23,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │    🏠 Home  │  🔍+ Zoom In  │  🔍- Zoom Out  │  ⬜ Full     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_93938e8f.png)
 ```
 
 ---
@@ -40,6 +41,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │  🔗 IIIF Compatible - International image standard          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7bb3b0bf.png)
 ```
 
 ---
@@ -66,6 +68,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │  Reference: MAP/1850/001                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2c7ac360.png)
 ```
 
 ---
@@ -88,6 +91,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │                      │                                      │
 │  Reset view          │  Click 🏠 Home button                │
 └──────────────────────┴──────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e0a3e206.png)
 ```
 
 ### Touch Controls (Mobile/Tablet)
@@ -104,6 +108,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │                      │                                      │
 │  Reset view          │  Tap 🏠 Home button                  │
 └──────────────────────┴──────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3fe9eedd.png)
 ```
 
 ---
@@ -125,6 +130,7 @@ View high-resolution images with deep zoom capability for examining fine details
 │  📐  Rotate       - Turn image 90 degrees (if enabled)      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cd63fd08.png)
 ```
 
 ---
@@ -146,6 +152,7 @@ A small overview helps you track your position:
 
   The rectangle shows which part of the image you're viewing
   Click on the mini-map to jump to that area
+![wireframe](./images/wireframes/wireframe_7cf9f36b.png)
 ```
 
 ---
@@ -172,6 +179,7 @@ A small overview helps you track your position:
 │                                                             │
 │                                    [Press ESC to exit]      │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_01a7524c.png)
 ```
 
 ---
@@ -194,6 +202,7 @@ If a record has several images:
 │  Use ◀ ▶ arrows to navigate                                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2ea6946e.png)
 ```
 
 ---
@@ -213,6 +222,7 @@ If a record has several images:
 │  A                │  Pan left                               │
 │  D                │  Pan right                              │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2cdb0094.png)
 ```
 
 ---
@@ -234,6 +244,7 @@ If a record has several images:
 │  📋 Forms        - Read filled-in entries                  │
 │                                                            │
 └────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e67cc01a.png)
 ```
 
 ---
@@ -249,6 +260,7 @@ If a record has several images:
 │  Try keyboard shortcuts        │  Only use mouse            │
 │  Zoom gradually                │  Jump max zoom immediately │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_26720dba.png)
 ```
 
 ---

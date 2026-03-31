@@ -53,6 +53,7 @@ On any record page, look for the **RiC** tab or panel. This shows you the record
 │                    [ View Graph ]                            │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aa55d699.png)
 ```
 
 ---
@@ -82,6 +83,7 @@ Click **View Graph** to see relationships visually:
                          │ Provincial  │
                          │  Archives   │
                          └─────────────┘
+![wireframe](./images/wireframes/wireframe_2c33066d.png)
 ```
 
 ### What the Colours Mean
@@ -123,6 +125,7 @@ For complex relationships, try the 3D view:
 │  [Rotate]  [Zoom]  [Reset]  [2D View]                       │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_10413bc6.png)
 ```
 
 ### 3D Controls
@@ -166,6 +169,7 @@ Administrators can access the full RiC Dashboard at **Admin → RiC Explorer**
 │  [ Browse All ]  [ Search ]  [ Full Graph ]  [ Sync ]       │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aa90e86a.png)
 ```
 
 ---
@@ -211,6 +215,7 @@ RiC enables smarter searching:
 │  • File (folder)                        │
 │  • Item (single document)               │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_241c782b.png)
 ```
 
 ### Agents (Who created/used them)
@@ -224,6 +229,7 @@ RiC enables smarter searching:
 │  • Organisation (ABC Company)           │
 │  • Family (The Smiths)                  │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_30fa4d24.png)
 ```
 
 ### Activities (What produced them)
@@ -237,6 +243,7 @@ RiC enables smarter searching:
 │  • Government function (Land Survey)    │
 │  • Personal activity (Correspondence)   │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_49581016.png)
 ```
 
 ### Places (Where they're from)
@@ -250,6 +257,7 @@ RiC enables smarter searching:
 │  • Building (Town Hall)                 │
 │  • Region (Gauteng)                     │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_eae3cbd2.png)
 ```
 
 ---

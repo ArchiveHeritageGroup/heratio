@@ -71,6 +71,7 @@ The GLAM Metadata Export plugin allows you to export your archival descriptions 
 ┌──────────────────────────┐
 │  Download file           │
 └──────────────────────────┘
+![wireframe](./images/wireframes/wireframe_43009a9b.png)
 ```
 
 ### Steps

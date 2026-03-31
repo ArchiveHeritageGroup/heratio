@@ -39,6 +39,7 @@ This guide explains how the system protects sensitive materials and helps you me
 │     Special clearance required, very restricted              │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_012ac81a.png)
 ```
 
 ### How Access Works
@@ -68,6 +69,7 @@ This guide explains how the system protects sensitive materials and helps you me
               │   ✅ ACCESS         │
               │      GRANTED        │
               └─────────────────────┘
+![wireframe](./images/wireframes/wireframe_fefb08e6.png)
 ```
 
 **Simple Rule:** Your clearance level must be equal to or higher than the record's security level.
@@ -148,6 +150,7 @@ The Protection of Personal Information Act requires us to:
 │  ✓ Ask if unsure about sharing information                  │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ab725506.png)
 ```
 
 ### Handling Information Requests
@@ -184,6 +187,7 @@ If someone asks to see their personal information:
 │ Response within  │
 │ 30 days          │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_e582aada.png)
 ```
 
 ---
@@ -241,6 +245,7 @@ An embargo prevents access to a record until a specific date. Common reasons:
 │                                                              │
 │  Contact the archivist if you need special access           │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b71e9d41.png)
 ```
 
 ### Setting an Embargo
@@ -287,6 +292,7 @@ If you need access to embargoed material:
 │  • Secure any physical records                               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5562b48c.png)
 ```
 
 ### If Something Goes Wrong

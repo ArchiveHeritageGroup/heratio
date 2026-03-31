@@ -66,6 +66,7 @@ Heratio Key Management is a standalone application for managing client API keys 
 │         Heratio Instances          │
 │  (validates keys against keygen DB)     │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_43a2ccc0.png)
 ```
 
 ## Database Tables

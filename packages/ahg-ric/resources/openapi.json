@@ -1,0 +1,315 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RIC-O Linked Data API",
+    "description": "Records in Contexts (RIC-O) ISO 23278 Linked Data API for Heratio archival management system",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Johan Pieterse",
+      "email": "johan@plansailingisystems"
+    },
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/ric/v1",
+      "description": "Heratio RIC-O API"
+    }
+  ],
+  "paths": {
+    "/agents": {
+      "get": {
+        "summary": "List all agents",
+        "description": "Returns a list of all agents (persons, corporate bodies, families) in RIC-O JSON-LD format",
+        "tags": ["Agents (ISAAR-CPF)"],
+        "responses": {
+          "200": {
+            "description": "List of agents",
+            "content": {
+              "application/ld+json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{slug}": {
+      "get": {
+        "summary": "Get agent by slug",
+        "tags": ["Agents (ISAAR-CPF)"],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent in RIC-O format"
+          },
+          "404": {
+            "description": "Agent not found"
+          }
+        }
+      }
+    },
+    "/records": {
+      "get": {
+        "summary": "List all records",
+        "description": "Returns a list of all records (information objects) in RIC-O JSON-LD format",
+        "tags": ["Records (ISAD)"],
+        "responses": {
+          "200": {
+            "description": "List of records"
+          }
+        }
+      }
+    },
+    "/records/{slug}": {
+      "get": {
+        "summary": "Get record by slug",
+        "tags": ["Records (ISAD)"],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Record in RIC-O format"
+          },
+          "404": {
+            "description": "Record not found"
+          }
+        }
+      }
+    },
+    "/records/{slug}/export": {
+      "get": {
+        "summary": "Export entire RecordSet",
+        "description": "Exports the entire RecordSet hierarchy as RIC-O JSON-LD",
+        "tags": ["Records (ISAD)"],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full RecordSet export"
+          }
+        }
+      }
+    },
+    "/functions": {
+      "get": {
+        "summary": "List all functions",
+        "tags": ["Functions (ISDF)"],
+        "responses": {
+          "200": {
+            "description": "List of functions"
+          }
+        }
+      }
+    },
+    "/functions/{id}": {
+      "get": {
+        "summary": "Get function by ID",
+        "tags": ["Functions (ISDF)"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Function in RIC-O format"
+          }
+        }
+      }
+    },
+    "/repositories": {
+      "get": {
+        "summary": "List all repositories",
+        "tags": ["Repositories (ISDIAH)"],
+        "responses": {
+          "200": {
+            "description": "List of repositories"
+          }
+        }
+      }
+    },
+    "/repositories/{slug}": {
+      "get": {
+        "summary": "Get repository by slug",
+        "tags": ["Repositories (ISDIAH)"],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repository in RIC-O format"
+          }
+        }
+      }
+    },
+    "/sparql": {
+      "get": {
+        "summary": "Execute SPARQL query",
+        "tags": ["SPARQL & Graph"],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SPARQL results"
+          }
+        }
+      }
+    },
+    "/graph": {
+      "get": {
+        "summary": "Get entity relationships",
+        "tags": ["SPARQL & Graph"],
+        "parameters": [
+          {
+            "name": "uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entity graph"
+          }
+        }
+      }
+    },
+    "/validate": {
+      "post": {
+        "summary": "Validate RIC-O entity",
+        "tags": ["Validation"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result"
+          }
+        }
+      }
+    },
+    "/vocabulary": {
+      "get": {
+        "summary": "Get RIC-O vocabulary",
+        "tags": ["Vocabulary"],
+        "responses": {
+          "200": {
+            "description": "RIC-O vocabulary terms"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "API health check",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "API status"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "@id": {"type": "string"},
+          "@type": {"type": "string"},
+          "rico:identifier": {"type": "string"},
+          "rico:name": {"type": "string"},
+          "rico:agentType": {"type": "string"}
+        }
+      },
+      "Record": {
+        "type": "object",
+        "properties": {
+          "@id": {"type": "string"},
+          "@type": {"type": "string"},
+          "rico:identifier": {"type": "string"},
+          "rico:title": {"type": "string"},
+          "rico:hasInstantiation": {"type": "array"}
+        }
+      },
+      "Function": {
+        "type": "object",
+        "properties": {
+          "@id": {"type": "string"},
+          "@type": {"type": "string"},
+          "rico:identifier": {"type": "string"},
+          "rico:name": {"type": "string"}
+        }
+      },
+      "Repository": {
+        "type": "object",
+        "properties": {
+          "@id": {"type": "string"},
+          "@type": {"type": "string"},
+          "rico:name": {"type": "string"},
+          "rico:location": {"type": "string"}
+        }
+      }
+    }
+  }
+}

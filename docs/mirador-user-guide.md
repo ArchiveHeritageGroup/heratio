@@ -22,6 +22,7 @@ Advanced IIIF viewer for comparing images, viewing annotations, and working with
 │  Compare multiple images side by side                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_487379ed.png)
 ```
 
 ---
@@ -40,6 +41,7 @@ Advanced IIIF viewer for comparing images, viewing annotations, and working with
 │  🎯 Synchronized     - Link zoom across windows             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2d947791.png)
 ```
 
 ---
@@ -62,6 +64,7 @@ Advanced IIIF viewer for comparing images, viewing annotations, and working with
 │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_03f9b8d7.png)
 ```
 
 ---
@@ -79,6 +82,7 @@ Advanced IIIF viewer for comparing images, viewing annotations, and working with
 │  Reset view          │  Double-click or Home button         │
 │  Fullscreen          │  Click expand icon                   │
 └──────────────────────┴──────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_82cc6ca8.png)
 ```
 
 ---
@@ -99,6 +103,7 @@ Click the **☰ Menu** button to access:
 │  📚 Layers           - Multiple versions of same image      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_28dfb7f0.png)
 ```
 
 ---
@@ -143,6 +148,7 @@ Browse to and select the second image.
 │  └───────────┴───────────┘                                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0962294d.png)
 ```
 
 ---
@@ -165,6 +171,7 @@ Lock windows so they zoom and pan together:
 │   Zoom here ──────────▶ Zooms here too │
 │                    │                    │
 └────────────────────┴────────────────────┘
+![wireframe](./images/wireframes/wireframe_b7f7f7d7.png)
 ```
 
 ---
@@ -188,6 +195,7 @@ If an image has annotations:
 │  Toggle annotations on/off in side panel                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4aa75b4a.png)
 ```
 
 ### Viewing Annotation Details
@@ -203,6 +211,7 @@ If an image has annotations:
 │  Date: 15 December 2025                                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_304a3502.png)
 ```
 
 ---
@@ -224,6 +233,7 @@ If an image has annotations:
 │  └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f99881d2.png)
 ```
 
 ### Book View Mode
@@ -244,6 +254,7 @@ View facing pages like an open book:
 │              ◀◀  │  ◀  │  ▶  │  ▶▶                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_afe36f58.png)
 ```
 
 ---
@@ -304,6 +315,7 @@ Share your comparison setup:
 │  I                │  Toggle information panel               │
 │  T                │  Toggle thumbnails                      │
 └───────────────────┴─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_dc68d777.png)
 ```
 
 ---
@@ -327,6 +339,7 @@ Share your comparison setup:
 │                    - Collaborative analysis                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b95073c7.png)
 ```
 
 ---
@@ -342,6 +355,7 @@ Share your comparison setup:
 │  Try book view for documents   │  View pages one at a time  │
 │  Use external manifests        │  Only view local images    │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7433620f.png)
 ```
 
 ---

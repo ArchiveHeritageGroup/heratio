@@ -56,6 +56,7 @@ Laravel Query Builder implementation for managing publication requests. Replaces
 │                                               │ rtp_admin_notes  │         │
 │                                               └──────────────────┘         │
 └─────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fc990aba.png)
 ```
 
 ## Request Flow Diagrams
@@ -106,6 +107,7 @@ Laravel Query Builder implementation for managing publication requests. Replaces
      │  success message   │                       │                      │
      │◀──────────────────────────────────────────│                      │
      │                    │                       │                      │
+![wireframe](./images/wireframes/wireframe_d5ad1ec9.png)
 ```
 
 ### Admin Review Flow
@@ -158,6 +160,7 @@ Laravel Query Builder implementation for managing publication requests. Replaces
      │  browse with msg   │                       │                      │
      │◀──────────────────────────────────────────│                      │
      │                    │                       │                      │
+![wireframe](./images/wireframes/wireframe_b5701713.png)
 ```
 
 ### Status State Machine
@@ -187,6 +190,7 @@ Laravel Query Builder implementation for managing publication requests. Replaces
               │     └─────────────────┘     │
               │              ▲              │
               └──────────────┴──────────────┘
+![wireframe](./images/wireframes/wireframe_bc936fbe.png)
 ```
 
 ## Database Schema Details

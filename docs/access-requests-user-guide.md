@@ -54,6 +54,7 @@ The Researcher Portal is your gateway to accessing archival materials. It helps 
 │  Receive email   │
 │  confirmation    │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_2bce45b4.png)
 ```
 
 ### Registration Form
@@ -120,6 +121,7 @@ Some materials have restrictions. To request access:
 │ Access  │ │ Reason  │
 │ granted │ │ provided│
 └─────────┘ └─────────┘
+![wireframe](./images/wireframes/wireframe_08bbc6ce.png)
 ```
 
 ### Request Types
@@ -169,6 +171,7 @@ Some materials have restrictions. To request access:
 │  Receive         │
 │  confirmation    │
 └──────────────────┘
+![wireframe](./images/wireframes/wireframe_75a3f233.png)
 ```
 
 ### Your Workspace
@@ -201,6 +204,7 @@ Once registered, you have a personal workspace:
 │  • Interview questions                                       │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8c07a1a8.png)
 ```
 
 ### Generating Citations
@@ -259,6 +263,7 @@ Need to cite materials? Use the citation generator:
 │ access  │ │ reason  │
 │ level   │ │         │
 └─────────┘ └─────────┘
+![wireframe](./images/wireframes/wireframe_55a193e5.png)
 ```
 
 ### Processing Access Requests
@@ -290,6 +295,7 @@ When someone requests access to restricted materials:
 │  Ms. Johnson       │ Registration │ Today      │ [Review]   │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fdd54412.png)
 ```
 
 ### Managing Reading Room Bookings
@@ -319,6 +325,7 @@ View and manage bookings:
 │         Status: ○ Expected                                  │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5b62b471.png)
 ```
 
 ---

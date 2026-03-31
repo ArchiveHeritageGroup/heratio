@@ -38,6 +38,7 @@ Heratio uses a hybrid architecture:
 │  • MySQL 8, Elasticsearch 7.x              │
 │  • Fuseki RiC-O triplestore, TrueNAS NFS         │
 └─────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8d04a639.png)
 ```
 
 **Key principle:** Symfony 1.4's attack surface is minimized because Nginx intercepts and blocks exploit patterns before they reach PHP. The application layer adds its own defenses (CSP nonces, CSRF tokens, file validation, SSRF protection) as a second line.

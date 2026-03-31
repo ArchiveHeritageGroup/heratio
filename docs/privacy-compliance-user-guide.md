@@ -15,6 +15,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │ Jurisdictions│    │ ROPA         │    │ DSARs        │    │ Dashboard    │
 │ Officers     │    │ Consent      │    │ Breaches     │    │ Audit Trail  │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+![wireframe](./images/wireframes/wireframe_5eb106e3.png)
 ```
 
 ---
@@ -38,6 +39,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │     🇺🇸 CCPA    - California, USA (2020)                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_17ce7b66.png)
 ```
 
 ---
@@ -54,6 +56,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  ROPA Required      │  Yes  │  Yes │   No   │  No  │  Yes  │
 │  Cross-border Rules │  Yes  │  Yes │  Yes   │  Yes │  Yes  │
 └─────────────────────┴───────┴──────┴────────┴──────┴───────┘
+![wireframe](./images/wireframes/wireframe_816a4374.png)
 ```
 
 ---
@@ -114,6 +117,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                                   [ Save Configuration ]    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e790095f.png)
 ```
 
 ---
@@ -139,6 +143,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                                        [ Save Settings ]    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_759d35d5.png)
 ```
 
 ---
@@ -163,6 +168,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  POPIA requires registration with Information Regulator     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cf6f1170.png)
 ```
 
 ---
@@ -197,6 +203,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                              [ Cancel ]  [ Save Officer ]   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4ed642e4.png)
 ```
 
 ---
@@ -222,6 +229,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   • CCPA: 45 days                                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b8fbf89a.png)
 ```
 
 ---
@@ -270,6 +278,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
        │   COMPLETE  │
        │  Log outcome│
        └─────────────┘
+![wireframe](./images/wireframes/wireframe_a5c51265.png)
 ```
 
 ---
@@ -318,6 +327,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                              [ Cancel ]  [ Log Request ]    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8027e1e7.png)
 ```
 
 ---
@@ -346,6 +356,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 └────────┴────────────┴──────────┴────────────┴──────────────┘
 
 [ + New Request ]                        [ Export ] [ Filter ]
+![wireframe](./images/wireframes/wireframe_c07654d1.png)
 ```
 
 ---
@@ -373,6 +384,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   3. Document the incident and response                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c1b3c116.png)
 ```
 
 ---
@@ -422,6 +434,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
   │ Lessons     │
   │ learned     │
   └─────────────┘
+![wireframe](./images/wireframes/wireframe_e3cbb228.png)
 ```
 
 ---
@@ -481,6 +494,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                              [ Cancel ]  [ Log Incident ]   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c940565a.png)
 ```
 
 ---
@@ -503,6 +517,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   Required under POPIA, GDPR, and NDPA                      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_16fb4d47.png)
 ```
 
 ---
@@ -561,6 +576,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                              [ Cancel ]  [ Save Activity ]  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6d4f82dc.png)
 ```
 
 ---
@@ -601,6 +617,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │                              [ Cancel ]  [ Save Consent ]   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6020098a.png)
 ```
 
 ---
@@ -624,6 +641,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   Related to but separate from POPIA                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fa01a725.png)
 ```
 
 ---
@@ -648,6 +666,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   to help you comply with privacy regulations.              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d4290e31.png)
 ```
 
 ---
@@ -669,6 +688,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Organisation     │  LOW     │  ACME Corp (via AI)          │
 │  Place            │  LOW     │  Johannesburg (via AI)       │
 └───────────────────┴──────────┴──────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_150bc071.png)
 ```
 
 ---
@@ -739,6 +759,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Risk Score: 45/100                      [ Review PII ]     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_75aa7789.png)
 ```
 
 ---
@@ -785,6 +806,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Application Forms   │     6     │ 2026-01-19 │ [View]      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f360fc7f.png)
 ```
 
 ---
@@ -816,6 +838,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  ✗ REJECT    - False positive, not actually PII             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0fabdd11.png)
 ```
 
 ---
@@ -840,6 +863,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  redacted from public-facing documents.                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_081a4bc4.png)
 ```
 
 ---
@@ -869,6 +893,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  php symfony privacy:scan-pii --verbose                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d1e818e1.png)
 ```
 
 ---
@@ -897,6 +922,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Maximum score: 100                                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f3eb5435.png)
 ```
 
 ---
@@ -919,6 +945,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │   Original PDFs are PRESERVED - only copies are redacted.   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_28b36059.png)
 ```
 
 ---
@@ -964,6 +991,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
               │   Staff see original   │
               │   (if permissions)     │
               └────────────────────────┘
+![wireframe](./images/wireframes/wireframe_54822ea2.png)
 ```
 
 ---
@@ -989,6 +1017,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Only entities marked with status "Redact" are applied.     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_873d1b90.png)
 ```
 
 ---
@@ -1021,6 +1050,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  appropriate permissions.                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4e41ddb4.png)
 ```
 
 ---
@@ -1037,6 +1067,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Document your decisions       │  Leave audit trail gaps    │
 │  Re-scan after metadata edits  │  Assume one scan is enough │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a6b66a26.png)
 ```
 
 ---
@@ -1063,6 +1094,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  • If you can select it, redaction will work                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e5ea1523.png)
 ```
 
 ---
@@ -1106,6 +1138,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  ☐ Operator agreements reviewed                             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_70549585.png)
 ```
 
 ---
@@ -1127,6 +1160,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Scan single record        │  Record page → Scan for PII    │
 │  Review PII findings       │  Admin → Privacy → PII Review  │
 └────────────────────────────┴────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_905ae4a0.png)
 ```
 
 ---
@@ -1153,6 +1187,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │     Extension possible: +30 days                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f22b8fe7.png)
 ```
 
 ---
@@ -1171,6 +1206,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  Keep consent evidence         │  Assume consent           │
 │  Respond within deadlines      │  Miss deadlines           │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7f0414b7.png)
 ```
 
 ---
@@ -1187,6 +1223,7 @@ Manage data protection compliance for POPIA, GDPR, PIPEDA, CCPA, and other priva
 │  🇨🇦 PIPEDA      │  OPC                  │ priv.gc.ca        │
 │  🇺🇸 CCPA        │  CPPA                 │ cppa.ca.gov       │
 └─────────────────┴───────────────────────┴───────────────────┘
+![wireframe](./images/wireframes/wireframe_b8fe243e.png)
 ```
 
 ---

@@ -59,6 +59,7 @@ Comprehensive donor agreement and contract management system for tracking donati
 │    end_date DATE       │ │    auto_release BOOL    │ │    priority ENUM        │ │    is_signed BOOL       │
 │    requires_fee BOOL   │ │    popia_category ENUM  │ │    status ENUM          │ │    signature_date DATE  │
 └─────────────────────────┘ └─────────────────────────┘ └─────────────────────────┘ └─────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5b977c1c.png)
 ```
 
 ### Linking Tables
@@ -75,6 +76,7 @@ Comprehensive donor agreement and contract management system for tracking donati
 │    created_at TIMESTAMP │    │    linked_at TIMESTAMP  │    │    user_id INT          │
 └─────────────────────────┘    └─────────────────────────┘    │    created_at TIMESTAMP │
                                                               └─────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d8d8291b.png)
 ```
 
 ---
@@ -354,6 +356,7 @@ class DonorAgreementService
 │   └─────────────┘     └─────────────┘     └─────────────┘                   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ace8ac4f.png)
 ```
 
 ---

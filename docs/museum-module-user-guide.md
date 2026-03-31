@@ -21,6 +21,7 @@ Catalog museum objects using Spectrum 5.0 and CCO standards for artifacts, artwo
 │                  Online           Object Exit               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c7cef4c2.png)
 ```
 
 ---
@@ -43,6 +44,7 @@ Catalog museum objects using Spectrum 5.0 and CCO standards for artifacts, artwo
 │  📋 Loan tracking (incoming and outgoing)                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1225f395.png)
 ```
 
 ---
@@ -92,6 +94,7 @@ Go to **Manage** → **Exhibitions** or access the **Museum Dashboard** from the
 │  • Maritime History (opens Apr 2026)                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_df18638b.png)
 ```
 
 ### Creating an Exhibition
@@ -130,6 +133,7 @@ Go to **Manage** → **Exhibitions** or access the **Museum Dashboard** from the
 │  Currency:        [ZAR                             ▼]       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4ff8554b.png)
 ```
 
 ### Exhibition Workflow States
@@ -154,6 +158,7 @@ Go to **Manage** → **Exhibitions** or access the **Museum Dashboard** from the
 │  📁 Archived (light gray)                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7f1c0a10.png)
 ```
 
 ### Adding Objects to an Exhibition
@@ -182,6 +187,7 @@ Go to **Manage** → **Exhibitions** or access the **Museum Dashboard** from the
 │  Display Notes:   [Mount at eye level         ]            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_19bbec81.png)
 ```
 
 ### Exhibition Sections
@@ -209,6 +215,7 @@ Organize your exhibition into logical sections:
 │  [+ Add Section]                                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c0c8bd59.png)
 ```
 
 ### Storylines and Narratives
@@ -233,6 +240,7 @@ Create guided tours and narrative journeys:
 │  [+ Create Storyline]                                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f94e786f.png)
 ```
 
 ### Exhibition Events
@@ -257,6 +265,7 @@ Schedule events related to the exhibition:
 │  [+ Add Event]                                              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_cb6f534b.png)
 ```
 
 ### Checklists
@@ -279,6 +288,7 @@ Track tasks for each exhibition phase:
 │  ☐ Marketing materials designed         Due: 2026-02-28    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f436bfbd.png)
 ```
 
 ### Object List Report
@@ -307,6 +317,7 @@ Generate printable object lists for exhibitions:
 │  [Print] [Export CSV]                                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0461d18e.png)
 ```
 
 ---
@@ -335,6 +346,7 @@ Go to **GLAM/DAM** → **Museum** → **Add**
 │  ○ Numismatic (Coin/Medal)                                  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f2829dc2.png)
 ```
 
 ### Step 3: Fill in the Form
@@ -364,6 +376,7 @@ Go to **GLAM/DAM** → **Museum** → **Add**
 │  Date Made:       [circa 1920                ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_392ef7f9.png)
 ```
 
 ---
@@ -381,6 +394,7 @@ Go to **GLAM/DAM** → **Museum** → **Add**
 │  Object Type       │  Category (furniture, textile, etc.)   │
 │  Classification    │  Subject classification                │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_8cd05dd7.png)
 ```
 
 ### Physical Description
@@ -406,6 +420,7 @@ Go to **GLAM/DAM** → **Museum** → **Add**
 │  [None                                       ]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6273e413.png)
 ```
 
 ### Production and History
@@ -429,6 +444,7 @@ Go to **GLAM/DAM** → **Museum** → **Add**
 │  Date Type:       [Made                      ▼]             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1f3f21c3.png)
 ```
 
 ---
@@ -458,6 +474,7 @@ Track the object's history of ownership with interactive visualization:
 │  Source:          [Estate of J. van der Berg]               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_19c4e094.png)
 ```
 
 The provenance module includes D3.js visualization for ownership chains.
@@ -492,6 +509,7 @@ The provenance module includes D3.js visualization for ownership chains.
 │  ☑ No photography without permission                        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ee8047e4.png)
 ```
 
 ### Loans In (Borrowing Objects)
@@ -517,6 +535,7 @@ The provenance module includes D3.js visualization for ownership chains.
 │  ☑ Security escort during transport                         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_c9be4199.png)
 ```
 
 ### Loan Workflow States
@@ -553,6 +572,7 @@ Know where every object is:
 │  [View Movement History]                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b43488a1.png)
 ```
 
 ---
@@ -582,6 +602,7 @@ Record the object's physical state:
 │  [Add Full Condition Report]                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3ece6c98.png)
 ```
 
 ---
@@ -605,6 +626,7 @@ Access collection management workflows:
 │  🗑️  Deaccession         - Remove from collection           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_99cf4273.png)
 ```
 
 ---
@@ -625,6 +647,7 @@ Access collection management workflows:
 │  [View Valuation History]                                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_61de5b9a.png)
 ```
 
 ---
@@ -678,6 +701,7 @@ Once synced, the CCO cataloguing form autocomplete fields search MySQL locally f
 │  └─────────────────────────────────────────────────────┘   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2876b650.png)
 ```
 
 ---
@@ -741,6 +765,7 @@ php symfony museum:exhibition --install-schema
 │  Plan exhibitions in advance   │  Rush exhibition setup     │
 │  Use checklists for phases     │  Skip quality checks       │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_24c650b3.png)
 ```
 
 ---

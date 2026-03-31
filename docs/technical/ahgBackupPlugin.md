@@ -84,6 +84,7 @@ Automated backup and restore functionality for database and uploaded files with 
 │    error_message TEXT                   │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_78744358.png)
 ```
 
 ---

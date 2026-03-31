@@ -54,6 +54,7 @@ GLAM Metadata Export plugin providing standards-compliant export to 9 internatio
 │  └────────────────────────────────────────────────────────────────────────┘  │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40e168d6.png)
 ```
 
 ---

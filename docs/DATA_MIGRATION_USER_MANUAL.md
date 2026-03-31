@@ -50,6 +50,7 @@ The AtoM AHG Data Migration Tool enables archivists and data managers to import 
   CSV, Excel,      Configure         Verify data         Records
   XML, JSON,       source-to-        before import       created in
   OPEX, PAX        AtoM mapping                          database
+![wireframe](./images/wireframes/wireframe_836bfdd5.png)
 ```
 
 ---
@@ -109,6 +110,7 @@ The upload page is your starting point for all imports.
 │                                                            │
 │                                    [Upload & Continue →]   │
 └────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_db8ece83.png)
 ```
 
 #### Options Explained:
@@ -148,6 +150,7 @@ After upload, you'll configure how source fields map to AtoM fields.
 ├────────────────────────────────────────────────────────────────────────┤
 │  [← Back]                    [▶ Preview / Import] [☁ Background Job]  │
 └────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_dde96b5b.png)
 ```
 
 #### Column Explanations:
@@ -187,6 +190,7 @@ Before importing, preview shows exactly what will be created.
 ├────────────────────────────────────────────────────────────────────────┤
 │  [← Back to Mapping]                              [✓ Confirm Import]   │
 └────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f0b427f5.png)
 ```
 
 ---
@@ -325,6 +329,7 @@ Use background jobs for:
 │                                                                        │
 │                                                    [Cancel Job]        │
 └────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_698e338f.png)
 ```
 
 ### 6.4 Job Statuses

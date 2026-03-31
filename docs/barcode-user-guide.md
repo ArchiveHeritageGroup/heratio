@@ -20,6 +20,7 @@ Generate, print, and scan barcodes for tracking physical items, boxes, and locat
 │  and locations      and items           Track movements     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_62b8b30c.png)
 ```
 
 ---
@@ -43,6 +44,7 @@ Generate, print, and scan barcodes for tracking physical items, boxes, and locat
 │                     Best for: Simple identifiers            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d6aa246c.png)
 ```
 
 ---
@@ -110,6 +112,7 @@ From any record view, click **More** → **Generate Barcode**:
 │              [Download]    [Print]                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1705af12.png)
 ```
 
 ### For Locations
@@ -135,6 +138,7 @@ Generate barcodes for storage locations:
 │              [Download]    [Print]                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f231bfd2.png)
 ```
 
 ---
@@ -164,6 +168,7 @@ Generate barcodes for storage locations:
 │              [Preview]    [Print]                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_21b6a52a.png)
 ```
 
 ### Batch Label Printing
@@ -198,6 +203,7 @@ Print multiple labels at once:
 │              [Preview PDF]    [Print]                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_55965bdc.png)
 ```
 
 ### Label Sheet Preview
@@ -223,6 +229,7 @@ Print multiple labels at once:
 │  [◀ Prev]  [Download PDF]  [Print All]  [Next ▶]           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_431ad127.png)
 ```
 
 ---
@@ -258,6 +265,7 @@ Print multiple labels at once:
 │  [View Record]  [Update Location]  [Print Label]            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b321e1d7.png)
 ```
 
 ### Using Mobile Camera
@@ -285,6 +293,7 @@ On mobile devices, use the camera to scan:
 │  [📷 Scan]    [⌨️ Enter Manually]    [🔦 Toggle Flash]      │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7867443b.png)
 ```
 
 ---
@@ -317,6 +326,7 @@ Quickly move items between locations:
 │  [Finish & Save]    [Clear All]    [Undo Last]              │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9b109ebf.png)
 ```
 
 ### Workflow
@@ -348,6 +358,7 @@ Quickly move items between locations:
 │       └──────────────┘                                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ec269c9d.png)
 ```
 
 ---
@@ -381,6 +392,7 @@ Create barcodes for archival boxes:
 │  [Print Box Label]    [Print Spine Label]                   │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_45617dc7.png)
 ```
 
 ---
@@ -413,6 +425,7 @@ Configure barcode defaults:
 │              [Save Settings]                                │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5a58d010.png)
 ```
 
 ---
@@ -438,6 +451,7 @@ Configure barcode defaults:
 │  [+ Add Custom Template]                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9c182513.png)
 ```
 
 ---
@@ -454,6 +468,7 @@ Configure barcode defaults:
 │  Keep scanner charged          │  Let battery die mid-task  │
 │  Back up barcode data          │  Assume database is enough │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_16e6a20f.png)
 ```
 
 ---

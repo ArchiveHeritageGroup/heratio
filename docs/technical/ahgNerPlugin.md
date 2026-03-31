@@ -53,6 +53,7 @@
 │  ahg_ner_*       │ │   (Python)       │ │   Job Queue      │
 │  tables          │ │   Port 5004      │ │                  │
 └──────────────────┘ └──────────────────┘ └──────────────────┘
+![wireframe](./images/wireframes/wireframe_da3ccdbb.png)
 ```
 
 ### Component Interaction
@@ -74,6 +75,7 @@
 │   Update     │◄────│    Store     │◄────│   Parse      │
 │  ES Index    │     │   Entities   │     │  Response    │
 └──────────────┘     └──────────────┘     └──────────────┘
+![wireframe](./images/wireframes/wireframe_70bcaeb5.png)
 ```
 
 ---
@@ -142,6 +144,7 @@
 │ reviewed_at           │
 │ created_at            │
 └───────────────────────┘
+![wireframe](./images/wireframes/wireframe_f63bf4fe.png)
 ```
 
 ### Table Definitions
@@ -475,6 +478,7 @@ class nerExtractTask extends sfBaseTask
   ┌──────────────┐
   │     Done     │
   └──────────────┘
+![wireframe](./images/wireframes/wireframe_85871eee.png)
 ```
 
 ---
@@ -668,6 +672,7 @@ The NER plugin provides the foundation for PII (Personally Identifiable Informat
 │  ahg_ner_entity   │          │  • CREDIT_CARD    │
 │                   │          │  • TAX_NUMBER     │
 └───────────────────┘          └───────────────────┘
+![wireframe](./images/wireframes/wireframe_7fdbb7a2.png)
 ```
 
 ### Shared Tables

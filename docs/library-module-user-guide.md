@@ -20,6 +20,7 @@ Catalog library materials using Dublin Core and MARC-based fields for books, jou
 │  Reference       Magazines        E-resources               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9c8d7d07.png)
 ```
 
 ---
@@ -39,6 +40,7 @@ Catalog library materials using Dublin Core and MARC-based fields for books, jou
 │  🎵 Sheet music and scores                                  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1e7c048d.png)
 ```
 
 ---
@@ -85,6 +87,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  ○ Other                                                    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_2ca4086c.png)
 ```
 
 ### Step 3: Fill in the Form
@@ -119,6 +122,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  Accession No:    [LIB-2025-00142                 ]         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40dd9ead.png)
 ```
 
 ---
@@ -136,6 +140,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  Series Title      │  Name of book series                   │
 │  Volume/Issue      │  Volume number or issue                │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_fac973fc.png)
 ```
 
 ### Creator Area
@@ -149,6 +154,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  Illustrator       │  Person who created illustrations      │
 │  Corporate Author  │  Organization as author                │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_df296a0c.png)
 ```
 
 ### Physical Description
@@ -161,6 +167,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  Illustrations     │  Type (e.g., "color illustrations")    │
 │  Accompanying      │  Included materials (e.g., "1 CD-ROM") │
 └────────────────────┴────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0c6ed4d9.png)
 ```
 
 ---
@@ -188,6 +195,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  Genre/Form:       [History          ▼]                     │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f1a22de4.png)
 ```
 
 ### Classification Numbers
@@ -203,6 +211,7 @@ Go to **GLAM/DAM** → **Library** → **Add**
 │  LC Classification:[DT1787                  ]               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_94376dd5.png)
 ```
 
 ---
@@ -231,6 +240,7 @@ For journals and periodicals:
 │  Gaps:            [Vol. 45-47 missing             ]         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_0a7eab10.png)
 ```
 
 ---
@@ -254,6 +264,7 @@ For journals and periodicals:
 │  Sort by: [Title A-Z           ▼]                           │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7fb6ad1b.png)
 ```
 
 ### Search Tips
@@ -270,6 +281,7 @@ For journals and periodicals:
 │  By Date:         date:2014                                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_40266e44.png)
 ```
 
 ---
@@ -293,6 +305,7 @@ Attach digital files to library records:
 │  URL: [https://...                          ]               │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_70cee8f1.png)
 ```
 
 ---
@@ -309,6 +322,7 @@ Attach digital files to library records:
 │  Note condition issues         │  Ignore damage            │
 │  Link related works            │  Catalog in isolation     │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_9dd21dac.png)
 ```
 
 ---

@@ -102,6 +102,7 @@ Condition assessment and conservation tracking for archival and museum collectio
 │    alert_triggered TINYINT              │
 │    created_at TIMESTAMP                 │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_72f85483.png)
 ```
 
 ---
@@ -224,6 +225,7 @@ class ConditionService
 │   └─────────────┘                                              │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3f6edc22.png)
 ```
 
 ---

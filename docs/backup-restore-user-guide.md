@@ -19,6 +19,7 @@ Create backups of your archive database and restore from previous backups when n
 │  database state                   previous state            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_12f06e55.png)
 ```
 
 ---
@@ -34,6 +35,7 @@ Create backups of your archive database and restore from previous backups when n
 │  ⚙️  Configuration changes   - System settings              │
 │  📋 Major edits             - Large-scale modifications     │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_078d5c6a.png)
 ```
 
 ---
@@ -82,6 +84,7 @@ Go to **Admin** → **AHG Settings** → **Backup & Restore**
 │                                                             │
 │                    [Create Backup]                          │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_aaf46a95.png)
 ```
 
 ### Step 3: Wait for Completion
@@ -113,6 +116,7 @@ Your backups are listed with details:
 └──────────────────┴──────────────────────────┴────────┴────────┘
 
   ⬇️ Download    🔄 Restore    🗑️ Delete
+![wireframe](./images/wireframes/wireframe_b69576c9.png)
 ```
 
 ---
@@ -127,6 +131,7 @@ Your backups are listed with details:
 │  Any changes made after the backup date will be LOST.       │
 │  Consider creating a backup of current state first.         │
 └─────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_7eb094a0.png)
 ```
 
 ### Steps to Restore
@@ -173,6 +178,7 @@ To save a backup to your computer:
 │  Delete old backups            │  Keep unlimited backups    │
 │  Schedule regular backups      │  Only backup manually      │
 └────────────────────────────────┴────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_70457405.png)
 ```
 
 ---

@@ -20,6 +20,7 @@ Manage configurable approval workflows for archival submissions with role-based 
 │    record     reviews    approval    record                         │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4ef69a70.png)
 ```
 
 ---
@@ -49,6 +50,7 @@ Manage configurable approval workflows for archival submissions with role-based 
 │     • Track workflow progress                                       │
 │     • Monitor team performance                                      │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_10dbf290.png)
 ```
 
 ---
@@ -108,6 +110,7 @@ Manage configurable approval workflows for archival submissions with role-based 
                   │    Record is    │
                   │    now public   │
                   └─────────────────┘
+![wireframe](./images/wireframes/wireframe_cae37ace.png)
 ```
 
 ---
@@ -162,6 +165,7 @@ Manage configurable approval workflows for archival submissions with role-based 
 │                                                                     │
 │   [View All Tasks]                                                  │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_ea713151.png)
 ```
 
 ---
@@ -200,6 +204,7 @@ Go to **Workflow** → **Task Pool**
 │   └──────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_834e5264.png)
 ```
 
 ### Step 2: Claim a Task
@@ -256,6 +261,7 @@ After claiming, click **[Review]** to open the review interface:
 │   [Submit Decision]                                                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_3cbb844c.png)
 ```
 
 ### Step 4: Make Your Decision
@@ -289,6 +295,7 @@ After claiming, click **[Review]** to open the review interface:
 │   🔴 OVERDUE      Task has exceeded its due date                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_623cb55f.png)
 ```
 
 ---
@@ -326,6 +333,7 @@ After claiming, click **[Review]** to open the review interface:
 │      To: Department head / Admin                                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b8d15327.png)
 ```
 
 ---
@@ -356,6 +364,7 @@ Go to **Workflow** → **Admin** → **New Workflow**
 │   [Save Workflow]                                                   │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5e86e80c.png)
 ```
 
 ### Adding Workflow Steps
@@ -390,6 +399,7 @@ Go to **Workflow** → **Admin** → **New Workflow**
 │   [+ Add Step]                                                      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_5a9ab307.png)
 ```
 
 ### Step Configuration
@@ -421,6 +431,7 @@ Go to **Workflow** → **Admin** → **New Workflow**
 │   [Save Step]                                                       │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_f001df29.png)
 ```
 
 ---
@@ -447,6 +458,7 @@ Go to **Workflow** → **Admin** → **New Workflow**
 │   11 Jan 11:30     Approved            A. Admin       Published     │
 │   11 Jan 11:30     Completed           System         Record live   │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_4e4fc66a.png)
 ```
 
 ---
@@ -504,6 +516,7 @@ php symfony workflow:status --format=json
 │  ✓ Release unclaimed tasks if you can't complete them               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a9dcf5ac.png)
 ```
 
 ### For Administrators
@@ -523,6 +536,7 @@ php symfony workflow:status --format=json
 │  ✓ Run workflow:process via cron for automation                     │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_823029e8.png)
 ```
 
 ---

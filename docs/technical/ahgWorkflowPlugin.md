@@ -62,6 +62,7 @@ Configurable approval workflow system for archival submissions, inspired by DSpa
 │  └───────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_a0aa1d1b.png)
 ```
 
 ---
@@ -182,6 +183,7 @@ Configurable approval workflow system for archival submissions, inspired by DSpa
 │ IDX idx_notif_user (user_id)            │
 │ FK REFERENCES ahg_workflow_task(id)     │
 └─────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_126ff6c3.png)
 ```
 
 ---
@@ -360,6 +362,7 @@ class WorkflowService
 │ PENDING │  │ COMPLETED│
 │(next)   │  │(publish) │
 └─────────┘  └──────────┘
+![wireframe](./images/wireframes/wireframe_de43027b.png)
 ```
 
 ---

@@ -76,6 +76,7 @@
 │  │                            MySQL 8 Database                                 │ │
 │  └────────────────────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_e6d7e227.png)
 ```
 
 ### Heratio Dual-Mode
@@ -117,6 +118,7 @@ The Heratio migration adds an alternative rendering path. When `.heratio_enabled
 │  └── ... (30+ capability plugins)                                               │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_b58a0be4.png)
 ```
 
 ### 2.2 Module Ownership Rules
@@ -149,6 +151,7 @@ The Heratio migration adds an alternative rendering path. When `.heratio_enabled
 │    • Templates in modules/X/templates/                                          │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_d8a0264e.png)
 ```
 
 ---
@@ -229,6 +232,7 @@ The Heratio migration adds an alternative rendering path. When `.heratio_enabled
 │  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_1ea85dc2.png)
 ```
 
 ---
@@ -413,6 +417,7 @@ Templates use module names for routing but plugin names for enable checks:
 │                  │                            │   'ahg3DModelPlugin')            │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
+![wireframe](./images/wireframes/wireframe_6a784bf1.png)
 ```
 
 ### 6.5 Guarded Templates
