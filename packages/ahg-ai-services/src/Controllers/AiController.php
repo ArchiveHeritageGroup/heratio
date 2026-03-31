@@ -2,6 +2,7 @@
 
 namespace AhgAiServices\Controllers;
 
+use AhgAiServices\Services\DonutService;
 use AhgAiServices\Services\HtrService;
 use AhgAiServices\Services\LlmService;
 use AhgAiServices\Services\NerService;
@@ -23,12 +24,14 @@ class AiController extends Controller
     private LlmService $llmService;
     private NerService $nerService;
     private HtrService $htrService;
+    private DonutService $donutService;
 
-    public function __construct(LlmService $llmService, NerService $nerService, HtrService $htrService)
+    public function __construct(LlmService $llmService, NerService $nerService, HtrService $htrService, DonutService $donutService)
     {
         $this->llmService = $llmService;
         $this->nerService = $nerService;
         $this->htrService = $htrService;
+        $this->donutService = $donutService;
     }
 
     /**
@@ -4558,5 +4561,126 @@ PY;
         file_put_contents($tmpScript, $script);
         exec("python3 {$tmpScript} {$escapedImage} {$escapedCrops} 2>&1", $output);
         @unlink($tmpScript);
+    }
+
+    // =====================================================================
+    // Donut — Document Understanding (FamilySearch ILM Field Extraction)
+    // =====================================================================
+
+    public function donutDashboard()
+    {
+        $health = $this->donutService->health();
+        $training = $this->donutService->trainingStatus();
+
+        return view('ahg-ai-services::donut.dashboard', [
+            'health' => $health,
+            'training' => $training,
+        ]);
+    }
+
+    public function donutExtract()
+    {
+        return view('ahg-ai-services::donut.extract');
+    }
+
+    public function donutDoExtract(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png,tiff,tif,pdf|max:20480',
+        ]);
+
+        $file = $request->file('file');
+        $storedPath = $file->store('donut-uploads', 'local');
+        $fullPath = storage_path('app/private/' . $storedPath);
+
+        $result = $this->donutService->extract($fullPath);
+        @unlink($fullPath);
+
+        if (!$result) {
+            return back()->with('error', 'Donut service unavailable. Check that the service is running on port 5008.');
+        }
+
+        if (isset($result['error'])) {
+            return back()->with('error', 'Donut extraction failed: ' . $result['error']);
+        }
+
+        $jobId = $result['job_id'] ?? 'donut_' . time();
+        session()->put("donut_result_{$jobId}", $result);
+
+        return view('ahg-ai-services::donut.results', [
+            'result' => $result,
+            'jobId' => $jobId,
+            'filename' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    public function donutBatch()
+    {
+        return view('ahg-ai-services::donut.batch');
+    }
+
+    public function donutDoBatch(Request $request)
+    {
+        $request->validate([
+            'files' => 'required|array|min:1|max:50',
+            'files.*' => 'file|mimes:jpg,jpeg,png,tiff,tif|max:20480',
+        ]);
+
+        $paths = [];
+        foreach ($request->file('files') as $file) {
+            $storedPath = $file->store('donut-uploads', 'local');
+            $paths[] = [
+                'path' => storage_path('app/private/' . $storedPath),
+                'name' => $file->getClientOriginalName(),
+            ];
+        }
+
+        $filePaths = array_column($paths, 'path');
+        $result = $this->donutService->batch($filePaths);
+
+        foreach ($filePaths as $p) {
+            @unlink($p);
+        }
+
+        if (!$result || !($result['success'] ?? false)) {
+            return back()->with('error', 'Donut batch processing failed.');
+        }
+
+        return view('ahg-ai-services::donut.batch-results', [
+            'results' => $result['results'] ?? [],
+            'jobId' => $result['job_id'] ?? '',
+            'count' => $result['count'] ?? 0,
+        ]);
+    }
+
+    public function donutDownload(string $jobId)
+    {
+        $result = $this->donutService->downloadResult($jobId);
+        if (!$result) {
+            abort(404, 'Job not found');
+        }
+
+        return response()->json($result)
+            ->header('Content-Disposition', "attachment; filename=\"donut-{$jobId}.json\"");
+    }
+
+    public function donutTrainingStatus()
+    {
+        $status = $this->donutService->trainingStatus();
+        return response()->json($status ?? ['error' => 'Service unavailable']);
+    }
+
+    public function donutStartTraining(Request $request)
+    {
+        $epochs = (int) $request->input('epochs', 15);
+        $batchSize = (int) $request->input('batch_size', 2);
+
+        $result = $this->donutService->triggerTraining($epochs, $batchSize);
+
+        if (!$result) {
+            return back()->with('error', 'Could not start Donut training. Check service status.');
+        }
+
+        return back()->with('success', $result['message'] ?? 'Training started.');
     }
 }

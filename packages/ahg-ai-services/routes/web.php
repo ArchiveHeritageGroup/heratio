@@ -127,6 +127,16 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
     Route::get('/htr/training/status', [AiController::class, 'htrTrainingStatus'])->name('admin.ai.htr.trainingStatus');
+
+    // --- Donut (Document Understanding) ---
+    Route::get('/donut', [AiController::class, 'donutDashboard'])->name('admin.ai.donut.dashboard');
+    Route::get('/donut/extract', [AiController::class, 'donutExtract'])->name('admin.ai.donut.extract');
+    Route::post('/donut/extract', [AiController::class, 'donutDoExtract'])->name('admin.ai.donut.doExtract');
+    Route::get('/donut/batch', [AiController::class, 'donutBatch'])->name('admin.ai.donut.batch');
+    Route::post('/donut/batch', [AiController::class, 'donutDoBatch'])->name('admin.ai.donut.doBatch');
+    Route::get('/donut/download/{jobId}', [AiController::class, 'donutDownload'])->name('admin.ai.donut.download');
+    Route::get('/donut/training/status', [AiController::class, 'donutTrainingStatus'])->name('admin.ai.donut.trainingStatus');
+    Route::post('/donut/training/start', [AiController::class, 'donutStartTraining'])->name('admin.ai.donut.startTraining');
 });
 
 /*
