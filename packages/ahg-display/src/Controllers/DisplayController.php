@@ -381,6 +381,20 @@ class DisplayController extends Controller
         }
         unset($obj);
 
+        // Separate broken records (no slug) — admin-only diagnostics
+        $brokenItems = [];
+        if (auth()->check() && \AhgCore\Services\AclService::isAdministrator()) {
+            $validObjects = [];
+            foreach ($objects as $obj) {
+                if (empty($obj->slug)) {
+                    $brokenItems[] = $obj;
+                } else {
+                    $validObjects[] = $obj;
+                }
+            }
+            $objects = $validObjects;
+        }
+
         // Build filter params for template
         $filterParams = [
             'type' => $this->typeFilter,
@@ -422,7 +436,7 @@ class DisplayController extends Controller
             'subjectFilter', 'placeFilter', 'genreFilter', 'levelFilter', 'mediaFilter',
             'repoFilter', 'queryFilter', 'filterParams', 'discoveryMode',
             'discoveryExpanded', 'discoveryMeta', 'correctedQuery', 'didYouMean',
-            'originalQuery', 'esAssistedSearch'
+            'originalQuery', 'esAssistedSearch', 'brokenItems'
         ));
     }
 

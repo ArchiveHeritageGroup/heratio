@@ -245,15 +245,46 @@
         </div>
       </div>
 
-      {{-- Provenance Summary --}}
+      {{-- Provenance Summary (provenance_entry table + events) --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-history me-1"></i> Provenance
         </div>
-        <div class="card-body" id="ric-provenance-body">
-          <div class="text-center py-2">
-            <div class="spinner-border spinner-border-sm text-muted"></div>
-          </div>
+        <div class="card-body">
+          @php
+            $ricProvenanceEntries = collect();
+            try {
+                $ricProvenanceEntries = \Illuminate\Support\Facades\DB::table('provenance_entry')
+                    ->where('information_object_id', $io->id)
+                    ->orderBy('sequence')
+                    ->get();
+            } catch (\Exception $e) {}
+          @endphp
+          @if($ricProvenanceEntries->isNotEmpty())
+            <ul class="list-unstyled small mb-0">
+              @foreach($ricProvenanceEntries as $pe)
+                <li class="mb-1">
+                  <i class="fas fa-circle text-success me-1" style="font-size:0.5rem;vertical-align:middle;"></i>
+                  @if($pe->start_date || $pe->end_date)
+                    <strong>{{ $pe->start_date ?? '?' }} &ndash; {{ $pe->end_date ?? 'present' }}</strong>
+                  @endif
+                  &mdash; {{ $pe->owner_name }}
+                  @if($pe->transfer_type && $pe->transfer_type !== 'unknown')
+                    <em>({{ ucfirst(str_replace('_', ' ', $pe->transfer_type)) }})</em>
+                  @endif
+                  @if($pe->owner_location)
+                    <span class="text-muted">— {{ $pe->owner_location }}</span>
+                  @endif
+                </li>
+              @endforeach
+            </ul>
+          @else
+            <div id="ric-provenance-body">
+              <div class="text-center py-2">
+                <div class="spinner-border spinner-border-sm text-muted"></div>
+              </div>
+            </div>
+          @endif
         </div>
       </div>
 
@@ -280,29 +311,31 @@
 </div>
 
 <script>
-// Load provenance data
-fetch('/ric-api/timeline/{{ $io->id }}')
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    var body = document.getElementById('ric-provenance-body');
-    if (!data.success || !data.events || data.events.length === 0) {
-      body.innerHTML = '<p class="text-muted small mb-0">No provenance events.</p>';
-      return;
-    }
-    var html = '<ul class="list-unstyled small mb-0">';
-    data.events.forEach(function(evt) {
-      var date = evt.date_display || evt.start_date || '';
-      var actor = evt.actor || '';
-      html += '<li class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size:0.5rem;vertical-align:middle;"></i>';
-      if (date) html += '<strong>' + date + '</strong> ';
-      if (actor) html += '— ' + actor;
-      if (evt.name) html += ' <em>(' + evt.name + ')</em>';
-      html += '</li>';
+// Load provenance from timeline API (only if provenance_entry had no results)
+var provBody = document.getElementById('ric-provenance-body');
+if (provBody) {
+  fetch('/ric-api/timeline/{{ $io->id }}')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success || !data.events || data.events.length === 0) {
+        provBody.innerHTML = '<p class="text-muted small mb-0">No provenance events.</p>';
+        return;
+      }
+      var html = '<ul class="list-unstyled small mb-0">';
+      data.events.forEach(function(evt) {
+        var date = evt.date_display || evt.start_date || '';
+        var actor = evt.actor || '';
+        html += '<li class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size:0.5rem;vertical-align:middle;"></i>';
+        if (date) html += '<strong>' + date + '</strong> ';
+        if (actor) html += '— ' + actor;
+        if (evt.name) html += ' <em>(' + evt.name + ')</em>';
+        html += '</li>';
+      });
+      html += '</ul>';
+      provBody.innerHTML = html;
+    })
+    .catch(function() {
+      provBody.innerHTML = '<p class="text-muted small mb-0">Could not load provenance.</p>';
     });
-    html += '</ul>';
-    body.innerHTML = html;
-  })
-  .catch(function() {
-    document.getElementById('ric-provenance-body').innerHTML = '<p class="text-muted small mb-0">Could not load provenance.</p>';
-  });
+}
 </script>

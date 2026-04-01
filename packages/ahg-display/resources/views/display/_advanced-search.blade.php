@@ -266,7 +266,7 @@
       </ul>
     </div>
   @endif
-  @if(request()->has('query') || request()->has('title') || request()->has('type'))
+  @if(!empty(request()->query()))
     <button type="button" class="btn btn-sm atom-btn-outline-success py-0 px-2" data-bs-toggle="modal" data-bs-target="#saveGlamSearchModal">
       <i class="fas fa-bookmark me-1"></i>Save Search
     </button>

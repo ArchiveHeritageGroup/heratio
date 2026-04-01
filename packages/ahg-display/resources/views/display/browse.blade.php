@@ -330,6 +330,7 @@
 
     {{-- ========== MAIN CONTENT (RIGHT COLUMN) ========== --}}
     <div id="main-column" class="col-md-9" role="main">
+      @include('ahg-display::display._broken-items')
       @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>
@@ -340,6 +341,7 @@
   {{-- Full width (1-column) layout --}}
   <div class="row">
     <div class="col-12" id="main-column" role="main">
+      @include('ahg-display::display._broken-items')
       @include('ahg-display::display._advanced-search')
       @include('ahg-display::display._browse_content')
     </div>
