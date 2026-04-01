@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Condition Checks — ' . ($io->title ?? 'Untitled'))
+@section('title', 'Condition Reports — ' . ($io->title ?? 'Untitled'))
 
 @section('content')
 <div class="container py-4">
@@ -9,7 +9,7 @@
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Condition Checks</li>
+      <li class="breadcrumb-item active" aria-current="page">Condition</li>
     </ol>
   </nav>
 
@@ -20,7 +20,7 @@
     </a>
     @auth
       <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success">
-        <i class="fas fa-plus me-1"></i> New Condition Check
+        <i class="fas fa-plus me-1"></i> New Condition Report
       </a>
     @endauth
   </div>
@@ -33,7 +33,7 @@
     {{-- Latest Condition card --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> Latest Condition</h5>
+        <h5 class="mb-0"><i class="fas fa-star me-2"></i> Latest Condition</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -56,18 +56,18 @@
                     $badgeClass = 'bg-secondary';
                 }
               @endphp
-              <span class="badge {{ $badgeClass }}">{{ $latestCondition->condition_rating ?? '—' }}</span>
+              <span class="badge {{ $badgeClass }}">{{ ucfirst($latestCondition->condition_rating ?? '—') }}</span>
             </p>
           </div>
           <div class="col-md-3">
             <strong>Assessor</strong>
-            <p>{{ $latestCondition->assessor ?? '—' }}</p>
+            <p>{{ $latestCondition->assessor && $latestCondition->assessor !== 'System' ? $latestCondition->assessor : 'N/A' }}</p>
           </div>
           <div class="col-md-3">
             <strong>Photos</strong>
             <p>
-              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm atom-btn-white">
-                <i class="fas fa-camera me-1"></i> View Photos
+              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-images me-1"></i> View Photos
               </a>
             </p>
           </div>
@@ -86,7 +86,10 @@
     {{-- Condition History card --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-history me-2"></i> Condition History</h5>
+        <h5 class="mb-0 d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-history me-2"></i> Condition History</span>
+          <span class="badge bg-light text-dark">{{ $checks->count() }}</span>
+        </h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -98,7 +101,7 @@
                 <th>Type</th>
                 <th>Assessor</th>
                 <th>Notes</th>
-                <th class="text-end">Photos</th>
+                <th class="text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -118,15 +121,21 @@
                           $checkBadgeClass = 'bg-secondary';
                       }
                     @endphp
-                    <span class="badge {{ $checkBadgeClass }}">{{ $check->condition_rating ?? '—' }}</span>
+                    <span class="badge {{ $checkBadgeClass }}">{{ ucfirst($check->condition_rating ?? '—') }}</span>
                   </td>
                   <td>{{ $check->check_type ?? '—' }}</td>
                   <td>{{ $check->assessor ?? '—' }}</td>
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
-                    <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm atom-btn-white" title="View photos">
-                      <i class="fas fa-camera"></i>
-                    </a>
+                    @if(($check->source ?? '') === 'spectrum')
+                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Photos">
+                        <i class="fas fa-images"></i>
+                      </a>
+                    @else
+                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Report">
+                        <i class="fas fa-eye me-1"></i>View
+                      </a>
+                    @endif
                   </td>
                 </tr>
               @endforeach
@@ -143,13 +152,13 @@
       <div class="mb-4">
         <i class="fas fa-clipboard-check fa-4x text-muted"></i>
       </div>
-      <h4 class="text-muted">No Condition Checks Recorded</h4>
+      <h4 class="text-muted">No Condition Reports</h4>
       <p class="text-muted mb-4">
-        No condition assessments have been recorded for this resource yet.
+        No condition reports found for this object.
       </p>
       @auth
         <a href="{{ route('io.condition.create', ['slug' => $io->slug ?? $io->id]) }}" class="btn atom-btn-outline-success btn-lg">
-          <i class="fas fa-plus me-1"></i> Create First Condition Check
+          <i class="fas fa-plus me-1"></i> Create First Condition Report
         </a>
       @endauth
     </div>

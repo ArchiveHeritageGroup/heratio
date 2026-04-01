@@ -121,6 +121,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/condition/report/{id}/photo', [ConditionController::class, 'uploadPhoto'])->name('io.condition.photo.upload')->where('id', '[0-9]+');
     Route::delete('/condition/photo/{id}', [ConditionController::class, 'deletePhoto'])->name('io.condition.photo.delete')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/condition/api/annotation/{id}', [ConditionController::class, 'annotation'])->name('io.condition.annotation')->where('id', '[0-9]+');
+    Route::get('/condition/check/{id}/photos', [ConditionController::class, 'spectrumShow'])->name('io.condition.spectrum.show')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 

@@ -208,6 +208,72 @@ class ConditionController extends Controller
     }
 
     /**
+     * Show a spectrum condition check with its photos (matching AtoM's /condition/check/{id}/photos).
+     */
+    public function spectrumShow(int $id)
+    {
+        $check = DB::table('spectrum_condition_check')->where('id', $id)->first();
+        if (!$check) {
+            abort(404);
+        }
+
+        $io = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', app()->getLocale());
+            })
+            ->join('slug as s', 's.object_id', '=', 'io.id')
+            ->where('io.id', $check->object_id)
+            ->select('io.id', 'i18n.title', 's.slug')
+            ->first();
+
+        $photos = DB::table('spectrum_condition_photos')
+            ->where('condition_check_id', $id)
+            ->orderBy('created_at')
+            ->get();
+
+        // Map to a report-like object for the shared view
+        $report = (object) [
+            'id' => $check->id,
+            'information_object_id' => $check->object_id,
+            'assessment_date' => $check->check_date,
+            'overall_rating' => $check->overall_condition ?? $check->condition_rating ?? 'pending',
+            'context' => $check->check_reason ?? 'spectrum',
+            'assessor_user_id' => null,
+            'summary' => $check->condition_note ?? $check->condition_notes ?? null,
+            'recommendations' => $check->recommended_treatment ?? $check->recommendations ?? null,
+            'priority' => $check->treatment_priority ?? null,
+            'next_check_date' => $check->next_check_date ?? null,
+            'environmental_notes' => $check->environment_recommendation ?? null,
+            'handling_notes' => $check->handling_recommendation ?? null,
+            'display_notes' => $check->display_recommendation ?? null,
+            'storage_notes' => $check->storage_recommendation ?? null,
+            'source' => 'spectrum',
+        ];
+
+        // Map spectrum photos to condition_image format
+        $mappedPhotos = $photos->map(function ($p) {
+            return (object) [
+                'id' => $p->id,
+                'condition_report_id' => $p->condition_check_id,
+                'file_path' => '/uploads/condition_photos/' . $p->filename,
+                'caption' => $p->notes ?? $p->original_filename ?? null,
+                'image_type' => $p->category ?? 'overall',
+                'annotations' => $p->annotations ?? null,
+                'created_at' => $p->created_at,
+            ];
+        });
+
+        $damages = collect();
+
+        return view('ahg-io-manage::condition.show', [
+            'io' => $io,
+            'report' => $report,
+            'photos' => $mappedPhotos,
+            'damages' => $damages,
+        ]);
+    }
+
+    /**
      * Upload a photo to a condition report.
      */
     public function uploadPhoto(Request $request, int $id)
