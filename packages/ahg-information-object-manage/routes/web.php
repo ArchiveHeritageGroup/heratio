@@ -41,6 +41,7 @@ Route::get('/informationobject/{slug}/print', [InformationObjectController::clas
 
 // IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {
+    Route::post('/admin/fix-missing-slug', [InformationObjectController::class, 'fixMissingSlug'])->name('admin.fix-missing-slug');
     Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
     Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store')->middleware('acl:create');
     Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');

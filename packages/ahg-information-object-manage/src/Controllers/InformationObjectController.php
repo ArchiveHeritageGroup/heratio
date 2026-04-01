@@ -778,6 +778,55 @@ class InformationObjectController extends Controller
                     return redirect($redirectMap[$className]);
                 }
             }
+
+            // Admin: show detailed diagnostic instead of generic 404
+            if (auth()->check()) {
+                $diagnostics = ['slug' => $slug, 'issues' => []];
+
+                // Check if an IO exists without a slug matching this URL
+                $orphan = DB::table('information_object as io')
+                    ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+                    })
+                    ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+                    ->whereNull('s.slug')
+                    ->where('io.id', '>', 1)
+                    ->select('io.id', 'i18n.title', 'io.parent_id', 'io.lft', 'io.rgt', 'io.source_culture')
+                    ->limit(20)
+                    ->get();
+
+                if ($orphan->isNotEmpty()) {
+                    $diagnostics['issues'][] = [
+                        'type' => 'missing_slugs',
+                        'message' => $orphan->count() . ' information object(s) have no slug and cannot be accessed via URL.',
+                        'records' => $orphan->map(fn($r) => [
+                            'id' => $r->id,
+                            'title' => $r->title ?? '[Untitled]',
+                            'parent_id' => $r->parent_id,
+                            'has_nested_set' => $r->lft !== null,
+                        ])->toArray(),
+                    ];
+                }
+
+                if ($slugRow && !isset($redirectMap[$className ?? ''])) {
+                    $diagnostics['issues'][] = [
+                        'type' => 'unknown_class',
+                        'message' => "Slug '{$slug}' exists (object_id={$slugRow->object_id}) but class '{$className}' has no route mapping.",
+                    ];
+                }
+
+                if (!$slugRow && $orphan->isEmpty()) {
+                    $diagnostics['issues'][] = [
+                        'type' => 'not_found',
+                        'message' => "No slug '{$slug}' found in the database and no orphan records detected.",
+                    ];
+                }
+
+                return response()->view('ahg-io-manage::errors.admin-404', [
+                    'diagnostics' => $diagnostics,
+                ], 404);
+            }
+
             abort(404);
         }
 
@@ -2483,6 +2532,55 @@ class InformationObjectController extends Controller
         return redirect()
             ->route('informationobject.show', $slug)
             ->with('success', 'Archival description created successfully.');
+    }
+
+    /**
+     * Generate a missing slug for an information object.
+     */
+    public function fixMissingSlug(Request $request)
+    {
+        $objectId = (int) $request->input('object_id');
+        if (!$objectId) {
+            return redirect()->back()->with('error', 'No object ID provided.');
+        }
+
+        // Check if slug already exists
+        $existing = DB::table('slug')->where('object_id', $objectId)->value('slug');
+        if ($existing) {
+            return redirect('/' . $existing)->with('info', 'Slug already exists.');
+        }
+
+        // Get the title for slug generation
+        $title = DB::table('information_object_i18n')
+            ->where('id', $objectId)
+            ->where('culture', app()->getLocale())
+            ->value('title');
+
+        if (!$title) {
+            $title = 'untitled-' . $objectId;
+        }
+
+        // Generate slug from title
+        $baseSlug = \Illuminate\Support\Str::slug($title);
+        if (!$baseSlug) {
+            $baseSlug = 'record-' . $objectId;
+        }
+
+        // Ensure uniqueness
+        $slug = $baseSlug;
+        $counter = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        DB::table('slug')->insert([
+            'object_id' => $objectId,
+            'slug' => $slug,
+            'serial_number' => 0,
+        ]);
+
+        return redirect('/' . $slug)->with('success', "Slug '{$slug}' generated for object #{$objectId}.");
     }
 
     /**
