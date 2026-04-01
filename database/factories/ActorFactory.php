@@ -2,72 +2,75 @@
 
 namespace Database\Factories;
 
-use AhgCore\Models\QubitActor;
+use AhgCore\Models\Actor;
+use AhgCore\Models\ActorI18n;
+use AhgCore\Models\BaseObject;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Factory for QubitActor (Agents/Authority Records)
+ * Factory for Actor (Authority Records)
+ *
+ * Creates object + actor + actor_i18n rows matching AtoM's class table inheritance.
+ * Entity type IDs: 131 = Corporate body, 132 = Person, 133 = Family
  */
 class ActorFactory extends Factory
 {
-    protected $model = QubitActor::class;
+    protected $model = Actor::class;
 
     public function definition(): array
     {
-        $actorType = $this->faker->randomElement(['person', 'family', 'corporateBody']);
-
         return [
-            'id' => $this->faker->unique()->numberBetween(1000, 999999),
-            'entity_type' => $actorType,
-            'authorized_form_of_name' => $this->generateName($actorType),
-            '其他的名字' => $this->faker->optional()->name(),
-            '偏差' => $this->faker->optional()->company(),
-            '來源標準' => 'local',
-            '規則' => $this->faker->optional()->sentence(),
-            '歷史' => $this->faker->optional()->paragraph(),
-            '範圍和內容' => $this->faker->optional()->paragraph(),
-            '機構史' => $this->faker->optional()->paragraph(),
-            '處所' => $this->faker->optional()->address(),
-            '功能、職業、資源' => $this->faker->optional()->sentence(),
-            '組成規則' => $this->faker->optional()->sentence(),
-            '使用規則' => $this->faker->optional()->sentence(),
-            '並行存取點' => $this->faker->optional()->name(),
-            'EAD標題' => $this->faker->optional()->slug(3),
-            '更新觸發' => now(),
+            'entity_type_id' => 132, // Person
+            'source_culture' => 'en',
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this
+            ->afterMaking(function (Actor $actor) {
+                if (! $actor->id) {
+                    $object = BaseObject::create([
+                        'class_name' => 'QubitActor',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    $actor->id = $object->id;
+                }
+            })
+            ->afterCreating(function (Actor $actor) {
+                if (! $actor->i18n()->where('culture', 'en')->exists()) {
+                    ActorI18n::create([
+                        'id' => $actor->id,
+                        'culture' => 'en',
+                        'authorized_form_of_name' => fake()->name(),
+                    ]);
+                }
+            });
+    }
+
+    /**
+     * Set i18n attributes (authorized_form_of_name, history, etc.)
+     */
+    public function withI18n(array $data): static
+    {
+        return $this->afterCreating(function (Actor $actor) use ($data) {
+            $actor->i18n()->where('culture', 'en')->update($data);
+        });
     }
 
     public function person(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'entity_type' => 'person',
-            'authorized_form_of_name' => $this->faker->name(),
-        ]);
+        return $this->state(fn () => ['entity_type_id' => 132]);
     }
 
     public function family(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'entity_type' => 'family',
-            'authorized_form_of_name' => $this->faker->lastName() . ' family',
-        ]);
+        return $this->state(fn () => ['entity_type_id' => 133]);
     }
 
     public function corporateBody(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'entity_type' => 'corporateBody',
-            'authorized_form_of_name' => $this->faker->company(),
-        ]);
-    }
-
-    protected function generateName(string $type): string
-    {
-        return match ($type) {
-            'person' => $this->faker->name(),
-            'family' => $this->faker->lastName() . ' family',
-            'corporateBody' => $this->faker->company(),
-            default => $this->faker->company(),
-        };
+        return $this->state(fn () => ['entity_type_id' => 131]);
     }
 }

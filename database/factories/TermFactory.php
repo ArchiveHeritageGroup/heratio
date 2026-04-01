@@ -2,11 +2,15 @@
 
 namespace Database\Factories;
 
+use AhgCore\Models\BaseObject;
 use AhgCore\Models\Term;
+use AhgCore\Models\TermI18n;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Factory for Term (Taxonomy terms/subjects)
+ * Factory for Term (Taxonomy terms)
+ *
+ * Creates object + term + term_i18n rows matching AtoM's class table inheritance.
  */
 class TermFactory extends Factory
 {
@@ -15,42 +19,56 @@ class TermFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => $this->faker->unique()->numberBetween(1000, 999999),
-            'taxonomy_id' => $this->faker->randomElement([1, 2, 3, 10, 20, 30, 40, 50]),
+            'taxonomy_id' => 35, // Subject
             'parent_id' => null,
-            'code' => $this->faker->optional()->bothify('??###'),
-            'name' => $this->faker->unique()->words(3, true),
-            'use_for' => null,
-            'scope_note' => $this->faker->optional()->sentence(),
-            '正向優先' => $this->faker->boolean(80),
-            '其他的文字' => null,
-            '分類來源' => 'local',
-            '其他的分類來源' => null,
-            '更新觸發' => now(),
+            'code' => null,
+            'source_culture' => 'en',
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this
+            ->afterMaking(function (Term $term) {
+                if (! $term->id) {
+                    $object = BaseObject::create([
+                        'class_name' => 'QubitTerm',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    $term->id = $object->id;
+                }
+            })
+            ->afterCreating(function (Term $term) {
+                if (! $term->i18n()->where('culture', 'en')->exists()) {
+                    TermI18n::create([
+                        'id' => $term->id,
+                        'culture' => 'en',
+                        'name' => fake()->unique()->words(3, true),
+                    ]);
+                }
+            });
+    }
+
+    public function withI18n(array $data): static
+    {
+        return $this->afterCreating(function (Term $term) use ($data) {
+            $term->i18n()->where('culture', 'en')->update($data);
+        });
     }
 
     public function subject(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'taxonomy_id' => 35, // Subject taxonomy
-            'name' => $this->faker->unique()->words(2, true),
-        ]);
+        return $this->state(fn () => ['taxonomy_id' => 35]);
     }
 
     public function place(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'taxonomy_id' => 42, // Place taxonomy
-            'name' => $this->faker->unique()->city(),
-        ]);
+        return $this->state(fn () => ['taxonomy_id' => 42]);
     }
 
     public function genre(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'taxonomy_id' => 43, // Genre taxonomy
-            'name' => $this->faker->unique()->words(2, true),
-        ]);
+        return $this->state(fn () => ['taxonomy_id' => 43]);
     }
 }
