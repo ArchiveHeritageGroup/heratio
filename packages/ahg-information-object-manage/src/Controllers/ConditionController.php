@@ -226,8 +226,9 @@ class ConditionController extends Controller
             ->select('io.id', 'i18n.title', 's.slug')
             ->first();
 
-        $photos = DB::table('spectrum_condition_photos')
+        $photos = DB::table('spectrum_condition_photo')
             ->where('condition_check_id', $id)
+            ->orderBy('sort_order')
             ->orderBy('created_at')
             ->get();
 
@@ -255,9 +256,9 @@ class ConditionController extends Controller
             return (object) [
                 'id' => $p->id,
                 'condition_report_id' => $p->condition_check_id,
-                'file_path' => '/uploads/condition_photos/' . $p->filename,
-                'caption' => $p->notes ?? $p->original_filename ?? null,
-                'image_type' => $p->category ?? 'overall',
+                'file_path' => $p->file_path ?? ('/uploads/condition_photos/' . $p->filename),
+                'caption' => $p->caption ?? $p->original_filename ?? null,
+                'image_type' => $p->photo_type ?? 'detail',
                 'annotations' => $p->annotations ?? null,
                 'created_at' => $p->created_at,
             ];

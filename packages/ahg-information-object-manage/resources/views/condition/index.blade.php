@@ -66,9 +66,15 @@
           <div class="col-md-3">
             <strong>Photos</strong>
             <p>
-              <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-images me-1"></i> View Photos
-              </a>
+              @if(($latestCondition->source ?? '') === 'spectrum')
+                <a href="{{ route('io.condition.spectrum.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-images me-1"></i> View Photos
+                </a>
+              @else
+                <a href="{{ route('io.condition.show', ['id' => $latestCondition->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-images me-1"></i> View Photos
+                </a>
+              @endif
             </p>
           </div>
         </div>

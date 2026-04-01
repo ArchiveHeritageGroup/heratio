@@ -1,0 +1,205 @@
+/* Condition Annotator Styles - CSP Safe */
+.condition-annotator {
+    font-family: inherit;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 550px;
+}
+.annotator-main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    min-height: 450px;
+}
+.annotator-canvas-container {
+    flex: 1;
+    background: var(--ahg-dark);
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-width: 0;
+}
+.annotator-canvas-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.annotator-canvas-container::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+.annotator-canvas-container::-webkit-scrollbar-thumb {
+    background: var(--ahg-muted);
+    border-radius: 4px;
+}
+.annotator-canvas-container::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+.annotator-status-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 15px;
+    background: var(--ahg-light);
+    border-top: 1px solid var(--ahg-border);
+    font-size: 0.85em;
+    font-family: monospace;
+}
+.annotator-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 15px;
+    background: #e9ecef;
+    border-bottom: 1px solid var(--ahg-border);
+    align-items: center;
+}
+.annotator-toolbar .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+}
+.annotator-toolbar .btn i {
+    font-size: 14px;
+}
+.annotator-toolbar .tool-btn.active {
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.annotator-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+}
+.annotator-label {
+    margin: 0;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.annotator-select {
+    width: 140px;
+}
+.annotator-color {
+    width: 40px;
+    height: 28px;
+    padding: 1px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+/* Legend - RIGHT SIDE */
+.annotator-legend {
+    width: 260px;
+    min-width: 260px;
+    background: var(--ahg-light);
+    border-left: 1px solid var(--ahg-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+.legend-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--ahg-border);
+    background: var(--ahg-dark);
+    color: white;
+}
+.legend-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+.legend-items::-webkit-scrollbar {
+    width: 6px;
+}
+.legend-items::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+.legend-items::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+.legend-empty {
+    font-size: 0.85em;
+    color: var(--ahg-muted);
+    text-align: center;
+    padding: 16px 0;
+}
+/* Legend item layout */
+.legend-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.legend-item:hover {
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.legend-item.selected {
+    background: #e3f2fd !important;
+    outline: 2px solid #2196F3;
+}
+.legend-leftbar {
+    width: 5px;
+    border-radius: 4px;
+    background: #ff0000;
+}
+.legend-body {
+    flex: 1;
+    min-width: 0;
+}
+.legend-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.legend-title {
+    font-weight: 700;
+    color: #ff0000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.legend-badge {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.75em;
+    background: #ff0000;
+}
+.legend-icon {
+    color: #666;
+}
+.legend-notes {
+    margin: 6px 0;
+    color: #444;
+    padding-left: 26px;
+    font-size: 0.95em;
+}
+.legend-meta {
+    color: #999;
+    font-size: 0.75em;
+    padding-left: 26px;
+}
+/* Modal container fix */
+.condition-annotator-container {
+    min-height: 600px;
+    height: 600px;
+}
+#annotatorModal .modal-body {
+    padding: 0;
+    min-height: 600px;
+}

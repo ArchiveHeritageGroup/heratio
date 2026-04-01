@@ -1,0 +1,21 @@
+.condition-photo-thumb {
+  height: 200px;
+  object-fit: cover;
+  cursor: pointer;
+}
+.condition-annotator-container {
+  min-height: 600px;
+}
+.dropzone-area {
+  border: 2px dashed #dee2e6;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dropzone-area:hover,
+.dropzone-area.is-dragover {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+.photo-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}

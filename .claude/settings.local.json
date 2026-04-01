@@ -236,7 +236,11 @@
       "Bash(APP_DEBUG=true php artisan route:list --path=\"cco\" 2>&1)",
       "Bash(zcat /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-31_01-00.sql.gz)",
       "Bash(grep -oP \"SQLSTATE[^<]{0,300}\")",
-      "Bash(gunzip -c /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-31_01-00.sql.gz)"
+      "Bash(gunzip -c /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-31_01-00.sql.gz)",
+      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/js/condition-annotator.js /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/js/condition-annotator.js)",
+      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/js/condition-photos.js /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/js/condition-photos.js)",
+      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/css/condition-annotator.css /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/css/condition-annotator.css)",
+      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/css/condition-photos.css /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/css/condition-photos.css)"
     ]
   }
 }

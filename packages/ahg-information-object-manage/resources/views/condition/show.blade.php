@@ -251,45 +251,20 @@
 
 </div>
 
-{{-- Annotation Modal --}}
+{{-- Annotation Modal (AtoM ConditionAnnotator) --}}
 <div class="modal fade" id="annotatorModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+      <div class="modal-header">
         <h5 class="modal-title"><i class="fas fa-draw-polygon me-2"></i>Annotate Photo</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0">
-        <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-light border-bottom">
-          <div class="btn-group btn-group-sm">
-            <button type="button" class="btn btn-outline-primary" id="ann-tool-rect"><i class="fas fa-vector-square me-1"></i>Rectangle</button>
-            <button type="button" class="btn btn-outline-primary" id="ann-tool-circle"><i class="fas fa-circle me-1"></i>Circle</button>
-            <button type="button" class="btn btn-outline-primary" id="ann-tool-arrow"><i class="fas fa-arrow-right me-1"></i>Arrow</button>
-          </div>
-          <div class="d-flex gap-2 align-items-center">
-            <label class="small me-1">Label:</label>
-            <select id="ann-damage-type" class="form-select form-select-sm" style="width:150px;">
-              <option value="tear">Tear</option>
-              <option value="stain">Stain</option>
-              <option value="foxing">Foxing</option>
-              <option value="fading">Fading</option>
-              <option value="mould">Mould</option>
-              <option value="insect">Insect damage</option>
-              <option value="water">Water damage</option>
-              <option value="abrasion">Abrasion</option>
-              <option value="crack">Crack</option>
-              <option value="loss">Loss/Missing</option>
-              <option value="other">Other</option>
-            </select>
-            <label class="small me-1">Color:</label>
-            <input type="color" id="ann-color" value="#ff0000" style="width:30px;height:30px;padding:0;border:none;">
-          </div>
-        </div>
-        <div id="annotator-container" style="width:100%;height:500px;background:#1a1a2e;"></div>
+        <div id="annotator-container" class="condition-annotator-container"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn atom-btn-outline-success" id="ann-save">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-action="save-annotations">
           <i class="fas fa-save me-1"></i>Save Annotations
         </button>
       </div>
@@ -316,162 +291,121 @@
   </div>
 </div>
 
+{{-- CSS --}}
+<link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/condition-annotator.css') }}">
+<link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/condition-photos.css') }}">
+
+{{-- JS: Fabric.js + AtoM ConditionAnnotator + condition-photos --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/condition-annotator.js') }}"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var canvas = null;
-  var currentPhotoId = null;
+window.AHG_CONDITION = window.AHG_CONDITION || {};
+window.AHG_CONDITION.checkId = {{ (int)$report->id }};
+window.AHG_CONDITION.objectId = {{ (int)$report->information_object_id }};
+window.AHG_CONDITION.confirmDelete = 'Are you sure you want to delete this photo?';
+
+(function() {
+  'use strict';
+  var currentAnnotator = null;
   var annotatorModal = null;
 
-  // Annotate button handler
-  document.querySelectorAll('[data-action="annotate"]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      currentPhotoId = this.dataset.photoId;
-      var imgSrc = this.dataset.imageSrc;
+  document.addEventListener('DOMContentLoaded', function() {
+    var modalEl = document.getElementById('annotatorModal');
+    if (modalEl) annotatorModal = new bootstrap.Modal(modalEl);
 
-      if (!annotatorModal) {
-        annotatorModal = new bootstrap.Modal(document.getElementById('annotatorModal'));
-      }
-      annotatorModal.show();
+    // Handle all data-action clicks
+    document.addEventListener('click', function(e) {
+      var target = e.target.closest('[data-action]');
+      if (!target) return;
+      var action = target.dataset.action;
+      var photoId = target.dataset.photoId;
+      var imageSrc = target.dataset.imageSrc;
 
-      setTimeout(function() {
-        var container = document.getElementById('annotator-container');
-        container.innerHTML = '<canvas id="ann-canvas"></canvas>';
-
-        fabric.Image.fromURL(imgSrc, function(img) {
-          var scale = Math.min(container.clientWidth / img.width, container.clientHeight / img.height);
-          canvas = new fabric.Canvas('ann-canvas', {
-            width: container.clientWidth,
-            height: container.clientHeight,
-            backgroundColor: '#1a1a2e',
-          });
-          img.set({ left: 0, top: 0, scaleX: scale, scaleY: scale, selectable: false, evented: false });
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-
-          // Load existing annotations
-          fetch('/condition/api/annotation/' + currentPhotoId)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              if (data.annotations) {
-                var objects = typeof data.annotations === 'string' ? JSON.parse(data.annotations) : data.annotations;
-                if (Array.isArray(objects)) {
-                  objects.forEach(function(obj) {
-                    var rect = new fabric.Rect({
-                      left: obj.left || 0, top: obj.top || 0,
-                      width: obj.width || 50, height: obj.height || 50,
-                      fill: 'transparent', stroke: obj.stroke || '#ff0000', strokeWidth: 2,
-                      damageType: obj.damageType || 'other',
-                    });
-                    canvas.add(rect);
-                  });
-                  canvas.renderAll();
-                }
-              }
-            }).catch(function() {});
-        }, { crossOrigin: 'anonymous' });
-      }, 300);
+      if (action === 'annotate') openAnnotator(photoId, imageSrc);
+      if (action === 'save-annotations') saveAnnotations();
+      if (action === 'ai-scan') openAiScan(photoId);
     });
   });
 
-  // Add rectangle annotation
-  document.getElementById('ann-tool-rect').addEventListener('click', function() {
-    if (!canvas) return;
-    var color = document.getElementById('ann-color').value;
-    var label = document.getElementById('ann-damage-type').value;
-    var rect = new fabric.Rect({
-      left: 100, top: 100, width: 80, height: 60,
-      fill: 'transparent', stroke: color, strokeWidth: 2,
-      damageType: label,
-    });
-    canvas.add(rect);
-    canvas.setActiveObject(rect);
-  });
+  function openAnnotator(photoId, imageSrc) {
+    if (!photoId || !imageSrc) return;
+    if (currentAnnotator) {
+      currentAnnotator.destroy();
+      currentAnnotator = null;
+    }
+    var modalEl = document.getElementById('annotatorModal');
+    if (!modalEl || !annotatorModal) return;
 
-  // Add circle annotation
-  document.getElementById('ann-tool-circle').addEventListener('click', function() {
-    if (!canvas) return;
-    var color = document.getElementById('ann-color').value;
-    var label = document.getElementById('ann-damage-type').value;
-    var circle = new fabric.Circle({
-      left: 100, top: 100, radius: 40,
-      fill: 'transparent', stroke: color, strokeWidth: 2,
-      damageType: label,
-    });
-    canvas.add(circle);
-    canvas.setActiveObject(circle);
-  });
-
-  // Save annotations
-  document.getElementById('ann-save').addEventListener('click', function() {
-    if (!canvas || !currentPhotoId) return;
-    var annotations = [];
-    canvas.getObjects().forEach(function(obj) {
-      if (obj === canvas.backgroundImage) return;
-      annotations.push({
-        type: obj.type, left: Math.round(obj.left), top: Math.round(obj.top),
-        width: Math.round(obj.width * (obj.scaleX || 1)),
-        height: Math.round(obj.height * (obj.scaleY || 1)),
-        stroke: obj.stroke, damageType: obj.damageType || 'other',
+    var initOnce = function() {
+      modalEl.removeEventListener('shown.bs.modal', initOnce);
+      currentAnnotator = new ConditionAnnotator('annotator-container', {
+        photoId: photoId,
+        imageUrl: imageSrc,
+        readonly: false,
+        showToolbar: true,
+        saveUrl: '/condition/api/annotation/' + photoId,
+        getUrl: '/condition/api/annotation/' + photoId,
       });
-    });
+    };
+    modalEl.addEventListener('shown.bs.modal', initOnce);
+    annotatorModal.show();
+  }
 
-    fetch('/condition/api/annotation/' + currentPhotoId, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-      body: JSON.stringify({ annotations: annotations }),
+  function saveAnnotations() {
+    if (!currentAnnotator) return;
+    currentAnnotator.save().then(function() {
+      annotatorModal.hide();
+      location.reload();
+    }).catch(function(err) {
+      alert('Save failed: ' + (err.message || err));
+    });
+  }
+
+  function openAiScan(photoId) {
+    var modal = new bootstrap.Modal(document.getElementById('aiScanModal'));
+    document.getElementById('aiScanLoading').style.display = '';
+    document.getElementById('aiScanResult').style.display = 'none';
+    modal.show();
+
+    fetch('/admin/ai/condition/assess?photo_id=' + photoId, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      if (!r.ok || (r.headers.get('content-type') || '').indexOf('json') === -1) {
+        throw new Error('AI Condition service unavailable (HTTP ' + r.status + ')');
+      }
+      return r.json();
+    })
     .then(function(data) {
-      if (data.success) {
-        annotatorModal.hide();
-        location.reload();
-      } else {
-        alert(data.error || 'Failed to save');
+      document.getElementById('aiScanLoading').style.display = 'none';
+      var el = document.getElementById('aiScanResult');
+      el.style.display = '';
+      if (!data.success) {
+        el.innerHTML = '<div class="alert alert-danger">' + (data.error || 'Scan failed') + '</div>';
+        return;
       }
+      var gradeColors = {excellent:'success',good:'info',fair:'warning',poor:'danger',critical:'dark'};
+      var grade = data.overall_rating || 'unknown';
+      var html = '<div class="text-center mb-3"><span class="badge bg-' + (gradeColors[grade]||'secondary') + ' fs-5">' + grade.charAt(0).toUpperCase() + grade.slice(1) + '</span></div>';
+      if (data.description) html += '<p>' + data.description + '</p>';
+      if (data.damage_types && data.damage_types.length) {
+        html += '<h6>Damages (' + data.damage_types.length + ')</h6><ul class="list-group mb-2">';
+        data.damage_types.forEach(function(d) {
+          html += '<li class="list-group-item py-1 d-flex justify-content-between"><span>' + (d.type||'').replace(/_/g,' ') + '</span><small class="text-muted">' + (d.severity||'') + '</small></li>';
+        });
+        html += '</ul>';
+      }
+      if (data.recommendations) html += '<p class="small text-muted">' + data.recommendations + '</p>';
+      el.innerHTML = html;
     })
-    .catch(function(err) { alert('Error: ' + err.message); });
-  });
-
-  // AI Scan handler
-  document.querySelectorAll('[data-action="ai-scan"]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var photoId = this.dataset.photoId;
-      var modal = new bootstrap.Modal(document.getElementById('aiScanModal'));
-      document.getElementById('aiScanLoading').style.display = '';
-      document.getElementById('aiScanResult').style.display = 'none';
-      modal.show();
-
-      fetch('/admin/ai/condition/assess?photo_id=' + photoId, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        document.getElementById('aiScanLoading').style.display = 'none';
-        var el = document.getElementById('aiScanResult');
-        el.style.display = '';
-        if (!data.success) {
-          el.innerHTML = '<div class="alert alert-danger">' + (data.error || 'Scan failed') + '</div>';
-          return;
-        }
-        var html = '<div class="text-center mb-3"><span class="badge bg-success fs-5">' + (data.overall_rating || '—') + '</span></div>';
-        if (data.description) html += '<p>' + data.description + '</p>';
-        if (data.damage_types && data.damage_types.length) {
-          html += '<h6>Damages (' + data.damage_types.length + ')</h6><ul class="list-group mb-2">';
-          data.damage_types.forEach(function(d) {
-            html += '<li class="list-group-item py-1 d-flex justify-content-between"><span>' + (d.type || '').replace(/_/g,' ') + '</span><small class="text-muted">' + (d.severity || '') + '</small></li>';
-          });
-          html += '</ul>';
-        }
-        if (data.recommendations) html += '<p class="small text-muted">' + data.recommendations + '</p>';
-        el.innerHTML = html;
-      })
-      .catch(function(err) {
-        document.getElementById('aiScanLoading').style.display = 'none';
-        document.getElementById('aiScanResult').style.display = '';
-        document.getElementById('aiScanResult').innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
-      });
+    .catch(function(err) {
+      document.getElementById('aiScanLoading').style.display = 'none';
+      var el = document.getElementById('aiScanResult');
+      el.style.display = '';
+      el.innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
     });
-  });
-});
+  }
+})();
 </script>
 @endsection
