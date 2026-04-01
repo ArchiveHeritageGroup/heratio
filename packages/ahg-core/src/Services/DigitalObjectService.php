@@ -141,14 +141,34 @@ class DigitalObjectService
             return 'unknown';
         }
 
-        return match ((int) $digitalObject->media_type_id) {
-            self::MEDIA_AUDIO => 'audio',   // 135
-            self::MEDIA_IMAGE => 'image',   // 136
-            self::MEDIA_TEXT  => 'text',     // 137
-            self::MEDIA_VIDEO => 'video',   // 138
-            self::MEDIA_OTHER => 'other',   // 139
-            default => 'other',
-        };
+        if ($digitalObject->media_type_id) {
+            return match ((int) $digitalObject->media_type_id) {
+                self::MEDIA_AUDIO => 'audio',   // 135
+                self::MEDIA_IMAGE => 'image',   // 136
+                self::MEDIA_TEXT  => 'text',     // 137
+                self::MEDIA_VIDEO => 'video',   // 138
+                self::MEDIA_OTHER => 'other',   // 139
+                default => 'other',
+            };
+        }
+
+        // Fallback: detect from mime_type
+        $mime = $digitalObject->mime_type ?? '';
+        if (str_starts_with($mime, 'audio/')) return 'audio';
+        if (str_starts_with($mime, 'image/')) return 'image';
+        if (str_starts_with($mime, 'video/')) return 'video';
+        if ($mime === 'application/pdf') return 'text';
+
+        // Fallback: detect from file extension
+        $ext = strtolower(pathinfo($digitalObject->name ?? '', PATHINFO_EXTENSION));
+        $extMap = [
+            'mp3' => 'audio', 'm4a' => 'audio', 'wav' => 'audio', 'ogg' => 'audio', 'flac' => 'audio', 'aac' => 'audio',
+            'jpg' => 'image', 'jpeg' => 'image', 'png' => 'image', 'gif' => 'image', 'tif' => 'image', 'tiff' => 'image', 'webp' => 'image',
+            'mp4' => 'video', 'webm' => 'video', 'avi' => 'video', 'mov' => 'video', 'mkv' => 'video',
+            'pdf' => 'text',
+        ];
+
+        return $extMap[$ext] ?? 'other';
     }
 
     /**
