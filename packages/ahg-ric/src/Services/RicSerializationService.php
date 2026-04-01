@@ -27,7 +27,7 @@ namespace AhgRic\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Services\AhgCore\Services\SettingHelper;
+use AhgCore\Services\SettingHelper;
 
 /**
  * Service for serializing AtoM entities to RiC-O JSON-LD format.
