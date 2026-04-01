@@ -1,0 +1,37 @@
+[
+  {
+    "url": "https://psis.theahg.co.za/",
+    "status": 200,
+    "title": "Archive",
+    "forms": 3,
+    "buttons": 17
+  },
+  {
+    "url": "https://psis.theahg.co.za/informationobject/browse",
+    "status": 200,
+    "title": "Archive",
+    "forms": 4,
+    "buttons": 35
+  },
+  {
+    "url": "https://psis.theahg.co.za/informationobject/add",
+    "status": 403,
+    "title": "Archive",
+    "forms": 2,
+    "buttons": 10
+  },
+  {
+    "url": "https://psis.theahg.co.za/actor/browse",
+    "status": 200,
+    "title": "Archive",
+    "forms": 4,
+    "buttons": 47
+  },
+  {
+    "url": "https://psis.theahg.co.za/actor/add",
+    "status": 403,
+    "title": "Archive",
+    "forms": 2,
+    "buttons": 10
+  }
+]

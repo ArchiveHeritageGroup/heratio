@@ -102,6 +102,7 @@ class RicController extends Controller
 
     /**
      * Set view mode (heratio/ric) in session.
+     * Handles both AJAX (JSON response) and regular form POST (redirect back).
      */
     public function setViewMode(Request $request)
     {
@@ -110,7 +111,13 @@ class RicController extends Controller
             session(['ric_view_mode' => $mode]);
         }
 
-        return response()->json(['success' => true, 'mode' => session('ric_view_mode', 'heratio')]);
+        // If it's an AJAX request, return JSON
+        if ($request->wantsJson() || $request->hasHeader('X-Requested-With')) {
+            return response()->json(['success' => true, 'mode' => session('ric_view_mode', 'heratio')]);
+        }
+
+        // For regular form POST, redirect back to previous page
+        return redirect()->back();
     }
 
     /**

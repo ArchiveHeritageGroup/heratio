@@ -361,6 +361,17 @@
       // For non-native formats: prefer reference derivative (should be MP4/MP3), fallback to master
       $videoSrc = ($needsStreaming && $refObj) ? $refUrl : $masterUrl;
       $videoMime = ($needsStreaming && $refObj) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
+
+      // Check for 3D model files (GLB, GLTF, etc.)
+      $is3DModel = $masterObj && in_array(strtolower($masterMime), [
+          'model/gltf-binary', 'model/gltf+json', 'model/gltf',
+          'application/octet-stream', // Some GLB files uploaded without proper MIME
+      ]);
+      // Also check by extension as fallback
+      if (!$is3DModel && $masterObj && $masterObj->name) {
+          $ext = strtolower(pathinfo($masterObj->name, PATHINFO_EXTENSION));
+          $is3DModel = in_array($ext, ['glb', 'gltf']);
+      }
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
@@ -437,6 +448,101 @@
             </a>
           @endauth
         </div>
+
+      @elseif($is3DModel)
+        {{-- 3D Model: Google model-viewer --}}
+        @php
+          $modelViewerId = 'model-3d-' . ($masterObj->id ?? uniqid());
+        @endphp
+        <div class="digitalObject3D">
+          <div class="d-flex flex-column align-items-center">
+            <div class="mb-2">
+              <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
+              <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
+            </div>
+            <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; position: relative;">
+              <model-viewer 
+                id="{{ $modelViewerId }}"
+                src="{{ $masterUrl }}" 
+                camera-controls 
+                touch-action="pan-y" 
+                shadow-intensity="1"
+                exposure="1"
+                style="width:100%;height:100%;background:transparent;border-radius:8px;"
+                alt="3D model">
+                <div class="spinner-border text-primary" role="status" slot="progress-bar"></div>
+              </model-viewer>
+            </div>
+            <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              <span>Failed to load 3D model. Please check if the file exists and is accessible.</span>
+              <br><small class="text-muted">File: {{ $masterObj->name ?? 'Unknown' }}</small>
+            </div>
+            <small class="text-muted mt-2">
+              <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>Scroll to zoom
+            </small>
+            <div class="mt-2 d-flex gap-2">
+              <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Download Original
+              </a>
+              <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#model3d-fullscreen-modal">
+                <i class="fas fa-expand me-1"></i>Fullscreen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {{-- 3D Model Fullscreen Modal --}}
+        <div class="modal fade" id="model3d-fullscreen-modal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-fullscreen" style="max-width:100vw;margin:0;">
+            <div class="modal-content" style="background:#1a1a2e;height:100vh;">
+              <div class="modal-header" style="background:var(--ahg-primary);color:#fff;position:absolute;top:0;left:0;right:0;z-index:10;">
+                <h5 class="modal-title"><i class="fas fa-cube me-2"></i>3D Model Viewer</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body p-0" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
+                <model-viewer 
+                  id="model-3d-fullscreen"
+                  src="{{ $masterUrl }}" 
+                  camera-controls
+                  touch-action="pan-y"
+                  shadow-intensity="1"
+                  exposure="1"
+                  style="width:100%;height:100%;background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);"
+                  alt="3D model">
+                </model-viewer>
+              </div>
+              <div class="modal-footer" style="background:#1a1a2e;color:#fff;position:absolute;bottom:0;left:0;right:0;z-index:10;">
+                <small>
+                  <i class="fas fa-mouse me-1"></i>Drag to rotate | 
+                  <i class="fas fa-search-plus me-1"></i>Scroll to zoom | 
+                  <i class="fas fa-redo me-1"></i>Double-click to reset
+                </small>
+                <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
+                  <i class="fas fa-download me-1"></i>Download
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- Load model-viewer from CDN and add error handling --}}
+        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+        <script nonce="{{ $cspNonce ?? '' }}">
+        document.addEventListener('DOMContentLoaded', function() {
+          var mv = document.getElementById('{{ $modelViewerId }}');
+          var errorDiv = document.getElementById('{{ $modelViewerId }}-error');
+          if (mv && errorDiv) {
+            mv.addEventListener('error', function(e) {
+              console.error('model-viewer error:', e);
+              errorDiv.classList.remove('d-none');
+            });
+            mv.addEventListener('load', function() {
+              errorDiv.classList.add('d-none');
+            });
+          }
+        });
+        </script>
 
       @elseif($refUrl || $thumbUrl)
         {{-- Image: OpenSeadragon + Mirador viewer (matching AtoM) --}}

@@ -215,6 +215,12 @@
     'Name', 'Sex', 'Age', 'Event Date', 'Event Year', 'Residence Place',
     'Husband Name', 'Husband Race', 'Spouse', 'Spouse Race', 'Place of Marriage', 'District', 'Province', 'Marriage Date',
     'Text Block',
+    // Church register fields (top-level place/district/year + 4 rows per page)
+    'Event Place', 'District', 'Event Year',
+    'R1 Name', 'R1 Birth Date', 'R1 Event Date', 'R1 Father', 'R1 Mother',
+    'R2 Name', 'R2 Birth Date', 'R2 Event Date', 'R2 Father', 'R2 Mother',
+    'R3 Name', 'R3 Birth Date', 'R3 Event Date', 'R3 Father', 'R3 Mother',
+    'R4 Name', 'R4 Birth Date', 'R4 Event Date', 'R4 Father', 'R4 Mother',
   ];
   // Display names — rename fields for the UI
   const FIELD_LABELS = {
@@ -536,6 +542,42 @@
         'Province':          { x: 0.817, y: 0.175, w: 0.13, h: 0.055 },   // bottom-aligned at 0.23
         'Event Date':        { x: 0.16, y: 0.70, w: 0.29, h: 0.05 },     // "solemnized by me on this the ..."
         'Marriage Date':     { x: 0.0, y: 0.43, w: 0.085, h: 0.14 },      // left edge of image
+      }
+    },
+    'sa-church-baptism': {
+      label: 'SA Church — Register of Baptisms (4 rows per page)',
+      detect: ['baptism', 'register of baptisms', 'diocese', 'doop', 'doopregister', 'gedoop'],
+      anchor: ['register', 'baptism'],
+      anchorRef: { x: 0.40, y: 0.03, w: 0.30, h: 0.03 },
+      fields: {
+        // Top of page: place, district, year
+        'Event Place':    { x: 0.10, y: 0.05, w: 0.30, h: 0.05 },
+        'District':       { x: 0.42, y: 0.05, w: 0.25, h: 0.05 },
+        'Event Year':     { x: 0.70, y: 0.05, w: 0.20, h: 0.05 },
+        // Row 1
+        'R1 Name':        { x: 0.11, y: 0.18, w: 0.13, h: 0.15 },
+        'R1 Birth Date':  { x: 0.25, y: 0.18, w: 0.10, h: 0.15 },
+        'R1 Event Date':  { x: 0.02, y: 0.18, w: 0.08, h: 0.15 },
+        'R1 Father':      { x: 0.36, y: 0.18, w: 0.16, h: 0.08 },
+        'R1 Mother':      { x: 0.36, y: 0.26, w: 0.16, h: 0.07 },
+        // Row 2
+        'R2 Name':        { x: 0.11, y: 0.35, w: 0.13, h: 0.15 },
+        'R2 Birth Date':  { x: 0.25, y: 0.35, w: 0.10, h: 0.15 },
+        'R2 Event Date':  { x: 0.02, y: 0.35, w: 0.08, h: 0.15 },
+        'R2 Father':      { x: 0.36, y: 0.35, w: 0.16, h: 0.08 },
+        'R2 Mother':      { x: 0.36, y: 0.43, w: 0.16, h: 0.07 },
+        // Row 3
+        'R3 Name':        { x: 0.11, y: 0.52, w: 0.13, h: 0.15 },
+        'R3 Birth Date':  { x: 0.25, y: 0.52, w: 0.10, h: 0.15 },
+        'R3 Event Date':  { x: 0.02, y: 0.52, w: 0.08, h: 0.15 },
+        'R3 Father':      { x: 0.36, y: 0.52, w: 0.16, h: 0.08 },
+        'R3 Mother':      { x: 0.36, y: 0.60, w: 0.16, h: 0.07 },
+        // Row 4
+        'R4 Name':        { x: 0.11, y: 0.69, w: 0.13, h: 0.15 },
+        'R4 Birth Date':  { x: 0.25, y: 0.69, w: 0.10, h: 0.15 },
+        'R4 Event Date':  { x: 0.02, y: 0.69, w: 0.08, h: 0.15 },
+        'R4 Father':      { x: 0.36, y: 0.69, w: 0.16, h: 0.08 },
+        'R4 Mother':      { x: 0.36, y: 0.77, w: 0.16, h: 0.07 },
       }
     },
     'narrative': {

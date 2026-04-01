@@ -2766,6 +2766,47 @@ PY;
                 }
             }
 
+            // Detect book spine: two-page spreads have a dark vertical band near the center
+            // If found, crop to the right page only (where the data is)
+            $centerX = $left + (int)(($right - $left) * 0.5);
+            $spineSearchLeft = $left + (int)(($right - $left) * 0.3);
+            $spineSearchRight = $left + (int)(($right - $left) * 0.6);
+            $spineX = 0;
+
+            for ($x = $spineSearchLeft; $x < $spineSearchRight; $x++) {
+                $darkCount = 0;
+                for ($s = 0; $s < $samples; $s++) {
+                    $sy = (int)($top + ($bottom - $top) * 0.1 + ($bottom - $top) * 0.8 / $samples * $s);
+                    $b = $getBrightness($im, min($x, $w - 1), min($sy, $h - 1));
+                    if ($b < $gapThreshold) $darkCount++;
+                }
+                if ($darkCount >= $samples * 0.5) {
+                    $spineX = $x;
+                    // Walk right to find the end of the dark spine band
+                    for ($sx = $x + 1; $sx < $spineSearchRight + 50; $sx++) {
+                        $darkCount2 = 0;
+                        for ($s = 0; $s < $samples; $s++) {
+                            $sy = (int)($top + ($bottom - $top) * 0.1 + ($bottom - $top) * 0.8 / $samples * $s);
+                            $b = $getBrightness($im, min($sx, $w - 1), min($sy, $h - 1));
+                            if ($b < $gapThreshold) $darkCount2++;
+                        }
+                        if ($darkCount2 < $samples * 0.3) {
+                            $spineX = $sx;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // If spine found and it's roughly in the middle, crop to right page
+            if ($spineX > 0) {
+                $spineRatio = ($spineX - $left) / max(1, $right - $left);
+                if ($spineRatio > 0.25 && $spineRatio < 0.65) {
+                    $left = $spineX;
+                }
+            }
+
             // Add small padding
             $pad = 5;
             $left = max(0, $left - $pad);
@@ -3839,6 +3880,59 @@ PY;
                     'path' => $imagePath,
                     'fields' => $fields,
                 ];
+            }
+
+            // Group multi-row entries by image (same ARK ID = same image, multiple rows)
+            // This handles church registers with multiple baptism entries per page
+            if ($isFsCsv) {
+                $grouped = [];
+                foreach ($images as $img) {
+                    $key = $img['fname']; // ARK ID is the filename
+                    if (!isset($grouped[$key])) {
+                        $grouped[$key] = [
+                            'fname' => $img['fname'],
+                            'path' => $img['path'],
+                            'fields' => [],
+                            '_rows' => [],
+                        ];
+                    }
+                    $grouped[$key]['_rows'][] = $img['fields'];
+                }
+
+                $images = [];
+                foreach ($grouped as $g) {
+                    $rows = array_slice($g['_rows'], 0, 4); // max 4 rows per image (left page only)
+                    if (count($rows) <= 1) {
+                        $g['fields'] = $rows[0] ?? [];
+                    } else {
+                        $fields = [];
+
+                        // Single Event Place + District + Year from first row
+                        $eventPlace = $rows[0]['Event Place'] ?? '';
+                        $placeParts = array_map('trim', explode(',', $eventPlace));
+                        if (count($placeParts) > 1 && strtolower(end($placeParts)) === 'south africa') {
+                            array_pop($placeParts);
+                        }
+                        $fields['Event Place'] = $placeParts[0] ?? '';
+                        $fields['District'] = $placeParts[1] ?? $placeParts[0] ?? '';
+                        $firstDate = $rows[0]['Event Date'] ?? '';
+                        if (preg_match('/\b(1[6-9]\d{2}|20[0-2]\d)\b/', $firstDate, $ym)) {
+                            $fields['Event Year'] = $ym[1];
+                        }
+
+                        foreach ($rows as $ri => $row) {
+                            $prefix = 'R' . ($ri + 1) . ' ';
+                            $fields[$prefix . 'Name'] = $row['Name'] ?? '';
+                            $fields[$prefix . 'Birth Date'] = $row['Birth Date'] ?? '';
+                            $fields[$prefix . 'Event Date'] = $row['Event Date'] ?? '';
+                            $fields[$prefix . 'Father'] = $row['Father'] ?? '';
+                            $fields[$prefix . 'Mother'] = $row['Mother'] ?? '';
+                        }
+                        $g['fields'] = $fields;
+                    }
+                    unset($g['_rows']);
+                    $images[] = $g;
+                }
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => 'Spreadsheet parse error: ' . $e->getMessage()]);

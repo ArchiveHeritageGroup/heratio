@@ -1,0 +1,263 @@
+{
+  "description": "URL and function mapping between PSIS (AtoM) and Heratio",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-31",
+  
+  "urlMappings": [
+    {
+      "id": "home",
+      "function": "Homepage",
+      "psis": { "url": "/", "method": "GET" },
+      "heratio": { "url": "/", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "login",
+      "function": "User login",
+      "psis": { "url": "/login", "method": "GET|POST" },
+      "heratio": { "url": "/login", "method": "GET|POST" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "logout",
+      "function": "User logout",
+      "psis": { "url": "/logout", "method": "GET" },
+      "heratio": { "url": "/logout", "method": "POST" },
+      "status": "matched",
+      "notes": "Heratio uses POST for CSRF protection"
+    },
+    
+    {
+      "id": "io_browse",
+      "function": "Browse archival descriptions",
+      "psis": { "url": "/informationobject/browse", "method": "GET" },
+      "heratio": { "url": "/records/browse", "method": "GET" },
+      "status": "matched",
+      "notes": "URL renamed from informationobject to records"
+    },
+    {
+      "id": "io_search",
+      "function": "Search archival descriptions",
+      "psis": { "url": "/informationobject/search", "method": "GET" },
+      "heratio": { "url": "/records/search", "method": "GET" },
+      "status": "matched",
+      "notes": "URL renamed"
+    },
+    {
+      "id": "io_create",
+      "function": "Create new description",
+      "psis": { "url": "/informationobject/add", "method": "GET|POST" },
+      "heratio": { "url": "/records/add", "method": "GET|POST" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "io_edit",
+      "function": "Edit description",
+      "psis": { "url": "/informationobject/{id}/edit", "method": "GET|POST" },
+      "heratio": { "url": "/records/{slug}/edit", "method": "GET|POST" },
+      "status": "matched",
+      "notes": "Heratio uses slugs instead of numeric IDs"
+    },
+    {
+      "id": "io_view",
+      "function": "View description",
+      "psis": { "url": "/informationobject/{id}", "method": "GET" },
+      "heratio": { "url": "/records/{slug}", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "actor_browse",
+      "function": "Browse actors/authority records",
+      "psis": { "url": "/actor/browse", "method": "GET" },
+      "heratio": { "url": "/actor/browse", "method": "GET" },
+      "status": "matched",
+      "notes": "Same URL structure"
+    },
+    {
+      "id": "actor_search",
+      "function": "Search actors",
+      "psis": { "url": "/actor/search", "method": "GET" },
+      "heratio": { "url": "/actor/search", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "actor_create",
+      "function": "Create new actor",
+      "psis": { "url": "/actor/add", "method": "GET|POST" },
+      "heratio": { "url": "/actor/add", "method": "GET|POST" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "actor_edit",
+      "function": "Edit actor",
+      "psis": { "url": "/actor/{id}/edit", "method": "GET|POST" },
+      "heratio": { "url": "/actor/{slug}/edit", "method": "GET|POST" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "actor_view",
+      "function": "View actor",
+      "psis": { "url": "/actor/{id}", "method": "GET" },
+      "heratio": { "url": "/actor/{slug}", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "repo_browse",
+      "function": "Browse repositories",
+      "psis": { "url": "/repository/browse", "method": "GET" },
+      "heratio": { "url": "/repository/browse", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "repo_view",
+      "function": "View repository",
+      "psis": { "url": "/repository/{id}", "method": "GET" },
+      "heratio": { "url": "/repository/{slug}", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "term_browse",
+      "function": "Browse terms/taxonomy",
+      "psis": { "url": "/term/browse", "method": "GET" },
+      "heratio": { "url": "/term/browse", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "accession_browse",
+      "function": "Browse accessions",
+      "psis": { "url": "/accession/browse", "method": "GET" },
+      "heratio": { "url": "/accession/browse", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "accession_create",
+      "function": "Create new accession",
+      "psis": { "url": "/accession/add", "method": "GET|POST" },
+      "heratio": { "url": "/accession/add", "method": "GET|POST" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "accession_view",
+      "function": "View accession",
+      "psis": { "url": "/accession/{id}", "method": "GET" },
+      "heratio": { "url": "/accession/{slug}", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "admin_settings",
+      "function": "Admin settings",
+      "psis": { "url": "/admin/ahgSettings", "method": "GET" },
+      "heratio": { "url": "/admin/settings", "method": "GET" },
+      "status": "matched",
+      "notes": "Heratio has a redirect for the old URL"
+    },
+    {
+      "id": "admin_users",
+      "function": "User management",
+      "psis": { "url": "/user/list", "method": "GET" },
+      "heratio": { "url": "/admin/users", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "search_global",
+      "function": "Global search",
+      "psis": { "url": "/search", "method": "GET" },
+      "heratio": { "url": "/search", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    
+    {
+      "id": "static_about",
+      "function": "About page",
+      "psis": { "url": "/staticpage/about", "method": "GET" },
+      "heratio": { "url": "/about", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    },
+    {
+      "id": "static_contact",
+      "function": "Contact page",
+      "psis": { "url": "/staticpage/contact", "method": "GET" },
+      "heratio": { "url": "/contact", "method": "GET" },
+      "status": "matched",
+      "notes": ""
+    }
+  ],
+  
+  "moduleMappings": [
+    {
+      "module": "informationobject",
+      "description": "Archival descriptions / records",
+      "psisModule": "informationobject",
+      "heratioPackage": "ahg-information-object-manage",
+      "status": "matched"
+    },
+    {
+      "module": "actor",
+      "description": "Authority records / actors",
+      "psisModule": "actor",
+      "heratioPackage": "ahg-actor-manage",
+      "status": "matched"
+    },
+    {
+      "module": "repository",
+      "description": "Repositories / institutions",
+      "psisModule": "repository",
+      "heratioPackage": "ahg-repository-manage",
+      "status": "matched"
+    },
+    {
+      "module": "term",
+      "description": "Taxonomy terms / subjects",
+      "psisModule": "term",
+      "heratioPackage": "ahg-term-taxonomy",
+      "status": "matched"
+    },
+    {
+      "module": "accession",
+      "description": "Accession records",
+      "psisModule": "accession",
+      "heratioPackage": "ahg-accession-manage",
+      "status": "matched"
+    },
+    {
+      "module": "digitalobject",
+      "description": "Digital objects / media",
+      "psisModule": "digitalobject",
+      "heratioPackage": "ahg-dam",
+      "status": "partial",
+      "notes": "DAM module needs verification"
+    }
+  ],
+  
+  "statusDefinitions": {
+    "matched": "Function exists in both systems with equivalent behavior",
+    "matched_different_url": "Function exists but URL has changed",
+    "partial": "Function partially implemented in Heratio",
+    "missing": "Function exists in PSIS but not yet in Heratio",
+    "broken": "Function exists but doesn't work correctly",
+    "intentionally_retired": "Function was intentionally removed in migration"
+  }
+}

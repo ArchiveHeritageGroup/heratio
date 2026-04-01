@@ -3,8 +3,8 @@
 use AhgRic\Controllers\RicController;
 use Illuminate\Support\Facades\Route;
 
-// Public RiC API — no auth required (for standalone ric.theahg.co.za)
-Route::prefix('ric-api')->group(function () {
+// Public RiC API — web middleware for session support (view-mode toggle needs session)
+Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/data', [RicController::class, 'getData'])->name('ric.public-data');
     Route::get('/autocomplete', [RicController::class, 'autocomplete'])->name('ric.public-autocomplete');
     Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');

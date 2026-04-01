@@ -1,0 +1,65 @@
+{
+  "description": "Seed URLs for PSIS (AtoM) and Heratio (Laravel) discovery crawls",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-31",
+  
+  "psis": {
+    "baseUrl": "https://psis.theahg.co.za",
+    "urls": [
+      "/",
+      "/login",
+      "/informationobject/browse",
+      "/informationobject/search",
+      "/actor/browse",
+      "/actor/search",
+      "/repository/browse",
+      "/repository/search",
+      "/term/browse",
+      "/accession/browse",
+      "/digitalobject/browse",
+      "/settings",
+      "/admin",
+      "/admin/settings",
+      "/admin/users",
+      "/admin/groups",
+      "/staticpage/about",
+      "/staticpage/contact",
+      "/search"
+    ]
+  },
+  
+  "heratio": {
+    "baseUrl": "https://heratio.theahg.co.za",
+    "urls": [
+      "/",
+      "/login",
+      "/records/browse",
+      "/records/search",
+      "/actor/browse",
+      "/actor/search",
+      "/repository/browse",
+      "/repository/search",
+      "/term/browse",
+      "/accession/browse",
+      "/digital-object/browse",
+      "/admin/settings",
+      "/admin",
+      "/admin/users",
+      "/admin/groups",
+      "/staticpage/about",
+      "/staticpage/contact",
+      "/search"
+    ]
+  },
+  
+  "priorityOrder": [
+    "/",
+    "/login",
+    "/records/browse",
+    "/actor/browse",
+    "/repository/browse",
+    "/term/browse",
+    "/accession/browse",
+    "/admin/settings"
+  ]
+}

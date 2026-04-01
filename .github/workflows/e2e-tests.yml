@@ -1,0 +1,286 @@
+name: E2E Parity Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - discovery
+          - workflows
+          - api
+
+env:
+  HERATIO_URL: https://heratio.theahg.co.za
+  PSIS_URL: https://psis.theahg.co.za
+  DB_CONNECTION: mysql
+  DB_DATABASE: heratio_test
+  CACHE_DRIVER: array
+  SESSION_DRIVER: array
+  QUEUE_CONNECTION: sync
+
+jobs:
+  # ===========================================================================
+  # LARAVEL TESTS
+  # ===========================================================================
+  laravel-tests:
+    name: Laravel Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: heratio_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring, xml, gd, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Create testing database
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+
+      - name: Run Laravel tests
+        run: php artisan test --parallel
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-test-results
+          path: test-results/
+          retention-days: 7
+
+  # ===========================================================================
+  # PLAYWRIGHT SETUP
+  # ===========================================================================
+  playwright-setup:
+    name: Playwright Setup
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Set test matrix
+        id: set-matrix
+        run: |
+          MATRIX='{
+            "browser": ["chromium"],
+            "suite": ["all"]
+          }'
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+      - name: Upload Playwright cache
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-cache
+          path: ~/.cache/ms-playwright
+          retention-days: 7
+
+  # ===========================================================================
+  # E2E DISCOVERY TESTS
+  # ===========================================================================
+  e2e-discovery:
+    name: E2E Discovery Tests
+    runs-on: ubuntu-latest
+    needs: playwright-setup
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore Playwright cache
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-cache
+          path: ~/.cache/ms-playwright
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run PSIS Discovery
+        run: npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Run Heratio Discovery
+        run: npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Run Parity Scanner
+        run: npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Upload discovery reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-reports
+          path: tests/e2e/reports/
+          retention-days: 14
+
+  # ===========================================================================
+  # E2E WORKFLOW TESTS
+  # ===========================================================================
+  e2e-workflows:
+    name: E2E Workflow Tests
+    runs-on: ubuntu-latest
+    needs: playwright-setup
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Restore Playwright cache
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-cache
+          path: ~/.cache/ms-playwright
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run Access & Navigation Tests
+        run: npx playwright test tests/e2e/03-workflows/access-navigation.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Run Browse & Search Tests
+        run: npx playwright test tests/e2e/03-workflows/browse-search.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Run CRUD Tests
+        run: npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list || true
+        continue-on-error: true
+
+      - name: Upload workflow test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-test-results
+          path: |
+            test-results/
+            tests/e2e/artifacts/
+          retention-days: 7
+
+  # ===========================================================================
+  # GENERATE PARITY REPORT
+  # ===========================================================================
+  generate-report:
+    name: Generate Parity Report
+    runs-on: ubuntu-latest
+    needs: [e2e-discovery, e2e-workflows]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download discovery reports
+        uses: actions/download-artifact@v4
+        with:
+          name: discovery-reports
+          path: tests/e2e/reports/
+          ignore-not-found: true
+
+      - name: Generate executive summary
+        run: |
+          echo "=== Parity Test Summary ==="
+          echo ""
+          
+          if [ -f tests/e2e/reports/parity-report.json ]; then
+            cat tests/e2e/reports/parity-report.json | jq '.summary'
+          else
+            echo "No parity report found - discovery tests may have failed"
+          fi
+          
+          echo ""
+          echo "=== Artifacts Available ==="
+          ls -la tests/e2e/reports/ 2>/dev/null || echo "No reports generated"
+
+      - name: Upload final reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-reports-final
+          path: tests/e2e/reports/
+          retention-days: 30
+
+  # ===========================================================================
+  # NOTIFICATION ON FAILURE
+  # ===========================================================================
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [laravel-tests, e2e-discovery, e2e-workflows]
+    if: failure() && github.event_name != 'pull_request'
+    
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "Parity testing failed!"
+          echo "Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          # Add your notification method here:
+          # - Slack webhook
+          # - Email
+          # - Discord
+          # - etc.

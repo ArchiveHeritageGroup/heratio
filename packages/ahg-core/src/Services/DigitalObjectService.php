@@ -64,7 +64,13 @@ class DigitalObjectService
         }
 
         // Find master (usage_id = 140)
-        $master = $all->firstWhere('usage_id', 140);
+        $master = $all->firstWhere('usage_id', self::USAGE_MASTER);
+
+        // AtoM stores some uploads with usage_id=142 (thumbnail) instead of 140 (master).
+        // Treat the first direct digital object as master when no usage_id=140 exists.
+        if (!$master) {
+            $master = $all->first();
+        }
 
         // Find derivatives (children of master)
         $thumbnail = null;
@@ -73,8 +79,8 @@ class DigitalObjectService
             $derivatives = DB::table('digital_object')
                 ->where('parent_id', $master->id)
                 ->get();
-            $thumbnail = $derivatives->firstWhere('usage_id', 142);
-            $reference = $derivatives->firstWhere('usage_id', 141);
+            $thumbnail = $derivatives->firstWhere('usage_id', self::USAGE_THUMBNAIL);
+            $reference = $derivatives->firstWhere('usage_id', self::USAGE_REFERENCE);
             $all = $all->merge($derivatives);
         }
 
@@ -127,7 +133,7 @@ class DigitalObjectService
 
     /**
      * Determine media type string from media_type_id.
-     * 136=Image, 137=Audio, 138=Video, 139=Text, 140=Other
+     * Uses constants: 135=Audio, 136=Image, 137=Text, 138=Video, 139=Other
      */
     public static function getMediaType($digitalObject): string
     {
@@ -136,10 +142,11 @@ class DigitalObjectService
         }
 
         return match ((int) $digitalObject->media_type_id) {
-            136 => 'image',
-            137 => 'audio',
-            138 => 'video',
-            139 => 'text',
+            self::MEDIA_AUDIO => 'audio',   // 135
+            self::MEDIA_IMAGE => 'image',   // 136
+            self::MEDIA_TEXT  => 'text',     // 137
+            self::MEDIA_VIDEO => 'video',   // 138
+            self::MEDIA_OTHER => 'other',   // 139
             default => 'other',
         };
     }
