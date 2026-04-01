@@ -78,7 +78,7 @@
     document.getElementById('ric-loading').style.display = 'flex';
     document.getElementById('ric-load-btn').disabled = true;
 
-    fetch('{{ route("ric.data") }}?id=' + resourceId + '&_=' + Date.now())
+    fetch('{{ route("ric.public-data") }}?id=' + resourceId + '&_=' + Date.now())
       .then(function(r) { return r.json(); })
       .then(function(data) {
         document.getElementById('ric-loading').style.display = 'none';

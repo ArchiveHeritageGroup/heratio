@@ -2352,9 +2352,6 @@
 
   @endif {{-- end heratio/ric view mode --}}
 
-  {{-- RiC Context Sidebar --}}
-  @include('ahg-ric::_context-sidebar', ['resourceId' => $io->id])
-
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
 

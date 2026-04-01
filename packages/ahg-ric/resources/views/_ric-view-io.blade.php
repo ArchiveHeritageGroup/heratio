@@ -217,117 +217,121 @@
 
     </div>
 
-    {{-- Right: Instantiations + Provenance --}}
+    {{-- Right: Provenance + Instantiations + Actions --}}
     <div class="col-md-4">
 
-      {{-- Instantiations (digital objects) --}}
+      {{-- Provenance & Chain of Custody (matching Heratio view) --}}
+      @php
+        $ricProvenanceEntries = collect();
+        try {
+            $ricProvenanceEntries = \Illuminate\Support\Facades\DB::table('provenance_entry')
+                ->where('information_object_id', $io->id)
+                ->orderBy('sequence')
+                ->get();
+        } catch (\Exception $e) {}
+      @endphp
+      @if($ricProvenanceEntries->isNotEmpty())
+        <div class="card mb-3">
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+            <i class="fas fa-history me-1"></i> Provenance &amp; Chain of Custody
+          </div>
+          <div class="card-body px-3 py-2">
+            @foreach($ricProvenanceEntries as $i => $entry)
+              <div class="d-flex mb-2 align-items-start">
+                <div class="me-2">
+                  <span class="badge rounded-pill bg-{{ $i === 0 ? 'primary' : 'secondary' }}">{{ $ricProvenanceEntries->count() - $i }}</span>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong class="small">{{ $entry->owner_name }}</strong>
+                      @if($entry->owner_type && $entry->owner_type !== 'unknown')
+                        <span class="badge bg-info ms-1" style="font-size:0.65rem;">{{ ucfirst(str_replace('_', ' ', $entry->owner_type)) }}</span>
+                      @endif
+                      @if($entry->transfer_type && $entry->transfer_type !== 'unknown')
+                        <span class="badge bg-secondary ms-1" style="font-size:0.65rem;">{{ ucfirst(str_replace('_', ' ', $entry->transfer_type)) }}</span>
+                      @endif
+                    </div>
+                  </div>
+                  <small class="text-muted">
+                    @if($entry->start_date && $entry->end_date)
+                      {{ $entry->start_date }} &ndash; {{ $entry->end_date }}
+                    @elseif($entry->start_date)
+                      {{ $entry->start_date }} &ndash; present
+                    @elseif($entry->end_date)
+                      until {{ $entry->end_date }}
+                    @endif
+                  </small>
+                  @if($entry->owner_location)
+                    <br><small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ $entry->owner_location }}</small>
+                  @endif
+                  @if($entry->notes)
+                    <p class="small text-muted mb-0 mt-1">{{ $entry->notes }}</p>
+                  @endif
+                </div>
+              </div>
+            @endforeach
+            @auth
+              <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-sm atom-btn-white mt-1">
+                <i class="fas fa-edit me-1"></i>Edit provenance
+              </a>
+            @endauth
+          </div>
+        </div>
+      @endif
+
+      {{-- Instantiations — digital object metadata --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-file-image me-1"></i> Instantiations ({{ $digitalObjects->count() }})
         </div>
-        <div class="card-body p-2">
+        <div class="card-body px-3 py-2">
           @if($digitalObjects->count())
             @foreach($digitalObjects as $dobj)
               @php
+                $dobjMediaType = \AhgCore\Services\DigitalObjectService::getMediaType($dobj);
                 $dobjUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj);
-                $refUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj, 'reference');
-                $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj, 'thumbnail');
-                $mediaType = \AhgCore\Services\DigitalObjectService::getMediaType($dobj);
-                $mime = $dobj->mime_type ?? '';
-                $is3D = in_array(strtolower($mime), ['model/gltf-binary','model/gltf+json']) || str_ends_with(strtolower($dobj->name ?? ''), '.glb');
-                $isExternal = str_starts_with($dobj->path ?? '', 'http');
+                $usageLabel = match((int)($dobj->usage_id ?? 0)) {
+                    140 => 'Master', 141 => 'Reference', 142 => 'Thumbnail', 166 => 'Master', default => 'File'
+                };
+                // Get derivatives (reference + thumbnail)
+                $derivatives = \Illuminate\Support\Facades\DB::table('digital_object')
+                    ->where('parent_id', $dobj->id)
+                    ->orderBy('usage_id')
+                    ->get();
               @endphp
-
-              @if($is3D)
-                {{-- 3D Model: model-viewer --}}
-                <div style="width:100%;height:250px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;overflow:hidden;">
-                  <model-viewer src="{{ $dobjUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1"
-                    style="width:100%;height:100%;" alt="{{ $dobj->name ?? '3D Model' }}"></model-viewer>
-                </div>
-                <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-              @elseif($isExternal && str_contains($dobj->path, 'sketchfab.com'))
-                {{-- Sketchfab embed --}}
-                @php
-                  preg_match('/([0-9a-f]{32})$/', basename(parse_url($dobj->path, PHP_URL_PATH)), $m);
-                  $embedId = $m[1] ?? basename(parse_url($dobj->path, PHP_URL_PATH));
-                @endphp
-                <iframe src="https://sketchfab.com/models/{{ $embedId }}/embed" style="width:100%;height:250px;border:none;border-radius:8px;"
-                  allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
-              @elseif($mediaType === 'video')
-                <video controls class="w-100 rounded" style="max-height:250px;background:#000;" preload="metadata"
-                  @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
-                  <source src="{{ $dobjUrl }}" type="{{ $mime }}">
-                </video>
-              @elseif($mediaType === 'audio')
-                <audio controls class="w-100" preload="metadata">
-                  <source src="{{ $dobjUrl }}" type="{{ $mime }}">
-                </audio>
-              @elseif($refUrl || $thumbUrl)
-                {{-- Image --}}
-                <a href="{{ $dobjUrl }}" target="_blank">
-                  <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $dobj->name ?? '' }}" class="img-fluid rounded" style="max-height:250px;width:100%;object-fit:contain;">
-                </a>
-              @else
-                <div class="text-center py-3">
-                  <i class="fas fa-file fa-2x text-muted"></i>
-                  <p class="small text-muted mt-1 mb-0">{{ $dobj->name ?? 'Digital object' }}</p>
-                </div>
-              @endif
-
-              <div class="d-flex justify-content-between align-items-center mt-1 mb-2">
-                <small class="text-muted text-truncate">{{ $dobj->name ?? '' }}</small>
-                @if($dobjUrl)
-                  <a href="{{ $isExternal ? $dobj->path : $dobjUrl }}" target="_blank" class="btn btn-sm atom-btn-white py-0 px-1">
-                    <i class="fas fa-external-link-alt"></i>
-                  </a>
-                @endif
+              <div class="mb-3">
+                <h6 class="small fw-bold mb-1">{{ $usageLabel }} file</h6>
+                <table class="table table-sm table-borderless mb-1 small">
+                  <tr><td class="text-muted" style="width:80px">Filename</td><td class="text-break">{{ $dobj->name ?? '-' }}</td></tr>
+                  <tr><td class="text-muted">Media type</td><td>{{ ucfirst($dobjMediaType) }}</td></tr>
+                  <tr><td class="text-muted">MIME type</td><td><code>{{ $dobj->mime_type ?? '-' }}</code></td></tr>
+                  @if($dobj->byte_size)
+                    <tr><td class="text-muted">Filesize</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($dobj->byte_size) }}</td></tr>
+                  @endif
+                  @if($dobj->checksum ?? null)
+                    <tr><td class="text-muted">Checksum</td><td class="text-break" style="font-size:0.7rem;">{{ $dobj->checksum }}</td></tr>
+                  @endif
+                </table>
+                @foreach($derivatives as $deriv)
+                  @php
+                    $derivLabel = match((int)($deriv->usage_id ?? 0)) {
+                        141 => 'Reference copy', 142 => 'Thumbnail copy', default => 'Derivative'
+                    };
+                  @endphp
+                  <h6 class="small fw-bold mb-1">{{ $derivLabel }}</h6>
+                  <table class="table table-sm table-borderless mb-1 small">
+                    <tr><td class="text-muted" style="width:80px">Filename</td><td class="text-break">{{ $deriv->name ?? '-' }}</td></tr>
+                    <tr><td class="text-muted">MIME type</td><td><code>{{ $deriv->mime_type ?? '-' }}</code></td></tr>
+                    @if($deriv->byte_size)
+                      <tr><td class="text-muted">Filesize</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($deriv->byte_size) }}</td></tr>
+                    @endif
+                  </table>
+                @endforeach
               </div>
             @endforeach
           @else
-            <p class="text-muted small mb-0 p-2">No instantiations.</p>
-          @endif
-        </div>
-      </div>
-
-      {{-- Provenance Summary (provenance_entry table + events) --}}
-      <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-history me-1"></i> Provenance
-        </div>
-        <div class="card-body">
-          @php
-            $ricProvenanceEntries = collect();
-            try {
-                $ricProvenanceEntries = \Illuminate\Support\Facades\DB::table('provenance_entry')
-                    ->where('information_object_id', $io->id)
-                    ->orderBy('sequence')
-                    ->get();
-            } catch (\Exception $e) {}
-          @endphp
-          @if($ricProvenanceEntries->isNotEmpty())
-            <ul class="list-unstyled small mb-0">
-              @foreach($ricProvenanceEntries as $pe)
-                <li class="mb-1">
-                  <i class="fas fa-circle text-success me-1" style="font-size:0.5rem;vertical-align:middle;"></i>
-                  @if($pe->start_date || $pe->end_date)
-                    <strong>{{ $pe->start_date ?? '?' }} &ndash; {{ $pe->end_date ?? 'present' }}</strong>
-                  @endif
-                  &mdash; {{ $pe->owner_name }}
-                  @if($pe->transfer_type && $pe->transfer_type !== 'unknown')
-                    <em>({{ ucfirst(str_replace('_', ' ', $pe->transfer_type)) }})</em>
-                  @endif
-                  @if($pe->owner_location)
-                    <span class="text-muted">— {{ $pe->owner_location }}</span>
-                  @endif
-                </li>
-              @endforeach
-            </ul>
-          @else
-            <div id="ric-provenance-body">
-              <div class="text-center py-2">
-                <div class="spinner-border spinner-border-sm text-muted"></div>
-              </div>
-            </div>
+            <p class="text-muted small mb-0">No instantiations.</p>
           @endif
         </div>
       </div>
@@ -357,31 +361,4 @@
 </div>
 
 <script>
-// Load provenance from timeline API (only if provenance_entry had no results)
-var provBody = document.getElementById('ric-provenance-body');
-if (provBody) {
-  fetch('/ric-api/timeline/{{ $io->id }}')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success || !data.events || data.events.length === 0) {
-        provBody.innerHTML = '<p class="text-muted small mb-0">No provenance events.</p>';
-        return;
-      }
-      var html = '<ul class="list-unstyled small mb-0">';
-      data.events.forEach(function(evt) {
-        var date = evt.date_display || evt.start_date || '';
-        var actor = evt.actor || '';
-        html += '<li class="mb-1"><i class="fas fa-circle text-success me-1" style="font-size:0.5rem;vertical-align:middle;"></i>';
-        if (date) html += '<strong>' + date + '</strong> ';
-        if (actor) html += '— ' + actor;
-        if (evt.name) html += ' <em>(' + evt.name + ')</em>';
-        html += '</li>';
-      });
-      html += '</ul>';
-      provBody.innerHTML = html;
-    })
-    .catch(function() {
-      provBody.innerHTML = '<p class="text-muted small mb-0">Could not load provenance.</p>';
-    });
-}
 </script>
