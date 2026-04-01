@@ -192,16 +192,33 @@ class DisplayController extends Controller
         $this->endDateFilter = $request->input('endDate');
         $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
 
-        // Load facets: use cached counts (DynamicFacetService not yet migrated)
-        $sfx = $this->isAuthenticated ? '_all' : '';
-        $types = $this->getCachedFacet('glam_type' . $sfx, 'object_type');
-        $levels = $this->getCachedFacet('level' . $sfx);
-        $repositories = $this->getCachedFacet('repository' . $sfx);
-        $creators = $this->getCachedFacet('creator' . $sfx);
-        $subjects = $this->getCachedFacet('subject' . $sfx);
-        $places = $this->getCachedFacet('place' . $sfx);
-        $genres = $this->getCachedFacet('genre' . $sfx);
-        $mediaTypes = $this->getCachedFacet('media_type' . $sfx, 'media_type');
+        // Load facets: live counts scoped to current filters when filters active,
+        // otherwise use cached counts for performance
+        $hasFilters = $this->typeFilter || $this->parentId || $this->creatorFilter
+            || $this->subjectFilter || $this->placeFilter || $this->genreFilter
+            || $this->levelFilter || $this->mediaFilter || $this->repoFilter
+            || $this->queryFilter || $this->hasDigital;
+
+        if ($hasFilters) {
+            $types = $this->getLiveFacet('type');
+            $levels = $this->getLiveFacet('level');
+            $repositories = $this->getLiveFacet('repository');
+            $creators = $this->getLiveFacet('creator');
+            $subjects = $this->getLiveFacet('subject');
+            $places = $this->getLiveFacet('place');
+            $genres = $this->getLiveFacet('genre');
+            $mediaTypes = $this->getLiveFacet('media_type');
+        } else {
+            $sfx = $this->isAuthenticated ? '_all' : '';
+            $types = $this->getCachedFacet('glam_type' . $sfx, 'object_type');
+            $levels = $this->getCachedFacet('level' . $sfx);
+            $repositories = $this->getCachedFacet('repository' . $sfx);
+            $creators = $this->getCachedFacet('creator' . $sfx);
+            $subjects = $this->getCachedFacet('subject' . $sfx);
+            $places = $this->getCachedFacet('place' . $sfx);
+            $genres = $this->getCachedFacet('genre' . $sfx);
+            $mediaTypes = $this->getCachedFacet('media_type' . $sfx, 'media_type');
+        }
 
         // Discovery integration - skipped (ahgDiscoveryPlugin not yet migrated)
         $discoveryMode = false;
@@ -1222,6 +1239,109 @@ class DisplayController extends Controller
                 $obj->$nameField = $row->term_name;
             }
             $obj->count = $row->count;
+            return $obj;
+        })->toArray();
+    }
+
+    /**
+     * Compute live facet counts scoped to the current browse filters.
+     * Returns array of stdClass with id, name, count (matching getCachedFacet format).
+     */
+    protected function getLiveFacet(string $dimension): array
+    {
+        $culture = app()->getLocale();
+
+        $query = DB::table('information_object as io')
+            ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
+            ->where('io.id', '>', 1);
+
+        $this->applyFilters($query);
+
+        switch ($dimension) {
+            case 'type':
+                $query->select('doc.object_type as facet_id', DB::raw('doc.object_type as facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->whereNotNull('doc.object_type')
+                    ->groupBy('doc.object_type');
+                return $query->orderByDesc('cnt')->limit(10)->get()->map(function ($r) {
+                    $obj = new \stdClass();
+                    $obj->object_type = $r->facet_name;
+                    $obj->count = $r->cnt;
+                    return $obj;
+                })->toArray();
+
+            case 'creator':
+                $query->join('event as ef', 'ef.object_id', '=', 'io.id')
+                    ->join('actor_i18n as ai', function ($j) use ($culture) {
+                        $j->on('ef.actor_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
+                    })
+                    ->select('ef.actor_id as facet_id', 'ai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('ef.actor_id', 'ai.authorized_form_of_name');
+                break;
+
+            case 'subject':
+                $query->join('object_term_relation as otr_s', 'otr_s.object_id', '=', 'io.id')
+                    ->join('term as ts', function ($j) { $j->on('otr_s.term_id', '=', 'ts.id')->where('ts.taxonomy_id', '=', 35); })
+                    ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('ts.id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
+                    ->select('ts.id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('ts.id', 'tis.name');
+                break;
+
+            case 'place':
+                $query->join('object_term_relation as otr_p', 'otr_p.object_id', '=', 'io.id')
+                    ->join('term as tp', function ($j) { $j->on('otr_p.term_id', '=', 'tp.id')->where('tp.taxonomy_id', '=', 42); })
+                    ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('tp.id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
+                    ->select('tp.id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('tp.id', 'tip.name');
+                break;
+
+            case 'genre':
+                $query->join('object_term_relation as otr_g', 'otr_g.object_id', '=', 'io.id')
+                    ->join('term as tg', function ($j) { $j->on('otr_g.term_id', '=', 'tg.id')->where('tg.taxonomy_id', '=', 78); })
+                    ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('tg.id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
+                    ->select('tg.id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('tg.id', 'tig.name');
+                break;
+
+            case 'level':
+                $query->join('term_i18n as til', function ($j) use ($culture) {
+                        $j->on('io.level_of_description_id', '=', 'til.id')->where('til.culture', '=', $culture);
+                    })
+                    ->whereNotNull('io.level_of_description_id')
+                    ->select('io.level_of_description_id as facet_id', 'til.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.level_of_description_id', 'til.name');
+                break;
+
+            case 'repository':
+                $query->join('actor_i18n as rai', function ($j) use ($culture) {
+                        $j->on('io.repository_id', '=', 'rai.id')->where('rai.culture', '=', $culture);
+                    })
+                    ->whereNotNull('io.repository_id')
+                    ->select('io.repository_id as facet_id', 'rai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.repository_id', 'rai.authorized_form_of_name');
+                break;
+
+            case 'media_type':
+                $query->join('digital_object as dof', function ($j) {
+                        $j->on('dof.object_id', '=', 'io.id')->whereNull('dof.parent_id');
+                    })
+                    ->select(DB::raw("SUBSTRING_INDEX(dof.mime_type, '/', 1) as facet_id"), DB::raw("SUBSTRING_INDEX(dof.mime_type, '/', 1) as facet_name"), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy(DB::raw("SUBSTRING_INDEX(dof.mime_type, '/', 1)"));
+                return $query->orderByDesc('cnt')->limit(10)->get()->map(function ($r) {
+                    $obj = new \stdClass();
+                    $obj->media_type = $r->facet_name;
+                    $obj->count = $r->cnt;
+                    return $obj;
+                })->toArray();
+
+            default:
+                return [];
+        }
+
+        return $query->orderByDesc('cnt')->limit(10)->get()->map(function ($r) {
+            $obj = new \stdClass();
+            $obj->id = $r->facet_id;
+            $obj->name = $r->facet_name;
+            $obj->count = $r->cnt;
             return $obj;
         })->toArray();
     }
