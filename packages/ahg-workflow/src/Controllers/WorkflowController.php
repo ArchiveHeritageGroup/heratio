@@ -30,6 +30,7 @@ namespace AhgWorkflow\Controllers;
 use AhgWorkflow\Services\WorkflowService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WorkflowController extends Controller
 {
@@ -221,7 +222,23 @@ class WorkflowController extends Controller
 
         return view('ahg-workflow::admin', [
             'workflows' => $workflows,
+            'workflowRequiredForPublish' => $this->service->isWorkflowRequiredForPublish(),
         ]);
+    }
+
+    /**
+     * Save workflow settings (e.g. require approval before publish).
+     */
+    public function saveSettings(Request $request)
+    {
+        $enabled = $request->has('workflow_required_for_publish') ? '1' : '0';
+
+        DB::table('ahg_settings')->updateOrInsert(
+            ['setting_key' => 'workflow_required_for_publish'],
+            ['setting_value' => $enabled, 'setting_group' => 'workflow']
+        );
+
+        return redirect()->route('workflow.admin')->with('success', 'Workflow settings saved.');
     }
 
     /**

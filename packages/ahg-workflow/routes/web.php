@@ -34,6 +34,7 @@ Route::middleware('admin')->group(function () {
 
     // Admin: workflows
     Route::get('/workflow/admin', [WorkflowController::class, 'admin'])->name('workflow.admin');
+    Route::post('/workflow/admin/settings', [WorkflowController::class, 'saveSettings'])->name('workflow.admin.settings');
     Route::match(['get', 'post'], '/workflow/admin/create', [WorkflowController::class, 'createWorkflow'])->name('workflow.admin.create');
     Route::match(['get', 'post'], '/workflow/admin/{id}/edit', [WorkflowController::class, 'editWorkflow'])->name('workflow.admin.edit');
     Route::post('/workflow/admin/{id}/delete', [WorkflowController::class, 'deleteWorkflow'])->name('workflow.admin.delete');

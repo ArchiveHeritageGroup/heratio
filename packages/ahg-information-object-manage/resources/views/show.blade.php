@@ -830,8 +830,10 @@
     @include('ahg-ric::_ric-view-io', ['io' => $io])
   @else
 
-  {{-- TTS (Text-to-Speech) controls — Web Speech API --}}
-  @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
+  {{-- TTS (Text-to-Speech) controls — only when digital object is linked --}}
+  @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+    @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
+  @endif
 
   <div data-tts-content>
 
@@ -1639,32 +1641,13 @@
                 </div>
 
                 <div class="col-md-6">
-                  {{-- Display standard (form with dropdown + update descendants) --}}
-                  <div class="field text-break row g-0">
-                    <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Display standard</h3>
-                    <div class="col-8 p-2">
-                      <form method="POST" action="{{ route('io.updateDisplayStandard', $io->slug) }}" class="d-flex flex-column gap-2">
-                        @csrf
-                        <select name="display_standard_id" class="form-select form-select-sm">
-                          <option value="">-- Default --</option>
-                          @if(isset($displayStandardOptions))
-                            @foreach($displayStandardOptions as $opt)
-                              <option value="{{ $opt->id }}" @if($io->display_standard_id == $opt->id) selected @endif>{{ $opt->name }}</option>
-                            @endforeach
-                          @endif
-                        </select>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" name="update_descendants" value="1" id="updateDescendantsCheck">
-                          <label class="form-check-label small" for="updateDescendantsCheck">
-                            Update descendant display standard
-                          </label>
-                        </div>
-                        <button type="submit" class="btn btn-sm atom-btn-white align-self-start">
-                          <i class="fas fa-save me-1"></i>Save
-                        </button>
-                      </form>
+                  {{-- Display standard (read-only on show, editable via edit page) --}}
+                  @if(isset($displayStandardName) && $displayStandardName)
+                    <div class="field text-break row g-0">
+                      <h3 class="h6 lh-base m-0 text-muted col-4 border-end text-end p-2">Display standard</h3>
+                      <div class="col-8 p-2">{{ $displayStandardName }}</div>
                     </div>
-                  </div>
+                  @endif
                 </div>
 
               </div>

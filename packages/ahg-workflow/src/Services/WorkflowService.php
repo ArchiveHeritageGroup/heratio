@@ -842,6 +842,63 @@ class WorkflowService
     }
 
     /**
+     * Check if workflow approval is required before publishing.
+     */
+    public function isWorkflowRequiredForPublish(): bool
+    {
+        try {
+            $val = DB::table('ahg_settings')
+                ->where('setting_key', 'workflow_required_for_publish')
+                ->value('setting_value');
+
+            return $val === '1' || $val === 'true';
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if an object has completed all workflow steps (approved for publish).
+     * Returns true if:
+     *   - A workflow was started AND all steps are completed with 'approved' decision
+     *   - OR no workflow was ever started (no tasks exist)
+     *     BUT when workflow is required, having no tasks = NOT approved
+     */
+    public function isWorkflowApprovedForPublish(int $objectId): bool
+    {
+        // Check if any workflow tasks exist for this object
+        $totalTasks = DB::table('ahg_workflow_task')
+            ->where('object_id', $objectId)
+            ->where('object_type', 'information_object')
+            ->count();
+
+        if ($totalTasks === 0) {
+            // No workflow started — not approved
+            return false;
+        }
+
+        // Check if any tasks are still pending/in-progress
+        $pendingTasks = DB::table('ahg_workflow_task')
+            ->where('object_id', $objectId)
+            ->where('object_type', 'information_object')
+            ->whereIn('status', ['pending', 'claimed', 'in_progress'])
+            ->count();
+
+        if ($pendingTasks > 0) {
+            return false;
+        }
+
+        // Check the most recent task was approved (not rejected)
+        $lastTask = DB::table('ahg_workflow_task')
+            ->where('object_id', $objectId)
+            ->where('object_type', 'information_object')
+            ->orderByDesc('updated_at')
+            ->first();
+
+        return $lastTask && $lastTask->decision === 'approved';
+    }
+
+    /**
      * Log a workflow history entry.
      */
     private function logHistory(object $task, string $action, ?string $fromStatus, ?string $toStatus, int $userId, ?string $comment = null): void

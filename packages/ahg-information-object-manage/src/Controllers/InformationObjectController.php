@@ -1318,27 +1318,31 @@ class InformationObjectController extends Controller
             // provenance_entry table may not exist in all installs
         }
 
-        // Previous sibling
-        $prevSibling = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('information_object.parent_id', $io->parent_id)
-            ->where('information_object.lft', '<', $io->lft)
-            ->where('information_object_i18n.culture', $culture)
-            ->orderBy('information_object.lft', 'desc')
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
-            ->first();
+        // Previous sibling (only if lft is set — records without nested set values have no siblings)
+        $prevSibling = null;
+        $nextSibling = null;
+        if ($io->lft !== null) {
+            $prevSibling = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.parent_id', $io->parent_id)
+                ->where('information_object.lft', '<', $io->lft)
+                ->where('information_object_i18n.culture', $culture)
+                ->orderBy('information_object.lft', 'desc')
+                ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+                ->first();
 
-        // Next sibling
-        $nextSibling = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('information_object.parent_id', $io->parent_id)
-            ->where('information_object.lft', '>', $io->lft)
-            ->where('information_object_i18n.culture', $culture)
-            ->orderBy('information_object.lft', 'asc')
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
-            ->first();
+            // Next sibling
+            $nextSibling = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.parent_id', $io->parent_id)
+                ->where('information_object.lft', '>', $io->lft)
+                ->where('information_object_i18n.culture', $culture)
+                ->orderBy('information_object.lft', 'asc')
+                ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+                ->first();
+        }
 
         // Display standard name (for Administration area)
         $displayStandardName = null;
@@ -2581,6 +2585,22 @@ class InformationObjectController extends Controller
 
         if (!$io) {
             abort(404);
+        }
+
+        // Block publish if workflow approval is required but not completed
+        if ($statusId === 160) {
+            try {
+                $workflowService = app(\AhgWorkflow\Services\WorkflowService::class);
+                if ($workflowService->isWorkflowRequiredForPublish()
+                    && !$workflowService->isWorkflowApprovedForPublish($io->id)) {
+                    return redirect()->back()->withErrors([
+                        'workflow' => 'This item requires workflow approval before publishing. Please start or complete a workflow first.',
+                    ])->with('error', 'Workflow approval required before publishing.')
+                      ->with('workflow_start_url', route('workflow.dashboard'));
+                }
+            } catch (\Exception $e) {
+                // Workflow package not available — allow publish
+            }
         }
 
         // type_id 158 = publicationStatus

@@ -17,6 +17,11 @@
       @foreach($errors->all() as $e)
         <p>{{ $e }}</p>
       @endforeach
+      @if(session('workflow_start_url'))
+        <a href="{{ session('workflow_start_url') }}" class="btn btn-sm atom-btn-outline-success mt-2">
+          <i class="fas fa-tasks me-1"></i>{{ __('Go to Workflow Dashboard') }}
+        </a>
+      @endif
     </div>
   @endif
 

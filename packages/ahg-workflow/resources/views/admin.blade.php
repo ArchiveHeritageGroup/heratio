@@ -16,6 +16,30 @@
     </div>
   </div>
 
+  {{-- Workflow Settings --}}
+  <div class="card mb-4">
+    <div class="card-header" style="background: var(--ahg-primary); color: white;">
+      <i class="fas fa-shield-alt me-1"></i>Workflow Settings
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ route('workflow.admin.settings') }}">
+        @csrf
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="workflow-required-publish"
+                 name="workflow_required_for_publish" value="1"
+                 {{ ($workflowRequiredForPublish ?? false) ? 'checked' : '' }}>
+          <label class="form-check-label" for="workflow-required-publish">
+            <strong>Require workflow approval before publishing</strong>
+          </label>
+        </div>
+        <p class="text-muted small mt-1 mb-3">
+          When enabled, items cannot be published without a completed workflow approval. Users will be prompted to start a workflow instead.
+        </p>
+        <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Settings</button>
+      </form>
+    </div>
+  </div>
+
   @if(count($workflows) === 0)
     <div class="alert alert-info">No workflows configured yet. Create your first workflow to get started.</div>
   @else

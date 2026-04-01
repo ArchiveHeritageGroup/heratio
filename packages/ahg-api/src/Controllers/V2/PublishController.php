@@ -82,6 +82,20 @@ class PublishController extends BaseApiController
             }
         }
 
+        // Block publish if workflow approval is required but not completed
+        if (!$force) {
+            try {
+                $workflowService = app(\AhgWorkflow\Services\WorkflowService::class);
+                if ($workflowService->isWorkflowRequiredForPublish()
+                    && !$workflowService->isWorkflowApprovedForPublish($id)) {
+                    return $this->error('Precondition Failed',
+                        'Workflow approval required before publishing. Start or complete a workflow first.', 412);
+                }
+            } catch (\Exception $e) {
+                // Workflow package not available — allow publish
+            }
+        }
+
         // Set publication status to published (160)
         DB::table('status')
             ->where('object_id', $id)
