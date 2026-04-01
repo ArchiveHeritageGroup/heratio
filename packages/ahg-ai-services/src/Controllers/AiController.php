@@ -3979,7 +3979,8 @@ PY;
             'marriage' => ['type' => 'Marriage Records', 'id' => '1000006'],
         ];
         $rt = $rtMap[$eventType] ?? ['type' => 'Death Records', 'id' => '1000015'];
-        $docType = str_contains($eventType, 'death') ? 'type_a' : 'type_b';
+        // Spreadsheet imports are always registers (type_b) — church death/birth/marriage registers
+        $docType = 'type_b';
 
         // Extract year from Event Date
         $eventDate = $fields['Event Date'] ?? '';

@@ -206,15 +206,26 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
 Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function () {
     // Legacy routes for backward compatibility with tests
     Route::get('actor', [ActorApiController::class, 'index'])->name('api.actor.index');
+    Route::get('actor/search', [ActorApiController::class, 'search'])->name('api.actor.search');
     Route::get('actor/{id}', [ActorApiController::class, 'show'])->name('api.actor.show');
-    Route::post('actor', [ActorApiController::class, 'store'])->middleware('api.auth:write');
+    Route::post('actor', [ActorApiController::class, 'store'])->name('api.actor.store');
+    Route::put('actor/{id}', [ActorApiController::class, 'update'])->name('api.actor.update');
+    Route::delete('actor/{id}', [ActorApiController::class, 'destroy'])->name('api.actor.destroy');
     
     Route::get('term', [TaxonomyApiController::class, 'terms'])->name('api.term.index');
-    Route::get('term/{id}', [TaxonomyApiController::class, 'terms'])->name('api.term.show');
+    Route::get('term/search', [TaxonomyApiController::class, 'search'])->name('api.term.search');
+    Route::get('term/{id}', [TaxonomyApiController::class, 'show'])->name('api.term.show');
+    Route::post('term', [TaxonomyApiController::class, 'store'])->name('api.term.store');
+    Route::put('term/{id}', [TaxonomyApiController::class, 'update'])->name('api.term.update');
+    Route::delete('term/{id}', [TaxonomyApiController::class, 'destroy'])->name('api.term.destroy');
     
     Route::get('records', [InformationObjectApiController::class, 'index'])->name('api.records.index');
+    Route::get('records/search', [InformationObjectApiController::class, 'search'])->name('api.records.search');
     Route::get('records/{slug}', [InformationObjectApiController::class, 'show'])->name('api.records.show');
-    Route::post('records', [InformationObjectApiController::class, 'store'])->middleware('api.auth:write');
+    Route::get('records/{slug}/children', [InformationObjectApiController::class, 'children'])->name('api.records.children');
+    Route::post('records', [InformationObjectApiController::class, 'store'])->name('api.records.store');
+    Route::put('records/{slug}', [InformationObjectApiController::class, 'update'])->name('api.records.update');
+    Route::delete('records/{slug}', [InformationObjectApiController::class, 'destroy'])->name('api.records.destroy');
     
     Route::match(['get', 'post'], 'search/io', [LegacyApiController::class, 'searchIo']);
     Route::match(['get', 'post'], 'autocomplete/glam', [LegacyApiController::class, 'autocompleteGlam']);

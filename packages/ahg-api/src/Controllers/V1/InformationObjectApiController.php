@@ -832,6 +832,67 @@ class InformationObjectApiController extends Controller
     }
 
     /**
+     * GET /api/records/{slug}/children
+     *
+     * Get children of a record (for legacy /api/records route).
+     * Accepts both slug and numeric ID.
+     */
+    public function children(string $slug): JsonResponse
+    {
+        // Resolve object ID from slug or numeric ID
+        $objectId = is_numeric($slug) 
+            ? (int) $slug 
+            : DB::table('slug')->where('slug', $slug)->value('object_id');
+        
+        if (!$objectId) {
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => "Record '{$slug}' not found.",
+            ], 404);
+        }
+        
+        $io = DB::table('information_object')->where('id', $objectId)->first();
+        if (!$io) {
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => "Record '{$slug}' not found.",
+            ], 404);
+        }
+        
+        // Get immediate children
+        $children = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->join('slug', 'io.id', '=', 'slug.object_id')
+            ->leftJoin('status', function ($j) use ($io) {
+                $j->on('io.id', '=', 'status.object_id')
+                    ->where('status.type_id', '=', 158);
+            })
+            ->where('io.parent_id', $objectId)
+            ->where('ioi.culture', $this->culture)
+            ->select('io.id', 'io.level_of_description_id', 'ioi.title', 'slug.slug', 'status.status_id')
+            ->orderBy('io.lft')
+            ->get()
+            ->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'slug' => $child->slug,
+                    'title' => $child->title,
+                    'level_of_description_id' => $child->level_of_description_id,
+                    'level' => $this->termName($child->level_of_description_id),
+                    'publication_status_id' => $child->status_id,
+                ];
+            });
+        
+        return response()->json([
+            'data' => $children->values(),
+            'meta' => [
+                'parent_id' => $objectId,
+                'total' => $children->count(),
+            ],
+        ]);
+    }
+
+    /**
      * Resolve a term name by ID.
      */
     protected function termName(?int $termId): ?string

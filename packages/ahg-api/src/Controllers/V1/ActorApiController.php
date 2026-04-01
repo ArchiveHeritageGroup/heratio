@@ -95,17 +95,22 @@ class ActorApiController extends Controller
     }
 
     /**
-     * GET /api/v1/actors/{slug}
+     * GET /api/v1/actors/{idOrSlug}
      *
      * Full actor with all ISAAR(CPF) fields.
+     * Accepts both numeric ID and slug.
      */
-    public function show(string $slug): JsonResponse
+    public function show(string $idOrSlug): JsonResponse
     {
-        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        // Try to resolve ID - check if it's numeric first, then look up slug
+        $objectId = is_numeric($idOrSlug) 
+            ? (int) $idOrSlug
+            : DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
+        
         if (!$objectId) {
             return response()->json([
                 'error' => 'Not Found',
-                'message' => "Authority record '{$slug}' not found.",
+                'message' => "Authority record '{$idOrSlug}' not found.",
             ], 404);
         }
 
@@ -266,6 +271,210 @@ class ActorApiController extends Controller
         ];
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * GET /api/actor/search?q=query
+     *
+     * Search actors by name.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->get('q', '');
+        
+        if (empty($query) || strlen($query) < 2) {
+            return response()->json(['data' => []]);
+        }
+        
+        $results = DB::table('actor')
+            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->join('slug', 'actor.id', '=', 'slug.object_id')
+            ->where('actor_i18n.culture', $this->culture)
+            ->where('object.class_name', 'QubitActor')
+            ->where('actor.parent_id', '!=', 0)
+            ->where(function ($q) use ($query) {
+                $q->where('actor_i18n.authorized_form_of_name', 'like', "%{$query}%")
+                  ->orWhere('actor_i18n.other_names_of_actor', 'like', "%{$query}%");
+            })
+            ->select([
+                'actor.id',
+                'actor_i18n.authorized_form_of_name',
+                'slug.slug',
+            ])
+            ->limit(20)
+            ->get();
+        
+        $data = $results->map(fn($row) => [
+            'id' => $row->id,
+            'authorized_form_of_name' => $row->authorized_form_of_name,
+            'slug' => $row->slug,
+        ]);
+        
+        return response()->json(['data' => $data->values()]);
+    }
+
+    /**
+     * POST /api/actor
+     *
+     * Create a new actor.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'authorized_form_of_name' => 'required|string|max:500',
+            'entity_type_id' => 'nullable|integer',
+            'dates_of_existence' => 'nullable|string|max:255',
+            'history' => 'nullable|string',
+        ]);
+        
+        try {
+            return DB::transaction(function () use ($validated) {
+                // Create base object
+                $objectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitActor',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                // Create actor record
+                DB::table('actor')->insert([
+                    'id' => $objectId,
+                    'entity_type_id' => $validated['entity_type_id'] ?? null,
+                    'source_culture' => $this->culture,
+                    'parent_id' => 0,
+                ]);
+                
+                // Create i18n record
+                DB::table('actor_i18n')->insert([
+                    'id' => $objectId,
+                    'culture' => $this->culture,
+                    'authorized_form_of_name' => $validated['authorized_form_of_name'],
+                    'dates_of_existence' => $validated['dates_of_existence'] ?? null,
+                    'history' => $validated['history'] ?? null,
+                ]);
+                
+                // Create slug
+                $slugBase = \Illuminate\Support\Str::slug($validated['authorized_form_of_name']);
+                $slug = $slugBase;
+                $counter = 1;
+                while (DB::table('slug')->where('slug', $slug)->exists()) {
+                    $slug = $slugBase . '-' . $counter++;
+                }
+                DB::table('slug')->insert([
+                    'slug' => $slug,
+                    'object_id' => $objectId,
+                    'created_at' => now(),
+                ]);
+                
+                return response()->json([
+                    'data' => [
+                        'id' => $objectId,
+                        'slug' => $slug,
+                        'authorized_form_of_name' => $validated['authorized_form_of_name'],
+                    ],
+                ], 201);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to create actor',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * PUT /api/actor/{id}
+     *
+     * Update an existing actor.
+     */
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'authorized_form_of_name' => 'sometimes|required|string|max:500',
+            'entity_type_id' => 'nullable|integer',
+            'dates_of_existence' => 'nullable|string|max:255',
+            'history' => 'nullable|string',
+        ]);
+        
+        $objectId = is_numeric($id) ? (int) $id : DB::table('slug')->where('slug', $id)->value('object_id');
+        
+        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => "Actor '{$id}' not found.",
+            ], 404);
+        }
+        
+        try {
+            // Update i18n record
+            DB::table('actor_i18n')
+                ->where('id', $objectId)
+                ->where('culture', $this->culture)
+                ->update(array_filter([
+                    'authorized_form_of_name' => $validated['authorized_form_of_name'] ?? null,
+                    'dates_of_existence' => $validated['dates_of_existence'] ?? null,
+                    'history' => $validated['history'] ?? null,
+                ], fn($v) => $v !== null));
+            
+            // Update actor record
+            if (isset($validated['entity_type_id'])) {
+                DB::table('actor')
+                    ->where('id', $objectId)
+                    ->update(['entity_type_id' => $validated['entity_type_id']]);
+            }
+            
+            // Update object timestamp
+            DB::table('object')
+                ->where('id', $objectId)
+                ->update(['updated_at' => now()]);
+            
+            return response()->json([
+                'data' => [
+                    'id' => $objectId,
+                    'message' => 'Actor updated successfully.',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update actor',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/actor/{id}
+     *
+     * Delete an actor.
+     */
+    public function destroy(string $id): JsonResponse
+    {
+        $objectId = is_numeric($id) ? (int) $id : DB::table('slug')->where('slug', $id)->value('object_id');
+        
+        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => "Actor '{$id}' not found.",
+            ], 404);
+        }
+        
+        try {
+            // Delete related records
+            DB::table('actor_i18n')->where('id', $objectId)->delete();
+            DB::table('other_name')->where('object_id', $objectId)->delete();
+            DB::table('contact_information')->where('actor_id', $objectId)->delete();
+            DB::table('slug')->where('object_id', $objectId)->delete();
+            DB::table('actor')->where('id', $objectId)->delete();
+            DB::table('object')->where('id', $objectId)->delete();
+            
+            return response()->json(null, 204);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to delete actor',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
