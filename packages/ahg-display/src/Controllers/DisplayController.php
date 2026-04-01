@@ -44,7 +44,7 @@ class DisplayController extends Controller
     // Browse state properties (shared between browse/applyFilters/helper methods)
     protected ?string $typeFilter = null;
     protected ?string $parentId = null;
-    protected string $topLevelOnly = '1';
+    protected string $topLevelOnly = '0';
     protected ?string $hasDigital = null;
     protected ?string $creatorFilter = null;
     protected ?string $subjectFilter = null;
@@ -130,7 +130,7 @@ class DisplayController extends Controller
         // Get all filter parameters
         $this->typeFilter = $request->input('type');
         $this->parentId = $request->input('parent');
-        $this->topLevelOnly = $request->input('topLevel', '1');
+        $this->topLevelOnly = $request->input('topLevel', '0');
         $page = max(1, (int) $request->input('page', 1));
 
         // Read limit: display browse has its own 10-100 range control
@@ -436,7 +436,7 @@ class DisplayController extends Controller
 
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', '1');
+        $topLevelOnly = $request->input('topLevel', '0');
         $sort = $request->input('sort', 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
@@ -514,7 +514,7 @@ class DisplayController extends Controller
 
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', '1');
+        $topLevelOnly = $request->input('topLevel', '0');
         $sort = $request->input('sort', 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
@@ -898,10 +898,12 @@ class DisplayController extends Controller
         // Filter by publication status - only show Published items (status_id = 160) for guests
         // Authenticated users (editors/admins) can see all items
         if (!$this->isAuthenticated) {
-            $query->join('status as pub_st', function ($j) {
-                $j->on('pub_st.object_id', '=', 'io.id')
-                    ->where('pub_st.type_id', '=', 158)  // publication status type
-                    ->where('pub_st.status_id', '=', 160); // Published
+            $query->whereExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('status as pub_st')
+                    ->whereRaw('pub_st.object_id = io.id')
+                    ->where('pub_st.type_id', '=', 158)
+                    ->where('pub_st.status_id', '=', 160);
             });
         }
 

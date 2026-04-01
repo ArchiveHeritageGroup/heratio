@@ -83,4 +83,26 @@ Route::prefix('api/ric/v1')->middleware(['throttle:60,1'])->group(function () {
             'version' => '1.0',
         ]);
     });
+    
+    // API Info endpoint
+    Route::get('/', function () {
+        return response()->json([
+            'name' => 'RIC-O Linked Data API',
+            'version' => '1.0',
+            'description' => 'Linked Data publication endpoints for RIC-O compliant serialization',
+        ]);
+    });
+    
+    // OpenAPI spec placeholder
+    Route::get('/openapi.json', function () {
+        return response()->json([
+            'openapi' => '3.0.0',
+            'info' => [
+                'title' => 'RIC-O Linked Data API',
+                'version' => '1.0',
+            ],
+            'paths' => [],
+            'components' => [],
+        ]);
+    });
 });
