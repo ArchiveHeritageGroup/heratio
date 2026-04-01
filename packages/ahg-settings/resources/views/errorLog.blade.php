@@ -123,7 +123,7 @@
         </thead>
         <tbody>
           @foreach($entries as $entry)
-            <tr class="{{ !$entry->is_read ? 'fw-bold' : '' }}">
+            <tr class="{{ !$entry->is_read ? 'fw-bold' : '' }} cursor-pointer" data-bs-toggle="collapse" data-bs-target="#detail-{{ $entry->id }}" style="cursor:pointer;">
               <td class="small">{{ \Carbon\Carbon::parse($entry->created_at)->format('Y-m-d H:i') }}</td>
               <td>
                 @php
@@ -179,6 +179,44 @@
                       <i class="fas fa-trash"></i>
                     </button>
                   </form>
+                </div>
+              </td>
+            </tr>
+            {{-- Expandable detail row --}}
+            <tr class="collapse" id="detail-{{ $entry->id }}">
+              <td colspan="6" class="bg-light p-3">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <strong>Message</strong>
+                    <pre class="bg-white border rounded p-2 small mb-2" style="white-space:pre-wrap;max-height:200px;overflow:auto;">{{ $entry->message }}</pre>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Stack trace</strong>
+                    <pre class="bg-white border rounded p-2 small mb-2" style="white-space:pre-wrap;max-height:200px;overflow:auto;">{{ $entry->stack_trace ?? $entry->trace ?? 'No stack trace' }}</pre>
+                  </div>
+                  <div class="col-md-4">
+                    <table class="table table-sm table-borderless mb-0 small">
+                      <tr><th class="text-muted" style="width:100px">File</th><td>{{ $entry->file ?? '-' }}:{{ $entry->line ?? '' }}</td></tr>
+                      <tr><th class="text-muted">URL</th><td>{{ $entry->url ?? $entry->request_url ?? '-' }}</td></tr>
+                      <tr><th class="text-muted">Method</th><td>{{ $entry->request_method ?? $entry->method ?? '-' }}</td></tr>
+                    </table>
+                  </div>
+                  <div class="col-md-4">
+                    <table class="table table-sm table-borderless mb-0 small">
+                      <tr><th class="text-muted" style="width:100px">IP</th><td>{{ $entry->ip_address ?? $entry->ip ?? '-' }}</td></tr>
+                      <tr><th class="text-muted">User</th><td>{{ $entry->user_id ?? '-' }}</td></tr>
+                      <tr><th class="text-muted">Hostname</th><td>{{ $entry->hostname ?? '-' }}</td></tr>
+                    </table>
+                  </div>
+                  <div class="col-md-4">
+                    <table class="table table-sm table-borderless mb-0 small">
+                      <tr><th class="text-muted" style="width:100px">UA</th><td class="text-truncate" style="max-width:250px">{{ $entry->user_agent ?? $entry->ua ?? '-' }}</td></tr>
+                      <tr><th class="text-muted">Created</th><td>{{ $entry->created_at }}</td></tr>
+                      @if($entry->resolved_at)
+                        <tr><th class="text-muted">Resolved</th><td>{{ $entry->resolved_at }}</td></tr>
+                      @endif
+                    </table>
+                  </div>
                 </div>
               </td>
             </tr>
