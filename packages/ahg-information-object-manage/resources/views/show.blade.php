@@ -591,39 +591,103 @@
           initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
         });
         </script>
-      @elseif($masterUrl && (str_contains($masterUrl, 'sketchfab.com') || str_contains($masterUrl, 'youtube.com') || str_contains($masterUrl, 'youtu.be') || str_contains($masterUrl, 'vimeo.com')))
-        {{-- External embed (Sketchfab 3D, YouTube, Vimeo) --}}
+      @elseif(($masterObj->path ?? '') && (str_contains($masterObj->path, 'sketchfab.com') || str_contains($masterObj->path, 'youtube.com') || str_contains($masterObj->path, 'youtu.be') || str_contains($masterObj->path, 'vimeo.com')))
+        {{-- External embed (Sketchfab 3D, YouTube, Vimeo) with IIIF viewer toggle --}}
         @php
-          $embedUrl = $masterUrl;
-          if (str_contains($masterUrl, 'sketchfab.com/3d-models/')) {
-              // Convert Sketchfab model URL to embed URL
-              $modelId = basename(parse_url($masterUrl, PHP_URL_PATH));
-              $embedUrl = 'https://sketchfab.com/models/' . $modelId . '/embed';
-          } elseif (str_contains($masterUrl, 'youtube.com/watch')) {
-              parse_str(parse_url($masterUrl, PHP_URL_QUERY) ?? '', $yt);
+          $embedUrl = $masterObj->path;
+          if (str_contains($masterObj->path, 'sketchfab.com/3d-models/')) {
+              $modelSlug = basename(parse_url($masterObj->path, PHP_URL_PATH));
+              preg_match('/([0-9a-f]{32})$/', $modelSlug, $m);
+              $modelUuid = $m[1] ?? $modelSlug;
+              $embedUrl = 'https://sketchfab.com/models/' . $modelUuid . '/embed';
+          } elseif (str_contains($masterObj->path, 'youtube.com/watch')) {
+              parse_str(parse_url($masterObj->path, PHP_URL_QUERY) ?? '', $yt);
               $embedUrl = 'https://www.youtube.com/embed/' . ($yt['v'] ?? '');
-          } elseif (str_contains($masterUrl, 'youtu.be/')) {
-              $embedUrl = 'https://www.youtube.com/embed/' . basename(parse_url($masterUrl, PHP_URL_PATH));
-          } elseif (str_contains($masterUrl, 'vimeo.com/')) {
-              $embedUrl = 'https://player.vimeo.com/video/' . basename(parse_url($masterUrl, PHP_URL_PATH));
+          } elseif (str_contains($masterObj->path, 'youtu.be/')) {
+              $embedUrl = 'https://www.youtube.com/embed/' . basename(parse_url($masterObj->path, PHP_URL_PATH));
+          } elseif (str_contains($masterObj->path, 'vimeo.com/')) {
+              $embedUrl = 'https://player.vimeo.com/video/' . basename(parse_url($masterObj->path, PHP_URL_PATH));
           }
-          $isSketchfab = str_contains($masterUrl, 'sketchfab.com');
+          $isSketchfab = str_contains($masterObj->path, 'sketchfab.com');
+          $embedLabel = $isSketchfab ? 'Sketchfab 3D' : 'Embed';
+          $iiifManifestUrl = route('iiif-collection.object-manifest', $io->slug);
+          $evId = 'embed-viewer-' . $io->id;
         @endphp
-        <div class="text-center">
-          @if($isSketchfab)
-            <div class="mb-2"><span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model (Sketchfab)</span></div>
-          @endif
+
+        {{-- Viewer toggle buttons --}}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="btn-embed-{{ $evId }}" class="btn atom-btn-white active" title="{{ $embedLabel }}">
+              <i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}
+            </button>
+            <button id="btn-iiif-{{ $evId }}" class="btn atom-btn-white" title="IIIF Viewer">
+              <i class="fas fa-columns me-1"></i>IIIF
+            </button>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <a href="{{ $masterObj->path }}" target="_blank" class="btn atom-btn-white" title="Open on original site">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{{ $iiifManifestUrl }}" target="_blank" class="btn atom-btn-white" title="IIIF Manifest">
+              <img src="https://iiif.io/assets/images/logos/logo-sm.png" alt="IIIF" style="height:16px;">
+            </a>
+          </div>
+        </div>
+
+        {{-- Embed container --}}
+        <div id="embed-{{ $evId }}">
           <div class="ratio" style="--bs-aspect-ratio: 56.25%;">
             <iframe src="{{ $embedUrl }}" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking"
                     allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
                     style="border-radius:8px;"></iframe>
           </div>
-          <div class="mt-2">
-            <a href="{{ $masterUrl }}" target="_blank" class="btn btn-sm atom-btn-white">
-              <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
-            </a>
-          </div>
         </div>
+
+        {{-- IIIF Mirador container (hidden) --}}
+        <div id="iiif-{{ $evId }}" style="display:none;">
+          <div id="mirador-{{ $evId }}" style="width:100%;height:500px;border-radius:8px;background:#1a1a2e;"></div>
+        </div>
+
+        <script nonce="{{ $cspNonce ?? '' }}">
+        document.addEventListener('DOMContentLoaded', function() {
+          var embedBtn = document.getElementById('btn-embed-{{ $evId }}');
+          var iiifBtn = document.getElementById('btn-iiif-{{ $evId }}');
+          var embedDiv = document.getElementById('embed-{{ $evId }}');
+          var iiifDiv = document.getElementById('iiif-{{ $evId }}');
+          var miradorLoaded = false;
+
+          embedBtn.addEventListener('click', function() {
+            embedDiv.style.display = '';
+            iiifDiv.style.display = 'none';
+            embedBtn.classList.add('active');
+            iiifBtn.classList.remove('active');
+          });
+
+          iiifBtn.addEventListener('click', function() {
+            embedDiv.style.display = 'none';
+            iiifDiv.style.display = '';
+            iiifBtn.classList.add('active');
+            embedBtn.classList.remove('active');
+
+            if (!miradorLoaded) {
+              miradorLoaded = true;
+              var script = document.createElement('script');
+              script.src = '{{ asset("vendor/ahg-theme-b5/js/vendor/mirador.min.js") }}';
+              script.onload = function() {
+                if (typeof Mirador !== 'undefined') {
+                  Mirador.viewer({
+                    id: 'mirador-{{ $evId }}',
+                    windows: [{ manifestId: '{{ $iiifManifestUrl }}' }],
+                    window: { allowClose: false, allowMaximize: true, allowFullscreen: true },
+                    workspaceControlPanel: { enabled: false },
+                  });
+                }
+              };
+              document.head.appendChild(script);
+            }
+          });
+        });
+        </script>
 
       @else
         {{-- No displayable object: show download link --}}
