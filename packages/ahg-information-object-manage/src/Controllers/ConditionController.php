@@ -415,6 +415,10 @@ class ConditionController extends Controller
                     'prompt' => $prompt,
                     'images' => [$imageBase64],
                     'stream' => false,
+                    'options' => [
+                        'temperature' => 0,
+                        'seed' => 42,
+                    ],
                 ]),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 60,
@@ -494,29 +498,30 @@ class ConditionController extends Controller
                 $result['description'] = $rawText;
             }
 
-            // Save as a new condition check (matching AtoM ConditionAIService::analyzeAndSave)
-            $priorityMap = ['minor' => 'low', 'moderate' => 'normal', 'severe' => 'high', 'critical' => 'urgent'];
-            $checkId = DB::table('spectrum_condition_check')->insertGetId([
-                'object_id' => $objectId ?: ($photo->condition_check_id ? DB::table('spectrum_condition_check')->where('id', $photo->condition_check_id)->value('object_id') : null),
-                'check_date' => now(),
-                'checked_by' => 'AI (llava:7b)',
-                'overall_condition' => $result['overall_rating'],
-                'condition_rating' => $result['overall_rating'],
-                'condition_description' => $result['description'],
-                'recommended_treatment' => $result['recommendations'],
-                'treatment_priority' => $priorityMap[$result['severity']] ?? 'normal',
-                'photo_count' => 1,
-                'workflow_state' => 'completed',
-                'condition_note' => 'AI-generated assessment via Ollama LLaVA',
-                'created_by' => auth()->id(),
+            // Save as a condition_report (FK target for condition_damage)
+            $resolvedObjectId = $objectId ?: (isset($photo->condition_check_id)
+                ? DB::table('spectrum_condition_check')->where('id', $photo->condition_check_id)->value('object_id')
+                : null);
+
+            $reportId = DB::table('condition_report')->insertGetId([
+                'information_object_id' => $resolvedObjectId,
+                'assessor_user_id' => auth()->id(),
+                'assessment_date' => now()->toDateString(),
+                'context' => 'ai_assessment',
+                'overall_rating' => $result['overall_rating'],
+                'summary' => $result['description'],
+                'recommendations' => $result['recommendations'],
+                'priority' => match($result['severity']) {
+                    'minor' => 'low', 'moderate' => 'normal', 'severe' => 'high', 'critical' => 'urgent', default => 'normal',
+                },
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // Save damage records
+            // Save damage records (FK references condition_report.id)
             foreach ($result['damage_types'] as $dmg) {
                 DB::table('condition_damage')->insert([
-                    'condition_report_id' => $checkId,
+                    'condition_report_id' => $reportId,
                     'damage_type' => $dmg['type'],
                     'severity' => $dmg['severity'] ?? $result['severity'],
                     'location' => 'overall',
@@ -525,7 +530,7 @@ class ConditionController extends Controller
                 ]);
             }
 
-            $result['condition_check_id'] = $checkId;
+            $result['condition_check_id'] = $reportId;
 
             return response()->json($result);
         } catch (\Exception $e) {

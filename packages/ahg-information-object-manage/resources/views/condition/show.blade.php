@@ -446,7 +446,7 @@ window.AHG_CONDITION.confirmDelete = 'Are you sure you want to delete this photo
       document.getElementById('aiScanFooter').style.display = '';
       var viewBtn = document.getElementById('aiScanViewFull');
       if (data.condition_check_id) {
-        viewBtn.href = '/condition/check/' + data.condition_check_id + '/photos';
+        viewBtn.href = '/condition/report/' + data.condition_check_id;
         viewBtn.style.display = '';
       } else {
         viewBtn.style.display = 'none';
