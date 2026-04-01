@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use AhgCore\Models\QubitInformationObject;
+use AhgCore\Models\InformationObject;
 use Database\Factories\InformationObjectFactory;
 use Database\Factories\ActorFactory;
 use Database\Factories\TermFactory;
@@ -184,7 +184,7 @@ class InformationObjectApiTest extends TestCase
             'authorized_form_of_name' => 'Test Creator',
         ]);
 
-        \AhgCore\Models\QubitEvent::create([
+        \AhgCore\Models\Event::create([
             'object_id' => $io->id,
             'actor_id' => $creator->id,
             'type_id' => 101, // Creation
@@ -297,7 +297,7 @@ class InformationObjectApiTest extends TestCase
         $io = $this->ioFactory->create();
         $creator = $this->actorFactory->create();
 
-        $event = \AhgCore\Models\QubitEvent::create([
+        $event = \AhgCore\Models\Event::create([
             'object_id' => $io->id,
             'actor_id' => $creator->id,
             'type_id' => 101,
@@ -369,7 +369,7 @@ class InformationObjectApiTest extends TestCase
         $response->assertStatus(201);
         $this->assertDatabaseHas('object_term_relation', [
             'object_id' => $io->id,
-            'object_class' => 'QubitInformationObject',
+            'object_class' => 'InformationObject',
             'term_id' => $subject->id,
         ]);
     }

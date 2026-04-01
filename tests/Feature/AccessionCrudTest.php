@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use AhgCore\Models\QubitAccession;
+use AhgCore\Models\Accession;
 use Database\Factories\AccessionFactory;
 use Database\Factories\ActorFactory;
 use Database\Factories\InformationObjectFactory;
@@ -115,7 +115,7 @@ class AccessionCrudTest extends TestCase
     {
         $accession = AccessionFactory::new()->create();
 
-        $found = QubitAccession::find($accession->id);
+        $found = Accession::find($accession->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($accession->id, $found->id);
@@ -125,7 +125,7 @@ class AccessionCrudTest extends TestCase
     {
         AccessionFactory::new()->count(10)->create();
 
-        $accessions = QubitAccession::all();
+        $accessions = Accession::all();
 
         $this->assertCount(10, $accessions);
     }
@@ -136,7 +136,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(3)->purchase()->create();
         AccessionFactory::new()->count(2)->donation()->create();
 
-        $gifts = QubitAccession::where('取得方式', 'gift')->get();
+        $gifts = Accession::where('取得方式', 'gift')->get();
 
         $this->assertCount(5, $gifts);
     }
@@ -147,7 +147,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->create(['title' => 'Financial Records 1950']);
         AccessionFactory::new()->create(['title' => 'Smith Family Photographs']);
 
-        $results = QubitAccession::where('title', 'LIKE', '%Smith%')->get();
+        $results = Accession::where('title', 'LIKE', '%Smith%')->get();
 
         $this->assertCount(2, $results);
     }
@@ -158,7 +158,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(2)->create(['版权状态' => 'copyright']);
         AccessionFactory::new()->count(1)->create(['版权状态' => 'public_domain']);
 
-        $copyright = QubitAccession::where('版权状态', 'copyright')->get();
+        $copyright = Accession::where('版权状态', 'copyright')->get();
 
         $this->assertCount(2, $copyright);
     }
@@ -168,7 +168,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(4)->create(['condition' => 'good']);
         AccessionFactory::new()->count(2)->create(['condition' => 'poor']);
 
-        $poor = QubitAccession::where('condition', 'poor')->get();
+        $poor = Accession::where('condition', 'poor')->get();
 
         $this->assertCount(2, $poor);
     }
@@ -181,7 +181,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(3)->create(['repository_id' => $repo1]);
         AccessionFactory::new()->count(2)->create(['repository_id' => $repo2]);
 
-        $repo1Accessions = QubitAccession::where('repository_id', $repo1)->get();
+        $repo1Accessions = Accession::where('repository_id', $repo1)->get();
 
         $this->assertCount(3, $repo1Accessions);
     }
@@ -414,7 +414,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(3)->purchase()->create();
         AccessionFactory::new()->count(2)->donation()->create();
 
-        $counts = QubitAccession::selectRaw('取得方式, COUNT(*) as cnt')
+        $counts = Accession::selectRaw('取得方式, COUNT(*) as cnt')
             ->groupBy('取得方式')
             ->pluck('cnt', '取得方式')
             ->toArray();
@@ -430,7 +430,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(3)->create(['版权状态' => 'copyright']);
         AccessionFactory::new()->count(1)->create(['版权状态' => 'public_domain']);
 
-        $counts = QubitAccession::selectRaw('版权状态, COUNT(*) as cnt')
+        $counts = Accession::selectRaw('版权状态, COUNT(*) as cnt')
             ->whereNotNull('版权状态')
             ->groupBy('版权状态')
             ->pluck('cnt', '版权状态')
@@ -446,7 +446,7 @@ class AccessionCrudTest extends TestCase
         AccessionFactory::new()->count(2)->create(['condition' => 'poor']);
         AccessionFactory::new()->count(1)->create(['condition' => 'excellent']);
 
-        $counts = QubitAccession::selectRaw('condition, COUNT(*) as cnt')
+        $counts = Accession::selectRaw('condition, COUNT(*) as cnt')
             ->whereNotNull('condition')
             ->groupBy('condition')
             ->pluck('cnt', 'condition')
@@ -464,7 +464,7 @@ class AccessionCrudTest extends TestCase
     {
         AccessionFactory::new()->count(50)->create();
 
-        $paginated = QubitAccession::paginate(20);
+        $paginated = Accession::paginate(20);
 
         $this->assertEquals(20, $paginated->perPage());
         $this->assertEquals(50, $paginated->total());

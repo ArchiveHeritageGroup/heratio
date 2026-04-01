@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use AhgCore\Models\QubitActor;
-use AhgCore\Models\QubitEvent;
-use AhgCore\Models\QubitInformationObject;
+use AhgCore\Models\Actor;
+use AhgCore\Models\Event;
+use AhgCore\Models\InformationObject;
 use Database\Factories\ActorFactory;
 use Database\Factories\EventFactory;
 use Database\Factories\InformationObjectFactory;
@@ -131,7 +131,7 @@ class InformationObjectCrudTest extends TestCase
     {
         $io = InformationObjectFactory::new()->create();
 
-        $found = QubitInformationObject::find($io->id);
+        $found = InformationObject::find($io->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($io->id, $found->id);
@@ -143,7 +143,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->count(3)->file()->create(['parent_id' => $parent->id]);
         InformationObjectFactory::new()->count(2)->item()->create(['parent_id' => $parent->id]);
 
-        $children = QubitInformationObject::where('parent_id', $parent->id)->get();
+        $children = InformationObject::where('parent_id', $parent->id)->get();
 
         $this->assertCount(5, $children);
     }
@@ -154,7 +154,7 @@ class InformationObjectCrudTest extends TestCase
         $root2 = InformationObjectFactory::new()->collection()->create();
         InformationObjectFactory::new()->series()->create(['parent_id' => $root1->id]);
 
-        $roots = QubitInformationObject::whereNull('parent_id')->get();
+        $roots = InformationObject::whereNull('parent_id')->get();
 
         $this->assertCount(2, $roots);
     }
@@ -165,7 +165,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->create(['title' => 'Financial Records 1970']);
         InformationObjectFactory::new()->create(['title' => 'Letters and Photographs']);
 
-        $results = QubitInformationObject::where('title', 'LIKE', '%Photographs%')->get();
+        $results = InformationObject::where('title', 'LIKE', '%Photographs%')->get();
 
         $this->assertCount(2, $results);
     }
@@ -176,7 +176,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->count(3)->series()->create();
         InformationObjectFactory::new()->count(4)->file()->create();
 
-        $collections = QubitInformationObject::where('level_of_description_id', 1)->get();
+        $collections = InformationObject::where('level_of_description_id', 1)->get();
 
         $this->assertCount(2, $collections);
     }
@@ -297,7 +297,7 @@ class InformationObjectCrudTest extends TestCase
 
         \AhgCore\Models\ObjectTermRelation::create([
             'object_id' => $io->id,
-            'object_class' => 'QubitInformationObject',
+            'object_class' => 'InformationObject',
             'term_id' => $subject->id,
         ]);
 
@@ -362,7 +362,7 @@ class InformationObjectCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitInformationObject::create([
+        InformationObject::create([
             // title is required
         ]);
     }
@@ -371,7 +371,7 @@ class InformationObjectCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitInformationObject::create([
+        InformationObject::create([
             'title' => 'Test',
             'level_of_description_id' => 999,
         ]);
@@ -385,7 +385,7 @@ class InformationObjectCrudTest extends TestCase
     {
         InformationObjectFactory::new()->count(50)->create();
 
-        $paginated = QubitInformationObject::paginate(20);
+        $paginated = InformationObject::paginate(20);
 
         $this->assertEquals(20, $paginated->perPage());
         $this->assertEquals(50, $paginated->total());
@@ -398,7 +398,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->count(10)->series()->create();
         InformationObjectFactory::new()->count(15)->file()->create();
 
-        $browse = QubitInformationObject::whereIn('level_of_description_id', [1, 2])
+        $browse = InformationObject::whereIn('level_of_description_id', [1, 2])
             ->orderBy('level_of_description_id')
             ->get();
 
@@ -416,7 +416,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->count(20)->file()->create();
         InformationObjectFactory::new()->count(10)->item()->create();
 
-        $counts = QubitInformationObject::selectRaw('level_of_description_id, COUNT(*) as cnt')
+        $counts = InformationObject::selectRaw('level_of_description_id, COUNT(*) as cnt')
             ->groupBy('level_of_description_id')
             ->pluck('cnt', 'level_of_description_id')
             ->toArray();
@@ -433,7 +433,7 @@ class InformationObjectCrudTest extends TestCase
         InformationObjectFactory::new()->count(5)->create(['repository_id' => $repo1]);
         InformationObjectFactory::new()->count(3)->create(['repository_id' => $repo2]);
 
-        $counts = QubitInformationObject::selectRaw('repository_id, COUNT(*) as cnt')
+        $counts = InformationObject::selectRaw('repository_id, COUNT(*) as cnt')
             ->whereNotNull('repository_id')
             ->groupBy('repository_id')
             ->pluck('cnt', 'repository_id')

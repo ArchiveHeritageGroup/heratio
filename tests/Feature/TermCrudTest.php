@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use AhgCore\Models\QubitTerm;
+use AhgCore\Models\Term;
 use Database\Factories\TermFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -106,7 +106,7 @@ class TermCrudTest extends TestCase
     {
         $term = TermFactory::new()->create();
 
-        $found = QubitTerm::find($term->id);
+        $found = Term::find($term->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($term->id, $found->id);
@@ -118,7 +118,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(3)->place()->create();
         TermFactory::new()->count(2)->genre()->create();
 
-        $subjects = QubitTerm::where('taxonomy_id', 35)->get();
+        $subjects = Term::where('taxonomy_id', 35)->get();
 
         $this->assertCount(5, $subjects);
     }
@@ -131,7 +131,7 @@ class TermCrudTest extends TestCase
             'taxonomy_id' => 35,
         ]);
 
-        $children = QubitTerm::where('parent_id', $parent->id)->get();
+        $children = Term::where('parent_id', $parent->id)->get();
 
         $this->assertCount(3, $children);
     }
@@ -145,7 +145,7 @@ class TermCrudTest extends TestCase
             'taxonomy_id' => 35,
         ]);
 
-        $roots = QubitTerm::whereNull('parent_id')->where('taxonomy_id', 35)->get();
+        $roots = Term::whereNull('parent_id')->where('taxonomy_id', 35)->get();
 
         $this->assertCount(2, $roots);
     }
@@ -156,7 +156,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->create(['name' => 'Africa in the 20th Century']);
         TermFactory::new()->create(['name' => 'South America']);
 
-        $results = QubitTerm::where('name', 'LIKE', '%Africa%')->get();
+        $results = Term::where('name', 'LIKE', '%Africa%')->get();
 
         $this->assertCount(2, $results);
     }
@@ -166,7 +166,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->create(['name' => 'Test', 'scope_note' => 'Important note']);
         TermFactory::new()->create(['name' => 'Test2']);
 
-        $withNotes = QubitTerm::whereNotNull('scope_note')->get();
+        $withNotes = Term::whereNotNull('scope_note')->get();
 
         $this->assertGreaterThanOrEqual(1, $withNotes->count());
     }
@@ -258,7 +258,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(4)->subject()->create();
         TermFactory::new()->count(2)->place()->create();
 
-        $subjects = QubitTerm::where('taxonomy_id', 35)->get();
+        $subjects = Term::where('taxonomy_id', 35)->get();
 
         $this->assertCount(4, $subjects);
     }
@@ -268,7 +268,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(3)->subject()->create();
         TermFactory::new()->count(5)->place()->create();
 
-        $places = QubitTerm::where('taxonomy_id', 42)->get();
+        $places = Term::where('taxonomy_id', 42)->get();
 
         $this->assertCount(5, $places);
     }
@@ -278,7 +278,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(2)->subject()->create();
         TermFactory::new()->count(6)->genre()->create();
 
-        $genres = QubitTerm::where('taxonomy_id', 43)->get();
+        $genres = Term::where('taxonomy_id', 43)->get();
 
         $this->assertCount(6, $genres);
     }
@@ -311,7 +311,7 @@ class TermCrudTest extends TestCase
             'use_for' => 'Papers; Records',
         ]);
 
-        $results = QubitTerm::where('use_for', 'LIKE', '%Photos%')->get();
+        $results = Term::where('use_for', 'LIKE', '%Photos%')->get();
 
         $this->assertCount(1, $results);
     }
@@ -324,7 +324,7 @@ class TermCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitTerm::create([
+        Term::create([
             'taxonomy_id' => 35,
             // name is required
         ]);
@@ -334,7 +334,7 @@ class TermCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitTerm::create([
+        Term::create([
             'name' => 'Test Term',
             // taxonomy_id is required
         ]);
@@ -348,7 +348,7 @@ class TermCrudTest extends TestCase
     {
         TermFactory::new()->count(50)->create();
 
-        $paginated = QubitTerm::paginate(20);
+        $paginated = Term::paginate(20);
 
         $this->assertEquals(20, $paginated->perPage());
         $this->assertEquals(50, $paginated->total());
@@ -360,7 +360,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->create(['name' => 'Apple', 'taxonomy_id' => 35]);
         TermFactory::new()->create(['name' => 'Mango', 'taxonomy_id' => 35]);
 
-        $terms = QubitTerm::where('taxonomy_id', 35)
+        $terms = Term::where('taxonomy_id', 35)
             ->orderBy('name')
             ->get();
 
@@ -378,7 +378,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(7)->place()->create();
         TermFactory::new()->count(5)->genre()->create();
 
-        $counts = QubitTerm::selectRaw('taxonomy_id, COUNT(*) as cnt')
+        $counts = Term::selectRaw('taxonomy_id, COUNT(*) as cnt')
             ->groupBy('taxonomy_id')
             ->pluck('cnt', 'taxonomy_id')
             ->toArray();
@@ -393,7 +393,7 @@ class TermCrudTest extends TestCase
         TermFactory::new()->count(3)->subject()->create(); // roots
         TermFactory::new()->count(2)->subject()->create(); // with parents
 
-        $rootCount = QubitTerm::where('taxonomy_id', 35)
+        $rootCount = Term::where('taxonomy_id', 35)
             ->whereNull('parent_id')
             ->count();
 

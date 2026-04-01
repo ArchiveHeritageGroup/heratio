@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use AhgCore\Models\QubitActor;
+use AhgCore\Models\Actor;
 use Database\Factories\ActorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -301,11 +301,11 @@ class ActorApiTest extends TestCase
     public function test_delete_actor_removes_related_events(): void
     {
         $actor = $this->actorFactory->create();
-        $io = \AhgCore\Models\QubitInformationObject::create([
+        $io = \AhgCore\Models\InformationObject::create([
             'title' => 'Test Record',
         ]);
 
-        \AhgCore\Models\QubitEvent::create([
+        \AhgCore\Models\Event::create([
             'object_id' => $io->id,
             'actor_id' => $actor->id,
             'type_id' => 101,
@@ -405,7 +405,7 @@ class ActorApiTest extends TestCase
         $response = $this->postJson('/api/actor/bulk', ['actors' => $actors]);
 
         $response->assertStatus(201);
-        $this->assertEquals(3, QubitActor::whereIn('authorized_form_of_name', [
+        $this->assertEquals(3, Actor::whereIn('authorized_form_of_name', [
             'Person One', 'Person Two', 'Org One'
         ])->count());
     }

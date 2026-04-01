@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use AhgCore\Models\QubitActor;
+use AhgCore\Models\Actor;
 use Database\Factories\ActorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -46,7 +46,7 @@ class ActorCrudTest extends TestCase
             '歷史' => 'Famous writer of the 20th century.',
         ];
 
-        $actor = QubitActor::create($data);
+        $actor = Actor::create($data);
 
         $this->assertDatabaseHas('actor', [
             'id' => $actor->id,
@@ -63,7 +63,7 @@ class ActorCrudTest extends TestCase
             '歷史' => 'Prominent family in the region.',
         ];
 
-        $actor = QubitActor::create($data);
+        $actor = Actor::create($data);
 
         $this->assertDatabaseHas('actor', [
             'entity_type' => 'family',
@@ -79,7 +79,7 @@ class ActorCrudTest extends TestCase
             '機構史' => 'Founded in 1902.',
         ];
 
-        $actor = QubitActor::create($data);
+        $actor = Actor::create($data);
 
         $this->assertDatabaseHas('actor', [
             'entity_type' => 'corporateBody',
@@ -114,7 +114,7 @@ class ActorCrudTest extends TestCase
     {
         $actor = ActorFactory::new()->person()->create();
 
-        $found = QubitActor::find($actor->id);
+        $found = Actor::find($actor->id);
 
         $this->assertNotNull($found);
         $this->assertEquals($actor->id, $found->id);
@@ -126,7 +126,7 @@ class ActorCrudTest extends TestCase
         ActorFactory::new()->count(3)->family()->create();
         ActorFactory::new()->count(2)->corporateBody()->create();
 
-        $actors = QubitActor::all();
+        $actors = Actor::all();
 
         $this->assertCount(10, $actors);
     }
@@ -136,7 +136,7 @@ class ActorCrudTest extends TestCase
         ActorFactory::new()->count(3)->person()->create();
         ActorFactory::new()->count(2)->corporateBody()->create();
 
-        $persons = QubitActor::where('entity_type', 'person')->get();
+        $persons = Actor::where('entity_type', 'person')->get();
 
         $this->assertCount(3, $persons);
     }
@@ -147,7 +147,7 @@ class ActorCrudTest extends TestCase
         ActorFactory::new()->create(['authorized_form_of_name' => 'Jane Doe']);
         ActorFactory::new()->create(['authorized_form_of_name' => 'John Brown']);
 
-        $results = QubitActor::where('authorized_form_of_name', 'LIKE', '%John%')->get();
+        $results = Actor::where('authorized_form_of_name', 'LIKE', '%John%')->get();
 
         $this->assertCount(2, $results);
     }
@@ -211,12 +211,12 @@ class ActorCrudTest extends TestCase
     public function test_deleting_actor_removes_related_events(): void
     {
         $actor = ActorFactory::new()->create();
-        $io = \AhgCore\Models\QubitInformationObject::create([
+        $io = \AhgCore\Models\InformationObject::create([
             'title' => 'Test Record',
         ]);
 
         // Create event linking actor to IO
-        \AhgCore\Models\QubitEvent::create([
+        \AhgCore\Models\Event::create([
             'object_id' => $io->id,
             'actor_id' => $actor->id,
             'type_id' => 101,
@@ -234,11 +234,11 @@ class ActorCrudTest extends TestCase
     public function test_actor_can_have_events(): void
     {
         $actor = ActorFactory::new()->create();
-        $io = \AhgCore\Models\QubitInformationObject::create([
+        $io = \AhgCore\Models\InformationObject::create([
             'title' => 'Related Record',
         ]);
 
-        $event = \AhgCore\Models\QubitEvent::create([
+        $event = \AhgCore\Models\Event::create([
             'object_id' => $io->id,
             'actor_id' => $actor->id,
             'type_id' => 101,
@@ -287,7 +287,7 @@ class ActorCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitActor::create([
+        Actor::create([
             'entity_type' => 'person',
             // authorized_form_of_name is required
         ]);
@@ -297,7 +297,7 @@ class ActorCrudTest extends TestCase
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        QubitActor::create([
+        Actor::create([
             'entity_type' => 'invalid_type',
             'authorized_form_of_name' => 'Test Name',
         ]);
@@ -311,7 +311,7 @@ class ActorCrudTest extends TestCase
     {
         ActorFactory::new()->count(25)->create();
 
-        $paginated = QubitActor::paginate(10);
+        $paginated = Actor::paginate(10);
 
         $this->assertEquals(10, $paginated->perPage());
         $this->assertEquals(25, $paginated->total());
@@ -324,7 +324,7 @@ class ActorCrudTest extends TestCase
         ActorFactory::new()->create(['authorized_form_of_name' => 'Apple']);
         ActorFactory::new()->create(['authorized_form_of_name' => 'Mango']);
 
-        $actors = QubitActor::orderBy('authorized_form_of_name')->get();
+        $actors = Actor::orderBy('authorized_form_of_name')->get();
 
         $this->assertEquals('Apple', $actors->first()->authorized_form_of_name);
         $this->assertEquals('Zebra', $actors->last()->authorized_form_of_name);
@@ -341,9 +341,9 @@ class ActorCrudTest extends TestCase
         ActorFactory::new()->count(2)->corporateBody()->create();
 
         $counts = [
-            'person' => QubitActor::where('entity_type', 'person')->count(),
-            'family' => QubitActor::where('entity_type', 'family')->count(),
-            'corporateBody' => QubitActor::where('entity_type', 'corporateBody')->count(),
+            'person' => Actor::where('entity_type', 'person')->count(),
+            'family' => Actor::where('entity_type', 'family')->count(),
+            'corporateBody' => Actor::where('entity_type', 'corporateBody')->count(),
         ];
 
         $this->assertEquals(5, $counts['person']);
@@ -360,20 +360,20 @@ class ActorCrudTest extends TestCase
         $names = ['Actor One', 'Actor Two', 'Actor Three'];
 
         foreach ($names as $name) {
-            QubitActor::create([
+            Actor::create([
                 'entity_type' => 'person',
                 'authorized_form_of_name' => $name,
             ]);
         }
 
-        $this->assertEquals(3, QubitActor::whereIn('authorized_form_of_name', $names)->count());
+        $this->assertEquals(3, Actor::whereIn('authorized_form_of_name', $names)->count());
     }
 
     public function test_can_bulk_update_actors(): void
     {
         $actors = ActorFactory::new()->count(3)->create();
 
-        QubitActor::whereIn('id', $actors->pluck('id'))
+        Actor::whereIn('id', $actors->pluck('id'))
             ->update(['來源標準' => 'local']);
 
         foreach ($actors as $actor) {

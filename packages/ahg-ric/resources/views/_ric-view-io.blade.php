@@ -105,28 +105,20 @@
       <span class="badge bg-light text-success">rico:{{ $ricType }}</span>
     </div>
     <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <table class="table table-sm mb-0">
-            <tr><th class="text-muted" style="width:40%">RiC Entity Type</th><td><code>rico:{{ $ricType }}</code></td></tr>
-            <tr><th class="text-muted">Identifier</th><td>{{ $io->identifier ?? '—' }}</td></tr>
-            <tr><th class="text-muted">Level</th><td>{{ $lodLabel ?: '—' }}</td></tr>
-            @if($holder)
-              <tr><th class="text-muted">hasOrHadHolder</th><td><a href="{{ url('/' . $holder->slug) }}">{{ $holder->name }}</a></td></tr>
-            @endif
-          </table>
-        </div>
-        <div class="col-md-6">
-          <table class="table table-sm mb-0">
-            @if($io->scope_and_content)
-              <tr><th class="text-muted" style="width:40%">Scope</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($io->scope_and_content), 200) }}</td></tr>
-            @endif
-            @if($io->extent_and_medium)
-              <tr><th class="text-muted">Extent</th><td>{{ $io->extent_and_medium }}</td></tr>
-            @endif
-          </table>
-        </div>
-      </div>
+      <table class="table table-sm mb-0">
+        <tr><th class="text-muted" style="width:25%">RiC Entity Type</th><td><code>rico:{{ $ricType }}</code></td></tr>
+        <tr><th class="text-muted">Identifier</th><td>{{ $io->identifier ?? '—' }}</td></tr>
+        <tr><th class="text-muted">Level</th><td>{{ $lodLabel ?: '—' }}</td></tr>
+        @if($holder)
+          <tr><th class="text-muted">hasOrHadHolder</th><td><a href="{{ url('/' . $holder->slug) }}">{{ $holder->name }}</a></td></tr>
+        @endif
+        @if($io->scope_and_content)
+          <tr><th class="text-muted">Scope</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($io->scope_and_content), 200) }}</td></tr>
+        @endif
+        @if($io->extent_and_medium)
+          <tr><th class="text-muted">Extent</th><td>{{ $io->extent_and_medium }}</td></tr>
+        @endif
+      </table>
     </div>
   </div>
 

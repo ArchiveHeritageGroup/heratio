@@ -29,9 +29,10 @@
 
   // Helper: build GLAM browse URL with filter params
   function glamBrowseUrl($fp, $add = [], $remove = []) {
+      // Strip page from base params so callers can override via $add
+      unset($fp['page']);
       $params = array_merge(array_filter($fp, function($v) { return $v !== null && $v !== ''; }), $add);
       foreach ($remove as $key) { unset($params[$key]); }
-      unset($params['page']);
       return route('glam.browse', $params);
   }
 
