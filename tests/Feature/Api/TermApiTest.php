@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use AhgCore\Models\QubitTerm;
+use AhgCore\Models\Term;
 use Database\Factories\TermFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

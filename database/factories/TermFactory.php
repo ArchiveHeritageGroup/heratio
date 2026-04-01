@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use AhgCore\Models\QubitTerm;
+use AhgCore\Models\Term;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Factory for QubitTerm (Taxonomy terms/subjects)
+ * Factory for Term (Taxonomy terms/subjects)
  */
 class TermFactory extends Factory
 {
-    protected $model = QubitTerm::class;
+    protected $model = Term::class;
 
     public function definition(): array
     {

@@ -1,5 +1,5 @@
-{{-- Partial: RiC Explorer panel for IO show page --}}
-@if(!empty($resourceId))
+{{-- Partial: RiC Explorer panel — only visible when RiC view mode is active --}}
+@if(!empty($resourceId) && session('ric_view_mode', config('ric.default_view', 'heratio')) === 'ric')
 <section id="ric-explorer-panel" class="card mb-3">
   <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
     <h6 class="mb-0">
