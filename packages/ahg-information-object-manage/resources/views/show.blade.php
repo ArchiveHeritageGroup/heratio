@@ -105,10 +105,10 @@
         <i class="fas fa-robot me-1"></i> AI Tools
       </div>
       <div class="list-group list-group-flush">
-        <a href="{{ route('io.ai.extract', $io->id) }}" class="list-group-item list-group-item-action small">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
           <i class="fas fa-brain me-1"></i> Extract Entities (NER)
         </a>
-        <a href="{{ route('io.ai.summarize', $io->id) }}" class="list-group-item list-group-item-action small">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#summaryModal">
           <i class="fas fa-file-alt me-1"></i> Generate Summary
         </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
@@ -2482,20 +2482,6 @@
       </div>
     @endauth
 
-    {{-- AI Tools --}}
-    @auth
-      <div class="card mb-3">
-        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-robot me-1"></i> AI Tools
-        </div>
-        <div class="list-group list-group-flush">
-          <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
-            <i class="fas fa-brain me-1"></i> Extract Entities (NER)
-          </a>
-        </div>
-      </div>
-    @endauth
-
     {{-- Related subjects --}}
     @if(isset($subjects) && $subjects->isNotEmpty())
       <div class="card mb-3">
@@ -2665,6 +2651,48 @@ document.getElementById('nerModal').addEventListener('shown.bs.modal', function(
 
 {{-- AFTER CONTENT: Action buttons                                --}}
 {{-- ============================================================ --}}
+{{-- Summary Modal --}}
+@auth
+<div class="modal fade" id="summaryModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Generate Summary</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="summaryModalBody">
+        <div class="text-center py-5">
+          <div class="spinner-border text-success mb-3"></div>
+          <p class="text-muted">Loading summary generator...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="{{ route('io.ai.summarize', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
+          <i class="fas fa-external-link-alt me-1"></i>Open Full Page
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('summaryModal').addEventListener('shown.bs.modal', function() {
+  var body = document.getElementById('summaryModalBody');
+  if (body.dataset.loaded) return;
+  body.dataset.loaded = '1';
+  fetch('{{ route("io.ai.summarize", $io->id) }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+  .then(function(r) { return r.text(); })
+  .then(function(html) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+    var content = doc.querySelector('#content, [role="main"], .container');
+    body.innerHTML = content ? content.innerHTML : html;
+  })
+  .catch(function(err) { body.innerHTML = '<div class="alert alert-danger">Failed to load: ' + err.message + '</div>'; });
+});
+</script>
+@endauth
+
 @section('after-content')
   @auth
   @php $isAdmin = auth()->user()->is_admin; @endphp
@@ -2784,106 +2812,189 @@ document.getElementById('nerModal').addEventListener('shown.bs.modal', function(
 
   {{-- Translate Modal --}}
   @auth
-  <div class="modal fade" id="translateModal" tabindex="-1" aria-labelledby="translateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+  @php
+    $targetLanguages = [
+        'en'=>'English','af'=>'Afrikaans','zu'=>'isiZulu','xh'=>'isiXhosa','st'=>'Sesotho',
+        'tn'=>'Setswana','nso'=>'Sepedi','ts'=>'Xitsonga','ss'=>'SiSwati','ve'=>'Tshivenda',
+        'nr'=>'isiNdebele','nl'=>'Dutch','fr'=>'French','de'=>'German','es'=>'Spanish',
+        'pt'=>'Portuguese','sw'=>'Swahili','ar'=>'Arabic',
+    ];
+    $allFields = [
+        'title'=>'Title','alternate_title'=>'Alternate Title','scope_and_content'=>'Scope and Content',
+        'archival_history'=>'Archival History','acquisition'=>'Acquisition','arrangement'=>'Arrangement',
+        'access_conditions'=>'Access Conditions','reproduction_conditions'=>'Reproduction Conditions',
+        'finding_aids'=>'Finding Aids','related_units_of_description'=>'Related Units',
+        'appraisal'=>'Appraisal','accruals'=>'Accruals','physical_characteristics'=>'Physical Characteristics',
+        'location_of_originals'=>'Location of Originals','location_of_copies'=>'Location of Copies',
+        'extent_and_medium'=>'Extent and Medium','sources'=>'Sources','rules'=>'Rules',
+        'revision_history'=>'Revision History',
+    ];
+  @endphp
+  <div class="modal fade" id="translateModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="modal-title" id="translateModalLabel"><i class="fas fa-language me-2"></i>Translate Record</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header bg-secondary text-white">
+          <h5 class="modal-title"><i class="fas fa-language me-2"></i>Translate Record <span class="badge bg-light text-dark ms-2 translate-step-badge">Step 1: Select Fields</span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Source language</label>
-            <input type="text" class="form-control" value="{{ ucfirst($io->source_culture ?? 'en') }}" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="translateTargetLang" class="form-label fw-bold">Target language</label>
-            <select id="translateTargetLang" class="form-select">
-              <option value="af">Afrikaans</option>
-              <option value="ar">Arabic</option>
-              <option value="de">German</option>
-              <option value="en" selected>English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="it">Italian</option>
-              <option value="nl">Dutch</option>
-              <option value="pt">Portuguese</option>
-              <option value="zu">Zulu</option>
-              <option value="xh">Xhosa</option>
-              <option value="st">Sesotho</option>
-              <option value="tn">Setswana</option>
-              <option value="nso">Sepedi</option>
-              <option value="ts">Tsonga</option>
-              <option value="ss">Swati</option>
-              <option value="ve">Venda</option>
-              <option value="nr">Ndebele</option>
-            </select>
-          </div>
-          <div id="translateResult" class="d-none">
-            <label class="form-label fw-bold">Translation result</label>
-            <div id="translateResultContent" class="border rounded p-3 bg-light" style="max-height:300px;overflow-y:auto;white-space:pre-wrap;"></div>
-          </div>
-          <div id="translateError" class="alert alert-danger d-none mt-3"></div>
-          <div id="translateSpinner" class="text-center d-none my-3">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Translating...</span>
+        <div class="modal-body" style="max-height:75vh;overflow-y:auto;">
+          {{-- Step 1 --}}
+          <div id="translate-step1">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Source Language</label>
+                <select id="translateSource" class="form-select">
+                  @foreach($targetLanguages as $code => $name)
+                    <option value="{{ $code }}" @selected($code === ($io->source_culture ?? 'en'))>{{ $name }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Target Language</label>
+                <select id="translateTarget" class="form-select">
+                  @foreach($targetLanguages as $code => $name)
+                    <option value="{{ $code }}" @selected($code === 'af')>{{ $name }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Options</label>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateSaveCulture" checked><label class="form-check-label small" for="translateSaveCulture">Save with culture code</label></div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="translateOverwrite"><label class="form-check-label small" for="translateOverwrite">Overwrite existing</label></div>
+              </div>
             </div>
-            <p class="text-muted mt-2">Translating, please wait...</p>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="fw-bold">Fields to Translate</span>
+              <div><button type="button" class="btn btn-sm btn-outline-secondary" id="translateSelectAll">Select All</button> <button type="button" class="btn btn-sm btn-outline-secondary" id="translateDeselectAll">Deselect All</button></div>
+            </div>
+            <div class="row">
+              @php $i = 0; @endphp
+              @foreach($allFields as $key => $label)
+                @if($i % 10 === 0)<div class="col-md-6">@endif
+                <div class="form-check">
+                  <input class="form-check-input translate-field-cb" type="checkbox" value="{{ $key }}" data-label="{{ $label }}" id="tf-{{ $key }}" @checked(in_array($key, ['title','scope_and_content']))>
+                  <label class="form-check-label" for="tf-{{ $key }}">{{ $label }}</label>
+                </div>
+                @if($i % 10 === 9 || $i === count($allFields) - 1)</div>@endif
+                @php $i++; @endphp
+              @endforeach
+            </div>
+            <div class="alert alert-info py-2 mt-3 mb-0"><i class="fas fa-info-circle me-1"></i>Click "Translate" to preview translations before saving.</div>
           </div>
+          {{-- Step 2 --}}
+          <div id="translate-step2" style="display:none;">
+            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>Review Translations</strong> — Edit if needed, then click "Approve & Save".</div>
+            <div id="translatePreview"></div>
+          </div>
+          <div class="mt-3"><div class="alert py-2 mb-0" id="translateStatus" style="display:none;"></div></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn atom-btn-outline-light" id="translateSubmitBtn">
-            <i class="fas fa-language me-1"></i> Translate
-          </button>
+          <div id="translateStep1Btns">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Close</button>
+            <button type="button" class="btn btn-primary" id="translateRunBtn"><i class="fas fa-language me-1"></i>Translate</button>
+          </div>
+          <div id="translateStep2Btns" style="display:none;">
+            <button type="button" class="btn btn-outline-secondary" id="translateBackBtn"><i class="fas fa-arrow-left me-1"></i>Back</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Cancel</button>
+            <button type="button" class="btn btn-success" id="translateApproveBtn"><i class="fas fa-check me-1"></i>Approve & Save</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <script nonce="{{ $cspNonce ?? '' }}">
-  document.addEventListener('DOMContentLoaded', function() {
-    var translateBtn = document.getElementById('translateSubmitBtn');
-    if (!translateBtn) return;
-    translateBtn.addEventListener('click', function() {
-      var targetLang = document.getElementById('translateTargetLang').value;
-      var spinner = document.getElementById('translateSpinner');
-      var result = document.getElementById('translateResult');
-      var resultContent = document.getElementById('translateResultContent');
-      var errorDiv = document.getElementById('translateError');
+  <script>
+  (function(){
+    var modalEl = document.getElementById('translateModal');
+    if (!modalEl) return;
+    var objectSlug = '{{ $io->slug }}';
+    var results = [];
 
-      spinner.classList.remove('d-none');
-      result.classList.add('d-none');
-      errorDiv.classList.add('d-none');
-      translateBtn.disabled = true;
+    document.getElementById('translateSelectAll').addEventListener('click', function(){ document.querySelectorAll('.translate-field-cb').forEach(function(cb){cb.checked=true;}); });
+    document.getElementById('translateDeselectAll').addEventListener('click', function(){ document.querySelectorAll('.translate-field-cb').forEach(function(cb){cb.checked=false;}); });
 
-      fetch('{{ route("io.ai.translate", $io->id) }}' + '?target_lang=' + encodeURIComponent(targetLang), {
-        method: 'GET',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-      })
-      .then(function(response) { return response.json(); })
-      .then(function(data) {
-        spinner.classList.add('d-none');
-        translateBtn.disabled = false;
-        if (data.error) {
-          errorDiv.textContent = data.error;
-          errorDiv.classList.remove('d-none');
-        } else {
-          resultContent.textContent = data.translation || data.text || JSON.stringify(data);
-          result.classList.remove('d-none');
-        }
-      })
-      .catch(function(err) {
-        spinner.classList.add('d-none');
-        translateBtn.disabled = false;
-        errorDiv.textContent = 'Translation failed: ' + (err.message || 'Unknown error');
-        errorDiv.classList.remove('d-none');
+    function showStep(n) {
+      document.getElementById('translate-step1').style.display = n===1?'':'none';
+      document.getElementById('translate-step2').style.display = n===2?'':'none';
+      document.getElementById('translateStep1Btns').style.display = n===1?'':'none';
+      document.getElementById('translateStep2Btns').style.display = n===2?'':'none';
+      modalEl.querySelector('.translate-step-badge').textContent = n===1?'Step 1: Select Fields':'Step 2: Review & Approve';
+    }
+
+    function showStatus(msg, type) {
+      var el = document.getElementById('translateStatus');
+      el.style.display = 'block';
+      el.className = 'alert py-2 mb-0 alert-' + (type||'secondary');
+      el.textContent = msg;
+    }
+
+    function esc(t) { var d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+    document.getElementById('translateRunBtn').addEventListener('click', async function(){
+      var source = document.getElementById('translateSource').value;
+      var target = document.getElementById('translateTarget').value;
+      var fields = Array.from(document.querySelectorAll('.translate-field-cb:checked')).map(function(cb){ return {field:cb.value, label:cb.dataset.label}; });
+      if (!fields.length) { showStatus('Select at least one field.','danger'); return; }
+      if (source===target) { showStatus('Source and target must differ.','danger'); return; }
+
+      this.disabled = true;
+      results = [];
+      var csrfToken = (document.querySelector('meta[name="csrf-token"]')||{}).content||'';
+
+      for (var i=0; i<fields.length; i++) {
+        showStatus('Translating '+(i+1)+'/'+fields.length+': '+fields[i].label+'...','info');
+        try {
+          var body = new URLSearchParams({field:fields[i].field, targetField:fields[i].field, source:source, target:target, apply:'0', saveCulture:'0', overwrite:'0'});
+          var res = await fetch('/admin/translation/translate/'+objectSlug, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRF-TOKEN':csrfToken}, body:body});
+          var json = await res.json();
+          results.push({field:fields[i].field, label:fields[i].label, ok:json.ok||json.success, translation:json.translation||'', sourceText:json.source_text||'', draft_id:json.draft_id, error:json.error});
+        } catch(e) { results.push({field:fields[i].field, label:fields[i].label, ok:false, error:e.message}); }
+      }
+      this.disabled = false;
+      document.getElementById('translateStatus').style.display = 'none';
+
+      var html = '';
+      results.forEach(function(r,idx){
+        var badge = r.ok?'<span class="badge bg-success">OK</span>':'<span class="badge bg-danger">Failed</span>';
+        html += '<div class="card mb-2"><div class="card-header py-2">'+badge+' <strong class="ms-2">'+esc(r.label)+'</strong></div><div class="card-body">';
+        if (r.ok) {
+          html += '<div class="row"><div class="col-md-6"><label class="form-label small fw-bold text-muted">Source</label><div class="border rounded p-2 bg-light small" style="max-height:120px;overflow-y:auto;">'+esc(r.sourceText||'(empty)')+'</div></div>';
+          html += '<div class="col-md-6"><label class="form-label small fw-bold text-success"><i class="fas fa-arrow-right me-1"></i>Translation</label><textarea class="form-control small translated-text" data-field="'+r.field+'" data-draft-id="'+(r.draft_id||'')+'" rows="3">'+esc(r.translation)+'</textarea></div></div>';
+        } else { html += '<div class="alert alert-danger mb-0 small">'+esc(r.error||'Failed')+'</div>'; }
+        html += '</div></div>';
       });
+      document.getElementById('translatePreview').innerHTML = html;
+      showStep(2);
     });
-  });
+
+    document.getElementById('translateBackBtn').addEventListener('click', function(){ showStep(1); document.getElementById('translateStatus').style.display='none'; });
+
+    document.getElementById('translateApproveBtn').addEventListener('click', async function(){
+      this.disabled = true;
+      var target = document.getElementById('translateTarget').value;
+      var saveCulture = document.getElementById('translateSaveCulture').checked?'1':'0';
+      var overwrite = document.getElementById('translateOverwrite').checked?'1':'0';
+      var csrfToken = (document.querySelector('meta[name="csrf-token"]')||{}).content||'';
+      var saved=0, failed=0;
+
+      var textareas = document.querySelectorAll('.translated-text');
+      for (var ta of textareas) {
+        if (!ta.dataset.draftId) continue;
+        showStatus('Saving '+(saved+failed+1)+'/'+textareas.length+'...','info');
+        try {
+          var body = new URLSearchParams({draftId:ta.dataset.draftId, overwrite:overwrite, saveCulture:saveCulture, targetCulture:target, editedText:ta.value});
+          var res = await fetch('/admin/translation/apply', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRF-TOKEN':csrfToken}, body:body});
+          var json = await res.json();
+          if (json.ok||json.success) saved++; else failed++;
+        } catch(e) { failed++; }
+      }
+      this.disabled = false;
+      if (failed===0) { showStatus('Saved '+saved+' translation(s) with culture "'+target+'".','success'); setTimeout(function(){location.reload();},2000); }
+      else { showStatus('Saved: '+saved+', Failed: '+failed,'warning'); }
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', function(){ showStep(1); document.getElementById('translateStatus').style.display='none'; document.getElementById('translatePreview').innerHTML=''; results=[]; });
+  })();
   </script>
   @endauth
 @endsection
