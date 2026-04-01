@@ -6,7 +6,7 @@ use AhgCore\Models\Accession;
 use Database\Factories\AccessionFactory;
 use Database\Factories\ActorFactory;
 use Database\Factories\InformationObjectFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -24,7 +24,7 @@ use Tests\TestCase;
  */
 class AccessionCrudTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected AccessionFactory $accessionFactory;
     protected ActorFactory $actorFactory;

@@ -6,7 +6,7 @@ use AhgCore\Models\InformationObject;
 use Database\Factories\InformationObjectFactory;
 use Database\Factories\ActorFactory;
 use Database\Factories\TermFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -23,7 +23,7 @@ use Tests\TestCase;
  */
 class InformationObjectApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected InformationObjectFactory $ioFactory;
     protected ActorFactory $actorFactory;

@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use AhgCore\Models\Term;
 use Database\Factories\TermFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class TermApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected TermFactory $termFactory;
 

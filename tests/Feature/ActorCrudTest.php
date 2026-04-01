@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use AhgCore\Models\Actor;
 use Database\Factories\ActorFactory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -22,7 +22,7 @@ use Tests\TestCase;
  */
 class ActorCrudTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected ActorFactory $actorFactory;
 
