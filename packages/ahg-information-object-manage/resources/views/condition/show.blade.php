@@ -199,7 +199,8 @@
             <div class="col-md-3 col-sm-6 mb-4">
               <div class="card h-100">
                 <div class="position-relative">
-                  <img src="{{ $imgSrc }}" class="card-img-top" alt="{{ $photo->caption ?? '' }}" style="height:180px;object-fit:cover;">
+                  <img src="{{ $imgSrc }}" class="card-img-top" alt="{{ $photo->caption ?? '' }}" style="height:180px;object-fit:cover;cursor:pointer;"
+                       data-action="annotate" data-photo-id="{{ $photo->id }}" data-image-src="{{ $imgSrc }}">
                   <span class="badge bg-info position-absolute top-0 end-0 m-2">{{ $photoTypes[$photo->image_type] ?? 'Other' }}</span>
                   @if($annCount > 0)
                     <span class="badge bg-warning position-absolute top-0 start-0 m-2">
@@ -287,6 +288,12 @@
         </div>
         <div id="aiScanResult" style="display:none"></div>
       </div>
+      <div class="modal-footer" id="aiScanFooter" style="display:none">
+        <a href="#" id="aiScanViewFull" class="btn btn-primary btn-sm" target="_blank">
+          <i class="fas fa-eye me-1"></i>View Full Report
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -328,6 +335,37 @@ window.AHG_CONDITION.confirmDelete = 'Are you sure you want to delete this photo
     });
   });
 
+  // Patch ConditionAnnotator.save to include CSRF token
+  var _origSave = ConditionAnnotator.prototype.save;
+  ConditionAnnotator.prototype.save = function() {
+    var self = this;
+    if (!this.options.photoId) {
+      this.setStatus('Error: No photo ID');
+      return Promise.reject('No photo ID');
+    }
+    this.setStatus('Saving...');
+    var annotations = this.toJSON();
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    return fetch(this.options.saveUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken ? csrfToken.content : '',
+      },
+      body: JSON.stringify({ photo_id: this.options.photoId, annotations: annotations }),
+    }).then(function(res) { return res.json(); }).then(function(data) {
+      if (data.success) {
+        self.isDirty = false;
+        self.setStatus('Saved ' + annotations.length + ' annotations');
+        return Promise.resolve();
+      }
+      throw new Error(data.error || 'Save failed');
+    }).catch(function(e) {
+      self.setStatus('Save failed: ' + e.message);
+      return Promise.reject(e);
+    });
+  };
+
   function openAnnotator(photoId, imageSrc) {
     if (!photoId || !imageSrc) return;
     if (currentAnnotator) {
@@ -368,15 +406,22 @@ window.AHG_CONDITION.confirmDelete = 'Are you sure you want to delete this photo
     document.getElementById('aiScanResult').style.display = 'none';
     modal.show();
 
-    fetch('/admin/ai/condition/assess?photo_id=' + photoId, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    var csrfToken = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+    var formData = new URLSearchParams();
+    formData.append('photo_id', photoId);
+    formData.append('object_id', window.AHG_CONDITION.objectId || '');
+    formData.append('material_type', window.AHG_CONDITION.materialType || 'unknown');
+
+    fetch('/condition/ai-assess', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRF-TOKEN': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: formData.toString(),
     })
-    .then(function(r) {
-      if (!r.ok || (r.headers.get('content-type') || '').indexOf('json') === -1) {
-        throw new Error('AI Condition service unavailable (HTTP ' + r.status + ')');
-      }
-      return r.json();
-    })
+    .then(function(r) { return r.json(); })
     .then(function(data) {
       document.getElementById('aiScanLoading').style.display = 'none';
       var el = document.getElementById('aiScanResult');
@@ -396,8 +441,16 @@ window.AHG_CONDITION.confirmDelete = 'Are you sure you want to delete this photo
         });
         html += '</ul>';
       }
-      if (data.recommendations) html += '<p class="small text-muted">' + data.recommendations + '</p>';
+      if (data.recommendations) html += '<h6>Recommendations</h6><p class="small text-muted">' + data.recommendations + '</p>';
       el.innerHTML = html;
+      document.getElementById('aiScanFooter').style.display = '';
+      var viewBtn = document.getElementById('aiScanViewFull');
+      if (data.condition_check_id) {
+        viewBtn.href = '/condition/check/' + data.condition_check_id + '/photos';
+        viewBtn.style.display = '';
+      } else {
+        viewBtn.style.display = 'none';
+      }
     })
     .catch(function(err) {
       document.getElementById('aiScanLoading').style.display = 'none';

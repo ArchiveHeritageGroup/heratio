@@ -291,7 +291,7 @@ class ConditionController extends Controller
         ]);
 
         $file = $request->file('photo');
-        $dir = public_path('uploads/condition_photos');
+        $dir = '/usr/share/nginx/archive/uploads/condition_photos';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
@@ -334,14 +334,22 @@ class ConditionController extends Controller
      */
     public function annotation(Request $request, int $id)
     {
+        // Check both condition_image and spectrum_condition_photo tables
         $photo = DB::table('condition_image')->where('id', $id)->first();
+        $table = 'condition_image';
+
+        if (!$photo) {
+            $photo = DB::table('spectrum_condition_photo')->where('id', $id)->first();
+            $table = 'spectrum_condition_photo';
+        }
+
         if (!$photo) {
             return response()->json(['success' => false, 'error' => 'Photo not found'], 404);
         }
 
         if ($request->isMethod('post')) {
             $annotations = $request->input('annotations', []);
-            DB::table('condition_image')->where('id', $id)->update([
+            DB::table($table)->where('id', $id)->update([
                 'annotations' => json_encode($annotations),
             ]);
             return response()->json(['success' => true]);
@@ -351,6 +359,178 @@ class ConditionController extends Controller
             'success' => true,
             'annotations' => $photo->annotations ? json_decode($photo->annotations, true) : [],
         ]);
+    }
+
+    /**
+     * AI Condition Assessment — POST JSON endpoint.
+     * Calls the AI condition service on server 78.
+     */
+    public function aiAssess(Request $request)
+    {
+        $photoId = (int) $request->input('photo_id');
+        $objectId = (int) $request->input('object_id');
+
+        if (!$photoId) {
+            return response()->json(['success' => false, 'error' => 'photo_id required']);
+        }
+
+        // Find the photo in either table
+        $photo = DB::table('spectrum_condition_photo')->where('id', $photoId)->first();
+        if (!$photo) {
+            $photo = DB::table('condition_image')->where('id', $photoId)->first();
+        }
+        if (!$photo) {
+            return response()->json(['success' => false, 'error' => 'Photo not found']);
+        }
+
+        $filePath = $photo->file_path ?? ('/uploads/condition_photos/' . ($photo->filename ?? ''));
+        $fullPath = '/usr/share/nginx/archive' . $filePath;
+
+        if (!file_exists($fullPath)) {
+            return response()->json(['success' => false, 'error' => 'Image file not found: ' . $filePath]);
+        }
+
+        // Call Ollama LLaVA vision model for condition assessment
+        try {
+            $ollamaUrl = DB::table('ahg_settings')
+                ->where('setting_key', 'voice_local_llm_url')
+                ->value('setting_value') ?: 'http://localhost:11434';
+            $model = DB::table('ahg_settings')
+                ->where('setting_key', 'voice_local_llm_model')
+                ->value('setting_value') ?: 'llava:7b';
+
+            $materialType = $request->input('material_type', 'unknown');
+            $materialHint = $materialType !== 'unknown' ? "The object is made of {$materialType}. " : '';
+
+            $prompt = "You are a professional conservator assessing the physical condition of a cultural heritage object from a photograph. {$materialHint}Analyze this image and provide a structured condition assessment.\n\nRespond in EXACTLY this format (one item per line):\n\nRATING: [one of: excellent, good, fair, poor, critical]\nSEVERITY: [one of: minor, moderate, severe, critical]\nDAMAGE: [comma-separated list from: tear, stain, foxing, fading, water_damage, mold, pest_damage, abrasion, brittleness, loss, crack, corrosion, discolouration, deformation, dust, none]\nDESCRIPTION: [2-3 sentences describing the visible condition]\nRECOMMENDATIONS: [1-2 sentences on conservation treatment needed]\n\nBe specific about what you observe. If the object appears in good condition with no visible damage, say so. Do not invent damage that is not visible.";
+
+            $imageBase64 = base64_encode(file_get_contents($fullPath));
+
+            $ch = curl_init($ollamaUrl . '/api/generate');
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => json_encode([
+                    'model' => $model,
+                    'prompt' => $prompt,
+                    'images' => [$imageBase64],
+                    'stream' => false,
+                ]),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 60,
+                CURLOPT_CONNECTTIMEOUT => 5,
+            ]);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode !== 200 || !$response) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Ollama returned HTTP ' . $httpCode . ($curlError ? ' (' . $curlError . ')' : ''),
+                ]);
+            }
+
+            $ollamaResult = json_decode($response, true);
+            $rawText = $ollamaResult['response'] ?? '';
+
+            // Parse line-based response (matching AtoM ConditionAIService::parseResponse)
+            $validRatings = ['excellent', 'good', 'fair', 'poor', 'critical'];
+            $validSeverities = ['minor', 'moderate', 'severe', 'critical'];
+            $validDamageTypes = ['tear','stain','foxing','fading','water_damage','mold','pest_damage','abrasion','brittleness','loss','crack','corrosion','discolouration','deformation','dust'];
+            $damageSynonyms = [
+                'water'=>'water_damage','moisture'=>'water_damage','wet'=>'water_damage',
+                'mould'=>'mold','fungus'=>'mold','fungal'=>'mold',
+                'insect'=>'pest_damage','pest'=>'pest_damage','bug'=>'pest_damage',
+                'fade'=>'fading','faded'=>'fading',
+                'torn'=>'tear','rip'=>'tear','split'=>'tear',
+                'rust'=>'corrosion','oxidation'=>'corrosion','tarnish'=>'corrosion',
+                'brittle'=>'brittleness','fragile'=>'brittleness',
+                'missing'=>'loss','lacuna'=>'loss',
+                'warp'=>'deformation','warped'=>'deformation','buckle'=>'deformation',
+                'discolor'=>'discolouration','yellowing'=>'discolouration',
+                'dirty'=>'dust','grime'=>'dust','soiled'=>'dust',
+            ];
+
+            $result = [
+                'success' => true,
+                'overall_rating' => 'fair',
+                'severity' => 'moderate',
+                'damage_types' => [],
+                'description' => '',
+                'recommendations' => '',
+            ];
+
+            foreach (explode("\n", $rawText) as $line) {
+                $line = trim($line);
+                if (preg_match('/^RATING:\s*(.+)/i', $line, $m)) {
+                    $r = strtolower(trim($m[1]));
+                    if (in_array($r, $validRatings)) $result['overall_rating'] = $r;
+                } elseif (preg_match('/^SEVERITY:\s*(.+)/i', $line, $m)) {
+                    $s = strtolower(trim($m[1]));
+                    if (in_array($s, $validSeverities)) $result['severity'] = $s;
+                } elseif (preg_match('/^DAMAGE:\s*(.+)/i', $line, $m)) {
+                    $damages = array_map('trim', explode(',', strtolower($m[1])));
+                    foreach ($damages as $d) {
+                        $d = str_replace(' ', '_', $d);
+                        if ($d === 'none') continue;
+                        $matched = in_array($d, $validDamageTypes) ? $d : ($damageSynonyms[$d] ?? null);
+                        if ($matched) {
+                            $result['damage_types'][] = [
+                                'type' => $matched,
+                                'severity' => $result['severity'],
+                            ];
+                        }
+                    }
+                } elseif (preg_match('/^DESCRIPTION:\s*(.+)/i', $line, $m)) {
+                    $result['description'] = trim($m[1]);
+                } elseif (preg_match('/^RECOMMENDATIONS?:\s*(.+)/i', $line, $m)) {
+                    $result['recommendations'] = trim($m[1]);
+                }
+            }
+
+            if (empty($result['description'])) {
+                $result['description'] = $rawText;
+            }
+
+            // Save as a new condition check (matching AtoM ConditionAIService::analyzeAndSave)
+            $priorityMap = ['minor' => 'low', 'moderate' => 'normal', 'severe' => 'high', 'critical' => 'urgent'];
+            $checkId = DB::table('spectrum_condition_check')->insertGetId([
+                'object_id' => $objectId ?: ($photo->condition_check_id ? DB::table('spectrum_condition_check')->where('id', $photo->condition_check_id)->value('object_id') : null),
+                'check_date' => now(),
+                'checked_by' => 'AI (llava:7b)',
+                'overall_condition' => $result['overall_rating'],
+                'condition_rating' => $result['overall_rating'],
+                'condition_description' => $result['description'],
+                'recommended_treatment' => $result['recommendations'],
+                'treatment_priority' => $priorityMap[$result['severity']] ?? 'normal',
+                'photo_count' => 1,
+                'workflow_state' => 'completed',
+                'condition_note' => 'AI-generated assessment via Ollama LLaVA',
+                'created_by' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Save damage records
+            foreach ($result['damage_types'] as $dmg) {
+                DB::table('condition_damage')->insert([
+                    'condition_report_id' => $checkId,
+                    'damage_type' => $dmg['type'],
+                    'severity' => $dmg['severity'] ?? $result['severity'],
+                    'location' => 'overall',
+                    'treatment_required' => $result['severity'] !== 'minor' ? 1 : 0,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $result['condition_check_id'] = $checkId;
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'AI service error: ' . $e->getMessage()]);
+        }
     }
 
     /**
