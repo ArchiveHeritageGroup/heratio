@@ -199,11 +199,23 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
 
 /*
 |--------------------------------------------------------------------------
-| Legacy / Additional API Routes
+| Legacy API Routes (for test compatibility)
 |--------------------------------------------------------------------------
 */
 
 Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function () {
+    // Legacy routes for backward compatibility with tests
+    Route::get('actor', [ActorApiController::class, 'index'])->name('api.actor.index');
+    Route::get('actor/{id}', [ActorApiController::class, 'show'])->name('api.actor.show');
+    Route::post('actor', [ActorApiController::class, 'store'])->middleware('api.auth:write');
+    
+    Route::get('term', [TaxonomyApiController::class, 'terms'])->name('api.term.index');
+    Route::get('term/{id}', [TaxonomyApiController::class, 'terms'])->name('api.term.show');
+    
+    Route::get('records', [InformationObjectApiController::class, 'index'])->name('api.records.index');
+    Route::get('records/{slug}', [InformationObjectApiController::class, 'show'])->name('api.records.show');
+    Route::post('records', [InformationObjectApiController::class, 'store'])->middleware('api.auth:write');
+    
     Route::match(['get', 'post'], 'search/io', [LegacyApiController::class, 'searchIo']);
     Route::match(['get', 'post'], 'autocomplete/glam', [LegacyApiController::class, 'autocompleteGlam']);
     Route::get('export-preview', [LegacyApiController::class, 'exportPreview']);

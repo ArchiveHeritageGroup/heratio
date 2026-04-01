@@ -23,8 +23,9 @@ Route::middleware(['auth', 'admin'])->prefix('semantic-search/admin')->group(fun
 // AJAX endpoints (legacy camelCase aliases)
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/semanticSearchAdmin/runSync', [SemanticSearchController::class, 'runSync'])->name('semantic-search.runSync');
-    Route::post('/semanticSearchAdmin/testExpand', [SemanticSearchController::class, 'testExpand'])->name('semantic-search.testExpand');
 });
+// testExpand is public (called from browse semantic search modal)
+Route::match(['get', 'post'], '/semanticSearchAdmin/testExpand', [SemanticSearchController::class, 'testExpand'])->name('semantic-search.testExpand');
 
 // Legacy admin URL aliases
 Route::middleware(['auth', 'admin'])->group(function () {

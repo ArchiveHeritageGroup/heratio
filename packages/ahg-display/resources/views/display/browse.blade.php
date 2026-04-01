@@ -364,12 +364,11 @@
           @endif
         @endforeach
         <div class="modal-body">
-          <div class="mb-3 position-relative">
+          <div class="mb-3">
             <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
                    value="{{ $queryFilter ?? '' }}" placeholder="Enter your search terms..."
-                   autocomplete="off" autofocus>
-            <div id="semantic-autocomplete" class="list-group position-absolute shadow-sm" style="display:none; z-index:1060; max-height:300px; overflow-y:auto; width:100%;"></div>
+                   autofocus>
           </div>
           <div class="mb-3">
             <div class="form-check form-switch">
@@ -407,71 +406,63 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Semantic modal: toggle preview visibility
+  // Semantic modal: query expansion preview
+  var semQueryInput = document.getElementById('semantic-query');
   var semToggle = document.getElementById('semantic-toggle');
   var semPreview = document.getElementById('semantic-expansion-preview');
-  if (semToggle && semPreview) {
-    semToggle.addEventListener('change', function() {
-      semPreview.classList.toggle('browse-hidden', !this.checked);
-    });
-    if (semToggle.checked) { semPreview.classList.remove('browse-hidden'); }
+  var semPreviewContent = document.getElementById('semantic-preview-content');
+  var semDebounce = null;
+
+  function updateExpansionPreview() {
+    if (!semQueryInput || !semToggle || !semPreview || !semPreviewContent) return;
+    var query = semQueryInput.value.trim();
+    var enabled = semToggle.checked;
+
+    if (!query || !enabled) {
+      semPreview.classList.add('browse-hidden');
+      return;
+    }
+
+    semPreview.classList.remove('browse-hidden');
+    semPreviewContent.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Loading expansions...';
+
+    fetch('{{ route("semantic-search.testExpand") }}?query=' + encodeURIComponent(query))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success && data.expansions && Object.keys(data.expansions).length > 0) {
+          var html = '';
+          for (var term in data.expansions) {
+            html += '<div class="mb-2"><strong>' + escapeHtml(term) + '</strong> <i class="fas fa-arrow-right text-muted mx-1"></i> ';
+            html += data.expansions[term].map(function(s) {
+              return '<span class="badge bg-secondary me-1">' + escapeHtml(s) + '</span>';
+            }).join('');
+            html += '</div>';
+          }
+          semPreviewContent.innerHTML = html;
+        } else {
+          semPreviewContent.innerHTML = '<span class="text-muted">No expansions found for this query.</span>';
+        }
+      })
+      .catch(function() {
+        semPreviewContent.innerHTML = '<span class="text-danger">Error loading expansions.</span>';
+      });
   }
 
-  // Autocomplete for semantic search query input
-  (function() {
-    var input = document.getElementById('semantic-query');
-    var dropdown = document.getElementById('semantic-autocomplete');
-    if (!input || !dropdown) return;
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
-    var debounceTimer = null;
-
-    input.addEventListener('input', function() {
-      clearTimeout(debounceTimer);
-      var q = this.value.trim();
-      if (q.length < 2) { dropdown.style.display = 'none'; return; }
-
-      debounceTimer = setTimeout(function() {
-        fetch('/api/autocomplete/glam?query=' + encodeURIComponent(q))
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            var results = data.results || data || [];
-            if (!results.length) { dropdown.style.display = 'none'; return; }
-
-            dropdown.innerHTML = '';
-            results.forEach(function(item) {
-              var a = document.createElement('a');
-              a.href = '#';
-              a.className = 'list-group-item list-group-item-action py-2 px-3';
-              var typeIcons = {description:'fa-file-alt',authority:'fa-user',repository:'fa-building',term:'fa-tag'};
-              var icon = typeIcons[item.type] || 'fa-search';
-              a.innerHTML = '<i class="fas ' + icon + ' me-2 text-muted"></i>' +
-                '<span>' + (item.label || item.title || '') + '</span>' +
-                (item.type ? '<small class="text-muted ms-2">(' + item.type + ')</small>' : '');
-              a.addEventListener('click', function(e) {
-                e.preventDefault();
-                input.value = item.label || item.title || '';
-                dropdown.style.display = 'none';
-              });
-              dropdown.appendChild(a);
-            });
-            dropdown.style.display = 'block';
-          })
-          .catch(function() { dropdown.style.display = 'none'; });
-      }, 250);
+  if (semQueryInput) {
+    semQueryInput.addEventListener('input', function() {
+      clearTimeout(semDebounce);
+      semDebounce = setTimeout(updateExpansionPreview, 500);
     });
-
-    // Hide dropdown on click outside
-    document.addEventListener('click', function(e) {
-      if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = 'none';
-      }
-    });
-
-    // Hide on Escape
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') dropdown.style.display = 'none';
-    });
-  })();
+  }
+  if (semToggle) {
+    semToggle.addEventListener('change', updateExpansionPreview);
+  }
 
   // Table column resize
   document.querySelectorAll('.browse-table th .resize-handle').forEach(function(handle) {

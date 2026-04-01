@@ -209,11 +209,22 @@ class SemanticSearchController extends Controller
     public function testExpand(Request $request)
     {
         $query = $request->input('query', '');
-        $expanded = $this->service->expandQuery($query);
 
-        return response()->json([
-            'original' => $query,
-            'expanded' => $expanded,
-        ]);
+        try {
+            $expanded = $this->service->expandQuery($query);
+            $expansions = $expanded['expanded_terms'] ?? $expanded;
+
+            return response()->json([
+                'success' => true,
+                'original' => $query,
+                'expansions' => $expansions,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'expansions' => [],
+            ]);
+        }
     }
 }
