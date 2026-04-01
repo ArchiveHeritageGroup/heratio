@@ -610,84 +610,18 @@
           }
           $isSketchfab = str_contains($masterObj->path, 'sketchfab.com');
           $embedLabel = $isSketchfab ? 'Sketchfab 3D' : 'Embed';
-          $iiifManifestUrl = route('iiif-collection.object-manifest', $io->slug);
-          $evId = 'embed-viewer-' . $io->id;
         @endphp
 
-        {{-- Viewer toggle buttons --}}
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="btn-group btn-group-sm" role="group">
-            <button id="btn-embed-{{ $evId }}" class="btn atom-btn-white active" title="{{ $embedLabel }}">
-              <i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}
-            </button>
-            <button id="btn-iiif-{{ $evId }}" class="btn atom-btn-white" title="IIIF Viewer">
-              <i class="fas fa-columns me-1"></i>IIIF
-            </button>
-          </div>
-          <div class="btn-group btn-group-sm">
-            <a href="{{ $masterObj->path }}" target="_blank" class="btn atom-btn-white" title="Open on original site">
-              <i class="fas fa-external-link-alt"></i>
-            </a>
-            <a href="{{ $iiifManifestUrl }}" target="_blank" class="btn atom-btn-white" title="IIIF Manifest">
-              <img src="https://iiif.io/assets/images/logos/logo-sm.png" alt="IIIF" style="height:16px;">
-            </a>
-          </div>
+          <span class="badge bg-primary"><i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}</span>
+          <a href="{{ $masterObj->path }}" target="_blank" class="btn btn-sm atom-btn-white" title="Open on original site">
+            <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
+          </a>
         </div>
 
-        {{-- Embed container --}}
-        <div id="embed-{{ $evId }}">
-          <div class="ratio" style="--bs-aspect-ratio: 56.25%;">
-            <iframe src="{{ $embedUrl }}" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking"
-                    allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
-                    style="border-radius:8px;"></iframe>
-          </div>
-        </div>
-
-        {{-- IIIF Mirador container (hidden) --}}
-        <div id="iiif-{{ $evId }}" style="display:none;">
-          <div id="mirador-{{ $evId }}" style="width:100%;height:500px;border-radius:8px;background:#1a1a2e;"></div>
-        </div>
-
-        <script nonce="{{ $cspNonce ?? '' }}">
-        document.addEventListener('DOMContentLoaded', function() {
-          var embedBtn = document.getElementById('btn-embed-{{ $evId }}');
-          var iiifBtn = document.getElementById('btn-iiif-{{ $evId }}');
-          var embedDiv = document.getElementById('embed-{{ $evId }}');
-          var iiifDiv = document.getElementById('iiif-{{ $evId }}');
-          var miradorLoaded = false;
-
-          embedBtn.addEventListener('click', function() {
-            embedDiv.style.display = '';
-            iiifDiv.style.display = 'none';
-            embedBtn.classList.add('active');
-            iiifBtn.classList.remove('active');
-          });
-
-          iiifBtn.addEventListener('click', function() {
-            embedDiv.style.display = 'none';
-            iiifDiv.style.display = '';
-            iiifBtn.classList.add('active');
-            embedBtn.classList.remove('active');
-
-            if (!miradorLoaded) {
-              miradorLoaded = true;
-              var script = document.createElement('script');
-              script.src = '{{ asset("vendor/ahg-theme-b5/js/vendor/mirador.min.js") }}';
-              script.onload = function() {
-                if (typeof Mirador !== 'undefined') {
-                  Mirador.viewer({
-                    id: 'mirador-{{ $evId }}',
-                    windows: [{ manifestId: '{{ $iiifManifestUrl }}' }],
-                    window: { allowClose: false, allowMaximize: true, allowFullscreen: true },
-                    workspaceControlPanel: { enabled: false },
-                  });
-                }
-              };
-              document.head.appendChild(script);
-            }
-          });
-        });
-        </script>
+        <iframe src="{{ $embedUrl }}" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking"
+                allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
+                style="width:100%;height:500px;border-radius:8px;border:none;"></iframe>
 
       @else
         {{-- No displayable object: show download link --}}
