@@ -1307,6 +1307,17 @@ class InformationObjectController extends Controller
             // museum_metadata table may not exist in all installs
         }
 
+        // Provenance chain (from provenance_entry table — CCO custody history)
+        $provenanceEntries = collect();
+        try {
+            $provenanceEntries = DB::table('provenance_entry')
+                ->where('information_object_id', $io->id)
+                ->orderBy('sequence', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            // provenance_entry table may not exist in all installs
+        }
+
         // Previous sibling
         $prevSibling = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -1476,6 +1487,7 @@ class InformationObjectController extends Controller
             'nerEntityCount' => $nerEntityCount,
             'displayStandardOptions' => $displayStandardOptions,
             'auditLogEnabled' => $auditLogEnabled,
+            'provenanceEntries' => $provenanceEntries,
         ]);
     }
 

@@ -54,23 +54,13 @@ class ProvenanceController extends Controller
             abort(404);
         }
 
-        $events    = $this->service->getChain($io->id);
-        $documents = collect(); // Documents are in provenance_document if present
-
-        try {
-            $documents = DB::table('provenance_document')
-                ->where('provenance_record_id', $io->id)
-                ->orderBy('created_at', 'asc')
-                ->get();
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Table may not exist yet; graceful fallback
-            $documents = collect();
-        }
+        $events       = $this->service->getChain($io->id);
+        $timelineData = json_decode($this->service->getTimelineData($io->id), true);
 
         return view('ahg-io-manage::provenance.index', [
-            'io'        => $io,
-            'events'    => $events,
-            'documents' => $documents,
+            'io'           => $io,
+            'events'       => $events,
+            'timelineData' => $timelineData,
         ]);
     }
 
@@ -221,7 +211,7 @@ class ProvenanceController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
             ->first();
     }
 }

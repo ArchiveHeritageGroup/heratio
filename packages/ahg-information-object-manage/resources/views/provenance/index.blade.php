@@ -1,604 +1,345 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit Provenance — ' . ($io->title ?? ''))
+@section('title', 'Provenance History — ' . ($io->title ?? ''))
 
 @section('content')
 <div class="container py-3">
-  <!-- Breadcrumb -->
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? $io->slug }}</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('io.provenance', $io->slug) }}">Provenance</a></li>
-      <li class="breadcrumb-item active">Edit</li>
-    </ol>
-  </nav>
 
-  <form method="post" id="provenanceForm" enctype="multipart/form-data">
-    @csrf
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h4 class="mb-1"><i class="bi bi-clock-history me-2"></i>Edit Provenance</h4>
-        <p class="text-muted mb-0">{{ $io->title ?? $io->slug }}</p>
+  <h1>Provenance History</h1>
+
+  <div class="object-info mb-3">
+    <p>
+      <strong>{{ $io->identifier ?? '' }}</strong> -
+      {{ $io->title ?? '' }}
+    </p>
+  </div>
+
+  {{-- Back button --}}
+  <div class="provenance-navigation mb-4">
+    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Archival Description
+    </a>
+  </div>
+
+  {{-- Timeline Container --}}
+  <div id="provenance-timeline" class="provenance-timeline-container">
+    <div class="timeline-loading">Loading timeline...</div>
+  </div>
+
+  {{-- Ownership History Table --}}
+  <div class="provenance-table-section">
+    <h2>Ownership History</h2>
+
+    @if($events->isNotEmpty())
+      <table class="table table-striped provenance-table">
+        <thead>
+          <tr>
+            <th width="5%">#</th>
+            <th width="25%">Owner</th>
+            <th width="15%">Location</th>
+            <th width="15%">Period</th>
+            <th width="15%">Transfer</th>
+            <th width="10%">Certainty</th>
+            @auth
+              <th width="15%">Actions</th>
+            @endauth
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($events as $entry)
+            <tr class="{{ $entry->is_gap ? 'table-warning' : '' }}">
+              <td>{{ $entry->sequence }}</td>
+              <td>
+                <strong>{{ $entry->owner_name }}</strong>
+                @if($entry->owner_type && $entry->owner_type !== 'unknown')
+                  <br><small class="text-muted">{{ ucfirst(str_replace('_', ' ', $entry->owner_type)) }}</small>
+                @endif
+              </td>
+              <td>
+                @if($entry->owner_location)
+                  {{ $entry->owner_location }}
+                  @if($entry->owner_location_tgn)
+                    <br><a href="{{ $entry->owner_location_tgn }}" target="_blank" class="small">
+                      <i class="fas fa-external-link-alt"></i> TGN
+                    </a>
+                  @endif
+                @endif
+              </td>
+              <td>
+                @if($entry->start_date && $entry->end_date)
+                  {{ $entry->start_date }} - {{ $entry->end_date }}
+                @elseif($entry->start_date)
+                  {{ $entry->start_date }} - present
+                @elseif($entry->end_date)
+                  until {{ $entry->end_date }}
+                @else
+                  Unknown
+                @endif
+              </td>
+              <td>{{ ucfirst(str_replace('_', ' ', $entry->transfer_type ?? '')) }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ ucfirst($entry->certainty ?? 'unknown') }}</span>
+              </td>
+              @auth
+                <td>
+                  <button class="btn btn-sm btn-outline-primary edit-entry" data-id="{{ $entry->id }}">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <form method="POST" action="{{ route('io.provenance.delete', $entry->id) }}" class="d-inline" onsubmit="return confirm('Delete this entry?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              @endauth
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    @else
+      <div class="alert alert-info">
+        No provenance information recorded for this object.
       </div>
-      <div>
-        <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-white me-2"><i class="bi bi-arrow-left me-1"></i>Back to Record</a>
-        <a href="{{ route('io.provenance', $io->slug) }}" class="btn atom-btn-white me-2">Cancel</a>
-        <button type="submit" class="btn atom-btn-outline-success">
-          <i class="bi bi-check-lg me-1"></i> Save Provenance
+    @endif
+
+    @auth
+      <div class="provenance-actions mt-3">
+        <button class="btn btn-primary" id="add-entry">
+          <i class="fas fa-plus"></i> Add Provenance Entry
         </button>
       </div>
-    </div>
+    @endauth
+  </div>
 
-    <div class="row">
-      <!-- Main Form -->
-      <div class="col-lg-8">
-
-        <!-- Provenance Summary -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Provenance Summary</h6>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="form-label">Provenance Statement <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="provenance_summary" class="form-control" rows="4" placeholder="Enter a human-readable summary of the item's provenance...">{{ old('provenance_summary', $io->provenance_summary ?? '') }}</textarea>
-              <small class="text-muted">This summary will be displayed publicly. Leave blank to auto-generate from events.</small>
-            </div>
-          </div>
+  {{-- Add/Edit Entry Modal --}}
+  @auth
+  <div class="modal fade" id="entry-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Provenance Entry</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <form id="entry-form" method="POST" action="{{ route('io.provenance.store', $io->slug) }}">
+            @csrf
+            <input type="hidden" name="entry_id" id="entry-id">
 
-        <!-- Acquisition Details -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-cart-check me-2"></i>Acquisition Details</h6>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <label for="owner_name" class="form-label">Owner Name *</label>
+                <input type="text" class="form-control" name="owner_name" id="owner_name" required>
+              </div>
               <div class="col-md-4">
-                <label class="form-label">Acquisition Type <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="acquisition_type" class="form-select">
-                  <option value="">-- Select --</option>
-                  <option value="purchase" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'purchase')>Purchase</option>
-                  <option value="gift" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'gift')>Gift</option>
-                  <option value="donation" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'donation')>Donation</option>
-                  <option value="bequest" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'bequest')>Bequest</option>
-                  <option value="transfer" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'transfer')>Transfer</option>
-                  <option value="deposit" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'deposit')>Deposit</option>
-                  <option value="loan" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'loan')>Loan</option>
-                  <option value="exchange" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'exchange')>Exchange</option>
-                  <option value="commission" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'commission')>Commission</option>
-                  <option value="field_collection" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'field_collection')>Field Collection</option>
-                  <option value="salvage" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'salvage')>Salvage</option>
-                  <option value="repatriation" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'repatriation')>Repatriation</option>
-                  <option value="unknown" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'unknown')>Unknown</option>
-                  <option value="other" @selected(old('acquisition_type', $io->acquisition_type ?? '') === 'other')>Other</option>
+                <label for="owner_type" class="form-label">Owner Type</label>
+                <select class="form-select" name="owner_type" id="owner_type">
+                  <option value="unknown">Unknown</option>
+                  <option value="person">Person</option>
+                  <option value="family">Family</option>
+                  <option value="dealer">Dealer</option>
+                  <option value="auction_house">Auction House</option>
+                  <option value="museum">Museum</option>
+                  <option value="corporate">Corporate</option>
+                  <option value="government">Government</option>
+                  <option value="religious">Religious</option>
+                  <option value="artist">Artist</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <label for="owner_location" class="form-label">Location</label>
+                <input type="text" class="form-control" name="owner_location" id="owner_location" placeholder="City, Country">
+              </div>
+              <div class="col-md-4">
+                <label for="certainty" class="form-label">Certainty</label>
+                <select class="form-select" name="certainty" id="certainty">
+                  <option value="certain">Certain</option>
+                  <option value="probable">Probable</option>
+                  <option value="possible">Possible</option>
+                  <option value="uncertain">Uncertain</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="text" class="form-control" name="start_date" id="start_date" placeholder="YYYY or text">
+              </div>
+              <div class="col-md-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="text" class="form-control" name="end_date" id="end_date" placeholder="YYYY or text">
+              </div>
+              <div class="col-md-6">
+                <label for="transfer_type" class="form-label">Transfer Method</label>
+                <select class="form-select" name="transfer_type" id="transfer_type">
+                  <option value="unknown">Unknown</option>
+                  <option value="sale">Sale</option>
+                  <option value="auction">Auction</option>
+                  <option value="gift">Gift</option>
+                  <option value="bequest">Bequest</option>
+                  <option value="inheritance">Inheritance</option>
+                  <option value="commission">Commission</option>
+                  <option value="exchange">Exchange</option>
+                  <option value="transfer">Transfer</option>
+                  <option value="found">Found/Discovery</option>
+                  <option value="restitution">Restitution</option>
+                  <option value="repatriation">Repatriation</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="sale_price" class="form-label">Sale Price</label>
+                <input type="number" class="form-control" name="sale_price" id="sale_price" step="0.01">
+              </div>
+              <div class="col-md-2">
+                <label for="sale_currency" class="form-label">Currency</label>
+                <select class="form-select" name="sale_currency" id="sale_currency">
+                  <option value="">--</option>
+                  <option value="ZAR">ZAR</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Acquisition Date <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="date" name="acquisition_date" class="form-control" value="{{ old('acquisition_date', $io->acquisition_date ?? '') }}">
+                <label for="auction_house" class="form-label">Auction House</label>
+                <input type="text" class="form-control" name="auction_house" id="auction_house">
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Date (Text) <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="acquisition_date_text" class="form-control" placeholder="e.g., circa 1950" value="{{ old('acquisition_date_text', $io->acquisition_date_text ?? '') }}">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Price <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="number" name="acquisition_price" class="form-control" step="0.01" value="{{ old('acquisition_price', $io->acquisition_price ?? '') }}">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Currency <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="acquisition_currency" class="form-select">
-                  <option value="">-- Select --</option>
-                  <option value="ZAR" @selected(old('acquisition_currency', $io->acquisition_currency ?? '') === 'ZAR')>ZAR - South African Rand</option>
-                  <option value="USD" @selected(old('acquisition_currency', $io->acquisition_currency ?? '') === 'USD')>USD - US Dollar</option>
-                  <option value="GBP" @selected(old('acquisition_currency', $io->acquisition_currency ?? '') === 'GBP')>GBP - British Pound</option>
-                  <option value="EUR" @selected(old('acquisition_currency', $io->acquisition_currency ?? '') === 'EUR')>EUR - Euro</option>
-                </select>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Acquisition Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea name="acquisition_notes" class="form-control" rows="2">{{ old('acquisition_notes', $io->acquisition_notes ?? '') }}</textarea>
+              <div class="col-md-2">
+                <label for="auction_lot" class="form-label">Lot #</label>
+                <input type="text" class="form-control" name="auction_lot" id="auction_lot">
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Chain of Custody Events -->
-        <div class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Chain of Custody Events</h6>
-            <button type="button" class="btn btn-sm atom-btn-outline-success" id="addEventBtn">
-              <i class="bi bi-plus-lg me-1"></i> Add Event
-            </button>
-          </div>
-          <div class="card-body" id="eventsContainer">
-            @if($events->isNotEmpty())
-              @foreach($events as $i => $event)
-              <div class="event-entry card bg-light mb-3">
-                <div class="card-body">
-                  <div class="row g-2">
-                    <div class="col-md-3">
-                      <label class="form-label small">Event Type <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <select name="event_type[]" class="form-select form-select-sm">
-                        <optgroup label="Ownership">
-                          <option value="creation" @selected(($event->event_type ?? '') === 'creation')>Creation</option>
-                          <option value="commission" @selected(($event->event_type ?? '') === 'commission')>Commission</option>
-                          <option value="purchase" @selected(($event->event_type ?? '') === 'purchase')>Purchase</option>
-                          <option value="sale" @selected(($event->event_type ?? '') === 'sale')>Sale</option>
-                          <option value="gift" @selected(($event->event_type ?? '') === 'gift')>Gift/Donation</option>
-                          <option value="bequest" @selected(($event->event_type ?? '') === 'bequest')>Bequest</option>
-                          <option value="inheritance" @selected(($event->event_type ?? '') === 'inheritance')>Inheritance</option>
-                          <option value="exchange" @selected(($event->event_type ?? '') === 'exchange')>Exchange</option>
-                        </optgroup>
-                        <optgroup label="Transfer">
-                          <option value="transfer" @selected(($event->event_type ?? '') === 'transfer')>Transfer</option>
-                          <option value="deposit" @selected(($event->event_type ?? '') === 'deposit')>Deposit</option>
-                          <option value="loan" @selected(($event->event_type ?? '') === 'loan')>Loan</option>
-                          <option value="return" @selected(($event->event_type ?? '') === 'return')>Return</option>
-                          <option value="repatriation" @selected(($event->event_type ?? '') === 'repatriation')>Repatriation</option>
-                        </optgroup>
-                        <optgroup label="Market">
-                          <option value="auction" @selected(($event->event_type ?? '') === 'auction')>Auction</option>
-                          <option value="dealer" @selected(($event->event_type ?? '') === 'dealer')>Dealer</option>
-                          <option value="appraisal" @selected(($event->event_type ?? '') === 'appraisal')>Appraisal</option>
-                        </optgroup>
-                        <optgroup label="Loss/Recovery">
-                          <option value="theft" @selected(($event->event_type ?? '') === 'theft')>Theft</option>
-                          <option value="confiscation" @selected(($event->event_type ?? '') === 'confiscation')>Confiscation</option>
-                          <option value="looting" @selected(($event->event_type ?? '') === 'looting')>Looting</option>
-                          <option value="recovery" @selected(($event->event_type ?? '') === 'recovery')>Recovery</option>
-                          <option value="restitution" @selected(($event->event_type ?? '') === 'restitution')>Restitution</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                          <option value="exhibition" @selected(($event->event_type ?? '') === 'exhibition')>Exhibition</option>
-                          <option value="conservation" @selected(($event->event_type ?? '') === 'conservation')>Conservation</option>
-                          <option value="other" @selected(($event->event_type ?? '') === 'other')>Other</option>
-                        </optgroup>
-                      </select>
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="date" name="event_date[]" class="form-control form-control-sm" value="{{ $event->event_date ?? '' }}">
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label small">Date Text <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="text" name="event_date_text[]" class="form-control form-control-sm" placeholder="circa 1920" value="{{ $event->event_date_text ?? '' }}">
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label small">Certainty <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <select name="event_certainty[]" class="form-select form-select-sm">
-                        <option value="certain" @selected(($event->certainty ?? '') === 'certain')>Certain</option>
-                        <option value="probable" @selected(($event->certainty ?? '') === 'probable')>Probable</option>
-                        <option value="possible" @selected(($event->certainty ?? '') === 'possible')>Possible</option>
-                        <option value="uncertain" @selected(($event->certainty ?? '') === 'uncertain')>Uncertain</option>
-                      </select>
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label small">From (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="text" name="from_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="Previous owner..." value="{{ $event->from_agent_name ?? '' }}">
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label small">To (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="text" name="to_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="New owner..." value="{{ $event->to_agent_name ?? '' }}">
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="text" name="event_location[]" class="form-control form-control-sm" placeholder="City, Country" value="{{ $event->event_location ?? '' }}">
-                    </div>
-                    <div class="col-md-5">
-                      <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                      <input type="text" name="event_notes[]" class="form-control form-control-sm" value="{{ $event->notes ?? $event->notes_i18n ?? '' }}">
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end">
-                      <button type="button" class="btn btn-sm atom-btn-outline-danger remove-event-btn w-100">
-                        X
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              @endforeach
-            @endif
-          </div>
-        </div>
+            <div class="mb-3">
+              <label for="sources" class="form-label">Sources/Documentation</label>
+              <textarea class="form-control" name="sources" id="sources" rows="2"></textarea>
+            </div>
 
-        <!-- Research Notes -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>Research Notes</h6>
-          </div>
-          <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Research Status <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="research_status" class="form-select">
-                <option value="not_started" @selected(old('research_status', $io->research_status ?? '') === 'not_started')>Not Started</option>
-                <option value="in_progress" @selected(old('research_status', $io->research_status ?? '') === 'in_progress')>In Progress</option>
-                <option value="complete" @selected(old('research_status', $io->research_status ?? '') === 'complete')>Complete</option>
-                <option value="inconclusive" @selected(old('research_status', $io->research_status ?? '') === 'inconclusive')>Inconclusive</option>
-              </select>
+              <label for="notes" class="form-label">Notes</label>
+              <textarea class="form-control" name="notes" id="notes" rows="2"></textarea>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Research Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="research_notes" class="form-control" rows="3" placeholder="Document your research findings, sources consulted, etc.">{{ old('research_notes', $io->research_notes ?? $io->research_notes_i18n ?? '') }}</textarea>
-            </div>
-            <div class="form-check mb-3">
-              <input type="checkbox" name="has_gaps" class="form-check-input" id="hasGaps" value="1" @checked(old('has_gaps', $io->has_gaps ?? 0))>
-              <label class="form-check-label" for="hasGaps">There are gaps in the provenance chain <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-            <div class="mb-0" id="gapDescriptionGroup" style="{{ old('has_gaps', $io->has_gaps ?? 0) ? '' : 'display:none' }}">
-              <label class="form-label">Gap Description <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="gap_description" class="form-control" rows="2" placeholder="Describe the gaps in provenance...">{{ old('gap_description', $io->gap_description ?? '') }}</textarea>
-            </div>
-          </div>
-        </div>
 
-        <!-- Supporting Documents -->
-        <div class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Supporting Documents</h6>
-            <button type="button" class="btn btn-sm atom-btn-outline-success" id="addDocumentBtn">
-              <i class="bi bi-plus me-1"></i>Add Document
-            </button>
-          </div>
-          <div class="card-body">
-            <!-- Existing Documents -->
-            @if(!empty($documents) && count($documents) > 0)
-            <div class="mb-3">
-              <label class="form-label text-muted small">Existing Documents <span class="badge bg-secondary ms-1">Optional</span></label>
-              @foreach($documents as $doc)
-              <div class="d-flex align-items-center justify-content-between border rounded p-2 mb-2">
-                <div>
-                  <i class="bi bi-file-earmark me-2"></i>
-                  <strong>{{ $doc->title ?: $doc->original_filename }}</strong>
-                  <span class="badge bg-secondary ms-2">{{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}</span>
-                </div>
-                <div>
-                  @if($doc->file_path)
-                  <a href="{{ $doc->file_path }}" class="btn btn-sm atom-btn-white" target="_blank"><i class="bi bi-download"></i> View</a>
-                  @endif
-                  <button type="button" class="btn btn-sm atom-btn-outline-danger delete-doc-btn" data-doc-id="{{ $doc->id }}"><i class="bi bi-trash"></i> Delete</button>
-                </div>
-              </div>
-              @endforeach
-            </div>
-            @endif
-
-            <!-- New Documents Container -->
-            <div id="documentsContainer"></div>
-            <p class="text-muted small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i>Click "Add Document" to add supporting documents. Documents will be uploaded when you save the form.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="col-lg-4">
-
-        <!-- Status -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-sliders me-2"></i>Status</h6>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="form-label">Current Status <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="current_status" class="form-select">
-                <option value="owned" @selected(old('current_status', $io->current_status ?? '') === 'owned')>Owned</option>
-                <option value="on_loan" @selected(old('current_status', $io->current_status ?? '') === 'on_loan')>On Loan</option>
-                <option value="deposited" @selected(old('current_status', $io->current_status ?? '') === 'deposited')>Deposited</option>
-                <option value="unknown" @selected(old('current_status', $io->current_status ?? '') === 'unknown')>Unknown</option>
-                <option value="disputed" @selected(old('current_status', $io->current_status ?? '') === 'disputed')>Disputed</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Custody Type <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="custody_type" class="form-select">
-                <option value="permanent" @selected(old('custody_type', $io->custody_type ?? '') === 'permanent')>Permanent</option>
-                <option value="temporary" @selected(old('custody_type', $io->custody_type ?? '') === 'temporary')>Temporary</option>
-                <option value="loan" @selected(old('custody_type', $io->custody_type ?? '') === 'loan')>Loan</option>
-                <option value="deposit" @selected(old('custody_type', $io->custody_type ?? '') === 'deposit')>Deposit</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Certainty Level <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="certainty_level" class="form-select">
-                <option value="verified" @selected(old('certainty_level', $io->certainty_level ?? '') === 'verified')>Verified</option>
-                <option value="reliable" @selected(old('certainty_level', $io->certainty_level ?? '') === 'reliable')>Reliable</option>
-                <option value="probable" @selected(old('certainty_level', $io->certainty_level ?? '') === 'probable')>Probable</option>
-                <option value="possible" @selected(old('certainty_level', $io->certainty_level ?? '') === 'possible')>Possible</option>
-                <option value="uncertain" @selected(old('certainty_level', $io->certainty_level ?? '') === 'uncertain')>Uncertain</option>
-                <option value="unknown" @selected(old('certainty_level', $io->certainty_level ?? '') === 'unknown')>Unknown</option>
-              </select>
-            </div>
-            <div class="form-check mb-2">
-              <input type="checkbox" name="is_complete" class="form-check-input" id="isComplete" value="1" @checked(old('is_complete', $io->is_complete ?? 0))>
-              <label class="form-check-label" for="isComplete">Provenance research is complete <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
             <div class="form-check">
-              <input type="checkbox" name="is_public" class="form-check-input" id="isPublic" value="1" @checked(old('is_public', $io->is_public ?? 1))>
-              <label class="form-check-label" for="isPublic">Display provenance publicly <span class="badge bg-secondary ms-1">Optional</span></label>
+              <input type="checkbox" class="form-check-input" name="is_gap" id="is_gap" value="1">
+              <label class="form-check-label" for="is_gap">Mark as provenance gap</label>
             </div>
-          </div>
+          </form>
         </div>
-
-        <!-- Current Owner -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-person me-2"></i>Current Owner/Holder</h6>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="current_agent_name" class="form-control agent-autocomplete" value="{{ old('current_agent_name', $io->current_agent_name ?? '') }}">
-            </div>
-            <div class="mb-0">
-              <label class="form-label">Type <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="current_agent_type" class="form-select">
-                <option value="person" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'person')>Person</option>
-                <option value="organization" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'organization')>Organization</option>
-                <option value="family" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'family')>Family</option>
-                <option value="unknown" @selected(old('current_agent_type', $io->current_agent_type ?? '') === 'unknown')>Unknown</option>
-              </select>
-            </div>
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="save-entry">Save</button>
         </div>
-
-        <!-- Nazi-Era Provenance -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Nazi-Era Provenance</h6>
-          </div>
-          <div class="card-body">
-            <div class="form-check mb-3">
-              <input type="checkbox" name="nazi_era_provenance_checked" class="form-check-input" id="naziEraChecked" value="1" @checked(old('nazi_era_provenance_checked', $io->nazi_era_provenance_checked ?? 0))>
-              <label class="form-check-label" for="naziEraChecked">Nazi-era provenance has been checked <span class="badge bg-secondary ms-1">Optional</span></label>
-            </div>
-            <div id="naziEraClearGroup" style="{{ old('nazi_era_provenance_checked', $io->nazi_era_provenance_checked ?? 0) ? '' : 'display:none' }}">
-              <div class="mb-3">
-                <label class="form-label">Result <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="nazi_era_provenance_clear" class="form-select">
-                  <option value="">-- Select --</option>
-                  <option value="1" @selected(old('nazi_era_provenance_clear', $io->nazi_era_provenance_clear ?? '') === '1')>Clear - No issues found</option>
-                  <option value="0" @selected(old('nazi_era_provenance_clear', $io->nazi_era_provenance_clear ?? '') === '0')>Requires investigation</option>
-                </select>
-              </div>
-              <div class="mb-0">
-                <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-                <textarea name="nazi_era_notes" class="form-control" rows="2">{{ old('nazi_era_notes', $io->nazi_era_notes ?? '') }}</textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cultural Property -->
-        <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h6 class="mb-0"><i class="bi bi-globe me-2"></i>Cultural Property</h6>
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
-              <select name="cultural_property_status" class="form-select">
-                <option value="none" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'none')>None / Not Applicable</option>
-                <option value="claimed" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'claimed')>Claimed</option>
-                <option value="disputed" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'disputed')>Disputed</option>
-                <option value="repatriated" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'repatriated')>Repatriated</option>
-                <option value="cleared" @selected(old('cultural_property_status', $io->cultural_property_status ?? '') === 'cleared')>Cleared</option>
-              </select>
-            </div>
-            <div class="mb-0">
-              <label class="form-label">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-              <textarea name="cultural_property_notes" class="form-control" rows="2">{{ old('cultural_property_notes', $io->cultural_property_notes ?? '') }}</textarea>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
-  </form>
+  </div>
+  @endauth
+
 </div>
 
-<!-- Event Template -->
-<template id="eventTemplate">
-  <div class="event-entry card bg-light mb-3">
-    <div class="card-body">
-      <div class="row g-2">
-        <div class="col-md-3">
-          <label class="form-label small">Event Type <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="event_type[]" class="form-select form-select-sm">
-            <optgroup label="Ownership">
-              <option value="creation">Creation</option>
-              <option value="commission">Commission</option>
-              <option value="purchase">Purchase</option>
-              <option value="sale">Sale</option>
-              <option value="gift">Gift/Donation</option>
-              <option value="bequest">Bequest</option>
-              <option value="inheritance">Inheritance</option>
-              <option value="exchange">Exchange</option>
-            </optgroup>
-            <optgroup label="Transfer">
-              <option value="transfer">Transfer</option>
-              <option value="deposit">Deposit</option>
-              <option value="loan">Loan</option>
-              <option value="return">Return</option>
-              <option value="repatriation">Repatriation</option>
-            </optgroup>
-            <optgroup label="Market">
-              <option value="auction">Auction</option>
-              <option value="dealer">Dealer</option>
-              <option value="appraisal">Appraisal</option>
-            </optgroup>
-            <optgroup label="Loss/Recovery">
-              <option value="theft">Theft</option>
-              <option value="confiscation">Confiscation</option>
-              <option value="looting">Looting</option>
-              <option value="recovery">Recovery</option>
-              <option value="restitution">Restitution</option>
-            </optgroup>
-            <optgroup label="Other">
-              <option value="exhibition">Exhibition</option>
-              <option value="conservation">Conservation</option>
-              <option value="other">Other</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="date" name="event_date[]" class="form-control form-control-sm">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small">Date Text <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="event_date_text[]" class="form-control form-control-sm" placeholder="circa 1920">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small">Certainty <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="event_certainty[]" class="form-select form-select-sm">
-            <option value="certain">Certain</option>
-            <option value="probable">Probable</option>
-            <option value="possible">Possible</option>
-            <option value="uncertain" selected>Uncertain</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small">From (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="from_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="Previous owner...">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small">To (Agent) <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="to_agent[]" class="form-control form-control-sm agent-autocomplete" placeholder="New owner...">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small">Location <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="event_location[]" class="form-control form-control-sm" placeholder="City, Country">
-        </div>
-        <div class="col-md-5">
-          <label class="form-label small">Notes <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="event_notes[]" class="form-control form-control-sm">
-        </div>
-        <div class="col-md-1 d-flex align-items-end">
-          <button type="button" class="btn btn-sm atom-btn-outline-danger remove-event-btn w-100">
-            X
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<template id="documentTemplate">
-  <div class="document-entry border rounded p-3 mb-2">
-    <div class="row g-2">
-      <div class="col-md-4">
-        <label class="form-label small">Document Type <span class="badge bg-secondary ms-1">Optional</span></label>
-        <select name="doc_type[]" class="form-select form-select-sm">
-          <option value="deed_of_gift">Deed of Gift</option>
-          <option value="bill_of_sale">Bill of Sale</option>
-          <option value="invoice">Invoice</option>
-          <option value="receipt">Receipt</option>
-          <option value="auction_catalog">Auction Catalog</option>
-          <option value="exhibition_catalog">Exhibition Catalog</option>
-          <option value="inventory">Inventory</option>
-          <option value="insurance_record">Insurance Record</option>
-          <option value="photograph">Photograph</option>
-          <option value="correspondence">Correspondence</option>
-          <option value="certificate">Certificate</option>
-          <option value="customs_document">Customs Document</option>
-          <option value="export_license">Export License</option>
-          <option value="import_permit">Import Permit</option>
-          <option value="appraisal">Appraisal</option>
-          <option value="condition_report">Condition Report</option>
-          <option value="newspaper_clipping">Newspaper Clipping</option>
-          <option value="publication">Publication</option>
-          <option value="oral_history">Oral History</option>
-          <option value="affidavit">Affidavit</option>
-          <option value="legal_document">Legal Document</option>
-          <option value="other" selected>Other</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label small">Title <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="text" name="doc_title[]" class="form-control form-control-sm" placeholder="Document title...">
-      </div>
-      <div class="col-md-3">
-        <label class="form-label small">Date <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="date" name="doc_date[]" class="form-control form-control-sm">
-      </div>
-      <div class="col-md-1 d-flex align-items-end">
-        <button type="button" class="btn btn-sm atom-btn-outline-danger remove-doc-btn w-100">
-          X
-        </button>
-      </div>
-      <div class="col-md-6">
-        <label class="form-label small">File Upload <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="file" name="doc_file[]" class="form-control form-control-sm">
-      </div>
-      <div class="col-md-6">
-        <label class="form-label small">Or External URL <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="text" name="doc_url[]" class="form-control form-control-sm" placeholder="https://...">
-      </div>
-      <div class="col-12">
-        <label class="form-label small">Description <span class="badge bg-secondary ms-1">Optional</span></label>
-        <input type="text" name="doc_description[]" class="form-control form-control-sm" placeholder="Brief description...">
-      </div>
-    </div>
-  </div>
-</template>
+{{-- D3.js + Provenance Timeline --}}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/provenance-timeline.js') }}"></script>
 
 <script>
+@php $defaultTimeline = ['nodes' => [], 'links' => [], 'events' => [], 'dateRange' => ['min' => 1900, 'max' => 2026]]; @endphp
+var timelineData = {!! json_encode($timelineData ?? $defaultTimeline) !!};
+var objectSlug = '{{ $io->slug }}';
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Add event
-  document.getElementById('addEventBtn').addEventListener('click', function() {
-    var template = document.getElementById('eventTemplate');
-    var clone = template.content.cloneNode(true);
-    document.getElementById('eventsContainer').appendChild(clone);
-  });
+  var container = document.getElementById('provenance-timeline');
 
-  // Remove event
-  document.getElementById('eventsContainer').addEventListener('click', function(e) {
-    if (e.target.closest('.remove-event-btn')) {
-      e.target.closest('.event-entry').remove();
-    }
-  });
-
-  // Toggle gap description
-  document.getElementById('hasGaps').addEventListener('change', function() {
-    document.getElementById('gapDescriptionGroup').style.display = this.checked ? '' : 'none';
-  });
-
-  // Toggle Nazi-era clear
-  document.getElementById('naziEraChecked').addEventListener('change', function() {
-    document.getElementById('naziEraClearGroup').style.display = this.checked ? '' : 'none';
-  });
-
-  // Add document
-  document.getElementById('addDocumentBtn').addEventListener('click', function() {
-    var template = document.getElementById('documentTemplate');
-    var clone = template.content.cloneNode(true);
-    document.getElementById('documentsContainer').appendChild(clone);
-  });
-
-  // Remove document
-  document.getElementById('documentsContainer').addEventListener('click', function(e) {
-    if (e.target.closest('.remove-doc-btn')) {
-      e.target.closest('.document-entry').remove();
-    }
-  });
-
-  // Delete existing document
-  document.querySelectorAll('.delete-doc-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      if (confirm('Delete this document?')) {
-        var docId = this.dataset.docId;
-        fetch('/provenance/deleteDocument/' + docId, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          }
-        }).then(function() { btn.closest('.d-flex').remove(); });
+  // Initialize timeline
+  if (timelineData.nodes && timelineData.nodes.length > 0) {
+    var timeline = new ProvenanceTimeline('#provenance-timeline', {
+      data: timelineData,
+      width: container.offsetWidth || 800,
+      height: 300,
+      onNodeClick: function(node) {
+        console.log('Clicked:', node);
       }
     });
+
+    window.addEventListener('resize', function() {
+      timeline.resize(container.offsetWidth, 300);
+    });
+  } else {
+    container.innerHTML = '<p class="text-muted text-center py-5">Add provenance entries to see timeline</p>';
+  }
+
+  @auth
+  // Modal instance
+  var entryModalEl = document.getElementById('entry-modal');
+  var entryModal = entryModalEl ? new bootstrap.Modal(entryModalEl) : null;
+
+  // Add entry button
+  var addBtn = document.getElementById('add-entry');
+  if (addBtn && entryModal) {
+    addBtn.addEventListener('click', function() {
+      document.getElementById('entry-form').reset();
+      document.getElementById('entry-id').value = '';
+      document.querySelector('#entry-modal .modal-title').textContent = 'Add Provenance Entry';
+      document.getElementById('entry-form').action = '{{ route('io.provenance.store', $io->slug) }}';
+      entryModal.show();
+    });
+  }
+
+  // Edit entry buttons
+  document.querySelectorAll('.edit-entry').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.getAttribute('data-id');
+      var row = this.closest('tr');
+      var cells = row.querySelectorAll('td');
+
+      // Pre-fill from table row data
+      document.getElementById('entry-id').value = id;
+      document.querySelector('#entry-modal .modal-title').textContent = 'Edit Provenance Entry';
+
+      // Set form action to update route
+      var form = document.getElementById('entry-form');
+      form.action = '/provenance/' + id + '/update';
+      // Add method override for PUT
+      var methodInput = form.querySelector('input[name="_method"]');
+      if (!methodInput) {
+        methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        form.appendChild(methodInput);
+      }
+      methodInput.value = 'PUT';
+
+      entryModal.show();
+    });
   });
+
+  // Save entry
+  var saveBtn = document.getElementById('save-entry');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      document.getElementById('entry-form').submit();
+    });
+  }
+  @endauth
 });
 </script>
+
+<style>
+.provenance-timeline-container {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 30px;
+  min-height: 300px;
+}
+.provenance-table-section { margin-bottom: 30px; }
+.provenance-actions .btn { margin-right: 10px; }
+</style>
 @endsection

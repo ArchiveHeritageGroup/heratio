@@ -230,7 +230,12 @@
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-plugins --no-scripts 2>&1)",
       "Bash(COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-plugins --no-scripts)",
       "Bash(zcat /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-29_01-00.sql.gz)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(head -10 grep -r \"cco/provenance\\\\|cco.*provenance\" /usr/share/nginx/archive/plugins/ --include=*.yml --include=*.php)",
+      "Bash(head -10 grep -r \"provenance.*chain\\\\|Chain.*Custody\" /usr/share/nginx/archive/plugins/sfIsadPlugin/modules/sfIsadPlugin/templates/indexSuccess.php)",
+      "Bash(APP_DEBUG=true php artisan route:list --path=\"cco\" 2>&1)",
+      "Bash(zcat /mnt/nas/heratio/backups/mysql/full_mysql_dump_2026-03-31_01-00.sql.gz)",
+      "Bash(grep -oP \"SQLSTATE[^<]{0,300}\")"
     ]
   }
 }

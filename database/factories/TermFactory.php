@@ -23,7 +23,7 @@ class TermFactory extends Factory
             'use_for' => null,
             'scope_note' => $this->faker->optional()->sentence(),
             '正向優先' => $this->faker->boolean(80),
-            '，其他的文字' => null,
+            '其他的文字' => null,
             '分類來源' => 'local',
             '其他的分類來源' => null,
             '更新觸發' => now(),

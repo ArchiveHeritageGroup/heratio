@@ -107,9 +107,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/{slug}/findingaid/download', [FindingAidController::class, 'download'])->name('informationobject.findingaid.download');
     Route::post('/informationobject/{slug}/findingaid/delete', [FindingAidController::class, 'delete'])->name('informationobject.findingaid.delete')->middleware('acl:delete');
 
-    // Collections Management — Provenance
-    Route::get('/informationobject/{slug}/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
-    Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
+    // Collections Management — Provenance (write operations require auth)
     Route::post('/provenance/{slug}/store', [ProvenanceController::class, 'store'])->name('io.provenance.store')->middleware('acl:create');
     Route::put('/provenance/{id}/update', [ProvenanceController::class, 'update'])->name('io.provenance.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::delete('/provenance/{id}/delete', [ProvenanceController::class, 'destroy'])->name('io.provenance.delete')->middleware('acl:delete')->where('id', '[0-9]+');
@@ -167,6 +165,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/digitalobject/{id}/edit', [DigitalObjectController::class, 'show'])->whereNumber('id');
     Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete');
 });
+
+// Provenance read routes (public — matches AtoM CCO route pattern)
+Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->name('io.provenance');
+Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');
 

@@ -1790,6 +1790,59 @@
   {{-- ===== 9b. Extended Rights visual badges ===== --}}
   @include('ahg-io-manage::partials._rights-badges')
 
+  {{-- ===== 9c. Provenance & Chain of Custody (from provenance_entry table) ===== --}}
+  @if(isset($provenanceEntries) && $provenanceEntries->isNotEmpty())
+    <section class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        Provenance &amp; Chain of Custody
+      </h2>
+      <div class="provenance-chain px-3 py-2">
+        @foreach($provenanceEntries as $i => $entry)
+          <div class="d-flex mb-2 align-items-start">
+            <div class="me-3">
+              <span class="badge rounded-pill bg-{{ $i === 0 ? 'primary' : 'secondary' }}">{{ $provenanceEntries->count() - $i }}</span>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>{{ $entry->owner_name }}</strong>
+                  @if($entry->owner_type && $entry->owner_type !== 'unknown')
+                    <span class="badge bg-info ms-1">{{ ucfirst(str_replace('_', ' ', $entry->owner_type)) }}</span>
+                  @endif
+                  @if($entry->transfer_type && $entry->transfer_type !== 'unknown')
+                    <span class="badge bg-secondary ms-1">{{ ucfirst(str_replace('_', ' ', $entry->transfer_type)) }}</span>
+                  @endif
+                </div>
+                <small class="text-muted">
+                  @if($entry->start_date && $entry->end_date)
+                    {{ $entry->start_date }} &ndash; {{ $entry->end_date }}
+                  @elseif($entry->start_date)
+                    {{ $entry->start_date }} &ndash; present
+                  @elseif($entry->end_date)
+                    until {{ $entry->end_date }}
+                  @endif
+                </small>
+              </div>
+              @if($entry->owner_location)
+                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ $entry->owner_location }}</small>
+              @endif
+              @if($entry->notes)
+                <p class="small text-muted mb-0 mt-1">{{ $entry->notes }}</p>
+              @endif
+            </div>
+          </div>
+        @endforeach
+        @auth
+          <div class="mt-2">
+            <a href="{{ route('io.provenance', $io->slug) }}" class="btn btn-sm atom-btn-white">
+              <i class="fas fa-edit me-1"></i>Edit provenance chain
+            </a>
+          </div>
+        @endauth
+      </div>
+    </section>
+  @endif
+
   {{-- ===== 10. Digital object metadata ===== --}}
   @if(isset($digitalObjects) && $digitalObjects['master'])
     @php
