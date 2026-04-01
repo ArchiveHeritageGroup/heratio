@@ -212,11 +212,15 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
 
 /*
 |--------------------------------------------------------------------------
-| API 404 Fallback — catch unmatched /api/* requests
+| API 404 Fallback — catch unmatched /api/* requests (excluding /api/ric/*)
 |--------------------------------------------------------------------------
 */
 
 Route::any('api/{any}', function (\Illuminate\Http\Request $request) {
+    // Skip /api/ric/* - handled by ahg-ric package
+    if (str_starts_with($request->path(), 'api/ric/') || $request->path() === 'api/ric') {
+        abort(404);
+    }
     return response()->json([
         'success' => false,
         'error' => 'Not Found',

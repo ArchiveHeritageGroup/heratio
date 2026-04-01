@@ -115,20 +115,43 @@
               <div class="mb-3 p-3 bg-light rounded">
                 <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div id="field-search-rows">
+                  @php
+                    $fieldLabels = [
+                        'archive' => [
+                            'title' => 'Title', 'identifier' => 'Identifier', 'referenceCode' => 'Reference code',
+                            'scopeAndContent' => 'Scope and content', 'extentAndMedium' => 'Extent and medium',
+                            'archivalHistory' => 'Archival history', 'acquisition' => 'Acquisition',
+                            'creatorSearch' => 'Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+                        ],
+                        'museum' => [
+                            'title' => 'Title', 'identifier' => 'Object number',
+                            'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
+                            'creatorSearch' => 'Artist / Maker', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of origin', 'genreSearch' => 'Object type',
+                        ],
+                        'gallery' => [
+                            'title' => 'Title', 'identifier' => 'Accession number',
+                            'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
+                            'creatorSearch' => 'Artist', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+                        ],
+                        'library' => [
+                            'title' => 'Title', 'identifier' => 'Call number', 'referenceCode' => 'ISBN / ISSN',
+                            'scopeAndContent' => 'Abstract',
+                            'creatorSearch' => 'Author', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of publication', 'genreSearch' => 'Genre',
+                        ],
+                        'dam' => [
+                            'title' => 'Title', 'identifier' => 'File name',
+                            'scopeAndContent' => 'Caption / Description',
+                            'creatorSearch' => 'Photographer / Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+                        ],
+                    ];
+                    $activeFields = $fieldLabels[$currentType] ?? $fieldLabels['archive'];
+                  @endphp
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
                       <option value="" selected>-- Select field --</option>
-                      <option value="title">Title</option>
-                      <option value="identifier">Identifier</option>
-                      <option value="referenceCode">Reference code</option>
-                      <option value="scopeAndContent">Scope and content</option>
-                      <option value="extentAndMedium">Extent and medium</option>
-                      <option value="archivalHistory">Archival history</option>
-                      <option value="acquisition">Acquisition</option>
-                      <option value="creatorSearch">Creator</option>
-                      <option value="subjectSearch">Subject</option>
-                      <option value="placeSearch">Place</option>
-                      <option value="genreSearch">Genre</option>
+                      @foreach($activeFields as $fKey => $fLabel)
+                        <option value="{{ $fKey }}">{{ $fLabel }}</option>
+                      @endforeach
                     </select>
                     <input type="text" name="" class="form-control" value="" placeholder="Enter search term...">
                   </div>
@@ -152,10 +175,17 @@
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
+                  @php
+                    // If a sector is active, only show that sector's levels; otherwise show all
+                    $activeLevels = ($currentType && isset($levelsBySectorMap[$currentType]))
+                        ? collect($levelsBySectorMap[$currentType])
+                        : $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name]);
+                  @endphp
                   <select name="level" class="form-select" id="level-filter-select">
                     <option value="">Any level</option>
-                    @foreach($levels as $level)
-                      <option value="{{ $level->id }}" {{ ($params['level'] ?? '') == $level->id ? 'selected' : '' }}>{{ $level->name }}</option>
+                    @foreach($activeLevels as $level)
+                      @php $lid = is_array($level) ? $level['id'] : $level->id; $lname = is_array($level) ? $level['name'] : $level->name; @endphp
+                      <option value="{{ $lid }}" {{ ($params['level'] ?? '') == $lid ? 'selected' : '' }}>{{ $lname }}</option>
                     @endforeach
                   </select>
                 </div>
@@ -357,44 +387,99 @@ document.addEventListener('DOMContentLoaded', function() {
     var sectorSelect = document.getElementById('sector-filter-select');
     if (sectorSelect) {
         @php
-            // Build levels-by-sector map from DB
+            // Build levels-by-sector map from ahg_settings DB (managed via Settings > Levels)
+            // Falls back to hardcoded defaults if not yet configured
             $levelsBySectorMap = [];
-            $sectorLevelMap = [
-                'library' => [1700,1701,1702,1703,1759,1704,1161],
-                'dam' => [905146,905147,1755,1756,1161,1757,1758],
-                'archive' => [238,241,236,242,299,434,239,237,240],
-                'museum' => [1757,1751,1750,512,500,1752],
-                'gallery' => [1750,905146,512],
-            ];
             $allLevels = $levels->keyBy('id');
-            foreach ($sectorLevelMap as $sector => $ids) {
-                $sectorLevels = [];
-                foreach ($ids as $id) {
-                    if ($allLevels->has($id)) {
-                        $sectorLevels[] = ['id' => $id, 'name' => $allLevels[$id]->name];
+            $dbHasSettings = false;
+            try {
+                $sectorRows = \Illuminate\Support\Facades\DB::table('ahg_settings')
+                    ->where('setting_key', 'like', 'sector_%_levels')
+                    ->get();
+                foreach ($sectorRows as $row) {
+                    preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
+                    if (isset($m[1])) {
+                        $dbHasSettings = true;
+                        $ids = json_decode($row->setting_value, true) ?: [];
+                        $sLevels = [];
+                        foreach ($ids as $id) {
+                            if ($allLevels->has($id)) {
+                                $sLevels[] = ['id' => (int) $id, 'name' => $allLevels[$id]->name];
+                            }
+                        }
+                        $levelsBySectorMap[$m[1]] = $sLevels;
                     }
                 }
-                $levelsBySectorMap[$sector] = $sectorLevels;
+            } catch (\Exception $e) {}
+
+            // Fallback: use hardcoded defaults when Settings > Levels not configured
+            if (!$dbHasSettings) {
+                $defaultMap = [
+                    'archive' => [236,237,238,239,240,241,242,299,434],
+                    'library' => [1161,1700,1701,1702,1703,1704,1759],
+                    'museum'  => [500,512,1750,1751,1752,1757],
+                    'gallery' => [512,1750,905146],
+                    'dam'     => [1161,1755,1756,1757,1758,905146,905147],
+                ];
+                foreach ($defaultMap as $sector => $ids) {
+                    $sLevels = [];
+                    foreach ($ids as $id) {
+                        if ($allLevels->has($id)) {
+                            $sLevels[] = ['id' => $id, 'name' => $allLevels[$id]->name];
+                        }
+                    }
+                    $levelsBySectorMap[$sector] = $sLevels;
+                }
             }
             $levelsBySectorMap[''] = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
         @endphp
         var levelsBySector = @json($levelsBySectorMap);
 
-        sectorSelect.addEventListener('change', function() {
-            var sector = this.value;
+        // Field labels per sector (generated from PHP to stay in sync with server-side rendering)
+        var fieldsBySector = @json(collect($fieldLabels)->map(fn($fields) =>
+            collect($fields)->map(fn($label, $key) => ['value' => $key, 'label' => $label])->values()
+        ));
+        fieldsBySector[''] = fieldsBySector['archive'];
+
+        function syncSectorDropdowns(sector) {
+            // Update level dropdown
             var levelSelect = document.getElementById('level-filter-select');
-            if (!levelSelect) return;
-            var currentLevel = levelSelect.value;
-            levelSelect.innerHTML = '<option value="">Any level</option>';
-            var levels = levelsBySector[sector] || levelsBySector[''] || [];
-            levels.forEach(function(l) {
-                var opt = document.createElement('option');
-                opt.value = l.id;
-                opt.textContent = l.name;
-                if (String(l.id) === currentLevel) opt.selected = true;
-                levelSelect.appendChild(opt);
+            if (levelSelect) {
+                var currentLevel = levelSelect.value;
+                levelSelect.innerHTML = '<option value="">Any level</option>';
+                var lvls = levelsBySector[sector] || levelsBySector[''] || [];
+                lvls.forEach(function(l) {
+                    var opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.textContent = l.name;
+                    if (String(l.id) === currentLevel) opt.selected = true;
+                    levelSelect.appendChild(opt);
+                });
+            }
+
+            // Update field search dropdowns
+            var fields = fieldsBySector[sector] || fieldsBySector[''];
+            document.querySelectorAll('.field-select').forEach(function(sel) {
+                var currentVal = sel.value;
+                sel.innerHTML = '<option value="">-- Select field --</option>';
+                fields.forEach(function(f) {
+                    var opt = document.createElement('option');
+                    opt.value = f.value;
+                    opt.textContent = f.label;
+                    if (f.value === currentVal) opt.selected = true;
+                    sel.appendChild(opt);
+                });
             });
+        }
+
+        sectorSelect.addEventListener('change', function() {
+            syncSectorDropdowns(this.value);
         });
+
+        // Fire on page load to sync with current sector
+        if (sectorSelect.value) {
+            syncSectorDropdowns(sectorSelect.value);
+        }
     }
 });
 </script>
