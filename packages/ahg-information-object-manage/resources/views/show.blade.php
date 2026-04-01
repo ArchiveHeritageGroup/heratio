@@ -560,7 +560,6 @@
                 exposure="1"
                 style="width:100%;height:100%;background:transparent;border-radius:8px;"
                 alt="3D model">
-                <div class="spinner-border text-primary" role="status" slot="progress-bar"></div>
               </model-viewer>
             </div>
             <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
@@ -952,8 +951,10 @@
     @include('ahg-ric::_ric-view-io', ['io' => $io])
   @else
 
-  {{-- TTS (Text-to-Speech) controls — only when there is text content to read aloud --}}
-  @if(!empty($io->scope_and_content) || !empty($io->archival_history) || !empty($io->arrangement))
+  {{-- TTS (Text-to-Speech) controls — only for text-heavy archival descriptions, not museum/3D/media objects --}}
+  @if((!empty($io->scope_and_content) || !empty($io->archival_history) || !empty($io->arrangement))
+      && (!isset($digitalObjects) || !($digitalObjects['master'] ?? null)
+          || !in_array(\AhgCore\Services\DigitalObjectService::getMediaType($digitalObjects['master']), ['video', 'audio', 'other'])))
     @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
   @endif
 

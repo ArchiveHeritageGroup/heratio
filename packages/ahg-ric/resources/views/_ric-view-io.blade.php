@@ -123,8 +123,8 @@
   </div>
 
   <div class="row">
-    {{-- Left: Relationships --}}
-    <div class="col-md-8">
+    {{-- Relationships --}}
+    <div class="col-12">
 
       {{-- Parent / Child Relations --}}
       <div class="card mb-3">
@@ -216,9 +216,11 @@
       @endif
 
     </div>
+  </div>
 
-    {{-- Right: Provenance + Instantiations + Actions --}}
-    <div class="col-md-4">
+  {{-- Full width: Provenance + Instantiations + Actions --}}
+  <div class="row">
+    <div class="col-12">
 
       {{-- Provenance & Chain of Custody (matching Heratio view) --}}
       @php

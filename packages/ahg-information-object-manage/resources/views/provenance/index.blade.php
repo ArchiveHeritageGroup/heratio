@@ -26,6 +26,64 @@
     <div class="timeline-loading">Loading timeline...</div>
   </div>
 
+  {{-- Visual Chain Diagram --}}
+  @if($events->isNotEmpty())
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-link me-1"></i> Chain of Custody
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-start justify-content-center gap-0">
+          @foreach($events as $i => $entry)
+            @if($i > 0)
+              {{-- Transfer arrow --}}
+              <div class="d-flex flex-column align-items-center mx-1" style="min-width:50px;">
+                <div class="text-center mb-1">
+                  @php
+                    $transferIcons = [
+                      'sale' => '💰', 'auction' => '🔨', 'gift' => '🎁', 'bequest' => '📜',
+                      'inheritance' => '📜', 'commission' => '📋', 'exchange' => '🔄',
+                      'transfer' => '➡️', 'found' => '🔍', 'restitution' => '⚖️', 'repatriation' => '🏠',
+                    ];
+                  @endphp
+                  <span style="font-size:1.2rem;">{{ $transferIcons[$entry->transfer_type] ?? '➡️' }}</span>
+                </div>
+                <small class="text-muted text-center" style="font-size:0.65rem;line-height:1.1;">{{ ucfirst(str_replace('_', ' ', $entry->transfer_type ?? '')) }}</small>
+              </div>
+            @endif
+            {{-- Owner node --}}
+            <div class="text-center" style="min-width:100px;max-width:130px;">
+              @php
+                $typeIcons = [
+                  'person' => '👤', 'family' => '👨‍👩‍👧‍👦', 'dealer' => '🏪', 'auction_house' => '🔨',
+                  'museum' => '🏛️', 'corporate' => '🏢', 'government' => '🏛️', 'religious' => '⛪',
+                  'artist' => '🎨',
+                ];
+                $bgColors = [
+                  'person' => '#dc3545', 'family' => '#dc3545', 'dealer' => '#fd7e14',
+                  'auction_house' => '#fd7e14', 'museum' => '#0d6efd', 'corporate' => '#6c757d',
+                  'government' => '#198754', 'religious' => '#6f42c1', 'artist' => '#d63384',
+                ];
+                $icon = $typeIcons[$entry->owner_type] ?? '❓';
+                $bg = $bgColors[$entry->owner_type] ?? '#6c757d';
+              @endphp
+              <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                   style="width:50px;height:50px;background:{{ $bg }};color:#fff;font-size:1.3rem;">
+                {{ $icon }}
+              </div>
+              <strong class="small d-block" style="font-size:0.75rem;line-height:1.2;" title="{{ $entry->owner_name }}">
+                {{ \Illuminate\Support\Str::limit($entry->owner_name, 20) }}
+              </strong>
+              @if($entry->owner_location)
+                <small class="text-muted d-block" style="font-size:0.65rem;">{{ \Illuminate\Support\Str::limit($entry->owner_location, 15) }}</small>
+              @endif
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  @endif
+
   {{-- Ownership History Table --}}
   <div class="provenance-table-section">
     <h2>Ownership History</h2>
