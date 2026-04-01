@@ -53,8 +53,7 @@ export default defineConfig({
   
   // Reporter configuration - minimal due to permission issues
   reporter: [
-    ['line'],
-    ['html', { outputFolder: '/tmp/playwright-reports', open: 'never' }]
+    ['line']
   ],
   
   use: {
@@ -123,8 +122,6 @@ export default defineConfig({
   //   stderr: 'pipe',
   // },
 
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  outputDir: artifactsDir,
 });
 
 /**
