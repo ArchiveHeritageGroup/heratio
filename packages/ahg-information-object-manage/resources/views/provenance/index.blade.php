@@ -21,10 +21,8 @@
     </a>
   </div>
 
-  {{-- Timeline Container --}}
-  <div id="provenance-timeline" class="provenance-timeline-container">
-    <div class="timeline-loading">Loading timeline...</div>
-  </div>
+  {{-- Timeline Container (hidden if empty, D3 populates it) --}}
+  <div id="provenance-timeline"></div>
 
   {{-- Visual Chain Diagram --}}
   @if($events->isNotEmpty())
@@ -140,7 +138,22 @@
               </td>
               @auth
                 <td>
-                  <button class="btn btn-sm btn-outline-primary edit-entry" data-id="{{ $entry->id }}">
+                  <button class="btn btn-sm btn-outline-primary edit-entry" data-id="{{ $entry->id }}"
+                    data-owner_name="{{ $entry->owner_name }}"
+                    data-owner_type="{{ $entry->owner_type }}"
+                    data-owner_location="{{ $entry->owner_location }}"
+                    data-owner_location_tgn="{{ $entry->owner_location_tgn ?? '' }}"
+                    data-start_date="{{ $entry->start_date }}"
+                    data-end_date="{{ $entry->end_date }}"
+                    data-transfer_type="{{ $entry->transfer_type }}"
+                    data-certainty="{{ $entry->certainty }}"
+                    data-sale_price="{{ $entry->sale_price ?? '' }}"
+                    data-sale_currency="{{ $entry->sale_currency ?? '' }}"
+                    data-auction_house="{{ $entry->auction_house ?? '' }}"
+                    data-auction_lot="{{ $entry->auction_lot ?? '' }}"
+                    data-sources="{{ $entry->sources ?? '' }}"
+                    data-notes="{{ $entry->notes ?? '' }}"
+                    data-is_gap="{{ $entry->is_gap ? '1' : '0' }}">
                     <i class="fas fa-edit"></i>
                   </button>
                   <form method="POST" action="{{ route('io.provenance.delete', $entry->id) }}" class="d-inline" onsubmit="return confirm('Delete this entry?')">
@@ -328,8 +341,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
       timeline.resize(container.offsetWidth, 300);
     });
-  } else {
-    container.innerHTML = '<p class="text-muted text-center py-5">Add provenance entries to see timeline</p>';
   }
 
   @auth
@@ -353,17 +364,30 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.edit-entry').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var id = this.getAttribute('data-id');
-      var row = this.closest('tr');
-      var cells = row.querySelectorAll('td');
+      var data = this.dataset;
 
-      // Pre-fill from table row data
+      // Populate form fields from data attributes
       document.getElementById('entry-id').value = id;
+      document.getElementById('owner_name').value = data.owner_name || '';
+      document.getElementById('owner_type').value = data.owner_type || 'unknown';
+      document.getElementById('owner_location').value = data.owner_location || '';
+      document.getElementById('start_date').value = data.start_date || '';
+      document.getElementById('end_date').value = data.end_date || '';
+      document.getElementById('transfer_type').value = data.transfer_type || 'unknown';
+      document.getElementById('certainty').value = data.certainty || 'unknown';
+      document.getElementById('sale_price').value = data.sale_price || '';
+      document.getElementById('sale_currency').value = data.sale_currency || '';
+      document.getElementById('auction_house').value = data.auction_house || '';
+      document.getElementById('auction_lot').value = data.auction_lot || '';
+      document.getElementById('sources').value = data.sources || '';
+      document.getElementById('notes').value = data.notes || '';
+      document.getElementById('is_gap').checked = data.is_gap === '1';
+
       document.querySelector('#entry-modal .modal-title').textContent = 'Edit Provenance Entry';
 
       // Set form action to update route
       var form = document.getElementById('entry-form');
       form.action = '/provenance/' + id + '/update';
-      // Add method override for PUT
       var methodInput = form.querySelector('input[name="_method"]');
       if (!methodInput) {
         methodInput = document.createElement('input');
@@ -390,12 +414,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 .provenance-timeline-container {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 30px;
-  min-height: 300px;
+  margin-bottom: 15px;
 }
 .provenance-table-section { margin-bottom: 30px; }
 .provenance-actions .btn { margin-right: 10px; }

@@ -190,9 +190,99 @@ class ConditionController extends Controller
             ->select('io.id', 'i18n.title', 's.slug')
             ->first();
 
+        // Get photos for this report
+        $photos = DB::table('condition_image')
+            ->where('condition_report_id', $id)
+            ->orderBy('created_at')
+            ->get();
+
+        // Get damages
+        $damages = $this->service->getDamages($id);
+
         return view('ahg-io-manage::condition.show', [
-            'io'     => $io,
-            'report' => $report,
+            'io'      => $io,
+            'report'  => $report,
+            'photos'  => $photos,
+            'damages' => $damages,
+        ]);
+    }
+
+    /**
+     * Upload a photo to a condition report.
+     */
+    public function uploadPhoto(Request $request, int $id)
+    {
+        $report = $this->service->getReport($id);
+        if (!$report) {
+            abort(404);
+        }
+
+        $request->validate([
+            'photo' => 'required|image|max:10240',
+            'image_type' => 'nullable|string|max:54',
+            'caption' => 'nullable|string|max:500',
+        ]);
+
+        $file = $request->file('photo');
+        $dir = public_path('uploads/condition_photos');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $filename = $id . '_' . time() . '_' . $file->getClientOriginalName();
+        $file->move($dir, $filename);
+
+        DB::table('condition_image')->insert([
+            'condition_report_id' => $id,
+            'file_path' => '/uploads/condition_photos/' . $filename,
+            'caption' => $request->input('caption'),
+            'image_type' => $request->input('image_type', 'general'),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('io.condition.show', $id)->with('success', 'Photo uploaded.');
+    }
+
+    /**
+     * Delete a condition photo.
+     */
+    public function deletePhoto(int $id)
+    {
+        $photo = DB::table('condition_image')->where('id', $id)->first();
+        if (!$photo) {
+            abort(404);
+        }
+
+        if ($photo->file_path && file_exists(public_path($photo->file_path))) {
+            @unlink(public_path($photo->file_path));
+        }
+
+        DB::table('condition_image')->where('id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Photo deleted.');
+    }
+
+    /**
+     * Get or save annotations for a condition photo (JSON API).
+     */
+    public function annotation(Request $request, int $id)
+    {
+        $photo = DB::table('condition_image')->where('id', $id)->first();
+        if (!$photo) {
+            return response()->json(['success' => false, 'error' => 'Photo not found'], 404);
+        }
+
+        if ($request->isMethod('post')) {
+            $annotations = $request->input('annotations', []);
+            DB::table('condition_image')->where('id', $id)->update([
+                'annotations' => json_encode($annotations),
+            ]);
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'annotations' => $photo->annotations ? json_decode($photo->annotations, true) : [],
         ]);
     }
 

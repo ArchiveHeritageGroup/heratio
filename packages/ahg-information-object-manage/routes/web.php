@@ -118,6 +118,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/condition/{slug}/create', [ConditionController::class, 'create'])->name('io.condition.create');
     Route::post('/condition/{slug}/store', [ConditionController::class, 'store'])->name('io.condition.store')->middleware('acl:create');
     Route::get('/condition/report/{id}', [ConditionController::class, 'show'])->name('io.condition.show')->where('id', '[0-9]+');
+    Route::post('/condition/report/{id}/photo', [ConditionController::class, 'uploadPhoto'])->name('io.condition.photo.upload')->where('id', '[0-9]+');
+    Route::delete('/condition/photo/{id}', [ConditionController::class, 'deletePhoto'])->name('io.condition.photo.delete')->where('id', '[0-9]+');
+    Route::match(['get', 'post'], '/condition/api/annotation/{id}', [ConditionController::class, 'annotation'])->name('io.condition.annotation')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 
