@@ -1484,7 +1484,7 @@ class SettingsController extends Controller
         }
 
         // GET: Query with filters
-        $statusFilter = $request->get('status', '');
+        $statusFilter = $request->get('status', 'open');
         $levelFilter = $request->get('level', '');
         $searchFilter = $request->get('search', '');
         $page = max(1, (int) $request->get('page', 1));

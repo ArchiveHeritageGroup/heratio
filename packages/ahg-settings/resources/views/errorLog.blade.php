@@ -123,7 +123,7 @@
         </thead>
         <tbody>
           @foreach($entries as $entry)
-            <tr class="{{ !$entry->is_read ? 'fw-bold' : '' }} cursor-pointer" data-bs-toggle="collapse" data-bs-target="#detail-{{ $entry->id }}" style="cursor:pointer;">
+            <tr class="{{ !$entry->is_read ? 'fw-bold' : '' }}" style="cursor:pointer;" onclick="var d=document.getElementById('detail-{{ $entry->id }}');d.style.display=d.style.display==='none'?'table-row':'none';">
               <td class="small">{{ \Carbon\Carbon::parse($entry->created_at)->format('Y-m-d H:i') }}</td>
               <td>
                 @php
@@ -183,7 +183,7 @@
               </td>
             </tr>
             {{-- Expandable detail row --}}
-            <tr class="collapse" id="detail-{{ $entry->id }}">
+            <tr id="detail-{{ $entry->id }}" style="display:none;">
               <td colspan="6" class="bg-light p-3">
                 <div class="row g-3">
                   <div class="col-md-6">

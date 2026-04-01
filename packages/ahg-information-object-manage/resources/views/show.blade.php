@@ -591,6 +591,40 @@
           initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}');
         });
         </script>
+      @elseif($masterUrl && (str_contains($masterUrl, 'sketchfab.com') || str_contains($masterUrl, 'youtube.com') || str_contains($masterUrl, 'youtu.be') || str_contains($masterUrl, 'vimeo.com')))
+        {{-- External embed (Sketchfab 3D, YouTube, Vimeo) --}}
+        @php
+          $embedUrl = $masterUrl;
+          if (str_contains($masterUrl, 'sketchfab.com/3d-models/')) {
+              // Convert Sketchfab model URL to embed URL
+              $modelId = basename(parse_url($masterUrl, PHP_URL_PATH));
+              $embedUrl = 'https://sketchfab.com/models/' . $modelId . '/embed';
+          } elseif (str_contains($masterUrl, 'youtube.com/watch')) {
+              parse_str(parse_url($masterUrl, PHP_URL_QUERY) ?? '', $yt);
+              $embedUrl = 'https://www.youtube.com/embed/' . ($yt['v'] ?? '');
+          } elseif (str_contains($masterUrl, 'youtu.be/')) {
+              $embedUrl = 'https://www.youtube.com/embed/' . basename(parse_url($masterUrl, PHP_URL_PATH));
+          } elseif (str_contains($masterUrl, 'vimeo.com/')) {
+              $embedUrl = 'https://player.vimeo.com/video/' . basename(parse_url($masterUrl, PHP_URL_PATH));
+          }
+          $isSketchfab = str_contains($masterUrl, 'sketchfab.com');
+        @endphp
+        <div class="text-center">
+          @if($isSketchfab)
+            <div class="mb-2"><span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model (Sketchfab)</span></div>
+          @endif
+          <div class="ratio" style="--bs-aspect-ratio: 56.25%;">
+            <iframe src="{{ $embedUrl }}" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking"
+                    allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
+                    style="border-radius:8px;"></iframe>
+          </div>
+          <div class="mt-2">
+            <a href="{{ $masterUrl }}" target="_blank" class="btn btn-sm atom-btn-white">
+              <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
+            </a>
+          </div>
+        </div>
+
       @else
         {{-- No displayable object: show download link --}}
         <div class="py-4">
@@ -830,8 +864,8 @@
     @include('ahg-ric::_ric-view-io', ['io' => $io])
   @else
 
-  {{-- TTS (Text-to-Speech) controls — only when digital object is linked --}}
-  @if(isset($digitalObjects) && ($digitalObjects['master'] ?? null))
+  {{-- TTS (Text-to-Speech) controls — only when there is text content to read aloud --}}
+  @if(!empty($io->scope_and_content) || !empty($io->archival_history) || !empty($io->arrangement))
     @include('ahg-io-manage::_tts-controls', ['target' => '[data-tts-content]', 'style' => 'full', 'position' => 'inline'])
   @endif
 
