@@ -212,15 +212,17 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
 
 /*
 |--------------------------------------------------------------------------
-| API 404 Fallback — catch unmatched /api/* requests (excluding /api/ric/*)
+| API 404 Fallback — catch unmatched /api/* requests
 |--------------------------------------------------------------------------
 */
 
-Route::any('api/{any}', function (\Illuminate\Http\Request $request) {
-    return response()->json([
-        'success' => false,
-        'error' => 'Not Found',
-        'message' => 'API endpoint not found: /' . $request->path(),
-        'timestamp' => now()->toIso8601String(),
-    ], 404);
-})->where('any', '^(?!ric(/|$)).*')->middleware('api.cors');
+Route::fallback(function (\Illuminate\Http\Request $request) {
+    if ($request->is('api/*')) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Not Found',
+            'message' => 'API endpoint not found: /' . $request->path(),
+            'timestamp' => now()->toIso8601String(),
+        ], 404);
+    }
+})->middleware('api.cors');

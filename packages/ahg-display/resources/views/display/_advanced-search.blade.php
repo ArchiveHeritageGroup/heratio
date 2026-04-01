@@ -123,7 +123,11 @@
             {{-- Basic Tab --}}
             <div class="tab-pane fade show active" id="adv-basic">
               <div class="row g-3">
-                <div class="col-md-6"><label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="query" class="form-control" value="{{ $params['query'] ?? '' }}"></div>
+                <div class="col-md-6 position-relative">
+                  <label class="form-label small fw-bold">Any field <span class="badge bg-secondary ms-1">Optional</span></label>
+                  <input type="text" name="query" id="adv-query-input" class="form-control" value="{{ $params['query'] ?? '' }}" autocomplete="off">
+                  <div id="adv-query-autocomplete" class="list-group position-absolute shadow-sm" style="display:none; z-index:1060; max-height:250px; overflow-y:auto; width:100%;"></div>
+                </div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="title" class="form-control" value="{{ $params['title'] ?? '' }}"></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Identifier <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="identifier" class="form-control" value="{{ $params['identifier'] ?? '' }}"></div>
                 <div class="col-md-6"><label class="form-label small fw-bold">Reference code <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" name="referenceCode" class="form-control" value="{{ $params['referenceCode'] ?? '' }}"></div>
@@ -459,5 +463,57 @@ document.addEventListener('DOMContentLoaded', function() {
             syncSectorDropdowns(sectorSelect.value);
         }
     }
+
+    // Autocomplete for "Any field" query input
+    (function() {
+        var input = document.getElementById('adv-query-input');
+        var dropdown = document.getElementById('adv-query-autocomplete');
+        if (!input || !dropdown) return;
+
+        var debounceTimer = null;
+
+        input.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            var q = this.value.trim();
+            if (q.length < 2) { dropdown.style.display = 'none'; return; }
+
+            debounceTimer = setTimeout(function() {
+                fetch('/api/autocomplete/glam?query=' + encodeURIComponent(q))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        var results = data.results || data || [];
+                        if (!results.length) { dropdown.style.display = 'none'; return; }
+
+                        dropdown.innerHTML = '';
+                        results.forEach(function(item) {
+                            var a = document.createElement('a');
+                            a.href = '#';
+                            a.className = 'list-group-item list-group-item-action py-1 px-3 small';
+                            var typeIcons = {description:'fa-file-alt',authority:'fa-user',repository:'fa-building',term:'fa-tag'};
+                            var icon = typeIcons[item.type] || 'fa-search';
+                            a.innerHTML = '<i class="fas ' + icon + ' me-2 text-muted"></i>' + (item.label || item.title || '') +
+                                (item.type ? '<small class="text-muted ms-2">(' + item.type + ')</small>' : '');
+                            a.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                input.value = item.label || item.title || '';
+                                dropdown.style.display = 'none';
+                            });
+                            dropdown.appendChild(a);
+                        });
+                        dropdown.style.display = 'block';
+                    })
+                    .catch(function() { dropdown.style.display = 'none'; });
+            }, 250);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') dropdown.style.display = 'none';
+        });
+    })();
 });
 </script>

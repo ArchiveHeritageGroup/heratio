@@ -364,11 +364,12 @@
           @endif
         @endforeach
         <div class="modal-body">
-          <div class="mb-3">
+          <div class="mb-3 position-relative">
             <label for="semantic-query" class="form-label fw-bold">Search query <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" class="form-control form-control-lg" id="semantic-query" name="query"
                    value="{{ $queryFilter ?? '' }}" placeholder="Enter your search terms..."
-                   autofocus>
+                   autocomplete="off" autofocus>
+            <div id="semantic-autocomplete" class="list-group position-absolute shadow-sm" style="display:none; z-index:1060; max-height:300px; overflow-y:auto; width:100%;"></div>
           </div>
           <div class="mb-3">
             <div class="form-check form-switch">
@@ -415,6 +416,62 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     if (semToggle.checked) { semPreview.classList.remove('browse-hidden'); }
   }
+
+  // Autocomplete for semantic search query input
+  (function() {
+    var input = document.getElementById('semantic-query');
+    var dropdown = document.getElementById('semantic-autocomplete');
+    if (!input || !dropdown) return;
+
+    var debounceTimer = null;
+
+    input.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var q = this.value.trim();
+      if (q.length < 2) { dropdown.style.display = 'none'; return; }
+
+      debounceTimer = setTimeout(function() {
+        fetch('/api/autocomplete/glam?query=' + encodeURIComponent(q))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var results = data.results || data || [];
+            if (!results.length) { dropdown.style.display = 'none'; return; }
+
+            dropdown.innerHTML = '';
+            results.forEach(function(item) {
+              var a = document.createElement('a');
+              a.href = '#';
+              a.className = 'list-group-item list-group-item-action py-2 px-3';
+              var typeIcons = {description:'fa-file-alt',authority:'fa-user',repository:'fa-building',term:'fa-tag'};
+              var icon = typeIcons[item.type] || 'fa-search';
+              a.innerHTML = '<i class="fas ' + icon + ' me-2 text-muted"></i>' +
+                '<span>' + (item.label || item.title || '') + '</span>' +
+                (item.type ? '<small class="text-muted ms-2">(' + item.type + ')</small>' : '');
+              a.addEventListener('click', function(e) {
+                e.preventDefault();
+                input.value = item.label || item.title || '';
+                dropdown.style.display = 'none';
+              });
+              dropdown.appendChild(a);
+            });
+            dropdown.style.display = 'block';
+          })
+          .catch(function() { dropdown.style.display = 'none'; });
+      }, 250);
+    });
+
+    // Hide dropdown on click outside
+    document.addEventListener('click', function(e) {
+      if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    // Hide on Escape
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') dropdown.style.display = 'none';
+    });
+  })();
 
   // Table column resize
   document.querySelectorAll('.browse-table th .resize-handle').forEach(function(handle) {
