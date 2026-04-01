@@ -52,9 +52,18 @@ class InformationObjectApiTest extends TestCase
 
     public function test_can_filter_by_repository(): void
     {
-        InformationObjectFactory::new()->count(3)->create(['repository_id' => 1]);
+        // Create an actor first, then add it to the repository table
+        $actor = ActorFactory::new()->corporateBody()->create();
+        
+        // Add to repository table (required FK relationship)
+        \Illuminate\Support\Facades\DB::table('repository')->insert([
+            'id' => $actor->id,
+            'source_culture' => 'en',
+        ]);
+        
+        InformationObjectFactory::new()->count(3)->create(['repository_id' => $actor->id]);
 
-        $response = $this->getJson('/api/records?repository_id=1');
+        $response = $this->getJson('/api/records?repository=' . $actor->id);
 
         $response->assertStatus(200);
     }

@@ -39,6 +39,7 @@ class ActorFactory extends Factory
                 }
             })
             ->afterCreating(function (Actor $actor) {
+                // Ensure i18n exists
                 if (! $actor->i18n()->where('culture', 'en')->exists()) {
                     ActorI18n::create([
                         'id' => $actor->id,
@@ -46,6 +47,19 @@ class ActorFactory extends Factory
                         'authorized_form_of_name' => fake()->name(),
                     ]);
                 }
+                
+                // Ensure slug exists
+                $name = $actor->i18n()->where('culture', 'en')->value('authorized_form_of_name') ?? 'actor-' . $actor->id;
+                $slugBase = \Illuminate\Support\Str::slug($name);
+                $slug = $slugBase;
+                $counter = 1;
+                while (\DB::table('slug')->where('slug', $slug)->where('object_id', '!=', $actor->id)->exists()) {
+                    $slug = $slugBase . '-' . $counter++;
+                }
+                \DB::table('slug')->insert([
+                    'slug' => $slug,
+                    'object_id' => $actor->id,
+                ]);
             });
     }
 

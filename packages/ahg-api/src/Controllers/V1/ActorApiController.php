@@ -114,6 +114,14 @@ class ActorApiController extends Controller
             ], 404);
         }
 
+        // Check if actor exists
+        if (!DB::table('actor')->where('id', $objectId)->exists()) {
+            return response()->json([
+                'error' => 'Not Found',
+                'message' => "Authority record '{$idOrSlug}' not found.",
+            ], 404);
+        }
+
         $actor = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
@@ -154,7 +162,7 @@ class ActorApiController extends Controller
         if (!$actor) {
             return response()->json([
                 'error' => 'Not Found',
-                'message' => "Authority record '{$slug}' not found.",
+                'message' => "Authority record '{$idOrSlug}' not found.",
             ], 404);
         }
 
@@ -293,10 +301,7 @@ class ActorApiController extends Controller
             ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.parent_id', '!=', 0)
-            ->where(function ($q) use ($query) {
-                $q->where('actor_i18n.authorized_form_of_name', 'like', "%{$query}%")
-                  ->orWhere('actor_i18n.other_names_of_actor', 'like', "%{$query}%");
-            })
+            ->where('actor_i18n.authorized_form_of_name', 'like', "%{$query}%")
             ->select([
                 'actor.id',
                 'actor_i18n.authorized_form_of_name',
@@ -329,6 +334,16 @@ class ActorApiController extends Controller
         ]);
         
         try {
+            // Validate entity_type exists if provided
+            if (!empty($validated['entity_type_id'])) {
+                if (!DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
+                    return response()->json([
+                        'error' => 'Invalid entity_type_id',
+                        'message' => "Entity type with ID {$validated['entity_type_id']} does not exist.",
+                    ], 422);
+                }
+            }
+
             return DB::transaction(function () use ($validated) {
                 // Create base object
                 $objectId = DB::table('object')->insertGetId([
@@ -337,12 +352,12 @@ class ActorApiController extends Controller
                     'updated_at' => now(),
                 ]);
                 
-                // Create actor record
+                // Create actor record (use NULL for parent_id as there's no root actor with id=0)
                 DB::table('actor')->insert([
                     'id' => $objectId,
                     'entity_type_id' => $validated['entity_type_id'] ?? null,
                     'source_culture' => $this->culture,
-                    'parent_id' => 0,
+                    'parent_id' => null,
                 ]);
                 
                 // Create i18n record
@@ -364,7 +379,6 @@ class ActorApiController extends Controller
                 DB::table('slug')->insert([
                     'slug' => $slug,
                     'object_id' => $objectId,
-                    'created_at' => now(),
                 ]);
                 
                 return response()->json([
@@ -376,9 +390,14 @@ class ActorApiController extends Controller
                 ], 201);
             });
         } catch (\Exception $e) {
+            \Log::error('Actor creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'validated' => $validated,
+            ]);
             return response()->json([
                 'error' => 'Failed to create actor',
-                'message' => $e->getMessage(),
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error',
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
             ], 500);
         }
     }

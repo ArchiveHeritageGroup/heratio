@@ -20,9 +20,9 @@ class InformationObjectFactory extends Factory
     {
         return [
             'identifier' => fake()->optional()->bothify('??-###-####'),
-            'level_of_description_id' => null,
+            'level_of_description_id' => self::LEVEL_COLLECTION,
             'parent_id' => InformationObject::ROOT_ID,
-            'repository_id' => null,
+            'repository_id' => null, // Allow nullable, tests should set valid ID
             'source_culture' => 'en',
         ];
     }
@@ -41,11 +41,34 @@ class InformationObjectFactory extends Factory
                 }
             })
             ->afterCreating(function (InformationObject $io) {
+                // Ensure i18n exists
                 if (! $io->i18n()->where('culture', 'en')->exists()) {
                     InformationObjectI18n::create([
                         'id' => $io->id,
                         'culture' => 'en',
                         'title' => fake()->sentence(4),
+                    ]);
+                }
+                
+                // Ensure slug exists
+                $title = $io->i18n()->where('culture', 'en')->value('title') ?? 'io-' . $io->id;
+                $slugBase = \Illuminate\Support\Str::slug($title);
+                $slug = $slugBase;
+                $counter = 1;
+                while (\DB::table('slug')->where('slug', $slug)->where('object_id', '!=', $io->id)->exists()) {
+                    $slug = $slugBase . '-' . $counter++;
+                }
+                \DB::table('slug')->insert([
+                    'slug' => $slug,
+                    'object_id' => $io->id,
+                ]);
+                
+                // Ensure status exists (published)
+                if (! \DB::table('status')->where('object_id', $io->id)->exists()) {
+                    \DB::table('status')->insert([
+                        'object_id' => $io->id,
+                        'type_id' => 158,
+                        'status_id' => 160, // Published
                     ]);
                 }
             });
