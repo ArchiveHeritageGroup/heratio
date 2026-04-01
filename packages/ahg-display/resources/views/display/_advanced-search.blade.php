@@ -176,10 +176,10 @@
                 <div class="col-md-4">
                   <label class="form-label small fw-bold">Level of description <span class="badge bg-secondary ms-1">Optional</span></label>
                   @php
-                    // If a sector is active, only show that sector's levels; otherwise show all
-                    $activeLevels = ($currentType && isset($levelsBySectorMap[$currentType]))
+                    // If a sector is active and has levels configured in Settings > Levels, use those; otherwise show all
+                    $activeLevels = ($currentType && !empty($levelsBySectorMap[$currentType]))
                         ? collect($levelsBySectorMap[$currentType])
-                        : $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name]);
+                        : collect($allLevelsArr);
                   @endphp
                   <select name="level" class="form-select" id="level-filter-select">
                     <option value="">Any level</option>
@@ -388,10 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sectorSelect) {
         @php
             // Build levels-by-sector map from ahg_settings DB (managed via Settings > Levels)
-            // Falls back to hardcoded defaults if not yet configured
+            // If no settings configured, all sectors show all levels
             $levelsBySectorMap = [];
             $allLevels = $levels->keyBy('id');
-            $dbHasSettings = false;
+            $allLevelsArr = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
             try {
                 $sectorRows = \Illuminate\Support\Facades\DB::table('ahg_settings')
                     ->where('setting_key', 'like', 'sector_%_levels')
@@ -399,7 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 foreach ($sectorRows as $row) {
                     preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
                     if (isset($m[1])) {
-                        $dbHasSettings = true;
                         $ids = json_decode($row->setting_value, true) ?: [];
                         $sLevels = [];
                         foreach ($ids as $id) {
@@ -411,27 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             } catch (\Exception $e) {}
-
-            // Fallback: use hardcoded defaults when Settings > Levels not configured
-            if (!$dbHasSettings) {
-                $defaultMap = [
-                    'archive' => [236,237,238,239,240,241,242,299,434],
-                    'library' => [1161,1700,1701,1702,1703,1704,1759],
-                    'museum'  => [500,512,1750,1751,1752,1757],
-                    'gallery' => [512,1750,905146],
-                    'dam'     => [1161,1755,1756,1757,1758,905146,905147],
-                ];
-                foreach ($defaultMap as $sector => $ids) {
-                    $sLevels = [];
-                    foreach ($ids as $id) {
-                        if ($allLevels->has($id)) {
-                            $sLevels[] = ['id' => $id, 'name' => $allLevels[$id]->name];
-                        }
-                    }
-                    $levelsBySectorMap[$sector] = $sLevels;
-                }
-            }
-            $levelsBySectorMap[''] = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
+            // '' = all levels (used when no sector selected, or sector has no setting)
+            $levelsBySectorMap[''] = $allLevelsArr;
         @endphp
         var levelsBySector = @json($levelsBySectorMap);
 
