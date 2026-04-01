@@ -173,6 +173,121 @@ class SemanticSearchService
         return $query->orderByDesc('created_at')->get();
     }
 
+    // ========================================================================
+    // Query Expansion (uses ahg_thesaurus_term + ahg_thesaurus_synonym)
+    // ========================================================================
+
+    /**
+     * Expand a search query with synonyms from the thesaurus.
+     * Ported from AtoM ahgSemanticSearchPlugin ThesaurusService::expandQuery()
+     */
+    public function expandQuery(string $query, string $language = 'en'): array
+    {
+        $minWeight = (float) $this->getConfig('semantic_min_weight', 0.6);
+        $expansionLimit = (int) $this->getConfig('semantic_expansion_limit', 5);
+
+        $words = $this->tokenize($query);
+        $expandedTerms = [];
+
+        foreach ($words as $word) {
+            if (mb_strlen($word) < 3) {
+                continue;
+            }
+
+            $synonyms = $this->getThesaurusSynonyms($word, $language, $minWeight, $expansionLimit);
+
+            if (!empty($synonyms)) {
+                $expandedTerms[$word] = array_column($synonyms, 'text');
+            }
+        }
+
+        $allSynonyms = [];
+        foreach ($expandedTerms as $syns) {
+            $allSynonyms = array_merge($allSynonyms, $syns);
+        }
+        $allSynonyms = array_unique($allSynonyms);
+
+        $expandedQuery = $query;
+        if (!empty($allSynonyms)) {
+            $expandedQuery .= ' ' . implode(' ', $allSynonyms);
+        }
+
+        return [
+            'original_query' => $query,
+            'expanded_query' => $expandedQuery,
+            'expanded_terms' => $expandedTerms,
+            'expansion_count' => count($allSynonyms),
+        ];
+    }
+
+    protected function getThesaurusSynonyms(string $term, string $language, float $minWeight, int $limit): array
+    {
+        $normalized = mb_strtolower(trim($term));
+        $synonyms = [];
+
+        // Find the thesaurus term
+        $termRecord = DB::table('ahg_thesaurus_term')
+            ->where('term', $normalized)
+            ->where('language', $language)
+            ->where('is_active', true)
+            ->first();
+
+        if ($termRecord) {
+            // Get direct synonyms
+            $direct = DB::table('ahg_thesaurus_synonym')
+                ->where('term_id', $termRecord->id)
+                ->where('is_active', true)
+                ->where('weight', '>=', $minWeight)
+                ->orderByDesc('weight')
+                ->limit($limit)
+                ->get();
+
+            foreach ($direct as $syn) {
+                $synonyms[$syn->synonym_text] = [
+                    'text' => $syn->synonym_text,
+                    'weight' => (float) $syn->weight,
+                ];
+            }
+        }
+
+        // Reverse synonyms (where this term is listed as a synonym of another)
+        $reverse = DB::table('ahg_thesaurus_synonym as s')
+            ->join('ahg_thesaurus_term as t', 's.term_id', '=', 't.id')
+            ->where('s.synonym_text', $normalized)
+            ->where('s.is_bidirectional', true)
+            ->where('s.is_active', true)
+            ->where('t.is_active', true)
+            ->where('t.language', $language)
+            ->where('s.weight', '>=', $minWeight)
+            ->select('t.term as text', 's.weight')
+            ->limit($limit)
+            ->get();
+
+        foreach ($reverse as $rev) {
+            if (!isset($synonyms[$rev->text])) {
+                $synonyms[$rev->text] = [
+                    'text' => $rev->text,
+                    'weight' => (float) $rev->weight,
+                ];
+            }
+        }
+
+        uasort($synonyms, fn($a, $b) => $b['weight'] <=> $a['weight']);
+
+        return array_slice(array_values($synonyms), 0, $limit);
+    }
+
+    protected function tokenize(string $query): array
+    {
+        $query = preg_replace('/[^\w\s]/u', ' ', $query);
+        $query = preg_replace('/[_-]+/', ' ', $query);
+        $words = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+        $stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
+
+        return array_filter($words, fn($w) => !in_array(strtolower($w), $stopWords));
+    }
+
     // History
     public function getSearchHistory(?int $userId = null): \Illuminate\Support\Collection
     {
