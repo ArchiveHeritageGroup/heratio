@@ -2482,6 +2482,20 @@
       </div>
     @endauth
 
+    {{-- AI Tools --}}
+    @auth
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-robot me-1"></i> AI Tools
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
+            <i class="fas fa-brain me-1"></i> Extract Entities (NER)
+          </a>
+        </div>
+      </div>
+    @endauth
+
     {{-- Related subjects --}}
     @if(isset($subjects) && $subjects->isNotEmpty())
       <div class="card mb-3">
@@ -2602,6 +2616,53 @@
 @endsection
 
 {{-- ============================================================ --}}
+{{-- NER Modal --}}
+@auth
+<div class="modal fade" id="nerModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="nerModalBody">
+        <div class="text-center py-5">
+          <div class="spinner-border text-success mb-3"></div>
+          <p class="text-muted">Loading entity extraction...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="{{ route('io.ai.extract', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
+          <i class="fas fa-external-link-alt me-1"></i>Open Full Page
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('nerModal').addEventListener('shown.bs.modal', function() {
+  var body = document.getElementById('nerModalBody');
+  if (body.dataset.loaded) return;
+  body.dataset.loaded = '1';
+  fetch('{{ route("io.ai.extract", $io->id) }}', {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(html) {
+    // Extract just the content section from the full page
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+    var content = doc.querySelector('#content, [role="main"], .container');
+    body.innerHTML = content ? content.innerHTML : html;
+  })
+  .catch(function(err) {
+    body.innerHTML = '<div class="alert alert-danger">Failed to load: ' + err.message + '</div>';
+  });
+});
+</script>
+@endauth
+
 {{-- AFTER CONTENT: Action buttons                                --}}
 {{-- ============================================================ --}}
 @section('after-content')

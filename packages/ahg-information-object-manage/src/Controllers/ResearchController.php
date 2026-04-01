@@ -120,11 +120,14 @@ class ResearchController extends Controller
             ->select('repo_ai.authorized_form_of_name as name')
             ->first();
 
-        // Get dates
+        // Get dates (date_display is in event_i18n.date, not event table)
         $dates = DB::table('event')
-            ->where('object_id', $io->id)
-            ->whereNotNull('date_display')
-            ->select('date_display')
+            ->join('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', '=', $culture);
+            })
+            ->where('event.object_id', $io->id)
+            ->whereNotNull('event_i18n.date')
+            ->select('event_i18n.date as date_display')
             ->first();
 
         return view('ahg-io-manage::research.citation', [
