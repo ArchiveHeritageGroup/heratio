@@ -127,7 +127,8 @@ class DisplayTypeDetector
             return 'archive';
         }
 
-        $type = self::detectByLevel($object->level_name)
+        $type = self::detectByDisplayStandard($object->display_standard_id)
+            ?? self::detectByLevel($object->level_name)
             ?? self::detectByParent($object->parent_id)
             ?? self::detectByEvents($objectId, $culture)
             ?? self::detectByMediaType($objectId, $culture)
@@ -136,6 +137,31 @@ class DisplayTypeDetector
         self::saveType($objectId, $type);
 
         return $type;
+    }
+
+    /**
+     * Detect sector from display_standard_id — most authoritative indicator.
+     */
+    protected static function detectByDisplayStandard(?int $displayStandardId): ?string
+    {
+        if (!$displayStandardId) {
+            return null;
+        }
+
+        // Map display standard term IDs to sectors
+        $map = [
+            353 => 'archive',  // ISAD(G)
+            354 => 'archive',  // Dublin Core
+            355 => 'library',  // MODS
+            356 => 'archive',  // RAD
+            357 => 'archive',  // DACS
+            449 => 'museum',   // Museum (CCO)
+            1691 => 'dam',     // Photo/DAM (IPTC/XMP)
+            1696 => 'gallery', // Gallery (Spectrum 5.0)
+            1705 => 'library', // Library (MARC-inspired)
+        ];
+
+        return $map[$displayStandardId] ?? null;
     }
 
     protected static function detectByLevel(?string $levelName): ?string
