@@ -223,24 +223,68 @@
       {{-- Instantiations (digital objects) --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-file-image me-1"></i> Instantiations
+          <i class="fas fa-file-image me-1"></i> Instantiations ({{ $digitalObjects->count() }})
         </div>
-        <div class="card-body">
+        <div class="card-body p-2">
           @if($digitalObjects->count())
-            <p class="small text-muted mb-2">{{ $digitalObjects->count() }} digital {{ $digitalObjects->count() === 1 ? 'object' : 'objects' }}</p>
-            @foreach($digitalObjects->take(5) as $dobj)
+            @foreach($digitalObjects as $dobj)
               @php
-                $dobjUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj, 'reference');
-                $isMaster = $dobj->usage_id == 166; // master
+                $dobjUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj);
+                $refUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj, 'reference');
+                $thumbUrl = \AhgCore\Services\DigitalObjectService::getUrl($dobj, 'thumbnail');
+                $mediaType = \AhgCore\Services\DigitalObjectService::getMediaType($dobj);
+                $mime = $dobj->mime_type ?? '';
+                $is3D = in_array(strtolower($mime), ['model/gltf-binary','model/gltf+json']) || str_ends_with(strtolower($dobj->name ?? ''), '.glb');
+                $isExternal = str_starts_with($dobj->path ?? '', 'http');
               @endphp
-              @if($dobjUrl)
-                <div class="mb-2">
-                  <img src="{{ $dobjUrl }}" alt="" class="img-fluid rounded" style="max-height:120px;">
+
+              @if($is3D)
+                {{-- 3D Model: model-viewer --}}
+                <div style="width:100%;height:250px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;overflow:hidden;">
+                  <model-viewer src="{{ $dobjUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1"
+                    style="width:100%;height:100%;" alt="{{ $dobj->name ?? '3D Model' }}"></model-viewer>
+                </div>
+                <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+              @elseif($isExternal && str_contains($dobj->path, 'sketchfab.com'))
+                {{-- Sketchfab embed --}}
+                @php
+                  preg_match('/([0-9a-f]{32})$/', basename(parse_url($dobj->path, PHP_URL_PATH)), $m);
+                  $embedId = $m[1] ?? basename(parse_url($dobj->path, PHP_URL_PATH));
+                @endphp
+                <iframe src="https://sketchfab.com/models/{{ $embedId }}/embed" style="width:100%;height:250px;border:none;border-radius:8px;"
+                  allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+              @elseif($mediaType === 'video')
+                <video controls class="w-100 rounded" style="max-height:250px;background:#000;" preload="metadata"
+                  @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
+                  <source src="{{ $dobjUrl }}" type="{{ $mime }}">
+                </video>
+              @elseif($mediaType === 'audio')
+                <audio controls class="w-100" preload="metadata">
+                  <source src="{{ $dobjUrl }}" type="{{ $mime }}">
+                </audio>
+              @elseif($refUrl || $thumbUrl)
+                {{-- Image --}}
+                <a href="{{ $dobjUrl }}" target="_blank">
+                  <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $dobj->name ?? '' }}" class="img-fluid rounded" style="max-height:250px;width:100%;object-fit:contain;">
+                </a>
+              @else
+                <div class="text-center py-3">
+                  <i class="fas fa-file fa-2x text-muted"></i>
+                  <p class="small text-muted mt-1 mb-0">{{ $dobj->name ?? 'Digital object' }}</p>
                 </div>
               @endif
+
+              <div class="d-flex justify-content-between align-items-center mt-1 mb-2">
+                <small class="text-muted text-truncate">{{ $dobj->name ?? '' }}</small>
+                @if($dobjUrl)
+                  <a href="{{ $isExternal ? $dobj->path : $dobjUrl }}" target="_blank" class="btn btn-sm atom-btn-white py-0 px-1">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                @endif
+              </div>
             @endforeach
           @else
-            <p class="text-muted small mb-0">No instantiations.</p>
+            <p class="text-muted small mb-0 p-2">No instantiations.</p>
           @endif
         </div>
       </div>
@@ -293,16 +337,18 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
           <i class="fas fa-bolt me-1"></i> Actions
         </div>
-        <div class="card-body">
-          <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2">
-            <i class="fas fa-project-diagram me-1"></i>Open in Graph Explorer
-          </a>
-          <a href="/ric-api/graph-summary/{{ $io->id }}" class="btn btn-sm btn-outline-info w-100 mb-2" target="_blank">
-            <i class="fas fa-code me-1"></i>View JSON-LD
-          </a>
-          <a href="/ric-api/timeline/{{ $io->id }}" class="btn btn-sm btn-outline-secondary w-100" target="_blank">
-            <i class="fas fa-clock me-1"></i>View Timeline
-          </a>
+        <div class="card-body py-2 px-3">
+          <div class="d-flex flex-wrap gap-1">
+            <a href="/explorer" class="btn btn-sm btn-outline-success">
+              <i class="fas fa-project-diagram me-1"></i>Graph Explorer
+            </a>
+            <a href="/ric-api/graph-summary/{{ $io->id }}" class="btn btn-sm btn-outline-info" target="_blank">
+              <i class="fas fa-code me-1"></i>JSON-LD
+            </a>
+            <a href="/ric-api/timeline/{{ $io->id }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+              <i class="fas fa-clock me-1"></i>Timeline
+            </a>
+          </div>
         </div>
       </div>
 
