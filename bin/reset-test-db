@@ -2,8 +2,8 @@
 #===============================================================================
 # Heratio - Reset Test Database
 #
-# Clones the archive database schema (structure only, no data) into heratio_test.
-# Run this whenever the archive schema changes.
+# Clones the archive database (schema + data) into heratio_test.
+# Run this whenever the archive schema or reference data changes.
 #
 # Usage: ./bin/reset-test-db
 #===============================================================================
@@ -13,13 +13,13 @@ set -euo pipefail
 SOURCE_DB="archive"
 TARGET_DB="heratio_test"
 
-echo "Resetting ${TARGET_DB} from ${SOURCE_DB} schema..."
+echo "Resetting ${TARGET_DB} from ${SOURCE_DB}..."
 
 # Drop and recreate the test database
 mysql -u root -e "DROP DATABASE IF EXISTS ${TARGET_DB}; CREATE DATABASE ${TARGET_DB};"
 
-# Clone structure only (no data)
-mysqldump -u root --no-data "${SOURCE_DB}" | mysql -u root "${TARGET_DB}"
+# Clone schema + data with FK checks disabled
+echo "SET FOREIGN_KEY_CHECKS=0; SET UNIQUE_CHECKS=0;" | cat - <(mysqldump -u root "${SOURCE_DB}") <(echo "SET FOREIGN_KEY_CHECKS=1; SET UNIQUE_CHECKS=1;") | mysql -u root "${TARGET_DB}"
 
 # Run Laravel framework migrations (users, cache, jobs, settings, cron)
 cd /usr/share/nginx/heratio

@@ -26,6 +26,62 @@
               ->where('user_id', auth()->id())->orderByDesc('created_at')->limit(10)->get();
       } catch (\Exception $e) {}
   }
+
+  // Build levels-by-sector map from ahg_settings DB (managed via Settings > Levels)
+  // If no settings configured for a sector, all levels are shown
+  $allLevels = $levels->keyBy('id');
+  $allLevelsArr = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
+  $levelsBySectorMap = [];
+  try {
+      $sectorRows = \Illuminate\Support\Facades\DB::table('ahg_settings')
+          ->where('setting_key', 'like', 'sector_%_levels')
+          ->get();
+      foreach ($sectorRows as $row) {
+          preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
+          if (isset($m[1])) {
+              $ids = json_decode($row->setting_value, true) ?: [];
+              $sLevels = [];
+              foreach ($ids as $id) {
+                  if ($allLevels->has($id)) {
+                      $sLevels[] = ['id' => (int) $id, 'name' => $allLevels[$id]->name];
+                  }
+              }
+              $levelsBySectorMap[$m[1]] = $sLevels;
+          }
+      }
+  } catch (\Exception $e) {}
+  $levelsBySectorMap[''] = $allLevelsArr;
+
+  // Field labels per sector
+  $fieldLabels = [
+      'archive' => [
+          'title' => 'Title', 'identifier' => 'Identifier', 'referenceCode' => 'Reference code',
+          'scopeAndContent' => 'Scope and content', 'extentAndMedium' => 'Extent and medium',
+          'archivalHistory' => 'Archival history', 'acquisition' => 'Acquisition',
+          'creatorSearch' => 'Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+      ],
+      'museum' => [
+          'title' => 'Title', 'identifier' => 'Object number',
+          'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
+          'creatorSearch' => 'Artist / Maker', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of origin', 'genreSearch' => 'Object type',
+      ],
+      'gallery' => [
+          'title' => 'Title', 'identifier' => 'Accession number',
+          'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
+          'creatorSearch' => 'Artist', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+      ],
+      'library' => [
+          'title' => 'Title', 'identifier' => 'Call number', 'referenceCode' => 'ISBN / ISSN',
+          'scopeAndContent' => 'Abstract',
+          'creatorSearch' => 'Author', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of publication', 'genreSearch' => 'Genre',
+      ],
+      'dam' => [
+          'title' => 'Title', 'identifier' => 'File name',
+          'scopeAndContent' => 'Caption / Description',
+          'creatorSearch' => 'Photographer / Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
+      ],
+  ];
+  $activeFields = $fieldLabels[$currentType] ?? $fieldLabels['archive'];
 @endphp
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -115,37 +171,6 @@
               <div class="mb-3 p-3 bg-light rounded">
                 <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>Search specific field <span class="badge bg-secondary ms-1">Optional</span></label>
                 <div id="field-search-rows">
-                  @php
-                    $fieldLabels = [
-                        'archive' => [
-                            'title' => 'Title', 'identifier' => 'Identifier', 'referenceCode' => 'Reference code',
-                            'scopeAndContent' => 'Scope and content', 'extentAndMedium' => 'Extent and medium',
-                            'archivalHistory' => 'Archival history', 'acquisition' => 'Acquisition',
-                            'creatorSearch' => 'Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
-                        ],
-                        'museum' => [
-                            'title' => 'Title', 'identifier' => 'Object number',
-                            'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
-                            'creatorSearch' => 'Artist / Maker', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of origin', 'genreSearch' => 'Object type',
-                        ],
-                        'gallery' => [
-                            'title' => 'Title', 'identifier' => 'Accession number',
-                            'scopeAndContent' => 'Description', 'extentAndMedium' => 'Dimensions / Medium',
-                            'creatorSearch' => 'Artist', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
-                        ],
-                        'library' => [
-                            'title' => 'Title', 'identifier' => 'Call number', 'referenceCode' => 'ISBN / ISSN',
-                            'scopeAndContent' => 'Abstract',
-                            'creatorSearch' => 'Author', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place of publication', 'genreSearch' => 'Genre',
-                        ],
-                        'dam' => [
-                            'title' => 'Title', 'identifier' => 'File name',
-                            'scopeAndContent' => 'Caption / Description',
-                            'creatorSearch' => 'Photographer / Creator', 'subjectSearch' => 'Subject', 'placeSearch' => 'Place', 'genreSearch' => 'Genre',
-                        ],
-                    ];
-                    $activeFields = $fieldLabels[$currentType] ?? $fieldLabels['archive'];
-                  @endphp
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
                       <option value="" selected>-- Select field --</option>
@@ -386,33 +411,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sync sector quick filter buttons with the level dropdown
     var sectorSelect = document.getElementById('sector-filter-select');
     if (sectorSelect) {
-        @php
-            // Build levels-by-sector map from ahg_settings DB (managed via Settings > Levels)
-            // If no settings configured, all sectors show all levels
-            $levelsBySectorMap = [];
-            $allLevels = $levels->keyBy('id');
-            $allLevelsArr = $levels->map(fn($l) => ['id' => $l->id, 'name' => $l->name])->values()->toArray();
-            try {
-                $sectorRows = \Illuminate\Support\Facades\DB::table('ahg_settings')
-                    ->where('setting_key', 'like', 'sector_%_levels')
-                    ->get();
-                foreach ($sectorRows as $row) {
-                    preg_match('/sector_(\w+)_levels/', $row->setting_key, $m);
-                    if (isset($m[1])) {
-                        $ids = json_decode($row->setting_value, true) ?: [];
-                        $sLevels = [];
-                        foreach ($ids as $id) {
-                            if ($allLevels->has($id)) {
-                                $sLevels[] = ['id' => (int) $id, 'name' => $allLevels[$id]->name];
-                            }
-                        }
-                        $levelsBySectorMap[$m[1]] = $sLevels;
-                    }
-                }
-            } catch (\Exception $e) {}
-            // '' = all levels (used when no sector selected, or sector has no setting)
-            $levelsBySectorMap[''] = $allLevelsArr;
-        @endphp
         var levelsBySector = @json($levelsBySectorMap);
 
         // Field labels per sector (generated from PHP to stay in sync with server-side rendering)

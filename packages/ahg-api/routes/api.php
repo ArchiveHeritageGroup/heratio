@@ -217,14 +217,10 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
 */
 
 Route::any('api/{any}', function (\Illuminate\Http\Request $request) {
-    // Skip /api/ric/* - handled by ahg-ric package
-    if (str_starts_with($request->path(), 'api/ric/') || $request->path() === 'api/ric') {
-        abort(404);
-    }
     return response()->json([
         'success' => false,
         'error' => 'Not Found',
         'message' => 'API endpoint not found: /' . $request->path(),
         'timestamp' => now()->toIso8601String(),
     ], 404);
-})->where('any', '.*')->middleware('api.cors');
+})->where('any', '^(?!ric(/|$)).*')->middleware('api.cors');
