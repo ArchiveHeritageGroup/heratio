@@ -105,6 +105,9 @@
         <i class="fas fa-robot me-1"></i> AI Tools
       </div>
       <div class="list-group list-group-flush">
+        <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#describeModal">
+          <i class="fas fa-eye me-1"></i> Describe Object/Image
+        </a>
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
           <i class="fas fa-brain me-1"></i> Extract Entities (NER)
         </a>
@@ -2353,12 +2356,13 @@
 
   @endif {{-- end heratio/ric view mode --}}
 
-  {{-- RiC Explorer Panel --}}
-  @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
+  {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-panel', ['resourceId' => $io->id])
 
-  {{-- RiC Entities Panel (Activities, Places, Rules, Instantiations, Relations) --}}
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $io])
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      @include('ahg-ric::_ric-entities-panel', ['record' => $io])
+    @endif
   @endif
 
 @endsection
@@ -2602,29 +2606,147 @@
     @endif
     @endif {{-- end physical_storage visibility --}}
 
+    {{-- RiC Actions --}}
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-project-diagram me-1"></i> RiC
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="{{ route('ric.explorer') }}?id={{ $io->id }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-project-diagram me-1"></i> Graph Explorer
+          </a>
+          <a href="{{ route('ric.export-jsonld') }}?id={{ $io->id }}" class="list-group-item list-group-item-action small" target="_blank">
+            <i class="fas fa-code me-1"></i> JSON-LD Export
+          </a>
+          <a href="{{ route('ric.explorer') }}?id={{ $io->id }}&view=timeline" class="list-group-item list-group-item-action small">
+            <i class="fas fa-clock me-1"></i> Timeline
+          </a>
+        </div>
+      </div>
+    @endif
+
   </nav>
 
 @endsection
 
 {{-- ============================================================ --}}
+{{-- Describe Object/Image Modal --}}
+@auth
+<div class="modal fade" id="describeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Describe Object/Image</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">AI-powered visual description of <strong>{{ $io->title ?? 'this record' }}</strong>. Analyses the digital object and generates a detailed description.</p>
+
+        <div class="text-center mb-3">
+          <button type="button" class="btn btn-primary btn-lg" id="describeBtn">
+            <i class="fas fa-eye me-2"></i>Describe Object
+          </button>
+        </div>
+
+        <div id="describeResults" style="display:none">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+              <span><i class="fas fa-file-alt me-1"></i>AI Description</span>
+              <button type="button" class="btn btn-sm btn-light" id="describeApproveBtn" style="display:none">
+                <i class="fas fa-check me-1"></i>Approve & Save
+              </button>
+            </div>
+            <div class="card-body" id="describeResultsBody"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  var objectId = {{ $io->id }};
+
+  document.getElementById('describeBtn').addEventListener('click', function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analysing...';
+
+    fetch('/admin/ai/suggest/object/' + objectId, {
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-eye me-2"></i>Re-Describe';
+
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+      var content = doc.querySelector('#content, [role="main"], .container');
+      var body = document.getElementById('describeResultsBody');
+      body.innerHTML = content ? content.innerHTML : html;
+      document.getElementById('describeResults').style.display = '';
+      document.getElementById('describeApproveBtn').style.display = '';
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-eye me-2"></i>Describe Object';
+      document.getElementById('describeResultsBody').innerHTML = '<div class="alert alert-danger">' + err.message + '</div>';
+      document.getElementById('describeResults').style.display = '';
+    });
+  });
+
+  document.getElementById('describeApproveBtn').addEventListener('click', function() {
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+    window.location.href = '/admin/ai/suggest/' + objectId + '/preview';
+  });
+})();
+</script>
+@endauth
+
 {{-- NER Modal --}}
 @auth
 <div class="modal fade" id="nerModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" id="nerModalBody">
-        <div class="text-center py-5">
-          <div class="spinner-border text-success mb-3"></div>
-          <p class="text-muted">Loading entity extraction...</p>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">Named Entity Recognition — extract persons, organizations, places, dates from <strong>{{ $io->title ?? 'this record' }}</strong></p>
+
+        {{-- Extract button --}}
+        <div class="text-center mb-3" id="nerExtractSection">
+          <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
+            <i class="fas fa-brain me-2"></i>Extract Entities
+          </button>
+        </div>
+
+        {{-- Results (hidden until extraction) --}}
+        <div id="nerResults" style="display:none">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small" id="nerResultsMeta"></span>
+            <div class="d-flex gap-1" id="nerActionBtns" style="display:none">
+              <a href="{{ route('io.ai.review') }}?object_id={{ $io->id }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-list-check me-1"></i>Review & Link
+              </a>
+              <button type="button" class="btn btn-success btn-sm" id="nerApproveBtn">
+                <i class="fas fa-check me-1"></i>Approve All
+              </button>
+            </div>
+          </div>
+          <div id="nerResultsBody"></div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="{{ route('io.ai.extract', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
-          <i class="fas fa-external-link-alt me-1"></i>Open Full Page
+        <a href="{{ route('io.ai.review') }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
+          <i class="fas fa-list-check me-1"></i>Review & Link
         </a>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
@@ -2632,25 +2754,78 @@
   </div>
 </div>
 <script>
-document.getElementById('nerModal').addEventListener('shown.bs.modal', function() {
-  var body = document.getElementById('nerModalBody');
-  if (body.dataset.loaded) return;
-  body.dataset.loaded = '1';
-  fetch('{{ route("io.ai.extract", $io->id) }}', {
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(html) {
-    // Extract just the content section from the full page
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(html, 'text/html');
-    var content = doc.querySelector('#content, [role="main"], .container');
-    body.innerHTML = content ? content.innerHTML : html;
-  })
-  .catch(function(err) {
-    body.innerHTML = '<div class="alert alert-danger">Failed to load: ' + err.message + '</div>';
+(function() {
+  var objectId = {{ $io->id }};
+  var icons = { PERSON: 'fa-user', ORG: 'fa-building', GPE: 'fa-map-marker-alt', DATE: 'fa-calendar', LOC: 'fa-globe', NORP: 'fa-users', EVENT: 'fa-bolt', WORK_OF_ART: 'fa-palette', LANGUAGE: 'fa-language', FAC: 'fa-landmark' };
+  var colors = { PERSON: 'primary', ORG: 'success', GPE: 'info', DATE: 'warning', LOC: 'info', NORP: 'secondary', EVENT: 'danger', WORK_OF_ART: 'dark', LANGUAGE: 'secondary', FAC: 'secondary' };
+
+  document.getElementById('nerExtractBtn').addEventListener('click', function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Extracting...';
+
+    fetch('/admin/ai/ner/extract/' + objectId, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json'
+      }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-brain me-2"></i>Re-Extract';
+
+      if (!data.success) {
+        document.getElementById('nerResultsBody').innerHTML = '<div class="alert alert-danger">' + (data.error || 'Extraction failed') + '</div>';
+        document.getElementById('nerResults').style.display = '';
+        return;
+      }
+
+      var entities = data.entities || {};
+      var count = data.entity_count || 0;
+      var time = data.processing_time_ms || 0;
+
+      document.getElementById('nerResultsMeta').textContent = 'Found ' + count + ' entities in ' + time + 'ms';
+      document.getElementById('nerResults').style.display = '';
+
+      if (count === 0) {
+        document.getElementById('nerResultsBody').innerHTML = '<p class="text-muted text-center">No entities found in this record.</p>';
+        return;
+      }
+
+      var html = '';
+      for (var type in entities) {
+        var items = entities[type];
+        if (!items || !items.length) continue;
+        var icon = icons[type] || 'fa-tag';
+        var color = colors[type] || 'secondary';
+        html += '<div class="mb-3"><h6 class="mb-1"><i class="fas ' + icon + ' me-1"></i>' + type + ' <span class="badge bg-' + color + '">' + items.length + '</span></h6>';
+        html += '<div class="d-flex flex-wrap gap-1">';
+        items.forEach(function(item) {
+          html += '<span class="badge bg-' + color + ' bg-opacity-75 fw-normal py-1 px-2">' + item + '</span>';
+        });
+        html += '</div></div>';
+      }
+
+      document.getElementById('nerResultsBody').innerHTML = html;
+      document.getElementById('nerActionBtns').style.display = '';
+      document.getElementById('nerFooterReview').style.display = '';
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-brain me-2"></i>Extract Entities';
+      document.getElementById('nerResultsBody').innerHTML = '<div class="alert alert-danger">' + err.message + '</div>';
+      document.getElementById('nerResults').style.display = '';
+    });
   });
-});
+
+  document.getElementById('nerApproveBtn').addEventListener('click', function() {
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Approving...';
+    window.location.href = '{{ route("io.ai.review") }}';
+  });
+})();
 </script>
 @endauth
 

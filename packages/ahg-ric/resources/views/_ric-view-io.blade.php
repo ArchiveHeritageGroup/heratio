@@ -126,29 +126,7 @@
     {{-- Relationships --}}
     <div class="col-12">
 
-      {{-- Parent / Child Relations --}}
-      <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-sitemap me-1"></i> Hierarchy (isPartOf / hasPart)
-        </div>
-        <div class="card-body">
-          @if($parent)
-            <div class="mb-2">
-              <span class="badge bg-secondary">isPartOf</span>
-              <a href="{{ url('/' . $parent->slug) }}">{{ $parent->title ?: '[Untitled]' }}</a>
-            </div>
-          @endif
-          @if($childCount > 0)
-            <div>
-              <span class="badge bg-info">hasPart</span>
-              <span class="text-muted">{{ $childCount }} child {{ $childCount === 1 ? 'record' : 'records' }}</span>
-            </div>
-          @endif
-          @if(!$parent && $childCount === 0)
-            <p class="text-muted mb-0">No hierarchical relationships.</p>
-          @endif
-        </div>
-      </div>
+      {{-- Hierarchy removed — IO parent/child already shown via treeview in left sidebar --}}
 
       {{-- Creators / Accumulators --}}
       @if($creators->count())
@@ -338,25 +316,7 @@
         </div>
       </div>
 
-      {{-- Actions --}}
-      <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-bolt me-1"></i> Actions
-        </div>
-        <div class="card-body py-2 px-3">
-          <div class="d-flex flex-wrap gap-1">
-            <a href="/explorer" class="btn btn-sm btn-outline-success">
-              <i class="fas fa-project-diagram me-1"></i>Graph Explorer
-            </a>
-            <a href="/ric-api/graph-summary/{{ $io->id }}" class="btn btn-sm btn-outline-info" target="_blank">
-              <i class="fas fa-code me-1"></i>JSON-LD
-            </a>
-            <a href="/ric-api/timeline/{{ $io->id }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-              <i class="fas fa-clock me-1"></i>Timeline
-            </a>
-          </div>
-        </div>
-      </div>
+      {{-- Actions moved to right sidebar (@section('right') in IO show.blade.php) --}}
 
     </div>
   </div>

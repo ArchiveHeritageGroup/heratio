@@ -607,6 +607,7 @@ class SettingsController extends Controller
             'ahg_link_color', 'ahg_sidebar_bg', 'ahg_sidebar_text',
             'ahg_logo_path', 'ahg_footer_text', 'ahg_show_branding',
             'ahg_custom_css',
+            'ahg_font_size_body', 'ahg_font_size_sidebar', 'ahg_font_size_sidebar_header',
             'ahg_success_color', 'ahg_danger_color', 'ahg_warning_color',
             'ahg_info_color', 'ahg_light_color', 'ahg_dark_color',
             'ahg_muted_color', 'ahg_border_color',
@@ -640,7 +641,11 @@ class SettingsController extends Controller
         $css .= ":root {\n";
         $vars = $this->getThemeVars();
         foreach ($vars as $key => [$var, $default]) {
-            $css .= "    {$var}: " . ($rows[$key] ?? $default) . ";\n";
+            $value = $rows[$key] ?? $default;
+            if (str_contains($var, '--ahg-font') && is_numeric($value)) {
+                $value .= 'rem';
+            }
+            $css .= "    {$var}: {$value};\n";
         }
         $css .= "}\n";
         $css .= $this->getThemeRules();
@@ -708,6 +713,9 @@ class SettingsController extends Controller
             'ahg_dark_color' => ['--ahg-dark', '#343a40'],
             'ahg_muted_color' => ['--ahg-muted', '#6c757d'],
             'ahg_border_color' => ['--ahg-border', '#dee2e6'],
+            'ahg_font_size_body' => ['--ahg-font-body', '0.95rem'],
+            'ahg_font_size_sidebar' => ['--ahg-font-sidebar', '0.85rem'],
+            'ahg_font_size_sidebar_header' => ['--ahg-font-sidebar-header', '0.82rem'],
         ];
     }
 

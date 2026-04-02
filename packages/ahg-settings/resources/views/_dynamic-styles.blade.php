@@ -14,5 +14,8 @@
   --ahg-btn-bg: {{ $themeSettings['ahg_button_bg'] ?? '#005837' }};
   --ahg-btn-text: {{ $themeSettings['ahg_button_text'] ?? '#ffffff' }};
   --ahg-link-color: {{ $themeSettings['ahg_link_color'] ?? '#005837' }};
+  --ahg-font-body: {{ $themeSettings['ahg_font_size_body'] ?? '0.95' }}rem;
+  --ahg-font-sidebar: {{ $themeSettings['ahg_font_size_sidebar'] ?? '0.85' }}rem;
+  --ahg-font-sidebar-header: {{ $themeSettings['ahg_font_size_sidebar_header'] ?? '0.82' }}rem;
 }
 </style>

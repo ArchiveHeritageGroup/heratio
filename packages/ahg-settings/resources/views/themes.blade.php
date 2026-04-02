@@ -357,6 +357,49 @@
       </div>
     </div>
 
+    {{-- Typography --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-font me-2"></i>Typography</h5></div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Body Font Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <select name="ahg_font_size_body" class="form-select">
+              @foreach(['0.80','0.85','0.90','0.95','1.00','1.05','1.10'] as $s)
+              <option value="{{ $s }}" {{ ($settings['ahg_font_size_body'] ?? '0.95') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
+              @endforeach
+            </select>
+            <div class="form-text">Main content area text size</div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Sidebar Font Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <select name="ahg_font_size_sidebar" class="form-select">
+              @foreach(['0.75','0.78','0.80','0.83','0.85','0.88','0.90','0.95'] as $s)
+              <option value="{{ $s }}" {{ ($settings['ahg_font_size_sidebar'] ?? '0.85') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
+              @endforeach
+            </select>
+            <div class="form-text">Left and right sidebar text</div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Sidebar Header Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <select name="ahg_font_size_sidebar_header" class="form-select">
+              @foreach(['0.75','0.78','0.80','0.82','0.85','0.88','0.90'] as $s)
+              <option value="{{ $s }}" {{ ($settings['ahg_font_size_sidebar_header'] ?? '0.82') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
+              @endforeach
+            </select>
+            <div class="form-text">Sidebar card header text</div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Preview</label>
+            <div class="border rounded p-2" style="font-size: 0.85rem;">
+              <div class="fw-bold mb-1" style="font-size: 0.82rem;">Card Header</div>
+              <div>Sidebar body text sample</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Custom CSS --}}
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-code me-2"></i>Custom CSS</h5></div>

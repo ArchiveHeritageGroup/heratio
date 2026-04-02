@@ -654,11 +654,12 @@
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])
 
-  {{-- RiC Explorer Panel --}}
-  @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
+  {{-- RiC Explorer Panel + RiC Context — only visible in RiC view mode --}}
+  @if(session('ric_view_mode') === 'ric')
+    @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
 
-  {{-- RiC Entities Panel (Activities, Places, Rules, Instantiations, Relations) --}}
-  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
-    @include('ahg-ric::_ric-entities-panel', ['record' => $actor])
+    @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+      @include('ahg-ric::_ric-entities-panel', ['record' => $actor])
+    @endif
   @endif
 @endsection

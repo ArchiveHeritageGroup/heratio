@@ -540,102 +540,198 @@ class RicEntityService
      */
     public function getEntitiesForRecord(int $recordId): array
     {
-        // Activities linked via relation
-        $activities = DB::table('relation')
-            ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
-            ->join('ric_activity', function ($j) {
-                $j->on('ric_activity.id', '=', 'relation.subject_id')
-                    ->orOn('ric_activity.id', '=', 'relation.object_id');
+        // Get all entity IDs linked to this record via relations (as subject or object)
+        $relatedIds = DB::table('relation')
+            ->where('relation.subject_id', $recordId)
+            ->orWhere('relation.object_id', $recordId)
+            ->get()
+            ->map(function ($r) use ($recordId) {
+                return $r->subject_id == $recordId ? $r->object_id : $r->subject_id;
             })
-            ->leftJoin('ric_activity_i18n', function ($j) {
-                $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                    ->where('ric_activity_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug', 'ric_activity.id', '=', 'slug.object_id')
-            ->where(function ($q) use ($recordId) {
-                $q->where('relation.subject_id', $recordId)
-                    ->orWhere('relation.object_id', $recordId);
-            })
-            ->where('ric_relation_meta.domain_class', 'Activity')
-            ->orWhere('ric_relation_meta.range_class', 'Activity')
-            ->select([
-                'ric_activity.id', 'ric_activity.type_id', 'ric_activity.start_date', 'ric_activity.end_date',
-                'ric_activity_i18n.name', 'ric_activity_i18n.description', 'ric_activity_i18n.date_display',
-                'slug.slug',
-                'ric_relation_meta.rico_predicate',
-            ])
-            ->distinct()
-            ->get();
+            ->unique()
+            ->values()
+            ->toArray();
 
-        // Instantiations directly linked via record_id
+        // Activities linked via relation
+        $activities = collect();
+        if (!empty($relatedIds)) {
+            $activities = DB::table('ric_activity')
+                ->leftJoin('ric_activity_i18n', function ($j) {
+                    $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')
+                        ->where('ric_activity_i18n.culture', '=', $this->culture);
+                })
+                ->leftJoin('slug', 'ric_activity.id', '=', 'slug.object_id')
+                ->whereIn('ric_activity.id', $relatedIds)
+                ->select([
+                    'ric_activity.id', 'ric_activity.type_id', 'ric_activity.start_date', 'ric_activity.end_date',
+                    'ric_activity_i18n.name', 'ric_activity_i18n.description', 'ric_activity_i18n.date_display',
+                    'slug.slug',
+                ])
+                ->get();
+        }
+
+        // Instantiations: linked via record_id OR via relation
         $instantiations = DB::table('ric_instantiation')
             ->leftJoin('ric_instantiation_i18n', function ($j) {
                 $j->on('ric_instantiation.id', '=', 'ric_instantiation_i18n.id')
                     ->where('ric_instantiation_i18n.culture', '=', $this->culture);
             })
             ->leftJoin('slug', 'ric_instantiation.id', '=', 'slug.object_id')
-            ->where('ric_instantiation.record_id', $recordId)
+            ->where(function ($q) use ($recordId, $relatedIds) {
+                $q->where('ric_instantiation.record_id', $recordId);
+                if (!empty($relatedIds)) {
+                    $q->orWhereIn('ric_instantiation.id', $relatedIds);
+                }
+            })
             ->select([
                 'ric_instantiation.id', 'ric_instantiation.carrier_type', 'ric_instantiation.mime_type',
                 'ric_instantiation.extent_value', 'ric_instantiation.extent_unit',
                 'ric_instantiation_i18n.title', 'ric_instantiation_i18n.description',
                 'slug.slug',
             ])
+            ->distinct()
             ->get();
 
         // Places linked via relation
-        $places = DB::table('relation')
-            ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
-            ->join('ric_place', function ($j) {
-                $j->on('ric_place.id', '=', 'relation.subject_id')
-                    ->orOn('ric_place.id', '=', 'relation.object_id');
-            })
-            ->leftJoin('ric_place_i18n', function ($j) {
-                $j->on('ric_place.id', '=', 'ric_place_i18n.id')
-                    ->where('ric_place_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug', 'ric_place.id', '=', 'slug.object_id')
-            ->where(function ($q) use ($recordId) {
-                $q->where('relation.subject_id', $recordId)
-                    ->orWhere('relation.object_id', $recordId);
-            })
-            ->select([
-                'ric_place.id', 'ric_place.type_id', 'ric_place.latitude', 'ric_place.longitude',
-                'ric_place_i18n.name', 'ric_place_i18n.description',
-                'slug.slug',
-            ])
-            ->distinct()
-            ->get();
+        $places = collect();
+        if (!empty($relatedIds)) {
+            $places = DB::table('ric_place')
+                ->leftJoin('ric_place_i18n', function ($j) {
+                    $j->on('ric_place.id', '=', 'ric_place_i18n.id')
+                        ->where('ric_place_i18n.culture', '=', $this->culture);
+                })
+                ->leftJoin('slug', 'ric_place.id', '=', 'slug.object_id')
+                ->whereIn('ric_place.id', $relatedIds)
+                ->select([
+                    'ric_place.id', 'ric_place.type_id', 'ric_place.latitude', 'ric_place.longitude',
+                    'ric_place_i18n.name', 'ric_place_i18n.description',
+                    'slug.slug',
+                ])
+                ->get();
+        }
 
         // Rules linked via relation
-        $rules = DB::table('relation')
-            ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
-            ->join('ric_rule', function ($j) {
-                $j->on('ric_rule.id', '=', 'relation.subject_id')
-                    ->orOn('ric_rule.id', '=', 'relation.object_id');
-            })
-            ->leftJoin('ric_rule_i18n', function ($j) {
-                $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')
-                    ->where('ric_rule_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug', 'ric_rule.id', '=', 'slug.object_id')
-            ->where(function ($q) use ($recordId) {
-                $q->where('relation.subject_id', $recordId)
-                    ->orWhere('relation.object_id', $recordId);
-            })
-            ->select([
-                'ric_rule.id', 'ric_rule.type_id', 'ric_rule.jurisdiction',
-                'ric_rule_i18n.title', 'ric_rule_i18n.description',
-                'slug.slug',
-            ])
-            ->distinct()
-            ->get();
+        $rules = collect();
+        if (!empty($relatedIds)) {
+            $rules = DB::table('ric_rule')
+                ->leftJoin('ric_rule_i18n', function ($j) {
+                    $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')
+                        ->where('ric_rule_i18n.culture', '=', $this->culture);
+                })
+                ->leftJoin('slug', 'ric_rule.id', '=', 'slug.object_id')
+                ->whereIn('ric_rule.id', $relatedIds)
+                ->select([
+                    'ric_rule.id', 'ric_rule.type_id', 'ric_rule.jurisdiction',
+                    'ric_rule_i18n.title', 'ric_rule_i18n.description',
+                    'slug.slug',
+                ])
+                ->get();
+        }
 
         return [
             'activities' => $activities,
             'instantiations' => $instantiations,
             'places' => $places,
             'rules' => $rules,
+        ];
+    }
+
+    // ================================================================
+    // HIERARCHY (isPartOf / hasPart)
+    // ================================================================
+
+    /**
+     * Hierarchical relation codes (child→parent direction).
+     */
+    private const HIERARCHY_CODES = ['has_part', 'includes', 'is_child_of', 'is_superior_of'];
+
+    /**
+     * Get hierarchy info for an entity: parent, children, siblings.
+     */
+    public function getHierarchy(int $entityId): array
+    {
+        // Parent = where this entity is the object (target) of has_part/includes,
+        //          OR where this entity is the subject of is_child_of
+        $parent = null;
+        $children = collect();
+
+        // Find "parent has_part/includes this" relations (this entity is object)
+        $parentRel = DB::table('relation')
+            ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
+            ->where('relation.object_id', $entityId)
+            ->whereIn('ric_relation_meta.dropdown_code', ['has_part', 'includes', 'is_superior_of'])
+            ->select('relation.subject_id')
+            ->first();
+
+        if (!$parentRel) {
+            // Also check "this is_child_of parent" (this entity is subject)
+            $parentRel = DB::table('relation')
+                ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
+                ->where('relation.subject_id', $entityId)
+                ->where('ric_relation_meta.dropdown_code', 'is_child_of')
+                ->select('relation.object_id as subject_id')
+                ->first();
+        }
+
+        if ($parentRel) {
+            $parentId = $parentRel->subject_id;
+            $parent = (object) [
+                'id' => $parentId,
+                'name' => $this->resolveEntityName($parentId),
+                'type' => $this->resolveEntityType($parentId),
+                'slug' => DB::table('slug')->where('object_id', $parentId)->value('slug'),
+            ];
+        }
+
+        // Children = where this entity is the subject of has_part/includes,
+        //            OR where this entity is the object of is_child_of
+        $childIds = DB::table('relation')
+            ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
+            ->where('relation.subject_id', $entityId)
+            ->whereIn('ric_relation_meta.dropdown_code', ['has_part', 'includes', 'is_superior_of'])
+            ->pluck('relation.object_id')
+            ->merge(
+                DB::table('relation')
+                    ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
+                    ->where('relation.object_id', $entityId)
+                    ->where('ric_relation_meta.dropdown_code', 'is_child_of')
+                    ->pluck('relation.subject_id')
+            )
+            ->unique();
+
+        foreach ($childIds as $childId) {
+            $children->push((object) [
+                'id' => $childId,
+                'name' => $this->resolveEntityName($childId),
+                'type' => $this->resolveEntityType($childId),
+                'slug' => DB::table('slug')->where('object_id', $childId)->value('slug'),
+            ]);
+        }
+
+        // Siblings = other children of the same parent
+        $siblings = collect();
+        if ($parent) {
+            $siblingIds = DB::table('relation')
+                ->join('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
+                ->where('relation.subject_id', $parent->id)
+                ->whereIn('ric_relation_meta.dropdown_code', ['has_part', 'includes', 'is_superior_of'])
+                ->where('relation.object_id', '!=', $entityId)
+                ->pluck('relation.object_id');
+
+            foreach ($siblingIds as $sibId) {
+                $siblings->push((object) [
+                    'id' => $sibId,
+                    'name' => $this->resolveEntityName($sibId),
+                    'type' => $this->resolveEntityType($sibId),
+                    'slug' => DB::table('slug')->where('object_id', $sibId)->value('slug'),
+                ]);
+            }
+        }
+
+        return [
+            'parent' => $parent,
+            'children' => $children,
+            'siblings' => $siblings,
         ];
     }
 
@@ -897,32 +993,78 @@ class RicEntityService
         ];
     }
 
-    protected function resolveEntityName(int $id): string
+    public function resolveEntityName(int $id): string
     {
-        // Check RiC entities first
-        $name = DB::table('ric_place_i18n')->where('id', $id)->where('culture', $this->culture)->value('name');
-        if ($name) return $name;
+        $className = DB::table('object')->where('id', $id)->value('class_name');
 
-        $name = DB::table('ric_rule_i18n')->where('id', $id)->where('culture', $this->culture)->value('title');
-        if ($name) return $name;
+        // Check based on class_name for efficiency
+        switch ($className) {
+            case 'RicPlace':
+                $row = DB::table('ric_place_i18n')->where('id', $id)->where('culture', $this->culture)->first();
+                if ($row && $row->name) return $row->name;
+                if ($row && $row->description) return \Illuminate\Support\Str::limit($row->description, 60);
+                return 'Place #' . $id;
 
-        $name = DB::table('ric_activity_i18n')->where('id', $id)->where('culture', $this->culture)->value('name');
-        if ($name) return $name;
+            case 'RicRule':
+                $row = DB::table('ric_rule_i18n')->where('id', $id)->where('culture', $this->culture)->first();
+                if ($row && $row->title) return $row->title;
+                if ($row && $row->description) return \Illuminate\Support\Str::limit($row->description, 60);
+                $type = DB::table('ric_rule')->where('id', $id)->value('type_id');
+                return ($type ? ucfirst($type) : 'Rule') . ' #' . $id;
 
-        $name = DB::table('ric_instantiation_i18n')->where('id', $id)->where('culture', $this->culture)->value('title');
-        if ($name) return $name;
+            case 'RicActivity':
+                $row = DB::table('ric_activity_i18n')->where('id', $id)->where('culture', $this->culture)->first();
+                if ($row && $row->name) return $row->name;
+                if ($row && $row->date_display) {
+                    $type = DB::table('ric_activity')->where('id', $id)->value('type_id');
+                    return ucfirst($type ?? 'Activity') . ' (' . $row->date_display . ')';
+                }
+                if ($row && $row->description) return \Illuminate\Support\Str::limit($row->description, 60);
+                $type = DB::table('ric_activity')->where('id', $id)->value('type_id');
+                return ucfirst($type ?? 'Activity') . ' #' . $id;
 
-        // Fall back to AtoM entities
-        $name = DB::table('information_object_i18n')->where('id', $id)->where('culture', $this->culture)->value('title');
-        if ($name) return $name;
+            case 'RicInstantiation':
+                $row = DB::table('ric_instantiation_i18n')->where('id', $id)->where('culture', $this->culture)->first();
+                if ($row && $row->title) return $row->title;
+                $mime = DB::table('ric_instantiation')->where('id', $id)->value('mime_type');
+                if ($mime) return 'Instantiation (' . $mime . ')';
+                return 'Instantiation #' . $id;
 
-        $name = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->value('authorized_form_of_name');
-        if ($name) return $name;
+            case 'QubitInformationObject':
+                $name = DB::table('information_object_i18n')->where('id', $id)->where('culture', $this->culture)->value('title');
+                if ($name) return $name;
+                return 'Record #' . $id;
 
-        $name = DB::table('term_i18n')->where('id', $id)->where('culture', $this->culture)->value('name');
-        if ($name) return $name;
+            case 'QubitActor':
+                $name = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->value('authorized_form_of_name');
+                if ($name) return $name;
+                return 'Agent #' . $id;
 
-        return "Entity #{$id}";
+            case 'QubitRepository':
+                $name = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->value('authorized_form_of_name');
+                if ($name) return $name;
+                return 'Repository #' . $id;
+
+            case 'QubitTerm':
+                $name = DB::table('term_i18n')->where('id', $id)->where('culture', $this->culture)->value('name');
+                if ($name) return $name;
+                return 'Term #' . $id;
+
+            case 'QubitFunctionObject':
+                $name = DB::table('function_object_i18n')->where('id', $id)->where('culture', $this->culture)->value('authorized_form_of_name');
+                if ($name) return $name;
+                return 'Function #' . $id;
+
+            default:
+                // Try all i18n tables as fallback
+                $name = DB::table('information_object_i18n')->where('id', $id)->where('culture', $this->culture)->value('title');
+                if ($name) return $name;
+                $name = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->value('authorized_form_of_name');
+                if ($name) return $name;
+                $name = DB::table('term_i18n')->where('id', $id)->where('culture', $this->culture)->value('name');
+                if ($name) return $name;
+                return ($className ?? 'Entity') . ' #' . $id;
+        }
     }
 
     protected function resolveEntityType(int $id): string

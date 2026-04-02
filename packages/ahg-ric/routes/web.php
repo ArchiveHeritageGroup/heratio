@@ -84,8 +84,8 @@ Route::prefix('admin/ric/entity-api')->middleware('web')->group(function () {
     Route::get('/relation-types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
 });
 
-// Standalone browse/show/edit pages (admin)
-Route::middleware('admin')->group(function () {
+// Standalone browse/show/edit pages
+Route::middleware('web')->group(function () {
     Route::get('/admin/ric/entities/places', [RicEntityController::class, 'browsePlaces'])->name('ric.places.browse');
     Route::get('/admin/ric/entities/rules', [RicEntityController::class, 'browseRules'])->name('ric.rules.browse');
     Route::get('/admin/ric/entities/activities', [RicEntityController::class, 'browseActivities'])->name('ric.activities.browse');

@@ -393,6 +393,13 @@
       }
     }
   });
+
+  // Auto-load entity from URL parameter ?id=X
+  var urlParams = new URLSearchParams(window.location.search);
+  var initialId = urlParams.get('id');
+  if (initialId) {
+    loadGraphData(initialId);
+  }
 })();
 
 // ── New Entity ──

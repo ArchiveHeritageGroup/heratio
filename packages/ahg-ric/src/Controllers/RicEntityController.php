@@ -284,9 +284,11 @@ class RicEntityController extends Controller
 
         $relations = $this->service->getRelationsForEntity($entity->id);
         $relationTypes = $this->service->getRelationTypes();
+        $hierarchy = $this->service->getHierarchy($entity->id);
 
         return view("ahg-ric::entities.{$type}.show", [
             'entity' => $entity,
+            'hierarchy' => $hierarchy,
             'relations' => $relations,
             'relationTypes' => $relationTypes,
             'entityType' => rtrim($type, 's'), // places → place

@@ -1560,6 +1560,105 @@ SPARQL;
             ];
         }
 
+        // RiC-native entities (Activities, Places, Rules, Instantiations)
+        $ricEntityService = new \AhgRic\Services\RicEntityService($culture);
+        $ricEntities = $ricEntityService->getEntitiesForRecord($recordId);
+
+        // Activities
+        foreach ($ricEntities['activities'] ?? [] as $act) {
+            $actUri = $this->buildRecordUri('activity', $act->id, $baseUri, $instanceId);
+            if (!isset($nodeIndex[$actUri])) {
+                $nodeIndex[$actUri] = true;
+                $nodes[] = [
+                    'id'    => $actUri,
+                    'label' => $act->name ?: ($act->date_display ? ucfirst($act->type_id ?? 'Activity') . ' (' . $act->date_display . ')' : 'Activity #' . $act->id),
+                    'type'  => 'Activity',
+                ];
+            }
+            $edges[] = ['source' => $actUri, 'target' => $recordUri, 'label' => 'results In'];
+        }
+
+        // Places
+        foreach ($ricEntities['places'] ?? [] as $place) {
+            $placeUri = $this->buildRecordUri('place', $place->id, $baseUri, $instanceId);
+            if (!isset($nodeIndex[$placeUri])) {
+                $nodeIndex[$placeUri] = true;
+                $nodes[] = [
+                    'id'    => $placeUri,
+                    'label' => $place->name ?: 'Place #' . $place->id,
+                    'type'  => 'Place',
+                ];
+            }
+            $edges[] = ['source' => $recordUri, 'target' => $placeUri, 'label' => 'has Or Had Location'];
+        }
+
+        // Rules
+        foreach ($ricEntities['rules'] ?? [] as $rule) {
+            $ruleUri = $this->buildRecordUri('rule', $rule->id, $baseUri, $instanceId);
+            if (!isset($nodeIndex[$ruleUri])) {
+                $nodeIndex[$ruleUri] = true;
+                $nodes[] = [
+                    'id'    => $ruleUri,
+                    'label' => $rule->title ?: 'Rule #' . $rule->id,
+                    'type'  => 'Rule',
+                ];
+            }
+            $edges[] = ['source' => $recordUri, 'target' => $ruleUri, 'label' => 'is Regulated By'];
+        }
+
+        // Instantiations
+        foreach ($ricEntities['instantiations'] ?? [] as $inst) {
+            $instUri = $this->buildRecordUri('instantiation', $inst->id, $baseUri, $instanceId);
+            if (!isset($nodeIndex[$instUri])) {
+                $nodeIndex[$instUri] = true;
+                $nodes[] = [
+                    'id'    => $instUri,
+                    'label' => $inst->title ?: ($inst->mime_type ? 'Instantiation (' . $inst->mime_type . ')' : 'Instantiation #' . $inst->id),
+                    'type'  => 'Instantiation',
+                ];
+            }
+            $edges[] = ['source' => $recordUri, 'target' => $instUri, 'label' => 'has Instantiation'];
+        }
+
+        // RiC-native relations (with ric_relation_meta) that link to non-RiC entities
+        $ricRelations = DB::table('relation as r')
+            ->join('ric_relation_meta as rm', 'r.id', '=', 'rm.relation_id')
+            ->where(function ($q) use ($recordId) {
+                $q->where('r.subject_id', $recordId)->orWhere('r.object_id', $recordId);
+            })
+            ->select('r.subject_id', 'r.object_id', 'rm.rico_predicate', 'rm.dropdown_code')
+            ->limit(30)
+            ->get();
+
+        foreach ($ricRelations as $rr) {
+            $otherId = ($rr->subject_id == $recordId) ? $rr->object_id : $rr->subject_id;
+            $otherClassName = DB::table('object')->where('id', $otherId)->value('class_name');
+            // Skip entities we already added above
+            if (in_array($otherClassName, ['RicActivity', 'RicPlace', 'RicRule', 'RicInstantiation'])) continue;
+
+            $otherName = $ricEntityService->resolveEntityName($otherId);
+            $otherType = match ($otherClassName) {
+                'QubitActor' => 'Person',
+                'QubitInformationObject' => 'RecordSet',
+                'QubitRepository' => 'CorporateBody',
+                'QubitFunctionObject' => 'Function',
+                default => $otherClassName ?? 'Entity',
+            };
+            $otherUri = $this->buildRecordUri(strtolower($otherType), $otherId, $baseUri, $instanceId);
+
+            if (!isset($nodeIndex[$otherUri])) {
+                $nodeIndex[$otherUri] = true;
+                $nodes[] = ['id' => $otherUri, 'label' => $otherName, 'type' => $otherType];
+            }
+            $predLabel = str_replace('rico:', '', $rr->rico_predicate ?? 'isAssociatedWith');
+            $predLabel = preg_replace('/([a-z])([A-Z])/', '$1 $2', $predLabel); // camelCase to spaces
+            if ($rr->subject_id == $recordId) {
+                $edges[] = ['source' => $recordUri, 'target' => $otherUri, 'label' => $predLabel];
+            } else {
+                $edges[] = ['source' => $otherUri, 'target' => $recordUri, 'label' => $predLabel];
+            }
+        }
+
         // RiC-O: describesOrDescribed — finding aid references
         if (Schema::hasTable('finding_aid')) {
             $findingAids = DB::table('finding_aid')
