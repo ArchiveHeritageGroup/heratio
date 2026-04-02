@@ -1816,7 +1816,7 @@ class AiController extends Controller
                     'Content-Type' => 'application/json',
                     'X-API-Key'    => $apiKey,
                 ])
-                ->post($apiUrl . '/ai/v1/ner/extract', $payload);
+                ->post(rtrim($apiUrl, '/') . '/ner/extract', $payload);
 
             return $response->json();
         } catch (\Exception $e) {

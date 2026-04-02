@@ -656,4 +656,9 @@
 
   {{-- RiC Explorer Panel --}}
   @include('ahg-ric::_ric-panel', ['resourceId' => $actor->id])
+
+  {{-- RiC Entities Panel (Activities, Places, Rules, Instantiations, Relations) --}}
+  @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
+    @include('ahg-ric::_ric-entities-panel', ['record' => $actor])
+  @endif
 @endsection

@@ -1,6 +1,7 @@
 <?php
 
 use AhgRic\Controllers\RicController;
+use AhgRic\Controllers\RicEntityController;
 use Illuminate\Support\Facades\Route;
 
 // Public RiC API — web middleware for session support (view-mode toggle needs session)
@@ -63,3 +64,39 @@ Route::middleware('admin')->group(function () {
 // Legacy camelCase public endpoints (ricExplorer prefix)
 Route::get('/ricExplorer/getData', [RicController::class, 'getData'])->name('ric.getData-legacy');
 Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete-legacy');
+
+// ================================================================
+// RiC Entity CRUD — Record-level AJAX + Standalone browse
+// ================================================================
+
+// Record-level AJAX endpoints (called from IO/Actor show pages)
+Route::prefix('ric-api/entities')->middleware('web')->group(function () {
+    Route::get('/for-record/{id}', [RicEntityController::class, 'entitiesForRecord'])->name('ric.entities.for-record');
+    Route::post('/store', [RicEntityController::class, 'storeEntity'])->name('ric.entities.store');
+    Route::put('/{id}', [RicEntityController::class, 'updateEntity'])->name('ric.entities.update');
+    Route::delete('/{id}', [RicEntityController::class, 'destroyEntity'])->name('ric.entities.destroy');
+    Route::get('/autocomplete', [RicEntityController::class, 'autocompleteEntities'])->name('ric.entities.autocomplete');
+    Route::get('/info/{id}', [RicEntityController::class, 'getEntityInfo'])->name('ric.entities.info');
+    Route::get('/dropdown/{taxonomy}', [RicEntityController::class, 'dropdownChoices'])->name('ric.entities.dropdown');
+});
+
+// Relation AJAX endpoints
+Route::prefix('ric-api/relations')->middleware('web')->group(function () {
+    Route::get('/for-record/{id}', [RicEntityController::class, 'relationsForRecord'])->name('ric.relations.for-record');
+    Route::post('/store', [RicEntityController::class, 'storeRelation'])->name('ric.relations.store');
+    Route::delete('/{id}', [RicEntityController::class, 'destroyRelation'])->name('ric.relations.destroy');
+    Route::get('/types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
+});
+
+// Standalone browse/show/edit pages (admin)
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/ric/entities/places', [RicEntityController::class, 'browsePlaces'])->name('ric.places.browse');
+    Route::get('/admin/ric/entities/rules', [RicEntityController::class, 'browseRules'])->name('ric.rules.browse');
+    Route::get('/admin/ric/entities/activities', [RicEntityController::class, 'browseActivities'])->name('ric.activities.browse');
+    Route::get('/admin/ric/entities/instantiations', [RicEntityController::class, 'browseInstantiations'])->name('ric.instantiations.browse');
+
+    Route::get('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'showEntity'])->name('ric.entities.show');
+    Route::get('/admin/ric/entities/{type}/{slug}/edit', [RicEntityController::class, 'editEntity'])->name('ric.entities.edit');
+    Route::put('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'updateEntityForm'])->name('ric.entities.update-form');
+    Route::delete('/admin/ric/entities/{type}/{slug}', [RicEntityController::class, 'destroyEntityForm'])->name('ric.entities.destroy-form');
+});

@@ -49,7 +49,7 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/condition/{id}', [AiController::class, 'conditionView'])->name('admin.ai.condition.view')->whereNumber('id');
 
     // ─── NER Entity Management ─────────────────────────────────────
-    Route::get('/ner/extract/{id}', [AiController::class, 'nerExtract'])->name('admin.ai.ner.extract')->whereNumber('id');
+    Route::match(['get', 'post'], '/ner/extract/{id}', [AiController::class, 'nerExtract'])->name('admin.ai.ner.extract')->whereNumber('id');
     Route::get('/ner/entities/{id}', [AiController::class, 'nerGetEntities'])->name('admin.ai.ner.entities')->whereNumber('id');
     Route::post('/ner/entity/update', [AiController::class, 'nerUpdateEntity'])->name('admin.ai.ner.entity.update');
     Route::post('/ner/create/actor', [AiController::class, 'nerCreateActor'])->name('admin.ai.ner.create.actor');

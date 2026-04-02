@@ -26,6 +26,7 @@
 namespace AhgRic\Providers;
 
 use AhgRic\Services\RelationshipService;
+use AhgRic\Services\RicEntityService;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
 use AhgRic\Services\SparqlQueryService;
@@ -49,6 +50,11 @@ class AhgRicServiceProvider extends ServiceProvider
 
         // Register SparqlQueryService
         $this->app->singleton(SparqlQueryService::class);
+
+        // Register RicEntityService
+        $this->app->singleton(RicEntityService::class, function () {
+            return new RicEntityService(app()->getLocale());
+        });
 
         // Merge configuration
         $this->mergeConfigFrom(

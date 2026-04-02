@@ -1,0 +1,31 @@
+@extends('theme::layouts.1col')
+@section('title', ($entity ? 'Edit' : 'Create') . ' Instantiation')
+@section('body-class', 'admin ric')
+@section('content')
+<h1 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ $entity ? 'Edit' : 'Create' }} Instantiation</h1>
+<form method="post" action="{{ $entity ? route('ric.entities.update-form', ['instantiations', $entity->slug]) : '' }}">
+    @csrf
+    @if($entity) @method('PUT') @endif
+    <div class="row mb-3">
+        <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" value="{{ $entity->title ?? '' }}" required></div>
+        <div class="col-md-4">
+            <label class="form-label">Carrier Type</label>
+            <select name="carrier_type" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach($typeChoices as $c)<option value="{{ $c->code }}" {{ ($entity->carrier_type ?? '') === $c->code ? 'selected' : '' }}>{{ $c->label }}</option>@endforeach
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-4"><label class="form-label">MIME Type</label><input type="text" name="mime_type" class="form-control" value="{{ $entity->mime_type ?? '' }}"></div>
+        <div class="col-md-4"><label class="form-label">Extent</label><input type="number" step="any" name="extent_value" class="form-control" value="{{ $entity->extent_value ?? '' }}"></div>
+        <div class="col-md-4"><label class="form-label">Unit</label><input type="text" name="extent_unit" class="form-control" value="{{ $entity->extent_unit ?? '' }}"></div>
+    </div>
+    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">{{ $entity->description ?? '' }}</textarea></div>
+    <div class="mb-3"><label class="form-label">Technical Characteristics</label><textarea name="technical_characteristics" class="form-control" rows="3">{{ $entity->technical_characteristics ?? '' }}</textarea></div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+        @if($entity)<a href="{{ route('ric.entities.show', ['instantiations', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
+    </div>
+</form>
+@endsection

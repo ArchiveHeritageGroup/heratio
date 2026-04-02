@@ -44,13 +44,17 @@ function extractEntities(objectId) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Extracting...';
 
-    fetch(`/ner/extract/${objectId}`, {
+    fetch(`/admin/ai/ner/extract/${objectId}`, {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'Accept': 'application/json',
         }
     })
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error('Server returned HTTP ' + r.status);
+            return r.json();
+        })
         .then(data => {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-cpu me-1"></i>Extract Entities (NER)';
