@@ -1,5 +1,9 @@
 {{-- RiC Relation Editor Widget --}}
-@php $recordId = $recordId ?? null; @endphp
+@php
+    $recordId = $recordId ?? null;
+    $ricRelationTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', 'ric_relation_type')->where('is_active', 1)->orderBy('sort_order')->get();
+@endphp
 
 <div id="ric-relation-editor">
     <table class="table table-sm table-striped mb-2">
@@ -19,7 +23,10 @@
             <div class="col-md-3">
                 <label class="form-label form-label-sm">Relation Type</label>
                 <select id="ric-rel-type" class="form-select form-select-sm">
-                    <option value="">Loading...</option>
+                    <option value="">-- Select --</option>
+                    @foreach($ricRelationTypes as $rt)
+                    <option value="{{ $rt->code }}">{{ $rt->label }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-2">
@@ -43,15 +50,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const recordId = {{ $recordId ?? 0 }};
 
-    // Load relation types
-    fetch('/ric-api/relations/types')
-        .then(r => r.json())
-        .then(types => {
-            const select = document.getElementById('ric-rel-type');
-            select.innerHTML = '<option value="">-- Select --</option>' +
-                types.map(t => `<option value="${t.code}">${t.label}</option>`).join('');
-        });
-
     // Autocomplete for target entity
     let debounce;
     const searchInput = document.getElementById('ric-rel-target-search');
@@ -63,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { acList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`/ric-api/entities/autocomplete?q=${encodeURIComponent(q)}`)
+            fetch(`/admin/ric/entity-api/autocomplete?q=${encodeURIComponent(q)}`)
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { acList.style.display = 'none'; return; }
@@ -107,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const relType = document.getElementById('ric-rel-type').value;
         if (!targetId || !relType) { alert('Select a target entity and relation type'); return; }
 
-        fetch('/ric-api/relations/store', {
+        fetch('/admin/ric/entity-api/relation-store', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
             body: JSON.stringify({
@@ -124,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteRelation = function(id) {
         if (!confirm('Remove this relation?')) return;
-        fetch(`/ric-api/relations/${id}`, { method: 'DELETE', headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content} })
+        fetch(`/admin/ric/entity-api/relation-delete/${id}`, { method: 'POST', headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content} })
             .then(r => r.json())
             .then(() => location.reload());
     };

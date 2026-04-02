@@ -22,6 +22,7 @@ class RicPlace extends BaseObject
         'longitude',
         'authority_uri',
         'parent_id',
+        'term_id',
         'source_culture',
     ];
 

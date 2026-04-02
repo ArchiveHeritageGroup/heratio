@@ -46,6 +46,7 @@ class RicEntityService
                 'longitude' => $data['longitude'] ?? null,
                 'authority_uri' => $data['authority_uri'] ?? null,
                 'parent_id' => $data['parent_id'] ?? null,
+                'term_id' => $data['term_id'] ?? null,
                 'source_culture' => $this->culture,
             ]);
 
@@ -65,7 +66,7 @@ class RicEntityService
     {
         DB::transaction(function () use ($id, $data) {
             $this->updateEntityFields('ric_place', $id, $data, [
-                'type_id', 'latitude', 'longitude', 'authority_uri', 'parent_id',
+                'type_id', 'latitude', 'longitude', 'authority_uri', 'parent_id', 'term_id',
             ]);
 
             $this->upsertI18n('ric_place_i18n', $id, $data, [

@@ -240,7 +240,13 @@
       "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/js/condition-annotator.js /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/js/condition-annotator.js)",
       "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/js/condition-photos.js /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/js/condition-photos.js)",
       "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/css/condition-annotator.css /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/css/condition-annotator.css)",
-      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/css/condition-photos.css /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/css/condition-photos.css)"
+      "Bash(cp /usr/share/nginx/archive/atom-ahg-plugins/ahgConditionPlugin/web/css/condition-photos.css /usr/share/nginx/heratio/public/vendor/ahg-theme-b5/css/condition-photos.css)",
+      "Read(//etc/nginx/conf.d/**)",
+      "Bash(sudo nginx:*)",
+      "Bash(sudo systemctl:*)",
+      "Read(//var/log/**)",
+      "Read(//var/log/nginx/**)",
+      "Bash(tail -5 /usr/share/nginx/archive/log/*.log)"
     ]
   }
 }

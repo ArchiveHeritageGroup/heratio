@@ -1,4 +1,13 @@
 {{-- RiC Entity Creation Modal --}}
+@php
+    $ricDropdowns = [
+        'ric_activity_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_activity_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+        'ric_place_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_place_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+        'ric_rule_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_rule_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+        'ric_carrier_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_carrier_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+        'ric_relation_type' => \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'ric_relation_type')->where('is_active', 1)->orderBy('sort_order')->get(),
+    ];
+@endphp
 <div class="modal fade" id="ricEntityModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -16,7 +25,10 @@
                     <div class="mb-3">
                         <label class="form-label">Relation to this record</label>
                         <select name="link_relation_type" class="form-select form-select-sm" id="ricLinkRelationType">
-                            <option value="">Loading...</option>
+                            <option value="">-- No link --</option>
+                            @foreach($ricDropdowns['ric_relation_type'] as $rt)
+                            <option value="{{ $rt->code }}">{{ $rt->label }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -29,7 +41,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Activity Type</label>
-                                <select name="type_id" class="form-select ric-dropdown" data-taxonomy="ric_activity_type"></select>
+                                <select name="type_id" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    @foreach($ricDropdowns['ric_activity_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -49,7 +64,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Place Type</label>
-                                <select name="type_id" class="form-select ric-dropdown" data-taxonomy="ric_place_type"></select>
+                                <select name="type_id" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    @foreach($ricDropdowns['ric_place_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -70,7 +88,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Rule Type</label>
-                                <select name="type_id" class="form-select ric-dropdown" data-taxonomy="ric_rule_type"></select>
+                                <select name="type_id" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    @foreach($ricDropdowns['ric_rule_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -91,7 +112,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Carrier Type</label>
-                                <select name="carrier_type" class="form-select ric-dropdown" data-taxonomy="ric_carrier_type"></select>
+                                <select name="carrier_type" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    @foreach($ricDropdowns['ric_carrier_type'] as $d)<option value="{{ $d->code }}" {{ $d->is_default ? 'selected' : '' }}>{{ $d->label }}</option>@endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -137,34 +161,13 @@ function ricSetEntityType(type) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Load dropdown options for all ric-dropdown selects
-    document.querySelectorAll('.ric-dropdown').forEach(select => {
-        const taxonomy = select.dataset.taxonomy;
-        if (!taxonomy) return;
-        fetch(`/ric-api/entities/dropdown/${taxonomy}`)
-            .then(r => r.json())
-            .then(items => {
-                select.innerHTML = '<option value="">-- Select --</option>' +
-                    items.map(i => `<option value="${i.code}" ${i.is_default ? 'selected' : ''}>${i.label}</option>`).join('');
-            });
-    });
-
-    // Load relation types for the link dropdown
-    fetch('/ric-api/relations/types')
-        .then(r => r.json())
-        .then(types => {
-            const select = document.getElementById('ricLinkRelationType');
-            select.innerHTML = '<option value="">-- No link --</option>' +
-                types.map(t => `<option value="${t.code}">${t.label}</option>`).join('');
-        });
-
     // Form submission
     document.getElementById('ricEntityForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
 
-        fetch('/ric-api/entities/store', {
+        fetch('/admin/ric/entity-api/store', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -11,9 +11,9 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');
     Route::get('/stats', [RicController::class, 'ajaxStats'])->name('ric.public-stats');
     Route::post('/view-mode', [RicController::class, 'setViewMode'])->name('ric.set-view-mode');
-    Route::get('/relations/{id}', [RicController::class, 'getRelations'])->name('ric.public-relations');
-    Route::get('/graph-summary/{id}', [RicController::class, 'getGraphSummary'])->name('ric.public-graph-summary');
-    Route::get('/timeline/{id}', [RicController::class, 'getTimeline'])->name('ric.public-timeline');
+    Route::get('/relations/{id}', [RicController::class, 'getRelations'])->where('id', '[0-9]+')->name('ric.public-relations');
+    Route::get('/graph-summary/{id}', [RicController::class, 'getGraphSummary'])->where('id', '[0-9]+')->name('ric.public-graph-summary');
+    Route::get('/timeline/{id}', [RicController::class, 'getTimeline'])->where('id', '[0-9]+')->name('ric.public-timeline');
     Route::get('/explain/{sourceId}/{targetId}', [RicController::class, 'explainRelation'])->name('ric.public-explain');
 });
 
@@ -69,23 +69,19 @@ Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])-
 // RiC Entity CRUD — Record-level AJAX + Standalone browse
 // ================================================================
 
-// Record-level AJAX endpoints (called from IO/Actor show pages)
-Route::prefix('ric-api/entities')->middleware('web')->group(function () {
+// Record-level AJAX endpoints (admin/ric/entity-api/ — registered in routing.yml for Symfony compatibility)
+Route::prefix('admin/ric/entity-api')->middleware('web')->group(function () {
     Route::get('/for-record/{id}', [RicEntityController::class, 'entitiesForRecord'])->name('ric.entities.for-record');
-    Route::post('/store', [RicEntityController::class, 'storeEntity'])->name('ric.entities.store');
-    Route::put('/{id}', [RicEntityController::class, 'updateEntity'])->name('ric.entities.update');
-    Route::delete('/{id}', [RicEntityController::class, 'destroyEntity'])->name('ric.entities.destroy');
+    Route::match(['get', 'post'], '/store', [RicEntityController::class, 'storeEntity'])->name('ric.entities.store');
+    Route::match(['get', 'post'], '/update/{id}', [RicEntityController::class, 'updateEntity'])->name('ric.entities.update');
+    Route::match(['get', 'post'], '/delete/{id}', [RicEntityController::class, 'destroyEntity'])->name('ric.entities.destroy');
     Route::get('/autocomplete', [RicEntityController::class, 'autocompleteEntities'])->name('ric.entities.autocomplete');
     Route::get('/info/{id}', [RicEntityController::class, 'getEntityInfo'])->name('ric.entities.info');
     Route::get('/dropdown/{taxonomy}', [RicEntityController::class, 'dropdownChoices'])->name('ric.entities.dropdown');
-});
-
-// Relation AJAX endpoints
-Route::prefix('ric-api/relations')->middleware('web')->group(function () {
-    Route::get('/for-record/{id}', [RicEntityController::class, 'relationsForRecord'])->name('ric.relations.for-record');
-    Route::post('/store', [RicEntityController::class, 'storeRelation'])->name('ric.relations.store');
-    Route::delete('/{id}', [RicEntityController::class, 'destroyRelation'])->name('ric.relations.destroy');
-    Route::get('/types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
+    Route::get('/relations/{id}', [RicEntityController::class, 'relationsForRecord'])->name('ric.relations.for-record');
+    Route::match(['get', 'post'], '/relation-store', [RicEntityController::class, 'storeRelation'])->name('ric.relations.store');
+    Route::match(['get', 'post'], '/relation-delete/{id}', [RicEntityController::class, 'destroyRelation'])->name('ric.relations.destroy');
+    Route::get('/relation-types', [RicEntityController::class, 'getRelationTypes'])->name('ric.relations.types');
 });
 
 // Standalone browse/show/edit pages (admin)
