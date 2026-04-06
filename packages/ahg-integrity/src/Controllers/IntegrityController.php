@@ -31,9 +31,34 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgIntegrity\Services\LegalHoldService;
+use AhgIntegrity\Services\DestructionCertificateService;
+use AhgIntegrity\Services\RetentionService;
+use AhgIntegrity\Services\RecordDeclarationService;
+use AhgIntegrity\Services\VitalRecordService;
 
 class IntegrityController extends Controller
 {
+    protected LegalHoldService $legalHoldService;
+    protected DestructionCertificateService $certService;
+    protected RetentionService $retentionService;
+    protected RecordDeclarationService $declarationService;
+    protected VitalRecordService $vitalRecordService;
+
+    public function __construct(
+        LegalHoldService $legalHoldService,
+        DestructionCertificateService $certService,
+        RetentionService $retentionService,
+        RecordDeclarationService $declarationService,
+        VitalRecordService $vitalRecordService
+    ) {
+        $this->legalHoldService = $legalHoldService;
+        $this->certService = $certService;
+        $this->retentionService = $retentionService;
+        $this->declarationService = $declarationService;
+        $this->vitalRecordService = $vitalRecordService;
+    }
+
     public function index(Request $request)
     {
         $culture = app()->getLocale();
@@ -184,7 +209,32 @@ class IntegrityController extends Controller
     public function deadLetter() { $deadLetters = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.dead-letter', compact('deadLetters')); }
     public function disposition() { $dispositions = Schema::hasTable('integrity_disposition') ? DB::table('integrity_disposition')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.disposition', compact('dispositions')); }
     public function export() { return view('ahg-integrity::integrity.export'); }
-    public function holds() { $holds = Schema::hasTable('integrity_hold') ? DB::table('integrity_hold')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.holds', compact('holds')); }
+    public function holds(Request $request)
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $repositoryId = $request->query('repository_id') ? (int) $request->query('repository_id') : null;
+        $holdData = $this->legalHoldService->getActiveHolds($repositoryId, $page, 25);
+        $counts = $this->legalHoldService->getHoldCounts();
+        $culture = app()->getLocale();
+        $repositories = DB::table('repository')
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->get();
+
+        return view('ahg-integrity::integrity.holds', [
+            'holds'        => $holdData['data'],
+            'total'        => $holdData['total'],
+            'page'         => $holdData['page'],
+            'perPage'      => $holdData['perPage'],
+            'counts'       => $counts,
+            'repositories' => $repositories,
+            'repositoryId' => $repositoryId,
+        ]);
+    }
     public function ledger() { $items = Schema::hasTable('integrity_ledger') ? DB::table('integrity_ledger')->orderBy('verified_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.ledger', compact('items')); }
     public function policies() { $items = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.policies', compact('items')); }
     public function policyEdit(int $id) { $policy = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->where('id', $id)->first() : null; if (!$policy) abort(404); return view('ahg-integrity::integrity.policy-edit', compact('policy')); }
@@ -195,4 +245,326 @@ class IntegrityController extends Controller
     public function schedules() { $items = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.schedules', compact('items')); }
     public function scheduleEdit(int $id) { $schedule = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->where('id', $id)->first() : null; if (!$schedule) abort(404); return view('ahg-integrity::integrity.schedule-edit', compact('schedule')); }
     public function scheduleUpdate(\Illuminate\Http\Request $request, int $id) { if (Schema::hasTable('integrity_schedule')) { DB::table('integrity_schedule')->where('id', $id)->update($request->only(['name', 'cron_expression']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]); } return redirect()->route('integrity.schedules')->with('success', 'Schedule updated.'); }
+
+    // ─── Legal Hold CRUD ─────────────────────────────────────────────
+
+    public function holdCreate()
+    {
+        return view('ahg-integrity::integrity.hold-create');
+    }
+
+    public function holdStore(Request $request)
+    {
+        $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'reason'                => 'required|string|max:2000',
+        ]);
+
+        $userId = auth()->id() ?? 0;
+        $ioId = (int) $request->input('information_object_id');
+
+        // Verify IO exists
+        $ioExists = DB::table('information_object')->where('id', $ioId)->exists();
+        if (!$ioExists) {
+            return back()->withInput()->with('error', 'Information object #' . $ioId . ' does not exist.');
+        }
+
+        // Check if already under hold
+        if ($this->legalHoldService->isUnderHold($ioId)) {
+            return back()->withInput()->with('error', 'Information object #' . $ioId . ' is already under an active legal hold.');
+        }
+
+        $holdId = $this->legalHoldService->placeHold(
+            $ioId,
+            $request->input('reason'),
+            $userId
+        );
+
+        return redirect()->route('integrity.holds')->with('success', 'Legal hold #' . $holdId . ' placed successfully.');
+    }
+
+    public function holdRelease(Request $request, int $id)
+    {
+        $request->validate([
+            'release_reason' => 'required|string|max:2000',
+        ]);
+
+        $userId = auth()->id() ?? 0;
+
+        $released = $this->legalHoldService->releaseHold($id, $userId, $request->input('release_reason'));
+
+        if (!$released) {
+            return back()->with('error', 'Could not release hold #' . $id . '. It may already be released.');
+        }
+
+        return redirect()->route('integrity.holds')->with('success', 'Legal hold #' . $id . ' released.');
+    }
+
+    public function holdHistory(int $ioId)
+    {
+        $culture = app()->getLocale();
+        $ioTitle = DB::table('information_object_i18n')
+            ->where('id', $ioId)
+            ->where('culture', $culture)
+            ->value('title') ?? 'Unknown';
+
+        $history = $this->legalHoldService->getHoldHistory($ioId);
+
+        return view('ahg-integrity::integrity.hold-history', [
+            'ioId'    => $ioId,
+            'ioTitle' => $ioTitle,
+            'history' => $history,
+        ]);
+    }
+
+    public function holdCheck(int $ioId)
+    {
+        $underHold = $this->legalHoldService->isUnderHold($ioId);
+
+        return response()->json([
+            'information_object_id' => $ioId,
+            'under_hold'            => $underHold,
+        ]);
+    }
+
+    // ─── Destruction Certificates ────────────────────────────────────
+
+    public function certificates(Request $request)
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $certData = $this->certService->getCertificates($page, 25);
+
+        return view('ahg-integrity::integrity.certificates', [
+            'certificates' => $certData['data'],
+            'total'        => $certData['total'],
+            'page'         => $certData['page'],
+            'perPage'      => $certData['perPage'],
+        ]);
+    }
+
+    public function certificateGenerate(int $dispositionId)
+    {
+        $disposition = DB::table('integrity_disposition_queue')
+            ->where('id', $dispositionId)
+            ->first();
+
+        if (!$disposition) {
+            abort(404, 'Disposition queue item not found.');
+        }
+
+        $culture = app()->getLocale();
+        $ioTitle = DB::table('information_object_i18n')
+            ->where('id', $disposition->information_object_id)
+            ->where('culture', $culture)
+            ->value('title') ?? 'Unknown';
+
+        return view('ahg-integrity::integrity.certificate-generate', [
+            'disposition' => $disposition,
+            'ioTitle'     => $ioTitle,
+        ]);
+    }
+
+    public function certificateStore(Request $request)
+    {
+        $request->validate([
+            'disposition_id'     => 'required|integer|min:1',
+            'authorized_by'      => 'required|string|max:255',
+            'destruction_method' => 'required|string|max:50',
+            'witness'            => 'nullable|string|max:255',
+        ]);
+
+        $result = $this->certService->generateCertificate(
+            (int) $request->input('disposition_id'),
+            $request->input('authorized_by'),
+            $request->input('destruction_method'),
+            $request->input('witness')
+        );
+
+        return redirect()->route('integrity.certificates.view', ['id' => $result['id']])
+            ->with('success', 'Destruction certificate ' . $result['certificate_number'] . ' generated.');
+    }
+
+    public function certificateView(int $id)
+    {
+        $cert = $this->certService->getCertificate($id);
+
+        if (!$cert) {
+            abort(404, 'Certificate not found.');
+        }
+
+        return view('ahg-integrity::integrity.certificate-view', [
+            'cert' => $cert,
+        ]);
+    }
+
+    // ── P1.4: Retention Events ──────────────────────────────────────────
+
+    public function retentionEvents(Request $request)
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $eventsData = $this->retentionService->getRetentionEvents($page, 50);
+        $eventTypes = $this->retentionService->getEventTypes();
+        $policies = $this->retentionService->getRetentionPolicies();
+
+        return view('ahg-integrity::integrity.retention-events', [
+            'events'     => $eventsData['data'],
+            'total'      => $eventsData['total'],
+            'page'       => $eventsData['page'],
+            'perPage'    => $eventsData['per_page'],
+            'eventTypes' => $eventTypes,
+            'policies'   => $policies,
+        ]);
+    }
+
+    public function retentionEventStore(Request $request)
+    {
+        $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'event_type'            => 'required|string|max:50',
+            'notes'                 => 'nullable|string|max:2000',
+        ]);
+
+        $userId = auth()->id() ?? 0;
+        $this->retentionService->fireRetentionEvent(
+            (int) $request->input('information_object_id'),
+            $request->input('event_type'),
+            $userId,
+            $request->input('notes')
+        );
+
+        return redirect()->route('integrity.retention-events')
+            ->with('success', 'Retention event recorded.');
+    }
+
+    // ── P1.5: Record Declarations ───────────────────────────────────────
+
+    public function declarations(Request $request)
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $allData = $this->declarationService->getAllDeclarations($page, 25);
+        $pending = $this->declarationService->getPendingDeclarations();
+
+        return view('ahg-integrity::integrity.declarations', [
+            'declarations' => $allData['data'],
+            'total'        => $allData['total'],
+            'page'         => $allData['page'],
+            'perPage'      => $allData['per_page'],
+            'pending'      => $pending,
+        ]);
+    }
+
+    public function declareRecord(Request $request)
+    {
+        $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+        ]);
+
+        $userId = auth()->id() ?? 0;
+        $result = $this->declarationService->declareRecord(
+            (int) $request->input('information_object_id'),
+            $userId
+        );
+
+        if ($result) {
+            return redirect()->route('integrity.declarations')
+                ->with('success', 'Record declaration submitted for approval.');
+        }
+
+        return redirect()->route('integrity.declarations')
+            ->with('error', 'Could not submit record declaration. Table may not exist.');
+    }
+
+    public function approveDeclaration(Request $request, int $ioId)
+    {
+        $userId = auth()->id() ?? 0;
+        $approved = $this->declarationService->approveDeclaration($ioId, $userId);
+
+        if ($approved) {
+            return redirect()->route('integrity.declarations')
+                ->with('success', 'Record declaration approved.');
+        }
+
+        return redirect()->route('integrity.declarations')
+            ->with('error', 'Could not approve declaration. It may not be in pending state.');
+    }
+
+    // ── P1.6: Vital Records ────────────────────────────────────────────
+
+    public function vitalRecords(Request $request)
+    {
+        $page = max(1, (int) $request->query('page', 1));
+        $repositoryId = $request->query('repository_id') ? (int) $request->query('repository_id') : null;
+        $vitalData = $this->vitalRecordService->getVitalRecords($repositoryId, $page, 25);
+        $overdueCount = count($this->vitalRecordService->getOverdueReviews());
+
+        $culture = app()->getLocale();
+        $repositories = DB::table('repository')
+            ->join('actor_i18n', function ($join) use ($culture) {
+                $join->on('repository.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->get();
+
+        return view('ahg-integrity::integrity.vital-records', [
+            'records'      => $vitalData['data'],
+            'total'        => $vitalData['total'],
+            'page'         => $vitalData['page'],
+            'perPage'      => $vitalData['per_page'],
+            'overdueCount' => $overdueCount,
+            'repositories' => $repositories,
+            'repositoryId' => $repositoryId,
+        ]);
+    }
+
+    public function vitalRecordFlag(Request $request)
+    {
+        $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'reason'                => 'required|string|max:2000',
+            'review_cycle_days'     => 'required|integer|min:1|max:3650',
+        ]);
+
+        $userId = auth()->id() ?? 0;
+        $this->vitalRecordService->flagAsVital(
+            (int) $request->input('information_object_id'),
+            $request->input('reason'),
+            (int) $request->input('review_cycle_days'),
+            $userId
+        );
+
+        return redirect()->route('integrity.vital-records')
+            ->with('success', 'Information object flagged as vital record.');
+    }
+
+    public function vitalRecordUnflag(int $ioId)
+    {
+        $userId = auth()->id() ?? 0;
+        $this->vitalRecordService->unflagVital($ioId, $userId);
+
+        return redirect()->route('integrity.vital-records')
+            ->with('success', 'Vital record flag removed.');
+    }
+
+    public function vitalRecordReview(int $id)
+    {
+        $userId = auth()->id() ?? 0;
+        $reviewed = $this->vitalRecordService->reviewVitalRecord($id, $userId);
+
+        if ($reviewed) {
+            return redirect()->back()->with('success', 'Vital record marked as reviewed.');
+        }
+
+        return redirect()->back()->with('error', 'Could not mark vital record as reviewed.');
+    }
+
+    public function vitalRecordsOverdue()
+    {
+        $overdue = $this->vitalRecordService->getOverdueReviews();
+
+        return view('ahg-integrity::integrity.vital-records-overdue', [
+            'records' => $overdue,
+        ]);
+    }
 }
