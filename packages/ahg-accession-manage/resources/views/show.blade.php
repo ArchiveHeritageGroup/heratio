@@ -16,6 +16,15 @@
       @include('ahg-accession-manage::partials._physical-storage-context-menu', ['resource' => $accession])
     </nav>
   @endif
+
+  <div class="d-flex gap-1 mb-3">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+      <i class="fas fa-print"></i>
+    </button>
+    @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'informationObject'])
+  </div>
+
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $accession->id, 'slug' => $accession->slug, 'title' => $accession->title])
 @endsection
 
 @section('content')
@@ -418,6 +427,7 @@
 @endsection
 
 @section('after-content')
+  @include('ahg-core::partials._ner-modal', ['objectId' => $accession->id, 'objectTitle' => $accession->title])
   @auth
     @php $isAdmin = auth()->user()->is_admin; @endphp
     <ul class="actions mb-3 nav gap-2">

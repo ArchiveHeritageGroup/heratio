@@ -14,6 +14,15 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i></a></li>
+          @if(request('object_id'))
+            @php
+              $__bcSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', request('object_id'))->value('slug');
+              $__bcTitle = \Illuminate\Support\Facades\DB::table('information_object_i18n')->where('id', request('object_id'))->where('culture', app()->getLocale())->value('title');
+            @endphp
+            @if($__bcSlug)
+              <li class="breadcrumb-item"><a href="/{{ $__bcSlug }}">{{ \Illuminate\Support\Str::limit($__bcTitle ?? $__bcSlug, 40) }}</a></li>
+            @endif
+          @endif
           <li class="breadcrumb-item active" aria-current="page">Loans</li>
         </ol>
       </nav>

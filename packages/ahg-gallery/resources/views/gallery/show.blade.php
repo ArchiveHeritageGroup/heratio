@@ -517,7 +517,7 @@
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-calendar me-1"></i> Dates
-      
+
       <div class="list-group list-group-flush">
         @foreach($events as $event)
           <div class="list-group-item small">
@@ -527,10 +527,23 @@
               {{ $event->start_date }}
               @if($event->end_date) &ndash; {{ $event->end_date }}@endif
             @endif
-          
+
         @endforeach
-      
-    
+
+
   @endif
 
+  <div class="d-flex gap-1 mb-3">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+      <i class="fas fa-print"></i>
+    </button>
+    @include('ahg-core::clipboard._button', ['slug' => $artwork->slug, 'type' => 'informationObject'])
+  </div>
+
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $artwork->id, 'slug' => $artwork->slug, 'title' => $artwork->title])
+
+@endsection
+
+@section('after-content')
+  @include('ahg-core::partials._ner-modal', ['objectId' => $artwork->id, 'objectTitle' => $artwork->title])
 @endsection

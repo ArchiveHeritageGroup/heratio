@@ -916,3 +916,25 @@
   </section>
 
 @endsection
+
+{{-- ============================================================ --}}
+{{-- RIGHT SIDEBAR: Extras                                         --}}
+{{-- ============================================================ --}}
+@section('right')
+
+  @include('ahg-core::components.digital-object', ['digitalObjects' => $digitalObjects ?? []])
+
+  <div class="d-flex gap-1 mb-3">
+    <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
+      <i class="fas fa-print"></i>
+    </button>
+    @include('ahg-core::clipboard._button', ['slug' => $museum->slug, 'type' => 'informationObject'])
+  </div>
+
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $museum->id, 'slug' => $museum->slug, 'title' => $museum->title])
+
+@endsection
+
+@section('after-content')
+  @include('ahg-core::partials._ner-modal', ['objectId' => $museum->id, 'objectTitle' => $museum->title])
+@endsection

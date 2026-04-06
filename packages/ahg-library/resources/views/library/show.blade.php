@@ -1121,7 +1121,7 @@
   @php
     $activeLoans = \Illuminate\Support\Facades\DB::table('ahg_loan')
         ->join('ahg_loan_object', 'ahg_loan.id', '=', 'ahg_loan_object.loan_id')
-        ->where('ahg_loan_object.object_id', $item->id)
+        ->where('ahg_loan_object.information_object_id', $item->id)
         ->whereIn('ahg_loan.status', ['on_loan', 'dispatched', 'in_transit', 'received', 'approved', 'preparing'])
         ->select('ahg_loan.id', 'ahg_loan.loan_number', 'ahg_loan.loan_type', 'ahg_loan.status', 'ahg_loan.partner_institution', 'ahg_loan.end_date')
         ->get();

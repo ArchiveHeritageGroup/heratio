@@ -51,12 +51,11 @@
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
       <i class="fas fa-print"></i>
     </button>
-    <button class="btn btn-sm atom-btn-white active-primary clipboard"
-            data-clipboard-slug="{{ $asset->slug ?? '' }}" data-clipboard-type="dam"
-            data-title="Add" data-alt-title="Remove" title="Add to clipboard">
-      <i class="fas fa-paperclip"></i>
-    </button>
+    @include('ahg-core::clipboard._button', ['slug' => $asset->slug, 'type' => 'informationObject'])
   </div>
+
+  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $asset->id, 'slug' => $asset->slug, 'title' => $asset->title])
+
 @endsection
 
 @section('content')
@@ -327,4 +326,8 @@
       </li>
     </ul>
   @endauth
+@endsection
+
+@section('after-content')
+  @include('ahg-core::partials._ner-modal', ['objectId' => $asset->id, 'objectTitle' => $asset->title])
 @endsection

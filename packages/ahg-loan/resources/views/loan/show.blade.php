@@ -12,6 +12,28 @@
     </div>
   @endif
 
+  {{-- Breadcrumb with back link --}}
+  @php
+    $backSlug = null;
+    $backTitle = null;
+    if (isset($loan->objects) && $loan->objects->isNotEmpty()) {
+      $firstObj = $loan->objects->first();
+      if ($firstObj->information_object_id) {
+        $backSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $firstObj->information_object_id)->value('slug');
+        $backTitle = $firstObj->io_title ?? $firstObj->object_title ?? null;
+      }
+    }
+  @endphp
+  <nav aria-label="breadcrumb" class="mb-2">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{{ route('loan.index') }}">Loans</a></li>
+      @if($backSlug)
+        <li class="breadcrumb-item"><a href="/{{ $backSlug }}">{{ \Illuminate\Support\Str::limit($backTitle ?? $backSlug, 40) }}</a></li>
+      @endif
+      <li class="breadcrumb-item active">{{ $loan->loan_number }}</li>
+    </ol>
+  </nav>
+
   {{-- Pagination --}}
   <div class="d-flex justify-content-between mb-2">
     @if($previousLoan ?? null)
