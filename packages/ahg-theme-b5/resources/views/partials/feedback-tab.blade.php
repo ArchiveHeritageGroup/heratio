@@ -1,6 +1,6 @@
 {{-- Floating Favorites Tab — left edge, above Feedback --}}
 @auth
-<a href="{{ route('favorites.index') }}" id="favorites-tab-btn" title="My Favorites">
+<a href="{{ route('favorites.browse') }}" id="favorites-tab-btn" title="My Favorites">
   <i class="fas fa-heart me-1"></i>Favorites
 </a>
 <style>
