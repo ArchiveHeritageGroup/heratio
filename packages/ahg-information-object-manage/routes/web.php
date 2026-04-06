@@ -65,8 +65,11 @@ Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'tre
 // Export
 Route::get('/informationobject/{slug}/export/dc', [ExportController::class, 'dc'])->name('informationobject.export.dc');
 Route::get('/informationobject/{slug}/export/ead', [ExportController::class, 'ead'])->name('informationobject.export.ead');
+Route::get('/informationobject/{slug}/export/ead3', [ExportController::class, 'ead3'])->name('informationobject.export.ead3');
+Route::get('/informationobject/{slug}/export/ead4', [ExportController::class, 'ead4'])->name('informationobject.export.ead4');
 Route::get('/informationobject/{slug}/export/mods', [ExportController::class, 'mods'])->name('informationobject.export.mods');
 Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'csv'])->name('informationobject.export.csv');
+Route::get('/informationobject/{slug}/export/rico', [ExportController::class, 'ricJsonLd'])->name('informationobject.export.rico');
 
 // Auth-required features
 Route::middleware('auth')->group(function () {

@@ -117,6 +117,74 @@ class ExportController extends Controller
     }
 
     /**
+     * Export an information object as EAD3 XML.
+     */
+    public function ead3(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $repository = $this->getRepository($io, $culture);
+        $events = $this->getEvents($io, $culture);
+        $creators = $this->getCreators($io, $culture);
+        $subjects = $this->getAccessPoints($io, 35, $culture);
+        $places = $this->getAccessPoints($io, 42, $culture);
+        $genres = $this->getAccessPoints($io, 78, $culture);
+        $notes = $this->getNotes($io, $culture);
+        $levelName = $this->getLevelName($io, $culture);
+        $children = $this->getDescendants($io, $culture);
+
+        $xml = $this->buildEad3Xml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, $culture);
+
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_ead3.xml"');
+    }
+
+    /**
+     * Export an information object as EAD 4 XML (draft).
+     * Uses the Ead4Serializer from ahg-metadata-export.
+     */
+    public function ead4(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $serializer = new \AhgMetadataExport\Services\Exporters\Ead4Serializer();
+        $xml = $serializer->serializeRecord($io->id, $culture);
+
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_ead4.xml"');
+    }
+
+    /**
+     * Export an information object as RiC-O JSON-LD.
+     * Uses the RicSerializationService from ahg-ric.
+     */
+    public function ricJsonLd(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $ricService = new \AhgRic\Services\RicSerializationService();
+        $jsonLd = $ricService->serializeRecord($io->id, $culture);
+
+        return response(json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200)
+            ->header('Content-Type', 'application/ld+json; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_rico.jsonld"');
+    }
+
+    /**
      * Export information objects as CSV.
      * Migrated from AtoM InformationObjectExportCsvAction.
      */
@@ -716,6 +784,175 @@ class ExportController extends Controller
         }
 
         $xml .= "</metadata>\n";
+        return $xml;
+    }
+
+    private function buildEad3Xml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, string $culture): string
+    {
+        $eadLevel = $this->mapLevelToEad($levelName);
+        $dateNormal = gmdate('Y-m-d');
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<ead xmlns="http://ead3.archivists.org/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://ead3.archivists.org/schema/ https://www.loc.gov/ead/ead3.xsd">' . "\n";
+
+        // Control (replaces eadheader in EAD 2002)
+        $xml .= "<control>\n";
+        $xml .= "  <recordid>" . $this->e($io->identifier ?? $io->slug) . "</recordid>\n";
+        $xml .= "  <filedesc>\n";
+        $xml .= "    <titlestmt><titleproper>" . $this->e($io->title) . "</titleproper></titlestmt>\n";
+        if ($repository) {
+            $xml .= "    <publicationstmt><publisher>" . $this->e($repository->name) . "</publisher></publicationstmt>\n";
+        }
+        $xml .= "  </filedesc>\n";
+        $xml .= "  <maintenancestatus value=\"derived\"/>\n";
+        $xml .= "  <maintenanceagency><agencyname>" . $this->e(config('app.name', 'Heratio')) . "</agencyname></maintenanceagency>\n";
+        $xml .= "  <maintenancehistory>\n";
+        $xml .= "    <maintenanceevent>\n";
+        $xml .= "      <eventtype value=\"derived\"/>\n";
+        $xml .= "      <eventdatetime standarddatetime=\"{$dateNormal}\">{$dateNormal}</eventdatetime>\n";
+        $xml .= "      <agenttype value=\"machine\"/>\n";
+        $xml .= "      <agent>Heratio EAD3 Export</agent>\n";
+        $xml .= "    </maintenanceevent>\n";
+        $xml .= "  </maintenancehistory>\n";
+        $xml .= "</control>\n";
+
+        // Archdesc
+        $xml .= "<archdesc level=\"{$eadLevel}\">\n";
+        $xml .= "  <did>\n";
+        if ($io->identifier) {
+            $xml .= "    <unitid>" . $this->e($io->identifier) . "</unitid>\n";
+        }
+        $xml .= "    <unittitle>" . $this->e($io->title) . "</unittitle>\n";
+        foreach ($events as $event) {
+            $dateStr = $event->date_display ?? '';
+            $normal = '';
+            if ($event->start_date && $event->end_date) {
+                $normal = $event->start_date . '/' . $event->end_date;
+            } elseif ($event->start_date) {
+                $normal = $event->start_date;
+            }
+            $xml .= "    <unitdatestructured";
+            if ($normal) {
+                $xml .= " unitdatetype=\"inclusive\"";
+            }
+            $xml .= ">\n";
+            if ($event->start_date && $event->end_date) {
+                $xml .= "      <daterange><fromdate standarddate=\"" . $this->e($event->start_date) . "\">" . $this->e($event->start_date) . "</fromdate>";
+                $xml .= "<todate standarddate=\"" . $this->e($event->end_date) . "\">" . $this->e($event->end_date) . "</todate></daterange>\n";
+            } elseif ($event->start_date) {
+                $xml .= "      <datesingle standarddate=\"" . $this->e($event->start_date) . "\">" . $this->e($dateStr ?: $event->start_date) . "</datesingle>\n";
+            }
+            $xml .= "    </unitdatestructured>\n";
+        }
+        foreach ($creators as $creator) {
+            $localType = match ((int) ($creator->entity_type_id ?? 0)) {
+                132 => 'persname', 130 => 'famname', 131 => 'corpname', default => 'name',
+            };
+            $xml .= "    <origination><{$localType}><part>" . $this->e($creator->name) . "</part></{$localType}></origination>\n";
+        }
+        if ($io->extent_and_medium) {
+            $xml .= "    <physdescstructured physdescstructuredtype=\"spaceoccupied\" coverage=\"whole\">\n";
+            $xml .= "      <quantity>1</quantity><unittype>" . $this->e($io->extent_and_medium) . "</unittype>\n";
+            $xml .= "    </physdescstructured>\n";
+        }
+        if ($repository) {
+            $xml .= "    <repository><corpname><part>" . $this->e($repository->name) . "</part></corpname></repository>\n";
+        }
+        $xml .= "  </did>\n";
+
+        if ($io->scope_and_content) {
+            $xml .= "  <scopecontent><p>" . $this->e($io->scope_and_content) . "</p></scopecontent>\n";
+        }
+        if ($io->arrangement) {
+            $xml .= "  <arrangement><p>" . $this->e($io->arrangement) . "</p></arrangement>\n";
+        }
+        if ($io->access_conditions) {
+            $xml .= "  <accessrestrict><p>" . $this->e($io->access_conditions) . "</p></accessrestrict>\n";
+        }
+        if ($io->reproduction_conditions) {
+            $xml .= "  <userestrict><p>" . $this->e($io->reproduction_conditions) . "</p></userestrict>\n";
+        }
+        if ($io->archival_history) {
+            $xml .= "  <custodhist><p>" . $this->e($io->archival_history) . "</p></custodhist>\n";
+        }
+        if ($io->acquisition) {
+            $xml .= "  <acqinfo><p>" . $this->e($io->acquisition) . "</p></acqinfo>\n";
+        }
+        if ($io->appraisal) {
+            $xml .= "  <appraisal><p>" . $this->e($io->appraisal) . "</p></appraisal>\n";
+        }
+        if ($io->accruals) {
+            $xml .= "  <accruals><p>" . $this->e($io->accruals) . "</p></accruals>\n";
+        }
+        if ($io->physical_characteristics) {
+            $xml .= "  <phystech><p>" . $this->e($io->physical_characteristics) . "</p></phystech>\n";
+        }
+        if ($io->finding_aids) {
+            $xml .= "  <otherfindaid><p>" . $this->e($io->finding_aids) . "</p></otherfindaid>\n";
+        }
+        if ($io->location_of_originals) {
+            $xml .= "  <originalsloc><p>" . $this->e($io->location_of_originals) . "</p></originalsloc>\n";
+        }
+        if ($io->location_of_copies) {
+            $xml .= "  <altformavail><p>" . $this->e($io->location_of_copies) . "</p></altformavail>\n";
+        }
+        if ($io->related_units_of_description) {
+            $xml .= "  <relatedmaterial><p>" . $this->e($io->related_units_of_description) . "</p></relatedmaterial>\n";
+        }
+
+        if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
+            $xml .= "  <controlaccess>\n";
+            foreach ($subjects as $s) {
+                $xml .= "    <subject><part>" . $this->e($s->name) . "</part></subject>\n";
+            }
+            foreach ($places as $p) {
+                $xml .= "    <geogname><part>" . $this->e($p->name) . "</part></geogname>\n";
+            }
+            foreach ($genres as $g) {
+                $xml .= "    <genreform><part>" . $this->e($g->name) . "</part></genreform>\n";
+            }
+            $xml .= "  </controlaccess>\n";
+        }
+
+        // Children
+        if ($children->isNotEmpty()) {
+            $xml .= "  <dsc dsctype=\"combined\">\n";
+            $nestedRgt = [];
+            foreach ($children as $child) {
+                while (count($nestedRgt) > 0 && $child->rgt > $nestedRgt[count($nestedRgt) - 1]) {
+                    array_pop($nestedRgt);
+                    $xml .= "    </c>\n";
+                }
+                $childLevel = $child->level_of_description_id
+                    ? $this->mapLevelToEad(DB::table('term_i18n')->where('id', $child->level_of_description_id)->where('culture', $culture)->value('name'))
+                    : 'otherlevel';
+                $xml .= "    <c level=\"{$childLevel}\">\n";
+                $xml .= "      <did>\n";
+                if ($child->identifier) {
+                    $xml .= "        <unitid>" . $this->e($child->identifier) . "</unitid>\n";
+                }
+                $xml .= "        <unittitle>" . $this->e($child->title) . "</unittitle>\n";
+                if ($child->extent_and_medium) {
+                    $xml .= "        <physdesc>" . $this->e($child->extent_and_medium) . "</physdesc>\n";
+                }
+                $xml .= "      </did>\n";
+                if ($child->scope_and_content) {
+                    $xml .= "      <scopecontent><p>" . $this->e($child->scope_and_content) . "</p></scopecontent>\n";
+                }
+                if ($child->rgt == $child->lft + 1) {
+                    $xml .= "    </c>\n";
+                } else {
+                    $nestedRgt[] = $child->rgt;
+                }
+            }
+            while (count($nestedRgt) > 0) {
+                array_pop($nestedRgt);
+                $xml .= "    </c>\n";
+            }
+            $xml .= "  </dsc>\n";
+        }
+
+        $xml .= "</archdesc>\n</ead>\n";
         return $xml;
     }
 }

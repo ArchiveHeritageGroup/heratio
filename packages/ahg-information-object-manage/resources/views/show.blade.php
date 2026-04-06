@@ -2423,8 +2423,17 @@
         <a href="{{ route('informationobject.export.ead', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> EAD 2002 XML
         </a>
+        <a href="{{ route('informationobject.export.ead3', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> EAD3 1.1 XML
+        </a>
+        <a href="{{ route('informationobject.export.ead4', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> EAD 4 XML
+        </a>
         <a href="{{ route('informationobject.export.mods', $io->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> MODS 3.5 XML
+        </a>
+        <a href="{{ route('informationobject.export.rico', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> RiC-O JSON-LD
         </a>
         @auth
           <a href="{{ route('informationobject.export.csv', $io->slug) }}" class="list-group-item list-group-item-action small">
@@ -2989,12 +2998,32 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.export.ead', $io->slug) }}">
-              <i class="fas fa-file-code me-2"></i>Export EAD
+              <i class="fas fa-file-code me-2"></i>Export EAD 2002
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.ead3', $io->slug) }}">
+              <i class="fas fa-file-code me-2"></i>Export EAD3
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.ead4', $io->slug) }}">
+              <i class="fas fa-file-code me-2"></i>Export EAD 4
             </a>
           </li>
           <li>
             <a class="dropdown-item" href="{{ route('informationobject.export.dc', $io->slug) }}">
               <i class="fas fa-file-alt me-2"></i>Export Dublin Core
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.mods', $io->slug) }}">
+              <i class="fas fa-file-alt me-2"></i>Export MODS
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ route('informationobject.export.rico', $io->slug) }}">
+              <i class="fas fa-file-alt me-2"></i>Export RiC-O JSON-LD
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
