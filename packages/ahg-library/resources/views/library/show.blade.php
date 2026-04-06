@@ -190,18 +190,18 @@
         <i class="fas fa-clipboard-check me-1"></i> Collections Management
       </div>
       <div class="list-group list-group-flush">
-        @if(\Illuminate\Support\Facades\Route::has('condition.check'))
-          <a href="{{ route('condition.check', $item->slug) }}" class="list-group-item list-group-item-action small">
+        @if(\Illuminate\Support\Facades\Route::has('io.condition'))
+          <a href="{{ route('io.condition', $item->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-clipboard-check me-2"></i>Condition assessment
           </a>
         @endif
-        @if(\Illuminate\Support\Facades\Route::has('spectrum.show'))
-          <a href="{{ route('spectrum.show', $item->slug) }}" class="list-group-item list-group-item-action small">
+        @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
+          <a href="{{ route('io.spectrum', $item->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-layer-group me-2"></i>Spectrum data
           </a>
         @endif
-        @if(\Illuminate\Support\Facades\Route::has('spectrum.workflow'))
-          <a href="{{ route('spectrum.workflow', $item->slug) }}" class="list-group-item list-group-item-action small">
+        @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
+          <a href="{{ route('ahgspectrum.workflow') }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-tasks me-2"></i>Workflow Status
           </a>
         @endif
@@ -221,17 +221,17 @@
 
   {{-- Named Entity Recognition sidebar --}}
   @auth
-    @if(\Illuminate\Support\Facades\Route::has('ner.review'))
+    @if(\Illuminate\Support\Facades\Route::has('io.ai.review'))
       <div class="card mb-3">
         <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
           <i class="fas fa-brain me-1"></i> Named Entity Recognition
         </div>
         <div class="list-group list-group-flush">
           <a href="#" onclick="if(typeof extractEntities==='function')extractEntities({{ $item->id }});return false;" class="list-group-item list-group-item-action small">
-            <i class="bi bi-cpu me-1"></i> Extract Entities
+            <i class="fas fa-brain me-2"></i> Extract Entities
           </a>
-          <a href="{{ route('ner.review') }}" class="list-group-item list-group-item-action small">
-            <i class="bi bi-list-check me-1"></i> Review Dashboard
+          <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-list-check me-2"></i> Review Dashboard
           </a>
         </div>
       </div>
@@ -275,6 +275,93 @@
 <script src="/vendor/ahg-core/js/tts.js"></script>
 
 <div id="tts-content-area" data-tts-content>
+
+  {{-- Digital Object Viewer (top of content area, matching AtoM layout) --}}
+  @php
+    $masterObj = $digitalObjects['master'] ?? null;
+    $refObj = $digitalObjects['reference'] ?? null;
+    $thumbObj = $digitalObjects['thumbnail'] ?? null;
+    $hasDigitalObject = $masterObj || $refObj || $thumbObj;
+  @endphp
+
+  @if($masterObj || $refObj || $thumbObj)
+    @php
+      $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
+      $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
+      $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
+      $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
+      $isPdf = $masterObj && ($masterObj->mime_type ?? '') === 'application/pdf';
+      $masterMime = $masterObj->mime_type ?? '';
+      $is3DModel = $masterObj && in_array(strtolower($masterMime), ['model/gltf-binary', 'model/gltf+json', 'model/gltf', 'application/octet-stream']);
+      if (!$is3DModel && $masterObj && ($masterObj->name ?? null)) {
+          $ext = strtolower(pathinfo($masterObj->name, PATHINFO_EXTENSION));
+          $is3DModel = in_array($ext, ['glb', 'gltf']);
+      }
+    @endphp
+
+    <div class="digital-object-viewer text-center mb-4 p-3 border rounded" style="background:#f8f9fa;">
+      @if($isPdf)
+        <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
+          <span class="badge bg-danger"><i class="fas fa-file-pdf me-1"></i>PDF Document</span>
+          <div class="btn-group btn-group-sm">
+            <a href="{{ $masterUrl }}" target="_blank" class="btn atom-btn-white" title="Open in new tab"><i class="fas fa-external-link-alt"></i></a>
+            <a href="{{ $masterUrl }}" download class="btn atom-btn-white" title="Download PDF"><i class="fas fa-download"></i></a>
+          </div>
+        </div>
+        <div class="ratio" style="--bs-aspect-ratio: 75%;">
+          <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="PDF Viewer"></iframe>
+        </div>
+      @elseif($masterMediaType === 'image' || in_array($masterMime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/tiff', 'image/svg+xml']))
+        {{-- OpenSeadragon + Mirador resizable viewer --}}
+        @php $viewerId = 'iiif-viewer-' . $item->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+              <i class="fas fa-search-plus me-1"></i>Deep Zoom
+            </button>
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+              <i class="fas fa-columns me-1"></i>Mirador
+            </button>
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+              <i class="fas fa-image me-1"></i>Image
+            </button>
+          </div>
+          <div class="btn-group btn-group-sm">
+            <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size"><i class="fas fa-external-link-alt"></i></a>
+            <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div id="osd-{{ $viewerId }}" style="width:100%;height:500px;background:#1a1a1a;border-radius:8px;"></div>
+        <div id="mirador-{{ $viewerId }}" style="width:100%;height:500px;border-radius:8px;display:none;"></div>
+        <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
+          <a href="{{ $imgSrc }}" target="_blank">
+            <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
+          </a>
+        </div>
+        <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
+        <script>document.addEventListener('DOMContentLoaded', function() { initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ addslashes($item->title) }}'); });</script>
+      @elseif($masterMediaType === 'video')
+        <video controls class="w-100" style="max-height:500px;background:#000;" preload="metadata" @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
+          <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
+        </video>
+      @elseif($masterMediaType === 'audio')
+        <audio controls class="w-100"><source src="{{ $masterUrl }}" type="{{ $masterMime }}"></audio>
+      @else
+        <div class="py-3">
+          <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
+          <p class="text-muted mb-1">{{ $masterObj->name ?? 'Digital object' }}</p>
+          @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>Download</a> @endauth
+        </div>
+      @endif
+    </div>
+  @elseif($item->cover_url)
+    <div class="text-center mb-4">
+      <a href="{{ $item->cover_url_original ?: $item->cover_url }}" target="_blank">
+        <img src="{{ $item->cover_url }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:350px;">
+      </a>
+    </div>
+  @endif
 
   {{-- Basic Information --}}
   <section class="card mb-4">
@@ -603,7 +690,7 @@
 
 <nav>
 
-  {{-- Digital Object Viewer --}}
+  {{-- Cover thumbnail in sidebar (small, links to viewer in main content) --}}
   @php
     $masterObj = $digitalObjects['master'] ?? null;
     $refObj = $digitalObjects['reference'] ?? null;
@@ -611,7 +698,7 @@
     $hasDigitalObject = $masterObj || $refObj || $thumbObj;
   @endphp
 
-  @if($masterObj || $refObj || $thumbObj)
+  @if(false && ($masterObj || $refObj || $thumbObj))
     @php
       $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
       $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';

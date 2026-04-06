@@ -1,3 +1,41 @@
+{{-- Floating Favorites Tab — left edge, above Feedback --}}
+@auth
+<a href="{{ route('favorites.index') }}" id="favorites-tab-btn" title="My Favorites">
+  <i class="fas fa-heart me-1"></i>Favorites
+</a>
+<style>
+  #favorites-tab-btn {
+    position: fixed;
+    left: 0;
+    top: 42%;
+    transform: translateY(-50%);
+    z-index: 1050;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: translateY(-50%) rotate(180deg);
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    transition: background 0.2s, padding 0.2s;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+  }
+  #favorites-tab-btn:hover {
+    background: #a71d2a;
+    color: #fff;
+    padding: 14px 10px;
+    text-decoration: none;
+  }
+  @media print { #favorites-tab-btn { display: none !important; } }
+</style>
+@endauth
+
 {{-- Floating Feedback Tab — left edge, halfway down --}}
 <div id="feedback-tab-wrap">
   {{-- The tab button --}}
