@@ -106,6 +106,24 @@
       btn.classList.toggle('active');
       btn.setAttribute('title', altLabel);
     }
+    // Visual feedback
+    if (added) {
+      btn.style.background = '#198754';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#198754';
+      var icon = btn.querySelector('i');
+      if (icon) icon.className = 'fas fa-lg fa-check';
+      setTimeout(function() {
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+        if (icon) icon.className = 'fas fa-lg fa-paperclip';
+      }, 1500);
+    } else {
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
   }
 
   function updateAllButtons(items) {

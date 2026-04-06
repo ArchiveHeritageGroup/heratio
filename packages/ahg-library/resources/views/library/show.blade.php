@@ -341,11 +341,11 @@
             <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen"><i class="fas fa-expand"></i></button>
           </div>
         </div>
-        <div id="osd-{{ $viewerId }}" style="width:100%;height:500px;background:#1a1a1a;border-radius:8px;"></div>
-        <div id="mirador-{{ $viewerId }}" style="width:100%;height:500px;border-radius:8px;display:none;"></div>
+        <div id="osd-{{ $viewerId }}" style="width:100%;height:400px;background:#1a1a1a;border-radius:8px;"></div>
+        <div id="mirador-{{ $viewerId }}" style="width:100%;height:400px;border-radius:8px;display:none;overflow:hidden;"></div>
         <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
           <a href="{{ $imgSrc }}" target="_blank">
-            <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
+            <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:400px;">
           </a>
         </div>
         <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
