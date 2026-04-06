@@ -492,9 +492,15 @@ class RicSerializationService
      */
     private function getLanguagesForRecord(int $ioId): array
     {
-        return DB::table('language')
-            ->where('information_object_id', $ioId)
-            ->pluck('language')
+        return DB::table('object_term_relation')
+            ->join('term_i18n', function ($j) {
+                $j->on('object_term_relation.term_id', '=', 'term_i18n.id')
+                   ->where('term_i18n.culture', '=', 'en');
+            })
+            ->join('term', 'object_term_relation.term_id', '=', 'term.id')
+            ->where('object_term_relation.object_id', $ioId)
+            ->where('term.taxonomy_id', 7)
+            ->pluck('term_i18n.name')
             ->map(fn($lang) => [
                 '@type' => self::RICO_NS . 'Language',
                 'rico:languageCode' => $lang,
