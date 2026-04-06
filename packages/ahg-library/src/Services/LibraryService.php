@@ -609,19 +609,26 @@ class LibraryService
     public function getCreators(int $libraryItemId): \Illuminate\Support\Collection
     {
         return DB::table('library_item_creator')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('library_item_creator.actor_id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug', 'library_item_creator.actor_id', '=', 'slug.object_id')
             ->where('library_item_creator.library_item_id', $libraryItemId)
+            ->orderBy('library_item_creator.sort_order')
             ->select([
-                'library_item_creator.actor_id as id',
-                'actor_i18n.authorized_form_of_name as name',
+                'library_item_creator.id',
+                'library_item_creator.name',
                 'library_item_creator.role',
-                'slug.slug',
+                'library_item_creator.authority_uri',
             ])
-            ->get();
+            ->get()
+            ->map(function ($creator) {
+                // Try to find matching actor for slug link
+                $actor = DB::table('actor_i18n')
+                    ->join('slug', 'actor_i18n.id', '=', 'slug.object_id')
+                    ->where('actor_i18n.authorized_form_of_name', $creator->name)
+                    ->where('actor_i18n.culture', $this->culture)
+                    ->select('slug.slug')
+                    ->first();
+                $creator->slug = $actor->slug ?? null;
+                return $creator;
+            });
     }
 
     /**
@@ -630,14 +637,13 @@ class LibraryService
     public function getSubjects(int $libraryItemId): \Illuminate\Support\Collection
     {
         return DB::table('library_item_subject')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('library_item_subject.term_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
             ->where('library_item_subject.library_item_id', $libraryItemId)
             ->select([
-                'library_item_subject.term_id as id',
-                'term_i18n.name',
+                'library_item_subject.id',
+                'library_item_subject.heading as name',
+                'library_item_subject.subject_type',
+                'library_item_subject.source',
+                'library_item_subject.uri',
             ])
             ->get();
     }
