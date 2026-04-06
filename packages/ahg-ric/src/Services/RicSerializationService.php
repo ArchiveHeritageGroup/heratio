@@ -97,12 +97,14 @@ class RicSerializationService
     {
         $io = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', 'io.id', '=', 'i18n.id')
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('term as level', 'io.level_of_description_id', '=', 'level.id')
             ->leftJoin('term_i18n as level_i18n', 'level.id', '=', 'level_i18n.id')
             ->where('io.id', $ioId)
             ->select([
                 'io.*',
                 'i18n.*',
+                'slug.slug',
                 'level_i18n.name as level_name',
             ])
             ->first();
