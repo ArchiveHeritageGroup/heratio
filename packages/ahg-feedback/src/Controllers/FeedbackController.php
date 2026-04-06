@@ -104,6 +104,11 @@ class FeedbackController extends Controller
                 'culture' => $culture,
             ]);
 
+            if ($slug) {
+                return redirect('/' . $slug)
+                    ->with('success', 'Thank you for your feedback. We will review it shortly.');
+            }
+
             return redirect()->route('feedback.general')
                 ->with('success', 'Thank you for your feedback. We will review it shortly.');
         }
