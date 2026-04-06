@@ -2411,6 +2411,38 @@
       </div>
     @endauth
 
+    {{-- Active Loans --}}
+    @if(\Illuminate\Support\Facades\Schema::hasTable('ahg_loan'))
+    @php
+      $activeLoans = \Illuminate\Support\Facades\DB::table('ahg_loan')
+          ->join('ahg_loan_object', 'ahg_loan.id', '=', 'ahg_loan_object.loan_id')
+          ->where('ahg_loan_object.object_id', $io->id)
+          ->whereIn('ahg_loan.status', ['on_loan', 'dispatched', 'in_transit', 'received', 'approved', 'preparing'])
+          ->select('ahg_loan.id', 'ahg_loan.loan_number', 'ahg_loan.loan_type', 'ahg_loan.status', 'ahg_loan.partner_institution', 'ahg_loan.end_date')
+          ->get();
+    @endphp
+    @if($activeLoans->isNotEmpty())
+      <div class="card mb-3 border-warning">
+        <div class="card-header bg-warning text-dark fw-bold">
+          <i class="fas fa-exchange-alt me-1"></i> Active Loans ({{ $activeLoans->count() }})
+        </div>
+        <div class="list-group list-group-flush">
+          @foreach($activeLoans as $al)
+            @php $isOverdue = $al->end_date && $al->end_date < now()->toDateString(); @endphp
+            <a href="{{ route('loan.show', $al->id) }}" class="list-group-item list-group-item-action {{ $isOverdue ? 'list-group-item-danger' : '' }}">
+              <div class="d-flex justify-content-between">
+                <strong>{{ $al->loan_number }}</strong>
+                <span class="badge bg-{{ $al->loan_type === 'out' ? 'info' : 'warning' }}">{{ $al->loan_type === 'out' ? 'Out' : 'In' }}</span>
+              </div>
+              <small>{{ $al->partner_institution }}</small>
+              @if($isOverdue)<span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> Overdue</span>@endif
+            </a>
+          @endforeach
+        </div>
+      </div>
+    @endif
+    @endif
+
     {{-- Export --}}
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">

@@ -1021,7 +1021,7 @@
   @endphp
   <div class="d-flex flex-wrap gap-1 mb-3 align-items-center">
     {{-- Clipboard --}}
-    @include('ahg-core::clipboard._button', ['slug' => $item->slug, 'type' => 'library', 'wide' => false])
+    @include('ahg-core::clipboard._button', ['slug' => $item->slug, 'type' => 'informationObject', 'wide' => false])
     {{-- TTS --}}
     <button type="button" class="btn btn-sm btn-outline-secondary" data-tts-action="toggle" data-tts-target="#tts-content-area" title="Read metadata aloud" data-bs-toggle="tooltip"><i class="fas fa-volume-up"></i></button>
     {{-- TTS for PDF --}}
@@ -1115,6 +1115,40 @@
       }
     });
     </script>
+  @endif
+
+  {{-- Active Loans --}}
+  @php
+    $activeLoans = \Illuminate\Support\Facades\DB::table('ahg_loan')
+        ->join('ahg_loan_object', 'ahg_loan.id', '=', 'ahg_loan_object.loan_id')
+        ->where('ahg_loan_object.object_id', $item->id)
+        ->whereIn('ahg_loan.status', ['on_loan', 'dispatched', 'in_transit', 'received', 'approved', 'preparing'])
+        ->select('ahg_loan.id', 'ahg_loan.loan_number', 'ahg_loan.loan_type', 'ahg_loan.status', 'ahg_loan.partner_institution', 'ahg_loan.end_date')
+        ->get();
+  @endphp
+  @if($activeLoans->isNotEmpty())
+    <section class="card mb-3 border-warning">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Active Loans ({{ $activeLoans->count() }})</h5>
+      </div>
+      <div class="list-group list-group-flush">
+        @foreach($activeLoans as $loan)
+          @php $isOverdue = $loan->end_date && $loan->end_date < now()->toDateString(); @endphp
+          <a href="{{ route('loan.show', $loan->id) }}" class="list-group-item list-group-item-action {{ $isOverdue ? 'list-group-item-danger' : '' }}">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>{{ $loan->loan_number }}</strong>
+              <span class="badge bg-{{ $loan->loan_type === 'out' ? 'info' : 'warning' }}">{{ $loan->loan_type === 'out' ? 'Out' : 'In' }}</span>
+            </div>
+            <small class="text-muted">{{ $loan->partner_institution }}</small>
+            <div class="mt-1">
+              <span class="badge bg-{{ $isOverdue ? 'danger' : 'success' }} me-1">{{ ucwords(str_replace('_', ' ', $loan->status)) }}</span>
+              @if($isOverdue)<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>@endif
+              @if($loan->end_date)<small class="text-muted ms-1">Due: {{ $loan->end_date }}</small>@endif
+            </div>
+          </a>
+        @endforeach
+      </div>
+    </section>
   @endif
 
   {{-- Related Records --}}

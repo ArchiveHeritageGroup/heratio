@@ -253,7 +253,9 @@
       "Bash(gh issue:*)",
       "Bash(mysqldump --single-transaction --quick --routines --triggers archive)",
       "Read(//tmp/**)",
-      "Bash(sudo sed:*)"
+      "Bash(sudo sed:*)",
+      "Bash(cp /usr/share/nginx/archive/plugins/ahgCorePlugin/web/css/tts.css /usr/share/nginx/heratio/public/vendor/ahg-core/css/tts.css)",
+      "Bash(cp /usr/share/nginx/archive/plugins/ahgCorePlugin/web/js/tts.js /usr/share/nginx/heratio/public/vendor/ahg-core/js/tts.js)"
     ]
   }
 }
