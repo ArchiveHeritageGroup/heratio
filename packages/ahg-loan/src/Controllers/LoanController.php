@@ -123,6 +123,15 @@ class LoanController extends Controller
 
         $id = $this->service->create($validated, auth()->id());
 
+        // Redirect back to originating record if object_id was provided
+        $objectId = $request->input('object_id');
+        if ($objectId) {
+            $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $objectId)->value('slug');
+            if ($slug) {
+                return redirect('/' . $slug)->with('success', 'Loan created successfully.');
+            }
+        }
+
         return redirect()->route('loan.show', $id)
             ->with('success', 'Loan created successfully.');
     }

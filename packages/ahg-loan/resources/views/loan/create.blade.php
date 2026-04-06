@@ -41,8 +41,8 @@
                   Loan Type <span class="text-danger">*</span>
                  <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="loan_type" id="loan_type" class="form-select @error('loan_type') is-invalid @enderror" required>
-                  <option value="out" {{ old('loan_type') === 'out' ? 'selected' : '' }}>Outgoing (lending)</option>
-                  <option value="in" {{ old('loan_type') === 'in' ? 'selected' : '' }}>Incoming (borrowing)</option>
+                  <option value="out" {{ old('loan_type', request('type', 'out')) === 'out' ? 'selected' : '' }}>Outgoing (lending)</option>
+                  <option value="in" {{ old('loan_type', request('type', 'out')) === 'in' ? 'selected' : '' }}>Incoming (borrowing)</option>
                 </select>
                 @error('loan_type')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -54,10 +54,12 @@
                   Sector <span class="text-danger">*</span>
                  <span class="badge bg-danger ms-1">Required</span></label>
                 <select name="sector" id="sector" class="form-select @error('sector') is-invalid @enderror" required>
-                  <option value="museum" {{ old('sector', 'museum') === 'museum' ? 'selected' : '' }}>Museum</option>
-                  <option value="archive" {{ old('sector') === 'archive' ? 'selected' : '' }}>Archive</option>
-                  <option value="library" {{ old('sector') === 'library' ? 'selected' : '' }}>Library</option>
-                  <option value="gallery" {{ old('sector') === 'gallery' ? 'selected' : '' }}>Gallery</option>
+                  @php $sectorVal = old('sector', request('sector', '')); @endphp
+                  <option value="">-- Select sector --</option>
+                  <option value="museum" {{ $sectorVal === 'museum' ? 'selected' : '' }}>Museum</option>
+                  <option value="archive" {{ $sectorVal === 'archive' ? 'selected' : '' }}>Archive</option>
+                  <option value="library" {{ $sectorVal === 'library' ? 'selected' : '' }}>Library</option>
+                  <option value="gallery" {{ $sectorVal === 'gallery' ? 'selected' : '' }}>Gallery</option>
                 </select>
                 @error('sector')
                   <div class="invalid-feedback">{{ $message }}</div>
