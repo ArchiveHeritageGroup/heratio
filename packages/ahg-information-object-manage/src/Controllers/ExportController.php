@@ -181,7 +181,7 @@ class ExportController extends Controller
 
         return response(json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200)
             ->header('Content-Type', 'application/ld+json; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_rico.jsonld"');
+            ->header('Content-Disposition', 'attachment; filename="' . $slug . '_rico.jsonld"');
     }
 
     /**
