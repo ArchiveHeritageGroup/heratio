@@ -218,20 +218,52 @@
 
   {{-- Rights --}}
   @auth
+  @php
+    $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
+        && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $item->id)->exists();
+    $activeEmbargo = \Illuminate\Support\Facades\Schema::hasTable('embargo')
+        ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $item->id)->where('is_active', 1)->first()
+        : null;
+  @endphp
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-copyright me-1"></i> Rights
     </div>
+    {{-- Status badges --}}
+    <div class="card-body py-2">
+      @if($hasExtRights)
+        <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+      @endif
+      @if($activeEmbargo)
+        <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+      @endif
+      @if(!$hasExtRights && !$activeEmbargo)
+        <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+      @endif
+    </div>
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
         <a href="{{ route('io.rights.extended', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copyright me-1"></i> Add extended rights
+          <i class="fas fa-copyright me-1"></i> {{ $hasExtRights ? 'Edit' : 'Add' }} extended rights
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
-        <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-lock me-1"></i> Add embargo
-        </a>
+        @if($activeEmbargo)
+          <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-edit me-1"></i> Edit embargo
+          </a>
+          <form method="POST" action="{{ route('io.rights.embargo.lift', $activeEmbargo->id) }}" class="d-inline">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start"
+                    onclick="return confirm('Are you sure you want to lift this embargo?')">
+              <i class="fas fa-unlock me-1"></i> Lift embargo
+            </button>
+          </form>
+        @else
+          <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-lock me-1"></i> Add embargo
+          </a>
+        @endif
       @endif
       @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
         <a href="{{ route('io.rights.export', $item->slug) }}" class="list-group-item list-group-item-action small">

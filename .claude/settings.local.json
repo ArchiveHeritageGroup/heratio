@@ -250,7 +250,10 @@
       "WebSearch",
       "Bash(xargs -I {} ls -1 {}/config/*Configuration.class.php)",
       "WebFetch(domain:github.com)",
-      "Bash(gh issue:*)"
+      "Bash(gh issue:*)",
+      "Bash(mysqldump --single-transaction --quick --routines --triggers archive)",
+      "Read(//tmp/**)",
+      "Bash(sudo sed:*)"
     ]
   }
 }
