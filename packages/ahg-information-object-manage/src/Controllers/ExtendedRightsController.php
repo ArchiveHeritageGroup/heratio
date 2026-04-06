@@ -156,8 +156,7 @@ class ExtendedRightsController extends Controller
             $message = 'Extended rights created successfully.';
         }
 
-        return redirect()
-            ->route('io.rights.extended', $slug)
+        return redirect('/' . $slug)
             ->with('notice', $message);
     }
 
@@ -233,8 +232,7 @@ class ExtendedRightsController extends Controller
             $message = 'Embargo created successfully.';
         }
 
-        return redirect()
-            ->route('io.rights.embargo', $slug)
+        return redirect('/' . $slug)
             ->with('notice', $message);
     }
 
@@ -262,8 +260,7 @@ class ExtendedRightsController extends Controller
             ->where('object_id', $embargo->object_id)
             ->value('slug');
 
-        return redirect()
-            ->route('io.rights.embargo', $slug ?? '')
+        return redirect('/' . ($slug ?? ''))
             ->with('notice', 'Embargo lifted successfully.');
     }
 
@@ -279,8 +276,9 @@ class ExtendedRightsController extends Controller
 
         $jsonLd = $this->service->exportJsonLd($io->id);
 
-        return response()->json($jsonLd, 200, [
-            'Content-Type' => 'application/ld+json',
+        return response(json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200, [
+            'Content-Type' => 'application/ld+json; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $slug . '_rights.jsonld"',
         ]);
     }
 

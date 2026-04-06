@@ -124,7 +124,7 @@ class ProvenanceController extends Controller
 
         $this->service->update($slug, $request->all());
 
-        return redirect()->route('provenance.view', $slug)->with('notice', 'Provenance updated.');
+        return redirect('/' . $slug)->with('notice', 'Provenance updated.');
     }
 
     /**

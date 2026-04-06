@@ -128,4 +128,40 @@ class ProvenanceService
             ->orderBy('information_object_i18n.title')
             ->paginate($perPage);
     }
+
+    /**
+     * Update provenance record fields.
+     */
+    public function update(string $slug, array $data): bool
+    {
+        $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$ioId) {
+            return false;
+        }
+
+        $record = DB::table('provenance_record')->where('information_object_id', $ioId)->first();
+
+        $fillable = [
+            'current_status', 'custody_type', 'acquisition_type', 'acquisition_date',
+            'acquisition_date_text', 'acquisition_price', 'acquisition_currency',
+            'certainty_level', 'has_gaps', 'gap_description', 'research_status',
+            'research_notes', 'nazi_era_provenance_checked', 'nazi_era_provenance_clear',
+            'nazi_era_notes', 'cultural_property_status', 'cultural_property_notes',
+            'provenance_summary', 'is_complete', 'is_public',
+        ];
+
+        $values = array_intersect_key($data, array_flip($fillable));
+        $values['updated_at'] = now();
+
+        if ($record) {
+            DB::table('provenance_record')->where('id', $record->id)->update($values);
+        } else {
+            $values['information_object_id'] = $ioId;
+            $values['created_by'] = auth()->id();
+            $values['created_at'] = now();
+            DB::table('provenance_record')->insert($values);
+        }
+
+        return true;
+    }
 }
