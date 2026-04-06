@@ -5,171 +5,321 @@
 
 @section('content')
 
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-handshake me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">Loan Management</h1>
-      <span class="small text-muted">
-        @if($loans->total())
-          Showing {{ number_format($loans->total()) }} loan{{ $loans->total() !== 1 ? 's' : '' }}
-        @else
-          No loans found
-        @endif
-      </span>
-    </div>
-    <a href="{{ route('loan.create', array_filter(['type' => request('type'), 'sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn atom-btn-outline-success ms-auto">
-      <i class="fas fa-plus me-1"></i> New Loan
-    </a>
-  </div>
+  <div class="row">
 
-  {{-- Statistics cards --}}
-  <div class="row g-3 mb-4">
-    <div class="col-sm-6 col-lg-3">
-      <div class="card border-success h-100">
-        <div class="card-body text-center">
-          <div class="fs-2 fw-bold text-success">{{ $stats['active'] }}</div>
-          <div class="text-muted small">Active Loans</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card border-danger h-100">
-        <div class="card-body text-center">
-          <div class="fs-2 fw-bold text-danger">{{ $stats['overdue'] }}</div>
-          <div class="text-muted small">Overdue</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card border-warning h-100">
-        <div class="card-body text-center">
-          <div class="fs-2 fw-bold text-warning">{{ $stats['due_soon'] }}</div>
-          <div class="text-muted small">Due Soon (14 days)</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card border-primary h-100">
-        <div class="card-body text-center">
-          <div class="fs-2 fw-bold text-primary">{{ $stats['total'] }}</div>
-          <div class="text-muted small">Total Loans</div>
-        </div>
-      </div>
-    </div>
-  </div>
+    {{-- ===== MAIN COLUMN ===== --}}
+    <div class="col-md-9">
 
-  {{-- Filters --}}
-  <div class="card mb-4">
-    <div class="card-body">
-      <form method="GET" action="{{ route('loan.index') }}" class="row g-2 align-items-end">
-        <div class="col-md-2">
-          <label for="filter-type" class="form-label small">Type <span class="badge bg-warning ms-1">Recommended</span></label>
-          <select name="type" id="filter-type" class="form-select form-select-sm">
-            <option value="">All types</option>
-            <option value="out" {{ ($params['type'] ?? '') === 'out' ? 'selected' : '' }}>Outgoing</option>
-            <option value="in" {{ ($params['type'] ?? '') === 'in' ? 'selected' : '' }}>Incoming</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="filter-status" class="form-label small">Status <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="status" id="filter-status" class="form-select form-select-sm">
-            <option value="">All statuses</option>
-            @foreach(['draft','submitted','under_review','approved','rejected','preparing','dispatched','in_transit','received','on_loan','return_requested','returned','closed','cancelled'] as $s)
-              <option value="{{ $s }}" {{ ($params['status'] ?? '') === $s ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $s)) }}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label for="filter-search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="search" id="filter-search" class="form-control form-control-sm"
-                 placeholder="Loan #, title, partner..." value="{{ $params['search'] ?? '' }}">
-        </div>
-        <div class="col-md-2">
-          <label for="filter-sector" class="form-label small">Sector <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="sector" id="filter-sector" class="form-select form-select-sm">
-            <option value="">All sectors</option>
-            @foreach(['museum','archive','library','gallery'] as $sec)
-              <option value="{{ $sec }}" {{ ($params['sector'] ?? '') === $sec ? 'selected' : '' }}>{{ ucfirst($sec) }}</option>
-            @endforeach
-          </select>
-        </div>
-        <div class="col-md-1">
-          <div class="form-check">
-            <input type="checkbox" name="overdue" value="1" id="filter-overdue" class="form-check-input"
-                   {{ !empty($params['overdue']) ? 'checked' : '' }}>
-            <label for="filter-overdue" class="form-check-label small">Overdue <span class="badge bg-secondary ms-1">Optional</span></label>
-          </div>
-        </div>
-        <div class="col-md-2 d-flex gap-1">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm"><i class="fas fa-filter me-1"></i>Filter</button>
-          <a href="{{ route('loan.index') }}" class="btn btn-sm atom-btn-white">Clear</a>
-        </div>
-      </form>
-    </div>
-  </div>
+      {{-- Breadcrumb --}}
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i></a></li>
+          <li class="breadcrumb-item active" aria-current="page">Loans</li>
+        </ol>
+      </nav>
 
-  {{-- Loans table --}}
-  @if($loans->total())
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Loan #</th>
-            <th>Title</th>
-            <th>Partner Institution</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th class="text-center">Objects</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($loans as $loan)
-            @php
-              $isOverdue = $loan->end_date && $loan->end_date < now()->toDateString()
-                           && in_array($loan->status, ['on_loan','dispatched','in_transit','received']);
-            @endphp
-            <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
-              <td>
-                <a href="{{ route('loan.show', $loan->id) }}" class="fw-bold text-decoration-none">
-                  {{ $loan->loan_number }}
+      {{-- Header --}}
+      <div class="multiline-header d-flex align-items-center mb-3">
+        <i class="fas fa-3x fa-exchange-alt me-3" aria-hidden="true"></i>
+        <div class="d-flex flex-column">
+          <h1 class="mb-0">Loan Management</h1>
+          <span class="small text-muted">
+            @if($loans->total())
+              Showing {{ number_format($loans->total()) }} loan{{ $loans->total() !== 1 ? 's' : '' }}
+            @else
+              No loans found
+            @endif
+          </span>
+        </div>
+      </div>
+
+      {{-- Filter + Table card --}}
+      <div class="card mb-4">
+
+        {{-- Filter bar in card-header --}}
+        <div class="card-header">
+          <form method="GET" action="{{ route('loan.index') }}" class="row g-2 align-items-center">
+            @if(request('sector'))
+              <input type="hidden" name="sector" value="{{ request('sector') }}">
+            @endif
+            @if(request('object_id'))
+              <input type="hidden" name="object_id" value="{{ request('object_id') }}">
+            @endif
+
+            {{-- Search --}}
+            <div class="col-auto">
+              <input type="text" name="search" class="form-control form-control-sm"
+                     placeholder="Search loans..." value="{{ $params['search'] ?? '' }}">
+            </div>
+
+            {{-- Type select --}}
+            <div class="col-auto">
+              <select name="type" class="form-select form-select-sm">
+                <option value="">All Types</option>
+                <option value="out" {{ ($params['type'] ?? '') === 'out' ? 'selected' : '' }}>Loans Out</option>
+                <option value="in" {{ ($params['type'] ?? '') === 'in' ? 'selected' : '' }}>Loans In</option>
+              </select>
+            </div>
+
+            {{-- Status select --}}
+            <div class="col-auto">
+              <select name="status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="pending" {{ ($params['status'] ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="approved" {{ ($params['status'] ?? '') === 'approved' ? 'selected' : '' }}>Approved</option>
+                <option value="on_loan" {{ ($params['status'] ?? '') === 'on_loan' ? 'selected' : '' }}>Active</option>
+                <option value="returned" {{ ($params['status'] ?? '') === 'returned' ? 'selected' : '' }}>Returned</option>
+              </select>
+            </div>
+
+            {{-- Overdue checkbox --}}
+            <div class="col-auto">
+              <div class="form-check mb-0">
+                <input type="checkbox" name="overdue" value="1" id="filter-overdue" class="form-check-input"
+                       {{ !empty($params['overdue']) ? 'checked' : '' }}>
+                <label for="filter-overdue" class="form-check-label small">Overdue</label>
+              </div>
+            </div>
+
+            {{-- Filter + Clear buttons --}}
+            <div class="col-auto">
+              <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>Filter</button>
+              <a href="{{ route('loan.index', array_filter(['sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+            </div>
+
+            {{-- New Loan split button group (pushed right) --}}
+            <div class="col-auto ms-auto">
+              <div class="btn-group">
+                <a href="{{ route('loan.create', array_filter(['type' => 'out', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
+                   class="btn btn-sm btn-success">
+                  <i class="fas fa-plus me-1"></i>New Loan Out
                 </a>
-              </td>
-              <td>{{ $loan->title ?: '-' }}</td>
-              <td>{{ $loan->partner_institution }}</td>
-              <td>
-                @if($loan->loan_type === 'out')
-                  <span class="badge bg-info"><i class="fas fa-arrow-right me-1"></i>Outgoing</span>
-                @else
-                  <span class="badge bg-warning text-dark"><i class="fas fa-arrow-left me-1"></i>Incoming</span>
-                @endif
-              </td>
-              <td>
-                <span class="badge bg-{{ \AhgLoan\Services\LoanService::getStatusColour($loan->status) }}">
-                  {{ ucwords(str_replace('_', ' ', $loan->status)) }}
-                </span>
-                @if($isOverdue)
-                  <span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle"></i> Overdue</span>
-                @endif
-              </td>
-              <td>{{ $loan->start_date ? \Carbon\Carbon::parse($loan->start_date)->format('Y-m-d') : '-' }}</td>
-              <td>{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') : '-' }}</td>
-              <td class="text-center">{{ $loan->objects_count }}</td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
+                <a href="{{ route('loan.create', array_filter(['type' => 'in', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
+                   class="btn btn-sm btn-info">
+                  <i class="fas fa-plus me-1"></i>New Loan In
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {{-- Table --}}
+        <div class="card-body p-0">
+          @if($loans->total())
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Loan #</th>
+                    <th>Type</th>
+                    <th>Partner Institution</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th class="text-center">Objects</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($loans as $loan)
+                    @php
+                      $isOverdue = $loan->end_date && $loan->end_date < now()->toDateString()
+                                   && in_array($loan->status, ['on_loan','dispatched','in_transit','received']);
+
+                      $statusColours = [
+                          'draft'            => 'secondary',
+                          'submitted'        => 'info',
+                          'under_review'     => 'warning',
+                          'approved'         => 'primary',
+                          'rejected'         => 'danger',
+                          'preparing'        => 'primary',
+                          'dispatched'       => 'primary',
+                          'in_transit'       => 'primary',
+                          'received'         => 'info',
+                          'on_loan'          => 'success',
+                          'return_requested' => 'warning',
+                          'returned'         => 'dark',
+                          'closed'           => 'dark',
+                          'cancelled'        => 'danger',
+                          'pending'          => 'secondary',
+                      ];
+                      $badgeColour = $statusColours[$loan->status] ?? 'secondary';
+                    @endphp
+                    <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
+                      <td>
+                        <a href="{{ route('loan.show', $loan->id) }}" class="fw-bold text-decoration-none">
+                          {{ $loan->loan_number }}
+                        </a>
+                        @if($loan->title)
+                          <br><small class="text-muted">{{ $loan->title }}</small>
+                        @endif
+                      </td>
+                      <td>
+                        @if($loan->loan_type === 'out')
+                          <span class="badge bg-warning text-dark"><i class="fas fa-arrow-right me-1"></i>Out</span>
+                        @else
+                          <span class="badge bg-info"><i class="fas fa-arrow-left me-1"></i>In</span>
+                        @endif
+                      </td>
+                      <td>{{ $loan->partner_institution }}</td>
+                      <td>{{ $purposes[$loan->purpose] ?? ucfirst($loan->purpose ?? '-') }}</td>
+                      <td>
+                        <span class="badge bg-{{ $badgeColour }}">
+                          {{ ucwords(str_replace('_', ' ', $loan->status)) }}
+                        </span>
+                        @if($isOverdue)
+                          <span class="badge bg-danger ms-1"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>
+                        @endif
+                      </td>
+                      <td>{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') : '-' }}</td>
+                      <td class="text-center">
+                        <span class="badge bg-secondary">{{ $loan->objects_count }}</span>
+                      </td>
+                      <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                          <a href="{{ route('loan.show', $loan->id) }}" class="btn btn-outline-primary" title="View">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <a href="{{ route('loan.edit', $loan->id) }}" class="btn btn-outline-secondary" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          @else
+            <div class="text-center py-5">
+              <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No loans found</h5>
+              <p class="text-muted">Create a new loan to get started.</p>
+            </div>
+          @endif
+        </div>
+
+        {{-- Pagination in card-footer --}}
+        @if($loans->total())
+          <div class="card-footer">
+            <div class="d-flex justify-content-center">
+              {{ $loans->withQueryString()->links() }}
+            </div>
+          </div>
+        @endif
+
+      </div>
+
     </div>
 
-    {{-- Pagination --}}
-    <div class="d-flex justify-content-center">
-      {{ $loans->withQueryString()->links() }}
+    {{-- ===== SIDEBAR ===== --}}
+    <div class="col-md-3">
+
+      {{-- Statistics card --}}
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-chart-bar me-1"></i> Statistics</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between">
+            Total Loans
+            <span class="fw-bold">{{ number_format($stats['total']) }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-warning">Active Loans Out</span>
+            <span class="fw-bold text-warning">{{ number_format($stats['active_out']) }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-info">Active Loans In</span>
+            <span class="fw-bold text-info">{{ number_format($stats['active_in']) }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-danger">Overdue</span>
+            <span class="fw-bold text-danger">{{ number_format($stats['overdue']) }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            Due This Month
+            <span class="fw-bold">{{ number_format($stats['due_this_month']) }}</span>
+          </li>
+        </ul>
+        @if($stats['total_insurance_value'] > 0)
+          <div class="card-body border-top">
+            <small class="text-muted">Total Insurance Value</small>
+            <div class="fw-bold">R {{ number_format($stats['total_insurance_value'], 2) }}</div>
+          </div>
+        @endif
+      </div>
+
+      {{-- Overdue Loans card --}}
+      @if($overdue->count())
+        <div class="card mb-3 border-danger">
+          <div class="card-header bg-danger text-white">
+            <i class="fas fa-exclamation-triangle me-1"></i> Overdue Loans
+          </div>
+          <ul class="list-group list-group-flush">
+            @foreach($overdue as $ol)
+              <a href="{{ route('loan.show', $ol->id) }}" class="list-group-item list-group-item-action list-group-item-danger">
+                <div class="fw-bold">{{ $ol->loan_number }}</div>
+                <small>{{ $ol->partner_institution }}</small>
+                <br><small class="text-muted">Due: {{ \Carbon\Carbon::parse($ol->end_date)->format('Y-m-d') }}</small>
+              </a>
+            @endforeach
+          </ul>
+          @if($stats['overdue'] > 5)
+            <div class="card-footer text-center">
+              <a href="{{ route('loan.index', ['overdue' => 1]) }}" class="text-danger">
+                View all {{ $stats['overdue'] }} overdue <i class="fas fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+          @endif
+        </div>
+      @endif
+
+      {{-- Due Within 30 Days card --}}
+      @if($dueSoon->count())
+        <div class="card mb-3 border-warning">
+          <div class="card-header bg-warning text-dark">
+            <i class="fas fa-clock me-1"></i> Due Within 30 Days
+          </div>
+          <ul class="list-group list-group-flush">
+            @foreach($dueSoon as $dl)
+              <a href="{{ route('loan.show', $dl->id) }}" class="list-group-item list-group-item-action">
+                <div class="fw-bold">{{ $dl->loan_number }}</div>
+                <small>{{ $dl->partner_institution }}</small>
+                <br><small class="text-muted">Due: {{ \Carbon\Carbon::parse($dl->end_date)->format('Y-m-d') }}</small>
+              </a>
+            @endforeach
+          </ul>
+          @if($stats['due_this_month'] > 5)
+            <div class="card-footer text-center">
+              <a href="{{ route('loan.index', ['status' => 'on_loan']) }}" class="text-warning">
+                View all {{ $stats['due_this_month'] }} due soon <i class="fas fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+          @endif
+        </div>
+      @endif
+
+      {{-- Quick Actions card --}}
+      <div class="card mb-3">
+        <div class="card-header"><i class="fas fa-bolt me-1"></i> Quick Actions</div>
+        <div class="list-group list-group-flush">
+          <a href="{{ route('loan.create', array_filter(['type' => 'out', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
+             class="list-group-item list-group-item-action">
+            <i class="fas fa-arrow-right text-success me-2"></i> New Loan Out
+          </a>
+          <a href="{{ route('loan.create', array_filter(['type' => 'in', 'sector' => request('sector'), 'object_id' => request('object_id')])) }}"
+             class="list-group-item list-group-item-action">
+            <i class="fas fa-arrow-left text-info me-2"></i> New Loan In
+          </a>
+          @if(\Illuminate\Support\Facades\Route::has('exhibition.index'))
+            <a href="{{ route('exhibition.index') }}" class="list-group-item list-group-item-action">
+              <i class="fas fa-university text-primary me-2"></i> View Exhibitions
+            </a>
+          @endif
+        </div>
+      </div>
+
     </div>
-  @else
-    <div class="alert alert-info">
-      <i class="fas fa-info-circle me-2"></i>No loans found matching your criteria.
-    </div>
-  @endif
+
+  </div>
 
 @endsection

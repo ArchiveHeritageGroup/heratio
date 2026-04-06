@@ -30,6 +30,7 @@ namespace AhgLoan\Controllers;
 use App\Http\Controllers\Controller;
 use AhgLoan\Services\LoanService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Loan Management Controller.
@@ -62,9 +63,47 @@ class LoanController extends Controller
         ];
 
         $loans = $this->service->browse($params);
-        $stats = $this->service->getStatistics();
 
-        return view('ahg-loan::loan.index', compact('loans', 'stats', 'params'));
+        // Statistics for sidebar
+        $activeStatuses = ['on_loan', 'dispatched', 'in_transit', 'received'];
+        $stats = [
+            'total'                => DB::table('ahg_loan')->count(),
+            'active_out'           => DB::table('ahg_loan')->where('loan_type', 'out')->whereIn('status', $activeStatuses)->count(),
+            'active_in'            => DB::table('ahg_loan')->where('loan_type', 'in')->whereIn('status', $activeStatuses)->count(),
+            'overdue'              => DB::table('ahg_loan')->where('end_date', '<', now())->whereIn('status', $activeStatuses)->count(),
+            'due_this_month'       => DB::table('ahg_loan')->whereBetween('end_date', [now(), now()->addDays(30)])->whereIn('status', $activeStatuses)->count(),
+            'total_insurance_value' => DB::table('ahg_loan')->sum('insurance_value'),
+        ];
+
+        // Top 5 overdue loans for sidebar
+        $overdue = DB::table('ahg_loan')
+            ->where('end_date', '<', now())
+            ->whereIn('status', $activeStatuses)
+            ->select('id', 'loan_number', 'partner_institution', 'end_date')
+            ->orderBy('end_date')
+            ->limit(5)
+            ->get();
+
+        // Top 5 due within 30 days for sidebar
+        $dueSoon = DB::table('ahg_loan')
+            ->whereBetween('end_date', [now(), now()->addDays(30)])
+            ->whereIn('status', $activeStatuses)
+            ->select('id', 'loan_number', 'partner_institution', 'end_date')
+            ->orderBy('end_date')
+            ->limit(5)
+            ->get();
+
+        // Purpose mapping
+        $purposes = [
+            'exhibition'   => 'Exhibition',
+            'research'     => 'Research',
+            'conservation' => 'Conservation',
+            'photography'  => 'Photography',
+            'education'    => 'Education',
+            'other'        => 'Other',
+        ];
+
+        return view('ahg-loan::loan.index', compact('loans', 'stats', 'overdue', 'dueSoon', 'params', 'purposes'));
     }
 
     /**
