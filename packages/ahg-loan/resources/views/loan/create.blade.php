@@ -104,7 +104,7 @@
             <div class="mb-3">
               <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
-                     value="{{ old('title') }}" placeholder="Descriptive title for this loan">
+                     value="{{ old('title', $prefill['title'] ?? '') }}" placeholder="Descriptive title for this loan">
               @error('title')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -113,7 +113,7 @@
             <div class="mb-3">
               <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror"
-                        rows="3" placeholder="Description of the loan...">{{ old('description') }}</textarea>
+                        rows="3" placeholder="Description of the loan...">{{ old('description', $prefill['description'] ?? '') }}</textarea>
               @error('description')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror

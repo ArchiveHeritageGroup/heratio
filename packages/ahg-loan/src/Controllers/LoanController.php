@@ -127,7 +127,33 @@ class LoanController extends Controller
      */
     public function create(Request $request)
     {
-        return view('ahg-loan::loan.create');
+        $objectId = $request->input('object_id');
+        $prefill = [];
+
+        if ($objectId) {
+            $culture = app()->getLocale();
+            $io = DB::table('information_object')
+                ->join('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                       ->where('information_object_i18n.culture', $culture);
+                })
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $objectId)
+                ->select('information_object.id', 'information_object.identifier',
+                         'information_object_i18n.title', 'information_object_i18n.scope_and_content',
+                         'slug.slug')
+                ->first();
+
+            if ($io) {
+                $prefill['title'] = $io->title;
+                $prefill['description'] = $io->scope_and_content;
+                $prefill['object_title'] = $io->title;
+                $prefill['object_slug'] = $io->slug;
+                $prefill['object_identifier'] = $io->identifier;
+            }
+        }
+
+        return view('ahg-loan::loan.create', compact('prefill'));
     }
 
     /**
