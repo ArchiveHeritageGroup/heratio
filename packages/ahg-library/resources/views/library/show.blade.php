@@ -242,28 +242,10 @@
       @endif
     </div>
     <div class="list-group list-group-flush">
-      @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
-        <a href="{{ route('io.rights.extended', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copyright me-1"></i> {{ $hasExtRights ? 'Edit' : 'Add' }} extended rights
+      @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
+        <a href="{{ route('io.rights.manage', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargo) ? 'Edit' : 'Add' }} rights
         </a>
-      @endif
-      @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
-        @if($activeEmbargo)
-          <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-edit me-1"></i> Edit embargo
-          </a>
-          <form method="POST" action="{{ route('io.rights.embargo.lift', $activeEmbargo->id) }}" class="d-inline">
-            @csrf
-            <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start"
-                    onclick="return confirm('Are you sure you want to lift this embargo?')">
-              <i class="fas fa-unlock me-1"></i> Lift embargo
-            </button>
-          </form>
-        @else
-          <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-lock me-1"></i> Add embargo
-          </a>
-        @endif
       @endif
       @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
         <a href="{{ route('io.rights.export', $item->slug) }}" class="list-group-item list-group-item-action small">
@@ -899,9 +881,7 @@
       {{-- Action links --}}
       @auth
         <div class="mt-3 d-flex flex-wrap gap-2">
-          <a href="{{ route('rights.add', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus me-1"></i>Add rights</a>
-          <a href="{{ route('io.rights.extended', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-balance-scale me-1"></i>{{ $extRights ? 'Edit' : 'Add' }} extended rights</a>
-          <a href="{{ route('io.rights.embargo', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-lock me-1"></i>{{ $embargo ? 'Edit' : 'Add' }} embargo</a>
+          <a href="{{ route('io.rights.manage', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-copyright me-1"></i>{{ ($premisRights->isNotEmpty() || $extRights || $embargo) ? 'Edit' : 'Add' }} rights</a>
           <a href="{{ route('io.rights.export', $item->slug) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>Export (JSON-LD)</a>
         </div>
       @endauth
@@ -1703,10 +1683,7 @@
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ route('physicalobject.link-to', $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ route('rights.add', $item->slug) }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
-          @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
-            <li><a class="dropdown-item" href="{{ route('io.rights.extended', $item->slug) }}"><i class="fas fa-balance-scale me-2"></i>Extended Rights</a></li>
-          @endif
+          <li><a class="dropdown-item" href="{{ route('io.rights.manage', $item->slug) }}"><i class="fas fa-copyright me-2"></i>Manage Rights</a></li>
           @if(\Illuminate\Support\Facades\Route::has('grap.show'))
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>View GRAP data</a></li>

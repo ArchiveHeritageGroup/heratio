@@ -145,7 +145,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/privacy/redaction/{slug}', [PrivacyController::class, 'redaction'])->name('io.privacy.redaction');
     Route::get('/privacy/dashboard', [PrivacyController::class, 'dashboard'])->name('io.privacy.dashboard');
 
-    // Extended Rights
+    // Unified Rights Management (combined PREMIS + Extended + Embargo)
+    Route::get('/rights/manage/{slug}', [ExtendedRightsController::class, 'manage'])->name('io.rights.manage');
+    Route::post('/rights/manage/{slug}', [ExtendedRightsController::class, 'manageStore'])->name('io.rights.manage.store')->middleware('acl:create');
+
+    // Extended Rights (legacy routes kept for backwards compatibility)
     Route::get('/rights/extended/{slug}', [ExtendedRightsController::class, 'add'])->name('io.rights.extended');
     Route::post('/rights/extended/{slug}/store', [ExtendedRightsController::class, 'store'])->name('io.rights.extended.store')->middleware('acl:create');
     Route::get('/rights/embargo/{slug}', [ExtendedRightsController::class, 'embargo'])->name('io.rights.embargo');

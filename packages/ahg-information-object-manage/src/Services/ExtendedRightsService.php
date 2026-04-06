@@ -596,6 +596,213 @@ class ExtendedRightsService
     }
 
     // =========================================
+    // PREMIS RIGHTS CRUD (rights + rights_i18n + granted_right + relation)
+    // =========================================
+
+    /**
+     * Get taxonomy terms by taxonomy_id for form dropdowns.
+     */
+    public function getTermsByTaxonomy(int $taxonomyId): Collection
+    {
+        return DB::table('term as t')
+            ->join('term_i18n as ti', function ($j) {
+                $j->on('ti.id', '=', 't.id')
+                    ->where('ti.culture', '=', $this->culture);
+            })
+            ->where('t.taxonomy_id', $taxonomyId)
+            ->select('t.id', 'ti.name')
+            ->orderBy('ti.name')
+            ->get();
+    }
+
+    /**
+     * Get granted rights for a given rights record.
+     */
+    public function getGrantedRights(int $rightsId): Collection
+    {
+        return DB::table('granted_right')
+            ->where('rights_id', $rightsId)
+            ->orderBy('serial_number')
+            ->get()
+            ->map(function ($gr) {
+                if ($gr->act_id) {
+                    $gr->act_name = $this->getTermName($gr->act_id, $this->culture);
+                }
+                return $gr;
+            });
+    }
+
+    /**
+     * Create a PREMIS rights record with relation to an IO.
+     * Inserts: object (QubitRights) -> rights -> rights_i18n -> object (QubitRelation) -> relation
+     */
+    public function createPremisRight(int $ioId, array $data): int
+    {
+        $now = date('Y-m-d H:i:s');
+        $culture = $this->culture;
+
+        // Create object row for rights
+        $rightsObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitRights',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+
+        // Insert rights record
+        DB::table('rights')->insert([
+            'id'                        => $rightsObjectId,
+            'start_date'                => $data['start_date'] ?? null,
+            'end_date'                  => $data['end_date'] ?? null,
+            'basis_id'                  => $data['basis_id'] ?? null,
+            'rights_holder_id'          => $data['rights_holder_id'] ?? null,
+            'copyright_status_id'       => $data['copyright_status_id'] ?? null,
+            'copyright_status_date'     => $data['copyright_status_date'] ?? null,
+            'copyright_jurisdiction'    => $data['copyright_jurisdiction'] ?? null,
+            'statute_determination_date'=> $data['statute_determination_date'] ?? null,
+            'statute_citation_id'       => $data['statute_citation_id'] ?? null,
+            'source_culture'            => $culture,
+        ]);
+
+        // Insert rights_i18n
+        DB::table('rights_i18n')->insert([
+            'id'                 => $rightsObjectId,
+            'culture'            => $culture,
+            'rights_note'        => $data['rights_note'] ?? null,
+            'copyright_note'     => $data['copyright_note'] ?? null,
+            'identifier_value'   => $data['identifier_value'] ?? null,
+            'identifier_type'    => $data['identifier_type'] ?? null,
+            'identifier_role'    => $data['identifier_role'] ?? null,
+            'license_terms'      => $data['license_terms'] ?? null,
+            'license_note'       => $data['license_note'] ?? null,
+            'statute_jurisdiction'=> $data['statute_jurisdiction'] ?? null,
+            'statute_note'       => $data['statute_note'] ?? null,
+        ]);
+
+        // Create object row for relation
+        $relationObjectId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitRelation',
+            'created_at' => $now,
+            'updated_at' => $now,
+            'serial_number' => 0,
+        ]);
+
+        // Create relation linking IO (subject) -> rights (object), type_id=168
+        DB::table('relation')->insert([
+            'id'             => $relationObjectId,
+            'subject_id'     => $ioId,
+            'object_id'      => $rightsObjectId,
+            'type_id'        => 168,
+            'source_culture' => $culture,
+        ]);
+
+        return $rightsObjectId;
+    }
+
+    /**
+     * Update an existing PREMIS rights record.
+     */
+    public function updatePremisRight(int $rightsId, array $data): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $culture = $this->culture;
+
+        DB::table('rights')->where('id', $rightsId)->update([
+            'start_date'                => $data['start_date'] ?? null,
+            'end_date'                  => $data['end_date'] ?? null,
+            'basis_id'                  => $data['basis_id'] ?? null,
+            'rights_holder_id'          => $data['rights_holder_id'] ?? null,
+            'copyright_status_id'       => $data['copyright_status_id'] ?? null,
+            'copyright_status_date'     => $data['copyright_status_date'] ?? null,
+            'copyright_jurisdiction'    => $data['copyright_jurisdiction'] ?? null,
+            'statute_determination_date'=> $data['statute_determination_date'] ?? null,
+            'statute_citation_id'       => $data['statute_citation_id'] ?? null,
+        ]);
+
+        // Upsert rights_i18n
+        $i18nExists = DB::table('rights_i18n')
+            ->where('id', $rightsId)
+            ->where('culture', $culture)
+            ->exists();
+
+        $i18nData = [
+            'rights_note'        => $data['rights_note'] ?? null,
+            'copyright_note'     => $data['copyright_note'] ?? null,
+            'identifier_value'   => $data['identifier_value'] ?? null,
+            'identifier_type'    => $data['identifier_type'] ?? null,
+            'identifier_role'    => $data['identifier_role'] ?? null,
+            'license_terms'      => $data['license_terms'] ?? null,
+            'license_note'       => $data['license_note'] ?? null,
+            'statute_jurisdiction'=> $data['statute_jurisdiction'] ?? null,
+            'statute_note'       => $data['statute_note'] ?? null,
+        ];
+
+        if ($i18nExists) {
+            DB::table('rights_i18n')
+                ->where('id', $rightsId)
+                ->where('culture', $culture)
+                ->update($i18nData);
+        } else {
+            DB::table('rights_i18n')->insert(array_merge([
+                'id'      => $rightsId,
+                'culture' => $culture,
+            ], $i18nData));
+        }
+
+        DB::table('object')->where('id', $rightsId)->update(['updated_at' => $now]);
+    }
+
+    /**
+     * Delete a PREMIS rights record and its related rows.
+     */
+    public function deletePremisRight(int $rightsId): void
+    {
+        // Delete granted rights
+        DB::table('granted_right')->where('rights_id', $rightsId)->delete();
+        // Delete i18n
+        DB::table('rights_i18n')->where('id', $rightsId)->delete();
+        // Delete relation rows linking to this right
+        $relationIds = DB::table('relation')
+            ->where('object_id', $rightsId)
+            ->where('type_id', 168)
+            ->pluck('id')
+            ->toArray();
+        DB::table('relation')->where('object_id', $rightsId)->where('type_id', 168)->delete();
+        // Delete relation object rows
+        if (!empty($relationIds)) {
+            DB::table('object')->whereIn('id', $relationIds)->delete();
+        }
+        // Delete rights record
+        DB::table('rights')->where('id', $rightsId)->delete();
+        // Delete object row
+        DB::table('object')->where('id', $rightsId)->delete();
+    }
+
+    /**
+     * Save granted rights for a PREMIS rights record (replace all).
+     */
+    public function saveGrantedRights(int $rightsId, array $grantedRows): void
+    {
+        // Delete existing granted rights
+        DB::table('granted_right')->where('rights_id', $rightsId)->delete();
+
+        foreach ($grantedRows as $index => $row) {
+            if (empty($row['act_id'])) {
+                continue;
+            }
+            DB::table('granted_right')->insert([
+                'rights_id'     => $rightsId,
+                'act_id'        => (int) $row['act_id'],
+                'restriction'   => (int) ($row['restriction'] ?? 1),
+                'start_date'    => $row['start_date'] ?? null,
+                'end_date'      => $row['end_date'] ?? null,
+                'notes'         => $row['notes'] ?? null,
+                'serial_number' => $index,
+            ]);
+        }
+    }
+
+    // =========================================
     // JSON-LD EXPORT
     // =========================================
 
