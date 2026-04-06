@@ -6,9 +6,9 @@
 @push('css')
 <style>
   /* Widen sidebars for library show page — barcode + viewer need space */
-  .view.library #left-column  { flex: 0 0 auto; width: 20%; max-width: 20%; }
-  .view.library #main-column  { flex: 0 0 auto; width: 50%; max-width: 50%; }
-  .view.library #right-column { flex: 0 0 auto; width: 30%; max-width: 30%; }
+  .view.library #left-column  { flex: 0 0 auto; width: 18%; max-width: 18%; }
+  .view.library #main-column  { flex: 0 0 auto; width: 55%; max-width: 55%; }
+  .view.library #right-column { flex: 0 0 auto; width: 27%; max-width: 27%; }
   @media (max-width: 991.98px) {
     .view.library #left-column,
     .view.library #main-column,
@@ -800,10 +800,51 @@
           </div>
 
         @elseif($masterMediaType === 'image' || in_array($masterMime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/tiff', 'image/svg+xml']))
-          {{-- Image: img with lightbox link --}}
-          <a href="{{ $masterUrl }}" target="_blank">
-            <img src="{{ $refUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:400px;">
-          </a>
+          {{-- Image: OpenSeadragon + Mirador resizable viewer (matching AtoM) --}}
+          @php $viewerId = 'iiif-viewer-' . $item->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="btn-group btn-group-sm" role="group">
+              <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+                <i class="fas fa-search-plus me-1"></i>Deep Zoom
+              </button>
+              <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+                <i class="fas fa-columns me-1"></i>Mirador
+              </button>
+              <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+                <i class="fas fa-image me-1"></i>Image
+              </button>
+            </div>
+            <div class="btn-group btn-group-sm">
+              <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="Open full size">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              <button id="btn-fs-{{ $viewerId }}" class="btn atom-btn-white" title="Fullscreen">
+                <i class="fas fa-expand"></i>
+              </button>
+            </div>
+          </div>
+
+          {{-- OSD container --}}
+          <div id="osd-{{ $viewerId }}" style="width:100%;height:450px;background:#1a1a1a;border-radius:8px;"></div>
+
+          {{-- Mirador container (hidden) --}}
+          <div id="mirador-{{ $viewerId }}" style="width:100%;height:450px;border-radius:8px;display:none;"></div>
+
+          {{-- Simple image (hidden) --}}
+          <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
+            <a href="{{ $imgSrc }}" target="_blank">
+              <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:450px;">
+            </a>
+          </div>
+
+          <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+          <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
+          <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ addslashes($item->title) }}');
+          });
+          </script>
 
         @else
           {{-- Other file: show info and download --}}
