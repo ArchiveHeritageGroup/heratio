@@ -205,7 +205,7 @@
           <i class="fas fa-brain me-1"></i> Named Entity Recognition
         </div>
         <div class="list-group list-group-flush">
-          <a href="#" onclick="if(typeof extractEntities==='function')extractEntities({{ $item->id }});return false;" class="list-group-item list-group-item-action small">
+          <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#nerModal">
             <i class="fas fa-brain me-2"></i> Extract Entities
           </a>
           <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="list-group-item list-group-item-action small">
@@ -1455,5 +1455,105 @@
       </div>
     </li>
   </section>
+  @endauth
+
+  {{-- NER Modal --}}
+  @auth
+  @if(\Illuminate\Support\Facades\Route::has('io.ai.review'))
+  <div class="modal fade" id="nerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header" style="background:var(--ahg-primary);color:#fff">
+          <h5 class="modal-title"><i class="fas fa-brain me-2"></i>Extract Entities (NER)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Named Entity Recognition — extract persons, organizations, places, dates from <strong>{{ $item->title ?? 'this record' }}</strong></p>
+          <div class="text-center mb-3" id="nerExtractSection">
+            <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
+              <i class="fas fa-brain me-2"></i>Extract Entities
+            </button>
+          </div>
+          <div id="nerResults" style="display:none">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted small" id="nerResultsMeta"></span>
+            </div>
+            <div id="nerResultsBody"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="{{ route('io.ai.review') }}?object_id={{ $item->id }}" class="btn btn-outline-primary btn-sm" id="nerFooterReview" style="display:none">
+            <i class="fas fa-list-check me-1"></i>Review & Link
+          </a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function() {
+    var objectId = {{ $item->id }};
+    var icons = { PERSON: 'fa-user', ORG: 'fa-building', GPE: 'fa-map-marker-alt', DATE: 'fa-calendar', LOC: 'fa-globe', NORP: 'fa-users', EVENT: 'fa-bolt', WORK_OF_ART: 'fa-palette', LANGUAGE: 'fa-language', FAC: 'fa-landmark' };
+    var colors = { PERSON: 'primary', ORG: 'success', GPE: 'info', DATE: 'warning', LOC: 'info', NORP: 'secondary', EVENT: 'danger', WORK_OF_ART: 'dark', LANGUAGE: 'secondary', FAC: 'secondary' };
+
+    document.getElementById('nerExtractBtn').addEventListener('click', function() {
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Extracting...';
+
+      fetch('/admin/ai/ner/extract/' + objectId, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          'Accept': 'application/json'
+        }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-brain me-2"></i>Re-Extract';
+
+        if (!data.success) {
+          document.getElementById('nerResultsBody').innerHTML = '<div class="alert alert-danger">' + (data.error || 'Extraction failed') + '</div>';
+          document.getElementById('nerResults').style.display = '';
+          return;
+        }
+
+        var entities = data.entities || {};
+        var count = data.entity_count || 0;
+        var time = data.processing_time_ms || 0;
+
+        document.getElementById('nerResultsMeta').textContent = 'Found ' + count + ' entities in ' + time + 'ms';
+        document.getElementById('nerResults').style.display = '';
+        document.getElementById('nerFooterReview').style.display = '';
+
+        if (count === 0) {
+          document.getElementById('nerResultsBody').innerHTML = '<p class="text-muted text-center">No entities found.</p>';
+          return;
+        }
+
+        var html = '';
+        for (var type in entities) {
+          var icon = icons[type] || 'fa-tag';
+          var color = colors[type] || 'secondary';
+          html += '<div class="mb-3"><h6><i class="fas ' + icon + ' me-1 text-' + color + '"></i>' + type + ' <span class="badge bg-' + color + '">' + entities[type].length + '</span></h6>';
+          html += '<div class="d-flex flex-wrap gap-1">';
+          entities[type].forEach(function(e) {
+            html += '<span class="badge bg-' + color + ' bg-opacity-10 text-' + color + ' border border-' + color + '">' + e + '</span>';
+          });
+          html += '</div></div>';
+        }
+        document.getElementById('nerResultsBody').innerHTML = html;
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-brain me-2"></i>Extract Entities';
+        document.getElementById('nerResultsBody').innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+        document.getElementById('nerResults').style.display = '';
+      });
+    });
+  })();
+  </script>
+  @endif
   @endauth
 @endsection
