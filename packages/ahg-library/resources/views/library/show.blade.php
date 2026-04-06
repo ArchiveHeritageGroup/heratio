@@ -1058,8 +1058,8 @@
     @endif
     {{-- Loans --}}
     @auth
-      @if(\Illuminate\Support\Facades\Route::has('loan.add'))
-        <a href="{{ route('loan.add', ['type' => 'out', 'sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-warning" title="New Loan" data-bs-toggle="tooltip"><i class="fas fa-hand-holding"></i></a>
+      @if(\Illuminate\Support\Facades\Route::has('loan.create'))
+        <a href="{{ route('loan.create', ['type' => 'out', 'sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-warning" title="New Loan" data-bs-toggle="tooltip"><i class="fas fa-hand-holding"></i></a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('loan.index'))
         <a href="{{ route('loan.index', ['sector' => 'library', 'object_id' => $item->id]) }}" class="btn btn-xs btn-outline-info" title="Manage Loans" data-bs-toggle="tooltip"><i class="fas fa-exchange-alt"></i></a>
