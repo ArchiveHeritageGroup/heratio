@@ -34,6 +34,7 @@ use AhgInformationObjectManage\Services\InformationObjectBrowseService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class InformationObjectController extends Controller
@@ -1483,6 +1484,33 @@ class InformationObjectController extends Controller
                     }
                 } catch (\Exception $e) {
                     // rights table structure may vary
+                }
+            }
+        }
+
+        // GLAM sector routing: redirect to sector-specific show page if not archive
+        if ($io->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
+            $sector = DB::table('level_of_description_sector')
+                ->where('term_id', $io->level_of_description_id)
+                ->whereNotIn('sector', ['archive'])
+                ->orderBy('display_order')
+                ->value('sector');
+
+            $sectorRoutes = [
+                'library' => 'library.show',
+                'museum'  => 'museum.show',
+                'gallery' => 'gallery.show',
+                'dam'     => 'dam.show',
+            ];
+
+            if ($sector && isset($sectorRoutes[$sector])) {
+                try {
+                    $targetRoute = $sectorRoutes[$sector];
+                    if (\Illuminate\Support\Facades\Route::has($targetRoute)) {
+                        return redirect()->route($targetRoute, $slug);
+                    }
+                } catch (\Exception $e) {
+                    // Sector route not available — fall through to ISAD view
                 }
             }
         }

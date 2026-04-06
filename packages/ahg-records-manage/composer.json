@@ -1,0 +1,21 @@
+{
+    "name": "ahg/records-manage",
+    "description": "Records Management module for Heratio — retention schedules, disposal workflows, file plan, compliance reporting. Disablable.",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev",
+        "ahg/integrity": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgRecordsManage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgRecordsManage\\Providers\\AhgRecordsManageServiceProvider"
+            ]
+        }
+    }
+}
