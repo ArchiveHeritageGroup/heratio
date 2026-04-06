@@ -457,8 +457,13 @@ class RicSerializationService
      */
     private function getDatesForRecord(int $ioId): ?array
     {
-        $dates = DB::table('date')
-            ->where('information_object_id', $ioId)
+        $dates = DB::table('event')
+            ->leftJoin('event_i18n', function ($j) {
+                $j->on('event.id', '=', 'event_i18n.id')
+                   ->where('event_i18n.culture', '=', 'en');
+            })
+            ->where('event.object_id', $ioId)
+            ->select('event.id', 'event.type_id', 'event.start_date', 'event.end_date', 'event_i18n.date as date_display')
             ->get();
 
         if ($dates->isEmpty()) {
@@ -471,7 +476,7 @@ class RicSerializationService
                 '@type' => self::RICO_NS . 'DateRange',
                 'rico:startDate' => $date->start_date ?? null,
                 'rico:endDate' => $date->end_date ?? null,
-                'rico:normalizedDate' => $date->date ?? null,
+                'rico:normalizedDate' => $date->date_display ?? null,
                 'rico:dateType' => $date->type_id ?? 'existence',
             ];
         }
