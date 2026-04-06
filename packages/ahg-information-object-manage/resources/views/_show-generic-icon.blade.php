@@ -81,15 +81,15 @@ $altTextClosed = __($altText ?: 'Original %1% not accessible', ['%1%' => $digita
         @if($hasPiiRedaction && $piiDownloadUrl)
           <!-- PDF with PII redaction -->
           <a href="{{ $piiDownloadUrl }}" target="_blank">
-            <img src="{{ $representation->getFullPath() }}" alt="{{ __('Open redacted %1%', ['%1%' => $digitalObjectLabel]) }}" class="img-thumbnail">
+            <img src="{{ \AhgCore\Services\DigitalObjectService::getUrl($representation) }}" alt="{{ __('Open redacted %1%', ['%1%' => $digitalObjectLabel]) }}" class="img-thumbnail">
           </a>
         @else
           <a href="{{ $link }}" target="_blank">
-            <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
+            <img src="{{ \AhgCore\Services\DigitalObjectService::getUrl($representation) }}" alt="{{ $altTextOpen }}" class="img-thumbnail">
           </a>
         @endif
       @else
-        <img src="{{ $representation->getFullPath() }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
+        <img src="{{ \AhgCore\Services\DigitalObjectService::getUrl($representation) }}" alt="{{ $altTextClosed }}" class="img-thumbnail">
       @endif
     </div>
     <div class="digitalObjectDesc">
