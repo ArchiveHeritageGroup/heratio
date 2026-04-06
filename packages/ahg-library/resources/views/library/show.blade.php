@@ -129,25 +129,6 @@
     </div>
   </div>
 
-  {{-- Creators sidebar --}}
-  @if($creators->isNotEmpty())
-    <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-user me-1"></i> Creators
-      </div>
-      <div class="list-group list-group-flush">
-        @foreach($creators as $creator)
-          <a href="{{ $creator->slug ? route('actor.show', $creator->slug) : '#' }}" class="list-group-item list-group-item-action small">
-            {{ $creator->name ?? '[Unknown]' }}
-            @if($creator->role)
-              <span class="badge bg-secondary float-end">{{ ucfirst($creator->role) }}</span>
-            @endif
-          </a>
-        @endforeach
-      </div>
-    </div>
-  @endif
-
   {{-- External links sidebar --}}
   @if($item->openlibrary_url || $item->ebook_preview_url || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
     <div class="card mb-3">
