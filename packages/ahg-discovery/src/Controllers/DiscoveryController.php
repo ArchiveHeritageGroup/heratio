@@ -320,6 +320,208 @@ class DiscoveryController extends Controller
     }
 
     // =====================================================================
+    // PageIndex LLM Retrieval Methods
+    // =====================================================================
+
+    /**
+     * PageIndex search page.
+     *
+     * GET /discovery/pageindex?q=...&type=ead|pdf|rico|all
+     */
+    public function pageindex(Request $request)
+    {
+        $query = trim($request->input('q', ''));
+        $type = $request->input('type', 'all');
+        $results = [];
+        $totalMatches = 0;
+
+        if (!empty($query)) {
+            $service = new \AhgDiscovery\Services\PageIndexService();
+            $objectType = ($type && $type !== 'all') ? $type : null;
+            $searchResult = $service->searchAll($query, $objectType);
+            $results = $searchResult['results'] ?? [];
+            $totalMatches = $searchResult['total_matches'] ?? 0;
+
+            // Enrich results with IO titles from information_object_i18n
+            $culture = app()->getLocale();
+            foreach ($results as &$treeResult) {
+                $title = DB::table('information_object_i18n')
+                    ->where('id', $treeResult['object_id'])
+                    ->where('culture', $culture)
+                    ->value('title');
+                $treeResult['record_title'] = $title ?? "Record #{$treeResult['object_id']}";
+            }
+            unset($treeResult);
+        }
+
+        // Get index stats
+        $stats = [
+            'total' => 0,
+            'by_type' => [],
+            'by_status' => [],
+        ];
+
+        try {
+            $stats['total'] = DB::table('ahg_pageindex_tree')->count();
+
+            $byType = DB::table('ahg_pageindex_tree')
+                ->selectRaw('object_type, COUNT(*) as cnt')
+                ->groupBy('object_type')
+                ->pluck('cnt', 'object_type')
+                ->toArray();
+            $stats['by_type'] = $byType;
+
+            $byStatus = DB::table('ahg_pageindex_tree')
+                ->selectRaw('status, COUNT(*) as cnt')
+                ->groupBy('status')
+                ->pluck('cnt', 'status')
+                ->toArray();
+            $stats['by_status'] = $byStatus;
+        } catch (\Exception $e) {
+            // Table may not exist
+        }
+
+        return view('ahg-discovery::pageindex', [
+            'query' => $query,
+            'type' => $type,
+            'results' => $results,
+            'totalMatches' => $totalMatches,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * PageIndex API endpoint (JSON).
+     *
+     * GET/POST /discovery/pageindex/api
+     * Accepts: {query, tree_id} or {query, object_id, object_type}
+     */
+    public function pageindexApi(Request $request)
+    {
+        $query = trim($request->input('query', ''));
+        $treeId = (int) $request->input('tree_id', 0);
+        $objectId = (int) $request->input('object_id', 0);
+        $objectType = $request->input('object_type', '');
+
+        if (empty($query)) {
+            return response()->json(['success' => false, 'error' => 'Query is required'], 400);
+        }
+
+        $service = new \AhgDiscovery\Services\PageIndexService();
+        $userId = auth()->id();
+
+        if ($treeId > 0) {
+            // Query a specific tree
+            $result = $service->query($treeId, $query, $userId);
+
+            return response()->json($result);
+        }
+
+        if ($objectId > 0 && !empty($objectType)) {
+            // Find tree for this object, then query it
+            $status = $service->getStatus($objectId, $objectType);
+
+            if (!$status || $status['status'] !== 'ready') {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No ready index found for this object. Build the index first.',
+                ]);
+            }
+
+            $result = $service->query($status['tree_id'], $query, $userId);
+
+            return response()->json($result);
+        }
+
+        // Search all trees
+        $type = $request->input('type');
+        $objectTypeFilter = ($type && $type !== 'all') ? $type : null;
+        $result = $service->searchAll($query, $objectTypeFilter, 20, $userId);
+
+        // Enrich with titles
+        $culture = app()->getLocale();
+        foreach ($result['results'] as &$treeResult) {
+            $title = DB::table('information_object_i18n')
+                ->where('id', $treeResult['object_id'])
+                ->where('culture', $culture)
+                ->value('title');
+            $treeResult['record_title'] = $title ?? "Record #{$treeResult['object_id']}";
+        }
+        unset($treeResult);
+
+        return response()->json($result);
+    }
+
+    /**
+     * Build index status page.
+     *
+     * GET /discovery/build?id=N&type=ead
+     */
+    public function build(Request $request)
+    {
+        $objectId = (int) $request->input('id', 0);
+        $objectType = $request->input('type', 'ead');
+
+        if ($objectId <= 0) {
+            return redirect()->route('ahgdiscovery.pageindex')
+                ->with('error', 'Object ID is required.');
+        }
+
+        $service = new \AhgDiscovery\Services\PageIndexService();
+        $status = $service->getStatus($objectId, $objectType);
+        $tree = null;
+
+        if ($status && $status['status'] === 'ready') {
+            $tree = $service->getTree($objectId, $objectType);
+        }
+
+        // Get the record title
+        $culture = app()->getLocale();
+        $title = DB::table('information_object_i18n')
+            ->where('id', $objectId)
+            ->where('culture', $culture)
+            ->value('title');
+
+        $identifier = DB::table('information_object')
+            ->where('id', $objectId)
+            ->value('identifier');
+
+        return view('ahg-discovery::build', [
+            'objectId' => $objectId,
+            'objectType' => $objectType,
+            'status' => $status,
+            'tree' => $tree,
+            'title' => $title ?? "Record #{$objectId}",
+            'identifier' => $identifier ?? '',
+        ]);
+    }
+
+    /**
+     * Trigger index build (AJAX).
+     *
+     * POST /discovery/build
+     */
+    public function buildStore(Request $request)
+    {
+        $objectId = (int) $request->input('object_id', 0);
+        $objectType = $request->input('object_type', 'ead');
+
+        if ($objectId <= 0) {
+            return response()->json(['success' => false, 'error' => 'Object ID is required'], 400);
+        }
+
+        if (!in_array($objectType, ['ead', 'pdf', 'rico'], true)) {
+            return response()->json(['success' => false, 'error' => 'Invalid object type'], 400);
+        }
+
+        $service = new \AhgDiscovery\Services\PageIndexService();
+        $culture = app()->getLocale();
+        $result = $service->buildTree($objectId, $objectType, $culture);
+
+        return response()->json($result);
+    }
+
+    // =====================================================================
     // Entity-type search methods (browse-style search)
     // =====================================================================
 
