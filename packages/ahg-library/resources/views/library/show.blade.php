@@ -1481,7 +1481,7 @@
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ url('/physicalobject/link/' . $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+          <li><a class="dropdown-item" href="{{ route('physicalobject.box-list') }}?object_id={{ $item->id }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
           @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
