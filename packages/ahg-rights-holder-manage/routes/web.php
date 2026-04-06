@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     // Rights routes (PREMIS)
     Route::get('/{slug}/rights', [RightsController::class, 'index'])->name('rights.index');
     Route::get('/{slug}/rights/add', [RightsController::class, 'index'])->name('rights.add');
+    Route::post('/{slug}/rights/store', [RightsController::class, 'store'])->name('rights.store')->middleware('acl:create');
 });
 
 Route::middleware('admin')->group(function () {

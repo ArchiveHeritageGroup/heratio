@@ -3211,6 +3211,141 @@ class InformationObjectController extends Controller
             ->with('success', 'Dates calculated successfully from child descriptions.');
     }
 
+    /**
+     * Show the move form for an information object.
+     */
+    public function move(string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select(
+                'information_object.id',
+                'information_object.parent_id',
+                'information_object.level_of_description_id',
+                'information_object_i18n.title',
+                'slug.slug'
+            )
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        // Build breadcrumb of current parent hierarchy
+        $breadcrumb = [];
+        $currentParentId = $io->parent_id;
+        while ($currentParentId) {
+            $parent = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->join('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $currentParentId)
+                ->where('information_object_i18n.culture', $culture)
+                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->first();
+            if (!$parent) break;
+            array_unshift($breadcrumb, $parent);
+            $currentParentId = $parent->parent_id;
+        }
+
+        // Current parent name
+        $currentParent = null;
+        if ($io->parent_id) {
+            $currentParent = DB::table('information_object')
+                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->where('information_object.id', $io->parent_id)
+                ->where('information_object_i18n.culture', $culture)
+                ->select('information_object.id', 'information_object_i18n.title')
+                ->first();
+        }
+
+        return view('ahg-io-manage::move', [
+            'io' => $io,
+            'breadcrumb' => $breadcrumb,
+            'currentParent' => $currentParent,
+        ]);
+    }
+
+    /**
+     * Process the move form: update parent_id for the information object.
+     */
+    public function moveStore(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $ioRow = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object.level_of_description_id', 'slug.slug')
+            ->first();
+
+        if (!$ioRow) {
+            abort(404);
+        }
+
+        $request->validate([
+            'new_parent_id' => 'required|integer|exists:information_object,id',
+        ]);
+
+        $newParentId = (int) $request->input('new_parent_id');
+
+        // Prevent moving to self or to a descendant
+        if ($newParentId === $ioRow->id) {
+            return back()->withErrors(['new_parent_id' => 'Cannot move a record to itself.']);
+        }
+
+        // Check that new parent is not a descendant of the record being moved
+        $checkId = $newParentId;
+        while ($checkId) {
+            $ancestor = DB::table('information_object')->where('id', $checkId)->value('parent_id');
+            if ($ancestor === $ioRow->id) {
+                return back()->withErrors(['new_parent_id' => 'Cannot move a record to one of its own descendants.']);
+            }
+            $checkId = $ancestor;
+        }
+
+        DB::table('information_object')
+            ->where('id', $ioRow->id)
+            ->update([
+                'parent_id' => $newParentId,
+            ]);
+
+        // Determine sector-aware redirect
+        $redirectRoute = 'informationobject.show';
+        if ($ioRow->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
+            $sector = DB::table('level_of_description_sector')
+                ->where('term_id', $ioRow->level_of_description_id)
+                ->whereNotIn('sector', ['archive'])
+                ->orderBy('display_order')
+                ->value('sector');
+
+            $sectorRoutes = [
+                'library' => 'library.show',
+                'museum'  => 'museum.show',
+                'gallery' => 'gallery.show',
+                'dam'     => 'dam.show',
+            ];
+
+            if ($sector && isset($sectorRoutes[$sector])) {
+                try {
+                    if (\Illuminate\Support\Facades\Route::has($sectorRoutes[$sector])) {
+                        $redirectRoute = $sectorRoutes[$sector];
+                    }
+                } catch (\Exception $e) {
+                    // fall through to default
+                }
+            }
+        }
+
+        return redirect()
+            ->route($redirectRoute, $slug)
+            ->with('success', 'Record moved successfully.');
+    }
+
     public function autocomplete(Request $request)
     {
         $query = $request->get('query', '');
