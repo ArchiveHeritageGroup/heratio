@@ -294,7 +294,7 @@ class RicSerializationService
      */
     public function serializeFunction(int $functionId, array $options = []): array
     {
-        $function = DB::table('function as f')
+        $function = DB::table('function_object as f')
             ->leftJoin('function_i18n as i18n', 'f.id', '=', 'i18n.id')
             ->where('f.id', $functionId)
             ->first();
@@ -530,7 +530,8 @@ class RicSerializationService
             ->join('term as t', 'otr.term_id', '=', 't.id')
             ->join('term_i18n as ti', 't.id', '=', 'ti.id')
             ->where('otr.object_id', $ioId)
-            ->where('otr.type_id', 33) // Subject
+            ->where('t.taxonomy_id', 35) // Subject taxonomy
+            ->where('ti.culture', 'en')
             ->pluck('ti.name')
             ->map(fn($name) => [
                 '@type' => 'skos:Concept',
@@ -544,16 +545,20 @@ class RicSerializationService
      */
     private function getCreatorsForRecord(int $ioId): array
     {
-        return DB::table('relation as r')
-            ->join('actor as a', 'r.object_id', '=', 'a.id')
-            ->join('actor_i18n as i18n', 'a.id', '=', 'i18n.id')
-            ->where('r.subject_id', $ioId)
-            ->where('r.type_id', 36) // Creator
-            ->select('a.id', 'i18n.authorized_form_of_name', 'a.actor_type_id')
+        return DB::table('event')
+            ->join('actor as a', 'event.actor_id', '=', 'a.id')
+            ->join('actor_i18n as i18n', function ($j) {
+                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+            })
+            ->where('event.object_id', $ioId)
+            ->where('event.type_id', 111) // Creation event
+            ->whereNotNull('event.actor_id')
+            ->select('a.id', 'i18n.authorized_form_of_name', 'a.entity_type_id')
+            ->distinct()
             ->get()
             ->map(fn($actor) => [
                 '@id' => $this->baseUri . '/actor/' . $actor->id,
-                '@type' => self::RICO_NS . ($this->actorTypeToRic[$actor->actor_type_id] ?? 'Agent'),
+                '@type' => self::RICO_NS . ($this->actorTypeToRic[strtolower($actor->entity_type_id ?? '')] ?? 'Agent'),
                 'rico:name' => $actor->authorized_form_of_name,
             ])
             ->toArray();
@@ -621,14 +626,22 @@ class RicSerializationService
      */
     private function getPlacesForActor(int $actorId): array
     {
-        return DB::table('place')
-            ->where('actor_id', $actorId)
-            ->get()
-            ->map(fn($place) => [
+        // Places for actors are stored in actor_i18n.places text field
+        $placesText = DB::table('actor_i18n')
+            ->where('id', $actorId)
+            ->where('culture', 'en')
+            ->value('places');
+
+        if (empty($placesText)) {
+            return [];
+        }
+
+        return [
+            [
                 '@type' => self::RICO_NS . 'Place',
-                'rico:placeName' => $place->name,
-            ])
-            ->toArray();
+                'rico:placeName' => strip_tags($placesText),
+            ],
+        ];
     }
 
     /**
@@ -636,14 +649,32 @@ class RicSerializationService
      */
     private function getMandatesForActor(int $actorId): array
     {
-        return DB::table('mandate')
-            ->where('actor_id', $actorId)
-            ->get()
-            ->map(fn($mandate) => [
+        // Mandates stored in actor_i18n.mandates text field; mandate table for structured data
+        $mandateText = DB::table('actor_i18n')
+            ->where('id', $actorId)
+            ->where('culture', 'en')
+            ->value('mandates');
+
+        if (empty($mandateText)) {
+            // Also check structured mandate table
+            $structured = DB::table('mandate')
+                ->where('actor_id', $actorId)
+                ->get();
+            if ($structured->isEmpty()) {
+                return [];
+            }
+            return $structured->map(fn($m) => [
                 '@type' => self::RICO_NS . 'Mandate',
-                'rico:description' => $mandate->description ?? null,
-            ])
-            ->toArray();
+                'rico:description' => $m->description ?? null,
+            ])->toArray();
+        }
+
+        return [
+            [
+                '@type' => self::RICO_NS . 'Mandate',
+                'rico:description' => strip_tags($mandateText),
+            ],
+        ];
     }
 
     /**
@@ -652,8 +683,8 @@ class RicSerializationService
     private function getFunctionsForActor(int $actorId): array
     {
         return DB::table('relation as r')
-            ->join('function as f', 'r.object_id', '=', 'f.id')
-            ->join('function_i18n as fi', 'f.id', '=', 'fi.id')
+            ->join('function_object as f', 'r.object_id', '=', 'f.id')
+            ->join('function_object_i18n as fi', 'f.id', '=', 'fi.id')
             ->where('r.subject_id', $actorId)
             ->where('r.type_id', 40) // Function relation
             ->select('f.id', 'fi.authorized_form_of_name')
@@ -695,7 +726,7 @@ class RicSerializationService
      */
     private function getActivitiesForFunction(int $functionId): array
     {
-        return DB::table('function_activity')
+        return DB::table('ric_activity')
             ->where('function_id', $functionId)
             ->get()
             ->map(fn($act) => [
