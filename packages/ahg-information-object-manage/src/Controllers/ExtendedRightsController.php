@@ -156,7 +156,7 @@ class ExtendedRightsController extends Controller
             $message = 'Extended rights created successfully.';
         }
 
-        return redirect('/' . $slug)
+        return redirect($this->resolveRecordUrl($slug))
             ->with('notice', $message);
     }
 
@@ -232,7 +232,7 @@ class ExtendedRightsController extends Controller
             $message = 'Embargo created successfully.';
         }
 
-        return redirect('/' . $slug)
+        return redirect($this->resolveRecordUrl($slug))
             ->with('notice', $message);
     }
 
@@ -260,7 +260,7 @@ class ExtendedRightsController extends Controller
             ->where('object_id', $embargo->object_id)
             ->value('slug');
 
-        return redirect('/' . ($slug ?? ''))
+        return redirect($this->resolveRecordUrl($slug ?? ''))
             ->with('notice', 'Embargo lifted successfully.');
     }
 
@@ -295,7 +295,37 @@ class ExtendedRightsController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.level_of_description_id', 'i18n.title', 's.slug')
             ->first();
+    }
+
+    /**
+     * Resolve the correct show URL for a record (GLAM sector aware).
+     */
+    private function resolveRecordUrl(string $slug): string
+    {
+        $io = $this->getIO($slug);
+        if (!$io || !$io->level_of_description_id) {
+            return '/' . $slug;
+        }
+
+        $sector = DB::table('level_of_description_sector')
+            ->where('term_id', $io->level_of_description_id)
+            ->whereNotIn('sector', ['archive'])
+            ->orderBy('display_order')
+            ->value('sector');
+
+        $sectorRoutes = [
+            'library' => 'library.show',
+            'museum'  => 'museum.show',
+            'gallery' => 'gallery.show',
+            'dam'     => 'dam.show',
+        ];
+
+        if ($sector && isset($sectorRoutes[$sector]) && \Illuminate\Support\Facades\Route::has($sectorRoutes[$sector])) {
+            return route($sectorRoutes[$sector], $slug);
+        }
+
+        return '/' . $slug;
     }
 }
