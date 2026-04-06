@@ -49,10 +49,14 @@ class RightsController extends Controller
         if (!$resource) abort(404);
 
         $rights = DB::table('rights')
+            ->join('relation', function ($j) use ($objectId) {
+                $j->on('rights.id', '=', 'relation.subject_id')
+                   ->where('relation.object_id', '=', $objectId)
+                   ->where('relation.type_id', '=', 168);
+            })
             ->leftJoin('rights_i18n', function ($j) use ($culture) {
                 $j->on('rights.id', '=', 'rights_i18n.id')->where('rights_i18n.culture', '=', $culture);
             })
-            ->where('rights.object_id', $objectId)
             ->select('rights.*', 'rights_i18n.rights_note', 'rights_i18n.copyright_note',
                      'rights_i18n.license_terms', 'rights_i18n.license_note',
                      'rights_i18n.statute_note')
