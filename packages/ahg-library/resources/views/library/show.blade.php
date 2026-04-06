@@ -1062,8 +1062,8 @@
   {{-- Physical Storage --}}
   @php
     $physicalObjects = \Illuminate\Support\Facades\DB::table('relation')
-      ->where('object_id', $item->id)
-      ->where('type_id', 161) // QubitTerm::HAS_PHYSICAL_OBJECT_ID
+      ->where('relation.object_id', $item->id)
+      ->where('relation.type_id', 161)
       ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
       ->leftJoin('physical_object_i18n', function($join) {
         $join->on('physical_object.id', '=', 'physical_object_i18n.id')
