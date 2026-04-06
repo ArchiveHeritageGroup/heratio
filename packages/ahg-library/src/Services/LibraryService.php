@@ -78,7 +78,7 @@ class LibraryService
                 'information_object.source_culture',
                 'information_object_i18n.title',
                 'information_object_i18n.scope_and_content',
-                'information_object_i18n.language_of_description as language',
+                'information_object.source_culture as language',
                 'library_item.id as library_item_id',
                 'library_item.material_type',
                 'library_item.subtitle',

@@ -11,6 +11,7 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/dashboard', [RicController::class, 'ajaxDashboard'])->name('ric.public-dashboard');
     Route::get('/stats', [RicController::class, 'ajaxStats'])->name('ric.public-stats');
     Route::post('/view-mode', [RicController::class, 'setViewMode'])->name('ric.set-view-mode');
+    Route::get('/relations/types', [RicEntityController::class, 'getRelationTypes'])->name('ric.public-relation-types');
     Route::get('/relations/{id}', [RicController::class, 'getRelations'])->where('id', '[0-9]+')->name('ric.public-relations');
     Route::get('/graph-summary/{id}', [RicController::class, 'getGraphSummary'])->where('id', '[0-9]+')->name('ric.public-graph-summary');
     Route::get('/timeline/{id}', [RicController::class, 'getTimeline'])->where('id', '[0-9]+')->name('ric.public-timeline');
