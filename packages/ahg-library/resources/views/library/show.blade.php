@@ -238,6 +238,32 @@
     @endif
   @endauth
 
+  {{-- Rights --}}
+  @auth
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+      <i class="fas fa-copyright me-1"></i> Rights
+    </div>
+    <div class="list-group list-group-flush">
+      @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
+        <a href="{{ route('io.rights.extended', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copyright me-1"></i> Add extended rights
+        </a>
+      @endif
+      @if(\Illuminate\Support\Facades\Route::has('io.rights.embargo'))
+        <a href="{{ route('io.rights.embargo', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-lock me-1"></i> Add embargo
+        </a>
+      @endif
+      @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
+        <a href="{{ route('io.rights.export', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+        </a>
+      @endif
+    </div>
+  </div>
+  @endauth
+
 @endsection
 
 {{-- ============================================================ --}}
