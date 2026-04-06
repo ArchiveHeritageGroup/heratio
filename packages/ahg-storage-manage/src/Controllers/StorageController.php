@@ -376,4 +376,159 @@ class StorageController extends Controller
             ->where('culture', $culture)
             ->value('title') ?? '';
     }
+
+    /**
+     * Link Physical Storage — single page to manage container links for an IO.
+     */
+    public function linkTo(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = DB::table('information_object')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->join('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                   ->where('information_object_i18n.culture', $culture);
+            })
+            ->where('slug.slug', $slug)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) abort(404);
+
+        // Current linked containers
+        $linked = DB::table('relation')
+            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
+            ->leftJoin('physical_object_i18n', function ($j) use ($culture) {
+                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
+                   ->where('physical_object_i18n.culture', $culture);
+            })
+            ->leftJoin('physical_object_extended as poe', 'physical_object.id', '=', 'poe.physical_object_id')
+            ->leftJoin('slug as po_slug', 'physical_object.id', '=', 'po_slug.object_id')
+            ->where('relation.object_id', $io->id)
+            ->where('relation.type_id', 161)
+            ->select(
+                'relation.id as relation_id',
+                'physical_object.id as po_id',
+                'physical_object_i18n.name as po_name',
+                'physical_object_i18n.location as po_location',
+                'po_slug.slug as po_slug',
+                'poe.barcode', 'poe.building', 'poe.floor', 'poe.room',
+                'poe.aisle', 'poe.bay', 'poe.rack', 'poe.shelf', 'poe.position',
+                'poe.total_capacity', 'poe.used_capacity', 'poe.capacity_unit',
+                'poe.status as po_status', 'poe.climate_controlled', 'poe.security_level'
+            )
+            ->get();
+
+        // Container types for the create form
+        $containerTypes = DB::table('term')
+            ->join('term_i18n', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', $culture);
+            })
+            ->where('term.taxonomy_id', 56)
+            ->select('term.id', 'term_i18n.name')
+            ->orderBy('term_i18n.name')
+            ->get();
+
+        return view('ahg-storage-manage::link-to', compact('io', 'linked', 'containerTypes'));
+    }
+
+    /**
+     * Store container link — link existing or create new.
+     */
+    public function linkToStore(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+        $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$ioId) abort(404);
+
+        $action = $request->input('action');
+
+        if ($action === 'link_existing') {
+            $poId = $request->input('physical_object_id');
+            if ($poId) {
+                // Check not already linked
+                $exists = DB::table('relation')
+                    ->where('object_id', $ioId)
+                    ->where('subject_id', $poId)
+                    ->where('type_id', 161)
+                    ->exists();
+                if (!$exists) {
+                    DB::table('relation')->insert([
+                        'object_id' => $ioId,
+                        'subject_id' => $poId,
+                        'type_id' => 161,
+                    ]);
+                }
+            }
+        } elseif ($action === 'create_new') {
+            // Create physical_object + i18n + extended + relation
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitPhysicalObject',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('physical_object')->insert([
+                'id' => $objectId,
+                'type_id' => $request->input('type_id') ?: null,
+                'source_culture' => $culture,
+            ]);
+
+            DB::table('physical_object_i18n')->insert([
+                'id' => $objectId,
+                'culture' => $culture,
+                'name' => $request->input('name', ''),
+                'location' => $request->input('location', ''),
+            ]);
+
+            // Generate slug
+            $nameSlug = \Illuminate\Support\Str::slug($request->input('name', 'container-' . $objectId));
+            $slugExists = DB::table('slug')->where('slug', $nameSlug)->exists();
+            if ($slugExists) $nameSlug .= '-' . $objectId;
+            DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $nameSlug]);
+
+            // Extended data
+            DB::table('physical_object_extended')->insert(array_filter([
+                'physical_object_id' => $objectId,
+                'building' => $request->input('building') ?: null,
+                'floor' => $request->input('floor') ?: null,
+                'room' => $request->input('room') ?: null,
+                'aisle' => $request->input('aisle') ?: null,
+                'bay' => $request->input('bay') ?: null,
+                'rack' => $request->input('rack') ?: null,
+                'shelf' => $request->input('shelf') ?: null,
+                'position' => $request->input('position') ?: null,
+                'barcode' => $request->input('barcode') ?: null,
+                'total_capacity' => $request->input('total_capacity') ?: null,
+                'capacity_unit' => $request->input('capacity_unit') ?: null,
+                'climate_controlled' => $request->has('climate_controlled') ? 1 : 0,
+                'security_level' => $request->input('security_level') ?: null,
+                'status' => 'active',
+            ], fn($v) => $v !== null));
+
+            // Link to IO
+            DB::table('relation')->insert([
+                'object_id' => $ioId,
+                'subject_id' => $objectId,
+                'type_id' => 161,
+            ]);
+        }
+
+        return redirect()->route('physicalobject.link-to', $slug)->with('success', 'Physical storage updated.');
+    }
+
+    /**
+     * Unlink a container from an IO.
+     */
+    public function unlink(Request $request, int $relationId)
+    {
+        $relation = DB::table('relation')->where('id', $relationId)->first();
+        if (!$relation) abort(404);
+
+        $slug = DB::table('slug')->where('object_id', $relation->object_id)->value('slug');
+
+        DB::table('relation')->where('id', $relationId)->delete();
+
+        return redirect()->route('physicalobject.link-to', $slug ?? '')->with('success', 'Container unlinked.');
+    }
 }

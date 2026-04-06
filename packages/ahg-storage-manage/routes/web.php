@@ -20,6 +20,9 @@ Route::middleware('admin')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/physicalobject/holdingsReportExport', [StorageController::class, 'holdingsReportExport'])->name('physicalobject.holdings-export');
     Route::get('/physicalobject/box-list', [StorageController::class, 'boxList'])->name('physicalobject.box-list');
+    Route::get('/physicalobject/link-to/{slug}', [StorageController::class, 'linkTo'])->name('physicalobject.link-to');
+    Route::post('/physicalobject/link-to/{slug}', [StorageController::class, 'linkToStore'])->name('physicalobject.link-to.store');
+    Route::post('/physicalobject/unlink/{relationId}', [StorageController::class, 'unlink'])->name('physicalobject.unlink');
 });
 
 Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])->name('physicalobject.show');
