@@ -414,8 +414,59 @@ class LibraryController extends Controller
 
     // ── ISBN ────────────────────────────────────────────────────────
 
-    public function isbnLookup() { return view('ahg-library::isbn.lookup', ['isbn' => null, 'result' => null]); }
-    public function isbnLookupSearch(Request $request) { return view('ahg-library::isbn.lookup', ['isbn' => $request->input('isbn'), 'result' => null]); }
+    public function isbnLookup(Request $request)
+    {
+        $isbn = $request->input('isbn');
+        $format = $request->input('format');
+
+        if ($format === 'json' && $isbn) {
+            return $this->isbnLookupJson($isbn);
+        }
+
+        return view('ahg-library::isbn.lookup', ['isbn' => $isbn, 'result' => null]);
+    }
+
+    public function isbnLookupSearch(Request $request)
+    {
+        $isbn = $request->input('isbn');
+
+        if ($request->wantsJson() || $request->input('format') === 'json') {
+            return $this->isbnLookupJson($isbn);
+        }
+
+        return view('ahg-library::isbn.lookup', ['isbn' => $isbn, 'result' => null]);
+    }
+
+    private function isbnLookupJson(string $isbn)
+    {
+        $cleanIsbn = preg_replace('/[\s\-]/', '', $isbn);
+
+        try {
+            $url = 'https://openlibrary.org/api/books?bibkeys=ISBN:' . urlencode($cleanIsbn) . '&format=json&jscmd=data';
+            $response = @file_get_contents($url);
+
+            if ($response === false) {
+                return response()->json(['success' => false, 'error' => 'Could not reach Open Library API']);
+            }
+
+            $data = json_decode($response, true);
+            $key = 'ISBN:' . $cleanIsbn;
+
+            if (empty($data[$key])) {
+                return response()->json(['success' => false, 'error' => 'ISBN not found in Open Library']);
+            }
+
+            $book = $data[$key];
+
+            return response()->json([
+                'success' => true,
+                'data' => $book,
+                'preview' => ['description' => $book['notes'] ?? ''],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => 'Lookup failed: ' . $e->getMessage()]);
+        }
+    }
 
     // ── Patrons ────────────────────────────────────────────────────
 

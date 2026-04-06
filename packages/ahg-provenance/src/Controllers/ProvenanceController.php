@@ -77,6 +77,10 @@ class ProvenanceController extends Controller
         $data = $this->service->getBySlug($slug);
         abort_unless($data['resource'], 404);
 
+        $data['eventTypes'] = $this->service->getEventTypes();
+        $data['acquisitionTypes'] = $this->service->getAcquisitionTypes();
+        $data['certaintyLevels'] = $this->service->getCertaintyLevels();
+
         return view('ahg-provenance::edit', $data);
     }
 

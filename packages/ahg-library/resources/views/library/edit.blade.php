@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 var cleanIsbn = isbn.replace(/[\s-]/g, '');
-                var response = await fetch('/library/isbn-lookup?isbn=' + encodeURIComponent(cleanIsbn));
+                var response = await fetch('/library-manage/isbn-lookup?isbn=' + encodeURIComponent(cleanIsbn) + '&format=json');
                 var result = await response.json();
 
                 if (result.success) {

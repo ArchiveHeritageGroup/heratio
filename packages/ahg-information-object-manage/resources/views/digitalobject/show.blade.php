@@ -17,7 +17,7 @@ $componentView = 'ahg-information-object-manage::' . $showComponent;
     @include($componentView, [
         'iconOnly' => $iconOnly ?? false,
         'link' => $link ?? null,
-        'resource' => $resource,
+        'resource' => $digitalObject,
         'usageType' => $usageType,
         'representation' => $representation ?? $resource,
     ])
@@ -32,7 +32,7 @@ $componentView = 'ahg-information-object-manage::' . $showComponent;
       @include($componentView, [
           'iconOnly' => $iconOnly ?? false,
           'link' => $link ?? null,
-          'resource' => $resource,
+          'resource' => $digitalObject,
           'usageType' => $usageType,
           'representation' => $representation ?? $resource,
       ])

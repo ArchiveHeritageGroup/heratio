@@ -1258,26 +1258,67 @@
 
   {{-- Provenance & Chain of Custody --}}
   @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
+    @php
+      $provRecord = \Illuminate\Support\Facades\DB::table('provenance_record as pr')
+          ->leftJoin('provenance_record_i18n as pri', function($j) {
+              $j->on('pr.id', '=', 'pri.id')->where('pri.culture', '=', app()->getLocale());
+          })
+          ->where('pr.information_object_id', $item->id)
+          ->select('pr.*', 'pri.provenance_summary')
+          ->first();
+      $provEvents = $provRecord
+          ? \Illuminate\Support\Facades\DB::table('provenance_event')
+              ->where('provenance_record_id', $provRecord->id)
+              ->orderBy('event_date')
+              ->limit(5)
+              ->get()
+          : collect();
+    @endphp
+    @if($provRecord || auth()->check())
     <section class="card mb-3">
       <div class="card-header bg-secondary text-white">
         <h5 class="mb-0"><i class="fas fa-history me-2"></i>Provenance & Chain of Custody</h5>
       </div>
       <div class="card-body">
-        @if(\Illuminate\Support\Facades\Route::has('provenance.display'))
-          @include('ahg-provenance::_provenanceDisplay', ['objectId' => $item->id])
+        @if($provRecord)
+          @if($provRecord->provenance_summary)
+            <p class="mb-2">{{ $provRecord->provenance_summary }}</p>
+          @endif
+          @if($provRecord->current_status)
+            <span class="badge bg-info me-1">{{ ucfirst($provRecord->current_status) }}</span>
+          @endif
+          @if($provRecord->acquisition_type)
+            <span class="badge bg-secondary me-1">{{ ucfirst($provRecord->acquisition_type) }}</span>
+          @endif
+          @if($provEvents->isNotEmpty())
+            <ul class="list-unstyled mt-2 mb-0 small">
+              @foreach($provEvents as $pe)
+                <li class="mb-1">
+                  <i class="fas fa-circle text-muted me-1" style="font-size:0.5rem;vertical-align:middle;"></i>
+                  <strong>{{ ucfirst(str_replace('_', ' ', $pe->event_type ?? '')) }}</strong>
+                  @if($pe->event_date) <span class="text-muted">{{ $pe->event_date }}</span> @endif
+                </li>
+              @endforeach
+            </ul>
+          @endif
+        @else
+          <p class="text-muted small mb-0">No provenance recorded yet.</p>
         @endif
         @auth
-          <div class="mt-3">
+          <div class="mt-2">
             <a href="{{ route('provenance.edit', $item->slug) }}" class="btn btn-sm btn-outline-primary">
-              <i class="fas fa-edit me-1"></i>Edit Provenance
+              <i class="fas fa-edit me-1"></i>{{ $provRecord ? 'Edit' : 'Add' }} Provenance
             </a>
-            <a href="{{ route('provenance.view', $item->slug) }}" class="btn btn-sm btn-outline-secondary">
-              <i class="fas fa-clock me-1"></i>View Full Timeline
-            </a>
+            @if($provRecord)
+              <a href="{{ route('provenance.view', $item->slug) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-clock me-1"></i>View Full Timeline
+              </a>
+            @endif
           </div>
         @endauth
       </div>
     </section>
+    @endif
   @endif
 
   {{-- Export --}}
