@@ -72,6 +72,16 @@ class RicSerializationService
         'family' => 'Family',
     ];
 
+    // Thing type to RIC mapping (boxes, containers, etc.)
+    private array $thingTypeToRic = [
+        'box' => 'Thing',
+        'container' => 'Thing',
+        'shelf_unit' => 'Thing',
+        'cabinet' => 'Thing',
+        'vault' => 'Thing',
+        'equipment' => 'Thing',
+    ];
+
     // Event type to RIC mapping
     private array $eventTypeToRic = [
         'creation' => 'Production',
@@ -570,7 +580,7 @@ class RicSerializationService
     private function getInstantiationsForRecord(int $ioId): array
     {
         return DB::table('digital_object as do')
-            ->where('do.information_object_id', $ioId)
+            ->where('do.object_id', $ioId)
             ->get()
             ->map(fn($do) => [
                 '@type' => self::RICO_NS . 'Instantiation',
@@ -814,5 +824,158 @@ class RicSerializationService
     {
         $parts = explode('/', $uri);
         return (int) end($parts);
+    }
+
+    // =========================================================================
+    // THING SERIALIZATION (boxes, containers — rico:Thing)
+    // =========================================================================
+
+    /**
+     * Serialize a ric_thing (box/container) to RIC-O JSON-LD.
+     */
+    public function serializeThing(int $thingId, array $options = []): array
+    {
+        $culture = $options['culture'] ?? 'en';
+
+        $thing = DB::table('ric_thing as rt')
+            ->leftJoin('ric_thing_i18n as rti', function ($j) use ($culture) {
+                $j->on('rt.id', '=', 'rti.id')->where('rti.culture', '=', $culture);
+            })
+            ->leftJoin('physical_object_extended as poe', 'rt.physical_object_id', '=', 'poe.physical_object_id')
+            ->where('rt.id', $thingId)
+            ->select([
+                'rt.*',
+                'rti.name', 'rti.description', 'rti.condition_note',
+                'poe.barcode', 'poe.building', 'poe.floor', 'poe.room',
+                'poe.aisle', 'poe.bay', 'poe.rack', 'poe.shelf', 'poe.position',
+                'poe.total_capacity', 'poe.used_capacity', 'poe.capacity_unit',
+                'poe.width', 'poe.height', 'poe.depth',
+                'poe.climate_controlled', 'poe.security_level as ext_security_level',
+            ])
+            ->first();
+
+        if (!$thing) {
+            return ['error' => 'Thing not found'];
+        }
+
+        $record = [
+            '@context' => [
+                'rico' => self::RICO_NS,
+                'rdf' => self::RDF_NS,
+                'rdfs' => self::RDFS_NS,
+                'xsd' => self::XSD_NS,
+            ],
+            '@id' => $this->baseUri . '/thing/' . $thingId,
+            '@type' => self::RICO_NS . 'Thing',
+            'rico:type' => $thing->type_id ?? 'box',
+        ];
+
+        if (!empty($thing->name)) {
+            $record['rico:name'] = $thing->name;
+        }
+        if (!empty($thing->identifier)) {
+            $record['rico:identifier'] = $thing->identifier;
+        }
+        if (!empty($thing->description)) {
+            $record['rico:description'] = $thing->description;
+        }
+        if (!empty($thing->barcode)) {
+            $record['rico:identifier'] = [
+                ['@type' => 'rico:Identifier', 'rico:identifierType' => 'barcode', 'rico:textualValue' => $thing->barcode],
+            ];
+        }
+
+        // Physical dimensions
+        $dimensions = array_filter([
+            'width' => $thing->width ?? null,
+            'height' => $thing->height ?? null,
+            'depth' => $thing->depth ?? null,
+        ]);
+        if (!empty($dimensions)) {
+            $record['rico:physicalCharacteristics'] = $dimensions;
+        }
+
+        // Capacity
+        if ($thing->total_capacity) {
+            $record['rico:extent'] = [
+                'rico:totalCapacity' => (int) $thing->total_capacity,
+                'rico:usedCapacity' => (int) ($thing->used_capacity ?? 0),
+                'rico:unit' => $thing->capacity_unit ?? 'items',
+            ];
+        }
+
+        // Current location (from ric_thing_location)
+        $currentLocation = DB::table('ric_thing_location as rtl')
+            ->join('ric_place_i18n as rpi', function ($j) use ($culture) {
+                $j->on('rtl.ric_place_id', '=', 'rpi.id')->where('rpi.culture', '=', $culture);
+            })
+            ->where('rtl.ric_thing_id', $thingId)
+            ->where('rtl.is_current', 1)
+            ->select('rtl.ric_place_id', 'rpi.name as place_name', 'rtl.start_date')
+            ->first();
+
+        if ($currentLocation) {
+            $record['rico:hasOrHadLocation'] = [
+                '@id' => $this->baseUri . '/place/' . $currentLocation->ric_place_id,
+                '@type' => self::RICO_NS . 'Place',
+                'rico:placeName' => $currentLocation->place_name,
+            ];
+        } elseif ($thing->building || $thing->room) {
+            // Fallback to physical_object_extended location
+            $locationParts = array_filter([
+                $thing->building, $thing->floor ? 'Floor ' . $thing->floor : null,
+                $thing->room ? 'Room ' . $thing->room : null,
+                $thing->aisle ? 'Aisle ' . $thing->aisle : null,
+                $thing->bay ? 'Bay ' . $thing->bay : null,
+                $thing->rack ? 'Rack ' . $thing->rack : null,
+                $thing->shelf ? 'Shelf ' . $thing->shelf : null,
+            ]);
+            if (!empty($locationParts)) {
+                $record['rico:hasOrHadLocation'] = [
+                    '@type' => self::RICO_NS . 'Place',
+                    'rico:placeName' => implode(' > ', $locationParts),
+                ];
+            }
+        }
+
+        // Contained instantiations
+        $instantiations = DB::table('ric_thing_instantiation as rti2')
+            ->join('ric_instantiation as ri', 'rti2.ric_instantiation_id', '=', 'ri.id')
+            ->leftJoin('ric_instantiation_i18n as rii', function ($j) use ($culture) {
+                $j->on('ri.id', '=', 'rii.id')->where('rii.culture', '=', $culture);
+            })
+            ->where('rti2.ric_thing_id', $thingId)
+            ->select('ri.id', 'ri.record_id', 'rii.title', 'rti2.sequence_number')
+            ->orderBy('rti2.sequence_number')
+            ->get();
+
+        if ($instantiations->isNotEmpty()) {
+            $record['rico:contains'] = $instantiations->map(fn($inst) => [
+                '@id' => $this->baseUri . '/instantiation/' . $inst->id,
+                '@type' => self::RICO_NS . 'Instantiation',
+                'rico:title' => $inst->title,
+                'rico:isInstantiationOf' => $inst->record_id ? $this->baseUri . '/informationobject/' . $inst->record_id : null,
+            ])->toArray();
+        }
+
+        // Parent container
+        if ($thing->parent_id) {
+            $record['rico:isContainedIn'] = [
+                '@id' => $this->baseUri . '/thing/' . $thing->parent_id,
+                '@type' => self::RICO_NS . 'Thing',
+            ];
+        }
+
+        // Environment
+        if ($thing->climate_controlled) {
+            $record['rico:environmentalConditions'] = ['climateControlled' => true];
+        }
+        if ($thing->condition_note) {
+            $record['rico:conditionNote'] = $thing->condition_note;
+        }
+
+        $record['rico:status'] = $thing->status ?? 'active';
+
+        return $record;
     }
 }
