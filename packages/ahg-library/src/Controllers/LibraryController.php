@@ -32,6 +32,7 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LibraryController extends Controller
 {
@@ -88,6 +89,49 @@ class LibraryController extends Controller
         // Child record count
         $childCount = $this->service->getChildCount($item->id);
 
+        // Digital objects (master, reference, thumbnail)
+        $digitalObjects = ['master' => null, 'reference' => null, 'thumbnail' => null];
+        $doRows = DB::table('digital_object')
+            ->where('object_id', $item->id)
+            ->select('id', 'object_id', 'usage_id', 'mime_type', 'name', 'path', 'byte_size', 'checksum', 'sequence')
+            ->orderBy('id')
+            ->get();
+        foreach ($doRows as $doRow) {
+            $usageId = $doRow->usage_id ?? null;
+            if ($usageId == 166 || (!$usageId && !$digitalObjects['master'])) {
+                $digitalObjects['master'] = $doRow;
+            } elseif ($usageId == 167) {
+                $digitalObjects['reference'] = $doRow;
+            } elseif ($usageId == 168) {
+                $digitalObjects['thumbnail'] = $doRow;
+            }
+        }
+
+        // Repository name
+        $repository = null;
+        if ($item->repository_id) {
+            $repository = DB::table('repository')
+                ->join('actor_i18n', function ($j) {
+                    $j->on('repository.id', '=', 'actor_i18n.id')
+                       ->where('actor_i18n.culture', '=', app()->getLocale());
+                })
+                ->where('repository.id', $item->repository_id)
+                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+                ->first();
+        }
+
+        // Physical objects
+        $physicalObjects = DB::table('relation')
+            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
+            ->leftJoin('physical_object_i18n', function ($j) {
+                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
+                   ->where('physical_object_i18n.culture', '=', app()->getLocale());
+            })
+            ->where('relation.object_id', $item->id)
+            ->where('relation.type_id', 131)
+            ->select('physical_object.id', 'physical_object.type_id', 'physical_object_i18n.name', 'physical_object_i18n.location')
+            ->get();
+
         return view('ahg-library::library.show', [
             'item' => $item,
             'levelName' => $levelName,
@@ -95,6 +139,9 @@ class LibraryController extends Controller
             'subjects' => $subjects,
             'parentItem' => $parentItem,
             'childCount' => $childCount,
+            'digitalObjects' => $digitalObjects,
+            'repository' => $repository,
+            'physicalObjects' => $physicalObjects,
         ]);
     }
 
