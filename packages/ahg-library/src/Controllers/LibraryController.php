@@ -97,12 +97,12 @@ class LibraryController extends Controller
             ->orderBy('id')
             ->get();
         foreach ($doRows as $doRow) {
-            $usageId = $doRow->usage_id ?? null;
-            if ($usageId == 166 || (!$usageId && !$digitalObjects['master'])) {
+            $usageId = (int) ($doRow->usage_id ?? 0);
+            if ($usageId === 140 || (!$usageId && !$digitalObjects['master'])) {
                 $digitalObjects['master'] = $doRow;
-            } elseif ($usageId == 167) {
+            } elseif ($usageId === 141) {
                 $digitalObjects['reference'] = $doRow;
-            } elseif ($usageId == 168) {
+            } elseif ($usageId === 142) {
                 $digitalObjects['thumbnail'] = $doRow;
             }
         }

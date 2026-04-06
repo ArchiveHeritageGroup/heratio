@@ -134,20 +134,6 @@
     </div>
   @endif
 
-  {{-- Subjects sidebar --}}
-  @if($subjects->isNotEmpty())
-    <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-        <i class="fas fa-tags me-1"></i> Subjects
-      </div>
-      <div class="list-group list-group-flush">
-        @foreach($subjects as $subject)
-          <span class="list-group-item small">{{ $subject->name ?? '[Unknown]' }}</span>
-        @endforeach
-      </div>
-    </div>
-  @endif
-
   {{-- External links sidebar --}}
   @if($item->openlibrary_url || $item->ebook_preview_url || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
     <div class="card mb-3">
@@ -586,9 +572,9 @@
     $refObj = null;
     $thumbObj = null;
     foreach ($doRecords as $doRec) {
-      if (($doRec->usage_id ?? null) == 166) $masterObj = $doRec;      // QubitTerm::MASTER_ID
-      elseif (($doRec->usage_id ?? null) == 167) $refObj = $doRec;     // QubitTerm::REFERENCE_ID
-      elseif (($doRec->usage_id ?? null) == 168) $thumbObj = $doRec;   // QubitTerm::THUMBNAIL_ID
+      if (($doRec->usage_id ?? null) == 140) $masterObj = $doRec;      // Master
+      elseif (($doRec->usage_id ?? null) == 141) $refObj = $doRec;     // Reference
+      elseif (($doRec->usage_id ?? null) == 142) $thumbObj = $doRec;   // Thumbnail
       elseif (!$masterObj) $masterObj = $doRec;
     }
     $hasDigitalObject = $doRecords->isNotEmpty();
@@ -1287,6 +1273,72 @@
       <a href="javascript:window.print();" class="list-group-item list-group-item-action small">
         <i class="fas fa-print me-1"></i> Print this page
       </a>
+    </div>
+  </div>
+
+  {{-- ISBN Barcode --}}
+  @php
+    $isbnVal = $item->isbn ?? '';
+    $cleanIsbn = preg_replace('/[^0-9X]/', '', strtoupper($isbnVal));
+  @endphp
+  @if(!empty($cleanIsbn))
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+      <i class="fas fa-barcode me-1"></i> ISBN Barcode
+    </div>
+    <div class="card-body text-center">
+      <svg id="isbn-barcode"></svg>
+      <p class="text-muted small mt-2 mb-0">{{ $isbnVal }}</p>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        JsBarcode("#isbn-barcode", "{{ $cleanIsbn }}", {
+          format: "CODE128", background: "#ffffff", lineColor: "#000000",
+          width: 2, height: 60, displayValue: false, margin: 10
+        });
+      } catch(e) { console.warn('Barcode generation failed:', e); }
+    });
+  </script>
+  @endif
+
+  {{-- Export --}}
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+      <i class="fas fa-file-export me-1"></i> Export
+    </div>
+    <div class="list-group list-group-flush">
+      <a href="{{ route('informationobject.export.dc', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> Dublin Core 1.1 XML
+      </a>
+      <a href="{{ route('informationobject.export.ead', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> EAD 2002 XML
+      </a>
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead3'))
+      <a href="{{ route('informationobject.export.ead3', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> EAD3 1.1 XML
+      </a>
+      @endif
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ead4'))
+      <a href="{{ route('informationobject.export.ead4', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> EAD 4 XML
+      </a>
+      @endif
+      <a href="{{ route('informationobject.export.mods', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> MODS 3.5 XML
+      </a>
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.rico'))
+      <a href="{{ route('informationobject.export.rico', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-code me-1"></i> RiC-O JSON-LD
+      </a>
+      @endif
+      @auth
+      <a href="{{ route('informationobject.export.csv', $item->slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-file-csv me-1"></i> Export CSV
+      </a>
+      @endauth
     </div>
   </div>
 
