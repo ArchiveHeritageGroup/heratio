@@ -20,9 +20,27 @@
     </div>
   @endif
 
+  @php
+    $loanObjectId = old('object_id', request('object_id', ''));
+    $loanObjectTitle = null;
+    if ($loanObjectId) {
+        $loanObjectTitle = \Illuminate\Support\Facades\DB::table('information_object_i18n')
+            ->where('id', $loanObjectId)->where('culture', app()->getLocale())->value('title');
+    }
+  @endphp
+  @if($loanObjectTitle)
+    <div class="alert alert-info d-flex align-items-center mb-3">
+      <i class="fas fa-info-circle me-2"></i>
+      Creating loan for: <strong class="ms-1">{{ $loanObjectTitle }}</strong>
+      <a href="{{ url('/' . (\Illuminate\Support\Facades\DB::table('slug')->where('object_id', $loanObjectId)->value('slug') ?? '')) }}" class="ms-auto btn btn-sm btn-outline-info">
+        <i class="fas fa-arrow-left me-1"></i>Back to record
+      </a>
+    </div>
+  @endif
+
   <form method="POST" action="{{ route('loan.store') }}" id="loanForm">
     @csrf
-    <input type="hidden" name="object_id" value="{{ old('object_id', request('object_id', '')) }}">
+    <input type="hidden" name="object_id" value="{{ $loanObjectId }}">
 
     <div class="accordion mb-3" id="loanAccordion">
 

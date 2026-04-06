@@ -17,7 +17,7 @@
         @endif
       </span>
     </div>
-    <a href="{{ route('loan.create') }}" class="btn atom-btn-outline-success ms-auto">
+    <a href="{{ route('loan.create', array_filter(['type' => request('type'), 'sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn atom-btn-outline-success ms-auto">
       <i class="fas fa-plus me-1"></i> New Loan
     </a>
   </div>
