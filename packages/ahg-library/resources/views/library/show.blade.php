@@ -1464,7 +1464,7 @@
       </form>
     </li>
     <li><a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
-    <li><a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a></li>
+    {{-- Move: route not yet implemented --}}
     <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">Rename</a></li>
     @if($hasDigitalObject)
       @php $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $item->id)->first(); @endphp
