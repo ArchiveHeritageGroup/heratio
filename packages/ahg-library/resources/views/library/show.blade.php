@@ -1477,13 +1477,13 @@
     @endif
     <li>
       <div class="dropdown d-inline-block">
-        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-1"></i></button>
+        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">More</button>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ route('physicalobject.link-to', $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="{{ route('io.rights.extended', $item->slug) }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
+          <li><a class="dropdown-item" href="{{ route('rights.add', $item->slug) }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
           @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
             <li><a class="dropdown-item" href="{{ route('io.rights.extended', $item->slug) }}"><i class="fas fa-balance-scale me-2"></i>Extended Rights</a></li>
           @endif
