@@ -1070,18 +1070,18 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end w-100">
             <li><a class="dropdown-item" href="{{ route('library.rename', $item->slug) }}"><i class="fas fa-i-cursor me-2"></i>Rename</a></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/informationobject/updatePublicationStatus') }}"><i class="fas fa-eye me-2"></i>Update publication status</a></li>
+            <li><a class="dropdown-item" href="{{ \Illuminate\Support\Facades\Route::has('io.showUpdateStatus') ? route('io.showUpdateStatus', $item->slug) : '#' }}"><i class="fas fa-eye me-2"></i>Update publication status</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/editPhysicalObjects') }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+            <li><a class="dropdown-item" href="{{ url('/physicalobject/link/' . $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
             <li><hr class="dropdown-divider"></li>
             @if($hasDigitalObject)
               @php
                 $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')
                   ->where('object_id', $item->id)->first();
               @endphp
-              <li><a class="dropdown-item" href="{{ url('/digitalobject/edit/' . ($doRecord->id ?? 0)) }}"><i class="fas fa-edit me-2"></i>Edit digital object</a></li>
+              <li><a class="dropdown-item" href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}"><i class="fas fa-edit me-2"></i>Edit digital object</a></li>
             @else
-              <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
+              <li><a class="dropdown-item" href="{{ url('/informationobject/' . $item->slug . '/upload') }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
             @endif
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
@@ -1443,7 +1443,7 @@
       <a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
     </li>
     <li>
-      <a href="{{ url('/' . $item->slug . '/object/addDigitalObject') }}" class="btn atom-btn-outline-light">
+      <a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light">
         <i class="fas fa-upload me-1"></i>Add digital object
       </a>
     </li>
