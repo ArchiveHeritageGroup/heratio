@@ -7,7 +7,7 @@ function initIiifViewer(viewerId, imageUrl, title) {
     var mirEl = document.getElementById('mirador-' + vid);
     var imgEl = document.getElementById('img-' + vid);
     var osdViewer = null;
-    var miradorInst = null;
+    var miradorLoaded = false;
 
     function showOSD() {
         osdEl.style.display = 'block';
@@ -49,58 +49,85 @@ function initIiifViewer(viewerId, imageUrl, title) {
         document.getElementById('btn-osd-' + vid).classList.remove('active');
         document.getElementById('btn-img-' + vid).classList.remove('active');
 
-        if (!miradorInst) {
-            // Build an inline IIIF manifest from the image URL
-            var manifest = {
-                '@context': 'http://iiif.io/api/presentation/2/context.json',
-                '@type': 'sc:Manifest',
-                '@id': imageUrl + '/manifest.json',
-                label: title || 'Image',
-                sequences: [{
-                    '@type': 'sc:Sequence',
-                    canvases: [{
-                        '@type': 'sc:Canvas',
-                        '@id': imageUrl + '/canvas/1',
-                        label: title || 'Image',
-                        width: 4000,
-                        height: 3000,
-                        images: [{
-                            '@type': 'oa:Annotation',
-                            motivation: 'sc:painting',
-                            resource: {
-                                '@id': imageUrl,
-                                '@type': 'dctypes:Image',
-                                format: 'image/jpeg',
-                                width: 4000,
-                                height: 3000
-                            },
-                            on: imageUrl + '/canvas/1'
-                        }]
+        // Always recreate Mirador to avoid stale state
+        mirEl.innerHTML = '';
+
+        var manifest = {
+            '@context': 'http://iiif.io/api/presentation/2/context.json',
+            '@type': 'sc:Manifest',
+            '@id': imageUrl + '/manifest.json',
+            label: title || 'Image',
+            sequences: [{
+                '@type': 'sc:Sequence',
+                canvases: [{
+                    '@type': 'sc:Canvas',
+                    '@id': imageUrl + '/canvas/1',
+                    label: title || 'Image',
+                    width: 4000,
+                    height: 3000,
+                    images: [{
+                        '@type': 'oa:Annotation',
+                        motivation: 'sc:painting',
+                        resource: {
+                            '@id': imageUrl,
+                            '@type': 'dctypes:Image',
+                            format: 'image/jpeg',
+                            width: 4000,
+                            height: 3000
+                        },
+                        on: imageUrl + '/canvas/1'
                     }]
                 }]
-            };
+            }]
+        };
 
-            // Create a blob URL for the manifest
-            var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            var manifestUrl = URL.createObjectURL(manifestBlob);
+        var manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        var manifestUrl = URL.createObjectURL(manifestBlob);
 
+        function createMirador() {
+            if (typeof Mirador === 'undefined') {
+                mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
+                return;
+            }
+            Mirador.viewer({
+                id: 'mirador-' + vid,
+                windows: [{ manifestId: manifestUrl }],
+                window: {
+                    allowClose: false,
+                    allowMaximize: false,
+                    allowFullscreen: true,
+                    allowTopMenuButton: false,
+                    allowWindowSideBar: true,
+                    sideBarOpen: false
+                },
+                workspaceControlPanel: { enabled: false },
+                workspace: { type: 'mosaic', allowNewWindows: false }
+            });
+
+            // Hide Mirador's own close/minimize/maximize buttons via CSS
+            setTimeout(function() {
+                var style = document.createElement('style');
+                style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], ' +
+                    '#mirador-' + vid + ' button[aria-label="Minimize window"], ' +
+                    '#mirador-' + vid + ' button[aria-label="Maximize window"], ' +
+                    '#mirador-' + vid + ' .mirador-window-top-bar-buttons button:first-child { display: none !important; }';
+                document.head.appendChild(style);
+            }, 500);
+        }
+
+        if (!miradorLoaded) {
             var s = document.createElement('script');
             s.src = '/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js';
             s.onload = function () {
-                if (typeof Mirador !== 'undefined') {
-                    miradorInst = Mirador.viewer({
-                        id: 'mirador-' + vid,
-                        windows: [{ manifestId: manifestUrl }],
-                        window: { allowClose: false, allowMaximize: false, allowFullscreen: true }
-                    });
-                } else {
-                    mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
-                }
+                miradorLoaded = true;
+                createMirador();
             };
             s.onerror = function () {
                 mirEl.innerHTML = '<div class="alert alert-warning m-3">Could not load Mirador.</div>';
             };
             document.head.appendChild(s);
+        } else {
+            createMirador();
         }
     }
 

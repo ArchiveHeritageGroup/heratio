@@ -598,11 +598,12 @@ class RicSerializationService
     {
         return DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', 'io.id', '=', 'i18n.id')
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', $parentId)
-            ->select('io.id', 'io.slug', 'i18n.title', 'i18n.identifier')
+            ->select('io.id', 'slug.slug', 'i18n.title', 'io.identifier')
             ->get()
             ->map(fn($child) => [
-                '@id' => $this->baseUri . '/informationobject/' . $child->slug,
+                '@id' => $this->baseUri . '/informationobject/' . ($child->slug ?? $child->id),
                 '@type' => self::RICO_NS . 'RecordPart',
                 'rico:identifier' => $child->identifier,
                 'rico:title' => $child->title,
@@ -773,16 +774,17 @@ class RicSerializationService
     {
         $holdings = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', 'io.id', '=', 'i18n.id')
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('term as level', 'io.level_of_description_id', '=', 'level.id')
             ->leftJoin('term_i18n as level_i18n', 'level.id', '=', 'level_i18n.id')
             ->where('io.repository_id', $repositoryId)
             ->whereIn('level_i18n.name', ['fonds', 'collection'])
-            ->select('io.id', 'io.slug', 'i18n.title', 'level_i18n.name as level')
+            ->select('io.id', 'slug.slug', 'i18n.title', 'level_i18n.name as level')
             ->limit(100)
             ->get();
 
         return $holdings->map(fn($h) => [
-            '@id' => $this->baseUri . '/informationobject/' . $h->slug,
+            '@id' => $this->baseUri . '/informationobject/' . ($h->slug ?? $h->id),
             '@type' => self::RICO_NS . 'RecordSet',
             'rico:name' => $h->title,
         ])->toArray();
