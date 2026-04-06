@@ -241,6 +241,15 @@ class StorageController extends Controller
 
     public function boxList(Request $request)
     {
+        // Redirect to link-to page if object_id is provided
+        $objectId = $request->get('object_id');
+        if ($objectId) {
+            $ioSlug = DB::table('slug')->where('object_id', $objectId)->value('slug');
+            if ($ioSlug) {
+                return redirect()->route('physicalobject.link-to', $ioSlug);
+            }
+        }
+
         $slug = $request->get('slug');
         $storage = null;
         $rows = collect();
