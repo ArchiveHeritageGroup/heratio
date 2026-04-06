@@ -1477,7 +1477,7 @@
     @endif
     <li>
       <div class="dropdown d-inline-block">
-        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-1"></i>More</button>
+        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-1"></i></button>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
           <li><hr class="dropdown-divider"></li>
