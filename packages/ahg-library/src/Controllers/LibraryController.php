@@ -366,12 +366,65 @@ class LibraryController extends Controller
     {
         $item = $this->service->getBySlug($slug);
         if (!$item) abort(404);
-        return view('ahg-library::library.rename', compact('item'));
+
+        $digitalObject = DB::table('digital_object')
+            ->where('object_id', $item->id)
+            ->select('id', 'name', 'path')
+            ->first();
+
+        return view('ahg-library::library.rename', compact('item', 'digitalObject'));
     }
 
     public function renameStore(Request $request, string $slug)
     {
-        return redirect()->route('library.show', $slug)->with('success', 'Item renamed.');
+        $item = $this->service->getBySlug($slug);
+        if (!$item) abort(404);
+
+        $culture = app()->getLocale();
+        $updateTitle = $request->has('enable_title');
+        $updateSlug = $request->has('enable_slug');
+        $updateFilename = $request->has('enable_filename');
+
+        if ($updateTitle) {
+            $newTitle = $request->input('title', '');
+            if (!empty($newTitle)) {
+                DB::table('information_object_i18n')
+                    ->where('id', $item->id)
+                    ->where('culture', $culture)
+                    ->update(['title' => $newTitle]);
+            }
+        }
+
+        $newSlug = $slug;
+        if ($updateSlug) {
+            $newSlug = $request->input('slug', $slug);
+            $newSlug = preg_replace('/[^a-z0-9\-]/', '', strtolower(str_replace(' ', '-', $newSlug)));
+            if (!empty($newSlug) && $newSlug !== $slug) {
+                // Check for duplicate
+                $exists = DB::table('slug')->where('slug', $newSlug)->where('object_id', '!=', $item->id)->exists();
+                if ($exists) {
+                    $newSlug = $newSlug . '-' . $item->id;
+                }
+                DB::table('slug')->where('object_id', $item->id)->update(['slug' => $newSlug]);
+            }
+        }
+
+        if ($updateFilename) {
+            $newFilename = $request->input('filename', '');
+            if (!empty($newFilename)) {
+                $do = DB::table('digital_object')->where('object_id', $item->id)->first();
+                if ($do) {
+                    $ext = pathinfo($do->name, PATHINFO_EXTENSION);
+                    $cleanName = preg_replace('/[^a-z0-9\-\.]/', '', strtolower(str_replace(' ', '-', $newFilename)));
+                    if (!str_ends_with($cleanName, '.' . $ext)) {
+                        $cleanName .= '.' . $ext;
+                    }
+                    DB::table('digital_object')->where('id', $do->id)->update(['name' => $cleanName]);
+                }
+            }
+        }
+
+        return redirect()->route('library.show', $newSlug)->with('success', 'Item renamed successfully.');
     }
 
     public function isbnProviders()

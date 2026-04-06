@@ -28,8 +28,9 @@ if ($mediaTypeId == 137 && function_exists('ahg_needs_streaming') && ahg_needs_s
     $isStreamableAudio = true;
 }
 
-$altTextOpen = __($resource->getDigitalObjectAltText() ?: 'Open original %1%', ['%1%' => $digitalObjectLabel]);
-$altTextClosed = __($resource->getDigitalObjectAltText() ?: 'Original %1% not accessible', ['%1%' => $digitalObjectLabel]);
+$altText = $resource->alt_text ?? $resource->name ?? '';
+$altTextOpen = __($altText ?: 'Open original %1%', ['%1%' => $digitalObjectLabel]);
+$altTextClosed = __($altText ?: 'Original %1% not accessible', ['%1%' => $digitalObjectLabel]);
 @endphp
 
 @if($isStreamableVideo)
