@@ -332,16 +332,16 @@
   @endif
 
   {{-- ===== Physical Description ===== --}}
-  @if($item->pages || $item->pagination || $item->dimensions || $item->physical_details)
+  @if($item->pagination || $item->dimensions || $item->physical_details)
     <section class="card mb-4">
       <div class="card-header">
         <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical description</h5>
       </div>
       <div class="card-body">
         <dl class="row mb-0">
-          @if($item->pages || $item->pagination)
+          @if($item->pagination)
             <dt class="col-sm-4">Extent</dt>
-            <dd class="col-sm-8">{{ $item->pagination ?: $item->pages }}</dd>
+            <dd class="col-sm-8">{{ $item->pagination }}</dd>
           @endif
 
           @if($item->dimensions)
@@ -378,9 +378,9 @@
 
   {{-- ===== Content ===== --}}
   @php
-    $summary = $item->summary ?? ($item->abstract ?? '');
+    $summary = $item->summary ?? '';
     $scopeAndContent = $item->scope_and_content ?? '';
-    $contentsNote = $item->table_of_contents ?? ($item->contents_note ?? '');
+    $contentsNote = $item->contents_note ?? '';
   @endphp
   @if(!empty($summary) || !empty($scopeAndContent) || !empty($contentsNote))
     <section class="card mb-4">
