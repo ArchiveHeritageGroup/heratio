@@ -117,24 +117,15 @@
         <a href="#" class="list-group-item list-group-item-action small" data-bs-toggle="modal" data-bs-target="#translateModal">
           <i class="fas fa-language me-1"></i> Translate
         </a>
+        <a href="{{ route('io.ai.review') }}?object_id={{ $io->id }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-list-check me-1"></i> NER Review
+        </a>
         @if(isset($nerEntityCount) && $nerEntityCount > 0)
           <a href="{{ route('io.ai.extract', $io->id) }}#entities" class="list-group-item list-group-item-action small d-flex justify-content-between align-items-center">
             <span><i class="fas fa-file-pdf me-1"></i> View PDF Entities</span>
             <span class="badge bg-success rounded-pill">{{ $nerEntityCount }}</span>
           </a>
         @endif
-      </div>
-    </div>
-
-    {{-- Review Dashboard --}}
-    <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-tasks me-1"></i> Review Dashboard
-      </div>
-      <div class="list-group list-group-flush">
-        <a href="{{ route('io.ai.review') }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-list-check me-1"></i> NER Review
-        </a>
       </div>
     </div>
     @endif {{-- end AI Tools package check --}}
@@ -2670,27 +2661,45 @@
 <script>
 (function() {
   var objectId = {{ $io->id }};
+  var ioTitle = @json($io->title ?? 'Untitled');
+  var ioContext = @json(($io->scope_and_content ?? '') . ' ' . ($io->extent_and_medium ?? ''));
 
   document.getElementById('describeBtn').addEventListener('click', function() {
     var btn = this;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analysing...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analysing with AI...';
 
-    fetch('/admin/ai/suggest/object/' + objectId, {
-      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    fetch('/admin/ai/suggest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ title: ioTitle, context: ioContext })
     })
-    .then(function(r) { return r.text(); })
-    .then(function(html) {
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-eye me-2"></i>Re-Describe';
 
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(html, 'text/html');
-      var content = doc.querySelector('#content, [role="main"], .container');
       var body = document.getElementById('describeResultsBody');
-      body.innerHTML = content ? content.innerHTML : html;
       document.getElementById('describeResults').style.display = '';
+
+      if (!data.success) {
+        body.innerHTML = '<div class="alert alert-danger">' + (data.error || 'AI description failed') + '</div>';
+        return;
+      }
+
+      var desc = data.description || '';
+      var time = data.processing_time_ms || 0;
+
+      body.innerHTML = '<p class="text-muted small mb-2">Generated in ' + time + 'ms</p>' +
+        '<div class="border rounded p-3 bg-white">' + desc.replace(/\n/g, '<br>') + '</div>';
       document.getElementById('describeApproveBtn').style.display = '';
+
+      // Store for approve
+      window._aiDescription = desc;
     })
     .catch(function(err) {
       btn.disabled = false;
@@ -2701,9 +2710,33 @@
   });
 
   document.getElementById('describeApproveBtn').addEventListener('click', function() {
-    this.disabled = true;
-    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
-    window.location.href = '/admin/ai/suggest/' + objectId + '/preview';
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+    // Save to ahg_ai_suggestion
+    fetch('/admin/ai/suggest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({
+        title: ioTitle,
+        context: 'SAVE_SUGGESTION:' + objectId + ':scope_and_content:' + (window._aiDescription || '')
+      })
+    })
+    .then(function() {
+      // Save directly to the record
+      btn.innerHTML = '<i class="fas fa-check me-1"></i>Saved!';
+      setTimeout(function() { location.reload(); }, 1000);
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check me-1"></i>Approve & Save';
+      alert('Failed to save');
+    });
   });
 })();
 </script>

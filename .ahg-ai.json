@@ -1,0 +1,36 @@
+{
+  "allowFileEdit": true,
+  "allowFileCreate": true,
+  "allowFileDelete": false,
+  "allowShellCommands": true,
+  "allowGitOperations": false,
+  "confirmDestructive": true,
+  "blockedCommands": [
+    "git push", "git commit",
+    "DROP TABLE", "DROP DATABASE", "TRUNCATE TABLE",
+    "ALTER TABLE", "DELETE FROM", "UPDATE ", "INSERT INTO",
+    "CREATE TABLE", "CREATE DATABASE"
+  ],
+  "codeStyle": "Laravel 12, PHP 8.3, Blade templates, Eloquent ORM. Follow AtoM class table inheritance patterns. BrowseService pattern for all browse pages.",
+  "language": "PHP/Laravel",
+  "conventions": [
+    "NEVER execute git commit or git push — always supply commands for user to run via ./bin/release",
+    "NEVER modify the AtoM database schema — read/write existing tables only",
+    "NEVER execute SQL changes without explicit user approval",
+    "NEVER drop a database table — requires explicit double confirmation",
+    "NEVER use ENUM columns — use VARCHAR with Dropdown Manager",
+    "ALWAYS check /usr/share/nginx/archive first before writing new code",
+    "ALWAYS DESCRIBE table_name before coding against it",
+    "ALWAYS use ALL fields from AtoM database tables — zero omissions",
+    "Migration = copy complete AtoM file and convert Symfony to Laravel/Blade",
+    "Controllers must only call service methods — never direct DB queries",
+    "Services handle both base table and i18n table in single transaction",
+    "No hardcoded values — use Dropdown Manager/Taxonomy/DB",
+    "No placeholder comments, no TODO, no dummy data",
+    "Every page must be identical to AtoM — 100% clone, like for like",
+    "Packages in packages/ are like AtoM plugins",
+    "Use ahg-information-object-manage as structural pattern",
+    "This is Heratio — never reference AtoM in code/UI, only in migration docs"
+  ],
+  "ignorePatterns": ["vendor", "node_modules", "storage", "bootstrap/cache", ".git"]
+}

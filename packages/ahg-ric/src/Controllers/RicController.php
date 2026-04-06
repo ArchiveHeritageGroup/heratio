@@ -935,6 +935,10 @@ class RicController extends Controller
 
         if ($recordId === 'overview') {
             $graphData = $this->buildOverviewGraph($fusekiEndpoint, $fusekiUsername, $fusekiPassword);
+            // DB fallback if SPARQL returned nothing
+            if (empty($graphData['nodes'])) {
+                $graphData = $this->buildOverviewGraphFromDatabase($baseUri, $instanceId);
+            }
         } else {
             $graphData = $this->buildGraphData(
                 $recordId, $fusekiEndpoint, $fusekiUsername, $fusekiPassword, $baseUri, $instanceId
@@ -1110,6 +1114,76 @@ SPARQL;
         }
 
         $nodes = $this->enrichNodesWithSlugs($nodes);
+
+        return ['nodes' => $nodes, 'edges' => $edges];
+    }
+
+    /**
+     * Fallback: build overview graph from database (top-level fonds/collections).
+     */
+    protected function buildOverviewGraphFromDatabase(string $baseUri, string $instanceId): array
+    {
+        $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
+        $nodes = [];
+        $edges = [];
+        $nodeIndex = [];
+
+        // Top-level information objects (fonds/collections — parent_id = 1 is root)
+        $topLevel = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+            ->where('io.parent_id', 1)
+            ->whereNotNull('ioi.title')
+            ->select('io.id', 'ioi.title', 'slug.slug', 'io.level_of_description_id')
+            ->limit(50)
+            ->get();
+
+        foreach ($topLevel as $io) {
+            $uri = $this->buildRecordUri('recordset', $io->id, $baseUri, $instanceId);
+            $nodes[] = ['id' => $uri, 'label' => $io->title, 'type' => 'RecordSet', 'slug' => $io->slug];
+            $nodeIndex[$uri] = true;
+
+            // Get creators for each top-level record
+            $creators = DB::table('event')
+                ->join('actor_i18n', function ($j) use ($culture) {
+                    $j->on('event.actor_id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $culture);
+                })
+                ->leftJoin('slug as s', 'event.actor_id', '=', 's.object_id')
+                ->where('event.object_id', $io->id)
+                ->whereNotNull('actor_i18n.authorized_form_of_name')
+                ->select('event.actor_id', 'actor_i18n.authorized_form_of_name', 's.slug')
+                ->limit(5)
+                ->get();
+
+            foreach ($creators as $c) {
+                $actorUri = $this->buildRecordUri('person', $c->actor_id, $baseUri, $instanceId);
+                if (!isset($nodeIndex[$actorUri])) {
+                    $nodeIndex[$actorUri] = true;
+                    $nodes[] = ['id' => $actorUri, 'label' => $c->authorized_form_of_name, 'type' => 'Person', 'slug' => $c->slug];
+                }
+                $edges[] = ['source' => $actorUri, 'target' => $uri, 'label' => 'created'];
+            }
+
+            // Get repository
+            $repo = DB::table('information_object as io2')
+                ->join('actor_i18n as ai', function ($j) use ($culture) {
+                    $j->on('io2.repository_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
+                })
+                ->where('io2.id', $io->id)
+                ->whereNotNull('io2.repository_id')
+                ->value('ai.authorized_form_of_name');
+
+            if ($repo) {
+                $repoUri = $this->buildRecordUri('corporatebody', $io->id . '-repo', $baseUri, $instanceId);
+                if (!isset($nodeIndex[$repoUri])) {
+                    $nodeIndex[$repoUri] = true;
+                    $nodes[] = ['id' => $repoUri, 'label' => $repo, 'type' => 'CorporateBody'];
+                }
+                $edges[] = ['source' => $uri, 'target' => $repoUri, 'label' => 'held by'];
+            }
+        }
 
         return ['nodes' => $nodes, 'edges' => $edges];
     }

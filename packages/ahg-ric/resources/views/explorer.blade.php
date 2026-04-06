@@ -3,7 +3,7 @@
 @section('title', 'RiC Explorer')
 @section('body-class', 'admin ric')
 
-@push('styles')
+@push('css')
 <link rel="stylesheet" href="/vendor/ahg-ric/css/ric-explorer.css">
 @endpush
 
@@ -30,6 +30,9 @@
         </div>
         <div class="col-md-4 text-end mt-2 mt-md-0">
           <div class="btn-group btn-group-sm">
+            <a href="#" class="btn atom-btn-secondary" id="ric-back-to-record-btn" style="display:none">
+              <i class="fas fa-arrow-left me-1"></i> Back to Record
+            </a>
             <button type="button" class="btn atom-btn-secondary" id="ric-load-overview-btn">
               <i class="fas fa-globe me-1"></i> Overview
             </button>
@@ -163,7 +166,7 @@
   </div>
 @endsection
 
-@push('scripts')
+@push('js')
 <script src="/vendor/ahg-ric/js/cytoscape.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://unpkg.com/three-spritetext@1.8.2/dist/three-spritetext.min.js"></script>
@@ -399,6 +402,14 @@
   var initialId = urlParams.get('id');
   if (initialId) {
     loadGraphData(initialId);
+    var backBtn = document.getElementById('ric-back-to-record-btn');
+    @if(request()->has('id'))
+      @php $explorerSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', request('id'))->value('slug'); @endphp
+      @if($explorerSlug)
+        backBtn.href = '/{{ $explorerSlug }}';
+        backBtn.style.display = '';
+      @endif
+    @endif
   }
 })();
 

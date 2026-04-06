@@ -17,7 +17,7 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/explain/{sourceId}/{targetId}', [RicController::class, 'explainRelation'])->name('ric.public-explain');
 });
 
-Route::middleware('admin')->group(function () {
+Route::middleware('web')->group(function () {
     Route::get('/admin/ric', [RicController::class, 'index'])->name('ric.index');
     Route::get('/admin/ric/sync-status', [RicController::class, 'syncStatus'])->name('ric.sync-status');
     Route::get('/admin/ric/orphans', [RicController::class, 'orphans'])->name('ric.orphans');

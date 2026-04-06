@@ -248,7 +248,9 @@
       "Read(//var/log/nginx/**)",
       "Bash(tail -5 /usr/share/nginx/archive/log/*.log)",
       "WebSearch",
-      "Bash(xargs -I {} ls -1 {}/config/*Configuration.class.php)"
+      "Bash(xargs -I {} ls -1 {}/config/*Configuration.class.php)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh issue:*)"
     ]
   }
 }
