@@ -1479,11 +1479,34 @@
       <div class="dropdown d-inline-block">
         <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-1"></i>More</button>
         <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ route('library.browse') }}"><i class="fas fa-list me-2"></i>Browse library</a></li>
+          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/physicalobject/link/' . $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
-          @if(\Illuminate\Support\Facades\Route::has('grap.show'))
-            <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>GRAP data</a></li>
+          @if(\Illuminate\Support\Facades\Route::has('io.rights.extended'))
+            <li><a class="dropdown-item" href="{{ route('io.rights.extended', $item->slug) }}"><i class="fas fa-balance-scale me-2"></i>Extended Rights</a></li>
           @endif
+          @if(\Illuminate\Support\Facades\Route::has('grap.show'))
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>View GRAP data</a></li>
+            <li><a class="dropdown-item" href="{{ route('grap.edit', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>Edit GRAP data</a></li>
+          @endif
+          @if(\Illuminate\Support\Facades\Route::has('io.spectrum'))
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ route('io.spectrum', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>Spectrum data</a></li>
+            @if(\Illuminate\Support\Facades\Route::has('ahgspectrum.workflow'))
+              <li><a class="dropdown-item" href="{{ route('ahgspectrum.workflow') }}"><i class="fas fa-tasks me-2"></i>Workflow Status</a></li>
+            @endif
+            @if(\Illuminate\Support\Facades\Route::has('spectrum.label'))
+              <li><a class="dropdown-item" href="{{ route('spectrum.label', $item->slug) }}"><i class="fas fa-barcode me-2"></i>Generate barcode label</a></li>
+            @endif
+          @endif
+          @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ route('provenance.view', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>Provenance</a></li>
+          @endif
+          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>Generate label</a></li>
         </ul>
       </div>
