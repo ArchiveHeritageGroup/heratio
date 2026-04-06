@@ -188,10 +188,24 @@ class LoanController extends Controller
 
         $id = $this->service->create($validated, auth()->id());
 
-        // Redirect back to originating record if object_id was provided
+        // Auto-link the originating object to the loan
         $objectId = $request->input('object_id');
         if ($objectId) {
-            $slug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $objectId)->value('slug');
+            $ioTitle = DB::table('information_object_i18n')
+                ->where('id', $objectId)->where('culture', app()->getLocale())->value('title');
+            $ioIdentifier = DB::table('information_object')
+                ->where('id', $objectId)->value('identifier');
+
+            DB::table('ahg_loan_object')->insert([
+                'loan_id' => $id,
+                'information_object_id' => (int) $objectId,
+                'object_title' => $ioTitle,
+                'object_identifier' => $ioIdentifier,
+                'status' => 'pending',
+                'created_at' => now(),
+            ]);
+
+            $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
             if ($slug) {
                 return redirect('/' . $slug)->with('success', 'Loan created successfully.');
             }

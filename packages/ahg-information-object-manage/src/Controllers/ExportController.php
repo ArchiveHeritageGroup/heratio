@@ -177,7 +177,7 @@ class ExportController extends Controller
         }
 
         $ricService = new \AhgRic\Services\RicSerializationService();
-        $jsonLd = $ricService->serializeRecord($io->id, $culture);
+        $jsonLd = $ricService->serializeRecord($io->id, ['culture' => $culture]);
 
         return response(json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200)
             ->header('Content-Type', 'application/ld+json; charset=UTF-8')
