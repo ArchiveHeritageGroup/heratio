@@ -158,6 +158,7 @@ class DigitalObjectController extends Controller
             'url' => $url,
             'ioTitle' => $ioTitle,
             'ioSlug' => $ioSlug,
+            'usageType' => $doRow->usage_id,
         ]);
     }
 

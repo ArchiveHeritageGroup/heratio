@@ -113,21 +113,18 @@
   </section>
 
   {{-- Library navigation --}}
+  @if($item->material_type)
   <div class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
       <i class="fas fa-book me-1"></i> Library
     </div>
     <div class="list-group list-group-flush">
-      <a href="{{ route('library.browse') }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-list me-1"></i> Browse all items
+      <a href="{{ route('library.browse', ['material_type' => $item->material_type]) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-filter me-1"></i> Same material type
       </a>
-      @if($item->material_type)
-        <a href="{{ route('library.browse', ['material_type' => $item->material_type]) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-filter me-1"></i> Same material type
-        </a>
-      @endif
     </div>
   </div>
+  @endif
 
   {{-- External links sidebar --}}
   @if($item->openlibrary_url || $item->ebook_preview_url || $item->openlibrary_id || $item->goodreads_id || $item->librarything_id)
@@ -1038,82 +1035,7 @@
     @endauth
   </div>
 
-  {{-- Actions (authenticated users only) --}}
-  @auth
-    <section class="card mb-3">
-      <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Actions</h5>
-      </div>
-      <div class="card-body">
-        <a href="{{ route('library.edit', $item->slug) }}" class="btn btn-primary w-100 mb-2">
-          <i class="fas fa-edit me-2"></i>Edit
-        </a>
-        <a href="{{ route('library.create', ['parent' => $item->slug]) }}" class="btn btn-success w-100 mb-2">
-          <i class="fas fa-plus me-2"></i>Add new
-        </a>
-        <form action="{{ route('library.destroy', $item->slug) }}" method="POST"
-              onsubmit="return confirm('Are you sure you want to delete this library item?');">
-          @csrf
-          <button type="submit" class="btn btn-danger w-100 mb-2">
-            <i class="fas fa-trash me-2"></i>Delete
-          </button>
-        </form>
-        <a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn btn-success w-100 mb-2">
-          <i class="fas fa-arrows-alt me-2"></i>Move
-        </a>
-        <a href="{{ route('library.browse') }}" class="btn btn-outline-secondary w-100 mb-2">
-          <i class="fas fa-list me-2"></i>Browse library
-        </a>
-        <div class="dropdown">
-          <button type="button" class="btn btn-outline-dark w-100 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h me-2"></i>More
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end w-100">
-            <li><a class="dropdown-item" href="{{ route('library.rename', $item->slug) }}"><i class="fas fa-i-cursor me-2"></i>Rename</a></li>
-            <li><a class="dropdown-item" href="{{ \Illuminate\Support\Facades\Route::has('io.showUpdateStatus') ? route('io.showUpdateStatus', $item->slug) : '#' }}"><i class="fas fa-eye me-2"></i>Update publication status</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/physicalobject/link/' . $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
-            <li><hr class="dropdown-divider"></li>
-            @if($hasDigitalObject)
-              @php
-                $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')
-                  ->where('object_id', $item->id)->first();
-              @endphp
-              <li><a class="dropdown-item" href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}"><i class="fas fa-edit me-2"></i>Edit digital object</a></li>
-            @else
-              <li><a class="dropdown-item" href="{{ url('/informationobject/' . $item->slug . '/upload') }}"><i class="fas fa-file-upload me-2"></i>Link digital object</a></li>
-            @endif
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
-            @if(\Illuminate\Support\Facades\Route::has('extended-rights.edit'))
-              <li><a class="dropdown-item" href="{{ route('extended-rights.edit', $item->slug) }}"><i class="fas fa-balance-scale me-2"></i>Extended Rights</a></li>
-            @endif
-            @if(\Illuminate\Support\Facades\Route::has('grap.show'))
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>View GRAP data</a></li>
-              <li><a class="dropdown-item" href="{{ route('grap.edit', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>Edit GRAP data</a></li>
-            @endif
-            @if(\Illuminate\Support\Facades\Route::has('spectrum.show'))
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ route('spectrum.show', $item->slug) }}"><i class="fas fa-layer-group me-2"></i>Spectrum data</a></li>
-              @if(\Illuminate\Support\Facades\Route::has('spectrum.workflow'))
-                <li><a class="dropdown-item" href="{{ route('spectrum.workflow', $item->slug) }}"><i class="fas fa-tasks me-2"></i>Workflow Status</a></li>
-              @endif
-              @if(\Illuminate\Support\Facades\Route::has('spectrum.label'))
-                <li><a class="dropdown-item" href="{{ route('spectrum.label', $item->slug) }}"><i class="fas fa-barcode me-2"></i>Generate barcode label</a></li>
-              @endif
-            @endif
-            @if(\Illuminate\Support\Facades\Route::has('provenance.view'))
-              <li><a class="dropdown-item" href="{{ route('provenance.view', $item->slug) }}"><i class="fas fa-sitemap me-2"></i>Provenance</a></li>
-            @endif
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>Generate label</a></li>
-            <li><hr class="dropdown-divider"></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  @endauth
+  {{-- Actions card removed — actions are in the bottom bar --}}
 
   {{-- ISBN Barcode --}}
   @php
@@ -1425,27 +1347,39 @@
 {{-- ============================================================ --}}
 @section('after-content')
   @auth
-  <section class="actions mb-3 nav gap-2">
+  <section class="actions mb-3 nav gap-2 flex-wrap">
+    <li><a href="{{ route('library.edit', $item->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
     <li>
-      <a href="{{ route('library.edit', $item->slug) }}" class="btn atom-btn-outline-light">Edit</a>
-    </li>
-    <li>
-      <form action="{{ route('library.destroy', $item->slug) }}" method="POST"
+      <form action="{{ route('library.destroy', $item->slug) }}" method="POST" class="d-inline"
             onsubmit="return confirm('Are you sure you want to delete this library item?');">
         @csrf
         <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
       </form>
     </li>
+    <li><a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+    <li><a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a></li>
+    <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">Rename</a></li>
+    @if($hasDigitalObject)
+      @php $doRecord = \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $item->id)->first(); @endphp
+      <li><a href="{{ url('/digitalobject/' . ($doRecord->id ?? 0) . '/edit') }}" class="btn atom-btn-outline-light"><i class="fas fa-edit me-1"></i>Edit digital object</a></li>
+    @else
+      <li><a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light"><i class="fas fa-upload me-1"></i>Add digital object</a></li>
+    @endif
+    @if(\Illuminate\Support\Facades\Route::has('io.showUpdateStatus'))
+      <li><a href="{{ route('io.showUpdateStatus', $item->slug) }}" class="btn atom-btn-outline-light"><i class="fas fa-eye me-1"></i>Publication status</a></li>
+    @endif
     <li>
-      <a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a>
-    </li>
-    <li>
-      <a href="{{ url('/' . $item->slug . '/default/move') }}" class="btn atom-btn-outline-light">Move</a>
-    </li>
-    <li>
-      <a href="{{ url('/informationobject/' . $item->slug . '/upload') }}" class="btn atom-btn-outline-light">
-        <i class="fas fa-upload me-1"></i>Add digital object
-      </a>
+      <div class="dropdown d-inline-block">
+        <button class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h me-1"></i>More</button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url('/physicalobject/link/' . $item->slug) }}"><i class="fas fa-box me-2"></i>Link physical storage</a></li>
+          <li><a class="dropdown-item" href="{{ url('/' . $item->slug . '/right/edit') }}"><i class="fas fa-copyright me-2"></i>Create new rights</a></li>
+          @if(\Illuminate\Support\Facades\Route::has('grap.show'))
+            <li><a class="dropdown-item" href="{{ route('grap.show', $item->slug) }}"><i class="fas fa-file-invoice me-2"></i>GRAP data</a></li>
+          @endif
+          <li><a class="dropdown-item" href="{{ url('/label/' . $item->slug) }}"><i class="fas fa-tag me-2"></i>Generate label</a></li>
+        </ul>
+      </div>
     </li>
   </section>
   @endauth
