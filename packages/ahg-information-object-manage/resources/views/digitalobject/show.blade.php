@@ -19,7 +19,7 @@ $componentView = 'ahg-information-object-manage::' . $showComponent;
         'link' => $link ?? null,
         'resource' => $digitalObject,
         'usageType' => $usageType,
-        'representation' => $representation ?? $resource,
+        'representation' => $representation ?? $digitalObject,
     ])
   @endif
 @else
@@ -34,7 +34,7 @@ $componentView = 'ahg-information-object-manage::' . $showComponent;
           'link' => $link ?? null,
           'resource' => $digitalObject,
           'usageType' => $usageType,
-          'representation' => $representation ?? $resource,
+          'representation' => $representation ?? $digitalObject,
       ])
     @endif
   </div>
