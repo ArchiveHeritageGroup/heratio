@@ -3,6 +3,20 @@
 @section('title', $item->title ?? 'Library item')
 @section('body-class', 'view library')
 
+@push('css')
+<style>
+  /* Widen sidebars for library show page — barcode + viewer need space */
+  .view.library #left-column  { flex: 0 0 auto; width: 20%; max-width: 20%; }
+  .view.library #main-column  { flex: 0 0 auto; width: 50%; max-width: 50%; }
+  .view.library #right-column { flex: 0 0 auto; width: 30%; max-width: 30%; }
+  @media (max-width: 991.98px) {
+    .view.library #left-column,
+    .view.library #main-column,
+    .view.library #right-column { width: 100% !important; max-width: 100% !important; }
+  }
+</style>
+@endpush
+
 {{-- ============================================================ --}}
 {{-- LEFT SIDEBAR: Holdings / navigation                          --}}
 {{-- ============================================================ --}}
@@ -565,19 +579,10 @@
 
   {{-- Digital Object Viewer --}}
   @php
-    $doRecords = \Illuminate\Support\Facades\DB::table('digital_object')
-      ->where('object_id', $item->id)
-      ->get();
-    $masterObj = null;
-    $refObj = null;
-    $thumbObj = null;
-    foreach ($doRecords as $doRec) {
-      if (($doRec->usage_id ?? null) == 140) $masterObj = $doRec;      // Master
-      elseif (($doRec->usage_id ?? null) == 141) $refObj = $doRec;     // Reference
-      elseif (($doRec->usage_id ?? null) == 142) $thumbObj = $doRec;   // Thumbnail
-      elseif (!$masterObj) $masterObj = $doRec;
-    }
-    $hasDigitalObject = $doRecords->isNotEmpty();
+    $masterObj = $digitalObjects['master'] ?? null;
+    $refObj = $digitalObjects['reference'] ?? null;
+    $thumbObj = $digitalObjects['thumbnail'] ?? null;
+    $hasDigitalObject = $masterObj || $refObj || $thumbObj;
   @endphp
 
   @if($masterObj || $refObj || $thumbObj)

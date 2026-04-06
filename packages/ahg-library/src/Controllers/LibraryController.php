@@ -93,7 +93,7 @@ class LibraryController extends Controller
         $digitalObjects = ['master' => null, 'reference' => null, 'thumbnail' => null];
         $doRows = DB::table('digital_object')
             ->where('object_id', $item->id)
-            ->select('id', 'object_id', 'usage_id', 'mime_type', 'name', 'path', 'byte_size', 'checksum', 'sequence')
+            ->select('id', 'object_id', 'usage_id', 'media_type_id', 'mime_type', 'name', 'path', 'byte_size', 'checksum', 'sequence')
             ->orderBy('id')
             ->get();
         foreach ($doRows as $doRow) {
