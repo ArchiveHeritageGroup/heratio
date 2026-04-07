@@ -72,7 +72,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('ahgspectrum.index') }}?slug={{ $resource->slug ?? '' }}">{{ __('Spectrum') }}</a></li>
         <li class="breadcrumb-item active">{{ __('Workflow') }}</li>
     </ol>
@@ -117,7 +117,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
             </ul>
         </div>
 
-        <a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}" class="btn btn-secondary w-100">
+        <a href="{{ url('/' . ($resource->slug ?? '')) }}" class="btn btn-secondary w-100">
             <i class="fas fa-arrow-left me-1"></i> {{ __('Back to record') }}
         </a>
     </div>
@@ -148,7 +148,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                         <span class="badge bg-secondary me-2">{{ __('Item-Level Procedure') }}</span>
                         <strong>{{ $resource->title ?? $resource->slug ?? '' }}</strong>
                     </div>
-                    <a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}" class="btn btn-sm btn-outline-primary">
+                    <a href="{{ url('/' . ($resource->slug ?? '')) }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-arrow-left me-1"></i> {{ __('Back to record') }}
                     </a>
                 </div>
@@ -185,13 +185,27 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                                 default => 'bg-secondary'
                             };
                             @endphp
+                        @php
+                            $stepLink = $step['link'] ?? null;
+                            if ($stepLink && ($resource->slug ?? null)) {
+                                $stepLink = str_replace('{slug}', $resource->slug, $stepLink);
+                                $stepLink = url($stepLink);
+                            }
+                        @endphp
                         <div class="text-center">
                             <span class="badge {{ $badgeClass }} d-block mb-1" style="min-width: 30px;">
                                 {{ $step['order'] }}
                             </span>
-                            <small class="d-block" style="max-width: 80px; font-size: 0.7rem;">
+                            @if ($stepLink && $stepStatus === 'current')
+                            <a href="{{ $stepLink }}" class="d-block text-decoration-none" style="max-width: 100px; font-size: 0.7rem;" title="{{ __('Go to record to complete this step') }}" target="_blank">
+                                {{ $step['name'] }}
+                                <i class="fas fa-external-link-alt ms-1" style="font-size: 0.55rem;"></i>
+                            </a>
+                            @else
+                            <small class="d-block" style="max-width: 100px; font-size: 0.7rem;">
                                 {{ $step['name'] }}
                             </small>
+                            @endif
                         </div>
                         @if ($index < count($steps) - 1)
                         <div class="d-flex align-items-center" style="margin-top: -15px;">

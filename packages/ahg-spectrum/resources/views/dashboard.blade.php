@@ -207,7 +207,7 @@
                             <tr>
                                 <td><small>{{ date('Y-m-d H:i', strtotime($activity->created_at)) }}</small></td>
                                 <td>
-                                    <a href="{{ url('/informationobject/' . ($activity->slug ?? '')) }}">
+                                    <a href="{{ url('/' . ($activity->slug ?? '')) }}">
                                         {{ $activity->object_title ?? $activity->slug }}
                                     </a>
                                 </td>

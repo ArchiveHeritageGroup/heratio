@@ -15,7 +15,7 @@
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/' . ($resource->slug ?? '')) }}">{{ $resource->title ?? $resource->slug ?? '' }}</a></li>
         <li class="breadcrumb-item active">{{ __('Spectrum Data') }}</li>
     </ol>
 </nav>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Back Link -->
-        <a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}" class="btn btn-outline-secondary w-100">
+        <a href="{{ url('/' . ($resource->slug ?? '')) }}" class="btn btn-outline-secondary w-100">
             <i class="fas fa-arrow-left me-2"></i>{{ __('Back to record') }}
         </a>
     </div>

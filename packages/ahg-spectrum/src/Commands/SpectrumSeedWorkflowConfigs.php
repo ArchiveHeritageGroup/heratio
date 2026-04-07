@@ -79,7 +79,8 @@ class SpectrumSeedWorkflowConfigs extends Command
     protected static function buildConfig(
         string $name,
         array $steps,
-        array $triggers = []
+        array $triggers = [],
+        array $links = []
     ): array {
         // Build states: pending + one state per step + closed
         $states = ['pending'];
@@ -97,11 +98,15 @@ class SpectrumSeedWorkflowConfigs extends Command
             $states[] = $stateKey;
             $stateLabels[$stateKey] = $stepName;
 
-            $stepDefs[] = [
+            $stepDef = [
                 'order' => $i + 1,
                 'name'  => $stepName,
                 'state' => $stateKey,
             ];
+            if (isset($links[$i])) {
+                $stepDef['link'] = $links[$i];
+            }
+            $stepDefs[] = $stepDef;
 
             // Transition from previous state to this state
             $prevState = $i === 0 ? 'pending' : $states[$i]; // states[$i] is the previous step's state
@@ -162,6 +167,9 @@ class SpectrumSeedWorkflowConfigs extends Command
         return [
             // ── Primary procedures ──────────────────────────────────
 
+            // Link patterns use {slug} placeholder — resolved at render time
+            // Points to GLAM/DAM pages and relevant record sections
+
             'object_entry' => self::buildConfig(
                 'Object entry',
                 [
@@ -172,7 +180,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Issue receipt and terms',
                     'Route to next action',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['object_entry'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['object_entry'] ?? [],
+                [
+                    '/{slug}#identityArea',
+                    '/{slug}#contextArea',
+                    '/{slug}/edit#context-collapse',
+                    '/{slug}/edit#identity-collapse',
+                    '/{slug}/edit#identity-collapse',
+                    null, // workflow decision — no external link
+                ]
             ),
 
             'acquisition' => self::buildConfig(
@@ -186,7 +202,16 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Mark/label object',
                     'Create and link core records',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['acquisition'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['acquisition'] ?? [],
+                [
+                    '/{slug}#contextArea',
+                    '/{slug}/edit#context-collapse',
+                    null, // approval decision
+                    '/{slug}#accessionArea',
+                    '/{slug}/edit#identity-collapse',
+                    '/{slug}/edit#identity-collapse',
+                    '/{slug}/edit#context-collapse',
+                ]
             ),
 
             'location_movement' => self::buildConfig(
@@ -199,7 +224,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Keep movement history',
                     'Confirm object found where expected',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['location_movement'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['location_movement'] ?? [],
+                [
+                    null,
+                    '/{slug}#alliedMaterialsArea',
+                    '/{slug}/edit#allied-collapse',
+                    '/{slug}/edit#allied-collapse',
+                    '/{slug}#alliedMaterialsArea',
+                    '/{slug}#alliedMaterialsArea',
+                ]
             ),
 
             'inventory_control' => self::buildConfig(
@@ -211,6 +244,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Assign temporary identifiers where needed',
                     'Record discrepancies',
                     'Create follow-up actions to resolve gaps',
+                ],
+                [],
+                [
+                    '/{slug}#alliedMaterialsArea',
+                    '/{slug}#identityArea',
+                    '/{slug}#identityArea',
+                    '/{slug}/edit#identity-collapse',
+                    '/{slug}/edit#notes-collapse',
+                    null,
                 ]
             ),
 
@@ -224,7 +266,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Link related records and authority data',
                     'Review and publish/release',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['cataloguing'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['cataloguing'] ?? [],
+                [
+                    '/{slug}',
+                    '/{slug}#contextArea',
+                    '/{slug}/edit#identity-collapse',
+                    '/{slug}/edit#access-collapse',
+                    '/{slug}/edit#context-collapse',
+                    '/{slug}/edit#admin-collapse',
+                ]
             ),
 
             'object_exit' => self::buildConfig(
@@ -236,6 +286,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Document dispatch/transfer',
                     'Update location/status',
                     'Confirm exit completed and file evidence',
+                ],
+                [],
+                [
+                    null,
+                    '/{slug}/edit#allied-collapse',
+                    '/admin/spectrum/condition-photos?slug={slug}',
+                    '/{slug}/edit#notes-collapse',
+                    '/{slug}/edit#allied-collapse',
+                    '/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -250,7 +309,16 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Monitor during loan period',
                     'Renew or return at end date',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['loans_in'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['loans_in'] ?? [],
+                [
+                    '/admin/spectrum/loans',
+                    '/admin/spectrum/loans',
+                    '/{slug}#conditionsOfAccessAndUseArea',
+                    '/admin/spectrum/loans',
+                    '/{slug}/edit#identity-collapse',
+                    '/admin/spectrum/loans',
+                    '/admin/spectrum/loans',
+                ]
             ),
 
             'loans_out' => self::buildConfig(
@@ -264,7 +332,16 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Prepare, dispatch and track loan',
                     'Receive return and close loan',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['loans_out'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['loans_out'] ?? [],
+                [
+                    '/admin/spectrum/loans',
+                    '/admin/spectrum/loans',
+                    '/{slug}#conditionsOfAccessAndUseArea',
+                    '/admin/spectrum/loans',
+                    '/admin/spectrum/loans',
+                    '/{slug}/edit#allied-collapse',
+                    '/admin/spectrum/loans',
+                ]
             ),
 
             'documentation_planning' => self::buildConfig(
@@ -276,6 +353,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Allocate resources and timescales',
                     'Implement improvements',
                     'Review progress and update plan',
+                ],
+                [],
+                [
+                    '/admin/spectrum/data-quality',
+                    null,
+                    null,
+                    null,
+                    '/{slug}/edit',
+                    '/admin/spectrum/dashboard',
                 ]
             ),
 
@@ -290,6 +376,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Approve use',
                     'Record how objects/data/reproductions are used',
                     'Review outcomes and retain evidence',
+                ],
+                [],
+                [
+                    null,
+                    '/{slug}#conditionsOfAccessAndUseArea',
+                    '/{slug}#identityArea',
+                    null,
+                    '/{slug}/edit#notes-collapse',
+                    '/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -303,7 +398,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Make recommendations',
                     'Refer for treatment or monitoring',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['condition_checking'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['condition_checking'] ?? [],
+                [
+                    '/admin/spectrum/condition-admin?slug={slug}',
+                    '/admin/spectrum/condition-photos?slug={slug}',
+                    '/admin/spectrum/condition-photos?slug={slug}',
+                    '/{slug}/edit#conditions-collapse',
+                    '/{slug}/edit#notes-collapse',
+                    null,
+                ]
             ),
 
             'conservation' => self::buildConfig(
@@ -316,7 +419,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record methods and materials used',
                     'Review result and future care',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['conservation'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['conservation'] ?? [],
+                [
+                    '/admin/spectrum/condition-admin?slug={slug}',
+                    '/admin/spectrum/conservation?slug={slug}',
+                    null,
+                    '/admin/spectrum/conservation?slug={slug}',
+                    '/{slug}/edit#notes-collapse',
+                    '/admin/spectrum/condition-photos?slug={slug}',
+                ]
             ),
 
             'valuation' => self::buildConfig(
@@ -329,7 +440,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record amount, date and valuer',
                     'Review/update when required',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['valuation'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['valuation'] ?? [],
+                [
+                    '/admin/spectrum/valuations?slug={slug}',
+                    '/admin/spectrum/valuations?slug={slug}',
+                    '/{slug}#contextArea',
+                    '/admin/spectrum/valuations?slug={slug}',
+                    '/admin/spectrum/valuations?slug={slug}',
+                    '/admin/spectrum/valuations?slug={slug}',
+                ]
             ),
 
             'insurance' => self::buildConfig(
@@ -341,6 +460,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Arrange cover',
                     'Record cover terms and evidence',
                     'Monitor and update cover',
+                ],
+                [],
+                [
+                    '/admin/spectrum/valuations?slug={slug}',
+                    null,
+                    '/admin/spectrum/valuations?slug={slug}',
+                    '/{slug}/edit#notes-collapse',
+                    '/{slug}/edit#notes-collapse',
+                    null,
                 ]
             ),
 
@@ -353,6 +481,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Assign roles and contacts',
                     'Train/test plan',
                     'Review and update regularly',
+                ],
+                [],
+                [
+                    '/admin/spectrum/condition-risk',
+                    '/admin/spectrum/condition-risk',
+                    null,
+                    null,
+                    null,
+                    null,
                 ]
             ),
 
@@ -366,7 +503,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Recover, stabilise or conserve',
                     'Update records, claims and follow-up actions',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['loss_damage'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['loss_damage'] ?? [],
+                [
+                    '/admin/spectrum/condition-photos?slug={slug}',
+                    '/{slug}#conditionsOfAccessAndUseArea',
+                    '/{slug}/edit#notes-collapse',
+                    null,
+                    '/admin/spectrum/conservation?slug={slug}',
+                    '/{slug}/edit#notes-collapse',
+                ]
             ),
 
             'deaccession' => self::buildConfig(
@@ -379,7 +524,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Carry out disposal',
                     'Record outcome and retain audit trail',
                 ],
-                SpectrumWorkflowService::TRIGGER_MAP['deaccession'] ?? []
+                SpectrumWorkflowService::TRIGGER_MAP['deaccession'] ?? [],
+                [
+                    '/{slug}',
+                    null,
+                    null,
+                    null,
+                    null,
+                    '/{slug}/edit#notes-collapse',
+                ]
             ),
 
             'rights_management' => self::buildConfig(
@@ -391,6 +544,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Manage permissions/licences',
                     'Apply access/use controls',
                     'Review rights status over time',
+                ],
+                [],
+                [
+                    '/{slug}#rightsArea',
+                    '/{slug}#rightsArea',
+                    '/{slug}/edit#conditions-collapse',
+                    '/{slug}/edit#conditions-collapse',
+                    '/{slug}/edit#conditions-collapse',
+                    '/{slug}#rightsArea',
                 ]
             ),
 
@@ -403,6 +565,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Create reproduction',
                     'Record technical and administrative metadata',
                     'Store/link reproduction and release',
+                ],
+                [],
+                [
+                    null,
+                    '/{slug}#rightsArea',
+                    '/{slug}#conditionsOfAccessAndUseArea',
+                    '/dam/{slug}/edit',
+                    '/dam/{slug}/edit-iptc',
+                    '/dam/{slug}',
                 ]
             ),
 
@@ -415,6 +586,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Identify actions or recommendations',
                     'Approve next steps',
                     'Feed outputs into planning or care',
+                ],
+                [],
+                [
+                    null,
+                    '/glam/browse',
+                    '/{slug}/edit#notes-collapse',
+                    null,
+                    null,
+                    '/admin/spectrum/dashboard',
                 ]
             ),
 
@@ -427,6 +607,15 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record discrepancies',
                     'Correct records or escalate issues',
                     'Report results and schedule follow-up',
+                ],
+                [],
+                [
+                    null,
+                    '/glam/browse',
+                    '/{slug}#identityArea',
+                    '/{slug}/edit#notes-collapse',
+                    '/{slug}/edit',
+                    null,
                 ]
             ),
         ];
