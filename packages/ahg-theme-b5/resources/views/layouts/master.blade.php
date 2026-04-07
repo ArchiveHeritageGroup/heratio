@@ -124,6 +124,9 @@
     });
     </script>
 
+    {{-- Floating Cart Tab — only visible when cart has items --}}
+    @include('theme::partials.cart-tab')
+
     {{-- Floating Feedback Tab --}}
     @include('theme::partials.feedback-tab')
 
