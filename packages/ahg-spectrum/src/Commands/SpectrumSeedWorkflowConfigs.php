@@ -5,6 +5,7 @@ namespace AhgSpectrum\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use AhgSpectrum\Services\SpectrumWorkflowService;
+use Illuminate\Support\Str;
 
 class SpectrumSeedWorkflowConfigs extends Command
 {
@@ -38,7 +39,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                             'updated_at'  => now(),
                         ]);
                     $updated++;
-                    $this->line("  Updated: {$procedureType}");
+                    $this->line("  Updated: {$procedureType} ({$config['name']}) — " . count($config['config']['steps']) . " steps");
                 } else {
                     $this->line("  Skipped (exists): {$procedureType} — use --force to overwrite");
                 }
@@ -53,7 +54,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'updated_at'     => now(),
                 ]);
                 $created++;
-                $this->line("  Created: {$procedureType}");
+                $this->line("  Created: {$procedureType} ({$config['name']}) — " . count($config['config']['steps']) . " steps");
             }
         }
 
@@ -70,52 +71,91 @@ class SpectrumSeedWorkflowConfigs extends Command
     }
 
     /**
-     * Build the standard 6-phase config for a procedure.
+     * Build a procedure-specific config from its condensed steps.
+     *
+     * Each condensed step becomes a real workflow state and transition.
+     * The step text IS the action label the user clicks.
      */
     protected static function buildConfig(
         string $name,
-        array $condensedSteps,
+        array $steps,
         array $triggers = []
     ): array {
+        // Build states: pending + one state per step + closed
+        $states = ['pending'];
+        $stateLabels = ['pending' => 'Pending'];
+        $stepDefs = [];
+        $transitions = [];
+
+        foreach ($steps as $i => $stepName) {
+            // Convert step name to a clean snake_case state key
+            $stateKey = Str::snake(Str::ascii($stepName));
+            $stateKey = preg_replace('/[^a-z0-9_]/', '_', $stateKey);
+            $stateKey = preg_replace('/_+/', '_', trim($stateKey, '_'));
+            // Truncate to fit varchar(50)
+            $stateKey = substr($stateKey, 0, 50);
+            $states[] = $stateKey;
+            $stateLabels[$stateKey] = $stepName;
+
+            $stepDefs[] = [
+                'order' => $i + 1,
+                'name'  => $stepName,
+                'state' => $stateKey,
+            ];
+
+            // Transition from previous state to this state
+            $prevState = $i === 0 ? 'pending' : $states[$i]; // states[$i] is the previous step's state
+            $transitionKey = $stateKey; // use same key as state
+
+            $transitions[$transitionKey] = [
+                'from'  => [$prevState],
+                'to'    => $stateKey,
+                'label' => $stepName,
+            ];
+        }
+
+        // Add 'closed' as the final state after the last step
+        $states[] = 'closed';
+        $stateLabels['closed'] = 'Closed';
+
+        $lastStepState = $states[count($states) - 2]; // second-to-last = last step state
+        $transitions['close'] = [
+            'from'  => [$lastStepState],
+            'to'    => 'closed',
+            'label' => 'Close procedure',
+        ];
+
+        // Reject: from any step state back to pending
+        $stepStates = array_slice($states, 1, -1); // exclude pending and closed
+        $transitions['reject'] = [
+            'from'  => $stepStates,
+            'to'    => 'pending',
+            'label' => 'Reject / send back',
+        ];
+
+        // Restart: from closed back to pending
+        $transitions['restart'] = [
+            'from'  => ['closed'],
+            'to'    => 'pending',
+            'label' => 'Restart procedure',
+        ];
+
         return [
             'name'   => $name,
             'config' => [
-                'states' => ['pending', 'approved', 'in_progress', 'documentation', 'completed', 'closed'],
-                'steps' => [
-                    ['order' => 1, 'name' => 'Request / trigger',       'state' => 'pending'],
-                    ['order' => 2, 'name' => 'Approval',                'state' => 'approved'],
-                    ['order' => 3, 'name' => 'Action steps',            'state' => 'in_progress'],
-                    ['order' => 4, 'name' => 'Documentation updates',   'state' => 'documentation'],
-                    ['order' => 5, 'name' => 'Outcome / closure',       'state' => 'completed'],
-                    ['order' => 6, 'name' => 'Linked procedures',       'state' => 'closed'],
-                ],
-                'transitions' => [
-                    'approve'            => ['from' => ['pending'],        'to' => 'approved',      'label' => 'Approve'],
-                    'begin_action'       => ['from' => ['approved'],       'to' => 'in_progress',   'label' => 'Begin Action'],
-                    'document'           => ['from' => ['in_progress'],    'to' => 'documentation', 'label' => 'Update Documentation'],
-                    'submit_for_review'  => ['from' => ['documentation'],  'to' => 'completed',     'label' => 'Submit for Review'],
-                    'close'              => ['from' => ['completed'],      'to' => 'closed',        'label' => 'Close & Trigger Next'],
-                    'reject'             => ['from' => ['approved', 'documentation', 'completed'], 'to' => 'pending', 'label' => 'Reject'],
-                    'restart'            => ['from' => ['closed'],         'to' => 'pending',        'label' => 'Restart'],
-                ],
+                'states'       => $states,
+                'steps'        => $stepDefs,
+                'transitions'  => $transitions,
                 'initial_state' => 'pending',
                 'final_states'  => ['closed'],
-                'state_labels' => [
-                    'pending'       => 'Pending',
-                    'approved'      => 'Approved',
-                    'in_progress'   => 'In Progress',
-                    'documentation' => 'Documentation',
-                    'completed'     => 'Completed',
-                    'closed'        => 'Closed',
-                ],
-                'triggers'        => $triggers,
-                'condensed_steps' => $condensedSteps,
+                'state_labels'  => $stateLabels,
+                'triggers'      => $triggers,
             ],
         ];
     }
 
     /**
-     * All 21 Spectrum 5.1 procedure configs.
+     * All 21 Spectrum 5.1 procedure configs with procedure-specific steps.
      */
     public static function getAllConfigs(): array
     {
@@ -130,7 +170,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record reason for entry',
                     'Assign temporary/entry number',
                     'Issue receipt and terms',
-                    'Route to next action (loan, enquiry, acquisition)',
+                    'Route to next action',
                 ],
                 SpectrumWorkflowService::TRIGGER_MAP['object_entry'] ?? []
             ),
@@ -182,7 +222,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Create or enrich catalogue record',
                     'Apply controlled terms/classifications',
                     'Link related records and authority data',
-                    'Review and publish/internal release as appropriate',
+                    'Review and publish/release',
                 ],
                 SpectrumWorkflowService::TRIGGER_MAP['cataloguing'] ?? []
             ),
@@ -261,7 +301,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record materials, structure and condition',
                     'Note risks/issues',
                     'Make recommendations',
-                    'Refer for treatment, movement limits or monitoring if needed',
+                    'Refer for treatment or monitoring',
                 ],
                 SpectrumWorkflowService::TRIGGER_MAP['condition_checking'] ?? []
             ),
@@ -274,7 +314,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Approve treatment',
                     'Carry out care/conservation action',
                     'Record methods and materials used',
-                    'Review result and future care requirements',
+                    'Review result and future care',
                 ],
                 SpectrumWorkflowService::TRIGGER_MAP['conservation'] ?? []
             ),
@@ -300,7 +340,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Gather valuation and object details',
                     'Arrange cover',
                     'Record cover terms and evidence',
-                    'Monitor and update cover as needed',
+                    'Monitor and update cover',
                 ]
             ),
 
@@ -323,7 +363,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Secure area/object',
                     'Record damage/loss details',
                     'Investigate and notify relevant parties',
-                    'Recover, stabilise or conserve if possible',
+                    'Recover, stabilise or conserve',
                     'Update records, claims and follow-up actions',
                 ],
                 SpectrumWorkflowService::TRIGGER_MAP['loss_damage'] ?? []
@@ -345,7 +385,7 @@ class SpectrumSeedWorkflowConfigs extends Command
             'rights_management' => self::buildConfig(
                 'Rights management',
                 [
-                    'Identify rights attached to object/data/reproduction',
+                    'Identify rights attached to object/data',
                     'Determine owner/rightsholder',
                     'Record rights type, term and restrictions',
                     'Manage permissions/licences',
@@ -362,7 +402,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Assess object handling requirements',
                     'Create reproduction',
                     'Record technical and administrative metadata',
-                    'Store/link reproduction and release if approved',
+                    'Store/link reproduction and release',
                 ]
             ),
 
@@ -374,7 +414,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     'Record findings',
                     'Identify actions or recommendations',
                     'Approve next steps',
-                    'Feed outputs into planning, cataloguing, care or disposal',
+                    'Feed outputs into planning or care',
                 ]
             ),
 

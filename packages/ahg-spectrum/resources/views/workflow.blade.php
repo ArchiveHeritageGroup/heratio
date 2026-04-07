@@ -197,25 +197,6 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                 </div>
                 @endif
 
-                <!-- Condensed Spectrum 5.1 Steps -->
-                @if (!empty($condensedSteps ?? []))
-                <div class="mb-4">
-                    <h6>
-                        {{ __('Spectrum 5.1 Procedure Steps') }}
-                        @if ($workflowConfig && ($configData['sop_url'] ?? null))
-                        <a href="{{ $configData['sop_url'] }}" target="_blank" class="btn btn-sm btn-outline-info ms-2" title="{{ __('View SOP Document') }}">
-                            <i class="fas fa-file-pdf me-1"></i>{{ __('SOP') }}
-                        </a>
-                        @endif
-                    </h6>
-                    <ol class="list-group list-group-numbered">
-                        @foreach ($condensedSteps as $cStep)
-                        <li class="list-group-item py-1 border-0 ps-0">{{ $cStep }}</li>
-                        @endforeach
-                    </ol>
-                </div>
-                @endif
-
                 <!-- Available Actions -->
                 @if ($canEdit && !empty($availableTransitions))
                 @php
