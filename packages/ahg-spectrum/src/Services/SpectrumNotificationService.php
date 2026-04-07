@@ -379,27 +379,33 @@ class SpectrumNotificationService
     protected static function getProcedureLabel(string $procedureType): string
     {
         $labels = [
-            'object_entry'                => 'Object Entry',
-            'acquisition'                 => 'Acquisition',
-            'location_movement'           => 'Location & Movement',
-            'inventory_control'           => 'Inventory Control',
+            // Primary procedures
+            'object_entry'                => 'Object entry',
+            'acquisition'                 => 'Acquisition and accessioning',
+            'location_movement'           => 'Location and movement control',
+            'inventory_control'           => 'Inventory',
             'cataloguing'                 => 'Cataloguing',
-            'condition_checking'          => 'Condition Checking',
-            'conservation'                => 'Conservation',
-            'risk_management'             => 'Risk Management',
-            'insurance'                   => 'Insurance',
+            'object_exit'                 => 'Object exit',
+            'loans_in'                    => 'Loans in (borrowing objects)',
+            'loans_out'                   => 'Loans out (lending objects)',
+            'documentation_planning'      => 'Documentation planning',
+            // Additional procedures
+            'use_of_collections'          => 'Use of collections',
+            'condition_checking'          => 'Condition checking and technical assessment',
+            'conservation'                => 'Collections care and conservation',
             'valuation'                   => 'Valuation',
-            'audit'                       => 'Audit',
-            'rights_management'           => 'Rights Management',
+            'insurance'                   => 'Insurance and indemnity',
+            'emergency_planning'          => 'Emergency planning for collections',
+            'loss_damage'                 => 'Damage and loss',
+            'deaccession'                 => 'Deaccessioning and disposal',
+            'rights_management'           => 'Rights management',
             'reproduction'                => 'Reproduction',
-            'loans_in'                    => 'Loans In',
-            'loans_out'                   => 'Loans Out',
-            'loss_damage'                 => 'Loss & Damage',
-            'deaccession'                 => 'Deaccession',
-            'disposal'                    => 'Disposal',
-            'documentation_planning'      => 'Documentation Planning',
-            'object_exit'                 => 'Object Exit',
-            'retrospective_documentation' => 'Retrospective Documentation',
+            'collections_review'          => 'Collections review',
+            'audit'                       => 'Audit',
+            // Legacy (deprecated, kept for existing DB records)
+            'risk_management'             => 'Emergency planning for collections',
+            'disposal'                    => 'Deaccessioning and disposal',
+            'retrospective_documentation' => 'Documentation planning',
         ];
 
         return $labels[$procedureType] ?? ucwords(str_replace('_', ' ', $procedureType));

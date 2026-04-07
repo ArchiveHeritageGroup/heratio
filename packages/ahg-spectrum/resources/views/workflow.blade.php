@@ -82,12 +82,31 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
     <div class="col-md-3">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">{{ __('Procedures') }}</h5>
+                <h5 class="mb-0">{{ __('Primary Procedures') }}</h5>
             </div>
             <ul class="list-group list-group-flush">
                 @foreach ($procedures ?? [] as $procId => $procDef)
+                @if (($procDef['group'] ?? '') !== 'primary') @continue @endif
                 @php $isActive = $procedureType === $procId; @endphp
-                <li class="list-group-item {{ $isActive ? 'active' : '' }}">
+                <li class="list-group-item {{ $isActive ? 'active' : '' }} py-2">
+                    <a href="{{ route('ahgspectrum.workflow') }}?slug={{ $resource->slug ?? '' }}&procedure_type={{ $procId }}"
+                       class="{{ $isActive ? 'text-white' : '' }} text-decoration-none d-block">
+                        <i class="fa {{ $procDef['icon'] ?? 'fa-circle' }} me-2"></i>
+                        {{ $procDef['label'] }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">{{ __('Additional Procedures') }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach ($procedures ?? [] as $procId => $procDef)
+                @if (($procDef['group'] ?? '') !== 'additional') @continue @endif
+                @php $isActive = $procedureType === $procId; @endphp
+                <li class="list-group-item {{ $isActive ? 'active' : '' }} py-2">
                     <a href="{{ route('ahgspectrum.workflow') }}?slug={{ $resource->slug ?? '' }}&procedure_type={{ $procId }}"
                        class="{{ $isActive ? 'text-white' : '' }} text-decoration-none d-block">
                         <i class="fa {{ $procDef['icon'] ?? 'fa-circle' }} me-2"></i>

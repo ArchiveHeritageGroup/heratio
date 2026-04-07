@@ -38,27 +38,40 @@ class SpectrumController extends Controller
 {
     /**
      * Spectrum 5.1 procedure constants
+     *
+     * Primary procedures
      */
-    const PROC_OBJECT_ENTRY = 'object_entry';
-    const PROC_ACQUISITION = 'acquisition';
-    const PROC_LOCATION = 'location_movement';
-    const PROC_INVENTORY = 'inventory_control';
-    const PROC_CATALOGUING = 'cataloguing';
-    const PROC_CONDITION = 'condition_checking';
-    const PROC_CONSERVATION = 'conservation';
-    const PROC_RISK = 'risk_management';
-    const PROC_INSURANCE = 'insurance';
-    const PROC_VALUATION = 'valuation';
-    const PROC_AUDIT = 'audit';
-    const PROC_RIGHTS = 'rights_management';
-    const PROC_REPRODUCTION = 'reproduction';
-    const PROC_LOAN_IN = 'loans_in';
-    const PROC_LOAN_OUT = 'loans_out';
-    const PROC_LOSS = 'loss_damage';
-    const PROC_DEACCESSION = 'deaccession';
-    const PROC_DISPOSAL = 'disposal';
+    const PROC_OBJECT_ENTRY  = 'object_entry';
+    const PROC_ACQUISITION   = 'acquisition';
+    const PROC_LOCATION      = 'location_movement';
+    const PROC_INVENTORY     = 'inventory_control';
+    const PROC_CATALOGUING   = 'cataloguing';
+    const PROC_EXIT          = 'object_exit';
+    const PROC_LOAN_IN       = 'loans_in';
+    const PROC_LOAN_OUT      = 'loans_out';
     const PROC_DOCUMENTATION = 'documentation_planning';
-    const PROC_EXIT = 'object_exit';
+
+    /**
+     * Additional procedures
+     */
+    const PROC_USE_OF_COLLECTIONS = 'use_of_collections';
+    const PROC_CONDITION          = 'condition_checking';
+    const PROC_CONSERVATION       = 'conservation';
+    const PROC_VALUATION          = 'valuation';
+    const PROC_INSURANCE          = 'insurance';
+    const PROC_EMERGENCY          = 'emergency_planning';
+    const PROC_LOSS               = 'loss_damage';
+    const PROC_DEACCESSION        = 'deaccession';
+    const PROC_RIGHTS             = 'rights_management';
+    const PROC_REPRODUCTION       = 'reproduction';
+    const PROC_COLLECTIONS_REVIEW = 'collections_review';
+    const PROC_AUDIT              = 'audit';
+
+    /** @deprecated Use PROC_EMERGENCY — kept for backward compatibility with existing DB records */
+    const PROC_RISK          = 'risk_management';
+    /** @deprecated Merged into PROC_DEACCESSION in Spectrum 5.1 */
+    const PROC_DISPOSAL      = 'disposal';
+    /** @deprecated Not a current Spectrum 5.1 procedure name — use PROC_DOCUMENTATION / PROC_INVENTORY */
     const PROC_RETROSPECTIVE = 'retrospective_documentation';
 
     const STATUS_NOT_STARTED = 'not_started';
@@ -152,135 +165,162 @@ class SpectrumController extends Controller
 
     /**
      * Return all Spectrum 5.1 procedure definitions.
+     *
+     * Ordered: Primary procedures first, then Additional procedures,
+     * following the official Spectrum 5.1 standard.
      */
     protected function getProcedures(): array
     {
         return [
+            // ── Primary procedures ──────────────────────────────────
             self::PROC_OBJECT_ENTRY => [
-                'label' => 'Object Entry',
+                'label'       => 'Object entry',
                 'description' => 'Recording information about objects entering the museum temporarily or for acquisition consideration.',
-                'category' => 'pre-entry',
-                'icon' => 'fa-sign-in',
+                'group'       => 'primary',
+                'category'    => 'pre-entry',
+                'icon'        => 'fa-sign-in',
             ],
             self::PROC_ACQUISITION => [
-                'label' => 'Acquisition',
-                'description' => 'Formally acquiring objects for the permanent collection.',
-                'category' => 'acquisition',
-                'icon' => 'fa-plus-circle',
+                'label'       => 'Acquisition and accessioning',
+                'description' => 'Formally acquiring objects for the permanent collection and assigning accession numbers.',
+                'group'       => 'primary',
+                'category'    => 'acquisition',
+                'icon'        => 'fa-plus-circle',
             ],
             self::PROC_LOCATION => [
-                'label' => 'Location & Movement',
+                'label'       => 'Location and movement control',
                 'description' => 'Tracking object locations and movements within and outside the museum.',
-                'category' => 'location',
-                'icon' => 'fa-map-marker',
+                'group'       => 'primary',
+                'category'    => 'location',
+                'icon'        => 'fa-map-marker',
             ],
             self::PROC_INVENTORY => [
-                'label' => 'Inventory Control',
+                'label'       => 'Inventory',
                 'description' => 'Verifying and reconciling object locations and records.',
-                'category' => 'control',
-                'icon' => 'fa-list-alt',
+                'group'       => 'primary',
+                'category'    => 'control',
+                'icon'        => 'fa-list-alt',
             ],
             self::PROC_CATALOGUING => [
-                'label' => 'Cataloguing',
+                'label'       => 'Cataloguing',
                 'description' => 'Creating and maintaining catalogue records.',
-                'category' => 'documentation',
-                'icon' => 'fa-book',
-            ],
-            self::PROC_CONDITION => [
-                'label' => 'Condition Checking',
-                'description' => 'Recording and monitoring object condition.',
-                'category' => 'care',
-                'icon' => 'fa-heartbeat',
-            ],
-            self::PROC_CONSERVATION => [
-                'label' => 'Conservation',
-                'description' => 'Planning and documenting conservation treatments.',
-                'category' => 'care',
-                'icon' => 'fa-medkit',
-            ],
-            self::PROC_VALUATION => [
-                'label' => 'Valuation',
-                'description' => 'Recording object valuations for insurance and reporting.',
-                'category' => 'financial',
-                'icon' => 'fa-dollar-sign',
-            ],
-            self::PROC_INSURANCE => [
-                'label' => 'Insurance',
-                'description' => 'Managing insurance for collections.',
-                'category' => 'financial',
-                'icon' => 'fa-shield-alt',
-            ],
-            self::PROC_LOAN_IN => [
-                'label' => 'Loans In',
-                'description' => 'Borrowing objects from other institutions or individuals.',
-                'category' => 'loans',
-                'icon' => 'fa-arrow-circle-down',
-            ],
-            self::PROC_LOAN_OUT => [
-                'label' => 'Loans Out',
-                'description' => 'Lending objects to other institutions.',
-                'category' => 'loans',
-                'icon' => 'fa-arrow-circle-up',
-            ],
-            self::PROC_LOSS => [
-                'label' => 'Loss & Damage',
-                'description' => 'Recording and responding to loss or damage.',
-                'category' => 'risk',
-                'icon' => 'fa-exclamation-triangle',
-            ],
-            self::PROC_DEACCESSION => [
-                'label' => 'Deaccession',
-                'description' => 'Formally removing objects from the collection.',
-                'category' => 'disposal',
-                'icon' => 'fa-minus-circle',
-            ],
-            self::PROC_DISPOSAL => [
-                'label' => 'Disposal',
-                'description' => 'Physically disposing of deaccessioned objects.',
-                'category' => 'disposal',
-                'icon' => 'fa-trash',
+                'group'       => 'primary',
+                'category'    => 'documentation',
+                'icon'        => 'fa-book',
             ],
             self::PROC_EXIT => [
-                'label' => 'Object Exit',
+                'label'       => 'Object exit',
                 'description' => 'Recording objects leaving the museum.',
-                'category' => 'exit',
-                'icon' => 'fa-sign-out',
+                'group'       => 'primary',
+                'category'    => 'exit',
+                'icon'        => 'fa-sign-out',
             ],
-            self::PROC_RISK => [
-                'label' => 'Risk Management',
-                'description' => 'Identifying and mitigating collection risks.',
-                'category' => 'risk',
-                'icon' => 'fa-shield-alt',
+            self::PROC_LOAN_IN => [
+                'label'       => 'Loans in (borrowing objects)',
+                'description' => 'Borrowing objects from other institutions or individuals.',
+                'group'       => 'primary',
+                'category'    => 'loans',
+                'icon'        => 'fa-arrow-circle-down',
             ],
-            self::PROC_AUDIT => [
-                'label' => 'Audit',
-                'description' => 'Auditing collections and procedures.',
-                'category' => 'control',
-                'icon' => 'fa-clipboard-check',
-            ],
-            self::PROC_RIGHTS => [
-                'label' => 'Rights Management',
-                'description' => 'Managing rights and reproductions.',
-                'category' => 'documentation',
-                'icon' => 'fa-copyright',
-            ],
-            self::PROC_REPRODUCTION => [
-                'label' => 'Reproduction',
-                'description' => 'Managing reproduction requests.',
-                'category' => 'documentation',
-                'icon' => 'fa-copy',
+            self::PROC_LOAN_OUT => [
+                'label'       => 'Loans out (lending objects)',
+                'description' => 'Lending objects to other institutions.',
+                'group'       => 'primary',
+                'category'    => 'loans',
+                'icon'        => 'fa-arrow-circle-up',
             ],
             self::PROC_DOCUMENTATION => [
-                'label' => 'Documentation Planning',
-                'description' => 'Planning documentation projects.',
-                'category' => 'documentation',
-                'icon' => 'fa-file-alt',
+                'label'       => 'Documentation planning',
+                'description' => 'Planning documentation projects and priorities.',
+                'group'       => 'primary',
+                'category'    => 'documentation',
+                'icon'        => 'fa-file-alt',
             ],
-            self::PROC_RETROSPECTIVE => [
-                'label' => 'Retrospective Documentation',
-                'description' => 'Documenting existing collections retrospectively.',
-                'category' => 'documentation',
-                'icon' => 'fa-history',
+
+            // ── Additional procedures ───────────────────────────────
+            self::PROC_USE_OF_COLLECTIONS => [
+                'label'       => 'Use of collections',
+                'description' => 'Managing and recording the use of collections for exhibitions, research, education and other purposes.',
+                'group'       => 'additional',
+                'category'    => 'access',
+                'icon'        => 'fa-hands-helping',
+            ],
+            self::PROC_CONDITION => [
+                'label'       => 'Condition checking and technical assessment',
+                'description' => 'Recording and monitoring object condition and technical properties.',
+                'group'       => 'additional',
+                'category'    => 'care',
+                'icon'        => 'fa-heartbeat',
+            ],
+            self::PROC_CONSERVATION => [
+                'label'       => 'Collections care and conservation',
+                'description' => 'Planning and documenting preventive and interventive conservation treatments.',
+                'group'       => 'additional',
+                'category'    => 'care',
+                'icon'        => 'fa-medkit',
+            ],
+            self::PROC_VALUATION => [
+                'label'       => 'Valuation',
+                'description' => 'Recording object valuations for insurance, audit and reporting.',
+                'group'       => 'additional',
+                'category'    => 'financial',
+                'icon'        => 'fa-dollar-sign',
+            ],
+            self::PROC_INSURANCE => [
+                'label'       => 'Insurance and indemnity',
+                'description' => 'Managing insurance and government indemnity for collections.',
+                'group'       => 'additional',
+                'category'    => 'financial',
+                'icon'        => 'fa-shield-alt',
+            ],
+            self::PROC_EMERGENCY => [
+                'label'       => 'Emergency planning for collections',
+                'description' => 'Identifying risks to collections and planning responses to emergencies.',
+                'group'       => 'additional',
+                'category'    => 'risk',
+                'icon'        => 'fa-fire-extinguisher',
+            ],
+            self::PROC_LOSS => [
+                'label'       => 'Damage and loss',
+                'description' => 'Recording and responding to damage or loss of objects.',
+                'group'       => 'additional',
+                'category'    => 'risk',
+                'icon'        => 'fa-exclamation-triangle',
+            ],
+            self::PROC_DEACCESSION => [
+                'label'       => 'Deaccessioning and disposal',
+                'description' => 'Formally removing objects from the collection and arranging their disposal.',
+                'group'       => 'additional',
+                'category'    => 'disposal',
+                'icon'        => 'fa-minus-circle',
+            ],
+            self::PROC_RIGHTS => [
+                'label'       => 'Rights management',
+                'description' => 'Managing intellectual property and other rights associated with collections.',
+                'group'       => 'additional',
+                'category'    => 'legal',
+                'icon'        => 'fa-copyright',
+            ],
+            self::PROC_REPRODUCTION => [
+                'label'       => 'Reproduction',
+                'description' => 'Managing reproduction and image licensing requests.',
+                'group'       => 'additional',
+                'category'    => 'legal',
+                'icon'        => 'fa-copy',
+            ],
+            self::PROC_COLLECTIONS_REVIEW => [
+                'label'       => 'Collections review',
+                'description' => 'Reviewing collections against organisational policies and priorities.',
+                'group'       => 'additional',
+                'category'    => 'control',
+                'icon'        => 'fa-search',
+            ],
+            self::PROC_AUDIT => [
+                'label'       => 'Audit',
+                'description' => 'Auditing collections, records and procedures.',
+                'group'       => 'additional',
+                'category'    => 'control',
+                'icon'        => 'fa-clipboard-check',
             ],
         ];
     }
