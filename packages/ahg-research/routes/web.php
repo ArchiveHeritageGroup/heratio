@@ -93,6 +93,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/hypotheses/{id}', [ResearchController::class, 'hypotheses'])->name('hypotheses')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/extraction-jobs/{id}', [ResearchController::class, 'extractionJobs'])->name('extractionJobs')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/snapshots/{id}', [ResearchController::class, 'snapshots'])->name('snapshots')->where('id', '[0-9]+');
+    Route::get('/viewSnapshot/{id}', [ResearchController::class, 'viewSnapshot'])->name('viewSnapshot')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/assertion-batch-review/{id}', [ResearchController::class, 'assertionBatchReview'])->name('assertionBatchReview')->where('id', '[0-9]+');
 
     // Project Visualization

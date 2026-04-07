@@ -2850,6 +2850,33 @@ class ResearchController extends Controller
         ));
     }
 
+    public function viewSnapshot(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $snapshot = DB::table('research_snapshot')->where('id', $id)->first();
+        if (!$snapshot) abort(404, 'Snapshot not found');
+
+        $project = DB::table('research_project')->where('id', $snapshot->project_id)->first();
+        if (!$project) abort(404);
+
+        $items = DB::table('research_snapshot_item as si')
+            ->leftJoin('information_object_i18n as ioi18n', function ($j) {
+                $j->on('si.object_id', '=', 'ioi18n.id')->where('ioi18n.culture', '=', 'en');
+            })
+            ->where('si.snapshot_id', $id)
+            ->select('si.*', 'ioi18n.title as object_title')
+            ->orderBy('si.sort_order')
+            ->get()->toArray();
+
+        return view('research::research.view-snapshot', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'snapshot', 'items')
+        ));
+    }
+
     public function assertionBatchReview(Request $request, int $id)
     {
         if (!Auth::check()) return redirect()->route('login');

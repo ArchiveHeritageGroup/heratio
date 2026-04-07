@@ -37,7 +37,7 @@
                 <td><code class="small">{{ Str::limit($s->hash_sha256 ?? '', 12, '...') }}</code></td>
                 <td><span class="badge bg-{{ ($s->status ?? '') === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($s->status ?? 'created') }}</span></td>
                 <td><small>{{ $s->created_at ?? '' }}</small></td>
-                <td><a href="#" class="btn btn-sm btn-outline-primary">View</a></td>
+                <td><a href="{{ route('research.viewSnapshot', $s->id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
         @endforeach
         </tbody>
