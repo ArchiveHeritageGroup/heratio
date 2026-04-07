@@ -2947,13 +2947,49 @@ class ResearchController extends Controller
                 return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event deleted.');
             }
 
-            // Default: create new event
+            if ($action === 'auto_populate' && $request->input('collection_id')) {
+                // Auto-populate from collection items that have dates
+                $collectionId = (int) $request->input('collection_id');
+                $items = DB::table('information_object as io')
+                    ->join('information_object_i18n as ioi18n', function ($j) {
+                        $j->on('io.id', '=', 'ioi18n.id')->where('ioi18n.culture', '=', 'en');
+                    })
+                    ->join('event', 'event.object_id', '=', 'io.id')
+                    ->where('io.parent_id', $collectionId)
+                    ->whereNotNull('event.start_date')
+                    ->select('ioi18n.title', 'event.start_date', 'event.end_date', 'event.type_id')
+                    ->get();
+
+                $count = 0;
+                foreach ($items as $item) {
+                    if (!$item->start_date) continue;
+                    DB::table('research_timeline_event')->insert([
+                        'project_id'    => $id,
+                        'researcher_id' => $researcher->id,
+                        'label'         => $item->title ?: 'Untitled',
+                        'date_start'    => $item->start_date,
+                        'date_end'      => $item->end_date ?: null,
+                        'date_type'     => 'event',
+                        'created_at'    => now(),
+                    ]);
+                    $count++;
+                }
+                return redirect()->route('research.timelineBuilder', $id)->with('success', "Added {$count} events from collection.");
+            }
+
+            // Default: create new event (only if we have required data)
+            $label = $request->input('title', $request->input('label', ''));
+            $dateStart = $request->input('event_date', $request->input('date_start'));
+            if (!$label || !$dateStart) {
+                return redirect()->route('research.timelineBuilder', $id)->with('error', 'Label and start date are required.');
+            }
+
             DB::table('research_timeline_event')->insert([
                 'project_id'    => $id,
                 'researcher_id' => $researcher->id,
-                'label'         => $request->input('title', $request->input('label', '')),
+                'label'         => $label,
                 'description'   => $request->input('description'),
-                'date_start'    => $request->input('event_date', $request->input('date_start')),
+                'date_start'    => $dateStart,
                 'date_end'      => $request->input('date_end') ?: null,
                 'date_type'     => $request->input('event_type', $request->input('date_type', 'event')),
                 'created_at'    => now(),
