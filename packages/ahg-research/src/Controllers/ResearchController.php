@@ -2918,26 +2918,28 @@ class ResearchController extends Controller
         if ($request->wantsJson()) {
             $events = DB::table('research_timeline_event')
                 ->where('project_id', $id)
-                ->orderBy('event_date')
+                ->orderBy('date_start')
                 ->get();
             return response()->json($events);
         }
 
         if ($request->isMethod('post')) {
             DB::table('research_timeline_event')->insert([
-                'project_id'  => $id,
-                'title'       => $request->input('title'),
-                'description' => $request->input('description'),
-                'event_date'  => $request->input('event_date'),
-                'event_type'  => $request->input('event_type', 'event'),
-                'created_at'  => now(),
+                'project_id'    => $id,
+                'researcher_id' => $researcher->id,
+                'label'         => $request->input('title', $request->input('label', '')),
+                'description'   => $request->input('description'),
+                'date_start'    => $request->input('event_date', $request->input('date_start')),
+                'date_end'      => $request->input('date_end'),
+                'date_type'     => $request->input('event_type', $request->input('date_type', 'event')),
+                'created_at'    => now(),
             ]);
             return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event added.');
         }
 
         $events = DB::table('research_timeline_event')
             ->where('project_id', $id)
-            ->orderBy('event_date')
+            ->orderBy('date_start')
             ->get()->toArray();
 
         return view('research::research.timeline-builder', array_merge(
@@ -2960,13 +2962,14 @@ class ResearchController extends Controller
 
         if ($request->isMethod('post')) {
             DB::table('research_map_point')->insert([
-                'project_id'  => $id,
-                'title'       => $request->input('title'),
-                'description' => $request->input('description'),
-                'latitude'    => $request->input('latitude'),
-                'longitude'   => $request->input('longitude'),
-                'point_type'  => $request->input('point_type', 'location'),
-                'created_at'  => now(),
+                'project_id'    => $id,
+                'researcher_id' => $researcher->id,
+                'label'         => $request->input('title', $request->input('label', '')),
+                'description'   => $request->input('description'),
+                'latitude'      => $request->input('latitude'),
+                'longitude'     => $request->input('longitude'),
+                'place_name'    => $request->input('place_name'),
+                'created_at'    => now(),
             ]);
             return redirect()->route('research.mapBuilder', $id)->with('success', 'Point added.');
         }
