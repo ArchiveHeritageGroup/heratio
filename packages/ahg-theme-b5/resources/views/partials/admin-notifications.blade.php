@@ -33,6 +33,22 @@
         }
     } catch (\Exception $e) {}
 
+    // Spectrum workflow task notifications
+    try {
+        $spectrumUnread = \Illuminate\Support\Facades\DB::table('spectrum_notification')
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+        if ($spectrumUnread > 0) {
+            $notifications[] = [
+                'type' => 'info',
+                'icon' => 'fa-tasks',
+                'message' => $spectrumUnread . ' unread Spectrum notification' . ($spectrumUnread > 1 ? 's' : ''),
+                'url' => route('ahgspectrum.notifications'),
+            ];
+        }
+    } catch (\Exception $e) {}
+
     // Unread error log entries (only Heratio errors, not AtoM/registry)
     try {
         $heratioHost = request()->getHost();

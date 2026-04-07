@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
+use AhgSpectrum\Services\SpectrumNotificationService;
 
 class SpectrumController extends Controller
 {
@@ -515,6 +516,296 @@ class SpectrumController extends Controller
             'canEdit'             => $canEdit,
             'workflowConfig'      => $workflowConfig,
             'users'               => $users,
+        ]);
+    }
+
+    // ----------------------------------------------------------------
+    // Workflow Transition (POST)
+    // ----------------------------------------------------------------
+
+    public function workflowTransition(Request $request)
+    {
+        $slug          = $request->input('slug');
+        $procedureType = $request->input('procedure_type');
+        $transitionKey = $request->input('transition_key');
+        $fromState     = $request->input('from_state');
+        $note          = $request->input('note');
+        $assignedTo    = $request->input('assigned_to');
+        $userId        = Auth::id();
+
+        $resource = $this->getResourceBySlug($slug);
+        if (!$resource) {
+            abort(404);
+        }
+
+        // Get workflow config to validate transition
+        $config = DB::table('spectrum_workflow_config')
+            ->where('procedure_type', $procedureType)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$config) {
+            abort(404, 'No workflow configuration found for this procedure type.');
+        }
+
+        $configData   = json_decode($config->config_json, true);
+        $transitions  = $configData['transitions'] ?? [];
+
+        if (!isset($transitions[$transitionKey])) {
+            abort(404, 'Invalid transition.');
+        }
+
+        $transition = $transitions[$transitionKey];
+        $toState    = $transition['to'];
+
+        // Validate from state
+        if (!in_array($fromState, $transition['from'])) {
+            abort(400, 'Invalid state transition.');
+        }
+
+        $assignedToInt = $assignedTo ? (int) $assignedTo : null;
+
+        // On rejection, auto-assign back to the originator
+        if ($transitionKey === 'reject' && !$assignedToInt) {
+            $originator = DB::table('spectrum_workflow_history')
+                ->where('procedure_type', $procedureType)
+                ->where('record_id', $resource->id)
+                ->where('transition_key', 'submit_for_review')
+                ->orderBy('created_at', 'desc')
+                ->value('user_id');
+
+            if ($originator) {
+                $assignedToInt = (int) $originator;
+            }
+        }
+
+        $assignmentData = [];
+        if ($assignedToInt) {
+            $assignmentData = [
+                'assigned_to' => $assignedToInt,
+                'assigned_at' => now(),
+                'assigned_by' => $userId,
+            ];
+        }
+
+        // Update or create workflow state
+        $existingState = DB::table('spectrum_workflow_state')
+            ->where('record_id', $resource->id)
+            ->where('procedure_type', $procedureType)
+            ->first();
+
+        if ($existingState) {
+            $updateData = [
+                'current_state' => $toState,
+                'updated_at'    => now(),
+            ];
+            if ($assignedToInt) {
+                $updateData = array_merge($updateData, $assignmentData);
+            }
+            DB::table('spectrum_workflow_state')
+                ->where('id', $existingState->id)
+                ->update($updateData);
+        } else {
+            $insertData = [
+                'procedure_type' => $procedureType,
+                'record_id'      => $resource->id,
+                'current_state'  => $toState,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ];
+            if ($assignedToInt) {
+                $insertData = array_merge($insertData, $assignmentData);
+            }
+            DB::table('spectrum_workflow_state')->insert($insertData);
+        }
+
+        // Record history
+        DB::table('spectrum_workflow_history')->insert([
+            'procedure_type' => $procedureType,
+            'record_id'      => $resource->id,
+            'from_state'     => $fromState,
+            'to_state'       => $toState,
+            'transition_key' => $transitionKey,
+            'user_id'        => $userId,
+            'assigned_to'    => $assignedToInt,
+            'note'           => $note,
+            'metadata'       => $assignedToInt ? json_encode(['assigned_to' => $assignedToInt]) : null,
+            'created_at'     => now(),
+        ]);
+
+        $isFinalState = $this->isFinalState($procedureType, $toState);
+
+        // Create in-app assignment notification (not for final states)
+        if ($assignedToInt && $assignedToInt !== $userId && !$isFinalState) {
+            SpectrumNotificationService::createAssignmentNotification(
+                $assignedToInt,
+                $resource->id,
+                $procedureType,
+                $userId,
+                $toState
+            );
+        }
+
+        // Create transition notifications for relevant users
+        SpectrumNotificationService::createTransitionNotification(
+            $resource,
+            $procedureType,
+            $fromState,
+            $toState,
+            $transitionKey,
+            $userId,
+            $assignedToInt,
+            $note
+        );
+
+        // Send email notifications
+        $this->sendTransitionEmails(
+            $resource, $procedureType, $fromState, $toState,
+            $transitionKey, $userId, $assignedToInt, $note
+        );
+
+        // Mark existing notifications as read when task reaches final state
+        if ($isFinalState) {
+            SpectrumNotificationService::markTaskNotificationsAsReadByObject($resource->id, $procedureType);
+        }
+
+        return redirect()
+            ->route('ahgspectrum.workflow', ['slug' => $slug, 'procedure_type' => $procedureType])
+            ->with('success', ucwords(str_replace('_', ' ', $transitionKey)) . ' completed.');
+    }
+
+    /**
+     * Send email notifications for a workflow state transition to relevant users.
+     */
+    protected function sendTransitionEmails(
+        object $resource,
+        string $procedureType,
+        string $fromState,
+        string $toState,
+        string $transitionKey,
+        int $actingUserId,
+        ?int $assignedTo,
+        ?string $note
+    ): void {
+        $actingUser = DB::table('user')->where('id', $actingUserId)->first();
+        $actingName = $actingUser ? $actingUser->username : 'System';
+
+        $procedures     = $this->getProcedures();
+        $procedureLabel = $procedures[$procedureType]['label'] ?? ucwords(str_replace('_', ' ', $procedureType));
+        $fromLabel      = ucwords(str_replace('_', ' ', $fromState));
+        $toLabel        = ucwords(str_replace('_', ' ', $toState));
+        $transitionLabel = ucwords(str_replace('_', ' ', $transitionKey));
+
+        $objectTitle = $resource->title ?: ($resource->slug ?? 'Untitled');
+
+        $subject = "Spectrum: {$transitionLabel} — {$procedureLabel}";
+        $message = "{$actingName} performed '{$transitionLabel}' on a task.\n\n"
+            . "Object: {$objectTitle}\n"
+            . "Procedure: {$procedureLabel}\n"
+            . "State: {$fromLabel} → {$toLabel}\n";
+        if ($note) {
+            $message .= "Note: {$note}\n";
+        }
+
+        $notifyUserIds = [];
+
+        if ($assignedTo && $assignedTo !== $actingUserId) {
+            $notifyUserIds[] = $assignedTo;
+        }
+
+        $previousState = DB::table('spectrum_workflow_state')
+            ->where('record_id', $resource->id)
+            ->where('procedure_type', $procedureType)
+            ->first();
+        if ($previousState && $previousState->assigned_to
+            && $previousState->assigned_to !== $actingUserId
+            && !in_array($previousState->assigned_to, $notifyUserIds)) {
+            $notifyUserIds[] = $previousState->assigned_to;
+        }
+
+        if (empty($notifyUserIds) && in_array($transitionKey, ['submit_for_review', 'complete', 'report'])) {
+            $admins = DB::table('user')
+                ->where('is_admin', 1)
+                ->where('id', '!=', $actingUserId)
+                ->pluck('id')
+                ->toArray();
+            $notifyUserIds = array_merge($notifyUserIds, $admins);
+        }
+
+        $notifyUserIds = array_unique($notifyUserIds);
+
+        foreach ($notifyUserIds as $uid) {
+            SpectrumNotificationService::sendEmailNotification($uid, $subject, $message);
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // Notification management
+    // ----------------------------------------------------------------
+
+    /**
+     * List notifications for the current user (JSON or page).
+     */
+    public function notifications(Request $request)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            abort(401);
+        }
+
+        $unreadOnly    = $request->boolean('unread_only', false);
+        $notifications = SpectrumNotificationService::getUserNotifications($userId, 50, $unreadOnly);
+        $unreadCount   = SpectrumNotificationService::getUnreadCount($userId);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'notifications' => $notifications,
+                'unread_count'  => $unreadCount,
+            ]);
+        }
+
+        return view('spectrum::notifications', [
+            'notifications' => $notifications,
+            'unreadCount'   => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Mark a notification as read (AJAX).
+     */
+    public function notificationMarkRead(Request $request)
+    {
+        $userId         = Auth::id();
+        $notificationId = $request->input('id');
+
+        if (!$userId || !$notificationId) {
+            return response()->json(['success' => false], 400);
+        }
+
+        $result = SpectrumNotificationService::markAsRead((int) $notificationId, $userId);
+
+        return response()->json([
+            'success'      => $result,
+            'unread_count' => SpectrumNotificationService::getUnreadCount($userId),
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read (AJAX).
+     */
+    public function notificationMarkAllRead(Request $request)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return response()->json(['success' => false], 401);
+        }
+
+        $count = SpectrumNotificationService::markAllAsRead($userId);
+
+        return response()->json([
+            'success'      => true,
+            'marked_count' => $count,
+            'unread_count' => 0,
         ]);
     }
 

@@ -104,6 +104,33 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
     </div>
 
     <div class="col-md-9">
+        @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
+        @if ($resource)
+        <!-- Linked Record -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">{{ __('Linked Record') }}</h6>
+            </div>
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-secondary me-2">{{ __('Item-Level Procedure') }}</span>
+                        <strong>{{ $resource->title ?? $resource->slug ?? '' }}</strong>
+                    </div>
+                    <a href="{{ url('/informationobject/' . ($resource->slug ?? '')) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-arrow-left me-1"></i> {{ __('Back to record') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+
         @if ($workflowConfig)
 
         <!-- Current Status Card -->
@@ -155,7 +182,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                 @if ($canEdit && !empty($availableTransitions))
                 <div class="mb-3">
                     <h6>{{ __('Available Actions') }}</h6>
-                    <form method="post" action="{{ route('ahgspectrum.workflow') }}" class="row g-3">
+                    <form method="post" action="{{ route('ahgspectrum.workflow-transition') }}" class="row g-3">
                         @csrf
                         <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
                         <input type="hidden" name="procedure_type" value="{{ $procedureType }}">

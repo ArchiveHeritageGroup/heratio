@@ -73,6 +73,31 @@
             @include('theme::partials.menus.main-menu')
           @endif
 
+          {{-- Spectrum Notifications Bell --}}
+          @if($themeData['isAuthenticated'] ?? false)
+            @php
+              $spectrumUnreadCount = 0;
+              try {
+                  $spectrumUnreadCount = \Illuminate\Support\Facades\DB::table('spectrum_notification')
+                      ->where('user_id', auth()->id())
+                      ->whereNull('read_at')
+                      ->count();
+              } catch (\Exception $e) {}
+            @endphp
+            <li class="nav-item d-flex flex-column">
+              <a class="nav-link d-flex align-items-center p-0 position-relative" href="{{ route('ahgspectrum.notifications') }}">
+                <i class="fas fa-2x fa-fw fa-bell px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Notifications" aria-hidden="true"></i>
+                @if($spectrumUnreadCount > 0)
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; margin-left: -18px; margin-top: 6px;">
+                    {{ $spectrumUnreadCount > 99 ? '99+' : $spectrumUnreadCount }}
+                  </span>
+                @endif
+                <span class="d-lg-none mx-1" aria-hidden="true">Notifications</span>
+                <span class="visually-hidden">Notifications{{ $spectrumUnreadCount > 0 ? ' (' . $spectrumUnreadCount . ' unread)' : '' }}</span>
+              </a>
+            </li>
+          @endif
+
           {{-- Clipboard --}}
           @include('theme::partials.menus.clipboard-menu')
 
