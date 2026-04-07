@@ -130,14 +130,9 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-archive me-2"></i>Material Requests</div>
       <div class="card-body">
-        <p class="text-muted small">List any archival materials you would like to have prepared for your visit.</p>
-        <div id="material-requests">
-          <div class="input-group mb-2">
-            <input type="text" name="materials[]" class="form-control" placeholder="Reference number or description of material">
-            <button type="button" class="btn atom-btn-outline-success btn-add-material"><i class="fas fa-plus"></i></button>
-          </div>
-        </div>
-        <small class="text-muted">Click the + button to add more material requests.</small>
+        <p class="text-muted small">Search and select archival materials you would like to have prepared for your visit.</p>
+        <select id="material-select" name="materials[]" multiple placeholder="Type to search records..."></select>
+        <small class="text-muted d-block mt-2">Start typing a title, identifier or reference number to search.</small>
       </div>
     </div>
 
@@ -149,19 +144,33 @@
     </div>
   </form>
 
+  <link href="/vendor/ahg-theme-b5/css/vendor/tom-select.bootstrap5.min.css" rel="stylesheet">
+  <script src="/vendor/ahg-theme-b5/js/vendor/tom-select.complete.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      document.addEventListener('click', function(e) {
-        if (e.target.closest('.btn-add-material')) {
-          var container = document.getElementById('material-requests');
-          var div = document.createElement('div');
-          div.className = 'input-group mb-2';
-          div.innerHTML = '<input type="text" name="materials[]" class="form-control" placeholder="Reference number or description of material">' +
-            '<button type="button" class="btn atom-btn-outline-danger btn-remove-material"><i class="fas fa-minus"></i></button>';
-          container.appendChild(div);
-        }
-        if (e.target.closest('.btn-remove-material')) {
-          e.target.closest('.input-group').remove();
+      new TomSelect('#material-select', {
+        valueField: 'id',
+        labelField: 'name',
+        searchField: ['name'],
+        maxItems: 20,
+        plugins: ['remove_button'],
+        load: function(query, callback) {
+          if (!query.length || query.length < 2) return callback();
+          fetch('{{ url("informationobject/autocomplete") }}?query=' + encodeURIComponent(query) + '&limit=15')
+            .then(function(r) { return r.json(); })
+            .then(function(data) { callback(data); })
+            .catch(function() { callback(); });
+        },
+        render: {
+          option: function(item, escape) {
+            return '<div class="d-flex justify-content-between align-items-center">'
+              + '<span>' + escape(item.name) + '</span>'
+              + (item.slug ? '<small class="text-muted ms-2">' + escape(item.slug) + '</small>' : '')
+              + '</div>';
+          },
+          item: function(item, escape) {
+            return '<div><i class="fas fa-archive me-1"></i>' + escape(item.name) + '</div>';
+          }
         }
       });
     });
