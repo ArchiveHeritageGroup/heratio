@@ -367,7 +367,7 @@
             @php
               $objType = $obj->glam_type ?? $obj->type ?? 'archive';
               $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-              $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
+              $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
               $objSlug = $obj->slug ?? '';
               $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
               $objIdentifier = $obj->identifier ?? '';
@@ -390,7 +390,7 @@
               {{-- Title --}}
               <td>
                 <a href="{{ $objUrl }}" class="text-decoration-none fw-semibold">
-                  {{ e($objTitle) }}
+                  {{ $objTitle }}
                 </a>
                 @if(!empty($obj->scope_and_content))
                   <br><small class="text-muted">{{ Str::limit(strip_tags($obj->scope_and_content), 120) }}</small>
@@ -398,12 +398,12 @@
               </td>
               {{-- Identifier --}}
               <td class="col-identifier">
-                <small>{{ e($objIdentifier) }}</small>
+                <small>{{ $objIdentifier }}</small>
               </td>
               {{-- Level --}}
               <td class="col-level">
                 @if($objLevel)
-                  <span class="badge bg-light text-dark border">{{ e($objLevel) }}</span>
+                  <span class="badge bg-light text-dark border">{{ $objLevel }}</span>
                 @endif
               </td>
               {{-- Type --}}
@@ -439,7 +439,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
+          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objUrl = '/' . $objSlug;
@@ -448,13 +448,13 @@
           <div class="card h-100 shadow-sm">
             <div class="card-img-top bg-light d-flex align-items-center justify-content-center grid-img-wrapper">
               @if($objThumb)
-                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="img-fluid grid-img" loading="lazy"></a>
+                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="img-fluid grid-img" loading="lazy"></a>
               @else
                 <a href="{{ $objUrl }}" class="text-muted py-4"><i class="fas {{ $otc['icon'] }} fa-3x"></i></a>
               @endif
             </div>
             <div class="card-body p-2">
-              <a href="{{ $objUrl }}" class="text-success text-decoration-none small d-block text-truncate">{{ e($objTitle) }}</a>
+              <a href="{{ $objUrl }}" class="text-success text-decoration-none small d-block text-truncate">{{ $objTitle }}</a>
             </div>
           </div>
         </div>
@@ -468,7 +468,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
+          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objIdentifier = $obj->identifier ?? '';
@@ -487,7 +487,7 @@
               <div class="full-img-bg flex-shrink-0">
                 @if($objThumb)
                   <a href="{{ $objUrl }}">
-                    <img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="full-img" loading="lazy">
+                    <img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="full-img" loading="lazy">
                   </a>
                 @else
                   <div class="text-center text-muted">
@@ -500,13 +500,13 @@
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div>
                     <h4 class="mb-1">
-                      <a href="{{ $objUrl }}" class="text-decoration-none">{{ e($objTitle) }}</a>
+                      <a href="{{ $objUrl }}" class="text-decoration-none">{{ $objTitle }}</a>
                     </h4>
                     <span class="badge bg-{{ $otc['color'] }} me-1">
                       <i class="fas {{ $otc['icon'] }} me-1"></i> {{ $otc['label'] }}
                     </span>
                     @if($objLevel)
-                      <span class="badge bg-light text-dark border">{{ e($objLevel) }}</span>
+                      <span class="badge bg-light text-dark border">{{ $objLevel }}</span>
                     @endif
                   </div>
                   <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
@@ -517,23 +517,23 @@
                 <dl class="row mb-0 small">
                   @if($objIdentifier)
                     <dt class="col-sm-3 col-md-2">Identifier</dt>
-                    <dd class="col-sm-9 col-md-10">{{ e($objIdentifier) }}</dd>
+                    <dd class="col-sm-9 col-md-10">{{ $objIdentifier }}</dd>
                   @endif
                   @if($objRefCode)
                     <dt class="col-sm-3 col-md-2">Reference code</dt>
-                    <dd class="col-sm-9 col-md-10">{{ e($objRefCode) }}</dd>
+                    <dd class="col-sm-9 col-md-10">{{ $objRefCode }}</dd>
                   @endif
                   @if($objDates)
                     <dt class="col-sm-3 col-md-2">Date(s)</dt>
-                    <dd class="col-sm-9 col-md-10">{{ e($objDates) }}</dd>
+                    <dd class="col-sm-9 col-md-10">{{ $objDates }}</dd>
                   @endif
                   @if($objCreator)
                     <dt class="col-sm-3 col-md-2">Creator</dt>
-                    <dd class="col-sm-9 col-md-10">{{ e($objCreator) }}</dd>
+                    <dd class="col-sm-9 col-md-10">{{ $objCreator }}</dd>
                   @endif
                   @if($objRepo)
                     <dt class="col-sm-3 col-md-2">Repository</dt>
-                    <dd class="col-sm-9 col-md-10">{{ e($objRepo) }}</dd>
+                    <dd class="col-sm-9 col-md-10">{{ $objRepo }}</dd>
                   @endif
                   @if($objScope)
                     <dt class="col-sm-3 col-md-2">Scope &amp; content</dt>
@@ -560,7 +560,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
+          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objIdentifier = $obj->identifier ?? '';
@@ -573,22 +573,22 @@
           <div class="row g-0">
             <div class="col-md-2 d-flex align-items-center justify-content-center p-2 bg-light">
               @if($objThumb)
-                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ e($objTitle) }}" class="img-fluid rounded card-img-browse"></a>
+                <a href="{{ $objUrl }}"><img src="{{ $objThumb }}" alt="{{ $objTitle }}" class="img-fluid rounded card-img-browse"></a>
               @else
-                <a href="{{ $objUrl }}" aria-label="{{ e($objTitle) }}"><i class="fas {{ $otc['icon'] }} fa-4x text-{{ $otc['color'] }}"></i></a>
+                <a href="{{ $objUrl }}" aria-label="{{ $objTitle }}"><i class="fas {{ $otc['icon'] }} fa-4x text-{{ $otc['color'] }}"></i></a>
               @endif
             </div>
             <div class="col-md-9">
               <div class="card-body py-2">
                 <h3 class="h6 card-title mb-1">
-                  <a href="{{ $objUrl }}" class="text-success text-decoration-none">{{ e($objTitle) }}</a>
+                  <a href="{{ $objUrl }}" class="text-success text-decoration-none">{{ $objTitle }}</a>
                 </h3>
                 <p class="card-text mb-1 small">
                   @if($objIdentifier)
-                    <span class="text-success">{{ e($objIdentifier) }}</span>
+                    <span class="text-success">{{ $objIdentifier }}</span>
                   @endif
                   @if($objLevel)
-                    <span class="mx-1">&middot;</span>{{ e($objLevel) }}
+                    <span class="mx-1">&middot;</span>{{ $objLevel }}
                   @endif
                   @if($childCount > 0)
                     <span class="mx-1">&middot;</span><a href="{{ glamBrowseUrl($fp, ['parent' => $obj->id]) }}"><i class="fas fa-folder"></i> {{ $childCount }}</a>
