@@ -46,6 +46,7 @@ Route::get('/home', fn () => redirect('/'));
 Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
 Route::get('/favorites/browse', fn () => redirect('/favorites'));
 Route::get('/cart/browse', fn () => redirect('/cart'));
+Route::get('/menu/list', fn () => redirect('/admin/menu/browse', 301));
 
 // Records (information object) aliases
 Route::get('/records/browse', fn () => redirect('/informationobject/browse'));
