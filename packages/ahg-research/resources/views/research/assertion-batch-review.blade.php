@@ -1,90 +1,134 @@
-{{-- Assertion Batch Review --}}
+{{-- Assertion Batch Review — cloned from AtoM --}}
 @extends('theme::layouts.2col')
-
-@section('sidebar')
-    @include('research::research._sidebar', ['sidebarActive' => 'projects'])
-@endsection
-
-@section('title', 'Batch Review Assertions')
-
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('content')
+
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Batch Review</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
+        <li class="breadcrumb-item active">Assertion Batch Review</li>
     </ol>
 </nav>
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2"><i class="fas fa-tasks text-primary me-2"></i>Batch Review Assertions</h1>
-    <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-secondary">{{ count($assertions ?? []) }} proposed</span>
-        <a href="{{ route('research.viewProject', $project->id ?? 0) }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
-    </div>
+    <h1 class="h2">Assertion Batch Review <span class="badge bg-warning">{{ count($assertions) }} proposed</span></h1>
 </div>
 
-@if(!empty($assertions) && count($assertions) > 0)
-<form method="POST">
+@if(empty($assertions))
+    <div class="alert alert-success">No proposed assertions to review.</div>
+@else
+<form method="post" action="{{ route('research.assertionBatchReview', $project->id) }}">
     @csrf
     <input type="hidden" name="form_action" value="batch_update">
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th><input type="checkbox" id="selectAll"></th>
-                            <th>Subject</th>
-                            <th>Predicate</th>
-                            <th>Object</th>
-                            <th>Type</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($assertions as $a)
-                        <tr>
-                            <td><input type="checkbox" name="assertion_ids[]" value="{{ $a->id }}"></td>
-                            <td>{{ e($a->subject_label ?? '') }}</td>
-                            <td>{{ e($a->predicate ?? '') }}</td>
-                            <td>{{ e($a->object_label ?? $a->object_value ?? '') }}</td>
-                            <td><span class="badge bg-info">{{ ucfirst($a->assertion_type ?? '') }}</span></td>
-                            <td>
-                                @php $conf = $a->confidence ?? 0; $cc = $conf >= 80 ? 'success' : ($conf >= 50 ? 'warning' : 'danger'); @endphp
-                                <span class="badge bg-{{ $cc }}">{{ $conf }}%</span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+    <div class="card mb-3">
+        <div class="card-body py-2 d-flex justify-content-between align-items-center">
+            <div>
+                <input type="checkbox" id="selectAll" class="form-check-input me-2">
+                <label for="selectAll" class="form-check-label">Select All</label>
+            </div>
+            <div class="d-flex gap-2">
+                <select name="new_status" class="form-select form-select-sm" style="width:auto;">
+                    <option value="verified">Verify</option>
+                    <option value="disputed">Dispute</option>
+                    <option value="retracted">Retract</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-check-double me-1"></i>Apply to Selected</button>
             </div>
         </div>
-        <div class="card-footer d-flex gap-2 align-items-center">
-            <label class="form-label mb-0 me-2">Set Status:</label>
-            <select name="new_status" class="form-select form-select-sm" style="width:auto;" required>
-                <option value="">-- Select --</option>
-                <option value="verified">Verified</option>
-                <option value="disputed">Disputed</option>
-                <option value="rejected">Rejected</option>
-            </select>
-            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Submit</button>
-        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:40px;"></th>
+                    <th>Subject</th>
+                    <th>Predicate</th>
+                    <th>Object</th>
+                    <th>Type</th>
+                    <th>Evidence</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($assertions as $a)
+                <tr>
+                    <td><input type="checkbox" name="assertion_ids[]" value="{{ $a->id }}" class="form-check-input assertion-cb"></td>
+                    <td>
+                        <small>
+                            {{ e(($a->subject_type ?? '') . ':' . ($a->subject_id ?? '')) }}
+                            @if(!empty($a->subject_label))<br><span class="text-muted">{{ e($a->subject_label) }}</span>@endif
+                        </small>
+                    </td>
+                    <td><strong>{{ e($a->predicate ?? '') }}</strong></td>
+                    <td>
+                        <small>
+                            {{ e(($a->object_type ?? '') . ':' . ($a->object_id ?? '')) }}
+                            @if(!empty($a->object_label))<br><span class="text-muted">{{ e($a->object_label) }}</span>@endif
+                        </small>
+                    </td>
+                    <td><span class="badge bg-light text-dark">{{ e($a->assertion_type ?? '') }}</span></td>
+                    <td>{{ (int)($a->evidence_count ?? 0) }}</td>
+                    <td><small>{{ $a->created_at ?? '' }}</small></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-success single-verify" data-id="{{ $a->id }}" title="Verify"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn btn-outline-danger single-dispute" data-id="{{ $a->id }}" title="Dispute"><i class="fas fa-times"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
     </div>
 </form>
+@endif
+
 <script>
-document.getElementById('selectAll')?.addEventListener('change', function() {
-    document.querySelectorAll('input[name="assertion_ids[]"]').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all
+    var selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            var checked = this.checked;
+            document.querySelectorAll('.assertion-cb').forEach(function(cb) { cb.checked = checked; });
+        });
+    }
+
+    // Single verify via form POST
+    document.querySelectorAll('.single-verify').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("research.assertionBatchReview", $project->id) }}';
+            form.innerHTML = '@csrf<input name="form_action" value="batch_update"><input name="assertion_ids[]" value="'+id+'"><input name="new_status" value="verified">';
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+
+    // Single dispute via form POST
+    document.querySelectorAll('.single-dispute').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var reason = prompt('Reason for dispute (optional):');
+            if (reason === null) return;
+            var id = this.dataset.id;
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("research.assertionBatchReview", $project->id) }}';
+            form.innerHTML = '@csrf<input name="form_action" value="batch_update"><input name="assertion_ids[]" value="'+id+'"><input name="new_status" value="disputed">';
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
 });
 </script>
-@else
-<div class="alert alert-info">No proposed assertions to review.</div>
-@endif
 @endsection
