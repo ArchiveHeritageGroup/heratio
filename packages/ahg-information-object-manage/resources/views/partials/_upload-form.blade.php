@@ -26,14 +26,42 @@
         @endphp
         <div class="card mb-3">
           <div class="card-body">
+            @php
+                $isExternalLink = str_starts_with($master->path ?? '', 'http://') || str_starts_with($master->path ?? '', 'https://');
+                $externalIcon = match(true) {
+                    str_contains($master->path ?? '', 'sketchfab.com') => 'fa-cube',
+                    str_contains($master->path ?? '', 'youtube.com') || str_contains($master->path ?? '', 'youtu.be') => 'fa-play-circle',
+                    str_contains($master->path ?? '', 'vimeo.com') => 'fa-play-circle',
+                    $mediaType === 'video' => 'fa-film',
+                    $mediaType === 'audio' => 'fa-music',
+                    $mediaType === 'image' => 'fa-image',
+                    $mediaType === 'text' => 'fa-file-alt',
+                    default => 'fa-external-link-alt',
+                };
+            @endphp
             <div class="d-flex align-items-start gap-3">
-              @if($thumbUrl)
+              @if($thumbUrl && !$isExternalLink)
                 <img src="{{ $thumbUrl }}" alt="Thumbnail" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+              @elseif($isExternalLink)
+                <a href="{{ $master->path }}" target="_blank" class="d-flex align-items-center justify-content-center bg-light border rounded" style="width: 100px; height: 100px; text-decoration: none;" title="{{ __('Open external resource') }}">
+                  <i class="fas {{ $externalIcon }} fa-3x text-primary"></i>
+                </a>
               @endif
               <div>
+                @if($isExternalLink)
+                <h6 class="mb-1">
+                  <a href="{{ $master->path }}" target="_blank" class="text-decoration-none">
+                    {{ $master->name }} <i class="fas fa-external-link-alt ms-1" style="font-size: 0.75rem;"></i>
+                  </a>
+                </h6>
+                @else
                 <h6 class="mb-1">{{ $master->name }}</h6>
+                @endif
                 <p class="text-muted mb-1">
                   <small>
+                    @if($isExternalLink)
+                      {{ __('External link') }} &middot;
+                    @endif
                     {{ $master->mime_type }} &middot; {{ $fileSize }}
                     @if($master->checksum)
                       &middot; {{ $master->checksum_type }}: <code>{{ substr($master->checksum, 0, 12) }}...</code>
