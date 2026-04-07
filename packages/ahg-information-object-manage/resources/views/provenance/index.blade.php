@@ -374,10 +374,14 @@ document.addEventListener('DOMContentLoaded', function() {
   var addBtn = document.getElementById('add-entry');
   if (addBtn && entryModal) {
     addBtn.addEventListener('click', function() {
-      document.getElementById('entry-form').reset();
+      var form = document.getElementById('entry-form');
+      form.reset();
       document.getElementById('entry-id').value = '';
       document.querySelector('#entry-modal .modal-title').textContent = 'Add Provenance Entry';
-      document.getElementById('entry-form').action = '{{ route('io.provenance.store', $io->slug) }}';
+      form.action = '{{ route('io.provenance.store', $io->slug) }}';
+      // Remove _method=PUT if left over from a previous edit
+      var methodInput = form.querySelector('input[name="_method"]');
+      if (methodInput) methodInput.remove();
       entryModal.show();
     });
   }
