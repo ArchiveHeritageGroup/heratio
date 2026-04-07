@@ -12,22 +12,7 @@
 
   if ($isAuthenticated) {
     try {
-      // Spectrum workflow tasks assigned to current user (exclude final states)
-      $allFinalStates = [];
-      $wfConfigs = \Illuminate\Support\Facades\DB::table('spectrum_workflow_config')
-          ->where('is_active', 1)->get();
-      foreach ($wfConfigs as $wfc) {
-          $cd = json_decode($wfc->config_json, true);
-          $allFinalStates = array_merge($allFinalStates, $cd['final_states'] ?? []);
-      }
-      $allFinalStates = array_unique($allFinalStates);
-
-      $taskQuery = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
-          ->where('assigned_to', $user->id ?? 0);
-      if (!empty($allFinalStates)) {
-          $taskQuery->whereNotIn('current_state', $allFinalStates);
-      }
-      $workflowTaskCount = $taskQuery->count();
+      $workflowTaskCount = \AhgSpectrum\Services\SpectrumNotificationService::getActiveTaskCount($user->id ?? 0);
     } catch (\Exception $e) {}
 
     if ($isAdmin) {

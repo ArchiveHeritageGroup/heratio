@@ -305,7 +305,33 @@ class SpectrumController extends Controller
 
         $configData = json_decode($config->config_json, true);
 
-        return $configData['final_states'] ?? [];
+        // Use explicit final_states if defined
+        if (!empty($configData['final_states'])) {
+            return $configData['final_states'];
+        }
+
+        // Derive: a final state has no outgoing transitions except 'restart'
+        $states      = $configData['states'] ?? [];
+        $transitions = $configData['transitions'] ?? [];
+        $finalStates = [];
+
+        foreach ($states as $state) {
+            $hasOutgoing = false;
+            foreach ($transitions as $tKey => $tDef) {
+                if ($tKey === 'restart') {
+                    continue;
+                }
+                if (isset($tDef['from']) && in_array($state, $tDef['from'])) {
+                    $hasOutgoing = true;
+                    break;
+                }
+            }
+            if (!$hasOutgoing) {
+                $finalStates[] = $state;
+            }
+        }
+
+        return $finalStates;
     }
 
     /**
@@ -502,20 +528,41 @@ class SpectrumController extends Controller
         // Users for assignment dropdown
         $users = DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get();
 
+        // Get the originator (user who made the first transition for this procedure)
+        $originatorId = null;
+        if ($resource && Schema::hasTable('spectrum_workflow_history')) {
+            $originatorId = DB::table('spectrum_workflow_history')
+                ->where('record_id', $resource->id)
+                ->where('procedure_type', $procedureType)
+                ->orderBy('created_at', 'asc')
+                ->value('user_id');
+        }
+
+        // Determine which transitions lead to a final state
+        $finalStates = $this->getFinalStates($procedureType);
+        $finalTransitionKeys = [];
+        foreach ($workflowConfig['transitions'] ?? [] as $tKey => $tDef) {
+            if ($tKey !== 'restart' && in_array($tDef['to'] ?? '', $finalStates)) {
+                $finalTransitionKeys[] = $tKey;
+            }
+        }
+
         return view('spectrum::workflow', [
-            'resource'            => $resource,
-            'procedureType'       => $procedureType,
-            'procedures'          => $procedures,
-            'procedureStatuses'   => $procedureStatuses,
-            'currentProcedure'    => $currentProcedure,
-            'timeline'            => $timeline,
-            'procedureTimeline'   => $procedureTimeline,
-            'progress'            => $progress,
-            'statusOptions'       => $statusOptions,
-            'statusColors'        => self::$statusColors,
-            'canEdit'             => $canEdit,
-            'workflowConfig'      => $workflowConfig,
-            'users'               => $users,
+            'resource'              => $resource,
+            'procedureType'         => $procedureType,
+            'procedures'            => $procedures,
+            'procedureStatuses'     => $procedureStatuses,
+            'currentProcedure'      => $currentProcedure,
+            'timeline'              => $timeline,
+            'procedureTimeline'     => $procedureTimeline,
+            'progress'              => $progress,
+            'statusOptions'         => $statusOptions,
+            'statusColors'          => self::$statusColors,
+            'canEdit'               => $canEdit,
+            'workflowConfig'        => $workflowConfig,
+            'users'                 => $users,
+            'originatorId'          => $originatorId,
+            'finalTransitionKeys'   => $finalTransitionKeys,
         ]);
     }
 
@@ -574,7 +621,21 @@ class SpectrumController extends Controller
 
         $assignedToInt = $assignedTo ? (int) $assignedTo : null;
 
-        // On rejection, auto-assign back to the originator
+        // Final step: always route back to the originator for closure
+        $finalStates = $this->getFinalStates($procedureType);
+        if ($transitionKey !== 'restart' && in_array($toState, $finalStates)) {
+            $originator = DB::table('spectrum_workflow_history')
+                ->where('procedure_type', $procedureType)
+                ->where('record_id', $resource->id)
+                ->orderBy('created_at', 'asc')
+                ->value('user_id');
+
+            if ($originator) {
+                $assignedToInt = (int) $originator;
+            }
+        }
+
+        // On rejection, auto-assign back to the submitter
         if ($transitionKey === 'reject' && !$assignedToInt) {
             $originator = DB::table('spectrum_workflow_history')
                 ->where('procedure_type', $procedureType)

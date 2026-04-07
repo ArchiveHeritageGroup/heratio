@@ -440,6 +440,74 @@ class SpectrumNotificationService
     }
 
     /**
+     * Get active (non-final) task count for a user.
+     * Derives final states from workflow config transitions.
+     */
+    public static function getActiveTaskCount(int $userId): int
+    {
+        if (!$userId || !Schema::hasTable('spectrum_workflow_state')) {
+            return 0;
+        }
+
+        $allFinalStates = self::getAllFinalStates();
+
+        $query = DB::table('spectrum_workflow_state')
+            ->where('assigned_to', $userId);
+
+        if (!empty($allFinalStates)) {
+            $query->whereNotIn('current_state', $allFinalStates);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Derive all final states across all active procedures.
+     * A final state has no outgoing transitions except 'restart'.
+     */
+    public static function getAllFinalStates(): array
+    {
+        if (!Schema::hasTable('spectrum_workflow_config')) {
+            return [];
+        }
+
+        $allFinalStates = [];
+        $configs = DB::table('spectrum_workflow_config')
+            ->where('is_active', 1)
+            ->get();
+
+        foreach ($configs as $config) {
+            $configData  = json_decode($config->config_json, true);
+
+            if (!empty($configData['final_states'])) {
+                $allFinalStates = array_merge($allFinalStates, $configData['final_states']);
+                continue;
+            }
+
+            $states      = $configData['states'] ?? [];
+            $transitions = $configData['transitions'] ?? [];
+
+            foreach ($states as $state) {
+                $hasOutgoing = false;
+                foreach ($transitions as $tKey => $tDef) {
+                    if ($tKey === 'restart') {
+                        continue;
+                    }
+                    if (isset($tDef['from']) && in_array($state, $tDef['from'])) {
+                        $hasOutgoing = true;
+                        break;
+                    }
+                }
+                if (!$hasOutgoing) {
+                    $allFinalStates[] = $state;
+                }
+            }
+        }
+
+        return array_unique($allFinalStates);
+    }
+
+    /**
      * Get pending tasks for a user (tasks not in final states)
      */
     public static function getPendingTasks(int $userId): array

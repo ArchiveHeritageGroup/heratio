@@ -11,26 +11,7 @@
   // Spectrum workflow tasks — for ANY authenticated user (matching AtoM)
   if ($isAuth && $userId) {
       try {
-          // Collect final states per procedure
-          $allFinalStates = [];
-          $configs = \Illuminate\Support\Facades\DB::table('spectrum_workflow_config')
-              ->where('is_active', 1)
-              ->get();
-          foreach ($configs as $config) {
-              $configData = json_decode($config->config_json, true);
-              $finals = $configData['final_states'] ?? [];
-              $allFinalStates = array_merge($allFinalStates, $finals);
-          }
-          $allFinalStates = array_unique($allFinalStates);
-
-          $query = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
-              ->where('assigned_to', $userId);
-
-          if (!empty($allFinalStates)) {
-              $query->whereNotIn('current_state', $allFinalStates);
-          }
-
-          $spectrumTaskCount = $query->count();
+          $spectrumTaskCount = \AhgSpectrum\Services\SpectrumNotificationService::getActiveTaskCount($userId);
       } catch (\Exception $e) {}
   }
 

@@ -78,22 +78,7 @@
             @php
               $spectrumBellCount = 0;
               try {
-                  // Count assigned tasks excluding final states (matching AtoM)
-                  $allFinalStates = [];
-                  $wfConfigs = \Illuminate\Support\Facades\DB::table('spectrum_workflow_config')
-                      ->where('is_active', 1)->get();
-                  foreach ($wfConfigs as $wfc) {
-                      $cd = json_decode($wfc->config_json, true);
-                      $allFinalStates = array_merge($allFinalStates, $cd['final_states'] ?? []);
-                  }
-                  $allFinalStates = array_unique($allFinalStates);
-
-                  $bellQuery = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
-                      ->where('assigned_to', auth()->id());
-                  if (!empty($allFinalStates)) {
-                      $bellQuery->whereNotIn('current_state', $allFinalStates);
-                  }
-                  $spectrumBellCount = $bellQuery->count();
+                  $spectrumBellCount = \AhgSpectrum\Services\SpectrumNotificationService::getActiveTaskCount(auth()->id());
               } catch (\Exception $e) {}
             @endphp
             <li class="nav-item d-flex flex-column">

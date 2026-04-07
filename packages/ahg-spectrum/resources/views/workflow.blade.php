@@ -180,9 +180,30 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 
                 <!-- Available Actions -->
                 @if ($canEdit && !empty($availableTransitions))
+                @php
+                    // Check if any available transition is a final transition
+                    $finalTransKeys = $finalTransitionKeys ?? [];
+                    $onlyFinalAvailable = !empty($finalTransKeys) && count($availableTransitions) === 1
+                        && isset($availableTransitions[array_values($finalTransKeys)[0] ?? '']);
+                    // If only one non-restart transition available and it's final, lock to originator
+                    $availableNonRestart = array_filter($availableTransitions, fn($k) => $k !== 'restart', ARRAY_FILTER_USE_KEY);
+                    $isFinalStep = false;
+                    foreach ($availableNonRestart as $tk => $td) {
+                        if (in_array($tk, $finalTransKeys)) {
+                            $isFinalStep = true;
+                            break;
+                        }
+                    }
+                @endphp
                 <div class="mb-3">
                     <h6>{{ __('Available Actions') }}</h6>
-                    <form method="post" action="{{ route('ahgspectrum.workflow-transition') }}" class="row g-3">
+                    @if ($isFinalStep && ($originatorId ?? null))
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ __('Final step — this task will be routed back to the originator for closure.') }}
+                    </div>
+                    @endif
+                    <form method="post" action="{{ route('ahgspectrum.workflow-transition') }}" class="row g-3" id="workflow-transition-form">
                         @csrf
                         <input type="hidden" name="slug" value="{{ $resource->slug ?? '' }}">
                         <input type="hidden" name="procedure_type" value="{{ $procedureType }}">
@@ -190,11 +211,13 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Action') }}</label>
-                            <select name="transition_key" class="form-select" required>
+                            <select name="transition_key" class="form-select" required id="transition-key-select">
                                 <option value="">{{ __('Select action...') }}</option>
                                 @foreach ($availableTransitions as $transKey => $transDef)
                                 @php $isRestart = ($transKey === 'restart'); @endphp
-                                <option value="{{ $transKey }}" data-to-state="{{ $transDef['to'] }}">
+                                <option value="{{ $transKey }}"
+                                        data-to-state="{{ $transDef['to'] }}"
+                                        data-is-final="{{ in_array($transKey, $finalTransKeys) ? '1' : '0' }}">
                                     @if ($isRestart)
                                         &#x21bb; {{ __('Restart') }} &rarr; {{ ucwords(str_replace('_', ' ', $transDef['to'])) }}
                                     @else
@@ -207,7 +230,7 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 
                         <div class="col-md-4">
                             <label class="form-label">{{ __('Assign to') }} <span class="text-danger">*</span></label>
-                            <select name="assigned_to" class="form-select" required>
+                            <select name="assigned_to" class="form-select" required id="assigned-to-select">
                                 <option value="">{{ __('Select user...') }}</option>
                                 @foreach ($users as $user)
                                 <option value="{{ $user->id }}" {{ $user->id == auth()->id() ? 'selected' : '' }}>
@@ -304,3 +327,47 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
 </div>
 
 @endsection
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var transSelect = document.getElementById('transition-key-select');
+    var assignSelect = document.getElementById('assigned-to-select');
+    if (!transSelect || !assignSelect) return;
+
+    var originatorId = '{{ $originatorId ?? '' }}';
+
+    transSelect.addEventListener('change', function() {
+        var selected = this.options[this.selectedIndex];
+        var isFinal = selected ? selected.getAttribute('data-is-final') === '1' : false;
+
+        if (isFinal && originatorId) {
+            // Lock to originator
+            assignSelect.value = originatorId;
+            assignSelect.disabled = true;
+            // Disabled fields don't submit — add a hidden input
+            var hidden = document.getElementById('assigned-to-hidden');
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'assigned_to';
+                hidden.id = 'assigned-to-hidden';
+                assignSelect.parentNode.appendChild(hidden);
+            }
+            hidden.value = originatorId;
+        } else {
+            // Unlock
+            assignSelect.disabled = false;
+            var hidden = document.getElementById('assigned-to-hidden');
+            if (hidden) hidden.remove();
+        }
+    });
+
+    // Trigger on load if only one option
+    if (transSelect.options.length === 2) {
+        transSelect.selectedIndex = 1;
+        transSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+@endpush
