@@ -184,9 +184,9 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     '/{slug}#identityArea',
                     '/{slug}#contextArea',
-                    '/{slug}/edit#context-collapse',
-                    '/{slug}/edit#identity-collapse',
-                    '/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#context-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
                     null, // workflow decision — no external link
                 ]
             ),
@@ -205,12 +205,12 @@ class SpectrumSeedWorkflowConfigs extends Command
                 SpectrumWorkflowService::TRIGGER_MAP['acquisition'] ?? [],
                 [
                     '/{slug}#contextArea',
-                    '/{slug}/edit#context-collapse',
+                    '/informationobject/{slug}/edit#context-collapse',
                     null, // approval decision
                     '/{slug}#accessionArea',
-                    '/{slug}/edit#identity-collapse',
-                    '/{slug}/edit#identity-collapse',
-                    '/{slug}/edit#context-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#context-collapse',
                 ]
             ),
 
@@ -228,8 +228,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     null,
                     '/{slug}#alliedMaterialsArea',
-                    '/{slug}/edit#allied-collapse',
-                    '/{slug}/edit#allied-collapse',
+                    '/informationobject/{slug}/edit#allied-collapse',
+                    '/informationobject/{slug}/edit#allied-collapse',
                     '/{slug}#alliedMaterialsArea',
                     '/{slug}#alliedMaterialsArea',
                 ]
@@ -250,8 +250,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/{slug}#alliedMaterialsArea',
                     '/{slug}#identityArea',
                     '/{slug}#identityArea',
-                    '/{slug}/edit#identity-collapse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     null,
                 ]
             ),
@@ -270,10 +270,10 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     '/{slug}',
                     '/{slug}#contextArea',
-                    '/{slug}/edit#identity-collapse',
-                    '/{slug}/edit#access-collapse',
-                    '/{slug}/edit#context-collapse',
-                    '/{slug}/edit#admin-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#access-collapse',
+                    '/informationobject/{slug}/edit#context-collapse',
+                    '/informationobject/{slug}/edit#admin-collapse',
                 ]
             ),
 
@@ -290,11 +290,11 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [],
                 [
                     null,
-                    '/{slug}/edit#allied-collapse',
+                    '/informationobject/{slug}/edit#allied-collapse',
                     '/admin/spectrum/condition-photos?slug={slug}',
-                    '/{slug}/edit#notes-collapse',
-                    '/{slug}/edit#allied-collapse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#allied-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -315,7 +315,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/admin/spectrum/loans',
                     '/{slug}#conditionsOfAccessAndUseArea',
                     '/admin/spectrum/loans',
-                    '/{slug}/edit#identity-collapse',
+                    '/informationobject/{slug}/edit#identity-collapse',
                     '/admin/spectrum/loans',
                     '/admin/spectrum/loans',
                 ]
@@ -339,7 +339,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/{slug}#conditionsOfAccessAndUseArea',
                     '/admin/spectrum/loans',
                     '/admin/spectrum/loans',
-                    '/{slug}/edit#allied-collapse',
+                    '/informationobject/{slug}/edit#allied-collapse',
                     '/admin/spectrum/loans',
                 ]
             ),
@@ -360,7 +360,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     null,
                     null,
                     null,
-                    '/{slug}/edit',
+                    '/informationobject/{slug}/edit',
                     '/admin/spectrum/dashboard',
                 ]
             ),
@@ -383,8 +383,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/{slug}#conditionsOfAccessAndUseArea',
                     '/{slug}#identityArea',
                     null,
-                    '/{slug}/edit#notes-collapse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -403,8 +403,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/admin/spectrum/condition-admin?slug={slug}',
                     '/admin/spectrum/condition-photos?slug={slug}',
                     '/admin/spectrum/condition-photos?slug={slug}',
-                    '/{slug}/edit#conditions-collapse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#conditions-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     null,
                 ]
             ),
@@ -425,7 +425,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/admin/spectrum/conservation?slug={slug}',
                     null,
                     '/admin/spectrum/conservation?slug={slug}',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     '/admin/spectrum/condition-photos?slug={slug}',
                 ]
             ),
@@ -466,8 +466,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                     '/admin/spectrum/valuations?slug={slug}',
                     null,
                     '/admin/spectrum/valuations?slug={slug}',
-                    '/{slug}/edit#notes-collapse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     null,
                 ]
             ),
@@ -507,10 +507,10 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     '/admin/spectrum/condition-photos?slug={slug}',
                     '/{slug}#conditionsOfAccessAndUseArea',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     null,
                     '/admin/spectrum/conservation?slug={slug}',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -531,7 +531,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                     null,
                     null,
                     null,
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                 ]
             ),
 
@@ -549,9 +549,9 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     '/{slug}#rightsArea',
                     '/{slug}#rightsArea',
-                    '/{slug}/edit#conditions-collapse',
-                    '/{slug}/edit#conditions-collapse',
-                    '/{slug}/edit#conditions-collapse',
+                    '/informationobject/{slug}/edit#conditions-collapse',
+                    '/informationobject/{slug}/edit#conditions-collapse',
+                    '/informationobject/{slug}/edit#conditions-collapse',
                     '/{slug}#rightsArea',
                 ]
             ),
@@ -591,7 +591,7 @@ class SpectrumSeedWorkflowConfigs extends Command
                 [
                     null,
                     '/glam/browse',
-                    '/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit#notes-collapse',
                     null,
                     null,
                     '/admin/spectrum/dashboard',
@@ -613,8 +613,8 @@ class SpectrumSeedWorkflowConfigs extends Command
                     null,
                     '/glam/browse',
                     '/{slug}#identityArea',
-                    '/{slug}/edit#notes-collapse',
-                    '/{slug}/edit',
+                    '/informationobject/{slug}/edit#notes-collapse',
+                    '/informationobject/{slug}/edit',
                     null,
                 ]
             ),
