@@ -2772,13 +2772,16 @@ class ResearchController extends Controller
             $action = $request->input('form_action');
 
             if ($action === 'create') {
+                $params = [];
+                if ($request->input('language')) $params['language'] = $request->input('language');
+                if ($request->input('model')) $params['model'] = $request->input('model');
+
                 DB::table('research_extraction_job')->insert([
                     'project_id'      => $id,
                     'collection_id'   => $request->input('collection_id'),
                     'researcher_id'   => $researcher->id,
                     'extraction_type' => $request->input('extraction_type', 'ner'),
-                    'language'        => $request->input('language') ?: null,
-                    'model'           => $request->input('model') ?: null,
+                    'parameters_json' => !empty($params) ? json_encode($params) : null,
                     'status'          => 'queued',
                     'total_items'     => 0,
                     'processed_items' => 0,
