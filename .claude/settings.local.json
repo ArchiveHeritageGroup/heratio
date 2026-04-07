@@ -263,7 +263,16 @@
       "Bash(/usr/share/nginx/archive/symfony list:*)",
       "Bash(/usr/share/nginx/archive/symfony :library-csv-import --help)",
       "Bash(xxd -r -p)",
-      "Bash(php-fpm8.3 -i)"
+      "Bash(php-fpm8.3 -i)",
+      "Bash(dig openric.org +short)",
+      "Bash(dig openric.org NS +short)",
+      "Bash(dig openric.org ANY +short)",
+      "Bash(systemctl list-units:*)",
+      "Bash(dpkg -l)",
+      "Bash(systemctl status:*)",
+      "Bash(noip2 -S)",
+      "Read(//usr/local/etc/**)",
+      "Bash(dig:*)"
     ]
   }
 }

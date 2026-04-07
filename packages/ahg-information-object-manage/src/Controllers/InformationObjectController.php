@@ -2841,7 +2841,7 @@ class InformationObjectController extends Controller
             ->decrement('rgt', $width);
 
         return redirect()
-            ->route('informationobject.browse')
+            ->to('/glam/browse')
             ->with('success', 'Archival description deleted successfully.');
     }
 
