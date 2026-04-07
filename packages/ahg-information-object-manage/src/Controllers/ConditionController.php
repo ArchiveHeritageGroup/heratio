@@ -384,7 +384,7 @@ class ConditionController extends Controller
         }
 
         $filePath = $photo->file_path ?? ('/uploads/condition_photos/' . ($photo->filename ?? ''));
-        $fullPath = '/usr/share/nginx/archive' . $filePath;
+        $fullPath = '/mnt/nas/heratio' . $filePath;
 
         if (!file_exists($fullPath)) {
             return response()->json(['success' => false, 'error' => 'Image file not found: ' . $filePath]);
