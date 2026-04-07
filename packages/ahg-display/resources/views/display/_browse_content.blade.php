@@ -367,7 +367,7 @@
             @php
               $objType = $obj->glam_type ?? $obj->type ?? 'archive';
               $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-              $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
+              $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
               $objSlug = $obj->slug ?? '';
               $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
               $objIdentifier = $obj->identifier ?? '';
@@ -439,7 +439,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
+          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objUrl = '/' . $objSlug;
@@ -468,7 +468,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
+          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objIdentifier = $obj->identifier ?? '';
@@ -560,7 +560,7 @@
         @php
           $objType = $obj->glam_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
-          $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
+          $objTitle = html_entity_decode($obj->title ?? $obj->name ?? '[Untitled]', ENT_QUOTES, 'UTF-8');
           $objSlug = $obj->slug ?? '';
           $objThumb = $obj->thumbnail_path ?? $obj->thumbnail ?? null;
           $objIdentifier = $obj->identifier ?? '';
