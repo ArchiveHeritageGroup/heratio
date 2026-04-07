@@ -2767,10 +2767,51 @@ class ResearchController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         [$project, $researcher] = $this->loadProjectContext($id);
 
-        $jobs = DB::table('research_extraction_job')
-            ->where('project_id', $id)
-            ->orderBy('created_at', 'desc')
-            ->get()->toArray();
+        // Handle POST actions
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'create') {
+                DB::table('research_extraction_job')->insert([
+                    'project_id'      => $id,
+                    'collection_id'   => $request->input('collection_id'),
+                    'researcher_id'   => $researcher->id,
+                    'extraction_type' => $request->input('extraction_type', 'ner'),
+                    'language'        => $request->input('language') ?: null,
+                    'model'           => $request->input('model') ?: null,
+                    'status'          => 'queued',
+                    'total_items'     => 0,
+                    'processed_items' => 0,
+                    'created_at'      => now(),
+                ]);
+                return redirect()->route('research.extractionJobs', $id)->with('success', 'Extraction job created.');
+            }
+
+            if ($action === 'cancel' && $request->input('job_id')) {
+                DB::table('research_extraction_job')
+                    ->where('id', $request->input('job_id'))
+                    ->where('project_id', $id)
+                    ->whereIn('status', ['queued', 'running'])
+                    ->update(['status' => 'cancelled', 'updated_at' => now()]);
+                return redirect()->route('research.extractionJobs', $id)->with('success', 'Job cancelled.');
+            }
+
+            if ($action === 'retry' && $request->input('job_id')) {
+                DB::table('research_extraction_job')
+                    ->where('id', $request->input('job_id'))
+                    ->where('project_id', $id)
+                    ->where('status', 'failed')
+                    ->update(['status' => 'queued', 'updated_at' => now()]);
+                return redirect()->route('research.extractionJobs', $id)->with('success', 'Job re-queued.');
+            }
+        }
+
+        $statusFilter = $request->input('status');
+        $query = DB::table('research_extraction_job')
+            ->where('project_id', $id);
+        if ($statusFilter) $query->where('status', $statusFilter);
+
+        $jobs = $query->orderBy('created_at', 'desc')->get()->toArray();
 
         return view('research::research.extraction-jobs', array_merge(
             $this->getSidebarData('projects'),
