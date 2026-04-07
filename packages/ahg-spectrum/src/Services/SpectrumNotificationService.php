@@ -120,11 +120,14 @@ class SpectrumNotificationService
         }
         $message .= "\nView task: {$objectLink}";
 
-        // Determine who to notify (everyone involved except the acting user)
+        // Determine who to notify
         $notifyUserIds = [];
 
+        // Always notify the acting user (they see their own transitions)
+        $notifyUserIds[] = $actingUserId;
+
         // Notify the assigned user
-        if ($assignedTo && $assignedTo !== $actingUserId) {
+        if ($assignedTo && !in_array($assignedTo, $notifyUserIds)) {
             $notifyUserIds[] = $assignedTo;
         }
 
@@ -134,17 +137,16 @@ class SpectrumNotificationService
             ->where('procedure_type', $procedureType)
             ->first();
         if ($previousState && $previousState->assigned_to
-            && $previousState->assigned_to !== $actingUserId
             && !in_array($previousState->assigned_to, $notifyUserIds)) {
             $notifyUserIds[] = $previousState->assigned_to;
         }
 
-        // For certain transitions, notify admins if no specific assignees
-        if (empty($notifyUserIds) && in_array($transitionKey, ['submit_for_review', 'complete', 'report'])) {
-            $admins = DB::table('user')
-                ->where('is_admin', 1)
-                ->where('id', '!=', $actingUserId)
-                ->pluck('id')
+        // For certain transitions, also notify admins
+        if (in_array($transitionKey, ['submit_for_review', 'complete', 'report'])) {
+            $admins = DB::table('acl_user_group')
+                ->where('group_id', 100)
+                ->whereNotIn('user_id', $notifyUserIds)
+                ->pluck('user_id')
                 ->toArray();
             $notifyUserIds = array_merge($notifyUserIds, $admins);
         }

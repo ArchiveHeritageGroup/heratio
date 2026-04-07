@@ -724,10 +724,10 @@ class SpectrumController extends Controller
         }
 
         if (empty($notifyUserIds) && in_array($transitionKey, ['submit_for_review', 'complete', 'report'])) {
-            $admins = DB::table('user')
-                ->where('is_admin', 1)
-                ->where('id', '!=', $actingUserId)
-                ->pluck('id')
+            $admins = DB::table('acl_user_group')
+                ->where('group_id', 100)
+                ->where('user_id', '!=', $actingUserId)
+                ->pluck('user_id')
                 ->toArray();
             $notifyUserIds = array_merge($notifyUserIds, $admins);
         }
