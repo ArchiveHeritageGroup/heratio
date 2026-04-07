@@ -39,12 +39,15 @@
                 <div class="text-center mb-1">
                   @php
                     $transferIcons = [
-                      'sale' => '💰', 'auction' => '🔨', 'gift' => '🎁', 'bequest' => '📜',
-                      'inheritance' => '📜', 'commission' => '📋', 'exchange' => '🔄',
-                      'transfer' => '➡️', 'found' => '🔍', 'restitution' => '⚖️', 'repatriation' => '🏠',
+                      'sale' => 'fas fa-coins', 'auction' => 'fas fa-gavel', 'gift' => 'fas fa-gift',
+                      'bequest' => 'fas fa-scroll', 'inheritance' => 'fas fa-scroll',
+                      'commission' => 'fas fa-clipboard-list', 'exchange' => 'fas fa-exchange-alt',
+                      'transfer' => 'fas fa-arrow-right', 'found' => 'fas fa-search',
+                      'restitution' => 'fas fa-balance-scale', 'repatriation' => 'fas fa-home',
+                      'seizure' => 'fas fa-hand-paper', 'created' => 'fas fa-paint-brush',
                     ];
                   @endphp
-                  <span style="font-size:1.2rem;">{{ $transferIcons[$entry->transfer_type] ?? '➡️' }}</span>
+                  <i class="{{ $transferIcons[$entry->transfer_type] ?? 'fas fa-arrow-right' }}" style="font-size:1.2rem;color:var(--ahg-primary,#2c6b4f);"></i>
                 </div>
                 <small class="text-muted text-center" style="font-size:0.65rem;line-height:1.1;">{{ ucfirst(str_replace('_', ' ', $entry->transfer_type ?? '')) }}</small>
               </div>
@@ -53,21 +56,36 @@
             <div class="text-center" style="min-width:100px;max-width:130px;">
               @php
                 $typeIcons = [
-                  'person' => '👤', 'family' => '👨‍👩‍👧‍👦', 'dealer' => '🏪', 'auction_house' => '🔨',
-                  'museum' => '🏛️', 'corporate' => '🏢', 'government' => '🏛️', 'religious' => '⛪',
-                  'artist' => '🎨',
+                  'person' => 'fas fa-user', 'family' => 'fas fa-users',
+                  'dealer' => 'fas fa-store', 'auction_house' => 'fas fa-gavel',
+                  'museum' => 'fas fa-landmark', 'corporate' => 'fas fa-building',
+                  'government' => 'fas fa-university', 'religious' => 'fas fa-church',
+                  'artist' => 'fas fa-palette',
                 ];
                 $bgColors = [
                   'person' => '#dc3545', 'family' => '#dc3545', 'dealer' => '#fd7e14',
                   'auction_house' => '#fd7e14', 'museum' => '#0d6efd', 'corporate' => '#6c757d',
                   'government' => '#198754', 'religious' => '#6f42c1', 'artist' => '#d63384',
                 ];
-                $icon = $typeIcons[$entry->owner_type] ?? '❓';
+                $iconClass = $typeIcons[$entry->owner_type] ?? 'fas fa-question';
                 $bg = $bgColors[$entry->owner_type] ?? '#6c757d';
               @endphp
+              @php
+                $dateLabel = '';
+                if ($entry->start_date && $entry->end_date) {
+                    $dateLabel = $entry->start_date . ' - ' . $entry->end_date;
+                } elseif ($entry->start_date) {
+                    $dateLabel = $entry->start_date . ' - present';
+                } elseif ($entry->end_date) {
+                    $dateLabel = 'until ' . $entry->end_date;
+                }
+              @endphp
+              @if($dateLabel)
+                <small class="text-muted d-block mb-1" style="font-size:0.65rem;line-height:1.1;">{{ $dateLabel }}</small>
+              @endif
               <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
                    style="width:50px;height:50px;background:{{ $bg }};color:#fff;font-size:1.3rem;">
-                {{ $icon }}
+                <i class="{{ $iconClass }}"></i>
               </div>
               <strong class="small d-block" style="font-size:0.75rem;line-height:1.2;" title="{{ $entry->owner_name }}">
                 {{ \Illuminate\Support\Str::limit($entry->owner_name, 20) }}
@@ -178,6 +196,9 @@
         <button class="btn btn-primary" id="add-entry">
           <i class="fas fa-plus"></i> Add Provenance Entry
         </button>
+        <a href="{{ route('io.provenance.exportCsv', $io->slug) }}" class="btn btn-secondary">
+          <i class="fas fa-download"></i> Export CSV
+        </a>
       </div>
     @endauth
   </div>

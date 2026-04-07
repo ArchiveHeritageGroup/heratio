@@ -14,6 +14,12 @@ class AhgSearchServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgSearch\Commands\EsReindexCommand::class,
+            ]);
+        }
+
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-search');

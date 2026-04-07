@@ -199,6 +199,54 @@ class ProvenanceController extends Controller
     }
 
     /**
+     * Export provenance chain as CSV.
+     */
+    public function exportCsv(string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $entries = $this->service->getChain($io->id);
+
+        $filename = ($io->identifier ?? $slug) . '_provenance.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($entries, $io) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['#', 'Owner', 'Owner Type', 'Location', 'TGN', 'Start Date', 'End Date', 'Transfer', 'Certainty', 'Sale Price', 'Currency', 'Auction House', 'Lot #', 'Sources', 'Notes', 'Gap']);
+            foreach ($entries as $entry) {
+                fputcsv($out, [
+                    $entry->sequence,
+                    $entry->owner_name,
+                    $entry->owner_type,
+                    $entry->owner_location,
+                    $entry->owner_location_tgn,
+                    $entry->start_date,
+                    $entry->end_date,
+                    $entry->transfer_type,
+                    $entry->certainty,
+                    $entry->sale_price,
+                    $entry->sale_currency,
+                    $entry->auction_house,
+                    $entry->auction_lot,
+                    $entry->sources,
+                    $entry->notes,
+                    $entry->is_gap ? 'Yes' : 'No',
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Look up an information object by slug.
      */
     private function getIO(string $slug): ?object

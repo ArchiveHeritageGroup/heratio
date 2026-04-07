@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'elasticsearch' => [
+        'host' => env('ELASTICSEARCH_HOST', 'http://localhost:9200'),
+        'prefix' => env('ELASTICSEARCH_PREFIX', 'heratio_'),
+    ],
+
 ];
