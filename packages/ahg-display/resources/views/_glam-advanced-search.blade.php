@@ -62,7 +62,7 @@ $currentLevels = isset($levelsBySector[$currentType]) && !empty($levelsBySector[
 @endphp
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 
-<div class="accordion mb-3" id="glamAdvancedSearchAccordion">
+<div class="accordion mb-3" id="glamAdvancedSearchAccordion" data-default-closed>
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button {{ $showAdvanced ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#glamAdvancedSearchPanel" aria-expanded="{{ $showAdvanced ? 'true' : 'false' }}">

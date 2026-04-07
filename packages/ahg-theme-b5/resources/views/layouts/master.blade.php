@@ -108,9 +108,11 @@
     @stack('js')
 
     {{-- Auto-open first accordion block on every page --}}
+    {{-- Auto-open first accordion block on every page (skip accordions marked data-default-closed) --}}
     <script nonce="{{ $cspNonce }}">
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.accordion').forEach(function(acc) {
+        if (acc.dataset.defaultClosed !== undefined) return;
         var firstCollapse = acc.querySelector('.accordion-collapse');
         var firstButton = acc.querySelector('.accordion-button');
         if (firstCollapse && !firstCollapse.classList.contains('show')) {

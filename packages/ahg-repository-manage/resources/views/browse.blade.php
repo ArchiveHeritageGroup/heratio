@@ -223,7 +223,7 @@
   </div>
 
   {{-- Advanced Search Accordion --}}
-  <div class="accordion mb-3" role="search">
+  <div class="accordion mb-3" role="search" data-default-closed>
     <div class="accordion-item">
       <h2 class="accordion-header" id="heading-adv-search">
         <button class="accordion-button collapsed" type="button"
