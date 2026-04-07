@@ -1049,4 +1049,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash;
+    if (hash) {
+        var el = document.querySelector(hash);
+        if (el && el.classList.contains('accordion-collapse')) {
+            var bsCollapse = new bootstrap.Collapse(el, { toggle: false });
+            bsCollapse.show();
+            setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
+        }
+    }
+});
+</script>
+@endpush
 @endsection
