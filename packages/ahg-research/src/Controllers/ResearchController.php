@@ -2795,7 +2795,7 @@ class ResearchController extends Controller
                     ->where('id', $request->input('job_id'))
                     ->where('project_id', $id)
                     ->whereIn('status', ['queued', 'running'])
-                    ->update(['status' => 'cancelled', 'updated_at' => now()]);
+                    ->update(['status' => 'cancelled']);
                 return redirect()->route('research.extractionJobs', $id)->with('success', 'Job cancelled.');
             }
 
@@ -2804,7 +2804,7 @@ class ResearchController extends Controller
                     ->where('id', $request->input('job_id'))
                     ->where('project_id', $id)
                     ->where('status', 'failed')
-                    ->update(['status' => 'queued', 'updated_at' => now()]);
+                    ->update(['status' => 'queued']);
                 return redirect()->route('research.extractionJobs', $id)->with('success', 'Job re-queued.');
             }
         }
