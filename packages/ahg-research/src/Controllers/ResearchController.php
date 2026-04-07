@@ -2924,13 +2924,37 @@ class ResearchController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'update_event' && $request->input('event_id')) {
+                $update = ['date_start' => $request->input('date_start')];
+                if ($request->has('date_end')) $update['date_end'] = $request->input('date_end') ?: null;
+                if ($request->has('label')) $update['label'] = $request->input('label');
+                if ($request->has('description')) $update['description'] = $request->input('description');
+                if ($request->has('date_type')) $update['date_type'] = $request->input('date_type');
+                DB::table('research_timeline_event')
+                    ->where('id', $request->input('event_id'))
+                    ->where('project_id', $id)
+                    ->update($update);
+                return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event updated.');
+            }
+
+            if ($action === 'delete_event' && $request->input('event_id')) {
+                DB::table('research_timeline_event')
+                    ->where('id', $request->input('event_id'))
+                    ->where('project_id', $id)
+                    ->delete();
+                return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event deleted.');
+            }
+
+            // Default: create new event
             DB::table('research_timeline_event')->insert([
                 'project_id'    => $id,
                 'researcher_id' => $researcher->id,
                 'label'         => $request->input('title', $request->input('label', '')),
                 'description'   => $request->input('description'),
                 'date_start'    => $request->input('event_date', $request->input('date_start')),
-                'date_end'      => $request->input('date_end'),
+                'date_end'      => $request->input('date_end') ?: null,
                 'date_type'     => $request->input('event_type', $request->input('date_type', 'event')),
                 'created_at'    => now(),
             ]);
