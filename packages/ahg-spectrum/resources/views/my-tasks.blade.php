@@ -147,7 +147,7 @@ $currentFilter = $currentFilter ?? '';
                                 @endif
                             </td>
                             <td>
-                                <a href="/spectrum/{{ $task->slug }}/workflow?procedure_type={{ urlencode($task->procedure_type) }}"
+                                <a href="{{ route('ahgspectrum.workflow', ['slug' => $task->slug, 'procedure_type' => $task->procedure_type]) }}"
                                    class="btn btn-sm btn-outline-primary" title="{{ __('View Workflow') }}">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>

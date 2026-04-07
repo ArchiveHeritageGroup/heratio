@@ -73,27 +73,39 @@
             @include('theme::partials.menus.main-menu')
           @endif
 
-          {{-- Spectrum Notifications Bell --}}
+          {{-- Spectrum Tasks Bell --}}
           @if($themeData['isAuthenticated'] ?? false)
             @php
-              $spectrumUnreadCount = 0;
+              $spectrumBellCount = 0;
               try {
-                  $spectrumUnreadCount = \Illuminate\Support\Facades\DB::table('spectrum_notification')
-                      ->where('user_id', auth()->id())
-                      ->whereNull('read_at')
-                      ->count();
+                  // Count assigned tasks excluding final states (matching AtoM)
+                  $allFinalStates = [];
+                  $wfConfigs = \Illuminate\Support\Facades\DB::table('spectrum_workflow_config')
+                      ->where('is_active', 1)->get();
+                  foreach ($wfConfigs as $wfc) {
+                      $cd = json_decode($wfc->config_json, true);
+                      $allFinalStates = array_merge($allFinalStates, $cd['final_states'] ?? []);
+                  }
+                  $allFinalStates = array_unique($allFinalStates);
+
+                  $bellQuery = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
+                      ->where('assigned_to', auth()->id());
+                  if (!empty($allFinalStates)) {
+                      $bellQuery->whereNotIn('current_state', $allFinalStates);
+                  }
+                  $spectrumBellCount = $bellQuery->count();
               } catch (\Exception $e) {}
             @endphp
             <li class="nav-item d-flex flex-column">
-              <a class="nav-link d-flex align-items-center p-0 position-relative" href="{{ route('ahgspectrum.notifications') }}">
-                <i class="fas fa-2x fa-fw fa-bell px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="Notifications" aria-hidden="true"></i>
-                @if($spectrumUnreadCount > 0)
+              <a class="nav-link d-flex align-items-center p-0 position-relative" href="{{ route('ahgspectrum.my-tasks') }}">
+                <i class="fas fa-2x fa-fw fa-bell px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="My Tasks" aria-hidden="true"></i>
+                @if($spectrumBellCount > 0)
                   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; margin-left: -18px; margin-top: 6px;">
-                    {{ $spectrumUnreadCount > 99 ? '99+' : $spectrumUnreadCount }}
+                    {{ $spectrumBellCount > 99 ? '99+' : $spectrumBellCount }}
                   </span>
                 @endif
-                <span class="d-lg-none mx-1" aria-hidden="true">Notifications</span>
-                <span class="visually-hidden">Notifications{{ $spectrumUnreadCount > 0 ? ' (' . $spectrumUnreadCount . ' unread)' : '' }}</span>
+                <span class="d-lg-none mx-1" aria-hidden="true">My Tasks</span>
+                <span class="visually-hidden">My Tasks{{ $spectrumBellCount > 0 ? ' (' . $spectrumBellCount . ' pending)' : '' }}</span>
               </a>
             </li>
           @endif
