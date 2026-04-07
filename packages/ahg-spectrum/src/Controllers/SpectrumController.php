@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 use AhgSpectrum\Services\SpectrumNotificationService;
+use AhgSpectrum\Services\SpectrumWorkflowService;
 
 class SpectrumController extends Controller
 {
@@ -603,6 +604,10 @@ class SpectrumController extends Controller
             'users'                 => $users,
             'originatorId'          => $originatorId,
             'finalTransitionKeys'   => $finalTransitionKeys,
+            'linkedProcedures'      => SpectrumWorkflowService::getLinkedProcedures($procedureType),
+            'downstreamStatus'      => $resource ? SpectrumWorkflowService::getDownstreamStatus($resource->id, $procedureType) : [],
+            'upstreamStatus'        => $resource ? SpectrumWorkflowService::getUpstreamStatus($resource->id, $procedureType) : [],
+            'condensedSteps'        => $workflowConfig['condensed_steps'] ?? [],
         ]);
     }
 
@@ -775,13 +780,83 @@ class SpectrumController extends Controller
         );
 
         // Mark existing notifications as read when task reaches final state
+        $triggered = [];
         if ($isFinalState) {
             SpectrumNotificationService::markTaskNotificationsAsReadByObject($resource->id, $procedureType);
+
+            // Trigger downstream procedures
+            $triggered = SpectrumWorkflowService::triggerDownstreamProcedures(
+                $resource->id,
+                $procedureType,
+                $userId
+            );
+
+            // Create notifications for triggered procedures
+            foreach ($triggered as $triggeredProc) {
+                SpectrumNotificationService::createTransitionNotification(
+                    $resource,
+                    $triggeredProc,
+                    'not_started',
+                    'pending',
+                    'auto_trigger',
+                    $userId,
+                    null,
+                    'Automatically triggered by completion of ' . ($this->getProcedures()[$procedureType]['label'] ?? $procedureType)
+                );
+            }
+        }
+
+        $message = ucwords(str_replace('_', ' ', $transitionKey)) . ' completed.';
+        if (!empty($triggered)) {
+            $labels = array_map(
+                fn($t) => SpectrumWorkflowService::getProcedureLabel($t),
+                $triggered
+            );
+            $message .= ' Triggered: ' . implode(', ', $labels) . '.';
         }
 
         return redirect()
             ->route('ahgspectrum.workflow', ['slug' => $slug, 'procedure_type' => $procedureType])
-            ->with('success', ucwords(str_replace('_', ' ', $transitionKey)) . ' completed.');
+            ->with('success', $message);
+    }
+
+    /**
+     * Link or unlink a SOP document URL to a procedure's workflow config.
+     */
+    public function workflowSop(Request $request)
+    {
+        $request->validate([
+            'procedure_type' => 'required|string',
+            'sop_url'        => 'nullable|url|max:2000',
+        ]);
+
+        $procedureType = $request->input('procedure_type');
+        $sopUrl        = $request->input('sop_url') ?: null;
+
+        $config = DB::table('spectrum_workflow_config')
+            ->where('procedure_type', $procedureType)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$config) {
+            abort(404);
+        }
+
+        $configData = json_decode($config->config_json, true);
+        $configData['sop_url'] = $sopUrl;
+
+        DB::table('spectrum_workflow_config')
+            ->where('id', $config->id)
+            ->update([
+                'config_json' => json_encode($configData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'updated_at'  => now(),
+            ]);
+
+        $message = $sopUrl ? __('SOP document linked.') : __('SOP document removed.');
+
+        return redirect()
+            ->route('ahgspectrum.workflow', ['slug' => $request->query('slug', ''), 'procedure_type' => $procedureType])
+            ->with('success', $message);
     }
 
     /**

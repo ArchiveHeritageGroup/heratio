@@ -10,5 +10,11 @@ class AhgSpectrumServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'spectrum');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgSpectrum\Commands\SpectrumSeedWorkflowConfigs::class,
+            ]);
+        }
     }
 }

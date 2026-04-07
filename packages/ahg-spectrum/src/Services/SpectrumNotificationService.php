@@ -376,6 +376,14 @@ class SpectrumNotificationService
     /**
      * Get procedure label from procedure type
      */
+    /**
+     * Public accessor for getProcedureLabel (used by SpectrumWorkflowService).
+     */
+    public static function getProcedureLabelStatic(string $procedureType): string
+    {
+        return self::getProcedureLabel($procedureType);
+    }
+
     protected static function getProcedureLabel(string $procedureType): string
     {
         $labels = [

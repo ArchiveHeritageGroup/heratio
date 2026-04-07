@@ -25,6 +25,7 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth'])->group(function () 
     Route::get('/spectrum-export', [\AhgSpectrum\Controllers\SpectrumController::class, 'spectrumExport'])->name('ahgspectrum.spectrum-export');
     Route::get('/workflow', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflow'])->name('ahgspectrum.workflow');
     Route::post('/workflow-transition', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowTransition'])->name('ahgspectrum.workflow-transition');
+    Route::post('/workflow-sop', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowSop'])->name('ahgspectrum.workflow-sop');
 
     // Notifications
     Route::get('/notifications', [\AhgSpectrum\Controllers\SpectrumController::class, 'notifications'])->name('ahgspectrum.notifications');

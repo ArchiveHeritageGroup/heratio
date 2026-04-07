@@ -197,6 +197,25 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                 </div>
                 @endif
 
+                <!-- Condensed Spectrum 5.1 Steps -->
+                @if (!empty($condensedSteps ?? []))
+                <div class="mb-4">
+                    <h6>
+                        {{ __('Spectrum 5.1 Procedure Steps') }}
+                        @if ($workflowConfig && ($configData['sop_url'] ?? null))
+                        <a href="{{ $configData['sop_url'] }}" target="_blank" class="btn btn-sm btn-outline-info ms-2" title="{{ __('View SOP Document') }}">
+                            <i class="fas fa-file-pdf me-1"></i>{{ __('SOP') }}
+                        </a>
+                        @endif
+                    </h6>
+                    <ol class="list-group list-group-numbered">
+                        @foreach ($condensedSteps as $cStep)
+                        <li class="list-group-item py-1 border-0 ps-0">{{ $cStep }}</li>
+                        @endforeach
+                    </ol>
+                </div>
+                @endif
+
                 <!-- Available Actions -->
                 @if ($canEdit && !empty($availableTransitions))
                 @php
@@ -334,6 +353,96 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                 @endif
             </div>
         </div>
+
+        <!-- Linked Procedures -->
+        @php
+            $linked = $linkedProcedures ?? ['triggers' => [], 'triggered_by' => []];
+            $downstream = $downstreamStatus ?? [];
+            $upstream = $upstreamStatus ?? [];
+        @endphp
+        @if (!empty($linked['triggers']) || !empty($linked['triggered_by']))
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>{{ __('Linked Procedures') }}</h6>
+            </div>
+            <div class="card-body">
+                @if (!empty($upstream))
+                <div class="mb-3">
+                    <strong class="text-muted"><i class="fas fa-arrow-down me-1"></i>{{ __('Triggered by') }}</strong>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach ($upstream as $up)
+                        <a href="{{ route('ahgspectrum.workflow', ['slug' => $resource->slug ?? '', 'procedure_type' => $up['procedure_type']]) }}"
+                           class="btn btn-sm btn-outline-secondary">
+                            {{ $up['label'] }}
+                            <span class="badge bg-{{ $up['current_state'] === 'not_started' ? 'secondary' : ($up['current_state'] === 'closed' || $up['current_state'] === 'completed' ? 'success' : 'primary') }} ms-1">
+                                {{ $up['state_label'] }}
+                            </span>
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                @if (!empty($downstream))
+                <div>
+                    <strong class="text-muted"><i class="fas fa-arrow-right me-1"></i>{{ __('Triggers') }}</strong>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach ($downstream as $down)
+                        <a href="{{ route('ahgspectrum.workflow', ['slug' => $resource->slug ?? '', 'procedure_type' => $down['procedure_type']]) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            {{ $down['label'] }}
+                            <span class="badge bg-{{ $down['current_state'] === 'not_started' ? 'secondary' : ($down['current_state'] === 'closed' || $down['current_state'] === 'completed' ? 'success' : 'primary') }} ms-1">
+                                {{ $down['state_label'] }}
+                            </span>
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        <!-- SOP Document -->
+        @if ($canEdit)
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('SOP / Procedure Document') }}</h6>
+            </div>
+            <div class="card-body">
+                @php $sopUrl = $configData['sop_url'] ?? null; @endphp
+                @if ($sopUrl)
+                <div class="d-flex align-items-center justify-content-between">
+                    <a href="{{ $sopUrl }}" target="_blank" class="btn btn-outline-info">
+                        <i class="fas fa-external-link-alt me-1"></i>{{ __('Open SOP Document') }}
+                    </a>
+                    <form method="post" action="{{ route('ahgspectrum.workflow-sop') }}" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="procedure_type" value="{{ $procedureType }}">
+                        <input type="hidden" name="sop_url" value="">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove SOP link') }}">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </form>
+                </div>
+                @else
+                <form method="post" action="{{ route('ahgspectrum.workflow-sop') }}" class="row g-2 align-items-end">
+                    @csrf
+                    <input type="hidden" name="procedure_type" value="{{ $procedureType }}">
+                    <div class="col">
+                        <label class="form-label">{{ __('Link a SOP document (URL to PDF, document or wiki page)') }}</label>
+                        <input type="url" name="sop_url" class="form-control form-control-sm" placeholder="https://..." required>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fas fa-link me-1"></i>{{ __('Link SOP') }}
+                        </button>
+                    </div>
+                </form>
+                @endif
+            </div>
+        </div>
+        @endif
 
         @else
         <div class="alert alert-warning">
