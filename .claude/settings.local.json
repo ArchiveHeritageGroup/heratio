@@ -275,7 +275,8 @@
       "Bash(dig:*)",
       "Bash(mount)",
       "Bash(tail -20 /var/log/php*fpm*.log)",
-      "Bash(sudo service:*)"
+      "Bash(sudo service:*)",
+      "Bash([ -f \"packages/ahg-research/resources/views/research/$f.blade.php\" ])"
     ]
   }
 }

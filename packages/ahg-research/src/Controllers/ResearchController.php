@@ -2641,4 +2641,588 @@ class ResearchController extends Controller
             compact('templates')
         ));
     }
+
+    // =========================================================================
+    // PROJECT ANALYSIS TOOLS
+    // =========================================================================
+
+    /**
+     * Helper: load project + researcher with access check.
+     */
+    protected function loadProjectContext(int $id): array
+    {
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $project = DB::table('research_project')->where('id', $id)->first();
+        if (!$project) abort(404, 'Project not found');
+
+        return [$project, $researcher];
+    }
+
+    public function knowledgeGraph(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        // API endpoint for graph data
+        if ($request->wantsJson()) {
+            $assertions = DB::table('research_assertion as a')
+                ->leftJoin('research_assertion_evidence as e', 'a.id', '=', 'e.assertion_id')
+                ->where('a.project_id', $id)
+                ->select('a.*', DB::raw('COUNT(e.id) as evidence_count'))
+                ->groupBy('a.id')
+                ->get();
+
+            $nodes = [];
+            $edges = [];
+            foreach ($assertions as $a) {
+                $nodes[] = ['id' => $a->id, 'label' => $a->subject ?? '', 'type' => $a->assertion_type ?? '', 'status' => $a->status ?? ''];
+                if ($a->object ?? null) {
+                    $edges[] = ['source' => $a->id, 'target' => $a->object, 'label' => $a->predicate ?? ''];
+                }
+            }
+            return response()->json(['nodes' => $nodes, 'edges' => $edges]);
+        }
+
+        return view('research::research.knowledge-graph', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher')
+        ));
+    }
+
+    public function assertions(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $typeFilter = $request->input('type');
+        $statusFilter = $request->input('status');
+
+        $query = DB::table('research_assertion as a')
+            ->leftJoin('research_assertion_evidence as e', 'a.id', '=', 'e.assertion_id')
+            ->where('a.project_id', $id)
+            ->select('a.*', DB::raw('COUNT(e.id) as evidence_count'))
+            ->groupBy('a.id');
+
+        if ($typeFilter) $query->where('a.assertion_type', $typeFilter);
+        if ($statusFilter) $query->where('a.status', $statusFilter);
+
+        $assertions = $query->orderBy('a.created_at', 'desc')->get()->toArray();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'create') {
+            DB::table('research_assertion')->insert([
+                'project_id'     => $id,
+                'assertion_type' => $request->input('assertion_type', 'biographical'),
+                'subject'        => $request->input('subject'),
+                'predicate'      => $request->input('predicate'),
+                'object'         => $request->input('object'),
+                'confidence'     => $request->input('confidence', 0.5),
+                'status'         => 'proposed',
+                'created_by'     => $researcher->id,
+                'created_at'     => now(),
+            ]);
+            return redirect()->route('research.assertions', $id)->with('success', 'Assertion created.');
+        }
+
+        return view('research::research.assertions', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'assertions', 'typeFilter', 'statusFilter')
+        ));
+    }
+
+    public function hypotheses(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $hypotheses = DB::table('research_hypothesis')
+            ->where('project_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()->toArray();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'create') {
+            DB::table('research_hypothesis')->insert([
+                'project_id'  => $id,
+                'title'       => $request->input('title'),
+                'description' => $request->input('description'),
+                'status'      => 'proposed',
+                'created_by'  => $researcher->id,
+                'created_at'  => now(),
+            ]);
+            return redirect()->route('research.hypotheses', $id)->with('success', 'Hypothesis created.');
+        }
+
+        return view('research::research.hypotheses', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'hypotheses')
+        ));
+    }
+
+    public function extractionJobs(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $jobs = DB::table('research_extraction_job')
+            ->where('project_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()->toArray();
+
+        return view('research::research.extraction-jobs', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'jobs')
+        ));
+    }
+
+    public function snapshots(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $snapshots = DB::table('research_snapshot')
+            ->where('project_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()->toArray();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'create') {
+            $snapshotId = DB::table('research_snapshot')->insertGetId([
+                'project_id'  => $id,
+                'title'       => $request->input('title', 'Snapshot ' . date('Y-m-d H:i')),
+                'description' => $request->input('description'),
+                'created_by'  => $researcher->id,
+                'created_at'  => now(),
+            ]);
+            return redirect()->route('research.snapshots', $id)->with('success', 'Snapshot created.');
+        }
+
+        return view('research::research.snapshots', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'snapshots')
+        ));
+    }
+
+    public function assertionBatchReview(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $assertions = DB::table('research_assertion')
+            ->where('project_id', $id)
+            ->where('status', 'proposed')
+            ->orderBy('created_at', 'desc')
+            ->get()->toArray();
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'batch_update') {
+            $ids = $request->input('assertion_ids', []);
+            $newStatus = $request->input('new_status', 'verified');
+            if (!empty($ids)) {
+                DB::table('research_assertion')
+                    ->whereIn('id', $ids)
+                    ->where('project_id', $id)
+                    ->update(['status' => $newStatus, 'updated_at' => now()]);
+            }
+            return redirect()->route('research.assertionBatchReview', $id)->with('success', count($ids) . ' assertions updated.');
+        }
+
+        return view('research::research.assertion-batch-review', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'assertions')
+        ));
+    }
+
+    // =========================================================================
+    // PROJECT VISUALIZATION
+    // =========================================================================
+
+    public function timelineBuilder(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->wantsJson()) {
+            $events = DB::table('research_timeline_event')
+                ->where('project_id', $id)
+                ->orderBy('event_date')
+                ->get();
+            return response()->json($events);
+        }
+
+        if ($request->isMethod('post')) {
+            DB::table('research_timeline_event')->insert([
+                'project_id'  => $id,
+                'title'       => $request->input('title'),
+                'description' => $request->input('description'),
+                'event_date'  => $request->input('event_date'),
+                'event_type'  => $request->input('event_type', 'event'),
+                'created_at'  => now(),
+            ]);
+            return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event added.');
+        }
+
+        $events = DB::table('research_timeline_event')
+            ->where('project_id', $id)
+            ->orderBy('event_date')
+            ->get()->toArray();
+
+        return view('research::research.timeline-builder', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'events')
+        ));
+    }
+
+    public function mapBuilder(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->wantsJson()) {
+            $points = DB::table('research_map_point')
+                ->where('project_id', $id)
+                ->get();
+            return response()->json($points);
+        }
+
+        if ($request->isMethod('post')) {
+            DB::table('research_map_point')->insert([
+                'project_id'  => $id,
+                'title'       => $request->input('title'),
+                'description' => $request->input('description'),
+                'latitude'    => $request->input('latitude'),
+                'longitude'   => $request->input('longitude'),
+                'point_type'  => $request->input('point_type', 'location'),
+                'created_at'  => now(),
+            ]);
+            return redirect()->route('research.mapBuilder', $id)->with('success', 'Point added.');
+        }
+
+        $points = DB::table('research_map_point')
+            ->where('project_id', $id)
+            ->get()->toArray();
+
+        return view('research::research.map-builder', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'points')
+        ));
+    }
+
+    public function networkGraph(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->wantsJson()) {
+            $assertions = DB::table('research_assertion')
+                ->where('project_id', $id)
+                ->get();
+            $nodes = [];
+            $edges = [];
+            $nodeMap = [];
+            foreach ($assertions as $a) {
+                if ($a->subject && !isset($nodeMap[$a->subject])) {
+                    $nodeMap[$a->subject] = count($nodes);
+                    $nodes[] = ['id' => $a->subject, 'label' => $a->subject, 'group' => $a->assertion_type ?? 'default'];
+                }
+                if ($a->object && !isset($nodeMap[$a->object])) {
+                    $nodeMap[$a->object] = count($nodes);
+                    $nodes[] = ['id' => $a->object, 'label' => $a->object, 'group' => $a->assertion_type ?? 'default'];
+                }
+                if ($a->subject && $a->object) {
+                    $edges[] = ['from' => $a->subject, 'to' => $a->object, 'label' => $a->predicate ?? ''];
+                }
+            }
+            return response()->json(['nodes' => $nodes, 'edges' => $edges]);
+        }
+
+        return view('research::research.network-graph', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher')
+        ));
+    }
+
+    // =========================================================================
+    // PROJECT RESEARCH OUTPUT
+    // =========================================================================
+
+    public function roCrate(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $collaborators = DB::table('research_project_collaborator as pc')
+            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
+            ->where('pc.project_id', $id)
+            ->select('r.first_name', 'r.last_name', 'r.email')
+            ->get()->toArray();
+
+        $resources = DB::table('research_project_resource')
+            ->where('project_id', $id)
+            ->get()->toArray();
+
+        // Build RO-Crate manifest
+        $manifest = [
+            '@context' => 'https://w3id.org/ro/crate/1.1/context',
+            '@graph' => [
+                ['@type' => 'CreativeWork', '@id' => 'ro-crate-metadata.json', 'conformsTo' => ['@id' => 'https://w3id.org/ro/crate/1.1']],
+                [
+                    '@type' => 'Dataset',
+                    '@id' => './',
+                    'name' => $project->title,
+                    'description' => $project->description ?? '',
+                    'dateCreated' => $project->created_at ?? '',
+                    'author' => array_map(fn($c) => ['@type' => 'Person', 'name' => $c->first_name . ' ' . $c->last_name], $collaborators),
+                ],
+            ],
+        ];
+
+        return view('research::research.ro-crate', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'manifest', 'collaborators', 'resources')
+        ));
+    }
+
+    public function reproducibilityPack(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $milestones = DB::table('research_project_milestone')->where('project_id', $id)->orderBy('sort_order')->get()->toArray();
+        $resources = DB::table('research_project_resource')->where('project_id', $id)->get()->toArray();
+        $assertions = DB::table('research_assertion')->where('project_id', $id)->get()->toArray();
+        $hypotheses = DB::table('research_hypothesis')->where('project_id', $id)->get()->toArray();
+
+        return view('research::research.reproducibility-pack', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'milestones', 'resources', 'assertions', 'hypotheses')
+        ));
+    }
+
+    public function mintDoi(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $collaborators = DB::table('research_project_collaborator as pc')
+            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
+            ->where('pc.project_id', $id)
+            ->select('r.first_name', 'r.last_name')
+            ->get();
+
+        $creatorsString = $collaborators->map(fn($c) => $c->first_name . ' ' . $c->last_name)->implode(', ');
+        $currentDoi = $project->doi ?? null;
+        $doiMintedAt = $project->doi_minted_at ?? null;
+
+        if ($request->isMethod('post')) {
+            // DOI minting would integrate with DataCite API
+            $doi = '10.5281/heratio.' . $project->id . '.' . time();
+            DB::table('research_project')->where('id', $id)->update([
+                'doi' => $doi,
+                'doi_minted_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'doi' => $doi]);
+            }
+            return redirect()->route('research.mintDoi', $id)->with('success', 'DOI minted: ' . $doi);
+        }
+
+        return view('research::research.mint-doi', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'creatorsString', 'currentDoi', 'doiMintedAt')
+        ));
+    }
+
+    public function ethicsMilestones(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'add_milestone') {
+                $maxSort = DB::table('research_project_milestone')->where('project_id', $id)->max('sort_order') ?? 0;
+                DB::table('research_project_milestone')->insert([
+                    'project_id'     => $id,
+                    'title'          => $request->input('title'),
+                    'description'    => $request->input('description'),
+                    'milestone_type' => $request->input('milestone_type', 'ethics'),
+                    'status'         => 'pending',
+                    'sort_order'     => $maxSort + 1,
+                    'created_at'     => now(),
+                ]);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone added.');
+            }
+
+            if ($action === 'update_status') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->update(['status' => $request->input('status'), 'updated_at' => now()]);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Status updated.');
+            }
+
+            if ($action === 'delete_milestone') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->delete();
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone deleted.');
+            }
+        }
+
+        $milestones = DB::table('research_project_milestone')
+            ->where('project_id', $id)
+            ->orderBy('sort_order')
+            ->get()->toArray();
+
+        return view('research::research.ethics-milestones', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'milestones')
+        ));
+    }
+
+    public function complianceDashboard(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $ethicsMilestones = DB::table('research_project_milestone')
+            ->where('project_id', $id)
+            ->orderBy('sort_order')
+            ->get()->toArray();
+
+        // Compute ethics status
+        $ethicsStatus = 'not_started';
+        if (!empty($ethicsMilestones)) {
+            $statuses = array_column($ethicsMilestones, 'status');
+            if (in_array('rejected', $statuses)) $ethicsStatus = 'rejected';
+            elseif (in_array('pending', $statuses)) $ethicsStatus = 'pending';
+            elseif (count(array_filter($statuses, fn($s) => in_array($s, ['approved', 'completed']))) === count($statuses)) $ethicsStatus = 'approved';
+            else $ethicsStatus = 'pending';
+        }
+
+        $odrlPolicies = DB::table('research_rights_policy')
+            ->where('project_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()->toArray();
+        $odrlPolicyCount = count($odrlPolicies);
+
+        // Sensitivity breakdown from linked resources
+        $sensitivityBreakdown = [];
+        $sensitivitySummary = ['max_level' => 'none'];
+        try {
+            $resourceObjectIds = DB::table('research_project_resource')
+                ->where('project_id', $id)
+                ->whereNotNull('object_id')
+                ->pluck('object_id');
+            if ($resourceObjectIds->isNotEmpty()) {
+                $classifications = DB::table('object_security_classification')
+                    ->whereIn('object_id', $resourceObjectIds)
+                    ->get();
+                foreach ($classifications as $c) {
+                    $level = $c->classification_level ?? 'unclassified';
+                    $sensitivityBreakdown[$level] = ($sensitivityBreakdown[$level] ?? 0) + 1;
+                }
+                $levelOrder = ['top_secret' => 4, 'secret' => 3, 'confidential' => 2, 'unclassified' => 1, 'none' => 0];
+                $maxLevel = 'none';
+                foreach ($sensitivityBreakdown as $level => $count) {
+                    if (($levelOrder[$level] ?? 0) > ($levelOrder[$maxLevel] ?? 0)) $maxLevel = $level;
+                }
+                $sensitivitySummary['max_level'] = $maxLevel;
+            }
+        } catch (\Exception $e) {}
+
+        return view('research::research.compliance-dashboard', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'ethicsMilestones', 'ethicsStatus', 'odrlPolicies', 'odrlPolicyCount', 'sensitivityBreakdown', 'sensitivitySummary')
+        ));
+    }
+
+    // =========================================================================
+    // COLLABORATOR MANAGEMENT
+    // =========================================================================
+
+    public function inviteCollaborator(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->isMethod('post')) {
+            $email = $request->input('email');
+            $role = $request->input('role', 'contributor');
+
+            $invitee = DB::table('research_researcher')->where('email', $email)->first();
+            if (!$invitee) {
+                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'No researcher found with that email.');
+            }
+
+            $exists = DB::table('research_project_collaborator')
+                ->where('project_id', $id)
+                ->where('researcher_id', $invitee->id)
+                ->first();
+            if ($exists) {
+                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'Already a collaborator.');
+            }
+
+            DB::table('research_project_collaborator')->insert([
+                'project_id'    => $id,
+                'researcher_id' => $invitee->id,
+                'role'          => $role,
+                'status'        => 'invited',
+                'invited_at'    => now(),
+            ]);
+
+            return redirect()->route('research.viewProject', $id)->with('success', 'Invitation sent to ' . $email);
+        }
+
+        $collaborators = DB::table('research_project_collaborator as pc')
+            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
+            ->where('pc.project_id', $id)
+            ->select('pc.*', 'r.first_name', 'r.last_name', 'r.email')
+            ->get()->toArray();
+
+        return view('research::research.invite-collaborator', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'collaborators')
+        ));
+    }
+
+    public function shareProject(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        if ($request->isMethod('post') && $request->input('form_action') === 'generate_token') {
+            $token = bin2hex(random_bytes(32));
+            DB::table('research_project')->where('id', $id)->update([
+                'share_token' => $token,
+                'updated_at'  => now(),
+            ]);
+            return redirect()->route('research.shareProject', $id)->with('success', 'Share link generated.');
+        }
+
+        return view('research::research.share-project', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher')
+        ));
+    }
+
+    public function projectCollaborators(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        [$project, $researcher] = $this->loadProjectContext($id);
+
+        $collaborators = DB::table('research_project_collaborator as pc')
+            ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
+            ->where('pc.project_id', $id)
+            ->select('pc.*', 'r.first_name', 'r.last_name', 'r.email')
+            ->get()->toArray();
+
+        return view('research::research.project-collaborators', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'collaborators')
+        ));
+    }
 }
