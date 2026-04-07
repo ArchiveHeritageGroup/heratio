@@ -67,7 +67,7 @@
                   'auction_house' => '#fd7e14', 'museum' => '#0d6efd', 'corporate' => '#6c757d',
                   'government' => '#198754', 'religious' => '#6f42c1', 'artist' => '#d63384',
                 ];
-                $iconClass = $typeIcons[$entry->owner_type] ?? 'fas fa-question';
+                $iconClass = $typeIcons[$entry->owner_type] ?? 'fas fa-user-circle';
                 $bg = $bgColors[$entry->owner_type] ?? '#6c757d';
               @endphp
               @php
@@ -90,6 +90,7 @@
               <strong class="small d-block" style="font-size:0.75rem;line-height:1.2;" title="{{ $entry->owner_name }}">
                 {{ \Illuminate\Support\Str::limit($entry->owner_name, 20) }}
               </strong>
+              <small class="text-muted d-block" style="font-size:0.65rem;">{{ ucfirst(str_replace('_', ' ', $entry->owner_type ?? 'unknown')) }}</small>
               @if($entry->owner_location)
                 <small class="text-muted d-block" style="font-size:0.65rem;">{{ \Illuminate\Support\Str::limit($entry->owner_location, 15) }}</small>
               @endif
