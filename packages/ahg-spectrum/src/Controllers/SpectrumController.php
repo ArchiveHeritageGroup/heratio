@@ -1759,4 +1759,73 @@ class SpectrumController extends Controller
             return ['percentage' => 0, 'completed' => 0, 'total' => 0];
         }
     }
+
+    /**
+     * Save annotations for a condition photo (AJAX).
+     */
+    public function saveAnnotations(Request $request)
+    {
+        $photoId = (int) $request->input('photo_id');
+        $annotations = $request->input('annotations', []);
+
+        $photo = DB::table('spectrum_condition_photos')->where('id', $photoId)->first();
+        if (!$photo) {
+            return response()->json(['success' => false, 'message' => 'Photo not found'], 404);
+        }
+
+        DB::table('spectrum_condition_photos')
+            ->where('id', $photoId)
+            ->update([
+                'annotations' => json_encode($annotations),
+                'updated_at' => now(),
+            ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Get annotations for a condition photo (AJAX).
+     */
+    public function getAnnotations(Request $request)
+    {
+        $photoId = (int) $request->input('photo_id');
+
+        $photo = DB::table('spectrum_condition_photos')->where('id', $photoId)->first();
+        if (!$photo) {
+            return response()->json(['success' => false, 'message' => 'Photo not found'], 404);
+        }
+
+        $annotations = $photo->annotations ? json_decode($photo->annotations, true) : [];
+
+        return response()->json(['success' => true, 'annotations' => $annotations]);
+    }
+
+    /**
+     * Export an annotated condition photo as PNG.
+     */
+    public function exportAnnotatedPhoto(Request $request)
+    {
+        $photoId = (int) $request->input('photo_id');
+        $format = $request->input('format', 'png');
+
+        $photo = DB::table('spectrum_condition_photos')->where('id', $photoId)->first();
+        if (!$photo) {
+            abort(404, 'Photo not found');
+        }
+
+        // Serve the original photo for client-side annotation rendering
+        $basePath = config('ahg.uploads_path', '/mnt/nas/heratio/archive');
+        $filePath = $basePath . '/spectrum/condition-photos/' . $photo->filename;
+
+        if (!file_exists($filePath)) {
+            abort(404, 'Photo file not found');
+        }
+
+        $mimeType = $photo->mime_type ?: 'image/png';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="annotated-' . $photo->original_filename . '"',
+        ]);
+    }
 }

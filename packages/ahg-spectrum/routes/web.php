@@ -31,4 +31,9 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth'])->group(function () 
     Route::get('/movements', [\AhgSpectrum\Controllers\SpectrumController::class, 'movements'])->name('ahgspectrum.movements');
     Route::get('/object-entry', [\AhgSpectrum\Controllers\SpectrumController::class, 'objectEntry'])->name('ahgspectrum.object-entry');
     Route::get('/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'valuations'])->name('ahgspectrum.valuations');
+
+    // Condition photo annotations
+    Route::post('/save-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'saveAnnotations'])->name('spectrum.saveAnnotations');
+    Route::get('/get-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'getAnnotations'])->name('spectrum.getAnnotations');
+    Route::get('/export-annotated-photo', [\AhgSpectrum\Controllers\SpectrumController::class, 'exportAnnotatedPhoto'])->name('spectrum.exportAnnotatedPhoto');
 });

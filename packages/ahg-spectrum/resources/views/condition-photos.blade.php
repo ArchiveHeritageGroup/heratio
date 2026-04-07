@@ -109,7 +109,7 @@ $objectSlug = $resource->slug ?? '';
             <h5 class="mb-0"><i class="fas fa-upload"></i> {{ __('Upload Photos') }}</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('ahgspectrum.condition-photos', ['slug' => $objectSlug]) }}?photo_action=upload&condition_id={{ $conditionCheckId }}"
+            <form action="{{ route('ahgspectrum.condition-photos') }}?slug={{ $objectSlug }}&photo_action=upload&condition_id={{ $conditionCheckId }}"
                   method="post"
                   enctype="multipart/form-data"
                   id="photo-upload-form"
@@ -326,7 +326,7 @@ $objectSlug = $resource->slug ?? '';
             <h5 class="mb-0"><i class="fas fa-plus-circle"></i> {{ __('Create New Comparison') }}</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('ahgspectrum.condition-photos', ['slug' => $objectSlug]) }}?condition_id={{ $conditionCheckId }}&photo_action=create_comparison" method="post">
+            <form action="{{ route('ahgspectrum.condition-photos') }}?slug={{ $objectSlug }}&condition_id={{ $conditionCheckId }}&photo_action=create_comparison" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-md-4">
