@@ -42,7 +42,7 @@ class BackupController extends Controller
      */
     private function getBackupPath(): string
     {
-        return AhgSettingsService::get('backup_path', config('backup.path', '/mnt/nas/heratio/backups'));
+        return AhgSettingsService::get('backup_path', config('heratio.backups_path'));
     }
 
     /**
@@ -257,7 +257,7 @@ class BackupController extends Controller
 
         // Uploads backup
         if (in_array('uploads', $components)) {
-            $uploadsPath = config('app.uploads_path', '/mnt/nas/heratio/archive');
+            $uploadsPath = config('heratio.uploads_path');
             $filename = "uploads_{$timestamp}.tar.gz";
             $filepath = $backupPath . '/' . $filename;
 
@@ -396,7 +396,7 @@ class BackupController extends Controller
     public function settings()
     {
         $settings = [
-            'backup_path' => AhgSettingsService::get('backup_path', '/mnt/nas/heratio/backups'),
+            'backup_path' => AhgSettingsService::get('backup_path', config('heratio.backups_path')),
             'backup_max_backups' => AhgSettingsService::getInt('backup_max_backups', 10),
             'backup_retention_days' => AhgSettingsService::getInt('backup_retention_days', 30),
             'backup_notification_email' => AhgSettingsService::get('backup_notification_email', ''),
@@ -512,7 +512,7 @@ class BackupController extends Controller
         if (in_array('uploads', $components) && in_array('uploads', $backup['components'])) {
             $filePath = $backup['path'];
             if (str_contains($backup['filename'], 'uploads') && str_ends_with($filePath, '.tar.gz')) {
-                $uploadsPath = config('app.uploads_path', '/mnt/nas/heratio/archive');
+                $uploadsPath = config('heratio.uploads_path');
                 $cmd = 'tar -xzf ' . escapeshellarg($filePath) . ' -C ' . escapeshellarg(dirname($uploadsPath)) . ' 2>&1';
                 exec($cmd, $output, $returnCode);
 

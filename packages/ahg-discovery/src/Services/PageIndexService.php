@@ -587,7 +587,7 @@ class PageIndexService
         }
 
         // Build the full file path
-        $uploadPath = config('app.upload_dir', '/mnt/nas/heratio/archive');
+        $uploadPath = config('heratio.uploads_path');
         $filePath = rtrim($uploadPath, '/') . '/' . ltrim($digitalObject->path, '/');
 
         if (!file_exists($filePath)) {

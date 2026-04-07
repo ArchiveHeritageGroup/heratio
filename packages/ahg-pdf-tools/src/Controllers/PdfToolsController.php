@@ -206,7 +206,7 @@ class PdfToolsController extends Controller
                     ->with('error', "Digital object {$doId} not found.");
             }
 
-            $uploadsPath = config('heratio.uploads_path', '/mnt/nas/heratio/archive');
+            $uploadsPath = config('heratio.uploads_path');
             $filePath = rtrim($uploadsPath, '/') . '/' . ltrim($digitalObject->path, '/');
 
             if (!file_exists($filePath)) {

@@ -15,7 +15,7 @@
   if ($doId) {
       $digitalObject = \Illuminate\Support\Facades\DB::table('digital_object')->where('id', $doId)->first();
       if ($digitalObject) {
-          $uploadsBase = config('app.uploads_path', '/mnt/nas/heratio/archive');
+          $uploadsBase = config('heratio.uploads_path');
           $masterDir = dirname($uploadsBase . $digitalObject->path . $digitalObject->name);
           $multiAngleDir = $masterDir . '/multiangle';
 

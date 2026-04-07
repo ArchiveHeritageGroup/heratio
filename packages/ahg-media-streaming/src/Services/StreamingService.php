@@ -157,7 +157,7 @@ class StreamingService
             abort(404, 'Digital object not found.');
         }
 
-        $uploadsDir = config('app.uploads_dir', '/mnt/nas/heratio/archive');
+        $uploadsDir = config('heratio.uploads_path');
         $sourcePath = $digitalObject->getFullPath($uploadsDir);
 
         if (! file_exists($sourcePath)) {

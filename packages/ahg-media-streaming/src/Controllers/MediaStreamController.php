@@ -66,7 +66,7 @@ class MediaStreamController extends Controller
             abort(404, 'Digital object not found.');
         }
 
-        $uploadsDir = config('app.uploads_dir', '/mnt/nas/heratio/archive');
+        $uploadsDir = config('heratio.uploads_path');
         $sourcePath = $digitalObject->getFullPath($uploadsDir);
 
         if (! file_exists($sourcePath)) {
@@ -112,7 +112,7 @@ class MediaStreamController extends Controller
             return response()->json(['error' => 'Digital object not found.'], 404);
         }
 
-        $uploadsDir = config('app.uploads_dir', '/mnt/nas/heratio/archive');
+        $uploadsDir = config('heratio.uploads_path');
         $sourcePath = $digitalObject->getFullPath($uploadsDir);
 
         if (! file_exists($sourcePath)) {

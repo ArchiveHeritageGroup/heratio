@@ -467,7 +467,7 @@ class ProvenanceService
         $docDescriptions = $data['doc_description'] ?? [];
         $userId = auth()->id();
 
-        $uploadDir = '/mnt/nas/heratio/archive/provenance';
+        $uploadDir = config('heratio.uploads_path') . '/provenance';
         if (!is_dir($uploadDir)) {
             @mkdir($uploadDir, 0755, true);
         }
@@ -590,7 +590,7 @@ class ProvenanceService
     {
         $doc = DB::table('provenance_document')->where('id', $id)->first();
         if ($doc && $doc->file_path) {
-            $fullPath = '/mnt/nas/heratio/archive/provenance/' . $doc->filename;
+            $fullPath = config('heratio.uploads_path') . '/provenance/' . $doc->filename;
             if (file_exists($fullPath)) {
                 @unlink($fullPath);
             }

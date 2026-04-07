@@ -325,7 +325,7 @@ class MediaController extends Controller
         $relative = ($do->path ?? '') . ($do->name ?? '');
         $candidates = [
             public_path($relative),
-            '/mnt/nas/heratio/archive/' . $relative,
+            config('heratio.uploads_path') . '/' . $relative,
             '/usr/share/nginx/archive/' . $relative,
             '/usr/share/nginx/archive' . $relative,
         ];

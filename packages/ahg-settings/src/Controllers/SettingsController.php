@@ -582,7 +582,7 @@ class SettingsController extends Controller
         ];
 
         // Check uploads directory
-        $uploadsPath = '/mnt/nas/heratio/archive';
+        $uploadsPath = config('heratio.uploads_path');
         $serviceChecks['Uploads directory'] = [
             'status' => is_writable($uploadsPath) ? 'ok' : 'error',
             'message' => is_writable($uploadsPath) ? 'Writable' : 'Not writable or missing',

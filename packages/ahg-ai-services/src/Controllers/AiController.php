@@ -916,7 +916,7 @@ class AiController extends Controller
             $mimeType = $digitalObject->mime_type ?? '';
             $isPdf    = str_contains($mimeType, 'pdf');
             $webPath  = rtrim($digitalObject->path ?? '', '/') . '/' . ($digitalObject->name ?? '');
-            $absolutePath = '/mnt/nas/heratio/archive/' . ltrim($webPath, '/');
+            $absolutePath = config('heratio.uploads_path') . '/' . ltrim($webPath, '/');
 
             $pageCount = 1;
             if ($isPdf && file_exists($absolutePath)) {
@@ -1771,7 +1771,7 @@ class AiController extends Controller
 
         if ($path && $name) {
             // Try Heratio uploads path
-            $fullPath = '/mnt/nas/heratio/archive/' . ltrim($path, '/') . $name;
+            $fullPath = config('heratio.uploads_path') . '/' . ltrim($path, '/') . $name;
             if (file_exists($fullPath)) {
                 $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
                 if (in_array($ext, $allowedExts)) {

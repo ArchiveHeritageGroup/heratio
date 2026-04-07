@@ -533,7 +533,7 @@ class MetadataExtractionService
             throw new \RuntimeException("Digital object {$digitalObjectId} not found");
         }
 
-        $uploadsPath = config('heratio.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsPath = config('heratio.uploads_path');
         $filePath = rtrim($uploadsPath, '/') . '/' . ltrim($digitalObject->path, '/');
 
         if (!file_exists($filePath)) {

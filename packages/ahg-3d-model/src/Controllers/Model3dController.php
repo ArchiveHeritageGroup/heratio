@@ -197,7 +197,7 @@ class Model3dController extends Controller
                 ->with('error', 'Not a recognised 3D model file.');
         }
 
-        $uploadsBase = config('app.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsBase = config('heratio.uploads_path');
         $masterPath = $uploadsBase . $digitalObject->path . $digitalObject->name;
         $outputDir = $this->thumbnailService->getMultiAngleDir($id);
 
@@ -504,7 +504,7 @@ class Model3dController extends Controller
                     ->with('error', "File too large. Maximum: {$maxFileSize} MB");
             }
 
-            $uploadDir = config('app.uploads_path', '/mnt/nas/heratio/archive') . '/3d/' . $objectId;
+            $uploadDir = config('heratio.uploads_path') . '/3d/' . $objectId;
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -587,7 +587,7 @@ class Model3dController extends Controller
         $objectId = $model->object_id;
 
         // Delete file
-        $uploadsBase = config('app.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsBase = config('heratio.uploads_path');
         $filePath = $uploadsBase . '/' . $model->file_path;
         if (file_exists($filePath)) {
             unlink($filePath);

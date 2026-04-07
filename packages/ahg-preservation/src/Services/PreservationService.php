@@ -92,7 +92,7 @@ class PreservationService
             return null;
         }
 
-        $uploadsBase = '/mnt/nas/heratio/archive';
+        $uploadsBase = config('heratio.uploads_path');
         $filePath = $uploadsBase . '/' . ltrim($digitalObject->path, '/');
 
         if (!file_exists($filePath)) {
@@ -144,7 +144,7 @@ class PreservationService
             return null;
         }
 
-        $uploadsBase = '/mnt/nas/heratio/archive';
+        $uploadsBase = config('heratio.uploads_path');
         $filePath = $uploadsBase . '/' . ltrim($digitalObject->path, '/');
 
         $now = now()->format('Y-m-d H:i:s');

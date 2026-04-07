@@ -267,7 +267,7 @@ class ThreeDThumbnailService
             return false;
         }
 
-        $uploadsBase = config('app.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsBase = config('heratio.uploads_path');
         $masterPath = $uploadsBase . $digitalObject->path . $digitalObject->name;
 
         if (!file_exists($masterPath)) {
@@ -356,7 +356,7 @@ class ThreeDThumbnailService
             return '';
         }
 
-        $uploadsBase = config('app.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsBase = config('heratio.uploads_path');
         $masterDir = dirname($uploadsBase . $digitalObject->path . $digitalObject->name);
 
         return $masterDir . '/multiangle';

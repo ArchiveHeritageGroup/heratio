@@ -291,7 +291,7 @@ class ConditionController extends Controller
         ]);
 
         $file = $request->file('photo');
-        $dir = '/mnt/nas/heratio/uploads/condition_photos';
+        $dir = config('heratio.storage_path') . '/uploads/condition_photos';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
@@ -384,7 +384,7 @@ class ConditionController extends Controller
         }
 
         $filePath = $photo->file_path ?? ('/uploads/condition_photos/' . ($photo->filename ?? ''));
-        $fullPath = '/mnt/nas/heratio' . $filePath;
+        $fullPath = config('heratio.storage_path') . $filePath;
 
         if (!file_exists($fullPath)) {
             return response()->json(['success' => false, 'error' => 'Image file not found: ' . $filePath]);

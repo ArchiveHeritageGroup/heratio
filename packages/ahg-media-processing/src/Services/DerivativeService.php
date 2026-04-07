@@ -57,7 +57,7 @@ class DerivativeService
 
     public function __construct()
     {
-        $this->uploadsBasePath = rtrim(config('app.uploads_path', '/mnt/nas/heratio/archive'), '/');
+        $this->uploadsBasePath = rtrim(config('heratio.uploads_path'), '/');
     }
 
     /**

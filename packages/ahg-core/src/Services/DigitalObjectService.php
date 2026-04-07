@@ -46,6 +46,7 @@ class DigitalObjectService
     const MEDIA_OTHER = 139;
 
     // Upload base directory
+    /** @deprecated Use config('heratio.uploads_path') — kept as fallback only */
     const UPLOAD_DIR = '/mnt/nas/heratio/archive';
 
     /**
@@ -191,7 +192,7 @@ class DigitalObjectService
         $mediaTypeId = self::resolveMediaTypeId($mimeType);
 
         // Create upload directory
-        $uploadDir = self::UPLOAD_DIR . '/' . $objectId;
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $objectId;
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0775, true);
         }
@@ -279,12 +280,12 @@ class DigitalObjectService
 
             foreach ($objects as $obj) {
                 // Try to delete file from disk
-                $filePath = self::UPLOAD_DIR . '/' . ($obj->object_id ?: '') . '/' . $obj->name;
+                $filePath = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . ($obj->object_id ?: '') . '/' . $obj->name;
 
                 // Also try via path field
                 if (!empty($obj->path) && !empty($obj->name)) {
                     // Path may be web-relative; try to find actual file
-                    $altPath = self::UPLOAD_DIR . '/' . ltrim($obj->path, '/') . $obj->name;
+                    $altPath = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . ltrim($obj->path, '/') . $obj->name;
                     if (file_exists($altPath)) {
                         @unlink($altPath);
                     }
@@ -304,7 +305,7 @@ class DigitalObjectService
             // Clean up empty directory
             $master = $objects->firstWhere('usage_id', self::USAGE_MASTER);
             if ($master && $master->object_id) {
-                $dir = self::UPLOAD_DIR . '/' . $master->object_id;
+                $dir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
                 if (is_dir($dir) && count(scandir($dir)) <= 2) {
                     @rmdir($dir);
                 }
@@ -525,7 +526,7 @@ class DigitalObjectService
         string $safeName,
         string $webPath
     ): void {
-        $uploadDir = self::UPLOAD_DIR . '/' . $objectId;
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $objectId;
 
         // Load source image
         $imageInfo = @getimagesize($masterPath);

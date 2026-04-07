@@ -1814,7 +1814,7 @@ class SpectrumController extends Controller
         }
 
         // Serve the original photo for client-side annotation rendering
-        $basePath = config('ahg.uploads_path', '/mnt/nas/heratio/archive');
+        $basePath = config('heratio.uploads_path');
         $filePath = $basePath . '/spectrum/condition-photos/' . $photo->filename;
 
         if (!file_exists($filePath)) {

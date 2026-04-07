@@ -406,7 +406,7 @@ class TranscodingService
             return null;
         }
 
-        $uploadsDir = config('app.uploads_dir', '/mnt/nas/heratio/archive');
+        $uploadsDir = config('heratio.uploads_path');
         $sourcePath = $digitalObject->getFullPath($uploadsDir);
 
         if (! file_exists($sourcePath)) {

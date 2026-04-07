@@ -799,7 +799,7 @@ class InformationObjectApiController extends Controller
         }
         if (!file_exists($storagePath)) {
             // Try uploads directory
-            $storagePath = '/mnt/nas/heratio/archive/' . $do->path;
+            $storagePath = config('heratio.uploads_path') . '/' . $do->path;
         }
         if (!file_exists($storagePath)) {
             return response()->json(['error' => 'Digital object file not found on disk.'], 404);

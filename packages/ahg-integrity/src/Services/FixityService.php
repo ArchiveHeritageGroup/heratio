@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Schema;
 
 class FixityService
 {
+    /** @deprecated Use config('heratio.uploads_path') instead */
     private const UPLOAD_ROOT = '/mnt/nas/heratio/archive';
 
     /**
@@ -244,6 +245,6 @@ class FixityService
             return $path;
         }
 
-        return self::UPLOAD_ROOT . '/' . ltrim($path, '/');
+        return rtrim(config('heratio.uploads_path', self::UPLOAD_ROOT), '/') . '/' . ltrim($path, '/');
     }
 }

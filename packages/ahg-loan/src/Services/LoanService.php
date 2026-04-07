@@ -545,7 +545,7 @@ class LoanService
     public function uploadDocument(int $loanId, $file, string $type, int $userId): int
     {
         $loan = DB::table('ahg_loan')->where('id', $loanId)->first();
-        $dir  = '/mnt/nas/heratio/archive/loans/' . $loan->loan_number;
+        $dir  = config('heratio.uploads_path') . '/loans/' . $loan->loan_number;
 
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);

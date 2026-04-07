@@ -93,7 +93,7 @@ class WatermarkService
 
     public function __construct()
     {
-        $this->uploadsPath = rtrim(config('app.uploads_path', '/mnt/nas/heratio/archive'), '/') . '/watermarks';
+        $this->uploadsPath = rtrim(config('heratio.uploads_path'), '/') . '/watermarks';
     }
 
     /**

@@ -160,7 +160,7 @@ class PdfTextExtractService
             throw new \RuntimeException('pdftotext is not installed.');
         }
 
-        $uploadsPath = config('heratio.uploads_path', '/mnt/nas/heratio/archive');
+        $uploadsPath = config('heratio.uploads_path');
 
         $query = DB::table('digital_object')
             ->where('mime_type', 'application/pdf')
