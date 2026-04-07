@@ -291,7 +291,7 @@ class ConditionController extends Controller
         ]);
 
         $file = $request->file('photo');
-        $dir = '/usr/share/nginx/archive/uploads/condition_photos';
+        $dir = '/mnt/nas/heratio/uploads/condition_photos';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }

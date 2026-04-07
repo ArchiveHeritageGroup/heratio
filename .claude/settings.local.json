@@ -272,7 +272,8 @@
       "Bash(systemctl status:*)",
       "Bash(noip2 -S)",
       "Read(//usr/local/etc/**)",
-      "Bash(dig:*)"
+      "Bash(dig:*)",
+      "Bash(mount)"
     ]
   }
 }
