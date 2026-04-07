@@ -1149,17 +1149,26 @@ class SpectrumController extends Controller
         $workflowConfigs = [];
         $finalStatesByProcedure = [];
 
+        $activeProcedureTypes = [];
         if (Schema::hasTable('spectrum_workflow_config')) {
             $configs = DB::table('spectrum_workflow_config')->where('is_active', 1)->get();
             foreach ($configs as $config) {
                 $configData = json_decode($config->config_json, true);
                 $workflowConfigs[$config->procedure_type] = $configData;
-                $finals = $configData['final_states'] ?? [];
+                $activeProcedureTypes[] = $config->procedure_type;
+                $finals = $this->getFinalStates($config->procedure_type);
                 if (!empty($finals)) {
                     $finalStatesByProcedure[$config->procedure_type] = $finals;
                 }
             }
         }
+
+        // Collect all final states across all procedures
+        $allFinalStates = [];
+        foreach ($finalStatesByProcedure as $finals) {
+            $allFinalStates = array_merge($allFinalStates, $finals);
+        }
+        $allFinalStates = array_unique($allFinalStates);
 
         $query = DB::table('spectrum_workflow_state as sws')
             ->select([
@@ -1179,16 +1188,14 @@ class SpectrumController extends Controller
             ->leftJoin('user as assigner', 'sws.assigned_by', '=', 'assigner.id')
             ->where('sws.assigned_to', $userId);
 
-        // Exclude final states per procedure
-        if (!empty($finalStatesByProcedure)) {
-            $query->where(function ($q) use ($finalStatesByProcedure) {
-                foreach ($finalStatesByProcedure as $proc => $finals) {
-                    $q->where(function ($inner) use ($proc, $finals) {
-                        $inner->where('sws.procedure_type', '!=', $proc)
-                              ->orWhereNotIn('sws.current_state', $finals);
-                    });
-                }
-            });
+        // Only show active procedure types
+        if (!empty($activeProcedureTypes)) {
+            $query->whereIn('sws.procedure_type', $activeProcedureTypes);
+        }
+
+        // Exclude final/closed states
+        if (!empty($allFinalStates)) {
+            $query->whereNotIn('sws.current_state', $allFinalStates);
         }
 
         if ($procedureTypeFilter) {
