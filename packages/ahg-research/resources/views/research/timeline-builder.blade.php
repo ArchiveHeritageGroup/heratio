@@ -146,9 +146,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // vis-timeline
     var container = document.getElementById('timeline');
     if (typeof vis !== 'undefined') {
-        var items = new vis.DataSet(@json(array_map(function($ev) {
-            return ['id' => $ev->id, 'content' => $ev->label, 'start' => $ev->date_start, 'end' => $ev->date_end ?? null, 'style' => ($ev->color ?? null) ? 'background-color:' . $ev->color : ''];
-        }, $events)));
+        @php
+            $visItems = array_map(function($ev) {
+                return ['id' => $ev->id, 'content' => $ev->label, 'start' => $ev->date_start, 'end' => $ev->date_end ?? null, 'style' => ($ev->color ?? null) ? 'background-color:' . $ev->color : ''];
+            }, $events);
+        @endphp
+        var items = new vis.DataSet({!! json_encode($visItems) !!});
         var timeline = new vis.Timeline(container, items, {
             editable: {add: false, updateTime: true, updateGroup: false, remove: false},
             onMove: function(item, callback) {
