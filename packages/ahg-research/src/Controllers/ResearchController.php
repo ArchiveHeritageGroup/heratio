@@ -555,8 +555,8 @@ class ResearchController extends Controller
         if ($request->isMethod('post')) {
             $bookingId = $this->service->createBooking([
                 'researcher_id' => $researcher->id,
-                'reading_room_id' => $request->input('reading_room_id'),
-                'booking_date' => $request->input('booking_date'),
+                'reading_room_id' => $request->input('room_id'),
+                'booking_date' => $request->input('date'),
                 'start_time' => $request->input('start_time'),
                 'end_time' => $request->input('end_time'),
                 'purpose' => $request->input('purpose'),
