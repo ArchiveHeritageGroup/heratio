@@ -12,11 +12,22 @@
 
   if ($isAuthenticated) {
     try {
-      // Workflow tasks assigned to current user
-      $workflowTaskCount = \Illuminate\Support\Facades\DB::table('ahg_workflow_task')
-        ->where('assigned_to', $user->id ?? 0)
-        ->whereNotIn('status', ['completed', 'cancelled'])
-        ->count();
+      // Spectrum workflow tasks assigned to current user (exclude final states)
+      $allFinalStates = [];
+      $wfConfigs = \Illuminate\Support\Facades\DB::table('spectrum_workflow_config')
+          ->where('is_active', 1)->get();
+      foreach ($wfConfigs as $wfc) {
+          $cd = json_decode($wfc->config_json, true);
+          $allFinalStates = array_merge($allFinalStates, $cd['final_states'] ?? []);
+      }
+      $allFinalStates = array_unique($allFinalStates);
+
+      $taskQuery = \Illuminate\Support\Facades\DB::table('spectrum_workflow_state')
+          ->where('assigned_to', $user->id ?? 0);
+      if (!empty($allFinalStates)) {
+          $taskQuery->whereNotIn('current_state', $allFinalStates);
+      }
+      $workflowTaskCount = $taskQuery->count();
     } catch (\Exception $e) {}
 
     if ($isAdmin) {
@@ -60,12 +71,11 @@
       </a>
     </li>
 
-    {{-- Tasks Section (workflow tasks) --}}
-    @if($workflowTaskCount > 0 || $isAdmin)
+    {{-- Spectrum Tasks Section --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header"><i class="fas fa-tasks me-1"></i>Tasks</h6></li>
     <li>
-      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('workflow.my-tasks') }}">
+      <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('ahgspectrum.my-tasks') }}">
         <span><i class="fas fa-clipboard-list me-2"></i>My Tasks</span>
         @if($workflowTaskCount > 0)
           <span class="badge bg-danger">{{ $workflowTaskCount }}</span>
@@ -73,11 +83,10 @@
       </a>
     </li>
     <li>
-      <a class="dropdown-item" href="{{ route('workflow.dashboard') }}">
+      <a class="dropdown-item" href="{{ route('ahgspectrum.dashboard') }}">
         <i class="fas fa-tachometer-alt me-2"></i>Workflow Dashboard
       </a>
     </li>
-    @endif
 
     {{-- Research Section --}}
     <li><hr class="dropdown-divider"></li>
