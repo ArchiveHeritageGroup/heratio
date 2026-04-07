@@ -2092,7 +2092,7 @@ class ResearchController extends Controller
         if (!$researcher) return redirect()->route('researcher.register');
 
         $projectId = DB::table('research_project')->insertGetId([
-            'researcher_id' => $researcher->id,
+            'owner_id' => $researcher->id,
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'project_type' => $request->input('project_type', 'personal'),
