@@ -525,6 +525,15 @@ class SpectrumController extends Controller
 
     public function workflowTransition(Request $request)
     {
+        $request->validate([
+            'slug'           => 'required|string',
+            'procedure_type' => 'required|string',
+            'transition_key' => 'required|string',
+            'from_state'     => 'required|string',
+            'assigned_to'    => 'required|integer|exists:user,id',
+            'note'           => 'nullable|string|max:1000',
+        ]);
+
         $slug          = $request->input('slug');
         $procedureType = $request->input('procedure_type');
         $transitionKey = $request->input('transition_key');

@@ -206,11 +206,11 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ __('Assign to') }}</label>
-                            <select name="assigned_to" class="form-select">
-                                <option value="">{{ __('Unassigned') }}</option>
+                            <label class="form-label">{{ __('Assign to') }} <span class="text-danger">*</span></label>
+                            <select name="assigned_to" class="form-select" required>
+                                <option value="">{{ __('Select user...') }}</option>
                                 @foreach ($users as $user)
-                                <option value="{{ $user->id }}">
+                                <option value="{{ $user->id }}" {{ $user->id == auth()->id() ? 'selected' : '' }}>
                                     {{ $user->username ?? $user->authorized_form_of_name ?? '' }}
                                 </option>
                                 @endforeach
