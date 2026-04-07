@@ -161,7 +161,7 @@
         </form>
       @endif
 
-      <a href="{{ url()->previous() }}" class="btn atom-btn-white">
+      <a href="{{ route('research.bookings') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i>Back
       </a>
     </div>
