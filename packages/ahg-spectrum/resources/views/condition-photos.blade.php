@@ -495,7 +495,7 @@ $objectSlug = $resource->slug ?? '';
 // Photo data for lightbox
 var photos = {!! json_encode($photos) !!};
 var currentPhotoIndex = 0;
-var baseUrl = '{{ route("spectrum.conditionPhotos", ["slug" => $objectSlug]) }}?condition_id={{ $conditionCheckId }}';
+var baseUrl = '{{ route("ahgspectrum.condition-photos") }}?slug={{ $objectSlug }}&condition_id={{ $conditionCheckId }}';
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
