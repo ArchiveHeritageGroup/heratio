@@ -2834,11 +2834,12 @@ class ResearchController extends Controller
 
         if ($request->isMethod('post') && $request->input('form_action') === 'create') {
             $snapshotId = DB::table('research_snapshot')->insertGetId([
-                'project_id'  => $id,
-                'title'       => $request->input('title', 'Snapshot ' . date('Y-m-d H:i')),
-                'description' => $request->input('description'),
-                'created_by'  => $researcher->id,
-                'created_at'  => now(),
+                'project_id'    => $id,
+                'researcher_id' => $researcher->id,
+                'title'         => $request->input('title', 'Snapshot ' . date('Y-m-d H:i')),
+                'description'   => $request->input('description'),
+                'status'        => 'active',
+                'created_at'    => now(),
             ]);
             return redirect()->route('research.snapshots', $id)->with('success', 'Snapshot created.');
         }
