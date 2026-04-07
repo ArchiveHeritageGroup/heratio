@@ -2677,9 +2677,9 @@ class ResearchController extends Controller
             $nodes = [];
             $edges = [];
             foreach ($assertions as $a) {
-                $nodes[] = ['id' => $a->id, 'label' => $a->subject ?? '', 'type' => $a->assertion_type ?? '', 'status' => $a->status ?? ''];
-                if ($a->object ?? null) {
-                    $edges[] = ['source' => $a->id, 'target' => $a->object, 'label' => $a->predicate ?? ''];
+                $nodes[] = ['id' => $a->id, 'label' => $a->subject_label ?? '', 'type' => $a->assertion_type ?? '', 'status' => $a->status ?? ''];
+                if ($a->object_label ?? null) {
+                    $edges[] = ['source' => $a->id, 'target' => $a->object_label, 'label' => $a->predicate ?? ''];
                 }
             }
             return response()->json(['nodes' => $nodes, 'edges' => $edges]);
@@ -2713,13 +2713,16 @@ class ResearchController extends Controller
         if ($request->isMethod('post') && $request->input('form_action') === 'create') {
             DB::table('research_assertion')->insert([
                 'project_id'     => $id,
+                'researcher_id'  => $researcher->id,
                 'assertion_type' => $request->input('assertion_type', 'biographical'),
-                'subject'        => $request->input('subject'),
+                'subject_type'   => 'text',
+                'subject_id'     => 0,
+                'subject_label'  => $request->input('subject'),
                 'predicate'      => $request->input('predicate'),
-                'object'         => $request->input('object'),
+                'object_value'   => $request->input('object'),
+                'object_label'   => $request->input('object'),
                 'confidence'     => $request->input('confidence', 0.5),
                 'status'         => 'proposed',
-                'created_by'     => $researcher->id,
                 'created_at'     => now(),
             ]);
             return redirect()->route('research.assertions', $id)->with('success', 'Assertion created.');
@@ -2743,12 +2746,12 @@ class ResearchController extends Controller
 
         if ($request->isMethod('post') && $request->input('form_action') === 'create') {
             DB::table('research_hypothesis')->insert([
-                'project_id'  => $id,
-                'title'       => $request->input('title'),
-                'description' => $request->input('description'),
-                'status'      => 'proposed',
-                'created_by'  => $researcher->id,
-                'created_at'  => now(),
+                'project_id'    => $id,
+                'researcher_id' => $researcher->id,
+                'statement'     => $request->input('statement', $request->input('title', '')),
+                'tags'          => $request->input('tags'),
+                'status'        => 'proposed',
+                'created_at'    => now(),
             ]);
             return redirect()->route('research.hypotheses', $id)->with('success', 'Hypothesis created.');
         }
@@ -2919,16 +2922,16 @@ class ResearchController extends Controller
             $edges = [];
             $nodeMap = [];
             foreach ($assertions as $a) {
-                if ($a->subject && !isset($nodeMap[$a->subject])) {
-                    $nodeMap[$a->subject] = count($nodes);
-                    $nodes[] = ['id' => $a->subject, 'label' => $a->subject, 'group' => $a->assertion_type ?? 'default'];
+                if ($a->subject_label && !isset($nodeMap[$a->subject_label])) {
+                    $nodeMap[$a->subject_label] = count($nodes);
+                    $nodes[] = ['id' => $a->subject_label, 'label' => $a->subject_label, 'group' => $a->assertion_type ?? 'default'];
                 }
-                if ($a->object && !isset($nodeMap[$a->object])) {
-                    $nodeMap[$a->object] = count($nodes);
-                    $nodes[] = ['id' => $a->object, 'label' => $a->object, 'group' => $a->assertion_type ?? 'default'];
+                if ($a->object_label && !isset($nodeMap[$a->object_label])) {
+                    $nodeMap[$a->object_label] = count($nodes);
+                    $nodes[] = ['id' => $a->object_label, 'label' => $a->object_label, 'group' => $a->assertion_type ?? 'default'];
                 }
-                if ($a->subject && $a->object) {
-                    $edges[] = ['from' => $a->subject, 'to' => $a->object, 'label' => $a->predicate ?? ''];
+                if ($a->subject_label && $a->object_label) {
+                    $edges[] = ['from' => $a->subject_label, 'to' => $a->object_label, 'label' => $a->predicate ?? ''];
                 }
             }
             return response()->json(['nodes' => $nodes, 'edges' => $edges]);

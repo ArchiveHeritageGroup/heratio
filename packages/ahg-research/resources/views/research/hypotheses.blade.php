@@ -40,12 +40,12 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="mb-3">
-                    <label class="form-label">Title <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" required>
+                    <label class="form-label">Statement <span class="text-danger">*</span></label>
+                    <textarea name="statement" class="form-control" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control" rows="3"></textarea>
+                    <label class="form-label">Tags</label>
+                    <input type="text" name="tags" class="form-control" placeholder="Comma-separated tags">
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Create</button>
             </form>
@@ -60,11 +60,14 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>{{ e($h->title ?? 'Untitled') }}</strong>
+                <strong>{{ e(Str::limit($h->statement ?? 'Untitled', 80)) }}</strong>
                 <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ ucfirst($h->status ?? 'proposed') }}</span>
             </div>
             <div class="card-body">
-                <p class="mb-0">{{ e($h->description ?? '') }}</p>
+                <p class="mb-0">{{ e($h->statement ?? '') }}</p>
+                @if($h->tags ?? null)
+                <p class="text-muted small mt-1">Tags: {{ e($h->tags) }}</p>
+                @endif
             </div>
             <div class="card-footer text-muted small">
                 Created: {{ $h->created_at ?? '' }}

@@ -125,9 +125,9 @@
                 <tbody>
                     @foreach($assertions as $a)
                     <tr>
-                        <td>{{ e($a->subject ?? '') }}</td>
+                        <td>{{ e($a->subject_label ?? '') }}</td>
                         <td>{{ e($a->predicate ?? '') }}</td>
-                        <td>{{ e($a->object ?? '') }}</td>
+                        <td>{{ e($a->object_label ?? $a->object_value ?? '') }}</td>
                         <td>
                             <span class="badge bg-info">{{ ucfirst($a->assertion_type ?? '') }}</span>
                         </td>
