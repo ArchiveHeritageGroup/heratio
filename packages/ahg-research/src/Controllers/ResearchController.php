@@ -3021,10 +3021,35 @@ class ResearchController extends Controller
         }
 
         if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'update_point' && $request->input('point_id')) {
+                DB::table('research_map_point')
+                    ->where('id', $request->input('point_id'))
+                    ->where('project_id', $id)
+                    ->update([
+                        'label'       => $request->input('label'),
+                        'place_name'  => $request->input('place_name'),
+                        'latitude'    => $request->input('latitude'),
+                        'longitude'   => $request->input('longitude'),
+                        'description' => $request->input('description'),
+                    ]);
+                return redirect()->route('research.mapBuilder', $id)->with('success', 'Point updated.');
+            }
+
+            if ($action === 'delete_point' && $request->input('point_id')) {
+                DB::table('research_map_point')
+                    ->where('id', $request->input('point_id'))
+                    ->where('project_id', $id)
+                    ->delete();
+                return redirect()->route('research.mapBuilder', $id)->with('success', 'Point deleted.');
+            }
+
+            // Default: create
             DB::table('research_map_point')->insert([
                 'project_id'    => $id,
                 'researcher_id' => $researcher->id,
-                'label'         => $request->input('title', $request->input('label', '')),
+                'label'         => $request->input('label', ''),
                 'description'   => $request->input('description'),
                 'latitude'      => $request->input('latitude'),
                 'longitude'     => $request->input('longitude'),
