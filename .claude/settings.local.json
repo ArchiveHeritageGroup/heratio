@@ -273,7 +273,9 @@
       "Bash(noip2 -S)",
       "Read(//usr/local/etc/**)",
       "Bash(dig:*)",
-      "Bash(mount)"
+      "Bash(mount)",
+      "Bash(tail -20 /var/log/php*fpm*.log)",
+      "Bash(sudo service:*)"
     ]
   }
 }

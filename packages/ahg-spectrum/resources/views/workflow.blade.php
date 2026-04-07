@@ -129,6 +129,12 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         @endif
+        @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
 
         @if ($resource)
         <!-- Linked Record -->
@@ -216,7 +222,31 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                 @endphp
                 <div class="mb-3">
                     <h6>{{ __('Available Actions') }}</h6>
-                    @if ($isFinalStep && ($originatorId ?? null))
+                    @php
+                        // Detect pre-close and close states
+                        $allStates = $configData['states'] ?? [];
+                        $closedIdx = array_search('closed', $allStates);
+                        $preCloseStateKey = ($closedIdx && $closedIdx > 0) ? $allStates[$closedIdx - 1] : null;
+                        $isPreClose = $preCloseStateKey && $currentStateName === $preCloseStateKey;
+                        $isCloseAction = isset($availableTransitions['close']);
+                        $isOriginator = ($originatorId ?? null) && auth()->id() == $originatorId;
+                    @endphp
+
+                    @if ($isPreClose || $isCloseAction)
+                    <div class="alert alert-warning py-2 mb-3">
+                        <i class="fas fa-lock me-1"></i>
+                        @if ($isCloseAction && !$isOriginator)
+                            <strong>{{ __('Sign-off required.') }}</strong>
+                            {{ __('Only the originator can close this procedure. The originator has been notified.') }}
+                        @elseif ($isCloseAction && $isOriginator)
+                            <strong>{{ __('Sign-off required.') }}</strong>
+                            {{ __('As the originator, you must review and close this procedure to confirm completion.') }}
+                        @else
+                            <i class="fas fa-user-check me-1"></i>
+                            {{ __('This step completes the procedure actions. It will be routed to the originator for sign-off and closure.') }}
+                        @endif
+                    </div>
+                    @elseif ($isFinalStep && ($originatorId ?? null))
                     <div class="alert alert-info py-2 mb-3">
                         <i class="fas fa-info-circle me-1"></i>
                         {{ __('Final step — this task will be routed back to the originator for closure.') }}
@@ -233,14 +263,20 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
                             <select name="transition_key" class="form-select" required id="transition-key-select">
                                 <option value="">{{ __('Select action...') }}</option>
                                 @foreach ($availableTransitions as $transKey => $transDef)
-                                @php $isRestart = ($transKey === 'restart'); @endphp
+                                @php
+                                    $isRestart = ($transKey === 'restart');
+                                    // Only the originator can close
+                                    if ($transKey === 'close' && !$isOriginator) continue;
+                                @endphp
                                 <option value="{{ $transKey }}"
                                         data-to-state="{{ $transDef['to'] }}"
                                         data-is-final="{{ in_array($transKey, $finalTransKeys) ? '1' : '0' }}">
                                     @if ($isRestart)
                                         &#x21bb; {{ __('Restart') }} &rarr; {{ ucwords(str_replace('_', ' ', $transDef['to'])) }}
+                                    @elseif ($transKey === 'close')
+                                        <i class="fas fa-check-double"></i> {{ __('Sign off & Close') }}
                                     @else
-                                        {{ ucwords(str_replace('_', ' ', $transKey)) }} &rarr; {{ ucwords(str_replace('_', ' ', $transDef['to'])) }}
+                                        {{ $transDef['label'] ?? ucwords(str_replace('_', ' ', $transKey)) }}
                                     @endif
                                 </option>
                                 @endforeach

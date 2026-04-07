@@ -666,31 +666,56 @@ class SpectrumController extends Controller
 
         $assignedToInt = $assignedTo ? (int) $assignedTo : null;
 
-        // Final step: always route back to the originator for closure
-        $finalStates = $this->getFinalStates($procedureType);
-        if ($transitionKey !== 'restart' && in_array($toState, $finalStates)) {
-            $originator = DB::table('spectrum_workflow_history')
-                ->where('procedure_type', $procedureType)
-                ->where('record_id', $resource->id)
-                ->orderBy('created_at', 'asc')
-                ->value('user_id');
+        // Identify the originator (first user who acted on this procedure)
+        $originatorId = DB::table('spectrum_workflow_history')
+            ->where('procedure_type', $procedureType)
+            ->where('record_id', $resource->id)
+            ->orderBy('created_at', 'asc')
+            ->value('user_id');
 
-            if ($originator) {
-                $assignedToInt = (int) $originator;
+        $finalStates = $this->getFinalStates($procedureType);
+        $states      = $configData['states'] ?? [];
+
+        // ── Closure sign-off: only the originator may close ──
+        if ($transitionKey === 'close' && in_array($toState, $finalStates)) {
+            if ($originatorId && $userId !== (int) $originatorId) {
+                return redirect()
+                    ->route('ahgspectrum.workflow', ['slug' => $slug, 'procedure_type' => $procedureType])
+                    ->with('error', __('Only the originator can sign off and close this procedure.'));
+            }
+            $assignedToInt = $originatorId ? (int) $originatorId : $userId;
+        }
+
+        // ── Pre-close step: route to originator for sign-off ──
+        // The pre-close state is the state one before "closed" in the states array.
+        $closedIndex   = array_search('closed', $states);
+        $preCloseState = ($closedIndex && $closedIndex > 0) ? $states[$closedIndex - 1] : null;
+
+        if ($preCloseState && $toState === $preCloseState && $transitionKey !== 'restart' && $transitionKey !== 'reject') {
+            // Auto-assign to originator so they can review and close
+            if ($originatorId) {
+                $assignedToInt = (int) $originatorId;
+            }
+        }
+
+        // ── Final step (non-close): route to originator ──
+        if ($transitionKey !== 'close' && $transitionKey !== 'restart' && in_array($toState, $finalStates)) {
+            if ($originatorId) {
+                $assignedToInt = (int) $originatorId;
             }
         }
 
         // On rejection, auto-assign back to the submitter
-        if ($transitionKey === 'reject' && !$assignedToInt) {
-            $originator = DB::table('spectrum_workflow_history')
+        if ($transitionKey === 'reject') {
+            $submitter = DB::table('spectrum_workflow_history')
                 ->where('procedure_type', $procedureType)
                 ->where('record_id', $resource->id)
-                ->where('transition_key', 'submit_for_review')
+                ->whereNotIn('transition_key', ['reject', 'restart', 'auto_trigger'])
                 ->orderBy('created_at', 'desc')
                 ->value('user_id');
 
-            if ($originator) {
-                $assignedToInt = (int) $originator;
+            if ($submitter) {
+                $assignedToInt = (int) $submitter;
             }
         }
 
@@ -734,7 +759,13 @@ class SpectrumController extends Controller
             DB::table('spectrum_workflow_state')->insert($insertData);
         }
 
-        // Record history
+        // Record history — include sign-off metadata on closure
+        $historyMeta = $assignedToInt ? ['assigned_to' => $assignedToInt] : [];
+        if ($transitionKey === 'close' && in_array($toState, $finalStates)) {
+            $historyMeta['signed_off_by'] = $userId;
+            $historyMeta['signed_off_at'] = now()->toIso8601String();
+        }
+
         DB::table('spectrum_workflow_history')->insert([
             'procedure_type' => $procedureType,
             'record_id'      => $resource->id,
@@ -744,11 +775,33 @@ class SpectrumController extends Controller
             'user_id'        => $userId,
             'assigned_to'    => $assignedToInt,
             'note'           => $note,
-            'metadata'       => $assignedToInt ? json_encode(['assigned_to' => $assignedToInt]) : null,
+            'metadata'       => !empty($historyMeta) ? json_encode($historyMeta) : null,
             'created_at'     => now(),
         ]);
 
         $isFinalState = $this->isFinalState($procedureType, $toState);
+
+        // ── Notify originator when pre-close state is reached (sign-off needed) ──
+        if ($preCloseState && $toState === $preCloseState && $originatorId && $originatorId !== $userId) {
+            $procLabel = $this->getProcedures()[$procedureType]['label'] ?? $procedureType;
+            SpectrumNotificationService::createAssignmentNotification(
+                (int) $originatorId,
+                $resource->id,
+                $procedureType,
+                $userId,
+                $toState
+            );
+            // Also create a specific sign-off notification
+            DB::table('spectrum_notification')->insert([
+                'user_id'           => $originatorId,
+                'notification_type' => 'sign_off_required',
+                'subject'           => "Sign-off required: {$procLabel}",
+                'message'           => "The procedure \"{$procLabel}\" has reached its final step and requires your sign-off to close.\n\n"
+                    . "Object: " . ($resource->title ?: $resource->slug) . "\n"
+                    . "View: " . url('/admin/spectrum/workflow?slug=' . $resource->slug . '&procedure_type=' . $procedureType),
+                'created_at'        => now(),
+            ]);
+        }
 
         // Create in-app assignment notification (not for final states)
         if ($assignedToInt && $assignedToInt !== $userId && !$isFinalState) {
