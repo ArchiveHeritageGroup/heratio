@@ -255,7 +255,11 @@
       "Read(//tmp/**)",
       "Bash(sudo sed:*)",
       "Bash(cp /usr/share/nginx/archive/plugins/ahgCorePlugin/web/css/tts.css /usr/share/nginx/heratio/public/vendor/ahg-core/css/tts.css)",
-      "Bash(cp /usr/share/nginx/archive/plugins/ahgCorePlugin/web/js/tts.js /usr/share/nginx/heratio/public/vendor/ahg-core/js/tts.js)"
+      "Bash(cp /usr/share/nginx/archive/plugins/ahgCorePlugin/web/js/tts.js /usr/share/nginx/heratio/public/vendor/ahg-core/js/tts.js)",
+      "Bash(gh run:*)",
+      "Bash(gh workflow:*)",
+      "Bash(xargs -I {} gh run delete {} --repo ArchiveHeritageGroup/heratio)",
+      "Bash(stat /usr/share/nginx/heratio/packages/ahg-metadata-export/src/Services/Exporters/*.php)"
     ]
   }
 }

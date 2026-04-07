@@ -124,7 +124,14 @@
               @if($hasGrap)<li class="list-group-item"><a href="{{ url('/grap/national-treasury-report') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>GRAP 103 National Treasury Report</a></li>@endif
               @if($hasSpectrum)<li class="list-group-item"><a href="{{ url('/spectrum/export') }}"><i class="fas fa-history me-2 text-muted"></i>Spectrum History Export</a></li>@endif
               <li class="list-group-item"><a href="{{ route('reports.descriptions', ['export' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-muted"></i>CSV Export</a></li>
-              <li class="list-group-item"><a href="{{ url('/export/ead') }}"><i class="fas fa-file-code me-2 text-muted"></i>EAD Export</a></li>
+              <li class="list-group-item"><a href="{{ url('/export/ead') }}"><i class="fas fa-file-code me-2 text-muted"></i>EAD 2002 Export</a></li>
+              <li class="list-group-item border-top mt-2 pt-2"><small class="text-muted fw-bold">Metadata Standards Export</small></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.index') }}"><i class="fas fa-file-export me-2 text-muted"></i>Metadata Export Hub</a></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'ead4']) }}"><i class="fas fa-code me-2 text-muted"></i>EAD 4 (Draft)</a></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eac2']) }}"><i class="fas fa-user-tag me-2 text-muted"></i>EAC-CPF 2.0</a></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eac-f']) }}"><i class="fas fa-cogs me-2 text-muted"></i>EAC-F (Functions)</a></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.preview', ['format' => 'eag']) }}"><i class="fas fa-building me-2 text-muted"></i>EAG 3.0 (Repositories)</a></li>
+              <li class="list-group-item"><a href="{{ route('ahgmetadataexport.bulk') }}"><i class="fas fa-download me-2 text-muted"></i>Bulk Metadata Export</a></li>
             </ul>
           </div>
         </div>
