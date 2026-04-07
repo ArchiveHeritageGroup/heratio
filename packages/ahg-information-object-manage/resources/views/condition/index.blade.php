@@ -134,12 +134,18 @@
                   <td>{{ \Illuminate\Support\Str::limit($check->notes ?? '', 80) }}</td>
                   <td class="text-end">
                     @if(($check->source ?? '') === 'spectrum')
-                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Photos">
+                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Report">
+                        <i class="fas fa-eye me-1"></i>View
+                      </a>
+                      <a href="{{ route('io.condition.spectrum.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="View Photos">
                         <i class="fas fa-images"></i>
                       </a>
                     @else
                       <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}" class="btn btn-sm btn-outline-primary" title="View Report">
                         <i class="fas fa-eye me-1"></i>View
+                      </a>
+                      <a href="{{ route('io.condition.show', ['id' => $check->id ?? 0]) }}#photos" class="btn btn-sm btn-outline-secondary" title="View Photos">
+                        <i class="fas fa-images"></i>
                       </a>
                     @endif
                   </td>
