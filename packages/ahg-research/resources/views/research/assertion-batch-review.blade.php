@@ -19,9 +19,6 @@
     <h1 class="h2">Assertion Batch Review <span class="badge bg-warning">{{ count($assertions) }} proposed</span></h1>
 </div>
 
-@if(empty($assertions))
-    <div class="alert alert-success">No proposed assertions to review.</div>
-@else
 <form method="post" action="{{ route('research.assertionBatchReview', $project->id) }}">
     @csrf
     <input type="hidden" name="form_action" value="batch_update">
@@ -89,7 +86,6 @@
         </table>
     </div>
 </form>
-@endif
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
