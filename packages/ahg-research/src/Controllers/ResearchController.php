@@ -1045,6 +1045,72 @@ class ResearchController extends Controller
         $project = DB::table('research_project')->where('id', $id)->first();
         if (!$project) abort(404, 'Project not found');
 
+        $isOwner = ($project->owner_id ?? 0) == ($researcher->id ?? 0);
+
+        // Handle POST form actions
+        if ($request->isMethod('post') && $isOwner) {
+            $action = $request->input('form_action');
+
+            if ($action === 'add_milestone') {
+                $maxSort = DB::table('research_project_milestone')->where('project_id', $id)->max('sort_order') ?? 0;
+                DB::table('research_project_milestone')->insert([
+                    'project_id'  => $id,
+                    'title'       => $request->input('milestone_title'),
+                    'description' => $request->input('milestone_description'),
+                    'due_date'    => $request->input('milestone_due_date') ?: null,
+                    'status'      => $request->input('milestone_status', 'pending'),
+                    'sort_order'  => $maxSort + 1,
+                    'created_at'  => now(),
+                ]);
+                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone added.');
+            }
+
+            if ($action === 'complete_milestone') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->update(['status' => 'completed', 'updated_at' => now()]);
+                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone completed.');
+            }
+
+            if ($action === 'delete_milestone') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->delete();
+                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone deleted.');
+            }
+
+            if ($action === 'add_resource') {
+                DB::table('research_project_resource')->insert([
+                    'project_id'    => $id,
+                    'resource_type' => $request->input('resource_type', 'external_link'),
+                    'title'         => $request->input('resource_title'),
+                    'external_url'  => $request->input('external_url') ?: null,
+                    'notes'         => $request->input('resource_notes') ?: null,
+                    'added_at'      => now(),
+                ]);
+                return redirect()->route('research.viewProject', $id)->with('success', 'Resource linked.');
+            }
+
+            if ($action === 'remove_resource') {
+                DB::table('research_project_resource')
+                    ->where('id', $request->input('resource_id'))
+                    ->where('project_id', $id)
+                    ->delete();
+                return redirect()->route('research.viewProject', $id)->with('success', 'Resource removed.');
+            }
+
+            if ($action === 'remove_collaborator') {
+                DB::table('research_project_collaborator')
+                    ->where('project_id', $id)
+                    ->where('researcher_id', $request->input('collaborator_researcher_id'))
+                    ->where('role', '!=', 'owner')
+                    ->delete();
+                return redirect()->route('research.viewProject', $id)->with('success', 'Collaborator removed.');
+            }
+        }
+
         $collaborators = DB::table('research_project_collaborator as pc')
             ->join('research_researcher as r', 'pc.researcher_id', '=', 'r.id')
             ->where('pc.project_id', $id)
