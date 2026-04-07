@@ -595,9 +595,20 @@ class ResearchController extends Controller
             }
         }
 
+        $materials = DB::table('research_material_request as m')
+            ->leftJoin('information_object_i18n as ioi18n', function ($j) {
+                $j->on('m.object_id', '=', 'ioi18n.id')->where('ioi18n.culture', '=', 'en');
+            })
+            ->leftJoin('slug', 'm.object_id', '=', 'slug.object_id')
+            ->where('m.booking_id', $id)
+            ->select('m.*', 'ioi18n.title as description', 'slug.slug')
+            ->get();
+
+        $isAdmin = Auth::check() && \AhgCore\Services\AclService::isAdministrator(Auth::user());
+
         return view('research::research.view-booking', array_merge(
             $this->getSidebarData('bookings'),
-            compact('booking')
+            compact('booking', 'materials', 'isAdmin')
         ));
     }
 

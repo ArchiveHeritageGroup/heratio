@@ -96,7 +96,7 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Description</th>
+                <th>Material</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -104,7 +104,13 @@
               @foreach($materials as $i => $material)
                 <tr>
                   <td>{{ $i + 1 }}</td>
-                  <td>{{ e($material->description ?? '') }}</td>
+                  <td>
+                    @if($material->slug ?? null)
+                      <a href="{{ url('/' . $material->slug) }}">{{ e($material->description ?? 'Untitled') }}</a>
+                    @else
+                      {{ e($material->description ?? 'Object #' . ($material->object_id ?? '')) }}
+                    @endif
+                  </td>
                   <td>
                     <span class="badge bg-{{ ($material->status ?? '') === 'retrieved' ? 'success' : (($material->status ?? '') === 'pending' ? 'warning' : 'secondary') }}">
                       {{ ucfirst(e($material->status ?? 'pending')) }}
