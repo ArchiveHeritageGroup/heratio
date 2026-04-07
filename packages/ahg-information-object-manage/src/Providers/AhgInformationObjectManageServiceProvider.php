@@ -17,5 +17,11 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-io-manage');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-information-object-manage');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgInformationObjectManage\Console\Commands\ImportArchivesCsvCommand::class,
+            ]);
+        }
     }
 }

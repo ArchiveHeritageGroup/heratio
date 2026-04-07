@@ -16,5 +16,11 @@ class AhgGalleryServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ahg-gallery');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgGallery\Console\Commands\ImportGalleryCsvCommand::class,
+            ]);
+        }
     }
 }

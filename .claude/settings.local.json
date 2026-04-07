@@ -259,7 +259,9 @@
       "Bash(gh run:*)",
       "Bash(gh workflow:*)",
       "Bash(xargs -I {} gh run delete {} --repo ArchiveHeritageGroup/heratio)",
-      "Bash(stat /usr/share/nginx/heratio/packages/ahg-metadata-export/src/Services/Exporters/*.php)"
+      "Bash(stat /usr/share/nginx/heratio/packages/ahg-metadata-export/src/Services/Exporters/*.php)",
+      "Bash(/usr/share/nginx/archive/symfony list:*)",
+      "Bash(/usr/share/nginx/archive/symfony :library-csv-import --help)"
     ]
   }
 }
