@@ -43,6 +43,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Workspace (personal)
     Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
+    Route::get('/viewWorkspace', fn (\Illuminate\Http\Request $r) => redirect('/research/workspace?' . $r->getQueryString(), 301));
 
     // Team Workspaces
     Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
