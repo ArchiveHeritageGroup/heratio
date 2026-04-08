@@ -694,9 +694,24 @@ class ResearchController extends Controller
             }
         }
 
+        $canUseFeatures = $researcher->status === 'approved'
+            && (!($researcher->expires_at ?? null) || strtotime($researcher->expires_at) >= time());
+
+        // Weekly activity sparkline (last 7 days)
+        $weeklyActivity = [];
+        try {
+            $weeklyActivity = DB::table('research_access_decision')
+                ->where('researcher_id', $researcher->id)
+                ->where('evaluated_at', '>=', date('Y-m-d', strtotime('-7 days')))
+                ->selectRaw('DATE(evaluated_at) as date, COUNT(*) as count')
+                ->groupByRaw('DATE(evaluated_at)')
+                ->orderBy('date')
+                ->get()->toArray();
+        } catch (\Exception $e) {}
+
         return view('research::research.workspace', array_merge(
             $this->getSidebarData('workspace'),
-            compact('researcher', 'collections', 'savedSearches', 'annotations', 'upcomingBookings', 'pastBookings', 'stats')
+            compact('researcher', 'collections', 'savedSearches', 'annotations', 'upcomingBookings', 'pastBookings', 'stats', 'canUseFeatures', 'weeklyActivity')
         ));
     }
 
