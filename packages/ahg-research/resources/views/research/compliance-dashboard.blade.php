@@ -61,7 +61,7 @@
             <div class="card-body text-center">
                 <i class="fas fa-lock text-warning fa-2x mb-2"></i>
                 <h6>Max Security Level</h6>
-                <span class="badge bg-warning">{{ ucfirst($sensitivitySummary ?? 'N/A') }}</span>
+                <span class="badge bg-warning">{{ ucfirst($sensitivitySummary['max_level'] ?? 'N/A') }}</span>
             </div>
         </div>
     </div>
