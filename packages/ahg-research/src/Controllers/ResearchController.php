@@ -2533,6 +2533,18 @@ class ResearchController extends Controller
                 return $redir->with('success', 'Resource added.');
             }
 
+            if ($action === 'edit_resource' && in_array($myRole, ['owner', 'admin', 'editor'])) {
+                DB::table('research_workspace_resource')
+                    ->where('workspace_id', $id)->where('id', $request->input('resource_id'))
+                    ->update([
+                        'title' => $request->input('title'),
+                        'resource_type' => $request->input('resource_type', 'link'),
+                        'external_url' => $request->input('external_url') ?: null,
+                        'description' => $request->input('notes'),
+                    ]);
+                return $redir->with('success', 'Resource updated.');
+            }
+
             if ($action === 'remove_resource' && in_array($myRole, ['owner', 'admin', 'editor'])) {
                 DB::table('research_workspace_resource')
                     ->where('workspace_id', $id)->where('id', $request->input('resource_id'))->delete();

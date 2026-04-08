@@ -139,12 +139,22 @@
                             <div class="col-md-6 mb-3">
                                 <div class="border rounded p-3 position-relative">
                                     @if(in_array($myRole, ['owner', 'admin', 'editor']))
-                                    <form method="post" class="position-absolute top-0 end-0 m-2" onsubmit="return confirm('Remove this resource?');">
-                                        @csrf
-                                        <input type="hidden" name="form_action" value="remove_resource">
-                                        <input type="hidden" name="resource_id" value="{{ (int) $res->id }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
-                                    </form>
+                                    <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                                        <button class="btn btn-sm btn-outline-secondary edit-resource-btn" title="Edit"
+                                            data-id="{{ (int) $res->id }}"
+                                            data-title="{{ e($res->title ?? '') }}"
+                                            data-resource_type="{{ $res->resource_type }}"
+                                            data-external_url="{{ e($res->external_url ?? '') }}"
+                                            data-description="{{ e($res->description ?? '') }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Remove this resource?');">
+                                            @csrf
+                                            <input type="hidden" name="form_action" value="remove_resource">
+                                            <input type="hidden" name="resource_id" value="{{ (int) $res->id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="fas fa-times"></i></button>
+                                        </form>
+                                    </div>
                                     @endif
                                     <span class="badge bg-secondary mb-2">{{ ucfirst(str_replace('_', ' ', $res->resource_type)) }}</span>
                                     <h6 class="mb-1">
@@ -363,6 +373,36 @@
     </div>
 </div>
 
+{{-- Edit Resource Modal --}}
+<div class="modal fade" id="editResourceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post">
+            @csrf
+            <input type="hidden" name="form_action" value="edit_resource">
+            <input type="hidden" name="resource_id" id="editResId">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Edit Resource</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="editResTitle" class="form-control" required></div>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select name="resource_type" id="editResType" class="form-select">
+                            <option value="collection">Collection</option>
+                            <option value="saved_search">Saved Search</option>
+                            <option value="bibliography">Bibliography</option>
+                            <option value="object">Archive Object</option>
+                            <option value="external_link">External Link</option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">URL (for external links)</label><input type="url" name="external_url" id="editResUrl" class="form-control" placeholder="https://"></div>
+                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" id="editResNotes" class="form-control" rows="2"></textarea></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 <script>
@@ -423,6 +463,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editDiscTitle').value = this.dataset.title;
             document.getElementById('editDiscContent').value = this.dataset.content;
             new bootstrap.Modal(document.getElementById('editDiscussionModal')).show();
+        });
+    });
+
+    // Edit resource
+    document.querySelectorAll('.edit-resource-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('editResId').value = this.dataset.id;
+            document.getElementById('editResTitle').value = this.dataset.title;
+            document.getElementById('editResType').value = this.dataset.resource_type;
+            document.getElementById('editResUrl').value = this.dataset.external_url;
+            document.getElementById('editResNotes').value = this.dataset.description;
+            new bootstrap.Modal(document.getElementById('editResourceModal')).show();
         });
     });
 });
