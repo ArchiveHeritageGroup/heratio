@@ -1,101 +1,101 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-stream me-2"></i>Activity Log</h1>@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'activities'])@endsection
+@section('title', 'Activity Log')
+
 @section('content')
-<div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Filter Activities</h5></div>
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Activity Log</li></ol></nav>
+
+<h1 class="h2 mb-4"><i class="fas fa-stream text-primary me-2"></i>Activity Log</h1>
+
+{{-- Filters --}}
+<div class="card mb-4">
     <div class="card-body">
-        <form method="GET" class="row g-2">
+        <form method="GET" class="row g-2 align-items-end">
             <div class="col-md-3">
+                <label class="form-label small">Type</label>
                 <select name="type" class="form-select form-select-sm">
-                    <option value="">All Activity Types</option>
-                    <option value="workshop" {{ request('type') === 'workshop' ? 'selected' : '' }}>Workshop</option>
-                    <option value="exhibition" {{ request('type') === 'exhibition' ? 'selected' : '' }}>Exhibition</option>
-                    <option value="lecture" {{ request('type') === 'lecture' ? 'selected' : '' }}>Lecture</option>
-                    <option value="seminar" {{ request('type') === 'seminar' ? 'selected' : '' }}>Seminar</option>
-                    <option value="tour" {{ request('type') === 'tour' ? 'selected' : '' }}>Tour</option>
-                    <option value="other" {{ request('type') === 'other' ? 'selected' : '' }}>Other</option>
+                    <option value="">All Types</option>
+                    @foreach($activityTypes ?? [] as $t)
+                        <option value="{{ $t }}" {{ ($typeFilter ?? '') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $t)) }}</option>
+                    @endforeach
                 </select>
             </div>
-            <div class="col-md-2">
-                <input type="date" class="form-control form-control-sm" name="date_from" value="{{ request('date_from') }}" placeholder="From">
-            </div>
-            <div class="col-md-2">
-                <input type="date" class="form-control form-control-sm" name="date_to" value="{{ request('date_to') }}" placeholder="To">
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button>
-            </div>
+            <div class="col-md-2"><label class="form-label small">From</label><input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom ?? '' }}"></div>
+            <div class="col-md-2"><label class="form-label small">To</label><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo ?? '' }}"></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter me-1"></i>Filter</button></div>
+            @if(($typeFilter ?? '') || ($dateFrom ?? '') || ($dateTo ?? ''))
+                <div class="col-md-2"><a href="{{ route('research.activities') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
+            @endif
         </form>
     </div>
 </div>
 
+@php
+    $typeIcons = [
+        'create' => ['fas fa-plus-circle', 'success'],
+        'update' => ['fas fa-edit', 'primary'],
+        'delete' => ['fas fa-trash', 'danger'],
+        'booking' => ['fas fa-calendar-check', 'info'],
+        'walk_in' => ['fas fa-walking', 'warning'],
+        'clipboard_add' => ['fas fa-clipboard', 'secondary'],
+        'policy_evaluated' => ['fas fa-shield-alt', 'dark'],
+        'workshop' => ['fas fa-tools', 'primary'],
+        'exhibition' => ['fas fa-image', 'success'],
+        'lecture' => ['fas fa-chalkboard-teacher', 'info'],
+        'tour' => ['fas fa-route', 'danger'],
+        'view' => ['fas fa-eye', 'info'],
+        'search' => ['fas fa-search', 'secondary'],
+        'download' => ['fas fa-download', 'success'],
+        'export' => ['fas fa-file-export', 'warning'],
+    ];
+@endphp
+
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Activities</h5>
-        <span class="badge bg-primary">{{ count($activities) }} activity/activities</span>
+        <span class="badge bg-primary">{{ count($activities) }}</span>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         @if(count($activities) > 0)
-        <div class="timeline">
-            @foreach($activities as $activity)
-            <div class="d-flex mb-3 pb-3 border-bottom">
-                <div class="me-3 text-center" style="min-width: 50px;">
-                    @php
-                        $iconMap = [
-                            'workshop' => 'fa-tools',
-                            'exhibition' => 'fa-image',
-                            'lecture' => 'fa-chalkboard-teacher',
-                            'seminar' => 'fa-users',
-                            'tour' => 'fa-route',
-                        ];
-                        $colorMap = [
-                            'workshop' => 'text-primary',
-                            'exhibition' => 'text-success',
-                            'lecture' => 'text-info',
-                            'seminar' => 'text-warning',
-                            'tour' => 'text-danger',
-                        ];
-                        $type = $activity->activity_type ?? $activity->type ?? 'other';
-                        $icon = $iconMap[$type] ?? 'fa-circle';
-                        $color = $colorMap[$type] ?? 'text-secondary';
-                    @endphp
-                    <i class="fas {{ $icon }} fa-lg {{ $color }}"></i>
+        <div class="list-group list-group-flush">
+            @foreach($activities as $a)
+            @php
+                $a = (object) $a;
+                $icon = $typeIcons[$a->type ?? ''][0] ?? 'fas fa-circle';
+                $color = $typeIcons[$a->type ?? ''][1] ?? 'secondary';
+            @endphp
+            <div class="list-group-item d-flex align-items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                    <span class="badge bg-{{ $color }} rounded-circle p-2"><i class="{{ $icon }}"></i></span>
                 </div>
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between">
-                        <h6 class="mb-1 fw-bold">{{ e($activity->title ?? $activity->name ?? 'Activity') }}</h6>
-                        <small class="text-muted">
-                            @if($activity->start_date ?? null)
-                                {{ \Carbon\Carbon::parse($activity->start_date)->format('j M Y') }}
-                                @if($activity->end_date ?? null)
-                                    - {{ \Carbon\Carbon::parse($activity->end_date)->format('j M Y') }}
-                                @endif
+                        <div>
+                            <strong>{{ e($a->title ?? ucfirst(str_replace('_', ' ', $a->type ?? 'Activity'))) }}</strong>
+                            @if($a->researcher_name ?? null)
+                                <br><small class="text-muted"><i class="fas fa-user me-1"></i>{{ e($a->researcher_name) }}</small>
                             @endif
-                        </small>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">{{ $a->created_at ? date('M j, Y H:i', strtotime($a->created_at)) : '' }}</small>
+                            <br><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $a->type ?? '')) }}</span>
+                        </div>
                     </div>
-                    @if($activity->description ?? null)
-                    <p class="mb-1 text-muted small">{{ e($activity->description) }}</p>
+                    @if($a->details ?? null)
+                        <small class="text-muted d-block mt-1">{{ e(\Illuminate\Support\Str::limit($a->details, 120)) }}</small>
                     @endif
-                    <div class="d-flex gap-2">
-                        @if($type !== 'other')
-                        <span class="badge bg-outline-secondary border">{{ ucfirst($type) }}</span>
-                        @endif
-                        @if($activity->room_name ?? null)
-                        <small class="text-muted"><i class="fas fa-door-open me-1"></i>{{ e($activity->room_name) }}</small>
-                        @endif
-                        @if($activity->capacity ?? null)
-                        <small class="text-muted"><i class="fas fa-users me-1"></i>Capacity: {{ $activity->capacity }}</small>
-                        @endif
-                    </div>
+                    @if($a->entity_type ?? null)
+                        <small class="text-muted"><i class="fas fa-link me-1"></i>{{ ucfirst(str_replace('_', ' ', $a->entity_type)) }}{{ ($a->entity_id ?? null) ? ' #' . $a->entity_id : '' }}</small>
+                    @endif
                 </div>
             </div>
             @endforeach
         </div>
         @else
-        <div class="text-center text-muted py-4">
-            <i class="fas fa-stream fa-3x mb-3 d-block"></i>
-            No activities found.
+        <div class="card-body text-center text-muted py-5">
+            <i class="fas fa-stream fa-3x mb-3 opacity-50"></i>
+            <h5>No activities found</h5>
+            <p>Activities are logged automatically as researchers use the system.</p>
         </div>
         @endif
     </div>

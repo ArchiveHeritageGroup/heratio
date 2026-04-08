@@ -2427,16 +2427,87 @@ class ResearchController extends Controller
     public function activities(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
-        $activities = DB::table('research_activity as a')
+
+        $typeFilter = $request->input('type');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        // Combine all activity sources into a unified log
+        $activities = collect();
+
+        // 1. Activity log entries
+        $logQuery = DB::table('research_activity_log as al')
+            ->leftJoin('research_researcher as r', 'al.researcher_id', '=', 'r.id')
+            ->select(
+                'al.id', 'al.activity_type as type', 'al.entity_title as title',
+                'al.entity_type', 'al.entity_id', 'al.details',
+                'al.created_at', 'al.ip_address',
+                DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"),
+                DB::raw("'log' as source")
+            );
+        if ($typeFilter) $logQuery->where('al.activity_type', $typeFilter);
+        if ($dateFrom) $logQuery->where('al.created_at', '>=', $dateFrom);
+        if ($dateTo) $logQuery->where('al.created_at', '<=', $dateTo . ' 23:59:59');
+        $activities = $activities->merge($logQuery->orderByDesc('al.created_at')->limit(100)->get());
+
+        // 2. Bookings as activities
+        $bookingQuery = DB::table('research_booking as b')
+            ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
+            ->leftJoin('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
+            ->select(
+                'b.id', DB::raw("'booking' as type"),
+                DB::raw("CONCAT('Booking: ', rm.name, ' (', b.status, ')') as title"),
+                DB::raw("'booking' as entity_type"), 'b.id as entity_id',
+                'b.purpose as details', 'b.created_at', DB::raw("NULL as ip_address"),
+                DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"),
+                DB::raw("'booking' as source")
+            );
+        if ($typeFilter && $typeFilter !== 'booking') $bookingQuery->whereRaw('0=1');
+        if ($dateFrom) $bookingQuery->where('b.booking_date', '>=', $dateFrom);
+        if ($dateTo) $bookingQuery->where('b.booking_date', '<=', $dateTo);
+        $activities = $activities->merge($bookingQuery->orderByDesc('b.created_at')->limit(50)->get());
+
+        // 3. Walk-in visits
+        $walkInQuery = DB::table('research_walk_in_visitor as w')
+            ->leftJoin('research_reading_room as rm', 'w.reading_room_id', '=', 'rm.id')
+            ->select(
+                'w.id', DB::raw("'walk_in' as type"),
+                DB::raw("CONCAT('Walk-in: ', w.first_name, ' ', w.last_name) as title"),
+                DB::raw("'walk_in' as entity_type"), 'w.id as entity_id',
+                'w.purpose as details', 'w.created_at', DB::raw("NULL as ip_address"),
+                DB::raw("CONCAT(w.first_name, ' ', w.last_name) as researcher_name"),
+                DB::raw("'walk_in' as source")
+            );
+        if ($typeFilter && $typeFilter !== 'walk_in') $walkInQuery->whereRaw('0=1');
+        if ($dateFrom) $walkInQuery->where('w.visit_date', '>=', $dateFrom);
+        if ($dateTo) $walkInQuery->where('w.visit_date', '<=', $dateTo);
+        $activities = $activities->merge($walkInQuery->orderByDesc('w.created_at')->limit(50)->get());
+
+        // 4. Scheduled events
+        $eventQuery = DB::table('research_activity as a')
             ->leftJoin('research_reading_room as rm', 'a.reading_room_id', '=', 'rm.id')
-            ->select('a.*', 'rm.name as room_name')
-            ->orderBy('a.start_date', 'desc')
-            ->limit(50)
-            ->get()->toArray();
+            ->select(
+                'a.id', 'a.activity_type as type', 'a.title',
+                DB::raw("'event' as entity_type"), 'a.id as entity_id',
+                'a.description as details', 'a.created_at', DB::raw("NULL as ip_address"),
+                'a.organizer_name as researcher_name',
+                DB::raw("'event' as source")
+            );
+        if ($typeFilter && !in_array($typeFilter, ['workshop', 'exhibition', 'lecture', 'seminar', 'tour'])) $eventQuery->whereRaw('0=1');
+        elseif ($typeFilter) $eventQuery->where('a.activity_type', $typeFilter);
+        if ($dateFrom) $eventQuery->where('a.start_date', '>=', $dateFrom);
+        if ($dateTo) $eventQuery->where('a.start_date', '<=', $dateTo);
+        $activities = $activities->merge($eventQuery->orderByDesc('a.created_at')->limit(50)->get());
+
+        // Sort combined by date desc and limit
+        $activities = $activities->sortByDesc('created_at')->take(100)->values()->toArray();
+
+        // Get distinct types for filter
+        $activityTypes = collect($activities)->pluck('type')->unique()->sort()->values()->toArray();
 
         return view('research::research.activities', array_merge(
             $this->getSidebarData('activities'),
-            compact('activities')
+            compact('activities', 'activityTypes', 'typeFilter', 'dateFrom', 'dateTo')
         ));
     }
 
