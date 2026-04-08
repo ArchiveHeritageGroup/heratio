@@ -1,7 +1,30 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-key me-2"></i>API Key Management</h1>@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'profile'])@endsection
+@section('title', 'API Keys')
+
 @section('content')
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item active">API Keys</li>
+    </ol>
+</nav>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2"><i class="fas fa-key text-primary me-2"></i>API Keys</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateKeyModal"><i class="fas fa-plus me-1"></i>Generate Key</button>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    API keys allow you to access your research data programmatically. Keep your keys secure and never share them publicly.
+    <br><strong>API Base URL:</strong> <code>{{ url('/api/research') }}</code>
+</div>
+
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Your API Keys</h5>
@@ -83,6 +106,34 @@
     </div>
 </div>
 
+{{-- API Documentation --}}
+<div class="card mt-4">
+    <div class="card-header"><h5 class="mb-0">API Documentation</h5></div>
+    <div class="card-body">
+        <h6>Authentication</h6>
+        <p>Include your API key in the <code>X-API-Key</code> header or as an <code>api_key</code> query parameter.</p>
+        <pre class="bg-light p-3 rounded"><code>curl -H "X-API-Key: YOUR_API_KEY" {{ url('/api/research/profile') }}</code></pre>
+
+        <h6 class="mt-4">Available Endpoints</h6>
+        <table class="table table-sm">
+            <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/profile</td><td>Get your researcher profile</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/projects</td><td>List your projects</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/projects</td><td>Create a project</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/collections</td><td>List your evidence sets</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/collections</td><td>Create an evidence set</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/searches</td><td>List saved searches</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/bookings</td><td>List bookings</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/bookings</td><td>Create a booking</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/bibliographies</td><td>List bibliographies</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/annotations</td><td>List annotations</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/stats</td><td>Get your usage statistics</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {{-- Generate New Key Modal --}}
 <div class="modal fade" id="generateKeyModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="generate">
@@ -105,7 +156,11 @@
             <div class="form-text">Leave empty for no expiration.</div>
         </div>
     </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-key me-1"></i>Generate Key</button></div>
+        <div class="alert alert-warning mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>The API key will only be shown once after generation. Make sure to copy it immediately.
+        </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-key me-1"></i>Generate</button></div>
     </form>
 </div></div></div>
 @endsection
