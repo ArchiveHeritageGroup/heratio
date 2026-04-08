@@ -2584,17 +2584,21 @@ class ResearchController extends Controller
         if (!$search) return response()->json(['error' => 'Search not found'], 404);
 
         // Run the search query against DB to get current result IDs
-        $query = $search->search_query;
-        $results = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
-            })
-            ->where('io.id', '!=', 1)
-            ->where(function ($q) use ($query) {
-                $q->where('i18n.title', 'LIKE', "%{$query}%")
-                  ->orWhere('io.identifier', 'LIKE', "%{$query}%");
-            })
-            ->pluck('io.id')->toArray();
+        $keyword = $this->extractSearchKeyword($search->search_query);
+        $results = [];
+        if ($keyword) {
+            $results = DB::table('information_object as io')
+                ->join('information_object_i18n as i18n', function ($j) {
+                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+                })
+                ->where('io.id', '!=', 1)
+                ->where(function ($q) use ($keyword) {
+                    $q->where('i18n.title', 'LIKE', "%{$keyword}%")
+                      ->orWhere('i18n.scope_and_content', 'LIKE', "%{$keyword}%")
+                      ->orWhere('io.identifier', 'LIKE', "%{$keyword}%");
+                })
+                ->pluck('io.id')->toArray();
+        }
 
         DB::table('research_saved_search')->where('id', $id)->update([
             'result_snapshot_json' => json_encode($results),
@@ -2647,6 +2651,19 @@ class ResearchController extends Controller
             'added' => $added,
             'removed' => $removed,
         ]);
+    }
+
+    /**
+     * Extract the search keyword from a saved search query string.
+     * Handles both plain keywords ("ai") and URL params ("query=ai&title=&...").
+     */
+    private function extractSearchKeyword(string $searchQuery): string
+    {
+        if (str_contains($searchQuery, '=')) {
+            parse_str($searchQuery, $params);
+            return trim($params['query'] ?? $params['sq0'] ?? $params['subquery'] ?? '');
+        }
+        return trim($searchQuery);
     }
 
     public function runSavedSearch(int $id)

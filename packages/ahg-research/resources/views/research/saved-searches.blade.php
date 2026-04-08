@@ -61,7 +61,12 @@
                     <td><small>{{ date('Y-m-d', strtotime($s->created_at)) }}</small></td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <a href="{{ url('/informationobject/browse?sq0=' . urlencode($s->search_query)) }}" class="btn btn-outline-primary" title="Run search"><i class="fas fa-search"></i></a>
+                            @php
+                                $runUrl = str_contains($s->search_query, '=')
+                                    ? url('/glam/browse?' . $s->search_query)
+                                    : url('/informationobject/browse?query=' . urlencode($s->search_query));
+                            @endphp
+                            <a href="{{ $runUrl }}" class="btn btn-outline-primary" title="Run search"><i class="fas fa-search"></i></a>
                             <button class="btn btn-outline-info diff-btn" data-id="{{ (int) $s->id }}" title="Diff results"><i class="fas fa-exchange-alt"></i></button>
                             <button class="btn btn-outline-success snapshot-btn" data-id="{{ (int) $s->id }}" title="Snapshot current results"><i class="fas fa-camera"></i></button>
                             <form method="POST" action="{{ route('research.savedSearches.destroy', $s->id) }}" class="d-inline" onsubmit="return confirm('Delete this saved search?')">
