@@ -562,85 +562,80 @@
                   <i class="fas fa-spinner fa-spin fa-2x"></i><br><small>Loading 3D model...</small>
                 </div>
               </div>
-              <script src="{{ asset('ric/js/vendor/three.min.js') }}"></script>
-              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+              <script type="importmap">
+              { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+              </script>
+              <script type="module" nonce="{{ $cspNonce ?? '' }}">
+              import * as THREE from 'three';
+              import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
               @if($modelExt === 'obj')
-              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/OBJLoader.js"></script>
+              import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
               @elseif($modelExt === 'stl')
-              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/STLLoader.js"></script>
+              import { STLLoader } from 'three/addons/loaders/STLLoader.js';
               @endif
-              <script nonce="{{ $cspNonce ?? '' }}">
-              (function() {
-                var container = document.getElementById('{{ $modelViewerId }}-container');
-                var canvas = document.getElementById('{{ $modelViewerId }}-canvas');
-                var loading = document.getElementById('{{ $modelViewerId }}-loading');
-                var w = container.clientWidth, h = container.clientHeight;
 
-                var scene = new THREE.Scene();
-                scene.background = new THREE.Color(0x1a1a2e);
-                var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+              var container = document.getElementById('{{ $modelViewerId }}-container');
+              var canvas = document.getElementById('{{ $modelViewerId }}-canvas');
+              var loading = document.getElementById('{{ $modelViewerId }}-loading');
+              var w = container.clientWidth, h = container.clientHeight;
+
+              var scene = new THREE.Scene();
+              scene.background = new THREE.Color(0x1a1a2e);
+              var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+              camera.position.set(0, 1, 3);
+
+              var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+              renderer.setSize(w, h);
+              renderer.setPixelRatio(window.devicePixelRatio);
+
+              var controls = new OrbitControls(camera, canvas);
+              controls.enableDamping = true;
+
+              scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+              var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+              dirLight.position.set(5, 10, 7);
+              scene.add(dirLight);
+              scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.4));
+
+              @if($modelExt === 'obj')
+              var loader = new OBJLoader();
+              @elseif($modelExt === 'stl')
+              var loader = new STLLoader();
+              @endif
+
+              loader.load('{{ $masterUrl }}', function(object) {
+                @if($modelExt === 'stl')
+                var material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                object = new THREE.Mesh(object, material);
+                @endif
+
+                var box = new THREE.Box3().setFromObject(object);
+                var center = box.getCenter(new THREE.Vector3());
+                var size = box.getSize(new THREE.Vector3());
+                var maxDim = Math.max(size.x, size.y, size.z);
+                var scale = 2 / maxDim;
+                object.scale.multiplyScalar(scale);
+                object.position.sub(center.multiplyScalar(scale));
+
+                scene.add(object);
+                loading.style.display = 'none';
                 camera.position.set(0, 1, 3);
+                controls.update();
+              }, function(xhr) {
+                if (xhr.total) loading.innerHTML = '<small style="color:#fff;">' + Math.round(xhr.loaded/xhr.total*100) + '%</small>';
+              }, function(err) {
+                loading.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i> Failed to load</div>';
+                console.error('3D load error:', err);
+              });
 
-                var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-                renderer.setSize(w, h);
-                renderer.setPixelRatio(window.devicePixelRatio);
+              function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+              animate();
 
-                var controls = new THREE.OrbitControls(camera, canvas);
-                controls.enableDamping = true;
-
-                // Lighting
-                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-                var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                dirLight.position.set(5, 10, 7);
-                scene.add(dirLight);
-                scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.4));
-
-                var modelUrl = '{{ $masterUrl }}';
-
-                @if($modelExt === 'obj')
-                var loader = new THREE.OBJLoader();
-                @elseif($modelExt === 'stl')
-                var loader = new THREE.STLLoader();
-                @endif
-
-                @if(in_array($modelExt, ['obj', 'stl']))
-                loader.load(modelUrl, function(object) {
-                  @if($modelExt === 'stl')
-                  var material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
-                  var mesh = new THREE.Mesh(object, material);
-                  object = mesh;
-                  @endif
-
-                  // Center and scale
-                  var box = new THREE.Box3().setFromObject(object);
-                  var center = box.getCenter(new THREE.Vector3());
-                  var size = box.getSize(new THREE.Vector3());
-                  var maxDim = Math.max(size.x, size.y, size.z);
-                  var scale = 2 / maxDim;
-                  object.scale.multiplyScalar(scale);
-                  object.position.sub(center.multiplyScalar(scale));
-
-                  scene.add(object);
-                  loading.style.display = 'none';
-
-                  camera.position.set(0, 1, 3);
-                  controls.update();
-                }, function(xhr) {
-                  if (xhr.total) loading.innerHTML = '<small style="color:#fff;">' + Math.round(xhr.loaded/xhr.total*100) + '%</small>';
-                }, function(err) {
-                  loading.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i> Failed to load model</div>';
-                });
-                @endif
-
-                function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
-                animate();
-
-                window.addEventListener('resize', function() {
-                  var w2 = container.clientWidth, h2 = container.clientHeight;
-                  camera.aspect = w2 / h2; camera.updateProjectionMatrix();
-                  renderer.setSize(w2, h2);
-                });
-              })();
+              window.addEventListener('resize', function() {
+                var w2 = container.clientWidth, h2 = container.clientHeight;
+                camera.aspect = w2 / h2; camera.updateProjectionMatrix();
+                renderer.setSize(w2, h2);
+              });
               </script>
             @endif
 
