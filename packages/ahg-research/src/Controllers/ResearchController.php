@@ -1826,6 +1826,19 @@ class ResearchController extends Controller
                     ->where('researcher_id', $researcher->id)
                     ->where('is_read', 0)
                     ->update(['is_read' => 1, 'read_at' => date('Y-m-d H:i:s')]);
+            } elseif ($action === 'update_preferences') {
+                $prefs = $request->input('prefs', []);
+                foreach ($prefs as $type => $settings) {
+                    DB::table('research_notification_preference')->updateOrInsert(
+                        ['researcher_id' => $researcher->id, 'notification_type' => $type],
+                        [
+                            'in_app_enabled' => isset($settings['in_app_enabled']) ? 1 : 0,
+                            'email_enabled' => isset($settings['email_enabled']) ? 1 : 0,
+                            'digest_frequency' => $settings['digest_frequency'] ?? 'immediate',
+                        ]
+                    );
+                }
+                return redirect()->route('research.notifications', ['tab' => 'preferences'])->with('success', 'Preferences saved.');
             }
             return redirect()->route('research.notifications');
         }
@@ -1836,9 +1849,19 @@ class ResearchController extends Controller
             ->limit(100)
             ->get()->toArray();
 
+        // Load preferences
+        $preferences = [];
+        try {
+            $prefRows = DB::table('research_notification_preference')
+                ->where('researcher_id', $researcher->id)->get();
+            foreach ($prefRows as $p) {
+                $preferences[$p->notification_type] = $p;
+            }
+        } catch (\Exception $e) {}
+
         return view('research::research.notifications', array_merge(
             $this->getSidebarData('notifications'),
-            compact('researcher', 'notifications')
+            compact('researcher', 'notifications', 'preferences')
         ));
     }
 
