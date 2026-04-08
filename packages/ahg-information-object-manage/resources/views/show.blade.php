@@ -154,55 +154,37 @@
     </div>
     @endif {{-- end Privacy package check --}}
 
-    {{-- Rights --}}
+    {{-- Rights Management (links to integrated rights section + management pages) --}}
+    @auth
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
         <i class="fas fa-copyright me-1"></i> Rights
       </div>
-
-      {{-- Rights Status badges --}}
-      @if(auth()->check())
-        <div class="card-body py-2">
-          @if(isset($extendedRights) && $extendedRights->isNotEmpty())
-            <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
-          @endif
-          @if(isset($activeEmbargo) && $activeEmbargo)
-            <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
-          @endif
-          @if((!isset($extendedRights) || $extendedRights->isEmpty()) && (!isset($activeEmbargo) || !$activeEmbargo))
-            <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
-          @endif
-        </div>
-      @endif
-
       <div class="list-group list-group-flush">
-        <a href="{{ route('io.rights.extended', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copyright me-1"></i> Add extended rights
+        <a href="#rightsArea" class="list-group-item list-group-item-action small">
+          <i class="fas fa-eye me-1"></i> View Rights & Access
         </a>
-
-        {{-- Conditional embargo links --}}
+        <a href="{{ route('io.rights.manage', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-edit me-1"></i> Manage Rights
+        </a>
+        <a href="{{ route('io.rights.extended', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-copyright me-1"></i> Extended Rights
+        </a>
         @if(isset($activeEmbargo) && $activeEmbargo)
-          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-edit me-1"></i> Edit embargo
+          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small text-danger">
+            <i class="fas fa-ban me-1"></i> Edit Embargo
           </a>
-          <form method="POST" action="{{ route('io.rights.embargo.lift', $activeEmbargo->id) }}" class="d-inline">
-            @csrf
-            <button type="submit" class="list-group-item list-group-item-action small text-danger border-0 w-100 text-start"
-                    onclick="return confirm('Are you sure you want to lift this embargo?')">
-              <i class="fas fa-unlock me-1"></i> Lift embargo
-            </button>
-          </form>
         @else
           <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-lock me-1"></i> Add embargo
+            <i class="fas fa-lock me-1"></i> Add Embargo
           </a>
         @endif
-
         <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+          <i class="fas fa-download me-1"></i> Export Rights (JSON-LD)
         </a>
       </div>
     </div>
+    @endauth
 
     {{-- Research Tools (only if research controller is available) --}}
     @if(class_exists(\AhgInformationObjectManage\Controllers\ResearchController::class))
