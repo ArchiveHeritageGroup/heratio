@@ -2042,7 +2042,61 @@ class ResearchController extends Controller
         $rooms = $this->service->getReadingRooms(false);
         $roomId = (int) $request->input('room_id');
         $currentRoom = $roomId ? $this->service->getReadingRoom($roomId) : null;
-        $equipment = $roomId ? DB::table('research_equipment')->where('reading_room_id', $roomId)->get()->toArray() : [];
+
+        if ($request->isMethod('post') && $roomId) {
+            $action = $request->input('form_action');
+            $redir = redirect()->route('research.equipment', ['room_id' => $roomId]);
+
+            if ($action === 'create') {
+                DB::table('research_equipment')->insert([
+                    'reading_room_id' => $roomId,
+                    'name' => $request->input('name'),
+                    'code' => $request->input('code') ?: null,
+                    'equipment_type' => $request->input('equipment_type'),
+                    'location' => $request->input('location') ?: null,
+                    'brand' => $request->input('brand') ?: null,
+                    'model' => $request->input('model') ?: null,
+                    'serial_number' => $request->input('serial_number') ?: null,
+                    'max_booking_hours' => (int) ($request->input('max_booking_hours', 4)),
+                    'description' => $request->input('description') ?: null,
+                    'requires_training' => $request->has('requires_training') ? 1 : 0,
+                    'is_available' => 1,
+                    'condition_status' => 'good',
+                    'created_at' => now(),
+                ]);
+                return $redir->with('success', 'Equipment added.');
+            }
+
+            if ($action === 'update') {
+                DB::table('research_equipment')->where('id', (int) $request->input('equipment_id'))->update([
+                    'name' => $request->input('name'),
+                    'code' => $request->input('code') ?: null,
+                    'equipment_type' => $request->input('equipment_type'),
+                    'location' => $request->input('location') ?: null,
+                    'brand' => $request->input('brand') ?: null,
+                    'model' => $request->input('model') ?: null,
+                    'serial_number' => $request->input('serial_number') ?: null,
+                    'max_booking_hours' => (int) ($request->input('max_booking_hours', 4)),
+                    'description' => $request->input('description') ?: null,
+                    'requires_training' => $request->has('requires_training') ? 1 : 0,
+                    'updated_at' => now(),
+                ]);
+                return $redir->with('success', 'Equipment updated.');
+            }
+
+            if ($action === 'maintenance') {
+                DB::table('research_equipment')->where('id', (int) $request->input('equipment_id'))->update([
+                    'condition_status' => $request->input('new_condition', 'good'),
+                    'last_maintenance_date' => date('Y-m-d'),
+                    'next_maintenance_date' => $request->input('next_maintenance_date') ?: null,
+                    'notes' => $request->input('maintenance_description'),
+                    'updated_at' => now(),
+                ]);
+                return $redir->with('success', 'Maintenance logged.');
+            }
+        }
+
+        $equipment = $roomId ? DB::table('research_equipment')->where('reading_room_id', $roomId)->orderBy('name')->get()->toArray() : [];
 
         return view('research::research.equipment', array_merge(
             $this->getSidebarData('equipment'),

@@ -18,6 +18,21 @@ class AhgResearchServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Auto-seed research dropdowns on first boot if missing
+        $this->app->booted(function () {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                    $hasSeatTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+                        ->where('taxonomy', 'seat_type')->exists();
+                    if (!$hasSeatTypes) {
+                        \Illuminate\Support\Facades\Artisan::call('ahg:seed-research-dropdowns');
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silently skip if DB not ready (e.g. during migrations)
+            }
+        });
+
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'research');
