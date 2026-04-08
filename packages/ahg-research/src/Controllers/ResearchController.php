@@ -1939,7 +1939,96 @@ class ResearchController extends Controller
         $rooms = $this->service->getReadingRooms(false);
         $roomId = (int) $request->input('room_id');
         $currentRoom = $roomId ? $this->service->getReadingRoom($roomId) : null;
-        $seats = $roomId ? DB::table('research_reading_room_seat')->where('reading_room_id', $roomId)->get()->toArray() : [];
+
+        if ($request->isMethod('post') && $roomId) {
+            $action = $request->input('form_action');
+            $redir = redirect()->route('research.seats', ['room_id' => $roomId]);
+
+            if ($action === 'create') {
+                $maxSort = DB::table('research_reading_room_seat')->where('reading_room_id', $roomId)->max('sort_order') ?? 0;
+                DB::table('research_reading_room_seat')->insert([
+                    'reading_room_id' => $roomId,
+                    'seat_number' => $request->input('seat_number'),
+                    'seat_label' => $request->input('seat_label') ?: null,
+                    'seat_type' => $request->input('seat_type', 'standard'),
+                    'zone' => $request->input('zone') ?: null,
+                    'has_power' => $request->has('has_power') ? 1 : 0,
+                    'has_lamp' => $request->has('has_lamp') ? 1 : 0,
+                    'has_computer' => $request->has('has_computer') ? 1 : 0,
+                    'has_magnifier' => $request->has('has_magnifier') ? 1 : 0,
+                    'notes' => $request->input('notes') ?: null,
+                    'is_active' => 1,
+                    'sort_order' => $maxSort + 1,
+                    'created_at' => now(),
+                ]);
+                return $redir->with('success', 'Seat added.');
+            }
+
+            if ($action === 'update') {
+                DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))->update([
+                    'seat_number' => $request->input('seat_number'),
+                    'seat_label' => $request->input('seat_label') ?: null,
+                    'seat_type' => $request->input('seat_type', 'standard'),
+                    'zone' => $request->input('zone') ?: null,
+                    'has_power' => $request->has('has_power') ? 1 : 0,
+                    'has_lamp' => $request->has('has_lamp') ? 1 : 0,
+                    'has_computer' => $request->has('has_computer') ? 1 : 0,
+                    'has_magnifier' => $request->has('has_magnifier') ? 1 : 0,
+                    'notes' => $request->input('notes') ?: null,
+                    'updated_at' => now(),
+                ]);
+                return $redir->with('success', 'Seat updated.');
+            }
+
+            if ($action === 'delete') {
+                DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
+                    ->update(['is_active' => 0, 'updated_at' => now()]);
+                return $redir->with('success', 'Seat deactivated.');
+            }
+
+            if ($action === 'release') {
+                DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
+                    ->update(['status' => 'available', 'researcher_id' => null, 'updated_at' => now()]);
+                return $redir->with('success', 'Seat released.');
+            }
+
+            if ($action === 'assign') {
+                DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
+                    ->update(['status' => 'occupied', 'researcher_id' => (int) $request->input('researcher_id'), 'updated_at' => now()]);
+                return $redir->with('success', 'Seat assigned.');
+            }
+
+            if ($action === 'bulk_create') {
+                $pattern = trim($request->input('pattern', ''));
+                $seatType = $request->input('seat_type', 'standard');
+                $zone = $request->input('zone') ?: null;
+                $created = 0;
+
+                if (preg_match('/^([A-Za-z]*)(\d+)-\1?(\d+)$/', $pattern, $m)) {
+                    $prefix = $m[1];
+                    $start = (int) $m[2];
+                    $end = (int) $m[3];
+                    $maxSort = DB::table('research_reading_room_seat')->where('reading_room_id', $roomId)->max('sort_order') ?? 0;
+                    for ($i = $start; $i <= $end; $i++) {
+                        $seatNum = $prefix . $i;
+                        $exists = DB::table('research_reading_room_seat')
+                            ->where('reading_room_id', $roomId)->where('seat_number', $seatNum)->exists();
+                        if (!$exists) {
+                            DB::table('research_reading_room_seat')->insert([
+                                'reading_room_id' => $roomId, 'seat_number' => $seatNum,
+                                'seat_type' => $seatType, 'zone' => $zone,
+                                'has_power' => 1, 'has_lamp' => 1, 'is_active' => 1,
+                                'sort_order' => ++$maxSort, 'created_at' => now(),
+                            ]);
+                            $created++;
+                        }
+                    }
+                }
+                return $redir->with('success', "{$created} seats created.");
+            }
+        }
+
+        $seats = $roomId ? DB::table('research_reading_room_seat')->where('reading_room_id', $roomId)->orderBy('sort_order')->get()->toArray() : [];
 
         return view('research::research.seats', array_merge(
             $this->getSidebarData('seats'),
