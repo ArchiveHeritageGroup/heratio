@@ -2470,58 +2470,132 @@ class ResearchController extends Controller
         // Handle POST actions
         if ($request->isMethod('post')) {
             $action = $request->input('form_action');
+            $redir = redirect()->route('research.viewWorkspace', $id);
+
+            if ($action === 'edit_workspace' && in_array($myRole, ['owner', 'admin'])) {
+                DB::table('research_workspace')->where('id', $id)->update([
+                    'name' => $request->input('name'),
+                    'description' => $request->input('description'),
+                    'visibility' => $request->input('visibility', 'private'),
+                    'updated_at' => now(),
+                ]);
+                return $redir->with('success', 'Workspace updated.');
+            }
+
+            if ($action === 'delete_workspace' && $myRole === 'owner') {
+                DB::table('research_workspace_resource')->where('workspace_id', $id)->delete();
+                DB::table('research_workspace_member')->where('workspace_id', $id)->delete();
+                DB::table('research_discussion')->where('workspace_id', $id)->delete();
+                DB::table('research_workspace')->where('id', $id)->delete();
+                return redirect()->route('research.workspaces')->with('success', 'Workspace deleted.');
+            }
 
             if ($action === 'invite' && in_array($myRole, ['owner', 'admin'])) {
                 $inviteEmail = $request->input('email');
                 $inviteResearcher = DB::table('research_researcher')->where('email', $inviteEmail)->first();
                 if ($inviteResearcher) {
                     $exists = DB::table('research_workspace_member')
-                        ->where('workspace_id', $id)
-                        ->where('researcher_id', $inviteResearcher->id)
-                        ->exists();
+                        ->where('workspace_id', $id)->where('researcher_id', $inviteResearcher->id)->exists();
                     if (!$exists) {
                         DB::table('research_workspace_member')->insert([
-                            'workspace_id' => $id,
-                            'researcher_id' => $inviteResearcher->id,
-                            'role' => $request->input('role', 'viewer'),
-                            'invited_by' => $researcher->id,
-                            'status' => 'accepted',
-                            'invited_at' => now(),
-                            'accepted_at' => now(),
+                            'workspace_id' => $id, 'researcher_id' => $inviteResearcher->id,
+                            'role' => $request->input('role', 'viewer'), 'invited_by' => $researcher->id,
+                            'status' => 'accepted', 'invited_at' => now(), 'accepted_at' => now(),
                         ]);
-                        return redirect()->route('research.viewWorkspace', $id)->with('success', 'Member added.');
+                        return $redir->with('success', 'Member added.');
                     }
-                    return redirect()->route('research.viewWorkspace', $id)->with('error', 'Already a member.');
+                    return $redir->with('error', 'Already a member.');
                 }
-                return redirect()->route('research.viewWorkspace', $id)->with('error', 'Researcher not found with that email.');
+                return $redir->with('error', 'Researcher not found with that email.');
+            }
+
+            if ($action === 'change_role' && in_array($myRole, ['owner', 'admin'])) {
+                DB::table('research_workspace_member')
+                    ->where('workspace_id', $id)->where('id', $request->input('member_id'))
+                    ->update(['role' => $request->input('role')]);
+                return $redir->with('success', 'Role updated.');
+            }
+
+            if ($action === 'remove_member' && in_array($myRole, ['owner', 'admin'])) {
+                DB::table('research_workspace_member')
+                    ->where('workspace_id', $id)->where('id', $request->input('member_id'))->delete();
+                return $redir->with('success', 'Member removed.');
             }
 
             if ($action === 'add_resource' && in_array($myRole, ['owner', 'admin', 'editor'])) {
                 DB::table('research_workspace_resource')->insert([
-                    'workspace_id' => $id,
-                    'resource_type' => $request->input('resource_type', 'link'),
+                    'workspace_id' => $id, 'resource_type' => $request->input('resource_type', 'link'),
                     'resource_id' => $request->input('resource_id') ?: null,
                     'external_url' => $request->input('external_url') ?: null,
-                    'title' => $request->input('title'),
-                    'description' => $request->input('description'),
-                    'added_by' => $researcher->id,
-                    'added_at' => now(),
+                    'title' => $request->input('title'), 'description' => $request->input('notes'),
+                    'added_by' => $researcher->id, 'added_at' => now(),
                 ]);
-                return redirect()->route('research.viewWorkspace', $id)->with('success', 'Resource added.');
+                return $redir->with('success', 'Resource added.');
             }
 
-            if ($action === 'remove_member' && $myRole === 'owner') {
-                DB::table('research_workspace_member')
-                    ->where('workspace_id', $id)
-                    ->where('id', $request->input('member_id'))
-                    ->delete();
-                return redirect()->route('research.viewWorkspace', $id)->with('success', 'Member removed.');
+            if ($action === 'remove_resource' && in_array($myRole, ['owner', 'admin', 'editor'])) {
+                DB::table('research_workspace_resource')
+                    ->where('workspace_id', $id)->where('id', $request->input('resource_id'))->delete();
+                return $redir->with('success', 'Resource removed.');
+            }
+
+            if ($action === 'create_discussion') {
+                DB::table('research_discussion')->insert([
+                    'workspace_id' => $id, 'researcher_id' => $researcher->id,
+                    'subject' => $request->input('title'), 'content' => $request->input('content'),
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+                return $redir->with('success', 'Discussion created.');
+            }
+
+            if ($action === 'edit_discussion') {
+                DB::table('research_discussion')
+                    ->where('id', $request->input('discussion_id'))->where('workspace_id', $id)
+                    ->update(['subject' => $request->input('title'), 'content' => $request->input('content'), 'updated_at' => now()]);
+                return $redir->with('success', 'Discussion updated.');
+            }
+
+            if ($action === 'delete_discussion') {
+                DB::table('research_discussion')
+                    ->where('id', $request->input('discussion_id'))->where('workspace_id', $id)->delete();
+                return $redir->with('success', 'Discussion deleted.');
             }
         }
 
+        // Load discussions
+        $discussions = DB::table('research_discussion as d')
+            ->leftJoin('research_researcher as r', 'r.id', '=', 'd.researcher_id')
+            ->where('d.workspace_id', $id)->whereNull('d.parent_id')
+            ->select('d.*', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as author_name"))
+            ->orderByDesc('d.is_pinned')->orderByDesc('d.created_at')
+            ->get();
+
+        // Count replies per discussion
+        foreach ($discussions as $disc) {
+            $disc->reply_count = DB::table('research_discussion')
+                ->where('parent_id', $disc->id)->count();
+        }
+        $discussions = $discussions->toArray();
+
+        // Shared collections
+        $sharedCollections = [];
+        try {
+            $collectionIds = DB::table('research_workspace_resource')
+                ->where('workspace_id', $id)->where('resource_type', 'collection')
+                ->pluck('resource_id')->toArray();
+            if (!empty($collectionIds)) {
+                $sharedCollections = DB::table('research_collection as c')
+                    ->leftJoin('research_researcher as r', 'c.researcher_id', '=', 'r.id')
+                    ->leftJoin(DB::raw('(SELECT collection_id, COUNT(*) as cnt FROM research_collection_item GROUP BY collection_id) ci'), 'c.id', '=', 'ci.collection_id')
+                    ->whereIn('c.id', $collectionIds)
+                    ->select('c.id', 'c.name', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as owner_name"), DB::raw('COALESCE(ci.cnt, 0) as item_count'))
+                    ->orderBy('c.name')->get()->toArray();
+            }
+        } catch (\Exception $e) {}
+
         return view('research::research.view-workspace', array_merge(
             $this->getSidebarData('workspaces'),
-            compact('workspace', 'owner', 'members', 'resources', 'myRole', 'researcher')
+            compact('workspace', 'owner', 'members', 'resources', 'myRole', 'researcher', 'discussions', 'sharedCollections')
         ));
     }
 
