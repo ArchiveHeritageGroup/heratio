@@ -2301,7 +2301,21 @@ class ResearchController extends Controller
                 ->where('status', 'completed')
                 ->whereBetween('booking_date', [$dateFrom, $dateTo])->count(),
             'total_collections' => DB::table('research_collection')->count(),
+            'total_collection_items' => DB::table('research_collection_item')->count(),
             'total_annotations' => DB::table('research_annotation')->count(),
+            'total_projects' => DB::table('research_project')->count(),
+            'active_projects' => DB::table('research_project')->where('status', 'active')->count(),
+            'new_projects_period' => DB::table('research_project')
+                ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count(),
+            'no_show_bookings' => DB::table('research_booking')
+                ->where('status', 'no_show')
+                ->whereBetween('booking_date', [$dateFrom, $dateTo])->count(),
+            'bookings_this_week' => DB::table('research_booking')
+                ->whereBetween('booking_date', [date('Y-m-d', strtotime('monday this week')), date('Y-m-d', strtotime('sunday this week'))])->count(),
+            'materials_requested' => DB::table('research_material_request')
+                ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count(),
+            'materials_in_use' => DB::table('research_material_request')
+                ->where('status', 'in_use')->count(),
             'total_citations' => DB::table('research_citation_log')->count(),
             'total_views' => DB::table('research_activity_log')
                 ->where('activity_type', 'view')

@@ -44,6 +44,43 @@
     @endforeach
 </div>
 
+{{-- Projects & Collections --}}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Projects & Collections</h6></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr><td>Total Projects</td><td class="text-end fw-bold">{{ number_format($stats['total_projects'] ?? 0) }}</td></tr>
+                        <tr><td>Active Projects</td><td class="text-end fw-bold">{{ number_format($stats['active_projects'] ?? 0) }}</td></tr>
+                        <tr><td>New in Period</td><td class="text-end fw-bold">{{ number_format($stats['new_projects_period'] ?? 0) }}</td></tr>
+                        <tr><td>Collections</td><td class="text-end fw-bold">{{ number_format($stats['total_collections'] ?? 0) }}</td></tr>
+                        <tr><td>Collection Items</td><td class="text-end fw-bold">{{ number_format($stats['total_collection_items'] ?? 0) }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Bookings & Materials</h6></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr><td>Bookings in Period</td><td class="text-end fw-bold">{{ number_format($stats['total_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>Completed</td><td class="text-end fw-bold">{{ number_format($stats['completed_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>No Shows</td><td class="text-end fw-bold">{{ number_format($stats['no_show_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>This Week</td><td class="text-end fw-bold">{{ number_format($stats['bookings_this_week'] ?? 0) }}</td></tr>
+                        <tr><td>Materials Requested</td><td class="text-end fw-bold">{{ number_format($stats['materials_requested'] ?? 0) }}</td></tr>
+                        <tr><td>Currently In Use</td><td class="text-end fw-bold">{{ number_format($stats['materials_in_use'] ?? 0) }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Charts --}}
 <div class="row mb-4">
     <div class="col-md-6 mb-4">
