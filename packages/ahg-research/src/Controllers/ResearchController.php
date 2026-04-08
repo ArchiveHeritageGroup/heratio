@@ -1416,15 +1416,61 @@ class ResearchController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
 
-        $query = DB::table('research_report')
-            ->where('researcher_id', $researcher->id);
-        if ($request->input('status')) $query->where('status', $request->input('status'));
-        $reports = $query->orderBy('created_at', 'desc')->get()->toArray();
+        if ($request->isMethod('post') && $request->input('form_action') === 'create') {
+            $reportId = DB::table('research_report')->insertGetId([
+                'researcher_id' => $researcher->id,
+                'project_id' => $request->input('project_id') ?: null,
+                'title' => $request->input('title'),
+                'template_type' => $request->input('template_type', 'custom'),
+                'description' => $request->input('description') ?: null,
+                'status' => 'draft',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Auto-create sections based on template
+            $templateSections = match ($request->input('template_type', 'custom')) {
+                'research_summary' => ['Introduction', 'Methodology', 'Findings', 'Discussion', 'Conclusions', 'References'],
+                'genealogical' => ['Objective', 'Family Overview', 'Lineage Documentation', 'Source Citations', 'Conclusions'],
+                'historical' => ['Context', 'Primary Sources', 'Chronological Narrative', 'Analysis', 'Conclusions'],
+                'source_analysis' => ['Source Description', 'Provenance', 'Reliability Assessment', 'Interpretation', 'Conclusions'],
+                'finding_aid' => ['Scope and Content', 'Arrangement', 'Access Conditions', 'Container List'],
+                default => [],
+            };
+
+            foreach ($templateSections as $i => $sectionTitle) {
+                DB::table('research_report_section')->insert([
+                    'report_id' => $reportId,
+                    'section_type' => 'text',
+                    'title' => $sectionTitle,
+                    'sort_order' => $i,
+                    'created_at' => now(),
+                ]);
+            }
+
+            return redirect()->route('research.viewReport', $reportId)->with('success', 'Report created');
+        }
+
+        $query = DB::table('research_report as r')
+            ->leftJoin('research_project as p', 'r.project_id', '=', 'p.id')
+            ->where('r.researcher_id', $researcher->id);
         $currentStatus = $request->input('status');
+        if ($currentStatus) $query->where('r.status', $currentStatus);
+
+        $reports = $query
+            ->select('r.*', 'p.title as project_title',
+                DB::raw('(SELECT COUNT(*) FROM research_report_section WHERE report_id = r.id) as section_count'))
+            ->orderBy('r.updated_at', 'desc')
+            ->get()->toArray();
+
+        $projects = DB::table('research_project as p')
+            ->join('research_project_collaborator as pc', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcher->id)->where('pc.status', 'accepted')
+            ->select('p.id', 'p.title')->orderBy('p.title')->get()->toArray();
 
         return view('research::research.reports', array_merge(
             $this->getSidebarData('reports'),
-            compact('researcher', 'reports', 'currentStatus')
+            compact('researcher', 'reports', 'currentStatus', 'projects')
         ));
     }
 

@@ -1,79 +1,172 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-file-alt me-2"></i>Research Reports</h1>@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'reports'])@endsection
+@section('title', 'Research Reports')
+
 @section('content')
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item active">Reports</li>
+    </ol>
+</nav>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <form method="GET" class="d-inline-flex gap-2">
-            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">All Statuses</option>
-                <option value="draft" {{ ($currentStatus ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
-                <option value="in_progress" {{ ($currentStatus ?? '') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                <option value="completed" {{ ($currentStatus ?? '') === 'completed' ? 'selected' : '' }}>Completed</option>
-                <option value="published" {{ ($currentStatus ?? '') === 'published' ? 'selected' : '' }}>Published</option>
-            </select>
-        </form>
-    </div>
-    <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
+    <h1><i class="fas fa-file-alt text-primary me-2"></i>Research Reports</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
 </div>
 
-<div class="row">
-@forelse($reports as $report)
-<div class="col-md-6 mb-3">
-    <div class="card h-100">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
-                <h5 class="card-title mb-1">
-                    <a href="{{ route('research.viewReport', $report->id) }}" class="text-decoration-none">{{ e($report->title) }}</a>
-                </h5>
+{{-- Status Tabs --}}
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="nav-link {{ empty($currentStatus) ? 'active' : '' }}" href="{{ route('research.reports') }}">All</a></li>
+    @foreach(['draft' => 'Draft', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $sKey => $sLabel)
+    <li class="nav-item"><a class="nav-link {{ ($currentStatus ?? '') === $sKey ? 'active' : '' }}" href="{{ route('research.reports', ['status' => $sKey]) }}">{{ $sLabel }}</a></li>
+    @endforeach
+</ul>
+
+@if(!empty($reports))
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Template</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th class="text-center">Sections</th>
+                <th>Last Updated</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($reports as $report)
+            <tr>
+                <td>
+                    <a href="{{ route('research.viewReport', $report->id) }}" class="text-decoration-none fw-semibold">{{ e($report->title) }}</a>
+                    @if($report->description ?? null)
+                        <br><small class="text-muted">{{ e(\Illuminate\Support\Str::limit($report->description, 60)) }}</small>
+                    @endif
+                </td>
+                <td>
+                    @php
+                        $tplColors = ['research_summary' => 'primary', 'genealogical' => 'success', 'historical' => 'info', 'source_analysis' => 'warning', 'finding_aid' => 'secondary'];
+                    @endphp
+                    <span class="badge bg-{{ $tplColors[$report->template_type ?? 'custom'] ?? 'dark' }}">{{ ucwords(str_replace('_', ' ', $report->template_type ?? 'custom')) }}</span>
+                </td>
+                <td>
+                    @if($report->project_title ?? null)
+                        <small>{{ e($report->project_title) }}</small>
+                    @else
+                        <small class="text-muted">None</small>
+                    @endif
+                </td>
+                <td>
+                    @php $sc = ['draft' => 'secondary', 'in_progress' => 'primary', 'review' => 'warning', 'completed' => 'success']; @endphp
+                    <span class="badge rounded-pill bg-{{ $sc[$report->status ?? 'draft'] ?? 'dark' }}">{{ ucwords(str_replace('_', ' ', $report->status ?? 'draft')) }}</span>
+                </td>
+                <td class="text-center"><span class="badge bg-light text-dark">{{ (int) ($report->section_count ?? 0) }}</span></td>
+                <td><small class="text-muted">{{ date('M j, Y H:i', strtotime($report->updated_at)) }}</small></td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ route('research.viewReport', $report->id) }}" class="btn btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+</div>
+@else
+<div class="text-center py-5">
+    <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
+    <h4 class="text-muted">No reports yet</h4>
+    <p class="text-muted">Create a report to document your research findings.</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>Create First Report</button>
+</div>
+@endif
+
+{{-- New Report Modal with Template Picker --}}
+<div class="modal fade" id="newReportModal" tabindex="-1">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+    <form method="POST" action="{{ route('research.reports') }}">
+        @csrf
+        <input type="hidden" name="form_action" value="create">
+        <input type="hidden" name="template_type" id="selectedTemplate" value="custom">
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Create New Report</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            {{-- Step 1: Template --}}
+            <h6 class="mb-3"><span class="badge bg-primary me-2">1</span>Choose a Template</h6>
+            <div class="row mb-4">
                 @php
-                    $statusColors = ['draft' => 'secondary', 'in_progress' => 'warning', 'completed' => 'success', 'published' => 'primary'];
-                    $statusColor = $statusColors[$report->status ?? 'draft'] ?? 'secondary';
+                $templates = [
+                    'research_summary' => ['icon' => 'fas fa-clipboard-list', 'color' => 'primary', 'label' => 'Research Summary', 'desc' => 'Introduction, methodology, findings, conclusions.'],
+                    'genealogical' => ['icon' => 'fas fa-sitemap', 'color' => 'success', 'label' => 'Genealogical Report', 'desc' => 'Family history with pedigree and source citations.'],
+                    'historical' => ['icon' => 'fas fa-landmark', 'color' => 'info', 'label' => 'Historical Analysis', 'desc' => 'In-depth analysis with primary sources.'],
+                    'source_analysis' => ['icon' => 'fas fa-search', 'color' => 'warning', 'label' => 'Source Analysis', 'desc' => 'Archival source provenance and reliability.'],
+                    'finding_aid' => ['icon' => 'fas fa-map', 'color' => 'secondary', 'label' => 'Finding Aid', 'desc' => 'Scope, arrangement, access, container list.'],
+                    'custom' => ['icon' => 'fas fa-pencil-alt', 'color' => 'dark', 'label' => 'Custom Report', 'desc' => 'Blank report — add your own sections.'],
+                ];
                 @endphp
-                <span class="badge bg-{{ $statusColor }}">{{ ucfirst(str_replace('_', ' ', $report->status ?? 'draft')) }}</span>
+                @foreach($templates as $code => $tpl)
+                <div class="col-md-4 mb-2">
+                    <div class="card h-100 template-card {{ $code === 'custom' ? 'selected' : '' }}" data-template="{{ $code }}" role="button" style="cursor:pointer;">
+                        <div class="card-body text-center py-3">
+                            <i class="{{ $tpl['icon'] }} fa-2x text-{{ $tpl['color'] }} mb-2"></i>
+                            <h6 class="card-title mb-1">{{ $tpl['label'] }}</h6>
+                            <p class="card-text small text-muted mb-0">{{ $tpl['desc'] }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
-            @if($report->project_id ?? null)
-                <small class="text-muted"><i class="fas fa-project-diagram me-1"></i>Project #{{ $report->project_id }}</small><br>
-            @endif
-            @if($report->report_type ?? null)
-                <small class="text-muted"><i class="fas fa-tag me-1"></i>{{ ucfirst(str_replace('_', ' ', $report->report_type)) }}</small><br>
-            @endif
-            @if($report->description ?? null)
-                <p class="card-text small text-muted mt-2 mb-0">{{ e(\Illuminate\Support\Str::limit($report->description, 120)) }}</p>
-            @endif
-            <div class="mt-2">
-                <small class="text-muted"><i class="fas fa-calendar me-1"></i>Created: {{ \Carbon\Carbon::parse($report->created_at)->format('j M Y') }}</small>
+
+            {{-- Step 2: Details --}}
+            <h6 class="mb-3"><span class="badge bg-primary me-2">2</span>Report Details</h6>
+            <div class="mb-3"><label class="form-label">Report Title *</label><input type="text" name="title" class="form-control" required placeholder="Enter report title..."></div>
+            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2" placeholder="Brief description..."></textarea></div>
+            <div class="mb-3">
+                <label class="form-label">Project</label>
+                <select name="project_id" class="form-select">
+                    <option value="">No Project</option>
+                    @foreach($projects ?? [] as $p)
+                        <option value="{{ $p->id }}">{{ e($p->title) }}</option>
+                    @endforeach
+                </select>
+                <small class="form-text">Link to a project to auto-populate data.</small>
             </div>
         </div>
-    </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button>
+        </div>
+    </form>
 </div>
-@empty
-<div class="col-12 text-center text-muted py-4">
-    <i class="fas fa-file-alt fa-3x mb-3 d-block"></i>
-    No reports yet. Create a report to document your research findings.
 </div>
-@endforelse
 </div>
 
-{{-- New Report Modal --}}
-<div class="modal fade" id="newReportModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <form method="POST" action="{{ route('research.reports') }}">@csrf<input type="hidden" name="form_action" value="create">
-    <div class="modal-header"><h5 class="modal-title">New Report</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title" required></div>
-        <div class="mb-3"><label class="form-label">Project ID <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="project_id" placeholder="Link to a project (optional)"></div>
-        <div class="mb-3"><label class="form-label">Report Type <span class="badge bg-secondary ms-1">Optional</span></label>
-            <select name="report_type" class="form-select">
-                <option value="progress">Progress Report</option>
-                <option value="final">Final Report</option>
-                <option value="literature_review">Literature Review</option>
-                <option value="methodology">Methodology</option>
-                <option value="findings">Findings</option>
-            </select>
-        </div>
-        <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="description" rows="3"></textarea></div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Create Report</button></div>
-    </form>
-</div></div></div>
+<style>
+.template-card { transition: all 0.2s; border: 2px solid transparent; }
+.template-card:hover { border-color: #0d6efd; box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1); }
+.template-card.selected { border-color: #0d6efd; background-color: #f0f7ff; }
+</style>
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var cards = document.querySelectorAll('.template-card');
+    var hidden = document.getElementById('selectedTemplate');
+    cards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            cards.forEach(function(c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            hidden.value = card.dataset.template;
+        });
+    });
+});
+</script>
+@endpush
 @endsection
