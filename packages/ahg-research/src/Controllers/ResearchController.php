@@ -371,7 +371,7 @@ class ResearchController extends Controller
         if (!$researcher) return redirect()->route('researcher.register');
 
         if ($request->isMethod('post')) {
-            $this->service->updateResearcher($researcher->id, [
+            $data = [
                 'title' => $request->input('title'),
                 'first_name' => $request->input('first_name'),
                 'last_name' => $request->input('last_name'),
@@ -383,17 +383,28 @@ class ResearchController extends Controller
                 'research_interests' => $request->input('research_interests'),
                 'current_project' => $request->input('current_project'),
                 'orcid_id' => $request->input('orcid_id'),
-            ]);
+                'student_id' => $request->input('student_id'),
+            ];
+
+            // Admins can edit ID fields
+            $isAdmin = DB::table('acl_user_group')
+                ->where('user_id', Auth::id())->where('group_id', 100)->exists();
+            if ($isAdmin) {
+                $data['id_type'] = $request->input('id_type');
+                $data['id_number'] = $request->input('id_number');
+            }
+
+            $this->service->updateResearcher($researcher->id, $data);
             return redirect()->route('research.profile')->with('success', 'Profile updated');
         }
 
-        $bookings = $this->service->getResearcherBookings($researcher->id);
-        $collections = $this->service->getCollections($researcher->id);
-        $savedSearches = $this->service->getSavedSearches($researcher->id);
+        $recentBookings = $this->service->getResearcherBookings($researcher->id);
+        $recentCollections = $this->service->getCollections($researcher->id);
+        $recentSavedSearches = $this->service->getSavedSearches($researcher->id);
 
         return view('research::research.profile', array_merge(
             $this->getSidebarData('profile'),
-            compact('researcher', 'bookings', 'collections', 'savedSearches')
+            compact('researcher', 'recentBookings', 'recentCollections', 'recentSavedSearches')
         ));
     }
 

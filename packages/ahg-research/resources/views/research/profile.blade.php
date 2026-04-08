@@ -116,18 +116,33 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">ID Type <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" class="form-control" value="{{ e(ucfirst(str_replace('_', ' ', $researcher->id_type ?? ''))) }}" disabled>
+            @if($themeData['isAdmin'] ?? false)
+              <select name="id_type" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach(['national_id' => 'National ID', 'passport' => 'Passport', 'drivers_license' => 'Drivers License', 'student_card' => 'Student Card', 'other' => 'Other'] as $k => $v)
+                  <option value="{{ $k }}" {{ ($researcher->id_type ?? '') === $k ? 'selected' : '' }}>{{ $v }}</option>
+                @endforeach
+              </select>
+            @else
+              <input type="text" class="form-control" value="{{ e(ucfirst(str_replace('_', ' ', $researcher->id_type ?? ''))) }}" disabled>
+            @endif
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">ID Number <span class="badge bg-secondary ms-1">Optional</span></label>
-            <input type="text" class="form-control" value="{{ e($researcher->id_number ?? '') }}" disabled>
+            @if($themeData['isAdmin'] ?? false)
+              <input type="text" name="id_number" class="form-control" value="{{ old('id_number', $researcher->id_number ?? '') }}">
+            @else
+              <input type="text" class="form-control" value="{{ e($researcher->id_number ?? '') }}" disabled>
+            @endif
           </div>
           <div class="col-md-4 mb-3">
             <label for="student_id" class="form-label">Student ID <span class="badge bg-secondary ms-1">Optional</span></label>
             <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id', $researcher->student_id ?? '') }}">
           </div>
         </div>
-        <small class="text-muted">ID type and number cannot be changed. Contact an administrator if corrections are needed.</small>
+        @if(!($themeData['isAdmin'] ?? false))
+          <small class="text-muted">ID type and number cannot be changed. Contact an administrator if corrections are needed.</small>
+        @endif
       </div>
     </div>
 
