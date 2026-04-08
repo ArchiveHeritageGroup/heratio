@@ -1,103 +1,144 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-chart-bar me-2"></i>Research Statistics</h1>@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'adminStatistics'])@endsection
+@section('title', 'Research Statistics')
+
 @section('content')
-<div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0">Date Range Filter</h5></div>
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Statistics</li></ol></nav>
+
+<h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>Research Statistics</h1>
+
+{{-- Date Filter --}}
+<div class="card mb-4">
     <div class="card-body">
-        <form method="GET" class="row g-2 align-items-end">
-            <div class="col-md-3">
-                <label class="form-label">From <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="date" class="form-control form-control-sm" name="date_from" value="{{ $dateFrom }}">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">To <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo }}">
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn atom-btn-outline-light btn-sm"><i class="fas fa-filter me-1"></i>Filter</button>
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3"><label class="form-label">From</label><input type="date" name="date_from" class="form-control" value="{{ $dateFrom }}"></div>
+            <div class="col-md-3"><label class="form-label">To</label><input type="date" name="date_to" class="form-control" value="{{ $dateTo }}"></div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Apply</button></div>
+            <div class="col-md-4 text-end">
+                <a href="?date_from={{ date('Y-m-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Month</a>
+                <a href="?date_from={{ date('Y-01-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Year</a>
             </div>
         </form>
     </div>
 </div>
 
+{{-- Summary Cards --}}
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="card border-primary h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['total_researchers'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Total Researchers</p>
+    @php $cards = [
+        ['Total Researchers', $stats['total_researchers'] ?? 0, 'users', 'primary'],
+        ['Bookings', $stats['total_bookings'] ?? 0, 'calendar-check', 'success'],
+        ['Item Views', $stats['total_views'] ?? 0, 'eye', 'info'],
+        ['Citations', $stats['total_citations'] ?? 0, 'quote-right', 'warning'],
+    ]; @endphp
+    @foreach($cards as $c)
+    <div class="col-md-3">
+        <div class="card bg-{{ $c[3] }} text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h3 class="mb-0">{{ number_format($c[1]) }}</h3><small>{{ $c[0] }}</small></div>
+                    <i class="fas fa-{{ $c[2] }} fa-2x opacity-50"></i>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="card border-success h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-user-check fa-2x text-success mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['approved_researchers'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Approved Researchers</p>
-            </div>
+    @endforeach
+</div>
+
+{{-- Charts --}}
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Registrations Over Time</h5></div>
+            <div class="card-body"><canvas id="registrationsChart" height="250"></canvas></div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="card border-info h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-calendar-check fa-2x text-info mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['total_bookings'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Total Bookings (Period)</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="card border-warning h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-check-double fa-2x text-warning mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['completed_bookings'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Completed Bookings (Period)</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="card border-secondary h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-folder-open fa-2x text-secondary mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['total_collections'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Total Collections</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="card border-dark h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-sticky-note fa-2x text-dark mb-2"></i>
-                <h3 class="fw-bold">{{ $stats['total_annotations'] ?? 0 }}</h3>
-                <p class="text-muted mb-0">Total Annotations</p>
-            </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Bookings by Room</h5></div>
+            <div class="card-body"><canvas id="bookingsChart" height="250"></canvas></div>
         </div>
     </div>
 </div>
 
+{{-- Most Active Researchers --}}
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>Most Active Researchers</h5></div>
+    <div class="card-body p-0">
+        @if(!empty($activeResearchers))
+        <table class="table table-hover mb-0">
+            <thead class="table-light"><tr><th>Researcher</th><th>Institution</th><th class="text-center">Bookings</th><th class="text-center">Evidence Sets</th></tr></thead>
+            <tbody>
+            @foreach($activeResearchers as $r)
+                <tr>
+                    <td><a href="{{ route('research.viewResearcher', $r->id) }}">{{ e($r->first_name . ' ' . $r->last_name) }}</a></td>
+                    <td>{{ e($r->institution ?? '-') }}</td>
+                    <td class="text-center">{{ number_format($r->booking_count ?? 0) }}</td>
+                    <td class="text-center">{{ number_format($r->collection_count ?? 0) }}</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        @else
+        <div class="text-center text-muted py-4">No data available</div>
+        @endif
+    </div>
+</div>
+
+{{-- Breakdown Cards --}}
 <div class="row">
-    <div class="col-md-6 mb-3">
+    <div class="col-md-4 mb-4">
         <div class="card h-100">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Visits Over Time</h5></div>
-            <div class="card-body">
-                <div id="chart-visits-over-time" class="d-flex align-items-center justify-content-center" style="min-height: 250px;">
-                    <span class="text-muted"><i class="fas fa-chart-line fa-3x mb-2 d-block"></i>Chart placeholder - integrate Chart.js or similar</span>
-                </div>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Researcher Types</h6></div>
+            <ul class="list-group list-group-flush">
+                @forelse($stats['by_type'] ?? [] as $type)
+                    <li class="list-group-item d-flex justify-content-between">{{ e($type->name ?? 'Unspecified') }}<span class="badge bg-secondary">{{ $type->count }}</span></li>
+                @empty
+                    <li class="list-group-item text-muted">No data</li>
+                @endforelse
+            </ul>
         </div>
     </div>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-4 mb-4">
         <div class="card h-100">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Researcher Types Breakdown</h5></div>
-            <div class="card-body">
-                <div id="chart-researcher-types" class="d-flex align-items-center justify-content-center" style="min-height: 250px;">
-                    <span class="text-muted"><i class="fas fa-chart-pie fa-3x mb-2 d-block"></i>Chart placeholder - integrate Chart.js or similar</span>
-                </div>
-            </div>
+            <div class="card-header"><h6 class="mb-0">Projects by Status</h6></div>
+            <ul class="list-group list-group-flush">
+                @forelse($stats['projects_by_status'] ?? [] as $s)
+                    <li class="list-group-item d-flex justify-content-between">{{ ucfirst($s->status) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
+                @empty
+                    <li class="list-group-item text-muted">No data</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header"><h6 class="mb-0">Reproduction Requests</h6></div>
+            <ul class="list-group list-group-flush">
+                @forelse($stats['reproductions_by_status'] ?? [] as $s)
+                    <li class="list-group-item d-flex justify-content-between">{{ ucfirst(str_replace('_', ' ', $s->status)) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
+                @empty
+                    <li class="list-group-item text-muted">No data</li>
+                @endforelse
+            </ul>
         </div>
     </div>
 </div>
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Chart(document.getElementById('registrationsChart'), {
+        type: 'line',
+        data: { labels: {!! json_encode(array_map(fn($r) => $r->period ?? '', $regData ?? [])) !!}, datasets: [{ label: 'Registrations', data: {!! json_encode(array_map(fn($r) => (int)($r->count ?? 0), $regData ?? [])) !!}, borderColor: '#0d6efd', backgroundColor: 'rgba(13,110,253,0.1)', fill: true, tension: 0.3 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    new Chart(document.getElementById('bookingsChart'), {
+        type: 'bar',
+        data: { labels: {!! json_encode(array_map(fn($r) => $r->room_name ?? '', $roomData ?? [])) !!}, datasets: [{ label: 'Bookings', data: {!! json_encode(array_map(fn($r) => (int)($r->count ?? 0), $roomData ?? [])) !!}, backgroundColor: ['#198754','#0dcaf0','#ffc107','#dc3545','#6f42c1','#fd7e14'] }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+});
+</script>
+@endpush
 @endsection

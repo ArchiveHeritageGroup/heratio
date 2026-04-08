@@ -2302,11 +2302,68 @@ class ResearchController extends Controller
                 ->whereBetween('booking_date', [$dateFrom, $dateTo])->count(),
             'total_collections' => DB::table('research_collection')->count(),
             'total_annotations' => DB::table('research_annotation')->count(),
+            'total_citations' => DB::table('research_citation_log')->count(),
+            'total_views' => DB::table('research_activity_log')
+                ->where('activity_type', 'view')
+                ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count(),
         ];
+
+        // By type breakdown
+        try {
+            $stats['by_type'] = DB::table('research_researcher as r')
+                ->leftJoin('research_researcher_type as t', 'r.researcher_type_id', '=', 't.id')
+                ->select(DB::raw('COALESCE(t.name, "Unspecified") as name'), DB::raw('COUNT(*) as count'))
+                ->groupBy('t.name')->orderByDesc('count')->get()->toArray();
+        } catch (\Exception $e) { $stats['by_type'] = []; }
+
+        try {
+            $stats['projects_by_status'] = DB::table('research_project')
+                ->select('status', DB::raw('COUNT(*) as count'))
+                ->groupBy('status')->orderByDesc('count')->get()->toArray();
+        } catch (\Exception $e) { $stats['projects_by_status'] = []; }
+
+        try {
+            $stats['reproductions_by_status'] = DB::table('research_reproduction_request')
+                ->select('status', DB::raw('COUNT(*) as count'))
+                ->groupBy('status')->orderByDesc('count')->get()->toArray();
+        } catch (\Exception $e) { $stats['reproductions_by_status'] = []; }
+
+        // Chart data: registrations over time (monthly)
+        $regData = [];
+        try {
+            $regData = DB::table('research_researcher')
+                ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as period, COUNT(*) as count")
+                ->where('created_at', '>=', $dateFrom)
+                ->where('created_at', '<=', $dateTo . ' 23:59:59')
+                ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
+                ->orderBy('period')->get()->toArray();
+        } catch (\Exception $e) {}
+
+        // Chart data: bookings by room
+        $roomData = [];
+        try {
+            $roomData = DB::table('research_booking as b')
+                ->join('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
+                ->whereBetween('b.booking_date', [$dateFrom, $dateTo])
+                ->select('rm.name as room_name', DB::raw('COUNT(*) as count'))
+                ->groupBy('rm.name')->orderByDesc('count')->get()->toArray();
+        } catch (\Exception $e) {}
+
+        // Most active researchers
+        $activeResearchers = [];
+        try {
+            $activeResearchers = DB::table('research_researcher as r')
+                ->select('r.id', 'r.first_name', 'r.last_name', 'r.institution',
+                    DB::raw('(SELECT COUNT(*) FROM research_booking WHERE researcher_id = r.id) as booking_count'),
+                    DB::raw('(SELECT COUNT(*) FROM research_collection WHERE researcher_id = r.id) as collection_count'))
+                ->where('r.status', 'approved')
+                ->orderByDesc(DB::raw('(SELECT COUNT(*) FROM research_booking WHERE researcher_id = r.id)'))
+                ->limit(10)->get()->toArray();
+        } catch (\Exception $e) {}
 
         return view('research::research.admin-statistics', array_merge(
             $this->getSidebarData('adminStatistics'),
-            compact('stats', 'dateFrom', 'dateTo')
+            compact('stats', 'dateFrom', 'dateTo', 'regData', 'roomData', 'activeResearchers')
         ));
     }
 
