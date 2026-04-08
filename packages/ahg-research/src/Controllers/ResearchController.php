@@ -2748,6 +2748,43 @@ class ResearchController extends Controller
     /**
      * Export finding aid as PDF or DOCX (generates HTML with print styling).
      */
+    /**
+     * Export notes as PDF (printable HTML) or CSV.
+     */
+    public function exportNotes(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $format = $request->input('format', 'pdf');
+        $ids = $request->input('ids') ? explode(',', $request->input('ids')) : [];
+        $id = $request->input('id');
+        if ($id) $ids = [(int) $id];
+
+        $query = DB::table('research_annotation')
+            ->where('researcher_id', $researcher->id);
+        if (!empty($ids)) {
+            $query->whereIn('id', array_map('intval', $ids));
+        }
+        $notes = $query->orderBy('created_at', 'desc')->get();
+
+        if ($format === 'csv') {
+            $filename = 'research-notes.csv';
+            return response()->stream(function () use ($notes) {
+                $out = fopen('php://output', 'w');
+                fputcsv($out, ['Title', 'Content', 'Tags', 'Visibility', 'Created']);
+                foreach ($notes as $n) {
+                    fputcsv($out, [$n->title, strip_tags($n->content ?? ''), $n->tags, $n->visibility, $n->created_at]);
+                }
+                fclose($out);
+            }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""]);
+        }
+
+        // PDF = printable HTML
+        return view('research::research.export-notes-pdf', compact('notes', 'researcher'));
+    }
+
     public function exportFindingAid(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

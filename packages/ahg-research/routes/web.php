@@ -50,6 +50,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Team Workspaces
     Route::get('/exportFindingAid', [ResearchController::class, 'exportFindingAid'])->name('exportFindingAid');
+    Route::get('/exportNotes', [ResearchController::class, 'exportNotes'])->name('exportNotes');
     Route::get('/generateFindingAid', [ResearchController::class, 'generateFindingAid'])->name('generateFindingAid');
     Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
     Route::match(['get', 'post'], '/workspaces/{id}', [ResearchController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
