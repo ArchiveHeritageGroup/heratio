@@ -2691,10 +2691,75 @@ class ResearchController extends Controller
         $page = max(1, (int) $request->input('page', 1));
         $policies = $odrlService->getAllPolicies($filters, 25, ($page - 1) * 25);
 
+        // Resolve target names and researcher names for display
+        $culture = app()->getLocale();
+        $targetNameCache = [];
+        $researcherNameCache = [];
+
+        foreach ($policies['items'] as $p) {
+            // Resolve target name
+            $cacheKey = $p->target_type . ':' . $p->target_id;
+            if (!isset($targetNameCache[$cacheKey])) {
+                $targetNameCache[$cacheKey] = $this->resolveTargetName($p->target_type, $p->target_id, $culture);
+            }
+            $p->target_name = $targetNameCache[$cacheKey];
+
+            // Resolve researcher names in constraints
+            $p->resolved_constraints = [];
+            if (!empty($p->constraints_json)) {
+                $constraints = json_decode($p->constraints_json, true);
+                if (is_array($constraints)) {
+                    foreach ($constraints as $ck => $cv) {
+                        if ($ck === 'researcher_ids' && is_array($cv)) {
+                            $names = [];
+                            foreach ($cv as $rid) {
+                                if (!isset($researcherNameCache[$rid])) {
+                                    $r = DB::table('research_researcher')->where('id', $rid)
+                                        ->select(DB::raw("CONCAT(first_name, ' ', last_name) as name"))->first();
+                                    $researcherNameCache[$rid] = $r->name ?? "#{$rid}";
+                                }
+                                $names[] = $researcherNameCache[$rid];
+                            }
+                            $p->resolved_constraints['Researchers'] = implode(', ', $names);
+                        } elseif ($ck === 'date_from') {
+                            $p->resolved_constraints['From'] = $cv;
+                        } elseif ($ck === 'date_to') {
+                            $p->resolved_constraints['Until'] = $cv;
+                        } elseif ($ck === 'max_uses') {
+                            $p->resolved_constraints['Max uses'] = $cv;
+                        } else {
+                            $p->resolved_constraints[$ck] = is_array($cv) ? implode(', ', $cv) : $cv;
+                        }
+                    }
+                }
+            }
+        }
+
         return view('research::research.odrl-policies', array_merge(
             $this->getSidebarData('odrlPolicies'),
             compact('policies')
         ));
+    }
+
+    /**
+     * Resolve a target type + ID to a human-readable name.
+     */
+    private function resolveTargetName(string $type, int $id, string $culture = 'en'): string
+    {
+        try {
+            return match ($type) {
+                'archival_description' => DB::table('information_object_i18n')
+                    ->where('id', $id)->where('culture', $culture)->value('title') ?? "AD #{$id}",
+                'collection' => DB::table('research_collection')->where('id', $id)->value('name') ?? "Collection #{$id}",
+                'project' => DB::table('research_project')->where('id', $id)->value('title') ?? "Project #{$id}",
+                'snapshot' => DB::table('research_snapshot')->where('id', $id)->value('title') ?? "Snapshot #{$id}",
+                'annotation' => DB::table('research_annotation')->where('id', $id)->value('title') ?? "Annotation #{$id}",
+                'assertion' => DB::table('research_assertion')->where('id', $id)->value('assertion_type') ?? "Assertion #{$id}",
+                default => "#{$id}",
+            };
+        } catch (\Exception $e) {
+            return "#{$id}";
+        }
     }
 
     // =========================================================================

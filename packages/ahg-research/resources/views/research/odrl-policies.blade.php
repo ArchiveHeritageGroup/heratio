@@ -76,8 +76,8 @@
             <tr>
                 <td>{{ (int) $p->id }}</td>
                 <td>
-                    <span class="badge bg-secondary">{{ $p->target_type }}</span>
-                    #{{ (int) $p->target_id }}
+                    <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $p->target_type)) }}</span>
+                    <br>{{ $p->target_name ?? '#' . $p->target_id }}
                 </td>
                 <td>
                     @php
@@ -90,15 +90,10 @@
                 </td>
                 <td><code>{{ $p->action_type }}</code></td>
                 <td>
-                    @if(!empty($p->constraints_json))
-                        @php $constraints = json_decode($p->constraints_json, true); @endphp
-                        @if(is_array($constraints))
-                            @foreach($constraints as $ck => $cv)
-                                <small class="d-block text-muted">{{ $ck }}: {{ is_array($cv) ? implode(', ', $cv) : $cv }}</small>
-                            @endforeach
-                        @else
-                            <small class="text-muted">-</small>
-                        @endif
+                    @if(!empty($p->resolved_constraints))
+                        @foreach($p->resolved_constraints as $label => $val)
+                            <small class="d-block text-muted"><strong>{{ $label }}:</strong> {{ $val }}</small>
+                        @endforeach
                     @else
                         <small class="text-muted">None</small>
                     @endif

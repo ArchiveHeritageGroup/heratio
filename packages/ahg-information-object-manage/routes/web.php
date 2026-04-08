@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
-Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print');
+Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print')->middleware('odrl:reproduce');
 
 // IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {
@@ -187,5 +187,5 @@ Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->na
 Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 Route::get('/provenance/{slug}/export-csv', [ProvenanceController::class, 'exportCsv'])->name('io.provenance.exportCsv');
 
-Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');
+Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->middleware('odrl:use')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');
 

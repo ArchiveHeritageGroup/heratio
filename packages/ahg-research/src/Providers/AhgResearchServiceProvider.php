@@ -8,6 +8,10 @@ class AhgResearchServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        // Register ODRL policy middleware alias
+        $router = $this->app['router'];
+        $router->aliasMiddleware('odrl', \AhgResearch\Middleware\OdrlPolicyMiddleware::class);
+
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'research');
@@ -15,6 +19,6 @@ class AhgResearchServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        //
+        $this->app->singleton(\AhgResearch\Services\OdrlService::class);
     }
 }

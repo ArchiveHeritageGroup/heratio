@@ -137,8 +137,15 @@ class OdrlService
         }
 
         if ($permitted === null) {
-            $permitted = false;
-            $rationale = "No matching policy found for action \"{$action}\" on {$targetType}:{$targetId}. Access denied by default.";
+            if (empty($policies)) {
+                // No policies defined for this target — allow by default
+                $permitted = true;
+                $rationale = "No policies defined for {$targetType}:{$targetId}. Access allowed by default.";
+            } else {
+                // Policies exist but none matched this researcher — deny
+                $permitted = false;
+                $rationale = "Policies exist for {$targetType}:{$targetId} but none permit action \"{$action}\" for researcher #{$researcherId}.";
+            }
         }
 
         $decisionPolicyId = !empty($matchingPolicies) ? $matchingPolicies[0]->id : 0;
@@ -157,6 +164,58 @@ class OdrlService
             'policies' => $matchingPolicies,
             'rationale' => $rationale,
         ];
+    }
+
+    /**
+     * Quick check — returns true/false without logging to audit table.
+     * Use this in middleware/views to check access without side effects.
+     */
+    public function isPermitted(string $targetType, int $targetId, ?int $researcherId, string $action): bool
+    {
+        $policies = DB::table('research_rights_policy')
+            ->where('target_type', $targetType)
+            ->where('target_id', $targetId)
+            ->where('action_type', $action)
+            ->get();
+
+        // No policies → allowed by default
+        if ($policies->isEmpty()) {
+            return true;
+        }
+
+        // Check prohibitions first
+        foreach ($policies as $policy) {
+            if ($policy->policy_type === 'prohibition') {
+                if ($this->evaluateConstraints($policy, $researcherId ?? 0)) {
+                    return false;
+                }
+            }
+        }
+
+        // Check permissions
+        foreach ($policies as $policy) {
+            if ($policy->policy_type === 'permission') {
+                if ($this->evaluateConstraints($policy, $researcherId ?? 0)) {
+                    return true;
+                }
+            }
+        }
+
+        // Policies exist but none matched — deny
+        return false;
+    }
+
+    /**
+     * Get all active policies for a target (for display in views).
+     */
+    public function getPoliciesForTarget(string $targetType, int $targetId): array
+    {
+        return DB::table('research_rights_policy')
+            ->where('target_type', $targetType)
+            ->where('target_id', $targetId)
+            ->orderBy('policy_type')
+            ->get()
+            ->toArray();
     }
 
     private function evaluateConstraints(object $policy, int $researcherId): bool
