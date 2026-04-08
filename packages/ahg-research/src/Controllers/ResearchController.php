@@ -757,8 +757,11 @@ class ResearchController extends Controller
         ));
     }
 
-    public function viewCollection(Request $request, int $id)
+    public function viewCollection(Request $request, ?int $id = null)
     {
+        $id = $id ?: (int) ($request->input('id') ?: $request->getQueryString());
+        if (!$id) abort(404);
+
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
