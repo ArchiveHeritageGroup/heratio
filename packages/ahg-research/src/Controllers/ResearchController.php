@@ -2233,9 +2233,48 @@ class ResearchController extends Controller
     // ADMIN: RESEARCHER TYPES
     // =========================================================================
 
-    public function adminTypes()
+    public function adminTypes(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+            $data = [
+                'name' => $request->input('name'),
+                'code' => $request->input('code') ?: \Illuminate\Support\Str::slug($request->input('name'), '_'),
+                'description' => $request->input('description') ?: null,
+                'max_booking_days_advance' => (int) ($request->input('max_booking_days_advance', 14)),
+                'max_booking_hours_per_day' => (int) ($request->input('max_booking_hours_per_day', 4)),
+                'max_materials_per_booking' => (int) ($request->input('max_materials_per_booking', 10)),
+                'can_remote_access' => $request->has('can_remote_access') ? 1 : 0,
+                'can_request_reproductions' => $request->has('can_request_reproductions') ? 1 : 0,
+                'can_export_data' => $request->has('can_export_data') ? 1 : 0,
+                'requires_id_verification' => $request->has('requires_id_verification') ? 1 : 0,
+                'auto_approve' => $request->has('auto_approve') ? 1 : 0,
+                'is_active' => $request->has('is_active') ? 1 : 0,
+                'expiry_months' => (int) ($request->input('expiry_months', 12)),
+                'priority_level' => (int) ($request->input('priority_level', 5)),
+                'sort_order' => (int) ($request->input('sort_order', 100)),
+            ];
+
+            if ($action === 'create') {
+                $data['created_at'] = now();
+                DB::table('research_researcher_type')->insert($data);
+                return redirect()->route('research.adminTypes')->with('success', 'Type created.');
+            }
+
+            if ($action === 'update') {
+                $data['updated_at'] = now();
+                DB::table('research_researcher_type')->where('id', (int) $request->input('type_id'))->update($data);
+                return redirect()->route('research.adminTypes')->with('success', 'Type updated.');
+            }
+
+            if ($action === 'delete') {
+                DB::table('research_researcher_type')->where('id', (int) $request->input('type_id'))->delete();
+                return redirect()->route('research.adminTypes')->with('success', 'Type deleted.');
+            }
+        }
+
         $types = $this->service->getResearcherTypes();
         return view('research::research.admin-types', array_merge(
             $this->getSidebarData('adminTypes'),

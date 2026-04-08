@@ -185,7 +185,7 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::get('/equipment-history/{id}', [ResearchController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchController::class, 'retrievalQueue'])->name('retrievalQueue');
     Route::match(['get', 'post'], '/walkIn', [ResearchController::class, 'walkIn'])->name('walkIn');
-    Route::get('/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
+    Route::match(['get', 'post'], '/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');
     Route::match(['get', 'post'], '/adminStatistics', [ResearchController::class, 'adminStatistics'])->name('adminStatistics');
     Route::match(['get', 'post'], '/institutions', [ResearchController::class, 'institutions'])->name('institutions');
     Route::match(['get', 'post'], '/activities', [ResearchController::class, 'activities'])->name('activities');
