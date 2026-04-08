@@ -363,11 +363,11 @@ class ResearchController extends Controller
     }
 
     /**
-     * Research dashboard.
+     * Research dashboard — redirect to main research dashboard.
      */
     public function dashboard()
     {
-        return view('ahg-io-manage::research.dashboard');
+        return redirect()->route('research.dashboard');
     }
 
     /**
