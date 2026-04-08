@@ -115,13 +115,13 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($req->status === 'requested')
-                                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="request_id" value="{{ $req->id }}"><input type="hidden" name="form_action" value="mark_in_transit"><button class="btn btn-outline-info" title="In Transit"><i class="fas fa-truck"></i></button></form>
+                                        <button type="button" class="btn btn-outline-info action-btn" data-id="{{ $req->id }}" data-action="mark_in_transit" title="In Transit"><i class="fas fa-truck"></i></button>
                                     @endif
                                     @if($req->status === 'in_transit')
-                                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="request_id" value="{{ $req->id }}"><input type="hidden" name="form_action" value="mark_delivered"><button class="btn btn-outline-success" title="Delivered"><i class="fas fa-check"></i></button></form>
+                                        <button type="button" class="btn btn-outline-success action-btn" data-id="{{ $req->id }}" data-action="mark_delivered" title="Delivered"><i class="fas fa-check"></i></button>
                                     @endif
                                     @if(in_array($req->status, ['delivered', 'in_use']))
-                                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="request_id" value="{{ $req->id }}"><input type="hidden" name="form_action" value="mark_returned"><button class="btn btn-outline-secondary" title="Return"><i class="fas fa-undo"></i></button></form>
+                                        <button type="button" class="btn btn-outline-secondary action-btn" data-id="{{ $req->id }}" data-action="mark_returned" title="Return"><i class="fas fa-undo"></i></button>
                                     @endif
                                 </div>
                             </td>
@@ -169,10 +169,25 @@
     </div>
 </div>
 
+{{-- Hidden form for individual actions (outside the batch form) --}}
+<form method="POST" id="singleActionForm" style="display:none;">
+    @csrf
+    <input type="hidden" name="form_action" id="singleActionType">
+    <input type="hidden" name="request_id" id="singleActionId">
+</form>
+
 @push('js')
 <script>
 document.getElementById('selectAll').addEventListener('change', function() {
     document.querySelectorAll('.request-cb').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+});
+
+document.querySelectorAll('.action-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('singleActionType').value = this.dataset.action;
+        document.getElementById('singleActionId').value = this.dataset.id;
+        document.getElementById('singleActionForm').submit();
+    });
 });
 </script>
 @endpush
