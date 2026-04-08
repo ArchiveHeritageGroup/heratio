@@ -402,7 +402,7 @@ class ResearchService
             ->where('a.researcher_id', $researcherId)
             ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
                 'rc.name as collection_name',
-                DB::raw("CONCAT(RTRIM(thumb.path, '/'), '/', thumb.name) as thumbnail_path"))
+                DB::raw("CONCAT(TRIM(TRAILING '/' FROM thumb.path), '/', thumb.name) as thumbnail_path"))
             ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
@@ -427,7 +427,7 @@ class ResearchService
             })
             ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
                 'rc.name as collection_name',
-                DB::raw("CONCAT(RTRIM(thumb.path, '/'), '/', thumb.name) as thumbnail_path"))
+                DB::raw("CONCAT(TRIM(TRAILING '/' FROM thumb.path), '/', thumb.name) as thumbnail_path"))
             ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
