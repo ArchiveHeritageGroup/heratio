@@ -2792,14 +2792,14 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analysing with AI...';
 
-    fetch('/admin/ai/suggest', {
+    fetch('/ai/describe/' + objectId, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
       },
-      body: JSON.stringify({ title: ioTitle, context: ioContext })
+      body: JSON.stringify({})
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -2817,7 +2817,8 @@
       var desc = data.description || '';
       var time = data.processing_time_ms || 0;
 
-      body.innerHTML = '<p class="text-muted small mb-2">Generated in ' + time + 'ms</p>' +
+      var method = data.method === 'vision' ? '<span class="badge bg-info me-1">Vision (llava)</span>' : '<span class="badge bg-secondary me-1">Text (LLM)</span>';
+      body.innerHTML = '<p class="text-muted small mb-2">' + method + ' Generated in ' + time + 'ms</p>' +
         '<div class="border rounded p-3 bg-white">' + desc.replace(/\n/g, '<br>') + '</div>';
       document.getElementById('describeApproveBtn').style.display = '';
 

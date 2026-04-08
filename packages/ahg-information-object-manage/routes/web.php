@@ -129,6 +129,7 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/condition/api/annotation/{id}', [ConditionController::class, 'annotation'])->name('io.condition.annotation')->where('id', '[0-9]+');
     Route::get('/condition/check/{id}/photos', [ConditionController::class, 'spectrumShow'])->name('io.condition.spectrum.show')->where('id', '[0-9]+');
     Route::post('/condition/ai-assess', [ConditionController::class, 'aiAssess'])->name('io.condition.ai-assess');
+    Route::post('/ai/describe/{id}', [InformationObjectController::class, 'aiDescribe'])->name('io.ai.describe')->where('id', '[0-9]+');
     Route::get('/spectrum/{slug}', [SpectrumController::class, 'index'])->name('io.spectrum');
     Route::get('/heritage/{slug}', [SpectrumController::class, 'heritage'])->name('io.heritage');
 

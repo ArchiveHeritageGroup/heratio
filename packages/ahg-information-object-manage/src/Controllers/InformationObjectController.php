@@ -1608,6 +1608,104 @@ class InformationObjectController extends Controller
     }
 
     /**
+     * AI Describe — uses vision model (llava) if image exists, else text LLM.
+     */
+    public function aiDescribe(Request $request, int $id)
+    {
+        $startTime = microtime(true);
+        $culture = app()->getLocale();
+
+        // Get IO title and metadata
+        $io = DB::table('information_object_i18n')
+            ->where('id', $id)->where('culture', $culture)->first();
+        $title = $io->title ?? 'Untitled';
+
+        // Check for digital object with an image
+        $master = DB::table('digital_object')
+            ->where('object_id', $id)->where('usage_id', 140)->first();
+
+        $refImage = null;
+        if ($master) {
+            $ref = DB::table('digital_object')
+                ->where('parent_id', $master->id)
+                ->where('usage_id', 141) // reference
+                ->first();
+            if ($ref) {
+                $imgPath = config('heratio.uploads_path') . '/' . ltrim($ref->path, '/') . $ref->name;
+                if (file_exists($imgPath)) {
+                    $refImage = $imgPath;
+                }
+            }
+            // Fallback to master if it's an image
+            if (!$refImage && $master->mime_type && str_starts_with($master->mime_type, 'image/')) {
+                $imgPath = config('heratio.uploads_path') . '/' . ltrim($master->path, '/') . $master->name;
+                if (file_exists($imgPath)) {
+                    $refImage = $imgPath;
+                }
+            }
+        }
+
+        if ($refImage) {
+            // Vision model (llava) — describe the actual image
+            $ollamaUrl = DB::table('ahg_settings')
+                ->where('setting_key', 'voice_local_llm_url')
+                ->value('setting_value') ?: 'http://192.168.0.78:11434';
+            $model = 'llava:7b';
+
+            $imageBase64 = base64_encode(file_get_contents($refImage));
+            $prompt = "You are an archival description specialist. Describe this image in detail for an archival record titled \"{$title}\". "
+                . "Write a professional scope and content note (3-5 sentences) following ISAD(G) standards. "
+                . "Describe what you see: the subject, composition, condition, any text visible, and historical context if apparent.";
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(60)->post($ollamaUrl . '/api/generate', [
+                    'model' => $model,
+                    'prompt' => $prompt,
+                    'images' => [$imageBase64],
+                    'stream' => false,
+                    'options' => ['temperature' => 0.3],
+                ]);
+
+                if ($response->successful()) {
+                    $text = $response->json()['response'] ?? '';
+                    return response()->json([
+                        'success' => true,
+                        'description' => $text,
+                        'method' => 'vision',
+                        'model' => $model,
+                        'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Fall through to text LLM
+            }
+        }
+
+        // Text LLM fallback — describe from title and metadata
+        try {
+            $svc = new \AhgAiServices\Services\LlmService();
+            $context = ($io->scope_and_content ?? '') . ' ' . ($io->extent_and_medium ?? '');
+            $desc = $svc->suggestDescription($title, trim($context));
+
+            if ($desc) {
+                return response()->json([
+                    'success' => true,
+                    'description' => $desc,
+                    'method' => 'text',
+                    'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Fall through
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => 'AI description failed. Check LLM configuration.',
+        ], 500);
+    }
+
+    /**
      * Print-friendly view for an information object.
      */
     public function print(string $slug)
