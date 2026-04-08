@@ -170,7 +170,7 @@ Route::middleware('auth')->group(function () {
     // Research Tools
     Route::get('/research/citation/{slug}', [ResearchController::class, 'citation'])->name('io.research.citation');
     Route::match(['get', 'post'], '/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment');
-    Route::get('/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
+    Route::match(['get', 'post'], '/research/annotations/{slug}', [ResearchController::class, 'annotations'])->name('io.research.annotations');
     Route::get('/research/trust/{slug}', [ResearchController::class, 'trustScore'])->name('io.research.trust');
     Route::get('/research/tools', [ResearchController::class, 'dashboard'])->name('io.research.dashboard');
 
