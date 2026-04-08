@@ -33,41 +33,64 @@
     $dipCount = $aips->where('package_type', 'DIP')->count();
   @endphp
 
-  {{-- Statistics cards row --}}
+  {{-- Statistics cards row (matching AtoM colored style) --}}
+  @php
+    $totalSize = $aips->sum('size_on_disk') + $premisObjects->sum('size');
+  @endphp
   <div class="row mb-4">
     <div class="col-md-3 mb-3">
-      <div class="card text-center h-100">
+      <div class="card bg-primary text-white h-100">
         <div class="card-body">
-          <i class="fas fa-box fa-2x text-primary mb-2"></i>
-          <h3 class="mb-0">{{ $totalPackages }}</h3>
-          <p class="text-muted mb-0">Total Packages</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">Total Packages</h6>
+              <h2 class="mb-0">{{ $totalPackages }}</h2>
+              <small>{{ $totalSize > 0 ? formatBytes($totalSize) : '' }}</small>
+            </div>
+            <i class="fas fa-box fa-2x opacity-50"></i>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
-      <div class="card text-center h-100">
+      <div class="card bg-info text-white h-100">
         <div class="card-body">
-          <i class="fas fa-upload fa-2x text-info mb-2"></i>
-          <h3 class="mb-0">{{ $sipCount }}</h3>
-          <p class="text-muted mb-0">SIPs</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">SIPs</h6>
+              <h2 class="mb-0">{{ $sipCount }}</h2>
+              <small>Submission</small>
+            </div>
+            <i class="fas fa-upload fa-2x opacity-50"></i>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
-      <div class="card text-center h-100">
+      <div class="card bg-success text-white h-100">
         <div class="card-body">
-          <i class="fas fa-archive fa-2x text-success mb-2"></i>
-          <h3 class="mb-0">{{ $aipCount }}</h3>
-          <p class="text-muted mb-0">AIPs</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">AIPs</h6>
+              <h2 class="mb-0">{{ $aipCount }}</h2>
+              <small>Archival</small>
+            </div>
+            <i class="fas fa-archive fa-2x opacity-50"></i>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
-      <div class="card text-center h-100">
+      <div class="card bg-warning text-dark h-100">
         <div class="card-body">
-          <i class="fas fa-download fa-2x text-warning mb-2"></i>
-          <h3 class="mb-0">{{ $dipCount }}</h3>
-          <p class="text-muted mb-0">DIPs</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">DIPs</h6>
+              <h2 class="mb-0">{{ $dipCount }}</h2>
+              <small>Dissemination</small>
+            </div>
+            <i class="fas fa-download fa-2x opacity-50"></i>
+          </div>
         </div>
       </div>
     </div>
