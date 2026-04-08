@@ -641,9 +641,31 @@ class ResearchService
             ->limit(5)
             ->get()->toArray();
 
-        $data['recent_journal'] = DB::table('research_journal_entry')
+        $data['recent_journal_entries'] = DB::table('research_journal_entry')
             ->where('researcher_id', $researcherId)
             ->orderBy('entry_date', 'desc')
+            ->limit(5)
+            ->get()->toArray();
+
+        $data['recent_notes'] = DB::table('research_annotation')
+            ->where('researcher_id', $researcherId)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()->toArray();
+
+        $data['search_alerts'] = DB::table('research_saved_search')
+            ->where('researcher_id', $researcherId)
+            ->where('alert_enabled', 1)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()->toArray();
+
+        $data['pending_invitations'] = DB::table('research_project_collaborator as pc')
+            ->join('research_project as p', 'p.id', '=', 'pc.project_id')
+            ->where('pc.researcher_id', $researcherId)
+            ->where('pc.status', 'invited')
+            ->select('pc.*', 'p.title as project_title')
+            ->orderBy('pc.created_at', 'desc')
             ->limit(5)
             ->get()->toArray();
 
