@@ -26,9 +26,8 @@
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">Your API Keys</h5>
-        <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#generateKeyModal"><i class="fas fa-plus me-1"></i>Generate New Key</button>
     </div>
     <div class="card-body p-0">
         @if(count($apiKeys) > 0)
@@ -155,7 +154,6 @@
             <input type="date" class="form-control" name="expires_at">
             <div class="form-text">Leave empty for no expiration.</div>
         </div>
-    </div>
         <div class="alert alert-warning mb-0">
             <i class="fas fa-exclamation-triangle me-2"></i>The API key will only be shown once after generation. Make sure to copy it immediately.
         </div>
