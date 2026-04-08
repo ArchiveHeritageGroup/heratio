@@ -2076,7 +2076,6 @@
         @endif
       </div>
     </section>
-  @endauth
 
   {{-- ===== 9b. Extended Rights visual badges ===== --}}
   @include('ahg-io-manage::partials._rights-badges')
