@@ -1918,14 +1918,16 @@
   @endphp
 
   @if($hasAnyRights || auth()->check())
-    <section id="rightsArea" class="card mb-4">
-      <div class="card-header text-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);">
-        <h5 class="mb-0"><i class="fas fa-copyright me-2"></i>Rights & Access</h5>
+    <section id="rightsArea" class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#rights-collapse">
+          <i class="fas fa-copyright me-2"></i>Rights & Access
+        </a>
         @auth
-          <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="text-white opacity-75" style="font-size:.75rem;"><i class="fas fa-pencil-alt"></i></a>
+          <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;"><i class="fas fa-pencil-alt"></i></a>
         @endauth
-      </div>
-      <div class="card-body">
+      </h2>
+      <div id="rights-collapse" class="px-3 py-2">
 
         @if($embargoData)
           <div class="alert alert-danger d-flex align-items-center mb-3">
@@ -2076,6 +2078,7 @@
         @endif
       </div>
     </section>
+  @endif
 
   {{-- ===== 9b. Extended Rights visual badges ===== --}}
   @include('ahg-io-manage::partials._rights-badges')
