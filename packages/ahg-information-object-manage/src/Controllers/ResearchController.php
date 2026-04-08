@@ -430,7 +430,7 @@ class ResearchController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'i18n.title', 'i18n.scope_and_content', 's.slug')
+            ->select('io.id', 'io.identifier', 'i18n.title', 'i18n.scope_and_content', 's.slug')
             ->first();
     }
 }

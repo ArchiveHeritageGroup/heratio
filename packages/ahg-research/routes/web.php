@@ -164,6 +164,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // Notifications
     Route::match(['get', 'post'], '/notifications', [ResearchController::class, 'notifications'])->name('notifications');
 
+    // Evidence Viewer
+    Route::match(['get', 'post'], '/evidence-viewer', [ResearchController::class, 'evidenceViewer'])->name('evidence-viewer');
+
     // AJAX endpoints
     Route::get('/searchItems', [ResearchController::class, 'searchItems'])->name('searchItems');
     Route::post('/addToCollection', [ResearchController::class, 'addToCollection'])->name('addToCollection');

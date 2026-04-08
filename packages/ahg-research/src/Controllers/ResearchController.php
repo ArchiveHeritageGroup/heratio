@@ -2538,6 +2538,104 @@ class ResearchController extends Controller
     }
 
     // =========================================================================
+    // EVIDENCE VIEWER
+    // =========================================================================
+
+    /**
+     * Evidence viewer for an archival object.
+     * Migrated from ahgResearchPlugin evidence action.
+     */
+    public function evidenceViewer(Request $request)
+    {
+        $objectId = (int) $request->input('object_id');
+        $culture = app()->getLocale();
+
+        // Get object info
+        $source = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->where('io.id', $objectId)
+            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->first();
+
+        if (!$source) {
+            abort(404);
+        }
+
+        // Get source assessment for type info
+        $assessment = DB::table('research_source_assessment')
+            ->where('object_id', $objectId)
+            ->orderByDesc('assessed_at')
+            ->first();
+
+        $source->source_type = $assessment->source_type ?? null;
+        $source->date = $assessment->assessed_at ?? null;
+
+        // Get repository name
+        $repo = DB::table('information_object as io2')
+            ->join('actor_i18n as ai', function ($j) use ($culture) {
+                $j->on('ai.id', '=', 'io2.repository_id')->where('ai.culture', $culture);
+            })
+            ->where('io2.id', $objectId)
+            ->select('ai.authorized_form_of_name as name')
+            ->first();
+        $source->repository = $repo->name ?? null;
+
+        // Get digital object image
+        $imageUrl = null;
+        $do = DB::table('digital_object')->where('object_id', $objectId)->orderBy('usage_id')->first();
+        if ($do) {
+            if (str_starts_with($do->path ?? '', 'http')) {
+                $imageUrl = $do->path;
+            } else {
+                $ref = DB::table('digital_object')->where('parent_id', $do->id)->where('usage_id', 141)->first();
+                if ($ref) {
+                    $imageUrl = rtrim($ref->path, '/') . '/' . $ref->name;
+                } elseif (str_starts_with($do->mime_type ?? '', 'image/')) {
+                    $imageUrl = rtrim($do->path, '/') . '/' . $do->name;
+                }
+            }
+        }
+
+        // Get annotations as notes
+        $notes = '';
+        $researcher = DB::table('research_researcher')->where('user_id', auth()->id())->first();
+        if ($researcher) {
+            $ann = DB::table('research_annotation')
+                ->where('object_id', $objectId)
+                ->where('researcher_id', $researcher->id)
+                ->orderByDesc('created_at')
+                ->first();
+            $notes = $ann->content ?? '';
+        }
+
+        // Save notes via POST
+        if ($request->isMethod('post') && $researcher) {
+            DB::table('research_annotation')->updateOrInsert(
+                ['object_id' => $objectId, 'researcher_id' => $researcher->id, 'entity_type' => 'information_object'],
+                ['content' => $request->input('notes') ?: null, 'created_at' => now()]
+            );
+            return redirect()->route('research.evidence-viewer', ['object_id' => $objectId])->with('success', 'Notes saved.');
+        }
+
+        // Get tags from annotations
+        $tags = DB::table('research_annotation')
+            ->where('object_id', $objectId)
+            ->whereNotNull('tags')
+            ->pluck('tags')
+            ->flatMap(fn($t) => explode(',', $t))
+            ->map(fn($t) => trim($t))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        return view('research::research.evidence-viewer', compact('source', 'imageUrl', 'notes', 'tags'));
+    }
+
+    // =========================================================================
     // AJAX: SEARCH ITEMS
     // =========================================================================
 

@@ -1,4 +1,7 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
+@section('sidebar')
+    @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
+@endsection
 @section('title', 'Trust Score — ' . ($io->title ?? ''))
 
 @section('content')
@@ -19,10 +22,14 @@
         <h1 class="h2">Trust Score</h1>
         <p class="text-muted mb-0">
             <a href="{{ url('/' . $io->slug) }}">{{ e($io->title ?? 'Untitled') }}</a>
+            @if($io->identifier ?? null)
+                <small class="ms-2">({{ e($io->identifier) }})</small>
+            @endif
         </p>
     </div>
     <div class="d-flex gap-2">
         <a href="{{ route('io.research.assessment', $io->slug) }}" class="btn btn-outline-primary"><i class="fas fa-clipboard-check me-1"></i>Assess Source</a>
+        <a href="{{ route('research.evidence-viewer', ['object_id' => $io->id]) }}" class="btn btn-outline-secondary"><i class="fas fa-search me-1"></i>Evidence Viewer</a>
     </div>
 </div>
 
