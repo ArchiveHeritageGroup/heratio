@@ -2559,6 +2559,69 @@ class ResearchController extends Controller
         return response()->json($results);
     }
 
+    /**
+     * AJAX: Target autocomplete for ODRL policies (returns JSON).
+     */
+    public function targetAutocomplete(Request $request)
+    {
+        $type = $request->get('type', '');
+        $query = $request->get('query', '');
+        $culture = app()->getLocale();
+
+        $map = [
+            'archival_description' => [
+                'query' => fn () => DB::table('information_object')
+                    ->join('information_object_i18n', function ($j) use ($culture) {
+                        $j->on('information_object.id', '=', 'information_object_i18n.id')
+                          ->where('information_object_i18n.culture', '=', $culture);
+                    })
+                    ->where('information_object_i18n.title', 'LIKE', "%{$query}%")
+                    ->select('information_object.id', 'information_object_i18n.title as name')
+                    ->limit(20)->get(),
+            ],
+            'collection' => [
+                'query' => fn () => DB::table('research_collection')
+                    ->where('name', 'LIKE', "%{$query}%")
+                    ->select('id', 'name')
+                    ->limit(20)->get(),
+            ],
+            'project' => [
+                'query' => fn () => DB::table('research_project')
+                    ->where('title', 'LIKE', "%{$query}%")
+                    ->select('id', 'title as name')
+                    ->limit(20)->get(),
+            ],
+            'snapshot' => [
+                'query' => fn () => DB::table('research_snapshot')
+                    ->where('title', 'LIKE', "%{$query}%")
+                    ->select('id', 'title as name')
+                    ->limit(20)->get(),
+            ],
+            'annotation' => [
+                'query' => fn () => DB::table('research_annotation')
+                    ->where('title', 'LIKE', "%{$query}%")
+                    ->select('id', 'title as name')
+                    ->limit(20)->get(),
+            ],
+            'assertion' => [
+                'query' => fn () => DB::table('research_assertion')
+                    ->where('assertion_type', 'LIKE', "%{$query}%")
+                    ->select('id', 'assertion_type as name')
+                    ->limit(20)->get(),
+            ],
+        ];
+
+        if (!isset($map[$type])) {
+            return response()->json([]);
+        }
+
+        try {
+            return response()->json($map[$type]['query']());
+        } catch (\Exception $e) {
+            return response()->json([]);
+        }
+    }
+
     public function odrlPolicies(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

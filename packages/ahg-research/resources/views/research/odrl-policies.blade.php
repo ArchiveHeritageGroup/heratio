@@ -157,13 +157,10 @@
             </select>
           </div>
           <input type="hidden" name="target_id" id="target-id-hidden" required>
-          <div class="mb-3" id="target-id-plain">
-            <label class="form-label" id="target-id-label">Target ID * <span class="badge bg-danger ms-1">Required</span></label>
-            <input type="number" id="target-id-input" class="form-control" required placeholder="Enter the ID of the target">
-          </div>
-          <div class="mb-3 d-none" id="target-id-autocomplete">
-            <label class="form-label">Archival Description * <span class="badge bg-danger ms-1">Required</span></label>
-            <select id="target-id-tomselect" placeholder="Type to search archival descriptions..."></select>
+          <div class="mb-3" id="target-id-wrapper" style="display:none;">
+            <label class="form-label" id="target-id-label">Target * <span class="badge bg-danger ms-1">Required</span></label>
+            <select id="target-id-tomselect" placeholder="Select a target type first..."></select>
+            <small class="text-muted" id="target-id-hint">Select a target type above to search</small>
           </div>
           <div class="mb-3">
             <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -226,30 +223,39 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var targetType = document.getElementById('policy-target-type');
-    var plainDiv = document.getElementById('target-id-plain');
-    var acDiv = document.getElementById('target-id-autocomplete');
-    var plainInput = document.getElementById('target-id-input');
+    var wrapper = document.getElementById('target-id-wrapper');
     var hiddenInput = document.getElementById('target-id-hidden');
-    var acSelect = document.getElementById('target-id-tomselect');
+    var label = document.getElementById('target-id-label');
+    var hint = document.getElementById('target-id-hint');
     var tsInstance = null;
-    var isAutocomplete = false;
+    var currentType = '';
 
-    // Sync plain input → hidden
-    plainInput.addEventListener('input', function() {
-        if (!isAutocomplete) hiddenInput.value = this.value;
-    });
+    var typeLabels = {
+        'archival_description': 'Archival Description',
+        'collection': 'Collection',
+        'project': 'Project',
+        'snapshot': 'Snapshot',
+        'annotation': 'Annotation',
+        'assertion': 'Assertion'
+    };
 
-    function initTomSelect() {
-        if (tsInstance) return;
-        tsInstance = new TomSelect(acSelect, {
+    function initOrResetTomSelect(type) {
+        if (tsInstance) {
+            tsInstance.destroy();
+            tsInstance = null;
+        }
+        currentType = type;
+
+        tsInstance = new TomSelect('#target-id-tomselect', {
             valueField: 'id',
             labelField: 'name',
             searchField: ['name'],
             maxOptions: 20,
             loadThrottle: 300,
+            placeholder: 'Search ' + (typeLabels[type] || type) + '...',
             load: function(query, callback) {
                 if (query.length < 2) return callback();
-                fetch('/informationobject/autocomplete?query=' + encodeURIComponent(query) + '&limit=20')
+                fetch('/research/target-autocomplete?type=' + encodeURIComponent(currentType) + '&query=' + encodeURIComponent(query))
                     .then(function(r) { return r.json(); })
                     .then(function(data) { callback(data); })
                     .catch(function() { callback(); });
@@ -269,25 +275,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     targetType.addEventListener('change', function() {
-        if (this.value === 'archival_description') {
-            isAutocomplete = true;
-            plainDiv.classList.add('d-none');
-            plainInput.removeAttribute('required');
-            acDiv.classList.remove('d-none');
+        var type = this.value;
+        if (!type) {
+            wrapper.style.display = 'none';
             hiddenInput.value = '';
-            initTomSelect();
-            if (tsInstance) tsInstance.focus();
-        } else {
-            isAutocomplete = false;
-            acDiv.classList.add('d-none');
-            plainDiv.classList.remove('d-none');
-            plainInput.setAttribute('required', 'required');
-            hiddenInput.value = plainInput.value;
+            return;
         }
+        label.innerHTML = (typeLabels[type] || type) + ' * <span class="badge bg-danger ms-1">Required</span>';
+        hint.textContent = 'Type at least 2 characters to search';
+        wrapper.style.display = '';
+        hiddenInput.value = '';
+        initOrResetTomSelect(type);
     });
-
-    // Initial sync
-    hiddenInput.value = plainInput.value;
 
     // Researcher TomSelect (multi)
     var researcherTs = new TomSelect('#constraint-researchers', {
