@@ -1,207 +1,271 @@
-{{-- Annotation Studio - Migrated from AtoM --}}
 @extends('theme::layouts.2col')
-
-@section('sidebar')
-  @include('research::research._sidebar', ['sidebarActive' => 'annotations'])
-@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'annotations'])@endsection
+@section('title', 'My Notes & Annotations')
 
 @section('content')
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-      {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>
+        <a href="{{ route('research.workspace') }}" class="btn btn-outline-secondary btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
+        <i class="fas fa-sticky-note text-warning me-2"></i>My Notes & Annotations
+    </h1>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportNotesModal"><i class="fas fa-file-export me-1"></i>Export</button>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>Add Note</button>
     </div>
-  @endif
+</div>
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-highlighter me-2"></i>Annotation Studio</h1>
-    <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#annotationModal">
-      <i class="fas fa-plus me-1"></i>New Annotation
-    </button>
-  </div>
-
-  {{-- Filter Bar --}}
-  <div class="card mb-4">
-    <div class="card-body">
-      <form action="{{ route('research.annotations') }}" method="GET" class="row g-2 align-items-end">
-        <div class="col-md-4">
-          <label for="search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="q" id="search" class="form-control form-control-sm" placeholder="Search annotations..." value="{{ e($query ?? '') }}">
-        </div>
-        <div class="col-md-3">
-          <label for="visibility" class="form-label small">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="visibility" id="visibility" class="form-select form-select-sm">
-            <option value="">All</option>
-            <option value="private" {{ ($visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
-            <option value="public" {{ ($visibility ?? '') === 'public' ? 'selected' : '' }}>Public</option>
-            <option value="shared" {{ ($visibility ?? '') === 'shared' ? 'selected' : '' }}>Shared</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label for="tag" class="form-label small">Tag <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="tag" id="tag" class="form-control form-control-sm" placeholder="Filter by tag" value="{{ e($tag ?? '') }}">
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100"><i class="fas fa-filter me-1"></i>Filter</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  {{-- Annotations List --}}
-  @forelse($annotations ?? [] as $annotation)
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <h5 class="card-title mb-1">
-              <a href="#" data-bs-toggle="modal" data-bs-target="#editAnnotationModal{{ $annotation->id }}">
-                {{ e($annotation->title ?? 'Untitled') }}
-              </a>
-            </h5>
-            <div class="mb-2">
-              <span class="badge bg-{{ ($annotation->type ?? '') === 'note' ? 'info' : (($annotation->type ?? '') === 'highlight' ? 'warning' : 'secondary') }}">
-                {{ ucfirst(e($annotation->type ?? 'note')) }}
-              </span>
-              <span class="badge bg-{{ ($annotation->visibility ?? 'private') === 'private' ? 'dark' : (($annotation->visibility ?? '') === 'public' ? 'success' : 'primary') }}">
-                {{ ucfirst(e($annotation->visibility ?? 'private')) }}
-              </span>
-              @if($annotation->entity_type ?? false)
-                <span class="badge bg-light text-dark">{{ e($annotation->entity_type) }}</span>
-              @endif
-            </div>
-          </div>
-          <small class="text-muted">{{ $annotation->created_at ? \Carbon\Carbon::parse($annotation->created_at)->format('Y-m-d H:i') : '' }}</small>
-        </div>
-        <div class="card-text">
-          @if(($annotation->content_format ?? 'text') === 'html')
-            {!! $annotation->content !!}
-          @else
-            {!! nl2br(e($annotation->content ?? '')) !!}
-          @endif
-        </div>
-        @if($annotation->tags ?? false)
-          <div>
-            @foreach(explode(',', $annotation->tags) as $t)
-              <span class="badge bg-outline-secondary border">{{ e(trim($t)) }}</span>
-            @endforeach
-          </div>
-        @endif
-      </div>
-      <div class="card-footer bg-transparent d-flex justify-content-end gap-1">
-        <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#editAnnotationModal{{ $annotation->id }}">
-          <i class="fas fa-edit"></i>
-        </button>
-        <form action="{{ route('research.annotations.destroy', $annotation->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this annotation?')">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="btn btn-sm atom-btn-outline-danger"><i class="fas fa-trash"></i></button>
+{{-- Search + Visibility --}}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get" class="input-group input-group-sm">
+            <input type="text" name="q" class="form-control" placeholder="Search notes..." value="{{ e($query ?? '') }}">
+            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+            @if($query ?? '')
+                <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary">Clear</a>
+            @endif
         </form>
-      </div>
     </div>
-
-    {{-- Edit Modal for each annotation --}}
-    <div class="modal fade" id="editAnnotationModal{{ $annotation->id }}" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <form action="{{ route('research.annotations.update', $annotation->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="modal-header">
-              <h5 class="modal-title">Edit Annotation</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
-                <input type="text" name="title" class="form-control" value="{{ e($annotation->title ?? '') }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-                <textarea name="content" class="form-control" rows="5" required>{{ e($annotation->content ?? '') }}</textarea>
-              </div>
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <input type="text" name="entity_type" class="form-control" value="{{ e($annotation->entity_type ?? '') }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <input type="text" name="tags" class="form-control" value="{{ e($annotation->tags ?? '') }}" placeholder="comma-separated">
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
-                  <select name="visibility" class="form-select">
-                    <option value="private" {{ ($annotation->visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
-                    <option value="public" {{ ($annotation->visibility ?? '') === 'public' ? 'selected' : '' }}>Public</option>
-                    <option value="shared" {{ ($annotation->visibility ?? '') === 'shared' ? 'selected' : '' }}>Shared</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
-            </div>
-          </form>
+    <div class="col-md-6 text-md-end">
+        <div class="btn-group btn-group-sm">
+            <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary {{ empty($visibility ?? '') ? 'active' : '' }}">All</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'private']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'private' ? 'active' : '' }}">Private</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'shared']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'shared' ? 'active' : '' }}">Shared</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'public']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'public' ? 'active' : '' }}">Public</a>
         </div>
-      </div>
     </div>
-  @empty
-    <div class="text-center py-5 text-muted">
-      <i class="fas fa-highlighter fa-3x mb-3"></i>
-      <p>No annotations yet. Create your first annotation to start recording your research notes.</p>
+</div>
+
+{{-- Tag Cloud --}}
+@php
+    $allTags = [];
+    foreach (($annotations ?? []) as $ann) {
+        if (!empty($ann->tags)) {
+            foreach (array_map('trim', explode(',', $ann->tags)) as $t) {
+                if ($t) $allTags[$t] = ($allTags[$t] ?? 0) + 1;
+            }
+        }
+    }
+    ksort($allTags);
+    $activeTag = $tag ?? '';
+@endphp
+@if(!empty($allTags))
+<div class="mb-3">
+    <small class="text-muted me-2"><i class="fas fa-tags"></i> Tags:</small>
+    <a href="{{ route('research.annotations', ['q' => $query ?? '']) }}" class="badge bg-{{ !$activeTag ? 'primary' : 'light text-dark' }} text-decoration-none me-1">All</a>
+    @foreach($allTags as $tagName => $count)
+        <a href="{{ route('research.annotations', ['tag' => $tagName, 'q' => $query ?? '']) }}" class="badge bg-{{ $activeTag === $tagName ? 'primary' : 'light text-dark' }} text-decoration-none me-1">{{ e($tagName) }} <small>({{ $count }})</small></a>
+    @endforeach
+</div>
+@endif
+
+{{-- Annotations Grid --}}
+@if(!empty($annotations) && count($annotations) > 0)
+<div class="row">
+    @foreach($annotations as $ann)
+    <div class="col-md-6 col-lg-4 mb-4" id="note-{{ $ann->id }}">
+        <div class="card h-100">
+            <div class="card-header bg-warning bg-opacity-25 d-flex justify-content-between align-items-center py-2">
+                <div>
+                    <strong><i class="fas fa-sticky-note text-warning me-1"></i>{{ e($ann->title ?: 'Untitled Note') }}</strong>
+                    @if(($ann->visibility ?? 'private') !== 'private')
+                        <span class="badge bg-{{ ($ann->visibility ?? '') === 'shared' ? 'info' : 'success' }} ms-1">{{ ucfirst($ann->visibility ?? 'private') }}</span>
+                    @endif
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <button class="btn btn-sm btn-outline-primary py-0 px-1 edit-annotation"
+                        data-id="{{ $ann->id }}"
+                        data-title="{{ e($ann->title ?? '') }}"
+                        data-content="{{ e($ann->content ?? '') }}"
+                        data-object-id="{{ $ann->object_id ?? '' }}"
+                        data-object-title="{{ e($ann->object_title ?? '') }}"
+                        data-visibility="{{ $ann->visibility ?? 'private' }}"
+                        data-tags="{{ e($ann->tags ?? '') }}"
+                        title="Edit"><i class="fas fa-edit"></i></button>
+                    <form method="POST" action="{{ route('research.annotations.destroy', $ann->id) }}" class="d-inline" onsubmit="return confirm('Delete?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-outline-danger py-0 px-1"><i class="fas fa-trash"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-text">
+                    @if(($ann->content_format ?? 'text') === 'html')
+                        {!! \Illuminate\Support\Str::limit(strip_tags($ann->content ?? ''), 200) !!}
+                    @else
+                        {{ \Illuminate\Support\Str::limit($ann->content ?? '', 200) }}
+                    @endif
+                </div>
+                @if(!empty($ann->tags))
+                <div class="mt-2">
+                    @foreach(array_map('trim', explode(',', $ann->tags)) as $t)
+                        @if($t)<a href="{{ route('research.annotations', ['tag' => $t]) }}" class="badge bg-secondary text-decoration-none me-1">{{ e($t) }}</a>@endif
+                    @endforeach
+                </div>
+                @endif
+            </div>
+            <div class="card-footer bg-transparent small text-muted">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        @if($ann->object_id ?? null)
+                            <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}"><i class="fas fa-archive me-1"></i>{{ e(\Illuminate\Support\Str::limit($ann->object_title ?? 'View', 30)) }}</a><br>
+                        @endif
+                        <i class="fas fa-clock me-1"></i>{{ date('M j, Y H:i', strtotime($ann->created_at)) }}
+                    </div>
+                    <a href="#note-{{ $ann->id }}" class="text-muted" title="Permalink"><i class="fas fa-hashtag"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
-  @endforelse
+    @endforeach
+</div>
+@else
+<div class="text-center py-5">
+    <i class="fas fa-sticky-note fa-4x text-muted mb-3 opacity-50"></i>
+    <h4 class="text-muted">No notes yet</h4>
+    <p class="text-muted">Add notes to items while browsing or create standalone notes here.</p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>Create Your First Note</button>
+</div>
+@endif
 
-  @if(is_object($annotations) && method_exists($annotations, 'links'))
-    <div class="d-flex justify-content-center">{{ $annotations->links() }}</div>
-  @endif
-
-  {{-- Create Annotation Modal --}}
-  <div class="modal fade" id="annotationModal" tabindex="-1">
+{{-- Create/Edit Modal (shared) --}}
+<div class="modal fade" id="annotationModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <form action="{{ route('research.annotations.store') }}" method="POST">
-          @csrf
-          <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-highlighter me-2"></i>New Annotation</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="ann_title" class="form-label">Title <span class="badge bg-danger ms-1">Required</span></label>
-              <input type="text" name="title" id="ann_title" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label for="ann_content" class="form-label">Content <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <textarea name="content" id="ann_content" class="form-control" rows="5" required></textarea>
-            </div>
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <label for="ann_entity_type" class="form-label">Entity Type <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="entity_type" id="ann_entity_type" class="form-control" placeholder="e.g. information_object">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="ann_tags" class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="tags" id="ann_tags" class="form-control" placeholder="comma-separated">
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="ann_visibility" class="form-label">Visibility <span class="badge bg-secondary ms-1">Optional</span></label>
-                <select name="visibility" id="ann_visibility" class="form-select">
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                  <option value="shared">Shared</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Create</button>
-          </div>
-        </form>
-      </div>
+        <div class="modal-content">
+            <form action="{{ route('research.annotations.store') }}" method="POST" id="annotationForm">
+                @csrf
+                <input type="hidden" name="_method" id="annotationMethod" value="POST">
+                <input type="hidden" name="annotation_id" id="annotationId" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="annotationModalTitle"><i class="fas fa-sticky-note me-2"></i>New Note</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Title</label><input type="text" name="title" id="annTitle" class="form-control" placeholder="Optional title..."></div>
+                    <div class="mb-3">
+                        <label class="form-label">Visibility</label>
+                        <select name="visibility" id="annVisibility" class="form-select">
+                            <option value="private">Private - only you</option>
+                            <option value="shared">Shared - project collaborators</option>
+                            <option value="public">Public - all researchers</option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Note Content *</label><textarea name="content" id="annContent" class="form-control" rows="6" required></textarea></div>
+                    <div class="mb-3"><label class="form-label">Tags</label><input type="text" name="tags" id="annTags" class="form-control" placeholder="Comma-separated tags..."><small class="text-muted">e.g. genealogy, 19th century, photographs</small></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="annotationSubmitBtn"><i class="fas fa-save me-1"></i>Save Note</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
+</div>
+
+{{-- Export Notes Modal --}}
+<div class="modal fade" id="exportNotesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-export me-2"></i>Export Notes</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Notes to Export</label>
+                    <div class="form-check mb-2 border-bottom pb-2">
+                        <input class="form-check-input" type="checkbox" id="exportSelectAll" checked>
+                        <label class="form-check-label fw-bold" for="exportSelectAll">Select All</label>
+                    </div>
+                    @if(!empty($annotations))
+                    <div style="max-height:300px; overflow-y:auto;">
+                        @foreach($annotations as $ann)
+                        <div class="form-check mb-1">
+                            <input class="form-check-input export-note-check" type="checkbox" value="{{ $ann->id }}" id="exportNote{{ $ann->id }}" checked>
+                            <label class="form-check-label" for="exportNote{{ $ann->id }}">{{ e($ann->title ?: 'Untitled') }} <small class="text-muted">({{ date('M j', strtotime($ann->created_at)) }})</small></label>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Format</label>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-danger flex-fill export-btn" data-format="pdf"><i class="fas fa-file-pdf me-1"></i>PDF</button>
+                        <button type="button" class="btn btn-outline-success flex-fill export-btn" data-format="csv"><i class="fas fa-file-csv me-1"></i>CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('annotationForm');
+    var isEdit = false;
+
+    // Reset modal on open (for new)
+    document.getElementById('annotationModal').addEventListener('show.bs.modal', function() {
+        if (!isEdit) {
+            form.action = '{{ route("research.annotations.store") }}';
+            document.getElementById('annotationMethod').value = 'POST';
+            document.getElementById('annotationId').value = '';
+            document.getElementById('annTitle').value = '';
+            document.getElementById('annContent').value = '';
+            document.getElementById('annVisibility').value = 'private';
+            document.getElementById('annTags').value = '';
+            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-sticky-note me-2"></i>New Note';
+            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save Note';
+        }
+        isEdit = false;
+    });
+
+    // Edit button
+    document.querySelectorAll('.edit-annotation').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            isEdit = true;
+            var d = this.dataset;
+            form.action = '{{ url("/research/annotations") }}/' + d.id;
+            document.getElementById('annotationMethod').value = 'PUT';
+            document.getElementById('annotationId').value = d.id;
+            document.getElementById('annTitle').value = d.title;
+            document.getElementById('annContent').value = d.content;
+            document.getElementById('annVisibility').value = d.visibility || 'private';
+            document.getElementById('annTags').value = d.tags || '';
+            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Note';
+            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Update Note';
+            new bootstrap.Modal(document.getElementById('annotationModal')).show();
+        });
+    });
+
+    // Export: select all toggle
+    var selectAll = document.getElementById('exportSelectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.export-note-check').forEach(function(cb) { cb.checked = selectAll.checked; });
+        });
+    }
+
+    // Export buttons
+    document.querySelectorAll('.export-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var checked = document.querySelectorAll('.export-note-check:checked');
+            if (checked.length === 0) { alert('Select at least one note.'); return; }
+            var ids = [];
+            checked.forEach(function(cb) { ids.push(cb.value); });
+            // Simple CSV export via redirect
+            window.location.href = '/research/exportNotes?format=' + this.dataset.format + '&ids=' + ids.join(',');
+            bootstrap.Modal.getInstance(document.getElementById('exportNotesModal')).hide();
+        });
+    });
+});
+</script>
+@endpush
 @endsection
