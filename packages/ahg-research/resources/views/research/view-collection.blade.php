@@ -43,7 +43,7 @@
       </div>
       <div class="col-md-4 text-md-end">
         <span class="badge bg-{{ ($collection->is_public ?? false) ? 'success' : 'secondary' }} me-2">{{ ($collection->is_public ?? false) ? 'Public' : 'Private' }}</span>
-        <span class="badge bg-primary">{{ count($items ?? []) }} items</span>
+        <span class="badge bg-primary">{{ count($collection->items ?? []) }} items</span>
       </div>
     </div>
   </div>
@@ -83,8 +83,8 @@
 
 {{-- Items Table --}}
 <div class="card">
-  <div class="card-header"><i class="fas fa-list me-2"></i>Evidence Set Items ({{ count($items ?? []) }})</div>
-  @if(count($items ?? []) > 0)
+  <div class="card-header"><i class="fas fa-list me-2"></i>Evidence Set Items ({{ count($collection->items ?? []) }})</div>
+  @if(count($collection->items ?? []) > 0)
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead class="table-light">
@@ -97,10 +97,10 @@
         </tr>
       </thead>
       <tbody>
-      @foreach($items as $item)
+      @foreach($collection->items as $item)
         <tr>
           <td>
-            <a href="{{ url('/' . ($item->slug ?? '')) }}">{{ e($item->object_title ?? $item->title ?? 'Untitled') }}</a>
+            <a href="{{ url('/' . ($item->object_slug ?? $item->slug ?? '')) }}">{{ e($item->object_title ?? $item->title ?? 'Untitled') }}</a>
             @if($item->identifier ?? false)
               <br><small class="text-muted">{{ e($item->identifier) }}</small>
             @endif

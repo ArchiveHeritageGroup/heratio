@@ -323,12 +323,16 @@ class ResearchService
         $collection = DB::table('research_collection')->where('id', $id)->first();
         if ($collection) {
             $collection->items = DB::table('research_collection_item as ci')
+                ->leftJoin('information_object as io', 'ci.object_id', '=', 'io.id')
                 ->leftJoin('information_object_i18n as i18n', function ($join) {
                     $join->on('ci.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
                 })
                 ->leftJoin('slug as s', 'ci.object_id', '=', 's.object_id')
+                ->leftJoin('term_i18n as lod', function ($join) {
+                    $join->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', '=', 'en');
+                })
                 ->where('ci.collection_id', $id)
-                ->select('ci.*', 'i18n.title as object_title', 's.slug as object_slug')
+                ->select('ci.*', 'i18n.title as object_title', 's.slug as object_slug', 'io.identifier', 'lod.name as level_of_description')
                 ->orderBy('ci.created_at')
                 ->get()->toArray();
         }
