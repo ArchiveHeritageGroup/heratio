@@ -4,42 +4,7 @@
 @section('sidebar')
   @include('research::research._sidebar', ['sidebarActive' => 'book'])
 
-  {{-- Researcher Info Sidebar --}}
-  @if($researcher ?? false)
-    <div class="card mb-4">
-      <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">Your Information</div>
-      <div class="card-body small">
-        <dl class="mb-0">
-          <dt>Name</dt>
-          <dd>{{ e($researcher->first_name ?? '') }} {{ e($researcher->last_name ?? '') }}</dd>
-          <dt>Email</dt>
-          <dd>{{ e($researcher->email ?? '') }}</dd>
-          <dt>Institution</dt>
-          <dd>{{ e($researcher->institution ?? '-') }}</dd>
-          <dt>Status</dt>
-          <dd>
-            <span class="badge bg-{{ ($researcher->status ?? '') === 'approved' ? 'success' : 'secondary' }}">
-              {{ ucfirst(e($researcher->status ?? '')) }}
-            </span>
-          </dd>
-        </dl>
-      </div>
-    </div>
-  @endif
 
-  {{-- Information Notice --}}
-  <div class="card mb-4">
-    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-info-circle me-1"></i> Information
-    </div>
-    <ul class="list-group list-group-flush small">
-      <li class="list-group-item"><i class="fas fa-check-circle text-warning me-2"></i>Bookings require confirmation</li>
-      <li class="list-group-item"><i class="fas fa-id-card text-primary me-2"></i>Bring valid ID on visit day</li>
-      <li class="list-group-item"><i class="fas fa-clock text-danger me-2"></i>Cancel at least 24h in advance</li>
-      <li class="list-group-item"><i class="fas fa-archive text-success me-2"></i>Request materials in advance for faster service</li>
-      <li class="list-group-item"><i class="fas fa-phone text-info me-2"></i>Contact the reading room for special requirements</li>
-    </ul>
-  </div>
 @endsection
 
 @section('content')
@@ -62,6 +27,8 @@
     </div>
   @endif
 
+  <div class="row">
+  <div class="col-md-8">
   <form action="{{ route('research.book.store') }}" method="POST">
     @csrf
 
@@ -157,6 +124,39 @@
       </button>
     </div>
   </form>
+  </div>
+
+  <div class="col-md-4">
+    {{-- Your Information --}}
+    @if($researcher ?? false)
+    <div class="card mb-4">
+      <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-user-graduate me-1"></i> Your Information
+      </div>
+      <div class="card-body">
+        <h6 class="mb-1">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</h6>
+        <small class="text-muted d-block">{{ e($researcher->email ?? '') }}</small>
+        <small class="text-muted d-block">{{ e($researcher->institution ?: 'Independent Researcher') }}</small>
+        <span class="badge bg-{{ ($researcher->status ?? '') === 'approved' ? 'success' : 'secondary' }} mt-2">{{ ucfirst($researcher->status ?? '') }}</span>
+      </div>
+    </div>
+    @endif
+
+    {{-- Information Notice --}}
+    <div class="card mb-4">
+      <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-info-circle me-1"></i> Information
+      </div>
+      <ul class="list-group list-group-flush small">
+        <li class="list-group-item"><i class="fas fa-check-circle text-warning me-2"></i>Bookings require confirmation</li>
+        <li class="list-group-item"><i class="fas fa-id-card text-primary me-2"></i>Bring valid ID on visit day</li>
+        <li class="list-group-item"><i class="fas fa-clock text-danger me-2"></i>Cancel at least 24h in advance</li>
+        <li class="list-group-item"><i class="fas fa-archive text-success me-2"></i>Request materials in advance for faster service</li>
+        <li class="list-group-item"><i class="fas fa-phone text-info me-2"></i>Contact the reading room for special requirements</li>
+      </ul>
+    </div>
+  </div>
+  </div>
 
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
