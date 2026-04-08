@@ -31,6 +31,7 @@ Route::middleware('web')->group(function () {
     Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->name('ric.create-entity');
     Route::get('/admin/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
     Route::get('/admin/ric/data', [RicController::class, 'getData'])->name('ric.data');
+    Route::get('/admin/ric/timeline-data', [RicController::class, 'getTimelineData'])->name('ric.timeline-data');
 
     // RIC Semantic Search
     Route::get('/admin/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');

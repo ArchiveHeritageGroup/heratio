@@ -165,7 +165,9 @@ Route::middleware('auth')->group(function () {
 
     // Digital Object upload/delete
     Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
+    Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
     Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+    Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
     // Research Tools
@@ -192,5 +194,5 @@ Route::get('/{slug}/cco/provenance', [ProvenanceController::class, 'index'])->na
 Route::get('/provenance/{slug}/timeline', [ProvenanceController::class, 'timeline'])->name('io.provenance.timeline');
 Route::get('/provenance/{slug}/export-csv', [ProvenanceController::class, 'exportCsv'])->name('io.provenance.exportCsv');
 
-Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->middleware('odrl:use')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');
+Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->middleware('odrl:use')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|ingest$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|reports$|repository$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$)[a-z0-9][a-z0-9-]*$');
 

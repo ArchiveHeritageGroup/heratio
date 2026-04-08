@@ -42,15 +42,61 @@ class IngestController extends Controller
 
     public function index()
     {
-        $isAdmin = auth()->user() && method_exists(auth()->user(), 'isAdmin') && auth()->user()->isAdmin();
+        $isAdmin = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
 
-        if ($isAdmin) {
-            $sessions = $this->service->getSessions();
-        } else {
-            $sessions = $this->service->getSessions(auth()->id());
-        }
+        // Admins see all sessions, regular users see only their own
+        $sessions = $isAdmin
+            ? $this->service->getSessions()
+            : $this->service->getSessions(auth()->id());
 
-        return view('ahg-ingest::index', compact('sessions'));
+        return view('ahg-ingest::index', compact('sessions', 'isAdmin'));
+    }
+
+    /**
+     * Download CSV template for a sector.
+     * Migrated from AtoM ahgIngestPlugin downloadTemplate action.
+     */
+    public function downloadTemplate(string $sector = 'archive')
+    {
+        $fields = [
+            'legacyId', 'parentId', 'identifier', 'title', 'levelOfDescription',
+            'extentAndMedium', 'repository', 'archivalHistory', 'acquisition',
+            'scopeAndContent', 'appraisal', 'accruals', 'arrangement',
+            'accessConditions', 'reproductionConditions', 'language',
+            'physicalCharacteristics', 'findingAids', 'locationOfOriginals',
+            'locationOfCopies', 'relatedUnitsOfDescription', 'publicationNote',
+            'digitalObjectPath', 'digitalObjectURI', 'generalNote',
+            'subjectAccessPoints', 'placeAccessPoints', 'nameAccessPoints',
+            'genreAccessPoints', 'descriptionIdentifier', 'institutionIdentifier',
+            'rules', 'descriptionStatus', 'levelOfDetail', 'revisionHistory',
+            'languageOfDescription', 'scriptOfDescription', 'sources',
+            'archivistNote', 'publicationStatus', 'physicalObjectName',
+            'physicalObjectLocation', 'physicalObjectType',
+            'alternativeIdentifiers', 'alternativeIdentifierLabels',
+            'eventDates', 'eventTypes', 'eventStartDates', 'eventEndDates', 'eventActors',
+            'culture',
+        ];
+
+        $sectorFields = match ($sector) {
+            'museum', 'gallery' => ['objectNumber', 'objectName', 'artist', 'medium', 'dimensions'],
+            'library' => ['isbn', 'author', 'publisher', 'callNumber'],
+            'dam' => ['assetId', 'assetType', 'resolution', 'colorSpace'],
+            default => [],
+        };
+
+        $allFields = array_unique(array_merge($sectorFields, $fields));
+
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, $allFields);
+        fputcsv($handle, array_fill(0, count($allFields), ''));
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="ingest_template_' . $sector . '.csv"',
+        ]);
     }
 
     public function configure(Request $request, ?int $id = null)

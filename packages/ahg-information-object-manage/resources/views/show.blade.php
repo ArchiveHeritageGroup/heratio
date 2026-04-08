@@ -3113,7 +3113,7 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
             </li>
           @endif
           <li>
-            <a class="dropdown-item" href="{{ route('informationobject.import.xml', $io->slug) }}">
+            <a class="dropdown-item" href="{{ route('io.multiFileUpload', $io->slug) }}">
               <i class="fas fa-file-import me-2"></i>Import digital objects
             </a>
           </li>
@@ -3129,37 +3129,6 @@ document.getElementById('summaryModal').addEventListener('shown.bs.modal', funct
               </a>
             </li>
           @endif
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.ead', $io->slug) }}">
-              <i class="fas fa-file-code me-2"></i>Export EAD 2002
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.ead3', $io->slug) }}">
-              <i class="fas fa-file-code me-2"></i>Export EAD3
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.ead4', $io->slug) }}">
-              <i class="fas fa-file-code me-2"></i>Export EAD 4
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.dc', $io->slug) }}">
-              <i class="fas fa-file-alt me-2"></i>Export Dublin Core
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.mods', $io->slug) }}">
-              <i class="fas fa-file-alt me-2"></i>Export MODS
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="{{ route('informationobject.export.rico', $io->slug) }}">
-              <i class="fas fa-file-alt me-2"></i>Export RiC-O JSON-LD
-            </a>
-          </li>
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="{{ route('io.showUpdateStatus', $io->slug ?? '') }}">

@@ -952,6 +952,115 @@ class RicController extends Controller
     }
 
     /**
+     * Timeline data for a record — events with dates for the explorer timeline view.
+     */
+    public function getTimelineData(Request $request)
+    {
+        $id = (int) $request->input('id');
+        if (!$id) {
+            return response()->json(['success' => false, 'error' => 'No ID provided']);
+        }
+
+        $culture = app()->getLocale();
+
+        // Get the record info
+        $io = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->where('io.id', $id)
+            ->select('io.id', 'io.identifier', 'i18n.title')
+            ->first();
+
+        if (!$io) {
+            return response()->json(['success' => false, 'error' => 'Record not found']);
+        }
+
+        // Get events with dates
+        $events = DB::table('event')
+            ->join('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $culture);
+            })
+            ->leftJoin('actor_i18n', function ($j) use ($culture) {
+                $j->on('event.actor_id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $culture);
+            })
+            ->leftJoin('term_i18n as eti', function ($j) use ($culture) {
+                $j->on('event.type_id', '=', 'eti.id')->where('eti.culture', $culture);
+            })
+            ->where('event.object_id', $id)
+            ->select(
+                'event.id', 'event.start_date', 'event.end_date', 'event.type_id',
+                'event_i18n.date as date_display',
+                'event_i18n.name as event_name',
+                'actor_i18n.authorized_form_of_name as actor_name',
+                'eti.name as event_type_name'
+            )
+            ->orderBy('event.start_date')
+            ->get();
+
+        // Get descendants with their events for a richer timeline
+        $descendants = DB::table('information_object as child')
+            ->join('information_object as parent', function ($j) use ($id) {
+                $j->whereRaw('child.lft > parent.lft AND child.rgt < parent.rgt AND parent.id = ?', [$id]);
+            })
+            ->join('information_object_i18n as ci', function ($j) use ($culture) {
+                $j->on('ci.id', '=', 'child.id')->where('ci.culture', $culture);
+            })
+            ->join('event', 'event.object_id', '=', 'child.id')
+            ->join('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $culture);
+            })
+            ->leftJoin('term_i18n as eti', function ($j) use ($culture) {
+                $j->on('event.type_id', '=', 'eti.id')->where('eti.culture', $culture);
+            })
+            ->whereNotNull('event.start_date')
+            ->select(
+                'child.id as object_id', 'ci.title as object_title',
+                'event.start_date', 'event.end_date',
+                'event_i18n.date as date_display',
+                'eti.name as event_type_name'
+            )
+            ->orderBy('event.start_date')
+            ->limit(200)
+            ->get();
+
+        $items = [];
+
+        // Add main record events
+        foreach ($events as $e) {
+            if (!$e->start_date) continue;
+            $items[] = [
+                'id' => 'event-' . $e->id,
+                'label' => $e->event_type_name ?? $e->event_name ?? 'Event',
+                'detail' => $e->actor_name ? ($e->actor_name . ' — ' . ($e->date_display ?? '')) : ($e->date_display ?? ''),
+                'start' => $e->start_date,
+                'end' => $e->end_date,
+                'group' => $io->title ?? 'Record',
+                'color' => '#4ecdc4',
+            ];
+        }
+
+        // Add descendant events
+        foreach ($descendants as $d) {
+            $items[] = [
+                'id' => 'desc-' . $d->object_id . '-' . $d->start_date,
+                'label' => $d->object_title ?? 'Child',
+                'detail' => $d->event_type_name ?? ($d->date_display ?? ''),
+                'start' => $d->start_date,
+                'end' => $d->end_date,
+                'group' => $d->object_title ?? 'Descendant',
+                'color' => '#45b7d1',
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'record' => ['id' => $io->id, 'title' => $io->title, 'identifier' => $io->identifier],
+            'items' => $items,
+        ]);
+    }
+
+    /**
      * Execute a SPARQL query against Fuseki.
      */
     protected function executeSparql(string $query, string $endpoint, string $username, string $password): ?array
@@ -2242,7 +2351,17 @@ SPARQL;
             '@graph'   => $graph,
         ];
 
-        return response()->json($jsonLd, 200, [
+        $json = json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        if ($request->input('download')) {
+            $filename = 'ric-' . $recordId . '.jsonld';
+            return response($json, 200, [
+                'Content-Type' => 'application/ld+json; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+        }
+
+        return response($json, 200, [
             'Content-Type' => 'application/ld+json; charset=utf-8',
         ]);
     }

@@ -11,4 +11,5 @@ Route::middleware('auth')->prefix('ingest')->group(function () {
     Route::match(['get', 'post'], '/{id}/validate', [IngestController::class, 'validate'])->name('ingest.validate');
     Route::match(['get', 'post'], '/{id}/preview', [IngestController::class, 'preview'])->name('ingest.preview');
     Route::match(['get', 'post'], '/{id}/commit', [IngestController::class, 'commit'])->name('ingest.commit');
+    Route::get('/template/{sector?}', [IngestController::class, 'downloadTemplate'])->name('ingest.template');
 });

@@ -38,6 +38,7 @@
             </button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn active" data-view="2d">2D</button>
             <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="3d">3D</button>
+            <button type="button" class="btn atom-btn-secondary ric-view-btn" data-view="timeline"><i class="fas fa-stream me-1"></i>Timeline</button>
             <button type="button" class="btn atom-btn-secondary" id="ric-fullscreen-btn" title="Fullscreen">
               <i class="fas fa-expand"></i>
             </button>

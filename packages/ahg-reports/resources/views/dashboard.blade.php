@@ -41,7 +41,7 @@
   $hasNAZ = $has('ahgNAZPlugin');
   $hasIPSAS = $has('ahgIPSASPlugin');
   $hasNMMZ = $has('ahgNMMZPlugin');
-  $hasDataIngest = $has('ahgIngestPlugin');
+  $hasDataIngest = $has('ahgIngestPlugin') || class_exists(\AhgIngest\Controllers\IngestController::class);
   $hasKnowledge = $has('ahgResearchPlugin');
 @endphp
 
@@ -502,10 +502,9 @@
           <div class="card h-100">
             <div class="card-header text-white" style="background-color:#20c997!important"><h5 class="mb-0"><i class="fas fa-file-import me-2"></i>Data Ingest</h5></div>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item"><a href="{{ url('/data-ingest') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Ingest Dashboard</a></li>
-              <li class="list-group-item"><a href="{{ url('/data-ingest/upload') }}"><i class="fas fa-upload me-2 text-muted"></i>Upload Files</a></li>
-              <li class="list-group-item"><a href="{{ url('/data-ingest/browse') }}"><i class="fas fa-list me-2 text-muted"></i>Browse Ingests</a></li>
-              <li class="list-group-item"><a href="{{ url('/data-ingest/validation') }}"><i class="fas fa-check-double me-2 text-muted"></i>Validation Rules</a></li>
+              <li class="list-group-item"><a href="{{ route('ingest.index') }}"><i class="fas fa-tachometer-alt me-2 text-muted"></i>Ingest Dashboard</a></li>
+              <li class="list-group-item"><a href="{{ route('ingest.configure') }}"><i class="fas fa-plus-circle me-2 text-muted"></i>New Ingest</a></li>
+              <li class="list-group-item"><a href="{{ route('ingest.template', 'archive') }}"><i class="fas fa-file-csv me-2 text-muted"></i>CSV Template</a></li>
             </ul>
           </div>
         </div>
