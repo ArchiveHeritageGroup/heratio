@@ -778,7 +778,10 @@
         @endphp
 
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="badge bg-primary"><i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}</span>
+          <div>
+            <span class="badge bg-primary"><i class="fas {{ $isSketchfab ? 'fa-cube' : 'fa-play' }} me-1"></i>{{ $embedLabel }}</span>
+            <br><small class="text-muted"><a href="{{ $masterObj->path }}" target="_blank" class="text-muted text-decoration-none">{{ $masterObj->path }} <i class="fas fa-external-link-alt ms-1"></i></a></small>
+          </div>
           <a href="{{ $masterObj->path }}" target="_blank" class="btn btn-sm atom-btn-white" title="Open on original site">
             <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
           </a>
