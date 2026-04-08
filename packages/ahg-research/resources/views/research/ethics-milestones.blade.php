@@ -40,8 +40,8 @@
                     <tr>
                         <th>#</th>
                         <th>Title</th>
-                        <th>Type</th>
                         <th>Status</th>
+                        <th>Due Date</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -57,15 +57,20 @@
                             @endif
                         </td>
                         <td>
-                            <span class="badge bg-info">{{ ucfirst(str_replace('_', ' ', $m->milestone_type ?? '')) }}</span>
-                        </td>
-                        <td>
                             <span class="badge bg-{{ match($m->status ?? '') { 'approved' => 'success', 'completed' => 'success', 'rejected' => 'danger', default => 'warning' } }}">{{ ucfirst(str_replace('_', ' ', $m->status ?? 'pending')) }}</span>
                         </td>
+                        <td class="small">{{ $m->due_date ?? '—' }}</td>
                         <td class="small">{{ $m->created_at ?? '' }}</td>
                         <td>
                             <div class="d-flex gap-1">
-                                @if(($m->status ?? '') !== 'approved')
+                                <button class="btn btn-sm btn-outline-secondary edit-milestone-btn" title="Edit"
+                                    data-id="{{ $m->id }}"
+                                    data-title="{{ e($m->title ?? '') }}"
+                                    data-description="{{ e($m->description ?? '') }}"
+                                    data-due_date="{{ $m->due_date ?? '' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                @if(!in_array($m->status ?? '', ['approved', 'completed']))
                                 <form method="POST" class="d-inline">
                                     @csrf
                                     <input type="hidden" name="form_action" value="approve">
@@ -78,7 +83,7 @@
                                     @csrf
                                     <input type="hidden" name="form_action" value="reject">
                                     <input type="hidden" name="milestone_id" value="{{ $m->id }}">
-                                    <button class="btn btn-sm btn-outline-danger" title="Reject"><i class="fas fa-times"></i></button>
+                                    <button class="btn btn-sm btn-outline-warning" title="Reject"><i class="fas fa-times"></i></button>
                                 </form>
                                 @endif
                                 @if(($m->status ?? '') !== 'completed')
@@ -129,15 +134,8 @@
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select name="milestone_type" class="form-select">
-                            <option value="ethics">Ethics</option>
-                            <option value="irb_approval">IRB Approval</option>
-                            <option value="consent">Consent</option>
-                            <option value="data_management">Data Management</option>
-                            <option value="risk_assessment">Risk Assessment</option>
-                            <option value="compliance_check">Compliance Check</option>
-                        </select>
+                        <label class="form-label">Due Date</label>
+                        <input type="date" name="due_date" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -148,4 +146,53 @@
         </div>
     </div>
 </div>
+
+{{-- Edit Milestone Modal --}}
+<div class="modal fade" id="editMilestoneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                @csrf
+                <input type="hidden" name="form_action" value="edit">
+                <input type="hidden" name="milestone_id" id="edit-milestone-id">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Milestone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" name="title" id="edit-title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="edit-description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" name="due_date" id="edit-due-date" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('js')
+<script>
+document.querySelectorAll('.edit-milestone-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('edit-milestone-id').value = this.dataset.id;
+        document.getElementById('edit-title').value = this.dataset.title;
+        document.getElementById('edit-description').value = this.dataset.description;
+        document.getElementById('edit-due-date').value = this.dataset.due_date || '';
+        new bootstrap.Modal(document.getElementById('editMilestoneModal')).show();
+    });
+});
+</script>
+@endpush
 @endsection

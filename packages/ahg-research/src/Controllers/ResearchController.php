@@ -3226,29 +3226,56 @@ class ResearchController extends Controller
         if ($request->isMethod('post')) {
             $action = $request->input('form_action');
 
-            if ($action === 'add_milestone') {
+            if ($action === 'create') {
                 $maxSort = DB::table('research_project_milestone')->where('project_id', $id)->max('sort_order') ?? 0;
                 DB::table('research_project_milestone')->insert([
-                    'project_id'     => $id,
-                    'title'          => $request->input('title'),
-                    'description'    => $request->input('description'),
-                    'milestone_type' => $request->input('milestone_type', 'ethics'),
-                    'status'         => 'pending',
-                    'sort_order'     => $maxSort + 1,
-                    'created_at'     => now(),
+                    'project_id'  => $id,
+                    'title'       => $request->input('title'),
+                    'description' => $request->input('description'),
+                    'status'      => 'pending',
+                    'sort_order'  => $maxSort + 1,
+                    'created_at'  => now(),
                 ]);
                 return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone added.');
             }
 
-            if ($action === 'update_status') {
+            if ($action === 'edit') {
                 DB::table('research_project_milestone')
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
-                    ->update(['status' => $request->input('status'), 'updated_at' => now()]);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Status updated.');
+                    ->update([
+                        'title'       => $request->input('title'),
+                        'description' => $request->input('description'),
+                        'due_date'    => $request->input('due_date') ?: null,
+                    ]);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone updated.');
             }
 
-            if ($action === 'delete_milestone') {
+            if ($action === 'approve') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->update(['status' => 'approved']);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone approved.');
+            }
+
+            if ($action === 'reject') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->update(['status' => 'rejected']);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone rejected.');
+            }
+
+            if ($action === 'complete') {
+                DB::table('research_project_milestone')
+                    ->where('id', $request->input('milestone_id'))
+                    ->where('project_id', $id)
+                    ->update(['status' => 'completed', 'completed_at' => now(), 'completed_by' => Auth::id()]);
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone completed.');
+            }
+
+            if ($action === 'delete') {
                 DB::table('research_project_milestone')
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
