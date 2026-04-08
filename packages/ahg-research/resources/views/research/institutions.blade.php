@@ -1,64 +1,120 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-university me-2"></i>Affiliated Institutions</h1>@endsection
-@section('content')
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Institutions</h5>
-        <span class="badge bg-primary">{{ count($institutions) }} institution(s)</span>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-2 mb-3">
-            <div class="col-md-4">
-                <input type="text" class="form-control form-control-sm" name="q" value="{{ request('q') }}" placeholder="Search by name or location...">
-            </div>
-            <div class="col-md-2">
-                <select name="status" class="form-select form-select-sm">
-                    <option value="">All Statuses</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn atom-btn-white btn-sm w-100"><i class="fas fa-filter"></i></button>
-            </div>
-        </form>
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'institutions'])@endsection
+@section('title', 'Partner Institutions')
 
-        @if(count($institutions) > 0)
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Location</th>
-                        <th>Researcher Count</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($institutions as $inst)
-                    <tr>
-                        <td class="fw-bold">{{ e($inst->name) }}</td>
-                        <td>{{ e($inst->location ?? $inst->city ?? '-') }}</td>
-                        <td>{{ $inst->researcher_count ?? 0 }}</td>
-                        <td>
-                            @if(($inst->status ?? 'active') === 'active')
-                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
-                            @else
-                                <span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i>Inactive</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <div class="text-center text-muted py-4">
-            <i class="fas fa-university fa-3x mb-3 d-block"></i>
-            No institutions found.
-        </div>
-        @endif
-    </div>
+@section('content')
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Institutions</li></ol></nav>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2"><i class="fas fa-university text-primary me-2"></i>Partner Institutions</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>Add Institution</button>
 </div>
+
+@if(!empty($institutions))
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr><th>Name</th><th>Code</th><th>URL</th><th>Contact</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+        @foreach($institutions as $inst)
+            <tr>
+                <td>
+                    <strong>{{ e($inst->name) }}</strong>
+                    @if($inst->description)<br><small class="text-muted">{{ e(\Illuminate\Support\Str::limit($inst->description, 60)) }}</small>@endif
+                </td>
+                <td><code>{{ e($inst->code ?? '') }}</code></td>
+                <td>
+                    @if($inst->url ?? null)
+                        <a href="{{ $inst->url }}" target="_blank" class="text-decoration-none">{{ preg_replace('#^https?://#', '', $inst->url) }} <i class="fas fa-external-link-alt ms-1 small"></i></a>
+                    @else
+                        <span class="text-muted">-</span>
+                    @endif
+                </td>
+                <td>
+                    @if($inst->contact_name ?? null)
+                        {{ e($inst->contact_name) }}
+                        @if($inst->contact_email)<br><small><a href="mailto:{{ $inst->contact_email }}">{{ e($inst->contact_email) }}</a></small>@endif
+                    @else
+                        <span class="text-muted">-</span>
+                    @endif
+                </td>
+                <td>{!! ($inst->is_active ?? 1) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>' !!}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary edit-inst-btn" data-inst='{!! json_encode($inst, JSON_HEX_APOS | JSON_HEX_QUOT) !!}' title="Edit"><i class="fas fa-edit"></i></button>
+                    <form method="POST" class="d-inline" onsubmit="return confirm('Delete this institution?')">
+                        @csrf
+                        <input type="hidden" name="form_action" value="delete">
+                        <input type="hidden" name="institution_id" value="{{ $inst->id }}">
+                        <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+</div>
+@else
+<div class="text-center py-5">
+    <i class="fas fa-university fa-4x text-muted mb-3 opacity-50"></i>
+    <h4 class="text-muted">No partner institutions yet</h4>
+    <p class="text-muted">Add partner institutions to enable cross-institutional research sharing.</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>Add First Institution</button>
+</div>
+@endif
+
+{{-- Add/Edit Modal --}}
+<div class="modal fade" id="institutionModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <form method="POST" id="instForm">@csrf
+        <input type="hidden" name="form_action" id="instAction" value="create">
+        <input type="hidden" name="institution_id" id="instId">
+        <div class="modal-header"><h5 class="modal-title" id="instModalTitle">Add Institution</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-8"><div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" id="instName" class="form-control" required></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label">Code *</label><input type="text" name="code" id="instCode" class="form-control" required placeholder="e.g. UCT"></div></div>
+            </div>
+            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" id="instDesc" class="form-control" rows="2"></textarea></div>
+            <div class="mb-3"><label class="form-label">URL</label><input type="url" name="url" id="instUrl" class="form-control" placeholder="https://..."></div>
+            <div class="row">
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Contact Name</label><input type="text" name="contact_name" id="instContactName" class="form-control"></div></div>
+                <div class="col-md-6"><div class="mb-3"><label class="form-label">Contact Email</label><input type="email" name="contact_email" id="instContactEmail" class="form-control"></div></div>
+            </div>
+            <div class="form-check"><input type="checkbox" name="is_active" id="instActive" class="form-check-input" value="1" checked><label class="form-check-label" for="instActive">Active</label></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary" id="instSubmitBtn"><i class="fas fa-plus me-1"></i>Add</button></div>
+    </form>
+</div></div></div>
+
+@push('js')
+<script>
+document.querySelectorAll('.edit-inst-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var i = JSON.parse(this.getAttribute('data-inst'));
+        document.getElementById('instAction').value = 'update';
+        document.getElementById('instId').value = i.id;
+        document.getElementById('instName').value = i.name;
+        document.getElementById('instCode').value = i.code || '';
+        document.getElementById('instDesc').value = i.description || '';
+        document.getElementById('instUrl').value = i.url || '';
+        document.getElementById('instContactName').value = i.contact_name || '';
+        document.getElementById('instContactEmail').value = i.contact_email || '';
+        document.getElementById('instActive').checked = i.is_active == 1;
+        document.getElementById('instModalTitle').textContent = 'Edit: ' + i.name;
+        document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save';
+        new bootstrap.Modal(document.getElementById('institutionModal')).show();
+    });
+});
+document.getElementById('institutionModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('instAction').value = 'create';
+    document.getElementById('instForm').reset();
+    document.getElementById('instModalTitle').textContent = 'Add Institution';
+    document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Add';
+});
+</script>
+@endpush
 @endsection

@@ -2374,6 +2374,35 @@ class ResearchController extends Controller
     public function institutions(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+            $data = [
+                'name' => $request->input('name'),
+                'code' => $request->input('code') ?: \Illuminate\Support\Str::slug($request->input('name'), '_'),
+                'description' => $request->input('description') ?: null,
+                'url' => $request->input('url') ?: null,
+                'contact_name' => $request->input('contact_name') ?: null,
+                'contact_email' => $request->input('contact_email') ?: null,
+                'is_active' => $request->has('is_active') ? 1 : 0,
+            ];
+
+            if ($action === 'create') {
+                $data['created_at'] = now();
+                DB::table('research_institution')->insert($data);
+                return redirect()->route('research.institutions')->with('success', 'Institution added.');
+            }
+            if ($action === 'update') {
+                $data['updated_at'] = now();
+                DB::table('research_institution')->where('id', (int) $request->input('institution_id'))->update($data);
+                return redirect()->route('research.institutions')->with('success', 'Institution updated.');
+            }
+            if ($action === 'delete') {
+                DB::table('research_institution')->where('id', (int) $request->input('institution_id'))->delete();
+                return redirect()->route('research.institutions')->with('success', 'Institution deleted.');
+            }
+        }
+
         $institutions = DB::table('research_institution')->orderBy('name')->get()->toArray();
         return view('research::research.institutions', array_merge(
             $this->getSidebarData('institutions'),
