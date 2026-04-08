@@ -227,8 +227,8 @@
 
 @push('css')
 <style>
-.card-text img { max-width: 100px; max-height: 80px; height: auto; border-radius: 4px; margin: 4px 0; cursor: pointer; transition: max-width 0.2s; }
-.card-text img:hover { max-width: 200px; max-height: 160px; }
+.card-text img { max-width: 100%; max-height: 150px; height: auto; border-radius: 4px; margin: 4px 0; cursor: pointer; transition: max-height 0.2s; }
+.card-text img:hover { max-height: 300px; }
 </style>
 @endpush
 
