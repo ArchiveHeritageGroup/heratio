@@ -102,18 +102,14 @@
     {{-- D3.js for visualizations --}}
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
-    {{-- Base JS --}}
-    <script src="{{ asset('vendor/ahg-theme-b5/js/display-mode.js') }}"></script>
+    {{-- Base JS (display-mode + voiceCommands already in theme bundle — don't load standalone) --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
     {{-- Clipboard toggle handled by AtoM theme bundle; this adds server sync --}}
-    <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}?v={{ time() }}"></script>
 
-    {{-- Voice Commands --}}
+    {{-- Voice Commands (CSS + data partials only — JS class is in the theme bundle) --}}
     @include('theme::partials.voice-commands')
     <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">
-    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandRegistry.js') }}"></script>
-    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandTranslations.js') }}"></script>
-    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommands.js') }}"></script>
 
     @stack('js')
 

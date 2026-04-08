@@ -9,8 +9,7 @@ Route::match(['GET', 'POST'], '/glam/browseAjax', [DisplayController::class, 'br
 Route::get('/glam/print', [DisplayController::class, 'printView'])->name('glam.print');
 Route::get('/glam/exportCsv', [DisplayController::class, 'exportCsv'])->name('glam.export.csv');
 
-// Override standard informationobject browse
-Route::match(['GET', 'POST'], '/informationobject/browse', [DisplayController::class, 'browse'])->name('informationobject.browse.override');
+// informationobject/browse handled by ahg-information-object-manage package
 
 // Admin routes (require auth)
 Route::middleware('admin')->group(function () {

@@ -2579,15 +2579,12 @@
           <i class="fas fa-book me-1"></i> Finding aid
         </div>
         <div class="list-group list-group-flush">
-          <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-file-alt me-1"></i> Generate
-          </a>
-          <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-upload me-1"></i> Upload
-          </a>
           @if(isset($findingAid) && $findingAid)
             <a href="{{ route('informationobject.findingaid.download', $io->slug) }}" class="list-group-item list-group-item-action small">
               <i class="fas fa-download me-1"></i> Download
+            </a>
+            <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-sync-alt me-1"></i> Regenerate
             </a>
             <form action="{{ route('informationobject.findingaid.delete', $io->slug) }}" method="POST" class="d-inline">
               @csrf
@@ -2595,6 +2592,13 @@
                 <i class="fas fa-trash me-1"></i> Delete
               </button>
             </form>
+          @else
+            <a href="{{ route('informationobject.findingaid.generate', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-file-alt me-1"></i> Generate
+            </a>
+            <a href="{{ route('informationobject.findingaid.upload.form', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-upload me-1"></i> Upload
+            </a>
           @endif
         </div>
       </div>

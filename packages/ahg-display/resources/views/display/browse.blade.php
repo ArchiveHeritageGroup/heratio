@@ -56,7 +56,7 @@
   .col-thumb { width: 60px; min-width: 60px; }
   .col-identifier { width: 140px; }
   .col-level { width: 130px; }
-  .col-actions { width: 80px; }
+  .col-actions { width: 100px; }
   .browse-thumb-lg { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; }
   .browse-placeholder-lg { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: #e9ecef; border-radius: 4px; color: #adb5bd; font-size: 1.3rem; }
   .grid-img-wrapper { width: 100%; height: 160px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; }

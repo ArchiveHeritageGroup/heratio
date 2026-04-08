@@ -153,6 +153,10 @@ class DisplayController extends Controller
         if (!$this->parentId && $request->input('ancestor')) {
             $this->parentId = $request->input('ancestor');
         }
+        // AtoM compat: collection=X means filter to descendants of collection root X
+        if (!$this->parentId && $request->input('collection')) {
+            $this->parentId = $request->input('collection');
+        }
 
         // Facet filters
         $this->creatorFilter = $request->input('creator');
@@ -939,7 +943,14 @@ class DisplayController extends Controller
         }
 
         if ($this->parentId) {
-            $query->where('io.parent_id', $this->parentId);
+            // Use MPTT lft/rgt range to include the record itself and all descendants
+            $ancestor = DB::table('information_object')->where('id', $this->parentId)->select('lft', 'rgt')->first();
+            if ($ancestor) {
+                $query->where('io.lft', '>=', $ancestor->lft)
+                      ->where('io.rgt', '<=', $ancestor->rgt);
+            } else {
+                $query->where('io.parent_id', $this->parentId);
+            }
         } elseif ($this->topLevelOnly === '1') {
             $query->where('io.parent_id', 1);
         }

@@ -414,9 +414,12 @@
               </td>
               {{-- Actions --}}
               <td class="col-actions text-center">
-                <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
-                  <i class="fas fa-eye"></i>
-                </a>
+                <div class="d-flex gap-1 justify-content-center">
+                  <a href="{{ $objUrl }}" class="btn btn-sm atom-btn-white" title="View">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="Add to clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
+                </div>
               </td>
             </tr>
             {{-- Discovery metadata footer (per result) --}}
@@ -602,7 +605,7 @@
             </div>
             <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">
               <a href="{{ $objUrl }}" class="btn atom-btn-outline-success btn-sm" aria-label="View"><i class="fas fa-eye"></i></a>
-              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-tooltip="true" data-title="Add to clipboard" data-alt-title="Remove from clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
+              <button class="btn atom-btn-outline-success btn-sm clipboard" data-clipboard-slug="{{ $objSlug }}" data-clipboard-type="informationObject" data-title="Add to clipboard" data-alt-title="Remove from clipboard" title="Add to clipboard" aria-label="Add to clipboard"><i class="fas fa-paperclip"></i></button>
             </div>
           </div>
           {{-- Discovery metadata footer --}}

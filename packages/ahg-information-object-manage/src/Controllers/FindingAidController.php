@@ -46,11 +46,18 @@ class FindingAidController extends Controller
             abort(404);
         }
 
-        // Check if finding aid already exists
+        // Remove existing finding aid if present (regenerate)
         $existingPath = $this->getFindingAidPath($io->id);
         if ($existingPath && file_exists($existingPath)) {
-            return redirect()->route('informationobject.show', $slug)
-                ->with('info', 'A finding aid already exists for this description.');
+            @unlink($existingPath);
+            // Also remove other formats
+            $dir = dirname($existingPath);
+            foreach (['xml', 'pdf', 'html', 'rtf'] as $ext) {
+                $path = $dir . '/finding-aid-' . $io->id . '.' . $ext;
+                if (file_exists($path)) {
+                    @unlink($path);
+                }
+            }
         }
 
         // Dispatch the finding aid generation job
@@ -150,17 +157,27 @@ class FindingAidController extends Controller
             abort(404);
         }
 
-        $path = $this->getFindingAidPath($io->id);
-        if ($path && file_exists($path)) {
-            unlink($path);
+        $downloadsDir = public_path('downloads');
+        $deleted = false;
+        foreach (['pdf', 'xml', 'html', 'rtf'] as $ext) {
+            $path = $downloadsDir . '/finding-aid-' . $io->id . '.' . $ext;
+            if (file_exists($path)) {
+                @unlink($path);
+                $deleted = true;
+            }
+        }
 
-            // Clear the findingAidStatus property in the database
-            DB::table('property')
-                ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-                ->where('property.object_id', $io->id)
-                ->where('property.name', 'findingAidStatus')
-                ->delete();
+        // Clear the findingAidStatus property in the database
+        $propIds = DB::table('property')
+            ->where('object_id', $io->id)
+            ->where('name', 'findingAidStatus')
+            ->pluck('id');
+        if ($propIds->isNotEmpty()) {
+            DB::table('property_i18n')->whereIn('id', $propIds)->delete();
+            DB::table('property')->whereIn('id', $propIds)->delete();
+        }
 
+        if ($deleted) {
             return redirect()->route('informationobject.show', $slug)
                 ->with('success', 'Finding aid deleted successfully.');
         }

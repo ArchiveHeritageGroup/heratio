@@ -6,7 +6,7 @@
  *
  * @author Johan Pieterse <johan@theahg.co.za>
  */
-if (typeof window.AHGVoiceCommands === 'undefined') window.AHGVoiceCommands = class AHGVoiceCommands {
+if (typeof AHGVoiceCommands === 'undefined') var AHGVoiceCommands = class {
   constructor() {
     this.recognition = null;
     this.synthesis = window.speechSynthesis || null;
