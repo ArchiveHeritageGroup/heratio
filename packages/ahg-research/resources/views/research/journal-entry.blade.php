@@ -16,11 +16,60 @@
             <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="title" value="{{ e($entry->title ?? '') }}"></div>
             <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="content" rows="10">{!! e($entry->content ?? '') !!}</textarea></div>
             <div class="row">
-                <div class="col-md-4"><div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">Optional</span></label><select name="project_id" class="form-select"><option value="">None</option>@foreach($projects as $p)<option value="{{ $p->id }}" {{ ($entry->project_id ?? '') == $p->id ? 'selected' : '' }}>{{ e($p->title) }}</option>@endforeach</select></div></div>
-                <div class="col-md-3"><div class="mb-3"><label class="form-label">Time (min) <span class="badge bg-secondary ms-1">Optional</span></label><input type="number" class="form-control" name="time_spent_minutes" value="{{ $entry->time_spent_minutes ?? '' }}"></div></div>
-                <div class="col-md-3"><div class="mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">Optional</span></label><input type="date" class="form-control" name="entry_date" value="{{ $entry->entry_date ?? '' }}"></div></div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <select name="project_id" class="form-select">
+                            <option value="">None</option>
+                            @foreach($projects as $p)
+                                <option value="{{ $p->id }}" {{ ($entry->project_id ?? '') == $p->id ? 'selected' : '' }}>{{ e($p->title) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Entry Type</label>
+                        <select name="entry_type" class="form-select">
+                            @foreach(['manual', 'observation', 'analysis', 'methodology', 'finding', 'auto_annotation', 'auto_search'] as $t)
+                                <option value="{{ $t }}" {{ ($entry->entry_type ?? 'manual') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $t)) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Time (min)</label>
+                        <input type="number" class="form-control" name="time_spent_minutes" value="{{ $entry->time_spent_minutes ?? '' }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="entry_date" value="{{ $entry->entry_date ?? '' }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <div class="form-check mt-2">
+                            <input type="checkbox" name="is_private" value="1" class="form-check-input" id="isPrivate" {{ ($entry->is_private ?? 1) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="isPrivate">Private</label>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="tags" value="{{ e($entry->tags ?? '') }}" placeholder="Comma-separated"></div>
+            <div class="mb-3">
+                <label class="form-label">Tags</label>
+                <input type="text" class="form-control" name="tags" value="{{ e($entry->tags ?? '') }}" placeholder="Comma-separated">
+            </div>
+            @if($entry->related_entity_type ?? null)
+            <div class="mb-3">
+                <small class="text-muted">
+                    <i class="fas fa-link me-1"></i>Related: {{ ucfirst(str_replace('_', ' ', $entry->related_entity_type)) }} #{{ $entry->related_entity_id }}
+                </small>
+            </div>
+            @endif
             <div class="d-flex gap-2">
                 <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Changes</button>
                 <a href="{{ route('research.journal') }}" class="btn atom-btn-white">Back to Journal</a>

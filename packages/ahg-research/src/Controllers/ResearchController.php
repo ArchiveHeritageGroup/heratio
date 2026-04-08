@@ -1252,8 +1252,10 @@ class ResearchController extends Controller
                 'content' => $content,
                 'content_format' => 'html',
                 'project_id' => $request->input('project_id') ?: null,
+                'entry_type' => $request->input('entry_type', $entry->entry_type),
                 'time_spent_minutes' => $request->input('time_spent_minutes') ?: null,
                 'tags' => $request->input('tags'),
+                'is_private' => $request->has('is_private') ? 1 : 0,
                 'entry_date' => $request->input('entry_date') ?: $entry->entry_date,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
