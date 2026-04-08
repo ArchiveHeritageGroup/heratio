@@ -1,8 +1,10 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
+@section('sidebar')
+    @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
+@endsection
 @section('title', 'Source Assessment — ' . ($io->title ?? ''))
 
 @section('content')
-<div class="container py-4">
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
@@ -106,6 +108,5 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 @endsection
