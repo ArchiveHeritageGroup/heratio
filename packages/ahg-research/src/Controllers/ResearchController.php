@@ -1288,6 +1288,32 @@ class ResearchController extends Controller
     // BIBLIOGRAPHIES
     // =========================================================================
 
+    public function assessments(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $culture = app()->getLocale();
+
+        $assessments = DB::table('research_source_assessment as sa')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('sa.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('slug as s', 'sa.object_id', '=', 's.object_id')
+            ->leftJoin('research_researcher as r', 'sa.researcher_id', '=', 'r.id')
+            ->select('sa.*', 'ioi.title as object_title', 's.slug as object_slug',
+                DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"))
+            ->orderByDesc('sa.assessed_at')
+            ->limit(100)
+            ->get()->toArray();
+
+        return view('research::research.assessments', array_merge(
+            $this->getSidebarData('assessments'),
+            compact('assessments')
+        ));
+    }
+
     public function bibliographies(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

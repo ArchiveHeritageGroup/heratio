@@ -137,6 +137,9 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/bibliographies', [ResearchController::class, 'bibliographies'])->name('bibliographies');
     Route::match(['get', 'post'], '/viewBibliography/{id}', [ResearchController::class, 'viewBibliography'])->name('viewBibliography')->where('id', '[0-9]+');
 
+    // Source Assessments
+    Route::get('/assessments', [ResearchController::class, 'assessments'])->name('assessments');
+
     // Reports
     Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/reports', [ResearchController::class, 'reports'])->name('reports');

@@ -31,6 +31,10 @@
        class="list-group-item list-group-item-action {{ $active === 'reports' ? 'active' : '' }}">
         <i class="fas fa-file-alt me-2"></i>My Reports
     </a>
+    <a href="{{ route('research.assessments') }}"
+       class="list-group-item list-group-item-action {{ ($active ?? '') === 'assessments' ? 'active' : '' }}">
+        <i class="fas fa-clipboard-check me-2"></i>Source Assessments
+    </a>
     <a href="{{ url('/favorites/browse') }}"
        class="list-group-item list-group-item-action {{ $active === 'favorites' ? 'active' : '' }}">
         <i class="fas fa-heart me-2"></i>My Favorites
