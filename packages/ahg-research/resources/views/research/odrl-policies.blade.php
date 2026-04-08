@@ -100,15 +100,20 @@
                 </td>
                 <td><small>{{ $p->created_at ?? '' }}</small></td>
                 <td>
+                    @php
+                        $editData = [
+                            'id' => (int) $p->id,
+                            'target_type' => $p->target_type,
+                            'target_id' => (int) $p->target_id,
+                            'target_name' => $p->target_name ?? '',
+                            'policy_type' => $p->policy_type,
+                            'action_type' => $p->action_type,
+                            'constraints' => json_decode($p->constraints_json ?? '{}', true) ?: [],
+                            'resolved' => $p->resolved_constraints ?? [],
+                        ];
+                    @endphp
                     <button class="btn btn-sm btn-outline-secondary edit-policy-btn d-inline" title="Edit"
-                        data-id="{{ (int) $p->id }}"
-                        data-target_type="{{ $p->target_type }}"
-                        data-target_id="{{ (int) $p->target_id }}"
-                        data-target_name="{{ e($p->target_name ?? '') }}"
-                        data-policy_type="{{ $p->policy_type }}"
-                        data-action_type="{{ $p->action_type }}"
-                        data-constraints_json="{{ e($p->constraints_json ?? '') }}"
-                        data-resolved_constraints="{{ e(json_encode($p->resolved_constraints ?? [])) }}">
+                        data-policy='{!! json_encode($editData, JSON_HEX_APOS | JSON_HEX_QUOT) !!}'>
                         <i class="fas fa-edit"></i>
                     </button>
                     <form method="post" action="{{ url('/research/odrlPolicies') }}" class="d-inline" onsubmit="return confirm('Delete this policy? This cannot be undone.')">
@@ -486,33 +491,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Edit button click handlers
     document.querySelectorAll('.edit-policy-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            var d = this.dataset;
-            document.getElementById('edit-policy-id').value = d.id;
-            document.getElementById('edit-target-type').value = d.target_type;
-            document.getElementById('edit-target-id-hidden').value = d.target_id;
-            document.getElementById('edit-policy-type').value = d.policy_type;
-            document.getElementById('edit-action-type').value = d.action_type;
+            var p = JSON.parse(this.getAttribute('data-policy'));
 
-            // Parse constraints
-            var constraints = {};
-            try { constraints = d.constraints_json ? JSON.parse(d.constraints_json) : {}; } catch(e) {}
+            document.getElementById('edit-policy-id').value = p.id;
+            document.getElementById('edit-target-type').value = p.target_type;
+            document.getElementById('edit-target-id-hidden').value = p.target_id;
+            document.getElementById('edit-policy-type').value = p.policy_type;
+            document.getElementById('edit-action-type').value = p.action_type;
 
-            // Parse resolved constraints for researcher names
-            var resolved = {};
-            try { resolved = d.resolved_constraints ? JSON.parse(d.resolved_constraints) : {}; } catch(e) {}
+            var c = p.constraints || {};
 
-            // Fill date and max uses
-            document.getElementById('edit-constraint-date-from').value = constraints.date_from || '';
-            document.getElementById('edit-constraint-date-to').value = constraints.date_to || '';
-            document.getElementById('edit-constraint-max-uses').value = constraints.max_uses || '';
+            // Fill dates and max uses
+            document.getElementById('edit-constraint-date-from').value = c.date_from || '';
+            document.getElementById('edit-constraint-date-to').value = c.date_to || '';
+            document.getElementById('edit-constraint-max-uses').value = c.max_uses || '';
 
             // Fill researchers with resolved names
             editResearcherTs.clear(true);
             editResearcherTs.clearOptions();
-            if (constraints.researcher_ids && constraints.researcher_ids.length) {
-                // Get resolved researcher names from the Researchers field
-                var researcherNames = (resolved['Researchers'] || '').split(', ');
-                constraints.researcher_ids.forEach(function(rid, idx) {
+            if (c.researcher_ids && c.researcher_ids.length) {
+                var researcherNames = (p.resolved['Researchers'] || '').split(', ');
+                c.researcher_ids.forEach(function(rid, idx) {
                     var name = researcherNames[idx] || 'Researcher #' + rid;
                     editResearcherTs.addOption({ id: String(rid), name: name });
                     editResearcherTs.addItem(String(rid), true);
@@ -520,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Fill target with resolved name
-            initEditTargetTs(d.target_type, d.target_id, d.target_name || '#' + d.target_id);
+            initEditTargetTs(p.target_type, p.target_id, p.target_name);
             new bootstrap.Modal(document.getElementById('editPolicyModal')).show();
         });
     });
