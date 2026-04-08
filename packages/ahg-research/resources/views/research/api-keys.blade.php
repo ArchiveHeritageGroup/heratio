@@ -49,13 +49,7 @@
                     <tr>
                         <td class="fw-bold">{{ e($key->name ?? 'API Key') }}</td>
                         <td>
-                            <code class="text-muted">
-                                @if($key->key_prefix ?? null)
-                                    {{ e($key->key_prefix) }}...
-                                @else
-                                    {{ e(substr($key->api_key ?? $key->key_hash ?? '********', 0, 8)) }}...
-                                @endif
-                            </code>
+                            <code class="text-muted">{{ e(substr($key->api_key ?? '********', 0, 8)) }}...</code>
                         </td>
                         <td>{{ $key->created_at ? \Carbon\Carbon::parse($key->created_at)->format('j M Y') : '-' }}</td>
                         <td>{{ $key->last_used_at ? \Carbon\Carbon::parse($key->last_used_at)->format('j M Y H:i') : 'Never' }}</td>
@@ -71,16 +65,18 @@
                             @endif
                         </td>
                         <td>
-                            @if(($key->status ?? 'active') === 'active')
-                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
-                            @elseif(($key->status ?? '') === 'revoked')
-                                <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Revoked</span>
+                            @if($key->is_active ?? true)
+                                @if(($key->expires_at ?? null) && strtotime($key->expires_at) < time())
+                                    <span class="badge bg-warning">Expired</span>
+                                @else
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                @endif
                             @else
-                                <span class="badge bg-secondary">{{ ucfirst($key->status ?? 'unknown') }}</span>
+                                <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Revoked</span>
                             @endif
                         </td>
                         <td>
-                            @if(($key->status ?? 'active') === 'active')
+                            @if($key->is_active ?? true)
                             <form method="POST" class="d-inline" onsubmit="return confirm('Revoke this API key? This cannot be undone.')">
                                 @csrf
                                 <input type="hidden" name="form_action" value="revoke">

@@ -546,13 +546,11 @@ class ResearchService
     public function generateApiKey(int $researcherId, string $name, array $permissions = [], ?string $expiresAt = null): array
     {
         $key = 'rk_' . bin2hex(random_bytes(32));
-        $keyHash = hash('sha256', $key);
 
         DB::table('research_api_key')->insert([
             'researcher_id' => $researcherId,
             'name' => $name,
-            'key_hash' => $keyHash,
-            'key_prefix' => substr($key, 0, 8),
+            'api_key' => $key,
             'permissions' => json_encode($permissions),
             'expires_at' => $expiresAt,
             'created_at' => date('Y-m-d H:i:s'),
@@ -566,7 +564,7 @@ class ResearchService
         return DB::table('research_api_key')
             ->where('id', $keyId)
             ->where('researcher_id', $researcherId)
-            ->update(['revoked_at' => date('Y-m-d H:i:s')]) > 0;
+            ->update(['is_active' => 0]) > 0;
     }
 
     // =========================================================================
