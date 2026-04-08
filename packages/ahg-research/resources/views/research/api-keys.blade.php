@@ -49,7 +49,7 @@
                     <tr>
                         <td class="fw-bold">{{ e($key->name ?? 'API Key') }}</td>
                         <td>
-                            <code class="text-muted">{{ e(substr($key->api_key ?? '********', 0, 8)) }}...</code>
+                            <code class="text-muted">{{ e($key->api_key_prefix ?? substr($key->api_key ?? '****', 0, 8)) }}...</code>
                         </td>
                         <td>{{ $key->created_at ? \Carbon\Carbon::parse($key->created_at)->format('j M Y') : '-' }}</td>
                         <td>{{ $key->last_used_at ? \Carbon\Carbon::parse($key->last_used_at)->format('j M Y H:i') : 'Never' }}</td>

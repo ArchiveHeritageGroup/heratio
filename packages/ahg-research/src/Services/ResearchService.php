@@ -537,34 +537,59 @@ class ResearchService
 
     public function getApiKeys(int $researcherId): array
     {
-        return DB::table('research_api_key')
-            ->where('researcher_id', $researcherId)
+        $researcher = DB::table('research_researcher')->where('id', $researcherId)->first();
+        if (!$researcher) return [];
+
+        return DB::table('ahg_api_key')
+            ->where('user_id', $researcher->user_id)
             ->orderBy('created_at', 'desc')
             ->get()->toArray();
     }
 
     public function generateApiKey(int $researcherId, string $name, array $permissions = [], ?string $expiresAt = null): array
     {
-        $key = 'rk_' . bin2hex(random_bytes(32));
+        // Get user_id from researcher
+        $researcher = DB::table('research_researcher')->where('id', $researcherId)->first();
+        if (!$researcher) {
+            return ['key' => null, 'error' => 'Researcher not found'];
+        }
 
-        DB::table('research_api_key')->insert([
-            'researcher_id' => $researcherId,
+        $rawKey = 'rk_' . bin2hex(random_bytes(32));
+        $hashedKey = hash('sha256', $rawKey);
+        $prefix = substr($rawKey, 0, 8);
+
+        // Map research permissions to API scopes
+        $scopes = [];
+        if (in_array('read', $permissions)) $scopes = array_merge($scopes, ['read', 'search']);
+        if (in_array('write', $permissions)) $scopes = array_merge($scopes, ['write', 'create', 'update']);
+        if (in_array('search', $permissions)) $scopes[] = 'search';
+        $scopes = array_unique($scopes);
+
+        DB::table('ahg_api_key')->insert([
+            'user_id' => $researcher->user_id,
             'name' => $name,
-            'api_key' => $key,
-            'permissions' => json_encode($permissions),
+            'api_key' => $hashedKey,
+            'api_key_prefix' => $prefix,
+            'scopes' => json_encode($scopes),
+            'rate_limit' => 1000,
             'expires_at' => $expiresAt,
-            'created_at' => date('Y-m-d H:i:s'),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        return ['key' => $key];
+        return ['key' => $rawKey];
     }
 
     public function revokeApiKey(int $keyId, int $researcherId): bool
     {
-        return DB::table('research_api_key')
+        $researcher = DB::table('research_researcher')->where('id', $researcherId)->first();
+        if (!$researcher) return false;
+
+        return DB::table('ahg_api_key')
             ->where('id', $keyId)
-            ->where('researcher_id', $researcherId)
-            ->update(['is_active' => 0]) > 0;
+            ->where('user_id', $researcher->user_id)
+            ->update(['is_active' => 0, 'updated_at' => now()]) > 0;
     }
 
     // =========================================================================
