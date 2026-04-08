@@ -1620,9 +1620,19 @@ class InformationObjectController extends Controller
             ->where('id', $id)->where('culture', $culture)->first();
         $title = $io->title ?? 'Untitled';
 
-        // Check for digital object with an image
+        // Check for digital object
         $master = DB::table('digital_object')
             ->where('object_id', $id)->where('usage_id', 140)->first();
+
+        // External embed — not describable by AI
+        if ($master && $master->path && (str_contains($master->path, 'http://') || str_contains($master->path, 'https://'))) {
+            return response()->json([
+                'success' => true,
+                'description' => "This record links to an external digital object:\n\n" . $master->path . "\n\nThe object is hosted externally and cannot be analysed by the local AI. Visit the link above to view the original.",
+                'method' => 'external',
+                'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
+            ]);
+        }
 
         $refImage = null;
         if ($master) {
