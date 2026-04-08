@@ -2419,6 +2419,112 @@ class ResearchController extends Controller
         ));
     }
 
+    /**
+     * View a single team workspace with members and resources.
+     */
+    public function viewWorkspace(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $workspace = DB::table('research_workspace')->where('id', $id)->first();
+        if (!$workspace) abort(404);
+
+        // Check access: owner or member
+        $isMember = $workspace->owner_id === $researcher->id
+            || DB::table('research_workspace_member')
+                ->where('workspace_id', $id)
+                ->where('researcher_id', $researcher->id)
+                ->where('status', 'accepted')
+                ->exists();
+
+        if (!$isMember && $workspace->visibility === 'private') {
+            abort(403, 'You do not have access to this workspace.');
+        }
+
+        $members = DB::table('research_workspace_member as m')
+            ->join('research_researcher as r', 'r.id', '=', 'm.researcher_id')
+            ->where('m.workspace_id', $id)
+            ->select('m.*', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as name"), 'r.email', 'r.institution')
+            ->orderBy('m.role')
+            ->get()->toArray();
+
+        // Add owner as first member
+        $owner = DB::table('research_researcher')->where('id', $workspace->owner_id)
+            ->select('id', DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'email', 'institution')
+            ->first();
+
+        $resources = DB::table('research_workspace_resource')
+            ->where('workspace_id', $id)
+            ->orderBy('sort_order')
+            ->get()->toArray();
+
+        $myRole = $workspace->owner_id === $researcher->id ? 'owner' : (
+            DB::table('research_workspace_member')
+                ->where('workspace_id', $id)
+                ->where('researcher_id', $researcher->id)
+                ->value('role') ?? 'viewer'
+        );
+
+        // Handle POST actions
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'invite' && in_array($myRole, ['owner', 'admin'])) {
+                $inviteEmail = $request->input('email');
+                $inviteResearcher = DB::table('research_researcher')->where('email', $inviteEmail)->first();
+                if ($inviteResearcher) {
+                    $exists = DB::table('research_workspace_member')
+                        ->where('workspace_id', $id)
+                        ->where('researcher_id', $inviteResearcher->id)
+                        ->exists();
+                    if (!$exists) {
+                        DB::table('research_workspace_member')->insert([
+                            'workspace_id' => $id,
+                            'researcher_id' => $inviteResearcher->id,
+                            'role' => $request->input('role', 'viewer'),
+                            'invited_by' => $researcher->id,
+                            'status' => 'accepted',
+                            'invited_at' => now(),
+                            'accepted_at' => now(),
+                        ]);
+                        return redirect()->route('research.viewWorkspace', $id)->with('success', 'Member added.');
+                    }
+                    return redirect()->route('research.viewWorkspace', $id)->with('error', 'Already a member.');
+                }
+                return redirect()->route('research.viewWorkspace', $id)->with('error', 'Researcher not found with that email.');
+            }
+
+            if ($action === 'add_resource' && in_array($myRole, ['owner', 'admin', 'editor'])) {
+                DB::table('research_workspace_resource')->insert([
+                    'workspace_id' => $id,
+                    'resource_type' => $request->input('resource_type', 'link'),
+                    'resource_id' => $request->input('resource_id') ?: null,
+                    'external_url' => $request->input('external_url') ?: null,
+                    'title' => $request->input('title'),
+                    'description' => $request->input('description'),
+                    'added_by' => $researcher->id,
+                    'added_at' => now(),
+                ]);
+                return redirect()->route('research.viewWorkspace', $id)->with('success', 'Resource added.');
+            }
+
+            if ($action === 'remove_member' && $myRole === 'owner') {
+                DB::table('research_workspace_member')
+                    ->where('workspace_id', $id)
+                    ->where('id', $request->input('member_id'))
+                    ->delete();
+                return redirect()->route('research.viewWorkspace', $id)->with('success', 'Member removed.');
+            }
+        }
+
+        return view('research::research.view-workspace', array_merge(
+            $this->getSidebarData('workspaces'),
+            compact('workspace', 'owner', 'members', 'resources', 'myRole', 'researcher')
+        ));
+    }
+
     // =========================================================================
     // VALIDATION QUEUE
     // =========================================================================

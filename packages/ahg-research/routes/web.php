@@ -43,10 +43,14 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
 
     // Workspace (personal)
     Route::match(['get', 'post'], '/workspace', [ResearchController::class, 'workspace'])->name('workspace');
-    Route::get('/viewWorkspace', fn (\Illuminate\Http\Request $r) => redirect('/research/workspace?' . $r->getQueryString(), 301));
+    Route::get('/viewWorkspace', function (\Illuminate\Http\Request $r) {
+        $id = $r->input('id') ?: $r->getQueryString();
+        return redirect('/research/workspaces/' . (int) $id, 301);
+    });
 
     // Team Workspaces
     Route::match(['get', 'post'], '/workspaces', [ResearchController::class, 'workspaces'])->name('workspaces');
+    Route::match(['get', 'post'], '/workspaces/{id}', [ResearchController::class, 'viewWorkspace'])->name('viewWorkspace')->where('id', '[0-9]+');
 
     // Validation Queue
     Route::get('/validationQueue', [ResearchController::class, 'validationQueue'])->name('validationQueue');

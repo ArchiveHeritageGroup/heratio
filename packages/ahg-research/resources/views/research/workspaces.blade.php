@@ -37,7 +37,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">
-                            <a href="{{ url('/research/viewWorkspace?id=' . $ws->id) }}" class="text-decoration-none">
+                            <a href="{{ route('research.viewWorkspace', $ws->id) }}" class="text-decoration-none">
                                 {{ $ws->name }}
                             </a>
                         </h5>
