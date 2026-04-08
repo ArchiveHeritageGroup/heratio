@@ -2535,14 +2535,30 @@ class ResearchController extends Controller
 
     public function storeSavedSearch(Request $request)
     {
-        if (!Auth::check()) return redirect()->route('login');
+        if (!Auth::check()) {
+            if ($request->expectsJson()) return response()->json(['error' => 'Not authenticated'], 401);
+            return redirect()->route('login');
+        }
         $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) return redirect()->route('researcher.register');
+        if (!$researcher) {
+            if ($request->expectsJson()) return response()->json(['error' => 'Not a researcher'], 403);
+            return redirect()->route('researcher.register');
+        }
+
+        // Accept search_query OR search_params (from GLAM browse AJAX)
+        $searchQuery = $request->input('search_query')
+            ?: $request->input('search_params')
+            ?: $request->input('query')
+            ?: '';
 
         $this->service->saveSearch($researcher->id, [
             'name' => $request->input('name'),
-            'search_query' => $request->input('search_query'),
+            'search_query' => $searchQuery,
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return redirect()->route('research.savedSearches')->with('success', 'Search saved');
     }
