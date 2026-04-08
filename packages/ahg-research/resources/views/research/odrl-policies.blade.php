@@ -104,9 +104,11 @@
                         data-id="{{ (int) $p->id }}"
                         data-target_type="{{ $p->target_type }}"
                         data-target_id="{{ (int) $p->target_id }}"
+                        data-target_name="{{ e($p->target_name ?? '') }}"
                         data-policy_type="{{ $p->policy_type }}"
                         data-action_type="{{ $p->action_type }}"
-                        data-constraints_json="{{ e($p->constraints_json ?? '') }}">
+                        data-constraints_json="{{ e($p->constraints_json ?? '') }}"
+                        data-resolved_constraints="{{ e(json_encode($p->resolved_constraints ?? [])) }}">
                         <i class="fas fa-edit"></i>
                     </button>
                     <form method="post" action="{{ url('/research/odrlPolicies') }}" class="d-inline" onsubmit="return confirm('Delete this policy? This cannot be undone.')">
@@ -469,24 +471,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Preload the current target
+        // Preload the current target with resolved name
         if (preloadId) {
-            fetch('/research/target-autocomplete?type=' + encodeURIComponent(type) + '&query=')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    var match = data.find(function(d) { return d.id == preloadId; });
-                    if (match) {
-                        editTargetTs.addOption(match);
-                        editTargetTs.setValue(match.id, true);
-                    } else {
-                        editTargetTs.addOption({ id: preloadId, name: '#' + preloadId });
-                        editTargetTs.setValue(preloadId, true);
-                    }
-                })
-                .catch(function() {
-                    editTargetTs.addOption({ id: preloadId, name: '#' + preloadId });
-                    editTargetTs.setValue(preloadId, true);
-                });
+            var preloadName = arguments[2] || '#' + preloadId;
+            editTargetTs.addOption({ id: preloadId, name: preloadName });
+            editTargetTs.setValue(preloadId, true);
         }
     }
 
@@ -508,19 +497,30 @@ document.addEventListener('DOMContentLoaded', function() {
             var constraints = {};
             try { constraints = d.constraints_json ? JSON.parse(d.constraints_json) : {}; } catch(e) {}
 
+            // Parse resolved constraints for researcher names
+            var resolved = {};
+            try { resolved = d.resolved_constraints ? JSON.parse(d.resolved_constraints) : {}; } catch(e) {}
+
+            // Fill date and max uses
             document.getElementById('edit-constraint-date-from').value = constraints.date_from || '';
             document.getElementById('edit-constraint-date-to').value = constraints.date_to || '';
             document.getElementById('edit-constraint-max-uses').value = constraints.max_uses || '';
 
+            // Fill researchers with resolved names
             editResearcherTs.clear(true);
+            editResearcherTs.clearOptions();
             if (constraints.researcher_ids && constraints.researcher_ids.length) {
-                constraints.researcher_ids.forEach(function(rid) {
-                    editResearcherTs.addOption({ id: rid, name: 'Researcher #' + rid });
-                    editResearcherTs.addItem(rid, true);
+                // Get resolved researcher names from the Researchers field
+                var researcherNames = (resolved['Researchers'] || '').split(', ');
+                constraints.researcher_ids.forEach(function(rid, idx) {
+                    var name = researcherNames[idx] || 'Researcher #' + rid;
+                    editResearcherTs.addOption({ id: String(rid), name: name });
+                    editResearcherTs.addItem(String(rid), true);
                 });
             }
 
-            initEditTargetTs(d.target_type, d.target_id);
+            // Fill target with resolved name
+            initEditTargetTs(d.target_type, d.target_id, d.target_name || '#' + d.target_id);
             new bootstrap.Modal(document.getElementById('editPolicyModal')).show();
         });
     });
