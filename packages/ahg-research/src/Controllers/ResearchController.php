@@ -1598,6 +1598,11 @@ class ResearchController extends Controller
             }
         }
 
+        // Export as printable PDF page
+        if ($request->input('export') === 'pdf' || $request->input('export') === '1') {
+            return view('research::research.report-pdf', compact('researcher', 'report'));
+        }
+
         return view('research::research.view-report', array_merge(
             $this->getSidebarData('reports'),
             compact('researcher', 'report')
