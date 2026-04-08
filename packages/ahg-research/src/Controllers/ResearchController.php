@@ -2540,6 +2540,25 @@ class ResearchController extends Controller
     // ODRL POLICIES
     // =========================================================================
 
+    /**
+     * AJAX: Researcher autocomplete (returns JSON).
+     */
+    public function researcherAutocomplete(Request $request)
+    {
+        $query = $request->get('query', '');
+        $results = DB::table('research_researcher')
+            ->where(function ($q) use ($query) {
+                $q->where('first_name', 'LIKE', "%{$query}%")
+                  ->orWhere('last_name', 'LIKE', "%{$query}%")
+                  ->orWhere('email', 'LIKE', "%{$query}%");
+            })
+            ->select('id', DB::raw("CONCAT(first_name, ' ', last_name) as name"), 'email')
+            ->limit(20)
+            ->get();
+
+        return response()->json($results);
+    }
+
     public function odrlPolicies(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');

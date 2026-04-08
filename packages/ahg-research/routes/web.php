@@ -22,6 +22,9 @@ Route::prefix('research')->name('research.')->group(function () {
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
 
+    // AJAX autocomplete for researchers (JSON)
+    Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');
+
     // Dashboard & Index
     Route::match(['get', 'post'], '/', [ResearchController::class, 'index'])->name('index');
     Route::match(['get', 'post'], '/dashboard', [ResearchController::class, 'dashboard'])->name('dashboard');

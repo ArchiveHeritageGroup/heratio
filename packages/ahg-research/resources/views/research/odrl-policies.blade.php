@@ -156,13 +156,14 @@
               <option value="assertion">Assertion</option>
             </select>
           </div>
+          <input type="hidden" name="target_id" id="target-id-hidden" required>
           <div class="mb-3" id="target-id-plain">
-            <label class="form-label">Target ID * <span class="badge bg-danger ms-1">Required</span></label>
-            <input type="number" name="target_id" id="target-id-input" class="form-control" required>
+            <label class="form-label" id="target-id-label">Target ID * <span class="badge bg-danger ms-1">Required</span></label>
+            <input type="number" id="target-id-input" class="form-control" required placeholder="Enter the ID of the target">
           </div>
           <div class="mb-3 d-none" id="target-id-autocomplete">
             <label class="form-label">Archival Description * <span class="badge bg-danger ms-1">Required</span></label>
-            <select name="target_id_ac" id="target-id-tomselect" placeholder="Search by title..."></select>
+            <select id="target-id-tomselect" placeholder="Type to search archival descriptions..."></select>
           </div>
           <div class="mb-3">
             <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -184,10 +185,28 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Constraints (JSON, optional) <span class="badge bg-secondary ms-1">Optional</span></label>
-            <textarea name="constraints_json" class="form-control" rows="3" placeholder='{"date_from": "2026-01-01", "max_uses": 10}'></textarea>
-            <small class="text-muted">Keys: researcher_ids (array), date_from, date_to, max_uses</small>
+            <label class="form-label">Constraints <span class="badge bg-secondary ms-1">Optional</span></label>
           </div>
+          <div class="mb-3">
+            <label class="form-label small">Restrict to Researchers</label>
+            <select id="constraint-researchers" multiple placeholder="Search researchers..."></select>
+            <small class="text-muted">Leave empty to apply to all researchers</small>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label small">Date From</label>
+              <input type="date" id="constraint-date-from" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">Date To</label>
+              <input type="date" id="constraint-date-to" class="form-control form-control-sm">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Max Uses</label>
+            <input type="number" id="constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="Unlimited">
+          </div>
+          <input type="hidden" name="constraints_json" id="constraints-json-hidden">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
@@ -210,8 +229,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var plainDiv = document.getElementById('target-id-plain');
     var acDiv = document.getElementById('target-id-autocomplete');
     var plainInput = document.getElementById('target-id-input');
+    var hiddenInput = document.getElementById('target-id-hidden');
     var acSelect = document.getElementById('target-id-tomselect');
     var tsInstance = null;
+    var isAutocomplete = false;
+
+    // Sync plain input → hidden
+    plainInput.addEventListener('input', function() {
+        if (!isAutocomplete) hiddenInput.value = this.value;
+    });
 
     function initTomSelect() {
         if (tsInstance) return;
@@ -219,12 +245,17 @@ document.addEventListener('DOMContentLoaded', function() {
             valueField: 'id',
             labelField: 'name',
             searchField: ['name'],
+            maxOptions: 20,
+            loadThrottle: 300,
             load: function(query, callback) {
-                if (!query.length || query.length < 2) return callback();
+                if (query.length < 2) return callback();
                 fetch('/informationobject/autocomplete?query=' + encodeURIComponent(query) + '&limit=20')
                     .then(function(r) { return r.json(); })
                     .then(function(data) { callback(data); })
                     .catch(function() { callback(); });
+            },
+            onChange: function(value) {
+                hiddenInput.value = value || '';
             },
             render: {
                 option: function(item) {
@@ -239,21 +270,66 @@ document.addEventListener('DOMContentLoaded', function() {
 
     targetType.addEventListener('change', function() {
         if (this.value === 'archival_description') {
+            isAutocomplete = true;
             plainDiv.classList.add('d-none');
             plainInput.removeAttribute('required');
-            plainInput.name = '';
             acDiv.classList.remove('d-none');
-            acSelect.name = 'target_id';
-            acSelect.setAttribute('required', 'required');
+            hiddenInput.value = '';
             initTomSelect();
+            if (tsInstance) tsInstance.focus();
         } else {
+            isAutocomplete = false;
             acDiv.classList.add('d-none');
-            acSelect.name = 'target_id_ac';
-            acSelect.removeAttribute('required');
             plainDiv.classList.remove('d-none');
-            plainInput.name = 'target_id';
             plainInput.setAttribute('required', 'required');
+            hiddenInput.value = plainInput.value;
         }
+    });
+
+    // Initial sync
+    hiddenInput.value = plainInput.value;
+
+    // Researcher TomSelect (multi)
+    var researcherTs = new TomSelect('#constraint-researchers', {
+        valueField: 'id',
+        labelField: 'name',
+        searchField: ['name', 'email'],
+        maxOptions: 20,
+        loadThrottle: 300,
+        plugins: ['remove_button'],
+        load: function(query, callback) {
+            if (query.length < 2) return callback();
+            fetch('/research/researcher-autocomplete?query=' + encodeURIComponent(query))
+                .then(function(r) { return r.json(); })
+                .then(function(data) { callback(data); })
+                .catch(function() { callback(); });
+        },
+        render: {
+            option: function(item) {
+                return '<div><strong>' + item.name + '</strong> <small class="text-muted">' + (item.email || '') + '</small></div>';
+            },
+            item: function(item) {
+                return '<div>' + item.name + '</div>';
+            }
+        }
+    });
+
+    // Build constraints JSON on form submit
+    var policyForm = document.querySelector('#createPolicyModal form');
+    policyForm.addEventListener('submit', function() {
+        var constraints = {};
+        var researcherIds = researcherTs.getValue();
+        if (researcherIds && researcherIds.length > 0) {
+            constraints.researcher_ids = Array.isArray(researcherIds) ? researcherIds.map(Number) : [Number(researcherIds)];
+        }
+        var df = document.getElementById('constraint-date-from').value;
+        if (df) constraints.date_from = df;
+        var dt = document.getElementById('constraint-date-to').value;
+        if (dt) constraints.date_to = dt;
+        var mu = document.getElementById('constraint-max-uses').value;
+        if (mu) constraints.max_uses = parseInt(mu);
+
+        document.getElementById('constraints-json-hidden').value = Object.keys(constraints).length > 0 ? JSON.stringify(constraints) : '';
     });
 });
 </script>
