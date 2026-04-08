@@ -2391,6 +2391,117 @@ class ResearchController extends Controller
     }
 
     // =========================================================================
+    // FINDING AID EXPORT
+    // =========================================================================
+
+    /**
+     * Export finding aid as PDF or DOCX (generates HTML with print styling).
+     */
+    public function exportFindingAid(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collectionId = (int) $request->input('id');
+        $format = $request->input('format', 'pdf');
+
+        $collection = $this->service->getCollection($collectionId);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Collection not found');
+        }
+
+        $data = $this->getCollectionFindingAidData($collectionId);
+
+        if ($format === 'pdf') {
+            // Render as printable HTML — user can print to PDF
+            return view('research::research.finding-aid', [
+                'collection' => $collection,
+                'items' => $data,
+                'researcher' => $researcher,
+                'format' => 'pdf',
+            ]);
+        }
+
+        // CSV fallback for DOCX (basic export)
+        $filename = ($collection->name ?? 'finding-aid') . '.csv';
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=\"{$filename}\""];
+
+        return response()->stream(function () use ($data, $collection) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Finding Aid: ' . $collection->name]);
+            fputcsv($out, []);
+            fputcsv($out, ['Identifier', 'Title', 'Level', 'Repository', 'Scope & Content', 'Extent', 'Access Conditions', 'Notes']);
+            foreach ($data as $item) {
+                fputcsv($out, [
+                    $item->identifier, $item->title, $item->level_of_description,
+                    $item->repository_name, $item->scope_and_content, $item->extent_and_medium,
+                    $item->access_conditions, $item->researcher_notes,
+                ]);
+            }
+            fclose($out);
+        }, 200, $headers);
+    }
+
+    /**
+     * Generate HTML finding aid (viewable in browser).
+     */
+    public function generateFindingAid(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $collectionId = (int) $request->input('id');
+        $collection = $this->service->getCollection($collectionId);
+        if (!$collection || $collection->researcher_id != $researcher->id) {
+            return redirect()->route('research.collections')->with('error', 'Collection not found');
+        }
+
+        $data = $this->getCollectionFindingAidData($collectionId);
+
+        return view('research::research.finding-aid', [
+            'collection' => $collection,
+            'items' => $data,
+            'researcher' => $researcher,
+            'format' => 'html',
+        ]);
+    }
+
+    /**
+     * Get enriched collection items for finding aid export.
+     */
+    private function getCollectionFindingAidData(int $collectionId): array
+    {
+        $culture = app()->getLocale();
+
+        return DB::table('research_collection_item as ci')
+            ->join('information_object as io', 'ci.object_id', '=', 'io.id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as lod', function ($j) use ($culture) {
+                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', '=', $culture);
+            })
+            ->leftJoin('actor_i18n as repo', function ($j) use ($culture) {
+                $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', $culture);
+            })
+            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+            ->where('ci.collection_id', $collectionId)
+            ->select(
+                'io.id', 'io.identifier', 's.slug',
+                'ioi.title', 'ioi.scope_and_content', 'ioi.extent_and_medium',
+                'ioi.archival_history', 'ioi.arrangement', 'ioi.access_conditions',
+                'ioi.reproduction_conditions', 'ioi.physical_characteristics',
+                'lod.name as level_of_description',
+                'repo.authorized_form_of_name as repository_name',
+                'ci.notes as researcher_notes', 'ci.created_at'
+            )
+            ->orderBy('ci.created_at')
+            ->get()->toArray();
+    }
+
+    // =========================================================================
     // TEAM WORKSPACES
     // =========================================================================
 
