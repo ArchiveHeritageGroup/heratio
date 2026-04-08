@@ -395,9 +395,13 @@ class ResearchService
                 $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
             ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
+            ->leftJoin('digital_object as master_do', function ($j) {
+                $j->on('a.object_id', '=', 'master_do.object_id')
+                  ->where('master_do.usage_id', '=', 140); // master
+            })
             ->leftJoin('digital_object as thumb', function ($j) {
-                $j->on('a.object_id', '=', 'thumb.object_id')
-                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
+                $j->on('master_do.id', '=', 'thumb.parent_id')
+                  ->where('thumb.usage_id', '=', 142); // thumbnail
             })
             ->where('a.researcher_id', $researcherId)
             ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
@@ -415,9 +419,13 @@ class ResearchService
                 $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
             ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
+            ->leftJoin('digital_object as master_do', function ($j) {
+                $j->on('a.object_id', '=', 'master_do.object_id')
+                  ->where('master_do.usage_id', '=', 140); // master
+            })
             ->leftJoin('digital_object as thumb', function ($j) {
-                $j->on('a.object_id', '=', 'thumb.object_id')
-                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
+                $j->on('master_do.id', '=', 'thumb.parent_id')
+                  ->where('thumb.usage_id', '=', 142); // thumbnail
             })
             ->where('a.researcher_id', $researcherId)
             ->where(function ($q) use ($query) {
