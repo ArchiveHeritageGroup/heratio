@@ -16,6 +16,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1><i class="fas fa-file-alt text-primary me-2"></i>Research Reports</h1>
+    <a href="{{ route('research.reportTemplates') }}" class="btn btn-outline-secondary btn-sm me-1"><i class="fas fa-layer-group me-1"></i>Templates</a>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
 </div>
 
@@ -100,24 +101,32 @@
         <div class="modal-body">
             {{-- Step 1: Template --}}
             <h6 class="mb-3"><span class="badge bg-primary me-2">1</span>Choose a Template</h6>
-            <div class="row mb-4">
-                @php
-                $templates = [
-                    'research_summary' => ['icon' => 'fas fa-clipboard-list', 'color' => 'primary', 'label' => 'Research Summary', 'desc' => 'Introduction, methodology, findings, conclusions.'],
-                    'genealogical' => ['icon' => 'fas fa-sitemap', 'color' => 'success', 'label' => 'Genealogical Report', 'desc' => 'Family history with pedigree and source citations.'],
-                    'historical' => ['icon' => 'fas fa-landmark', 'color' => 'info', 'label' => 'Historical Analysis', 'desc' => 'In-depth analysis with primary sources.'],
-                    'source_analysis' => ['icon' => 'fas fa-search', 'color' => 'warning', 'label' => 'Source Analysis', 'desc' => 'Archival source provenance and reliability.'],
-                    'finding_aid' => ['icon' => 'fas fa-map', 'color' => 'secondary', 'label' => 'Finding Aid', 'desc' => 'Scope, arrangement, access, container list.'],
-                    'custom' => ['icon' => 'fas fa-pencil-alt', 'color' => 'dark', 'label' => 'Custom Report', 'desc' => 'Blank report — add your own sections.'],
+            @php
+                $tplIcons = [
+                    'research_summary' => ['fas fa-clipboard-list', 'primary'],
+                    'genealogical' => ['fas fa-sitemap', 'success'],
+                    'historical' => ['fas fa-landmark', 'info'],
+                    'source_analysis' => ['fas fa-search', 'warning'],
+                    'finding_aid' => ['fas fa-map', 'secondary'],
+                    'custom' => ['fas fa-pencil-alt', 'dark'],
                 ];
+            @endphp
+            <div class="row mb-4">
+                @foreach($templates ?? [] as $tpl)
+                @php
+                    $icon = $tplIcons[$tpl->code][0] ?? 'fas fa-file-alt';
+                    $color = $tplIcons[$tpl->code][1] ?? 'secondary';
                 @endphp
-                @foreach($templates as $code => $tpl)
                 <div class="col-md-4 mb-2">
-                    <div class="card h-100 template-card {{ $code === 'custom' ? 'selected' : '' }}" data-template="{{ $code }}" role="button" style="cursor:pointer;">
+                    <div class="card h-100 template-card {{ $tpl->code === 'custom' ? 'selected' : '' }}" data-template="{{ $tpl->code }}" role="button" style="cursor:pointer;">
                         <div class="card-body text-center py-3">
-                            <i class="{{ $tpl['icon'] }} fa-2x text-{{ $tpl['color'] }} mb-2"></i>
-                            <h6 class="card-title mb-1">{{ $tpl['label'] }}</h6>
-                            <p class="card-text small text-muted mb-0">{{ $tpl['desc'] }}</p>
+                            <i class="{{ $icon }} fa-2x text-{{ $color }} mb-2"></i>
+                            <h6 class="card-title mb-1">{{ e($tpl->name) }}</h6>
+                            <p class="card-text small text-muted mb-0">{{ e(\Illuminate\Support\Str::limit($tpl->description ?? '', 80)) }}</p>
+                            @php $sCount = count(json_decode($tpl->sections_config ?? '[]', true) ?: []); @endphp
+                            @if($sCount > 0)
+                                <small class="text-muted">{{ $sCount }} sections</small>
+                            @endif
                         </div>
                     </div>
                 </div>

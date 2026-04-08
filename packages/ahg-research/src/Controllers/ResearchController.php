@@ -1428,24 +1428,25 @@ class ResearchController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Auto-create sections based on template
-            $templateSections = match ($request->input('template_type', 'custom')) {
-                'research_summary' => ['Introduction', 'Methodology', 'Findings', 'Discussion', 'Conclusions', 'References'],
-                'genealogical' => ['Objective', 'Family Overview', 'Lineage Documentation', 'Source Citations', 'Conclusions'],
-                'historical' => ['Context', 'Primary Sources', 'Chronological Narrative', 'Analysis', 'Conclusions'],
-                'source_analysis' => ['Source Description', 'Provenance', 'Reliability Assessment', 'Interpretation', 'Conclusions'],
-                'finding_aid' => ['Scope and Content', 'Arrangement', 'Access Conditions', 'Container List'],
-                default => [],
-            };
+            // Auto-create sections from template config in DB
+            $template = DB::table('research_report_template')
+                ->where('code', $request->input('template_type', 'custom'))
+                ->first();
 
-            foreach ($templateSections as $i => $sectionTitle) {
-                DB::table('research_report_section')->insert([
-                    'report_id' => $reportId,
-                    'section_type' => 'text',
-                    'title' => $sectionTitle,
-                    'sort_order' => $i,
-                    'created_at' => now(),
-                ]);
+            if ($template && $template->sections_config) {
+                $sectionConfigs = json_decode($template->sections_config, true) ?: [];
+                foreach ($sectionConfigs as $i => $cfg) {
+                    $parts = explode(':', $cfg, 2);
+                    $type = $parts[0] ?? 'text';
+                    $title = $parts[1] ?? ucfirst($type);
+                    DB::table('research_report_section')->insert([
+                        'report_id' => $reportId,
+                        'section_type' => $type,
+                        'title' => $title,
+                        'sort_order' => $i,
+                        'created_at' => now(),
+                    ]);
+                }
             }
 
             return redirect()->route('research.viewReport', $reportId)->with('success', 'Report created');
@@ -1468,9 +1469,65 @@ class ResearchController extends Controller
             ->where('pc.researcher_id', $researcher->id)->where('pc.status', 'accepted')
             ->select('p.id', 'p.title')->orderBy('p.title')->get()->toArray();
 
+        $templates = DB::table('research_report_template')->orderBy('is_system', 'desc')->orderBy('name')->get()->toArray();
+
         return view('research::research.reports', array_merge(
             $this->getSidebarData('reports'),
-            compact('researcher', 'reports', 'currentStatus', 'projects')
+            compact('researcher', 'reports', 'currentStatus', 'projects', 'templates')
+        ));
+    }
+
+    /**
+     * Manage report templates (admin).
+     */
+    public function reportTemplates(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'create') {
+                $code = \Illuminate\Support\Str::slug($request->input('name'), '_');
+                $sections = array_filter(array_map('trim', explode("\n", $request->input('sections_raw', ''))));
+                DB::table('research_report_template')->insert([
+                    'name' => $request->input('name'),
+                    'code' => $code,
+                    'description' => $request->input('description') ?: null,
+                    'sections_config' => json_encode($sections),
+                    'is_system' => 0,
+                    'created_at' => now(),
+                ]);
+                return redirect()->route('research.reportTemplates')->with('success', 'Template created.');
+            }
+
+            if ($action === 'update') {
+                $id = (int) $request->input('template_id');
+                $sections = array_filter(array_map('trim', explode("\n", $request->input('sections_raw', ''))));
+                DB::table('research_report_template')->where('id', $id)->update([
+                    'name' => $request->input('name'),
+                    'description' => $request->input('description') ?: null,
+                    'sections_config' => json_encode($sections),
+                ]);
+                return redirect()->route('research.reportTemplates')->with('success', 'Template updated.');
+            }
+
+            if ($action === 'delete') {
+                $id = (int) $request->input('template_id');
+                $tpl = DB::table('research_report_template')->where('id', $id)->first();
+                if ($tpl && !$tpl->is_system) {
+                    DB::table('research_report_template')->where('id', $id)->delete();
+                    return redirect()->route('research.reportTemplates')->with('success', 'Template deleted.');
+                }
+                return redirect()->route('research.reportTemplates')->with('error', 'System templates cannot be deleted.');
+            }
+        }
+
+        $templates = DB::table('research_report_template')->orderBy('is_system', 'desc')->orderBy('name')->get()->toArray();
+
+        return view('research::research.report-templates', array_merge(
+            $this->getSidebarData('reports'),
+            compact('templates')
         ));
     }
 
