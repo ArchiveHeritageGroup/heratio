@@ -28,6 +28,7 @@
 namespace AhgInformationObjectManage\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -38,16 +39,37 @@ class ResearchController extends Controller
     /**
      * Source assessment for an IO.
      */
-    public function sourceAssessment(string $slug)
+    public function sourceAssessment(Request $request, string $slug)
     {
         $io = $this->getIO($slug);
-        if (!$io) {
-            abort(404);
+        if (!$io) abort(404);
+
+        $researcher = auth()->check()
+            ? DB::table('research_researcher')->where('user_id', auth()->id())->first()
+            : null;
+
+        if ($request->isMethod('post') && $researcher) {
+            DB::table('research_source_assessment')->updateOrInsert(
+                ['object_id' => $io->id, 'researcher_id' => $researcher->id],
+                [
+                    'source_type' => $request->input('source_type', 'primary'),
+                    'source_form' => $request->input('source_form', 'original'),
+                    'completeness' => $request->input('completeness', 'complete'),
+                    'rationale' => $request->input('rationale') ?: null,
+                    'bias_context' => $request->input('bias_context') ?: null,
+                    'assessed_at' => now(),
+                ]
+            );
+            return redirect()->route('io.research.assessment', $slug)->with('success', 'Assessment saved.');
         }
 
-        return view('ahg-io-manage::research.assessment', [
-            'io' => $io,
-        ]);
+        $assessment = $researcher
+            ? DB::table('research_source_assessment')->where('object_id', $io->id)->where('researcher_id', $researcher->id)->first()
+            : DB::table('research_source_assessment')->where('object_id', $io->id)->orderByDesc('assessed_at')->first();
+
+        $metrics = DB::table('research_quality_metric')->where('object_id', $io->id)->orderByDesc('created_at')->get()->toArray();
+
+        return view('ahg-io-manage::research.assessment', compact('io', 'assessment', 'metrics'));
     }
 
     /**
