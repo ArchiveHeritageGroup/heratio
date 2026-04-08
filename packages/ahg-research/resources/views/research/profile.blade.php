@@ -3,53 +3,19 @@
 
 @section('sidebar')
   @include('research::research._sidebar', ['sidebarActive' => 'profile'])
-
-  {{-- Recent Bookings --}}
-  <div class="card mb-4">
-    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">Recent Bookings</div>
-    <ul class="list-group list-group-flush">
-      @forelse($recentBookings ?? [] as $booking)
-        <li class="list-group-item small">
-          <a href="{{ route('research.viewBooking', $booking->id) }}">
-            {{ e($booking->date ?? '') }} - {{ e($booking->room_name ?? '') }}
-          </a>
-        </li>
-      @empty
-        <li class="list-group-item small text-muted">No recent bookings</li>
-      @endforelse
-    </ul>
-  </div>
-
-  {{-- Collections --}}
-  <div class="card mb-4">
-    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">My Collections</div>
-    <ul class="list-group list-group-flush">
-      @forelse($recentCollections ?? [] as $collection)
-        <li class="list-group-item small">
-          <a href="{{ route('research.viewCollection', $collection->id) }}">{{ e($collection->name) }}</a>
-        </li>
-      @empty
-        <li class="list-group-item small text-muted">No collections</li>
-      @endforelse
-    </ul>
-  </div>
-
-  {{-- Saved Searches --}}
-  <div class="card mb-4">
-    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">Saved Searches</div>
-    <ul class="list-group list-group-flush">
-      @forelse($recentSavedSearches ?? [] as $search)
-        <li class="list-group-item small">
-          <a href="{{ route('research.savedSearches.run', $search->id) }}">{{ e($search->name) }}</a>
-        </li>
-      @empty
-        <li class="list-group-item small text-muted">No saved searches</li>
-      @endforelse
-    </ul>
-  </div>
 @endsection
 
 @section('content')
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+      <li class="breadcrumb-item active">My Profile</li>
+    </ol>
+  </nav>
+
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  @endif
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show">
       {{ session('error') }}
@@ -100,6 +66,8 @@
     </div>
   @endif
 
+  <div class="row">
+  <div class="col-md-8">
   <form action="{{ route('research.profile.update') }}" method="POST">
     @csrf
     @method('PUT')
@@ -221,4 +189,64 @@
       </button>
     </div>
   </form>
+  </div>
+
+  <div class="col-md-4">
+    {{-- Recent Bookings --}}
+    <div class="card mb-3">
+      <div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-calendar me-2"></i>Recent Bookings</h6></div>
+      @if(!empty($recentBookings))
+        <ul class="list-group list-group-flush">
+          @foreach(array_slice((array)$recentBookings, 0, 5) as $b)
+            <li class="list-group-item d-flex justify-content-between">
+              <span>{{ date('M j', strtotime($b->booking_date ?? $b->date ?? '')) }} - {{ e($b->room_name ?? '') }}</span>
+              <span class="badge bg-{{ ($b->status ?? '') === 'confirmed' ? 'success' : (($b->status ?? '') === 'pending' ? 'warning' : 'secondary') }}">{{ $b->status ?? '' }}</span>
+            </li>
+          @endforeach
+        </ul>
+      @else
+        <div class="card-body text-muted small">No bookings yet</div>
+      @endif
+    </div>
+
+    {{-- Evidence Sets --}}
+    <div class="card mb-3">
+      <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Evidence Sets</h6></div>
+      @if(!empty($recentCollections))
+        <ul class="list-group list-group-flush">
+          @foreach($recentCollections as $c)
+            <li class="list-group-item d-flex justify-content-between">
+              <a href="{{ route('research.viewCollection') }}?id={{ $c->id }}">{{ e($c->name) }}</a>
+              <span class="badge bg-secondary">{{ $c->item_count ?? 0 }}</span>
+            </li>
+          @endforeach
+        </ul>
+      @else
+        <div class="card-body text-muted small">No evidence sets</div>
+      @endif
+    </div>
+
+    {{-- API Access --}}
+    @if(($researcher->status ?? '') === 'approved')
+    <div class="card mb-3">
+      <div class="card-header bg-dark text-white"><h6 class="mb-0"><i class="fas fa-key me-2"></i>API Access</h6></div>
+      <div class="card-body">
+        <p class="small text-muted mb-2">Access your research data programmatically via REST API.</p>
+        <a href="{{ url('/research/apiKeys') }}" class="btn btn-sm btn-outline-dark w-100"><i class="fas fa-key me-1"></i>Manage API Keys</a>
+      </div>
+    </div>
+    @endif
+
+    {{-- Quick Links --}}
+    <div class="card">
+      <div class="card-header bg-secondary text-white"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Quick Links</h6></div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><a href="{{ route('research.projects') }}"><i class="fas fa-project-diagram me-2"></i>My Projects</a></li>
+        <li class="list-group-item"><a href="{{ route('research.bibliographies') }}"><i class="fas fa-book me-2"></i>Bibliographies</a></li>
+        <li class="list-group-item"><a href="{{ route('research.workspaces') }}"><i class="fas fa-users-cog me-2"></i>Workspaces</a></li>
+        <li class="list-group-item"><a href="{{ route('research.reproductions') }}"><i class="fas fa-copy me-2"></i>Reproduction Requests</a></li>
+      </ul>
+    </div>
+  </div>
+  </div>
 @endsection
