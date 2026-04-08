@@ -98,7 +98,8 @@
       </div>
     </div>
 
-    {{-- AI Tools (only if AI controller is available) --}}
+    {{-- AI Tools (only if AI controller is available and user is authenticated) --}}
+    @auth
     @if(class_exists(\AhgInformationObjectManage\Controllers\AiController::class))
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
@@ -129,6 +130,7 @@
       </div>
     </div>
     @endif {{-- end AI Tools package check --}}
+    @endauth
 
     {{-- Privacy & PII (only if privacy controller is available) --}}
     @if(class_exists(\AhgInformationObjectManage\Controllers\PrivacyController::class))
