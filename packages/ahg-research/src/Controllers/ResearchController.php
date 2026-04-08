@@ -2653,6 +2653,29 @@ class ResearchController extends Controller
                 return redirect('/research/odrlPolicies')->with('success', 'Policy created.');
             }
 
+            if ($formAction === 'update') {
+                $policyId = (int) $request->input('policy_id');
+                $constraintsJson = $request->input('constraints_json');
+                if ($constraintsJson) {
+                    $decoded = json_decode($constraintsJson, true);
+                    if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+                        return redirect('/research/odrlPolicies')->with('error', 'Invalid JSON in constraints.');
+                    }
+                }
+
+                DB::table('research_rights_policy')
+                    ->where('id', $policyId)
+                    ->update([
+                        'target_type'      => $request->input('target_type'),
+                        'target_id'        => (int) $request->input('target_id'),
+                        'policy_type'      => $request->input('policy_type'),
+                        'action_type'      => $request->input('action_type'),
+                        'constraints_json' => $constraintsJson ?: null,
+                        'updated_at'       => now(),
+                    ]);
+                return redirect('/research/odrlPolicies')->with('success', 'Policy updated.');
+            }
+
             if ($formAction === 'delete') {
                 $odrlService->deletePolicy((int) $request->input('policy_id'));
                 return redirect('/research/odrlPolicies')->with('success', 'Policy deleted.');

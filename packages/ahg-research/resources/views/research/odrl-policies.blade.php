@@ -105,6 +105,15 @@
                 </td>
                 <td><small>{{ $p->created_at ?? '' }}</small></td>
                 <td>
+                    <button class="btn btn-sm btn-outline-secondary edit-policy-btn d-inline" title="Edit"
+                        data-id="{{ (int) $p->id }}"
+                        data-target_type="{{ $p->target_type }}"
+                        data-target_id="{{ (int) $p->target_id }}"
+                        data-policy_type="{{ $p->policy_type }}"
+                        data-action_type="{{ $p->action_type }}"
+                        data-constraints_json="{{ e($p->constraints_json ?? '') }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <form method="post" action="{{ url('/research/odrlPolicies') }}" class="d-inline" onsubmit="return confirm('Delete this policy? This cannot be undone.')">
                         @csrf
                         <input type="hidden" name="form_action" value="delete">
@@ -208,6 +217,83 @@
         <div class="modal-footer">
           <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn atom-btn-outline-success">Create Policy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Policy Modal -->
+<div class="modal fade" id="editPolicyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{{ url('/research/odrlPolicies') }}">
+        @csrf
+        <input type="hidden" name="form_action" value="update">
+        <input type="hidden" name="policy_id" id="edit-policy-id">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit ODRL Policy</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Target Type *</label>
+            <select name="target_type" id="edit-target-type" class="form-select" required>
+              <option value="archival_description">Archival Description</option>
+              <option value="collection">Collection</option>
+              <option value="project">Project</option>
+              <option value="snapshot">Snapshot</option>
+              <option value="annotation">Annotation</option>
+              <option value="assertion">Assertion</option>
+            </select>
+          </div>
+          <input type="hidden" name="target_id" id="edit-target-id-hidden">
+          <div class="mb-3">
+            <label class="form-label" id="edit-target-label">Target *</label>
+            <select id="edit-target-tomselect" placeholder="Search..."></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Policy Type *</label>
+            <select name="policy_type" id="edit-policy-type" class="form-select">
+              <option value="permission">Permission</option>
+              <option value="prohibition">Prohibition</option>
+              <option value="obligation">Obligation</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Action Type *</label>
+            <select name="action_type" id="edit-action-type" class="form-select">
+              <option value="use">Use</option>
+              <option value="reproduce">Reproduce</option>
+              <option value="distribute">Distribute</option>
+              <option value="modify">Modify</option>
+              <option value="archive">Archive</option>
+              <option value="display">Display</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Restrict to Researchers</label>
+            <select id="edit-constraint-researchers" multiple placeholder="Search researchers..."></select>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label small">Date From</label>
+              <input type="date" id="edit-constraint-date-from" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">Date To</label>
+              <input type="date" id="edit-constraint-date-to" class="form-control form-control-sm">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Max Uses</label>
+            <input type="number" id="edit-constraint-max-uses" class="form-control form-control-sm" min="1" placeholder="Unlimited">
+          </div>
+          <input type="hidden" name="constraints_json" id="edit-constraints-json-hidden">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn atom-btn-outline-success">Save Changes</button>
         </div>
       </form>
     </div>
@@ -329,6 +415,136 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mu) constraints.max_uses = parseInt(mu);
 
         document.getElementById('constraints-json-hidden').value = Object.keys(constraints).length > 0 ? JSON.stringify(constraints) : '';
+    });
+
+    // ── Edit Modal ──
+    var editTargetTs = null;
+    var editCurrentType = '';
+    var editResearcherTs = new TomSelect('#edit-constraint-researchers', {
+        valueField: 'id',
+        labelField: 'name',
+        searchField: ['name', 'email'],
+        maxOptions: 20,
+        loadThrottle: 300,
+        plugins: ['remove_button'],
+        load: function(query, callback) {
+            if (query.length < 2) return callback();
+            fetch('/research/researcher-autocomplete?query=' + encodeURIComponent(query))
+                .then(function(r) { return r.json(); })
+                .then(function(data) { callback(data); })
+                .catch(function() { callback(); });
+        },
+        render: {
+            option: function(item) {
+                return '<div><strong>' + item.name + '</strong> <small class="text-muted">' + (item.email || '') + '</small></div>';
+            },
+            item: function(item) {
+                return '<div>' + item.name + '</div>';
+            }
+        }
+    });
+
+    function initEditTargetTs(type, preloadId) {
+        if (editTargetTs) { editTargetTs.destroy(); editTargetTs = null; }
+        editCurrentType = type;
+        editTargetTs = new TomSelect('#edit-target-tomselect', {
+            valueField: 'id',
+            labelField: 'name',
+            searchField: ['name'],
+            maxOptions: 20,
+            loadThrottle: 300,
+            placeholder: 'Search ' + (typeLabels[type] || type) + '...',
+            load: function(query, callback) {
+                if (query.length < 2) return callback();
+                fetch('/research/target-autocomplete?type=' + encodeURIComponent(editCurrentType) + '&query=' + encodeURIComponent(query))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { callback(data); })
+                    .catch(function() { callback(); });
+            },
+            onChange: function(value) {
+                document.getElementById('edit-target-id-hidden').value = value || '';
+            },
+            render: {
+                option: function(item) {
+                    return '<div><strong>' + (item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + item.id + '</small></div>';
+                },
+                item: function(item) {
+                    return '<div>' + (item.name || '[Untitled]') + ' <small>#' + item.id + '</small></div>';
+                }
+            }
+        });
+
+        // Preload the current target
+        if (preloadId) {
+            fetch('/research/target-autocomplete?type=' + encodeURIComponent(type) + '&query=')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var match = data.find(function(d) { return d.id == preloadId; });
+                    if (match) {
+                        editTargetTs.addOption(match);
+                        editTargetTs.setValue(match.id, true);
+                    } else {
+                        editTargetTs.addOption({ id: preloadId, name: '#' + preloadId });
+                        editTargetTs.setValue(preloadId, true);
+                    }
+                })
+                .catch(function() {
+                    editTargetTs.addOption({ id: preloadId, name: '#' + preloadId });
+                    editTargetTs.setValue(preloadId, true);
+                });
+        }
+    }
+
+    document.getElementById('edit-target-type').addEventListener('change', function() {
+        initEditTargetTs(this.value, null);
+    });
+
+    // Edit button click handlers
+    document.querySelectorAll('.edit-policy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var d = this.dataset;
+            document.getElementById('edit-policy-id').value = d.id;
+            document.getElementById('edit-target-type').value = d.target_type;
+            document.getElementById('edit-target-id-hidden').value = d.target_id;
+            document.getElementById('edit-policy-type').value = d.policy_type;
+            document.getElementById('edit-action-type').value = d.action_type;
+
+            // Parse constraints
+            var constraints = {};
+            try { constraints = d.constraints_json ? JSON.parse(d.constraints_json) : {}; } catch(e) {}
+
+            document.getElementById('edit-constraint-date-from').value = constraints.date_from || '';
+            document.getElementById('edit-constraint-date-to').value = constraints.date_to || '';
+            document.getElementById('edit-constraint-max-uses').value = constraints.max_uses || '';
+
+            editResearcherTs.clear(true);
+            if (constraints.researcher_ids && constraints.researcher_ids.length) {
+                constraints.researcher_ids.forEach(function(rid) {
+                    editResearcherTs.addOption({ id: rid, name: 'Researcher #' + rid });
+                    editResearcherTs.addItem(rid, true);
+                });
+            }
+
+            initEditTargetTs(d.target_type, d.target_id);
+            new bootstrap.Modal(document.getElementById('editPolicyModal')).show();
+        });
+    });
+
+    // Build constraints JSON on edit form submit
+    document.querySelector('#editPolicyModal form').addEventListener('submit', function() {
+        var constraints = {};
+        var rIds = editResearcherTs.getValue();
+        if (rIds && rIds.length > 0) {
+            constraints.researcher_ids = Array.isArray(rIds) ? rIds.map(Number) : [Number(rIds)];
+        }
+        var df = document.getElementById('edit-constraint-date-from').value;
+        if (df) constraints.date_from = df;
+        var dt = document.getElementById('edit-constraint-date-to').value;
+        if (dt) constraints.date_to = dt;
+        var mu = document.getElementById('edit-constraint-max-uses').value;
+        if (mu) constraints.max_uses = parseInt(mu);
+
+        document.getElementById('edit-constraints-json-hidden').value = Object.keys(constraints).length > 0 ? JSON.stringify(constraints) : '';
     });
 });
 </script>
