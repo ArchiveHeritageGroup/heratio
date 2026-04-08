@@ -154,34 +154,41 @@
     </div>
     @endif {{-- end Privacy package check --}}
 
-    {{-- Rights Management (links to integrated rights section + management pages) --}}
+    {{-- Rights (matching library style) --}}
     @auth
+    @php
+      $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
+          && \Illuminate\Support\Facades\DB::table('extended_rights')->where('object_id', $io->id)->exists();
+      $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
+          ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()
+          : null;
+    @endphp
     <div class="card mb-3">
-      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
         <i class="fas fa-copyright me-1"></i> Rights
       </div>
+      <div class="card-body py-2">
+        @if($hasExtRights)
+          <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Extended rights applied</span>
+        @endif
+        @if($activeEmbargoSidebar)
+          <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Under embargo</span>
+        @endif
+        @if(!$hasExtRights && !$activeEmbargoSidebar)
+          <span class="badge bg-secondary"><i class="fas fa-info-circle me-1"></i>No extended rights or embargo</span>
+        @endif
+      </div>
       <div class="list-group list-group-flush">
-        <a href="#rightsArea" class="list-group-item list-group-item-action small">
-          <i class="fas fa-eye me-1"></i> View Rights & Access
-        </a>
-        <a href="{{ route('io.rights.manage', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-edit me-1"></i> Manage Rights
-        </a>
-        <a href="{{ route('io.rights.extended', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copyright me-1"></i> Extended Rights
-        </a>
-        @if(isset($activeEmbargo) && $activeEmbargo)
-          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small text-danger">
-            <i class="fas fa-ban me-1"></i> Edit Embargo
-          </a>
-        @else
-          <a href="{{ route('io.rights.embargo', $io->slug) }}" class="list-group-item list-group-item-action small">
-            <i class="fas fa-lock me-1"></i> Add Embargo
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
+          <a href="{{ route('io.rights.manage', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargoSidebar) ? 'Edit' : 'Add' }} rights
           </a>
         @endif
-        <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-download me-1"></i> Export Rights (JSON-LD)
-        </a>
+        @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
+          <a href="{{ route('io.rights.export', $io->slug) }}" class="list-group-item list-group-item-action small">
+            <i class="fas fa-download me-1"></i> Export rights (JSON-LD)
+          </a>
+        @endif
       </div>
     </div>
     @endauth
