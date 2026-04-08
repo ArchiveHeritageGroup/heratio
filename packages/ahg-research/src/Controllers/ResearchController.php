@@ -1321,21 +1321,68 @@ class ResearchController extends Controller
             $action = $request->input('form_action');
 
             if ($action === 'add_entry') {
+                $title = trim($request->input('title', ''));
                 $objectId = (int) $request->input('object_id');
-                if ($objectId) {
+
+                // If object_id given but no title, resolve from DB
+                if ($objectId && !$title) {
                     $obj = DB::table('information_object_i18n')
                         ->where('id', $objectId)->where('culture', 'en')->first();
+                    $title = $obj->title ?? 'Untitled';
+                }
+
+                if ($title) {
                     $maxOrder = DB::table('research_bibliography_entry')
                         ->where('bibliography_id', $id)->max('sort_order') ?? 0;
                     DB::table('research_bibliography_entry')->insert([
                         'bibliography_id' => $id,
-                        'object_id' => $objectId,
-                        'title' => $obj->title ?? 'Untitled',
+                        'object_id' => $objectId ?: null,
+                        'title' => $title,
+                        'authors' => $request->input('authors') ?: null,
+                        'date' => $request->input('year') ?: null,
+                        'container_title' => $request->input('publication') ?: null,
+                        'volume' => $request->input('volume') ?: null,
+                        'pages' => $request->input('pages') ?: null,
+                        'doi' => $request->input('doi') ?: null,
+                        'url' => $request->input('url') ?: null,
+                        'entry_type' => $request->input('entry_type', 'book'),
+                        'notes' => $request->input('notes') ?: null,
                         'sort_order' => $maxOrder + 1,
                         'created_at' => date('Y-m-d H:i:s'),
                     ]);
                     return redirect()->route('research.viewBibliography', $id)->with('success', 'Entry added');
                 }
+                return redirect()->route('research.viewBibliography', $id)->with('error', 'Title is required');
+            }
+
+            if ($action === 'edit_entry') {
+                $entryId = (int) $request->input('entry_id');
+                DB::table('research_bibliography_entry')
+                    ->where('id', $entryId)->where('bibliography_id', $id)
+                    ->update([
+                        'title' => $request->input('title'),
+                        'authors' => $request->input('authors') ?: null,
+                        'date' => $request->input('year') ?: null,
+                        'container_title' => $request->input('publication') ?: null,
+                        'volume' => $request->input('volume') ?: null,
+                        'pages' => $request->input('pages') ?: null,
+                        'doi' => $request->input('doi') ?: null,
+                        'url' => $request->input('url') ?: null,
+                        'entry_type' => $request->input('entry_type', 'book'),
+                        'notes' => $request->input('notes') ?: null,
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                return redirect()->route('research.viewBibliography', $id)->with('success', 'Entry updated');
+            }
+
+            if ($action === 'update') {
+                DB::table('research_bibliography')->where('id', $id)->update([
+                    'name' => $request->input('name'),
+                    'description' => $request->input('description') ?: null,
+                    'citation_style' => $request->input('citation_style', 'chicago'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+                return redirect()->route('research.viewBibliography', $id)->with('success', 'Bibliography updated');
             }
 
             if ($action === 'remove_entry') {
