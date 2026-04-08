@@ -182,6 +182,7 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::match(['get', 'post'], '/editRoom', [ResearchController::class, 'editRoom'])->name('editRoom');
     Route::match(['get', 'post'], '/seats', [ResearchController::class, 'seats'])->name('seats');
     Route::match(['get', 'post'], '/equipment', [ResearchController::class, 'equipment'])->name('equipment');
+    Route::get('/equipment-history/{id}', [ResearchController::class, 'equipmentHistory'])->name('equipmentHistory')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/retrievalQueue', [ResearchController::class, 'retrievalQueue'])->name('retrievalQueue');
     Route::match(['get', 'post'], '/walkIn', [ResearchController::class, 'walkIn'])->name('walkIn');
     Route::get('/adminTypes', [ResearchController::class, 'adminTypes'])->name('adminTypes');

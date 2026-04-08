@@ -2085,11 +2085,25 @@ class ResearchController extends Controller
             }
 
             if ($action === 'maintenance') {
-                DB::table('research_equipment')->where('id', (int) $request->input('equipment_id'))->update([
+                $eqId = (int) $request->input('equipment_id');
+                $eq = DB::table('research_equipment')->where('id', $eqId)->first();
+
+                // Log to history
+                DB::table('research_equipment_maintenance')->insert([
+                    'equipment_id' => $eqId,
+                    'description' => $request->input('maintenance_description'),
+                    'condition_before' => $eq->condition_status ?? null,
+                    'condition_after' => $request->input('new_condition', 'good'),
+                    'next_maintenance_date' => $request->input('next_maintenance_date') ?: null,
+                    'performed_by' => Auth::id(),
+                    'performed_at' => now(),
+                ]);
+
+                // Update equipment record
+                DB::table('research_equipment')->where('id', $eqId)->update([
                     'condition_status' => $request->input('new_condition', 'good'),
                     'last_maintenance_date' => date('Y-m-d'),
                     'next_maintenance_date' => $request->input('next_maintenance_date') ?: null,
-                    'notes' => $request->input('maintenance_description'),
                     'updated_at' => now(),
                 ]);
                 return $redir->with('success', 'Maintenance logged.');
@@ -2102,6 +2116,19 @@ class ResearchController extends Controller
             $this->getSidebarData('equipment'),
             compact('rooms', 'roomId', 'currentRoom', 'equipment')
         ));
+    }
+
+    public function equipmentHistory(int $id)
+    {
+        $logs = DB::table('research_equipment_maintenance as m')
+            ->leftJoin('user as u', 'm.performed_by', '=', 'u.id')
+            ->where('m.equipment_id', $id)
+            ->select('m.*', 'u.username as performed_by_name')
+            ->orderByDesc('m.performed_at')
+            ->limit(50)
+            ->get();
+
+        return response()->json($logs);
     }
 
     public function retrievalQueue(Request $request)

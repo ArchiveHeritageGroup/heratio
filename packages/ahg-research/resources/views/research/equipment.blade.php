@@ -72,8 +72,9 @@
                                 </td>
                                 <td>{!! ($item->is_available ?? 1) ? '<span class="badge bg-success">Available</span>' : '<span class="badge bg-danger">Unavailable</span>' !!}</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))'><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})"><i class="fas fa-wrench"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick='editEquipment(@json($item))' title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="logMaintenance({{ $item->id }})" title="Log Maintenance"><i class="fas fa-wrench"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="showHistory({{ $item->id }}, '{{ e($item->name) }}')" title="History"><i class="fas fa-history"></i></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -159,6 +160,12 @@
     </form>
 </div></div></div>
 
+{{-- Maintenance History Modal --}}
+<div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-history me-2"></i>Maintenance History — <span id="historyEquipmentName"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body" id="historyBody"><div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
+</div></div></div>
+
 @push('js')
 <script>
 function editEquipment(item) {
@@ -181,6 +188,30 @@ function editEquipment(item) {
 function logMaintenance(equipmentId) {
     document.getElementById('maintenanceEquipmentId').value = equipmentId;
     new bootstrap.Modal(document.getElementById('maintenanceModal')).show();
+}
+
+function showHistory(equipmentId, name) {
+    document.getElementById('historyEquipmentName').textContent = name;
+    document.getElementById('historyBody').innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+    new bootstrap.Modal(document.getElementById('historyModal')).show();
+    fetch('/research/equipment-history/' + equipmentId, { headers: { 'Accept': 'application/json' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.length) {
+                document.getElementById('historyBody').innerHTML = '<p class="text-muted text-center py-3">No maintenance history.</p>';
+                return;
+            }
+            var html = '<table class="table table-sm table-hover mb-0"><thead class="table-light"><tr><th>Date</th><th>Condition</th><th>Description</th><th>By</th></tr></thead><tbody>';
+            data.forEach(function(log) {
+                html += '<tr><td><small>' + log.performed_at + '</small></td>';
+                html += '<td><span class="badge bg-secondary">' + (log.condition_before || '?') + '</span> → <span class="badge bg-primary">' + log.condition_after + '</span></td>';
+                html += '<td>' + (log.description || '-') + '</td>';
+                html += '<td><small>' + (log.performed_by_name || '#' + log.performed_by) + '</small></td></tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('historyBody').innerHTML = html;
+        })
+        .catch(function() { document.getElementById('historyBody').innerHTML = '<p class="text-danger text-center">Failed to load history.</p>'; });
 }
 
 document.getElementById('addEquipmentModal').addEventListener('hidden.bs.modal', function() {
