@@ -27,7 +27,7 @@
                 <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">Optional</span></label>
                 <select name="filter_target_type" class="form-select form-select-sm">
                     <option value="">All</option>
-                    @foreach(['collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
+                    @foreach(['archival_description', 'collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
                     <option value="{{ $tt }}" {{ request('filter_target_type') === $tt ? 'selected' : '' }}>{{ ucfirst($tt) }}</option>
                     @endforeach
                 </select>
@@ -146,8 +146,9 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Target Type * <span class="badge bg-danger ms-1">Required</span></label>
-            <select name="target_type" class="form-select" required>
+            <select name="target_type" id="policy-target-type" class="form-select" required>
               <option value="">Select...</option>
+              <option value="archival_description">Archival Description</option>
               <option value="collection">Collection</option>
               <option value="project">Project</option>
               <option value="snapshot">Snapshot</option>
@@ -155,9 +156,13 @@
               <option value="assertion">Assertion</option>
             </select>
           </div>
-          <div class="mb-3">
+          <div class="mb-3" id="target-id-plain">
             <label class="form-label">Target ID * <span class="badge bg-danger ms-1">Required</span></label>
-            <input type="number" name="target_id" class="form-control" required>
+            <input type="number" name="target_id" id="target-id-input" class="form-control" required>
+          </div>
+          <div class="mb-3 d-none" id="target-id-autocomplete">
+            <label class="form-label">Archival Description * <span class="badge bg-danger ms-1">Required</span></label>
+            <select name="target_id_ac" id="target-id-tomselect" placeholder="Search by title..."></select>
           </div>
           <div class="mb-3">
             <label class="form-label">Policy Type * <span class="badge bg-secondary ms-1">Optional</span></label>
@@ -192,4 +197,65 @@
     </div>
   </div>
 </div>
+
+@push('css')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+@endpush
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var targetType = document.getElementById('policy-target-type');
+    var plainDiv = document.getElementById('target-id-plain');
+    var acDiv = document.getElementById('target-id-autocomplete');
+    var plainInput = document.getElementById('target-id-input');
+    var acSelect = document.getElementById('target-id-tomselect');
+    var tsInstance = null;
+
+    function initTomSelect() {
+        if (tsInstance) return;
+        tsInstance = new TomSelect(acSelect, {
+            valueField: 'id',
+            labelField: 'name',
+            searchField: ['name'],
+            load: function(query, callback) {
+                if (!query.length || query.length < 2) return callback();
+                fetch('/informationobject/autocomplete?query=' + encodeURIComponent(query) + '&limit=20')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { callback(data); })
+                    .catch(function() { callback(); });
+            },
+            render: {
+                option: function(item) {
+                    return '<div><strong>' + (item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + item.id + '</small></div>';
+                },
+                item: function(item) {
+                    return '<div>' + (item.name || '[Untitled]') + ' <small>#' + item.id + '</small></div>';
+                }
+            }
+        });
+    }
+
+    targetType.addEventListener('change', function() {
+        if (this.value === 'archival_description') {
+            plainDiv.classList.add('d-none');
+            plainInput.removeAttribute('required');
+            plainInput.name = '';
+            acDiv.classList.remove('d-none');
+            acSelect.name = 'target_id';
+            acSelect.setAttribute('required', 'required');
+            initTomSelect();
+        } else {
+            acDiv.classList.add('d-none');
+            acSelect.name = 'target_id_ac';
+            acSelect.removeAttribute('required');
+            plainDiv.classList.remove('d-none');
+            plainInput.name = 'target_id';
+            plainInput.setAttribute('required', 'required');
+        }
+    });
+});
+</script>
+@endpush
 @endsection
