@@ -98,7 +98,7 @@
             @if(!empty($ann->thumbnail_path) && !empty($ann->object_id))
             <div class="text-center bg-light p-2">
                 <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}" title="{{ e($ann->object_title ?? '') }}">
-                    <img src="{{ $ann->thumbnail_path }}" alt="{{ e($ann->object_title ?? '') }}" class="img-fluid rounded" style="max-height:120px;">
+                    <img src="{{ $ann->thumbnail_path }}" alt="{{ e($ann->object_title ?? '') }}" class="img-fluid rounded" style="max-height:150px;">
                 </a>
             </div>
             @endif
@@ -224,6 +224,13 @@
         </div>
     </div>
 </div>
+
+@push('css')
+<style>
+.card-text img { max-width: 100px; max-height: 80px; height: auto; border-radius: 4px; margin: 4px 0; cursor: pointer; transition: max-width 0.2s; }
+.card-text img:hover { max-width: 200px; max-height: 160px; }
+</style>
+@endpush
 
 @push('js')
 <script>

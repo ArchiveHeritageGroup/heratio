@@ -401,7 +401,7 @@ class ResearchService
             })
             ->leftJoin('digital_object as thumb', function ($j) {
                 $j->on('master_do.id', '=', 'thumb.parent_id')
-                  ->where('thumb.usage_id', '=', 142); // thumbnail
+                  ->where('thumb.usage_id', '=', 141); // reference image
             })
             ->where('a.researcher_id', $researcherId)
             ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
@@ -425,7 +425,7 @@ class ResearchService
             })
             ->leftJoin('digital_object as thumb', function ($j) {
                 $j->on('master_do.id', '=', 'thumb.parent_id')
-                  ->where('thumb.usage_id', '=', 142); // thumbnail
+                  ->where('thumb.usage_id', '=', 141); // reference image
             })
             ->where('a.researcher_id', $researcherId)
             ->where(function ($q) use ($query) {
