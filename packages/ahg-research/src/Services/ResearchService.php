@@ -389,22 +389,32 @@ class ResearchService
 
     public function getAnnotations(int $researcherId): array
     {
-        return DB::table('research_annotation')
-            ->where('researcher_id', $researcherId)
-            ->orderBy('created_at', 'desc')
+        return DB::table('research_annotation as a')
+            ->leftJoin('slug as s', 'a.object_id', '=', 's.object_id')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+            })
+            ->where('a.researcher_id', $researcherId)
+            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title')
+            ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
 
     public function searchAnnotations(int $researcherId, string $query): array
     {
-        return DB::table('research_annotation')
-            ->where('researcher_id', $researcherId)
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'LIKE', '%' . $query . '%')
-                  ->orWhere('content', 'LIKE', '%' . $query . '%')
-                  ->orWhere('tags', 'LIKE', '%' . $query . '%');
+        return DB::table('research_annotation as a')
+            ->leftJoin('slug as s', 'a.object_id', '=', 's.object_id')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
-            ->orderBy('created_at', 'desc')
+            ->where('a.researcher_id', $researcherId)
+            ->where(function ($q) use ($query) {
+                $q->where('a.title', 'LIKE', '%' . $query . '%')
+                  ->orWhere('a.content', 'LIKE', '%' . $query . '%')
+                  ->orWhere('a.tags', 'LIKE', '%' . $query . '%');
+            })
+            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title')
+            ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
 
