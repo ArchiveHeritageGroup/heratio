@@ -356,15 +356,15 @@
                             <option value="external_link">External Link</option>
                         </select>
                     </div>
-                    <div class="mb-3" id="resourceSearchGroup">
-                        <label class="form-label">Search Resource</label>
-                        <select id="resourceSearch"></select>
-                    </div>
-                    <div class="mb-3" id="externalLinkGroup" style="display:none;">
-                        <label class="form-label">URL *</label>
+                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required></div>
+                    <div class="mb-3">
+                        <label class="form-label">External URL</label>
                         <input type="url" name="external_url" id="externalUrlInput" class="form-control" placeholder="https://">
                     </div>
-                    <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" id="resourceTitleInput" class="form-control" required></div>
+                    <div class="mb-3" id="resourceSearchGroup">
+                        <label class="form-label">Or search existing resource</label>
+                        <select id="resourceSearch"></select>
+                    </div>
                     <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="2"></textarea></div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Add Resource</button></div>
@@ -450,9 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('resourceTypeSelect').addEventListener('change', function() {
-        var isLink = this.value === 'external_link';
-        document.getElementById('resourceSearchGroup').style.display = isLink ? 'none' : '';
-        document.getElementById('externalLinkGroup').style.display = isLink ? '' : 'none';
         resourceSelect.clear(); resourceSelect.clearOptions();
     });
 
