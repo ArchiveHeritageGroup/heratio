@@ -138,6 +138,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/viewBibliography/{id}', [ResearchController::class, 'viewBibliography'])->name('viewBibliography')->where('id', '[0-9]+');
 
     // Reports
+    Route::match(['get', 'post'], '/viewReproduction/{id}', [ResearchController::class, 'viewReproduction'])->name('viewReproduction')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/reports', [ResearchController::class, 'reports'])->name('reports');
     Route::match(['get', 'post'], '/report-templates', [ResearchController::class, 'reportTemplates'])->name('reportTemplates');
     Route::match(['get', 'post'], '/viewReport/{id}', [ResearchController::class, 'viewReport'])->name('viewReport')->where('id', '[0-9]+');
