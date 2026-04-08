@@ -356,15 +356,16 @@
       $videoSrc = ($needsStreaming && $refObj) ? $refUrl : $masterUrl;
       $videoMime = ($needsStreaming && $refObj) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
 
-      // Check for 3D model files (GLB, GLTF, etc.)
+      // Check for 3D model files (GLB, GLTF, OBJ, etc.)
       $is3DModel = $masterObj && in_array(strtolower($masterMime), [
           'model/gltf-binary', 'model/gltf+json', 'model/gltf',
+          'model/obj', 'application/x-tgif', 'model/stl',
           'application/octet-stream', // Some GLB files uploaded without proper MIME
       ]);
       // Also check by extension as fallback
       if (!$is3DModel && $masterObj && $masterObj->name) {
           $ext = strtolower(pathinfo($masterObj->name, PATHINFO_EXTENSION));
-          $is3DModel = in_array($ext, ['glb', 'gltf']);
+          $is3DModel = in_array($ext, ['glb', 'gltf', 'obj', 'stl', 'fbx', 'ply']);
       }
     @endphp
 
