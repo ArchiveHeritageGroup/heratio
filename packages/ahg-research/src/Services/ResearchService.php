@@ -397,7 +397,7 @@ class ResearchService
             ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
             ->leftJoin('digital_object as thumb', function ($j) {
                 $j->on('a.object_id', '=', 'thumb.object_id')
-                  ->where('thumb.usage_id', '=', 141); // thumbnail usage
+                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
             })
             ->where('a.researcher_id', $researcherId)
             ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
@@ -417,7 +417,7 @@ class ResearchService
             ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
             ->leftJoin('digital_object as thumb', function ($j) {
                 $j->on('a.object_id', '=', 'thumb.object_id')
-                  ->where('thumb.usage_id', '=', 141); // thumbnail usage
+                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
             })
             ->where('a.researcher_id', $researcherId)
             ->where(function ($q) use ($query) {

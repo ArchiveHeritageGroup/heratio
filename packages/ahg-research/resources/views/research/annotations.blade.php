@@ -98,7 +98,7 @@
             @if(!empty($ann->thumbnail_path) && !empty($ann->object_id))
             <div class="text-center bg-light p-2">
                 <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}" title="{{ e($ann->object_title ?? '') }}">
-                    <img src="{{ $ann->thumbnail_path }}" alt="{{ e($ann->object_title ?? '') }}" class="rounded" style="max-height:80px; max-width:80px; object-fit:cover;">
+                    <img src="{{ $ann->thumbnail_path }}" alt="{{ e($ann->object_title ?? '') }}" class="img-fluid rounded" style="max-height:120px;">
                 </a>
             </div>
             @endif
