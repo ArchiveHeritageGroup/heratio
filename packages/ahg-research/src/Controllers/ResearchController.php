@@ -2184,8 +2184,8 @@ class ResearchController extends Controller
             ? DB::table('research_walk_in_visitor')
                 ->where('reading_room_id', $roomId)
                 ->where('visit_date', date('Y-m-d'))
-                ->whereNull('checked_out_at')
-                ->orderBy('checked_in_at')
+                ->whereNull('check_out_time')
+                ->orderBy('check_in_time')
                 ->get()->toArray()
             : [];
 
@@ -2205,7 +2205,7 @@ class ResearchController extends Controller
                     'research_topic' => $request->input('research_topic'),
                     'rules_acknowledged' => $request->input('rules_acknowledged') ? 1 : 0,
                     'visit_date' => date('Y-m-d'),
-                    'checked_in_at' => date('Y-m-d H:i:s'),
+                    'check_in_time' => date('H:i:s'),
                     'checked_in_by' => Auth::id(),
                 ]);
                 return redirect()->route('research.walkIn', ['room_id' => $roomId])
@@ -2215,7 +2215,7 @@ class ResearchController extends Controller
                 DB::table('research_walk_in_visitor')
                     ->where('id', (int) $request->input('visitor_id'))
                     ->update([
-                        'checked_out_at' => date('Y-m-d H:i:s'),
+                        'check_out_time' => date('H:i:s'),
                         'checked_out_by' => Auth::id(),
                     ]);
                 return redirect()->route('research.walkIn', ['room_id' => $roomId])

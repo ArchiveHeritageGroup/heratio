@@ -49,7 +49,7 @@
                                 <td>{{ e($visitor->first_name) }} {{ e($visitor->last_name) }}</td>
                                 <td>{{ e($visitor->organization ?? '-') }}</td>
                                 <td>{{ e($visitor->purpose ?? '-') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($visitor->checked_in_at)->format('H:i') }}</td>
+                                <td>{{ $visitor->check_in_time ? substr($visitor->check_in_time, 0, 5) : '-' }}</td>
                                 <td>
                                     <form method="POST" class="d-inline">
                                         @csrf
@@ -144,4 +144,17 @@
     </div>
 </div>
 @endif
+
+<div class="card mt-4">
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Walk-In Visitors</h6></div>
+    <div class="card-body">
+        <p class="text-muted mb-2">Walk-in visitors are unregistered users who need quick access to the reading room.</p>
+        <ul class="mb-0 small">
+            <li><i class="fas fa-times-circle text-danger me-1"></i>They do not have a researcher account</li>
+            <li><i class="fas fa-times-circle text-danger me-1"></i>Cannot request materials in advance</li>
+            <li><i class="fas fa-eye text-info me-1"></i>Limited to browsing open-access materials</li>
+            <li><i class="fas fa-user-plus text-success me-1"></i>Can be converted to registered researchers if needed</li>
+        </ul>
+    </div>
+</div>
 @endsection

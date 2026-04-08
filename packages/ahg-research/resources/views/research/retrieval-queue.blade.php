@@ -154,6 +154,9 @@
                         <div class="col-md-5">
                             <div class="d-flex flex-wrap gap-1">
                                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check me-1"></i>Update Selected</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="printSelectedBtn"><i class="fas fa-print me-1"></i>Print</button>
+                                <button type="button" class="btn btn-outline-warning btn-sm" id="batchCheckoutBtn"><i class="fas fa-arrow-right-from-bracket me-1"></i>Checkout</button>
+                                <button type="button" class="btn btn-outline-success btn-sm" id="batchReturnBtn"><i class="fas fa-undo me-1"></i>Return</button>
                             </div>
                         </div>
                     </div>
@@ -180,6 +183,34 @@
 <script>
 document.getElementById('selectAll').addEventListener('change', function() {
     document.querySelectorAll('.request-cb').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+});
+
+function getSelectedIds() {
+    var ids = [];
+    document.querySelectorAll('.request-cb:checked').forEach(function(cb) { ids.push(cb.value); });
+    return ids;
+}
+
+document.getElementById('printSelectedBtn').addEventListener('click', function() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one request.'); return; }
+    window.open('/research/printCallSlips?ids=' + ids.join(','), '_blank');
+});
+
+document.getElementById('batchCheckoutBtn').addEventListener('click', function() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one request.'); return; }
+    var form = document.getElementById('queueForm');
+    form.querySelector('[name="new_status"]').value = 'in_use';
+    form.submit();
+});
+
+document.getElementById('batchReturnBtn').addEventListener('click', function() {
+    var ids = getSelectedIds();
+    if (!ids.length) { alert('Select at least one request.'); return; }
+    var form = document.getElementById('queueForm');
+    form.querySelector('[name="new_status"]').value = 'returned';
+    form.submit();
 });
 
 document.querySelectorAll('.action-btn').forEach(function(btn) {
