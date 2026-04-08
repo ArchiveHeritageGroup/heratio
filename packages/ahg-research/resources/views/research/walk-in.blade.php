@@ -103,10 +103,9 @@
                             <label class="form-label">ID Type <span class="badge bg-secondary ms-1">Optional</span></label>
                             <select name="id_type" class="form-select">
                                 <option value="">-- Select --</option>
-                                <option value="sa_id">SA ID</option>
-                                <option value="passport">Passport</option>
-                                <option value="drivers_license">Driver's License</option>
-                                <option value="student_card">Student Card</option>
+                                @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idType)
+                                    <option value="{{ $idType->code }}">{{ $idType->label }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-7 mb-3">

@@ -119,8 +119,8 @@
             @if($themeData['isAdmin'] ?? false)
               <select name="id_type" class="form-select">
                 <option value="">-- Select --</option>
-                @foreach(['national_id' => 'National ID', 'passport' => 'Passport', 'drivers_license' => 'Drivers License', 'student_card' => 'Student Card', 'other' => 'Other'] as $k => $v)
-                  <option value="{{ $k }}" {{ ($researcher->id_type ?? '') === $k ? 'selected' : '' }}>{{ $v }}</option>
+                @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idt)
+                  <option value="{{ $idt->code }}" {{ ($researcher->id_type ?? '') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
                 @endforeach
               </select>
             @else

@@ -75,11 +75,9 @@
             <label for="id_type" class="form-label">ID Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
             <select name="id_type" id="id_type" class="form-select" required>
               <option value="">-- Select --</option>
-              <option value="sa_id" {{ old('id_type') === 'sa_id' ? 'selected' : '' }}>SA ID</option>
-              <option value="passport" {{ old('id_type') === 'passport' ? 'selected' : '' }}>Passport</option>
-              <option value="drivers_license" {{ old('id_type') === 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
-              <option value="student_id" {{ old('id_type') === 'student_id' ? 'selected' : '' }}>Student ID</option>
-              <option value="other" {{ old('id_type') === 'other' ? 'selected' : '' }}>Other</option>
+              @foreach(\Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->where('is_active', 1)->orderBy('sort_order')->get() as $idt)
+                <option value="{{ $idt->code }}" {{ old('id_type') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
+              @endforeach
             </select>
           </div>
           <div class="col-md-4 mb-3">
