@@ -1,137 +1,239 @@
 @extends('theme::layouts.2col')
-@section('sidebar')@include('research::research._sidebar')@endsection
-@section('title-block')<h1><i class="fas fa-file-alt me-2"></i>{{ e($report->title) }}</h1>@endsection
+@section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'reports'])@endsection
+@section('title', $report->title ?? 'Report')
+
 @section('content')
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h5 class="mb-1">{{ e($report->title) }}</h5>
-                @if($report->description ?? null)<p class="text-muted mb-1">{{ e($report->description) }}</p>@endif
-                <div class="d-flex flex-wrap gap-3 mt-2">
-                    @if($report->report_type ?? null)
-                    <small class="text-muted"><i class="fas fa-tag me-1"></i>Type: <strong>{{ ucfirst(str_replace('_', ' ', $report->report_type)) }}</strong></small>
-                    @endif
-                    @if($report->project_id ?? null)
-                    <small class="text-muted"><i class="fas fa-project-diagram me-1"></i>Project #{{ $report->project_id }}</small>
-                    @endif
-                    <small class="text-muted"><i class="fas fa-calendar me-1"></i>Created: {{ \Carbon\Carbon::parse($report->created_at)->format('j M Y') }}</small>
-                    @if($report->updated_at ?? null)
-                    <small class="text-muted"><i class="fas fa-edit me-1"></i>Updated: {{ \Carbon\Carbon::parse($report->updated_at)->format('j M Y') }}</small>
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+@endif
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li>
+        <li class="breadcrumb-item active">{{ e($report->title) }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="fas fa-file-alt text-primary me-2"></i>{{ e($report->title) }}</h1>
+    <div class="d-flex gap-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-file-export me-1"></i>Export</button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ route('research.viewReport', $report->id) }}?export=pdf"><i class="fas fa-file-pdf me-2 text-danger"></i>PDF</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        {{-- Report Header --}}
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="POST" class="d-flex align-items-center gap-3 mb-2">
+                    @csrf
+                    <input type="hidden" name="form_action" value="update_status">
+                    <div class="flex-grow-1">
+                        <label class="form-label small text-muted mb-0">Status</label>
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            @foreach(['draft' => 'Draft', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $sKey => $sLabel)
+                                <option value="{{ $sKey }}" {{ ($report->status ?? 'draft') === $sKey ? 'selected' : '' }}>{{ $sLabel }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label small text-muted mb-0">Template</label>
+                        @php $tplColors = ['research_summary'=>'primary','genealogical'=>'success','historical'=>'info','source_analysis'=>'warning','finding_aid'=>'secondary']; @endphp
+                        <span class="badge bg-{{ $tplColors[$report->template_type ?? 'custom'] ?? 'dark' }} d-block mt-1">{{ ucwords(str_replace('_', ' ', $report->template_type ?? 'custom')) }}</span>
+                    </div>
+                </form>
+                @if($report->description ?? null)
+                    <p class="text-muted mb-0">{{ e($report->description) }}</p>
+                @endif
+            </div>
+        </div>
+
+        {{-- Sections --}}
+        <div id="reportSections">
+        @forelse($report->sections as $index => $section)
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary">{{ ucwords(str_replace('_', ' ', $section->section_type ?? 'text')) }}</span>
+                        <strong>{{ e($section->title ?? 'Untitled Section') }}</strong>
+                    </div>
+                    <div class="d-flex gap-1">
+                        @if($index > 0)
+                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="up"><button type="submit" class="btn btn-sm btn-outline-secondary" title="Move Up"><i class="fas fa-arrow-up"></i></button></form>
+                        @endif
+                        @if($index < count($report->sections) - 1)
+                        <form method="POST" class="d-inline">@csrf<input type="hidden" name="form_action" value="move_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><input type="hidden" name="direction" value="down"><button type="submit" class="btn btn-sm btn-outline-secondary" title="Move Down"><i class="fas fa-arrow-down"></i></button></form>
+                        @endif
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-section-btn" data-id="{{ $section->id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">@csrf<input type="hidden" name="form_action" value="delete_section"><input type="hidden" name="section_id" value="{{ $section->id }}"><button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></form>
+                    </div>
+                </div>
+                {{-- Display --}}
+                <div class="card-body section-display" id="display-{{ $section->id }}">
+                    @if($section->content ?? null)
+                        @if(($section->content_format ?? 'html') === 'html')
+                            {!! $section->content !!}
+                        @else
+                            <p>{{ e($section->content) }}</p>
+                        @endif
+                    @else
+                        <p class="text-muted fst-italic">Click edit to add content to this section.</p>
                     @endif
                 </div>
+                {{-- Inline Edit (hidden) --}}
+                <div class="card-body section-edit d-none" id="edit-{{ $section->id }}">
+                    <form method="POST">
+                        @csrf
+                        <input type="hidden" name="form_action" value="update_section">
+                        <input type="hidden" name="section_id" value="{{ $section->id }}">
+                        <div class="mb-2"><input type="text" name="title" class="form-control form-control-sm" value="{{ e($section->title ?? '') }}" placeholder="Section title..."></div>
+                        <div class="mb-2"><textarea name="content" class="form-control" rows="10">{{ e($section->content ?? '') }}</textarea></div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+                            <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn" data-id="{{ $section->id }}">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                {{-- Section Comments --}}
+                <div class="card-footer bg-transparent">
+                    <details>
+                        <summary class="text-muted small" style="cursor:pointer;"><i class="fas fa-comments me-1"></i>Comments</summary>
+                        <div class="mt-2">
+                            <form method="POST" class="mt-2">
+                                @csrf
+                                <input type="hidden" name="form_action" value="add_comment">
+                                <input type="hidden" name="section_id" value="{{ $section->id }}">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="comment_content" class="form-control" placeholder="Add a comment...">
+                                    <button type="submit" class="btn btn-outline-primary"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </details>
+                </div>
             </div>
-            <div class="d-flex gap-2 align-items-start">
-                @php
-                    $statusColors = ['draft' => 'secondary', 'in_progress' => 'warning', 'completed' => 'success', 'published' => 'primary'];
-                    $statusColor = $statusColors[$report->status ?? 'draft'] ?? 'secondary';
-                @endphp
-                <span class="badge bg-{{ $statusColor }} fs-6">{{ ucfirst(str_replace('_', ' ', $report->status ?? 'draft')) }}</span>
+        @empty
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-file fa-2x mb-2 opacity-50"></i>
+                <p>No sections yet. Add a section to start building your report.</p>
+            </div>
+        @endforelse
+        </div>
+
+        {{-- Add Section (tabbed) --}}
+        <div class="card border-dashed mb-4">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-tabs-sm mb-3" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#addSingleSection">Add Section</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addFromTemplate">Load Template</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addMultipleSections">Add Multiple</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="addSingleSection">
+                        <form method="POST" class="row g-2 align-items-end">
+                            @csrf
+                            <input type="hidden" name="form_action" value="add_section">
+                            <div class="col-md-4">
+                                <label class="form-label small">Section Type</label>
+                                <select name="section_type" class="form-select form-select-sm">
+                                    @foreach(['text'=>'Text','heading'=>'Heading','title_page'=>'Title Page','toc'=>'Table of Contents','bibliography'=>'Bibliography','collection_list'=>'Collection List','annotation_list'=>'Annotation List','timeline'=>'Timeline','custom'=>'Custom'] as $tk=>$tl)
+                                    <option value="{{ $tk }}">{{ $tl }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-5"><label class="form-label small">Title</label><input type="text" name="title" class="form-control form-control-sm" placeholder="Section title..."></div>
+                            <div class="col-md-3"><button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-plus me-1"></i>Add</button></div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="addFromTemplate">
+                        <form method="POST">
+                            @csrf
+                            <input type="hidden" name="form_action" value="load_template">
+                            <p class="small text-muted mb-2">Load sections from a template. Existing sections are kept.</p>
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-8">
+                                    <select name="template_code" class="form-select form-select-sm">
+                                        <option value="research_summary">Research Summary</option>
+                                        <option value="genealogical">Genealogical Report</option>
+                                        <option value="historical">Historical Analysis</option>
+                                        <option value="source_analysis">Source Analysis</option>
+                                        <option value="finding_aid">Finding Aid</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-sm btn-outline-success w-100"><i class="fas fa-layer-group me-1"></i>Load Sections</button></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="addMultipleSections">
+                        <form method="POST">
+                            @csrf
+                            <input type="hidden" name="form_action" value="add_multiple">
+                            <p class="small text-muted mb-2">Select multiple section types to add at once.</p>
+                            <div class="row g-2 mb-2">
+                                @foreach(['title_page'=>'Title Page','toc'=>'Table of Contents','heading'=>'Heading','text'=>'Text','bibliography'=>'Bibliography','collection_list'=>'Collection List','annotation_list'=>'Annotation List','timeline'=>'Timeline'] as $tk=>$tl)
+                                <div class="col-auto"><div class="form-check"><input type="checkbox" name="section_types[]" value="{{ $tk }}" class="form-check-input" id="multi_{{ $tk }}"><label class="form-check-label small" for="multi_{{ $tk }}">{{ $tl }}</label></div></div>
+                                @endforeach
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus-circle me-1"></i>Add Selected</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="mt-3 d-flex flex-wrap gap-2">
-            <button class="btn atom-btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSectionModal"><i class="fas fa-plus me-1"></i>Add Section</button>
-            <button class="btn atom-btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#changeStatusModal"><i class="fas fa-exchange-alt me-1"></i>Change Status</button>
-            <a href="{{ route('research.viewReport', $report->id) }}?export=1" class="btn atom-btn-white btn-sm"><i class="fas fa-file-export me-1"></i>Export</a>
-            <form method="POST" class="d-inline" onsubmit="return confirm('Permanently delete this report and all its sections?')">
-                @csrf
-                <input type="hidden" name="form_action" value="delete_report">
-                <button type="submit" class="btn atom-btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete Report</button>
-            </form>
+    <div class="col-md-4">
+        {{-- Report Info --}}
+        <div class="card mb-4">
+            <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Report Info</h6></div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Author</span><span>{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Created</span><span>{{ date('M j, Y', strtotime($report->created_at)) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Updated</span><span>{{ date('M j, Y H:i', strtotime($report->updated_at)) }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Sections</span><span class="badge bg-primary">{{ count($report->sections) }}</span></li>
+            </ul>
+        </div>
+
+        {{-- Delete Report --}}
+        <div class="card border-danger">
+            <div class="card-body">
+                <h6 class="card-title text-danger"><i class="fas fa-trash me-1"></i>Delete Report</h6>
+                <p class="small text-muted">This will permanently delete the report and all its sections.</p>
+                <form method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.')">
+                    @csrf
+                    <input type="hidden" name="form_action" value="delete_report">
+                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Delete Report</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-{{-- Report Sections --}}
-<h5 class="mb-3"><i class="fas fa-list-ol me-2"></i>Sections ({{ count($report->sections) }})</h5>
-
-@forelse($report->sections as $section)
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0"><i class="fas fa-paragraph me-2"></i>{{ e($section->title ?? 'Untitled Section') }}</h6>
-        <div class="btn-group btn-group-sm">
-            <button class="btn atom-btn-white" data-bs-toggle="modal" data-bs-target="#editSection{{ $section->id }}"><i class="fas fa-edit"></i></button>
-            <form method="POST" class="d-inline" onsubmit="return confirm('Delete this section?')">
-                @csrf
-                <input type="hidden" name="form_action" value="delete_section">
-                <input type="hidden" name="section_id" value="{{ $section->id }}">
-                <button type="submit" class="btn atom-btn-outline-danger"><i class="fas fa-times"></i></button>
-            </form>
-        </div>
-    </div>
-    @if($section->content ?? null)
-    <div class="card-body">
-        @if(($section->content_format ?? 'text') === 'html')
-            {!! $section->content !!}
-        @else
-            <p>{{ e($section->content) }}</p>
-        @endif
-    </div>
-    @else
-    <div class="card-body text-muted fst-italic">No content yet. Click edit to add content.</div>
-    @endif
-</div>
-
-{{-- Edit Section Modal --}}
-<div class="modal fade" id="editSection{{ $section->id }}" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-    <form method="POST">@csrf<input type="hidden" name="form_action" value="update_section"><input type="hidden" name="section_id" value="{{ $section->id }}">
-    <div class="modal-header"><h5 class="modal-title">Edit Section</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label><input type="text" class="form-control" name="title" value="{{ e($section->title ?? '') }}"></div>
-        <div class="mb-3"><label class="form-label">Content <span class="badge bg-secondary ms-1">Optional</span></label><textarea class="form-control" name="content" rows="10">{{ e($section->content ?? '') }}</textarea></div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save Section</button></div>
-    </form>
-</div></div></div>
-@empty
-<div class="text-center text-muted py-4">
-    <i class="fas fa-paragraph fa-3x mb-3 d-block"></i>
-    No sections yet. Add a section to start building your report.
-</div>
-@endforelse
-
-<div class="mt-3">
-    <a href="{{ route('research.reports') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to Reports</a>
-</div>
-
-{{-- Add Section Modal --}}
-<div class="modal fade" id="addSectionModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <form method="POST">@csrf<input type="hidden" name="form_action" value="add_section">
-    <div class="modal-header"><h5 class="modal-title">Add Section</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Section Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label><input type="text" class="form-control" name="title" required></div>
-        <div class="mb-3"><label class="form-label">Section Type <span class="badge bg-secondary ms-1">Optional</span></label>
-            <select name="section_type" class="form-select">
-                <option value="text">Text</option>
-                <option value="introduction">Introduction</option>
-                <option value="methodology">Methodology</option>
-                <option value="findings">Findings</option>
-                <option value="conclusion">Conclusion</option>
-                <option value="bibliography">Bibliography</option>
-                <option value="appendix">Appendix</option>
-            </select>
-        </div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-plus me-1"></i>Add Section</button></div>
-    </form>
-</div></div></div>
-
-{{-- Change Status Modal --}}
-<div class="modal fade" id="changeStatusModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <form method="POST">@csrf<input type="hidden" name="form_action" value="update_status">
-    <div class="modal-header"><h5 class="modal-title">Change Report Status</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-    <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Status <span class="badge bg-secondary ms-1">Optional</span></label>
-            <select name="status" class="form-select">
-                <option value="draft" {{ ($report->status ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
-                <option value="in_progress" {{ ($report->status ?? '') === 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                <option value="completed" {{ ($report->status ?? '') === 'completed' ? 'selected' : '' }}>Completed</option>
-                <option value="published" {{ ($report->status ?? '') === 'published' ? 'selected' : '' }}>Published</option>
-            </select>
-        </div>
-    </div>
-    <div class="modal-footer"><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Update Status</button></div>
-    </form>
-</div></div></div>
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.edit-section-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            document.getElementById('display-' + id).classList.add('d-none');
+            document.getElementById('edit-' + id).classList.remove('d-none');
+        });
+    });
+    document.querySelectorAll('.cancel-edit-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.dataset.id;
+            document.getElementById('display-' + id).classList.remove('d-none');
+            document.getElementById('edit-' + id).classList.add('d-none');
+        });
+    });
+});
+</script>
+@endpush
 @endsection

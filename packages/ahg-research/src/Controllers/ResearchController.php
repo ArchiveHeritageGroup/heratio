@@ -1593,8 +1593,78 @@ class ResearchController extends Controller
             }
 
             if ($action === 'update_status') {
-                DB::table('research_report')->where('id', $id)->update(['status' => $request->input('status')]);
+                DB::table('research_report')->where('id', $id)->update(['status' => $request->input('status'), 'updated_at' => now()]);
                 return redirect()->route('research.viewReport', $id)->with('success', 'Status updated');
+            }
+
+            if ($action === 'move_section') {
+                $sectionId = (int) $request->input('section_id');
+                $direction = $request->input('direction');
+                $section = DB::table('research_report_section')->where('id', $sectionId)->first();
+                if ($section) {
+                    $swap = DB::table('research_report_section')
+                        ->where('report_id', $id)
+                        ->where('sort_order', $direction === 'up' ? '<' : '>', $section->sort_order)
+                        ->orderBy('sort_order', $direction === 'up' ? 'desc' : 'asc')
+                        ->first();
+                    if ($swap) {
+                        DB::table('research_report_section')->where('id', $section->id)->update(['sort_order' => $swap->sort_order]);
+                        DB::table('research_report_section')->where('id', $swap->id)->update(['sort_order' => $section->sort_order]);
+                    }
+                }
+                return redirect()->route('research.viewReport', $id);
+            }
+
+            if ($action === 'load_template') {
+                $template = DB::table('research_report_template')
+                    ->where('code', $request->input('template_code'))
+                    ->first();
+                if ($template && $template->sections_config) {
+                    $maxOrder = DB::table('research_report_section')->where('report_id', $id)->max('sort_order') ?? -1;
+                    $configs = json_decode($template->sections_config, true) ?: [];
+                    foreach ($configs as $i => $cfg) {
+                        $parts = explode(':', $cfg, 2);
+                        DB::table('research_report_section')->insert([
+                            'report_id' => $id, 'section_type' => $parts[0] ?? 'text',
+                            'title' => $parts[1] ?? ucfirst($parts[0] ?? 'Section'),
+                            'sort_order' => $maxOrder + 1 + $i, 'created_at' => now(),
+                        ]);
+                    }
+                    return redirect()->route('research.viewReport', $id)->with('success', count($configs) . ' sections loaded from template');
+                }
+                return redirect()->route('research.viewReport', $id)->with('error', 'Template not found');
+            }
+
+            if ($action === 'add_multiple') {
+                $types = $request->input('section_types', []);
+                $maxOrder = DB::table('research_report_section')->where('report_id', $id)->max('sort_order') ?? -1;
+                foreach ($types as $i => $type) {
+                    DB::table('research_report_section')->insert([
+                        'report_id' => $id, 'section_type' => $type,
+                        'title' => ucwords(str_replace('_', ' ', $type)),
+                        'sort_order' => $maxOrder + 1 + $i, 'created_at' => now(),
+                    ]);
+                }
+                return redirect()->route('research.viewReport', $id)->with('success', count($types) . ' sections added');
+            }
+
+            if ($action === 'add_comment') {
+                DB::table('research_discussion')->insert([
+                    'workspace_id' => null, 'project_id' => null,
+                    'parent_id' => null, 'researcher_id' => $researcher->id,
+                    'subject' => 'Comment on section #' . $request->input('section_id'),
+                    'content' => $request->input('comment_content'),
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+                return redirect()->route('research.viewReport', $id)->with('success', 'Comment added');
+            }
+
+            if ($action === 'update_header') {
+                DB::table('research_report')->where('id', $id)->update([
+                    'status' => $request->input('status'),
+                    'updated_at' => now(),
+                ]);
+                return redirect()->route('research.viewReport', $id);
             }
         }
 
