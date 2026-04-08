@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 
 @section('sidebar')
-    @include('ahg-research::research._sidebar', ['sidebarActive' => 'documentTemplates'])
+    @include('research::research._sidebar', ['sidebarActive' => 'documentTemplates'])
 @endsection
 
 @section('title', 'Document Templates')

@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 
 @section('sidebar')
-    @include('ahg-research::research._sidebar', ['sidebarActive' => 'validationQueue'])
+    @include('research::research._sidebar', ['sidebarActive' => 'validationQueue'])
 @endsection
 
 @section('title', 'Validation Queue')

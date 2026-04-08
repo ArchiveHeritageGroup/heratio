@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 
 @section('sidebar')
-    @include('ahg-research::research._sidebar', ['sidebarActive' => 'odrlPolicies'])
+    @include('research::research._sidebar', ['sidebarActive' => 'odrlPolicies'])
 @endsection
 
 @section('title', 'ODRL Policies')

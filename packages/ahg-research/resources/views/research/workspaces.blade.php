@@ -1,7 +1,7 @@
 @extends('theme::layouts.2col')
 
 @section('sidebar')
-    @include('ahg-research::research._sidebar', ['sidebarActive' => 'workspaces'])
+    @include('research::research._sidebar', ['sidebarActive' => 'workspaces'])
 @endsection
 
 @section('title', 'Team Workspaces')
