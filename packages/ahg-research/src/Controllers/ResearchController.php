@@ -2570,6 +2570,85 @@ class ResearchController extends Controller
         return redirect()->route('research.savedSearches')->with('success', 'Search saved');
     }
 
+    /**
+     * Snapshot current search results for diff comparison.
+     */
+    public function searchSnapshot(Request $request, int $id)
+    {
+        if (!Auth::check()) return response()->json(['error' => 'Not authenticated'], 401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
+
+        $search = DB::table('research_saved_search')
+            ->where('id', $id)->where('researcher_id', $researcher->id)->first();
+        if (!$search) return response()->json(['error' => 'Search not found'], 404);
+
+        // Run the search query against DB to get current result IDs
+        $query = $search->search_query;
+        $results = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+            })
+            ->where('io.id', '!=', 1)
+            ->where(function ($q) use ($query) {
+                $q->where('i18n.title', 'LIKE', "%{$query}%")
+                  ->orWhere('io.identifier', 'LIKE', "%{$query}%");
+            })
+            ->pluck('io.id')->toArray();
+
+        DB::table('research_saved_search')->where('id', $id)->update([
+            'result_snapshot_json' => json_encode($results),
+            'last_result_count' => count($results),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'count' => count($results)]);
+    }
+
+    /**
+     * Diff current search results against last snapshot.
+     */
+    public function searchDiff(Request $request, int $id)
+    {
+        if (!Auth::check()) return response()->json(['error' => 'Not authenticated'], 401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
+
+        $search = DB::table('research_saved_search')
+            ->where('id', $id)->where('researcher_id', $researcher->id)->first();
+        if (!$search) return response()->json(['error' => 'Search not found'], 404);
+
+        $previousIds = json_decode($search->result_snapshot_json ?? '[]', true) ?: [];
+        if (empty($previousIds)) {
+            return response()->json(['error' => 'No previous snapshot. Take a snapshot first.']);
+        }
+
+        // Run current search
+        $query = $search->search_query;
+        $currentIds = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+            })
+            ->where('io.id', '!=', 1)
+            ->where(function ($q) use ($query) {
+                $q->where('i18n.title', 'LIKE', "%{$query}%")
+                  ->orWhere('io.identifier', 'LIKE', "%{$query}%");
+            })
+            ->pluck('io.id')->toArray();
+
+        $added = array_values(array_diff($currentIds, $previousIds));
+        $removed = array_values(array_diff($previousIds, $currentIds));
+        $unchanged = count(array_intersect($currentIds, $previousIds));
+
+        return response()->json([
+            'previous_count' => count($previousIds),
+            'current_count' => count($currentIds),
+            'unchanged_count' => $unchanged,
+            'added' => $added,
+            'removed' => $removed,
+        ]);
+    }
+
     public function runSavedSearch(int $id)
     {
         if (!Auth::check()) return redirect()->route('login');

@@ -73,6 +73,8 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // Saved Searches
     Route::get('/savedSearches', [ResearchController::class, 'savedSearches'])->name('savedSearches');
     Route::post('/saved-searches', [ResearchController::class, 'storeSavedSearch'])->name('savedSearches.store');
+    Route::post('/search-diff/{id}', [ResearchController::class, 'searchDiff'])->name('searchDiff')->where('id', '[0-9]+');
+    Route::post('/search-snapshot/{id}', [ResearchController::class, 'searchSnapshot'])->name('searchSnapshot')->where('id', '[0-9]+');
     Route::get('/saved-searches/{id}/run', [ResearchController::class, 'runSavedSearch'])->name('savedSearches.run')->where('id', '[0-9]+');
     Route::delete('/saved-searches/{id}', [ResearchController::class, 'destroySavedSearch'])->name('savedSearches.destroy')->where('id', '[0-9]+');
 
