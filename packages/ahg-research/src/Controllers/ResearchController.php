@@ -3153,10 +3153,32 @@ class ResearchController extends Controller
         $resources = DB::table('research_project_resource')->where('project_id', $id)->get()->toArray();
         $assertions = DB::table('research_assertion')->where('project_id', $id)->get()->toArray();
         $hypotheses = DB::table('research_hypothesis')->where('project_id', $id)->get()->toArray();
+        $snapshots = DB::table('research_snapshot')->where('project_id', $id)->get()->toArray();
+        $extractionJobs = DB::table('research_extraction_job')->where('project_id', $id)->get()->toArray();
+
+        $searchQueries = [];
+        try {
+            $searchQueries = DB::table('research_saved_search')->where('researcher_id', $researcher->id)->get()->toArray();
+        } catch (\Exception $e) {}
+
+        // JSON download
+        if ($request->input('format') === 'json') {
+            return response()->json([
+                'project' => $project,
+                'milestones' => $milestones,
+                'resources' => $resources,
+                'assertions' => $assertions,
+                'hypotheses' => $hypotheses,
+                'snapshots' => $snapshots,
+                'extraction_jobs' => $extractionJobs,
+                'search_queries' => $searchQueries,
+                'integrity_hash' => hash('sha256', json_encode([$project->id, count($assertions), count($snapshots), count($milestones)])),
+            ]);
+        }
 
         return view('research::research.reproducibility-pack', array_merge(
             $this->getSidebarData('projects'),
-            compact('project', 'researcher', 'milestones', 'resources', 'assertions', 'hypotheses')
+            compact('project', 'researcher', 'milestones', 'resources', 'assertions', 'hypotheses', 'snapshots', 'extractionJobs', 'searchQueries')
         ));
     }
 
