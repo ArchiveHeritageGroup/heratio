@@ -125,11 +125,17 @@ class PrivacyController extends Controller
             abort(404);
         }
 
-        // Get the master digital object (usage_id 141 = master)
+        // Get the master digital object (try 140=master first, then any)
         $digitalObject = DB::table('digital_object')
             ->where('object_id', $io->id)
-            ->where('usage_id', 141)
+            ->where('usage_id', 140)
             ->first();
+        if (!$digitalObject) {
+            $digitalObject = DB::table('digital_object')
+                ->where('object_id', $io->id)
+                ->orderBy('usage_id')
+                ->first();
+        }
 
         // Get existing redactions for this object
         $existingRedactions = $this->privacyService->getRedactions($io->id);
@@ -160,14 +166,23 @@ class PrivacyController extends Controller
             $name = $digitalObject->name ?? null;
 
             if ($path && $name) {
-                $documentUrl = '/uploads/r/' . ltrim($path, '/') . '/' . $name;
+                // External URL
+                if (str_starts_with($path, 'http')) {
+                    $documentUrl = $path;
+                } else {
+                    $documentUrl = rtrim($path, '/') . '/' . $name;
+                }
             }
 
             $mimeType = $digitalObject->mime_type ?? '';
             if (str_contains($mimeType, 'pdf')) {
                 $documentType = 'pdf';
-            } else {
+            } elseif (str_starts_with($mimeType, 'image/')) {
                 $documentType = 'image';
+            } elseif (str_starts_with($mimeType, 'model/') || str_contains($mimeType, 'gltf') || str_contains($mimeType, 'obj')) {
+                $documentType = '3d';
+            } else {
+                $documentType = 'unsupported';
             }
         }
 

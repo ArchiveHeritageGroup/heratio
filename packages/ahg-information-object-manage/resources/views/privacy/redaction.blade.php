@@ -167,8 +167,25 @@
 
     // Determine viewer type based on document
     $isPdf = $documentType === 'pdf' || (isset($documentUrl) && str_ends_with(strtolower($documentUrl ?? ''), '.pdf'));
-    $isImage = !$isPdf;
+    $isImage = $documentType === 'image';
+    $isUnsupported = in_array($documentType, ['3d', 'unsupported', null]);
   @endphp
+
+  @if($isUnsupported)
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Visual redaction is not available for this object type.</strong>
+      @if($documentType === '3d')
+        This is a 3D model — redaction only works on images and PDFs.
+      @elseif(!$documentUrl)
+        No digital object is attached to this record.
+      @else
+        The file type ({{ $digitalObject->mime_type ?? 'unknown' }}) is not supported for visual redaction.
+      @endif
+    </div>
+    <a href="{{ route('informationobject.show', $io->slug) }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    @php return; @endphp
+  @endif
 
   {{-- Document Info Card --}}
   <div class="card doc-info-card border-0 shadow-sm mb-3">
