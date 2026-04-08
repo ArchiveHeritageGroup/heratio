@@ -6,6 +6,9 @@
 @endsection
 
 @section('content')
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  @endif
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show">
       {{ session('error') }}
@@ -161,6 +164,13 @@
           </button>
         </form>
       @endif
+
+      <form action="{{ route('research.resetPassword', $researcher->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate a new password for this user? They will need to use the new password to log in.')">
+        @csrf
+        <button type="submit" class="btn btn-outline-secondary">
+          <i class="fas fa-key me-1"></i>Reset Password
+        </button>
+      </form>
 
       <a href="{{ route('research.researchers') }}" class="btn atom-btn-white">
         <i class="fas fa-arrow-left me-1"></i>Back to List

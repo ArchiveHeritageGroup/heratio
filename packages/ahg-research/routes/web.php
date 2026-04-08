@@ -176,6 +176,7 @@ Route::prefix('research')->name('research.')->middleware('admin')->group(functio
     Route::post('/researchers/{id}/approve', [ResearchController::class, 'approveResearcher'])->name('researchers.approve')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/reject', [ResearchController::class, 'rejectResearcher'])->name('researchers.reject')->where('id', '[0-9]+');
     Route::post('/researchers/{id}/suspend', [ResearchController::class, 'suspendResearcher'])->name('researchers.suspend')->where('id', '[0-9]+');
+    Route::post('/researchers/{id}/reset-password', [ResearchController::class, 'resetPassword'])->name('resetPassword')->where('id', '[0-9]+');
     Route::match(['get', 'post'], '/bookings', [ResearchController::class, 'bookings'])->name('bookings');
     Route::get('/rooms', [ResearchController::class, 'rooms'])->name('rooms');
     Route::match(['get', 'post'], '/editRoom', [ResearchController::class, 'editRoom'])->name('editRoom');

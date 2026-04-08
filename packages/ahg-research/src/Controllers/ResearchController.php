@@ -2651,6 +2651,21 @@ class ResearchController extends Controller
     // DEDICATED ROUTE METHODS (Researchers Admin)
     // =========================================================================
 
+    public function resetPassword(int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcher($id);
+        if (!$researcher) abort(404);
+
+        $newPassword = \Illuminate\Support\Str::random(12);
+        DB::table('user')->where('id', $researcher->user_id)->update([
+            'password_hash' => bcrypt($newPassword),
+        ]);
+
+        return redirect()->route('research.viewResearcher', $id)
+            ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> — share this with the researcher securely.');
+    }
+
     public function suspendResearcher(int $id)
     {
         if (!Auth::check()) return redirect()->route('login');
