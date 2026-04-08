@@ -2446,6 +2446,7 @@ class ResearchController extends Controller
         $members = DB::table('research_workspace_member as m')
             ->join('research_researcher as r', 'r.id', '=', 'm.researcher_id')
             ->where('m.workspace_id', $id)
+            ->where('m.researcher_id', '!=', $workspace->owner_id)
             ->select('m.*', DB::raw("CONCAT(r.first_name, ' ', r.last_name) as name"), 'r.email', 'r.institution')
             ->orderBy('m.role')
             ->get()->toArray();

@@ -318,7 +318,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Search Researcher *</label>
-                        <select id="inviteResearcherSearch" required></select>
+                        <select id="inviteResearcherSearch"></select>
                         <small class="text-muted">Type name or email of a registered researcher</small>
                     </div>
                     <div class="mb-3">
@@ -423,6 +423,14 @@ document.addEventListener('DOMContentLoaded', function() {
             item: function(item) { return '<div>' + item.name + ' <small>(' + (item.email || '') + ')</small></div>'; }
         },
         onChange: function(value) { document.getElementById('inviteEmailHidden').value = value; }
+    });
+
+    // Validate invite form
+    document.querySelector('#inviteModal form').addEventListener('submit', function(e) {
+        if (!document.getElementById('inviteEmailHidden').value) {
+            e.preventDefault();
+            alert('Please select a researcher first.');
+        }
     });
 
     // Resource search TomSelect
