@@ -26,6 +26,20 @@
       </div>
     </div>
   @endif
+
+  {{-- Information Notice --}}
+  <div class="card mb-4">
+    <div class="card-header small fw-bold" style="background:var(--ahg-primary);color:#fff">
+      <i class="fas fa-info-circle me-1"></i> Information
+    </div>
+    <ul class="list-group list-group-flush small">
+      <li class="list-group-item"><i class="fas fa-check-circle text-warning me-2"></i>Bookings require confirmation</li>
+      <li class="list-group-item"><i class="fas fa-id-card text-primary me-2"></i>Bring valid ID on visit day</li>
+      <li class="list-group-item"><i class="fas fa-clock text-danger me-2"></i>Cancel at least 24h in advance</li>
+      <li class="list-group-item"><i class="fas fa-archive text-success me-2"></i>Request materials in advance for faster service</li>
+      <li class="list-group-item"><i class="fas fa-phone text-info me-2"></i>Contact the reading room for special requirements</li>
+    </ul>
+  </div>
 @endsection
 
 @section('content')
