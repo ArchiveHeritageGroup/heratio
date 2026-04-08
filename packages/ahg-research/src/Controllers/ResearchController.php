@@ -2545,18 +2545,25 @@ class ResearchController extends Controller
             return redirect()->route('researcher.register');
         }
 
+        $isAjax = $request->expectsJson() || $request->isJson();
+
         // Accept search_query OR search_params (from GLAM browse AJAX)
         $searchQuery = $request->input('search_query')
             ?: $request->input('search_params')
             ?: $request->input('query')
             ?: '';
 
+        if (!$searchQuery) {
+            if ($isAjax) return response()->json(['success' => false, 'error' => 'Search query is required'], 422);
+            return redirect()->route('research.savedSearches')->with('error', 'Search query is required');
+        }
+
         $this->service->saveSearch($researcher->id, [
             'name' => $request->input('name'),
             'search_query' => $searchQuery,
         ]);
 
-        if ($request->expectsJson()) {
+        if ($isAjax) {
             return response()->json(['success' => true]);
         }
 

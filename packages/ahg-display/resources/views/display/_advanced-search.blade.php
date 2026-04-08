@@ -333,15 +333,22 @@ document.getElementById('glam-save-search-btn').addEventListener('click', functi
   };
   fetch('/research/saved-searches', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': data._token},
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': data._token},
     body: JSON.stringify(data)
-  }).then(function(r) { return r.json(); })
+  }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function(d) {
-      var modal = bootstrap.Modal.getInstance(document.getElementById('saveGlamSearchModal'));
-      if (modal) modal.hide();
-      alert('Search saved!');
-      location.reload();
-    }).catch(function() { alert('Error saving search'); });
+      if (d.success) {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('saveGlamSearchModal'));
+        if (modal) modal.hide();
+        alert('Search saved!');
+        location.reload();
+      } else {
+        alert('Error: ' + (d.error || 'Unknown error'));
+      }
+    }).catch(function(e) { alert('Error saving search: ' + e.message); });
 });
 </script>
 @endauth
