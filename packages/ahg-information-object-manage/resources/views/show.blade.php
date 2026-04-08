@@ -535,31 +535,118 @@
         </script>
 
       @elseif($is3DModel)
-        {{-- 3D Model: Google model-viewer --}}
+        {{-- 3D Model viewer --}}
         @php
           $modelViewerId = 'model-3d-' . ($masterObj->id ?? uniqid());
+          $modelExt = strtolower(pathinfo($masterObj->name ?? '', PATHINFO_EXTENSION));
+          $isGlb = in_array($modelExt, ['glb', 'gltf']);
         @endphp
         <div class="digitalObject3D">
           <div class="d-flex flex-column align-items-center">
             <div class="mb-2">
               <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
               <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
+              <span class="badge bg-info">{{ strtoupper($modelExt) }}</span>
             </div>
-            <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; position: relative;">
-              <model-viewer 
-                id="{{ $modelViewerId }}"
-                src="{{ $masterUrl }}" 
-                camera-controls 
-                touch-action="pan-y" 
-                shadow-intensity="1"
-                exposure="1"
-                style="width:100%;height:100%;background:transparent;border-radius:8px;"
-                alt="3D model">
-              </model-viewer>
-            </div>
+
+            @if($isGlb)
+              {{-- GLB/GLTF: Google model-viewer --}}
+              <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px;">
+                <model-viewer id="{{ $modelViewerId }}" src="{{ $masterUrl }}" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1" style="width:100%;height:100%;background:transparent;border-radius:8px;" alt="3D model"></model-viewer>
+              </div>
+            @else
+              {{-- OBJ/STL/PLY/FBX: Three.js viewer --}}
+              <div id="{{ $modelViewerId }}-container" style="width: 100%; height: 400px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; position: relative;">
+                <canvas id="{{ $modelViewerId }}-canvas" style="width:100%;height:100%;border-radius:8px;"></canvas>
+                <div id="{{ $modelViewerId }}-loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;">
+                  <i class="fas fa-spinner fa-spin fa-2x"></i><br><small>Loading 3D model...</small>
+                </div>
+              </div>
+              <script src="{{ asset('ric/js/vendor/three.min.js') }}"></script>
+              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+              @if($modelExt === 'obj')
+              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/OBJLoader.js"></script>
+              @elseif($modelExt === 'stl')
+              <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/STLLoader.js"></script>
+              @endif
+              <script nonce="{{ $cspNonce ?? '' }}">
+              (function() {
+                var container = document.getElementById('{{ $modelViewerId }}-container');
+                var canvas = document.getElementById('{{ $modelViewerId }}-canvas');
+                var loading = document.getElementById('{{ $modelViewerId }}-loading');
+                var w = container.clientWidth, h = container.clientHeight;
+
+                var scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x1a1a2e);
+                var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+                camera.position.set(0, 1, 3);
+
+                var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                renderer.setSize(w, h);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                var controls = new THREE.OrbitControls(camera, canvas);
+                controls.enableDamping = true;
+
+                // Lighting
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+                var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight.position.set(5, 10, 7);
+                scene.add(dirLight);
+                scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.4));
+
+                var modelUrl = '{{ $masterUrl }}';
+
+                @if($modelExt === 'obj')
+                var loader = new THREE.OBJLoader();
+                @elseif($modelExt === 'stl')
+                var loader = new THREE.STLLoader();
+                @endif
+
+                @if(in_array($modelExt, ['obj', 'stl']))
+                loader.load(modelUrl, function(object) {
+                  @if($modelExt === 'stl')
+                  var material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                  var mesh = new THREE.Mesh(object, material);
+                  object = mesh;
+                  @endif
+
+                  // Center and scale
+                  var box = new THREE.Box3().setFromObject(object);
+                  var center = box.getCenter(new THREE.Vector3());
+                  var size = box.getSize(new THREE.Vector3());
+                  var maxDim = Math.max(size.x, size.y, size.z);
+                  var scale = 2 / maxDim;
+                  object.scale.multiplyScalar(scale);
+                  object.position.sub(center.multiplyScalar(scale));
+
+                  scene.add(object);
+                  loading.style.display = 'none';
+
+                  camera.position.set(0, 1, 3);
+                  controls.update();
+                }, function(xhr) {
+                  if (xhr.total) loading.innerHTML = '<small style="color:#fff;">' + Math.round(xhr.loaded/xhr.total*100) + '%</small>';
+                }, function(err) {
+                  loading.innerHTML = '<div class="text-danger"><i class="fas fa-exclamation-triangle"></i> Failed to load model</div>';
+                });
+                @endif
+
+                function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
+                animate();
+
+                window.addEventListener('resize', function() {
+                  var w2 = container.clientWidth, h2 = container.clientHeight;
+                  camera.aspect = w2 / h2; camera.updateProjectionMatrix();
+                  renderer.setSize(w2, h2);
+                });
+              })();
+              </script>
+            @endif
+
             <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
               <i class="fas fa-exclamation-triangle me-1"></i>
-              <span>Failed to load 3D model. Please check if the file exists and is accessible.</span>
+              <span>Failed to load 3D model.</span>
               <br><small class="text-muted">File: {{ $masterObj->name ?? 'Unknown' }}</small>
             </div>
             <small class="text-muted mt-2">
@@ -569,9 +656,6 @@
               <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-download me-1"></i>Download Original
               </a>
-              <button type="button" class="btn btn-sm atom-btn-white" data-bs-toggle="modal" data-bs-target="#model3d-fullscreen-modal">
-                <i class="fas fa-expand me-1"></i>Fullscreen
-              </button>
             </div>
           </div>
         </div>
