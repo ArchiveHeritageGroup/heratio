@@ -2484,14 +2484,21 @@ class InformationObjectController extends Controller
 
         // ---- Subject access points (taxonomy 35) ----
         if ($request->has('subjectAccessPointIds')) {
-            DB::table('object_term_relation')
+            $oldSubjectIds = DB::table('object_term_relation')
                 ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) {
-                    $q->select('id')->from('term')->where('taxonomy_id', 35);
-                })
-                ->delete();
+                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 35); })
+                ->pluck('id')->toArray();
+            DB::table('object_term_relation')->whereIn('id', $oldSubjectIds)->delete();
+            if (!empty($oldSubjectIds)) DB::table('object')->whereIn('id', $oldSubjectIds)->delete();
+
             foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
+                $relId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitObjectTermRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
                 DB::table('object_term_relation')->insert([
+                    'id'        => $relId,
                     'object_id' => $ioId,
                     'term_id'   => (int) $termId,
                 ]);
@@ -2500,14 +2507,21 @@ class InformationObjectController extends Controller
 
         // ---- Place access points (taxonomy 42) ----
         if ($request->has('placeAccessPointIds')) {
-            DB::table('object_term_relation')
+            $oldPlaceIds = DB::table('object_term_relation')
                 ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) {
-                    $q->select('id')->from('term')->where('taxonomy_id', 42);
-                })
-                ->delete();
+                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 42); })
+                ->pluck('id')->toArray();
+            DB::table('object_term_relation')->whereIn('id', $oldPlaceIds)->delete();
+            if (!empty($oldPlaceIds)) DB::table('object')->whereIn('id', $oldPlaceIds)->delete();
+
             foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
+                $relId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitObjectTermRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
                 DB::table('object_term_relation')->insert([
+                    'id'        => $relId,
                     'object_id' => $ioId,
                     'term_id'   => (int) $termId,
                 ]);
@@ -2516,14 +2530,21 @@ class InformationObjectController extends Controller
 
         // ---- Genre access points (taxonomy 78) ----
         if ($request->has('genreAccessPointIds')) {
-            DB::table('object_term_relation')
+            $oldGenreIds = DB::table('object_term_relation')
                 ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) {
-                    $q->select('id')->from('term')->where('taxonomy_id', 78);
-                })
-                ->delete();
+                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 78); })
+                ->pluck('id')->toArray();
+            DB::table('object_term_relation')->whereIn('id', $oldGenreIds)->delete();
+            if (!empty($oldGenreIds)) DB::table('object')->whereIn('id', $oldGenreIds)->delete();
+
             foreach (array_filter((array) $request->input('genreAccessPointIds', [])) as $termId) {
+                $relId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitObjectTermRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
                 DB::table('object_term_relation')->insert([
+                    'id'        => $relId,
                     'object_id' => $ioId,
                     'term_id'   => (int) $termId,
                 ]);
