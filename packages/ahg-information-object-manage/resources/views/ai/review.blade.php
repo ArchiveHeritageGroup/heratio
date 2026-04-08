@@ -9,6 +9,15 @@
     <h1><i class="fas fa-brain me-2"></i>NER Review Dashboard</h1>
   </div>
 
+  @if($filterObjectId ?? null)
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+      <div>
+        <i class="fas fa-filter me-2"></i>Filtered to: <strong>{{ e($filterIo->title ?? 'Object #' . $filterObjectId) }}</strong>
+      </div>
+      <a href="{{ route('io.ai.review') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i>Clear Filter</a>
+    </div>
+  @endif
+
   {{-- Stat Cards --}}
   <div class="row mb-4">
     <div class="col-md-6">

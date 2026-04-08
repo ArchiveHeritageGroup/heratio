@@ -75,13 +75,24 @@ class AiController extends Controller
      * NER Review dashboard.
      * AtoM route: /ai/ner/review
      */
-    public function review()
+    public function review(Request $request)
     {
-        // Get objects with pending entities, grouped by object
-        $pending = $this->nerService->getPendingExtractions();
+        $objectId = $request->input('object_id');
+
+        // Get objects with pending entities, optionally filtered by object_id
+        $pending = $this->nerService->getPendingExtractions($objectId ? (int) $objectId : null);
+
+        // Resolve IO title for filter display
+        $filterIo = null;
+        if ($objectId) {
+            $filterIo = DB::table('information_object_i18n')
+                ->where('id', (int) $objectId)->where('culture', app()->getLocale())->first();
+        }
 
         return view('ahg-io-manage::ai.review', [
             'pending' => $pending,
+            'filterObjectId' => $objectId,
+            'filterIo' => $filterIo,
         ]);
     }
 

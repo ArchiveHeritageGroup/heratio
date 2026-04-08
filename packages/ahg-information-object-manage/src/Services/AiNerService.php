@@ -75,19 +75,25 @@ class AiNerService
      * Get pending extractions grouped by object for the review dashboard.
      * Returns objects with pending entity counts, approved counts, titles, slugs.
      */
-    public function getPendingExtractions(): Collection
+    public function getPendingExtractions(?int $objectId = null): Collection
     {
         $culture = app()->getLocale();
 
         try {
-            return DB::table('ahg_ner_entity')
+            $query = DB::table('ahg_ner_entity')
                 ->join('information_object', 'ahg_ner_entity.object_id', '=', 'information_object.id')
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->leftJoin('information_object_i18n', function ($join) use ($culture) {
                     $join->on('information_object.id', '=', 'information_object_i18n.id')
                          ->where('information_object_i18n.culture', '=', $culture);
                 })
-                ->where('ahg_ner_entity.status', 'pending')
+                ->where('ahg_ner_entity.status', 'pending');
+
+            if ($objectId) {
+                $query->where('ahg_ner_entity.object_id', $objectId);
+            }
+
+            return $query
                 ->select(
                     'ahg_ner_entity.object_id as id',
                     'information_object_i18n.title',
