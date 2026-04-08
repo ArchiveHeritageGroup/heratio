@@ -1860,35 +1860,141 @@
     </section>
   @endauth
 
-  {{-- ===== 9. Rights area (authenticated only) ===== --}}
-  @auth
-    <section id="rightsArea" class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <a class="text-decoration-none text-white" href="#rights-collapse">
-          Rights area
-        </a>
-        <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="float-end text-white opacity-75" style="font-size:.75rem;" title="Edit Rights area">
-          <i class="fas fa-pencil-alt"></i>
-        </a>
-      </h2>
-      <div id="rights-collapse">
-        {{-- Standard rights (from rights table via relation) --}}
-        @if(isset($rights) && (is_countable($rights) ? count($rights) > 0 : !empty($rights)))
-          @foreach($rights as $right)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $right->basis ?? 'Right' }}</h3>
-              <div class="col-9 p-2">
-                @if(isset($right->act)){{ $right->act }}@endif
-                @if(isset($right->start_date) || isset($right->end_date))
-                  <br><small class="text-muted">{{ $right->start_date ?? '?' }} - {{ $right->end_date ?? '?' }}</small>
-                @endif
-                @if(isset($right->rights_note))
-                  <br>{!! nl2br(e($right->rights_note)) !!}
-                @endif
-              </div>
+  {{-- ===== 9. Rights & Access (combined PREMIS + Extended, library-style) ===== --}}
+  @php
+    $culture = app()->getLocale();
+
+    // PREMIS rights
+    $premisRights = \Illuminate\Support\Facades\DB::table('rights')
+        ->join('relation', function ($j) use ($io) {
+            $j->on('rights.id', '=', 'relation.subject_id')
+               ->where('relation.object_id', '=', $io->id)
+               ->where('relation.type_id', '=', 168);
+        })
+        ->leftJoin('rights_i18n', function ($j) use ($culture) {
+            $j->on('rights.id', '=', 'rights_i18n.id')->where('rights_i18n.culture', '=', $culture);
+        })
+        ->select('rights.*', 'rights_i18n.rights_note', 'rights_i18n.copyright_note',
+                 'rights_i18n.license_terms', 'rights_i18n.license_note',
+                 'rights_i18n.statute_note', 'rights_i18n.identifier_type',
+                 'rights_i18n.identifier_value')
+        ->get()
+        ->map(function ($r) use ($culture) {
+            $r->basis_name = $r->basis_id ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $r->basis_id)->where('culture', $culture)->value('name') : null;
+            $r->copyright_status_name = $r->copyright_status_id ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $r->copyright_status_id)->where('culture', $culture)->value('name') : null;
+            $r->rights_holder_name = $r->rights_holder_id ? \Illuminate\Support\Facades\DB::table('actor_i18n')->where('id', $r->rights_holder_id)->where('culture', $culture)->value('authorized_form_of_name') : null;
+            $r->granted = \Illuminate\Support\Facades\DB::table('granted_right')->where('rights_id', $r->id)->get()->map(function ($gr) use ($culture) {
+                $gr->act_name = $gr->act_id ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $gr->act_id)->where('culture', $culture)->value('name') : null;
+                $gr->restriction_label = match((int)($gr->restriction ?? -1)) { 0 => 'Allow', 1 => 'Disallow', 2 => 'Conditional', default => '' };
+                return $gr;
+            });
+            return $r;
+        });
+
+    // Extended rights
+    $extRightsData = \Illuminate\Support\Facades\Schema::hasTable('extended_rights')
+        ? \Illuminate\Support\Facades\DB::table('extended_rights as er')
+            ->leftJoin('extended_rights_i18n as eri', function ($j) use ($culture) {
+                $j->on('eri.extended_rights_id', '=', 'er.id')->where('eri.culture', '=', $culture);
+            })
+            ->where('er.object_id', $io->id)->first()
+        : null;
+
+    $extRsName = ($extRightsData && ($extRightsData->rights_statement_id ?? null)) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRightsData->rights_statement_id)->where('culture', $culture)->value('name') : null;
+    $extCcName = ($extRightsData && ($extRightsData->creative_commons_license_id ?? null)) ? \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $extRightsData->creative_commons_license_id)->where('culture', $culture)->value('name') : null;
+    $tkLabels = ($extRightsData && \Illuminate\Support\Facades\Schema::hasTable('extended_rights_tk_label'))
+        ? \Illuminate\Support\Facades\DB::table('extended_rights_tk_label')->where('extended_rights_id', $extRightsData->id)->get()
+        : collect();
+    $embargoData = \Illuminate\Support\Facades\Schema::hasTable('embargo')
+        ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()
+        : null;
+    $primaryHolder = $premisRights->pluck('rights_holder_name')->filter()->first();
+    $holderDisplay = $primaryHolder ?? ($extRightsData->rights_holder ?? null);
+    $holderUri = $extRightsData->rights_holder_uri ?? null;
+    $allNotes = collect();
+    foreach ($premisRights as $pr) { if ($pr->rights_note) $allNotes->push($pr->rights_note); }
+    if ($extRightsData && ($extRightsData->rights_note ?? null) && !$allNotes->contains($extRightsData->rights_note)) $allNotes->push($extRightsData->rights_note);
+    $hasAnyRights = $premisRights->isNotEmpty() || $extRightsData || $embargoData;
+  @endphp
+
+  @if($hasAnyRights || auth()->check())
+    <section id="rightsArea" class="card mb-4">
+      <div class="card-header text-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);">
+        <h5 class="mb-0"><i class="fas fa-copyright me-2"></i>Rights & Access</h5>
+        @auth
+          <a href="{{ route('informationobject.edit', $io->slug) }}#rights-collapse" class="text-white opacity-75" style="font-size:.75rem;"><i class="fas fa-pencil-alt"></i></a>
+        @endauth
+      </div>
+      <div class="card-body">
+
+        @if($embargoData)
+          <div class="alert alert-danger d-flex align-items-center mb-3">
+            <i class="fas fa-ban me-2 fa-lg"></i>
+            <div><strong>Under Embargo</strong> — {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
+              @if($embargoData->end_date) until {{ $embargoData->end_date }} @else (no end date) @endif
             </div>
-          @endforeach
+          </div>
         @endif
+
+        <dl class="row mb-0">
+          @if($extRsName)<dt class="col-sm-4">Rights statement</dt><dd class="col-sm-8">{{ $extRsName }}</dd>@endif
+          @foreach($premisRights as $pr)
+            @if($pr->basis_name)<dt class="col-sm-4">Basis</dt><dd class="col-sm-8">{{ $pr->basis_name }}</dd>@endif
+          @endforeach
+          @if($holderDisplay)
+            <dt class="col-sm-4">Rights holder</dt>
+            <dd class="col-sm-8">{{ $holderDisplay }}@if($holderUri) <a href="{{ $holderUri }}" target="_blank" class="ms-1"><i class="fas fa-external-link-alt small"></i></a>@endif</dd>
+          @endif
+          @php $startDate = $premisRights->pluck('start_date')->filter()->first() ?? ($extRightsData->rights_date ?? null); $endDate = $premisRights->pluck('end_date')->filter()->first() ?? ($extRightsData->expiry_date ?? null); @endphp
+          @if($startDate)<dt class="col-sm-4">Start date</dt><dd class="col-sm-8">{{ $startDate }}</dd>@endif
+          @if($endDate)<dt class="col-sm-4">End / Expiry date</dt><dd class="col-sm-8">{{ $endDate }}</dd>@endif
+          @foreach($premisRights as $pr)
+            @if($pr->copyright_status_name)<dt class="col-sm-4">Copyright status</dt><dd class="col-sm-8">{{ $pr->copyright_status_name }}</dd>@endif
+            @if($pr->copyright_jurisdiction ?? null)<dt class="col-sm-4">Jurisdiction</dt><dd class="col-sm-8">{{ $pr->copyright_jurisdiction }}</dd>@endif
+            @if($pr->copyright_note)<dt class="col-sm-4">Copyright note</dt><dd class="col-sm-8">{{ $pr->copyright_note }}</dd>@endif
+          @endforeach
+          @if($extCcName)<dt class="col-sm-4">Creative Commons</dt><dd class="col-sm-8">{{ $extCcName }}</dd>@endif
+          @foreach($premisRights as $pr)
+            @if($pr->license_terms ?? null)<dt class="col-sm-4">License terms</dt><dd class="col-sm-8">{{ $pr->license_terms }}</dd>@endif
+            @if($pr->license_note ?? null)<dt class="col-sm-4">License note</dt><dd class="col-sm-8">{{ $pr->license_note }}</dd>@endif
+            @if($pr->statute_note ?? null)<dt class="col-sm-4">Statute note</dt><dd class="col-sm-8">{{ $pr->statute_note }}</dd>@endif
+          @endforeach
+          @if($extRightsData && ($extRightsData->usage_conditions ?? null))<dt class="col-sm-4">Usage conditions</dt><dd class="col-sm-8">{{ $extRightsData->usage_conditions }}</dd>@endif
+          @if($extRightsData && ($extRightsData->copyright_notice ?? null))<dt class="col-sm-4">Copyright notice</dt><dd class="col-sm-8">{{ $extRightsData->copyright_notice }}</dd>@endif
+          @if($allNotes->isNotEmpty())<dt class="col-sm-4">Notes</dt><dd class="col-sm-8">@foreach($allNotes as $note)<p class="mb-1">{{ $note }}</p>@endforeach</dd>@endif
+          @foreach($premisRights as $pr)
+            @if(($pr->identifier_type ?? null) || ($pr->identifier_value ?? null))<dt class="col-sm-4">Identifier</dt><dd class="col-sm-8">{{ $pr->identifier_type }}{{ ($pr->identifier_type && $pr->identifier_value) ? ': ' : '' }}{{ $pr->identifier_value }}</dd>@endif
+          @endforeach
+        </dl>
+
+        @if($tkLabels->isNotEmpty())
+          <div class="mt-2"><strong class="small text-muted">Traditional Knowledge Labels</strong>
+            <div class="d-flex flex-wrap gap-1 mt-1">@foreach($tkLabels as $tk)<span class="badge bg-dark">{{ $tk->label_name ?? $tk->label_code ?? '' }}</span>@endforeach</div>
+          </div>
+        @endif
+
+        @php $allGranted = $premisRights->flatMap(fn($pr) => $pr->granted); @endphp
+        @if($allGranted->isNotEmpty())
+          <hr><h6 class="text-muted mb-2">Granted Rights</h6>
+          <table class="table table-sm table-bordered mb-0">
+            <thead><tr class="table-light"><th>Act</th><th>Restriction</th><th>Start</th><th>End</th><th>Notes</th></tr></thead>
+            <tbody>
+              @foreach($allGranted as $gr)
+                <tr>
+                  <td>{{ $gr->act_name ?? '' }}</td>
+                  <td><span class="badge bg-{{ $gr->restriction == 0 ? 'success' : ($gr->restriction == 1 ? 'danger' : 'warning') }}">{{ $gr->restriction_label }}</span></td>
+                  <td>{{ $gr->start_date ?? '' }}</td>
+                  <td>{{ $gr->end_date ?? '' }}</td>
+                  <td>{{ $gr->notes ?? '' }}</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        @endif
+
+      </div>
+    </section>
+  @endif
 
         {{-- Extended rights (from extended_rights + extended_rights_i18n + extended_rights_tk_label) --}}
         @if(isset($extendedRights) && $extendedRights->isNotEmpty())
