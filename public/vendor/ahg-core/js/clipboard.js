@@ -62,18 +62,12 @@
     if (count > 0) {
       if (!badge) {
         badge = document.createElement('span');
-        badge.className = 'clipboard-count position-absolute top-0 start-0 badge rounded-pill bg-primary';
-        var sr = document.createElement('span');
-        sr.className = 'visually-hidden';
-        sr.textContent = menuBtn.getAttribute('data-total-count-label') || 'items in clipboard';
-        badge.appendChild(sr);
+        badge.className = 'clipboard-count badge rounded-pill bg-primary';
+        badge.style.cssText = 'position:absolute;top:2px;left:2px;font-size:0.65em;z-index:10;min-width:18px;';
         menuBtn.style.position = 'relative';
         menuBtn.appendChild(badge);
       }
-      // Set text before the sr span
-      badge.childNodes[0].nodeType === 3
-        ? badge.childNodes[0].textContent = count
-        : badge.insertBefore(document.createTextNode(count), badge.firstChild);
+      badge.textContent = count;
     } else if (badge) {
       badge.remove();
     }
@@ -147,24 +141,17 @@
     // Skip merge if clipboard was just cleared (session flag via flash)
     var csrfMeta = document.querySelector('meta[name="csrf-token"]');
     if (csrfMeta) {
+      // Sync: merge server items into local, then push local back to server
       fetch('/clipboard/count', {
         headers: { 'Accept': 'application/json' }
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        // If server clipboard is empty, trust it — don't push local items back
-        if (data.count === 0) {
-          // Server is empty: clear local to match
-          if (totalCount(getItems()) > 0) {
-            clearItems();
-            updateAllButtons(initItems());
-            updateMenuBadge(initItems());
-          }
-          return;
-        }
+        var localItems = getItems();
+        var localCount = totalCount(localItems);
+
+        // Merge server items into local (additive)
         if (data.items) {
-          // Merge server items into localStorage
-          var localItems = getItems();
           var changed = false;
           TYPES.forEach(function(t) {
             if (Array.isArray(data.items[t])) {
@@ -181,6 +168,19 @@
             updateAllButtons(localItems);
             updateMenuBadge(localItems);
           }
+        }
+
+        // If local has items but server is empty/stale, push local to server
+        if (totalCount(localItems) > 0 && data.count === 0) {
+          fetch('/clipboard/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfMeta.getAttribute('content'),
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ items: localItems })
+          }).catch(function() {});
         }
       })
       .catch(function() { /* silent — not logged in or endpoint unavailable */ });
@@ -244,6 +244,7 @@
       var btn = e.target.closest('button.clipboard');
       if (!btn) return;
       e.preventDefault();
+      e.stopPropagation();
 
       // Re-read from storage (may have changed in another tab)
       items = getItems();

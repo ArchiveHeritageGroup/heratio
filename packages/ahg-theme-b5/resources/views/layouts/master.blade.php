@@ -15,6 +15,15 @@
 
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
+    {{-- Normalize clipboard localStorage before bundle loads (prevents indexOf crash) --}}
+    <script>
+    (function(){var k='clipboard',t=['informationObject','actor','repository','accession','informationobject','library','dam'],d;
+    try{d=JSON.parse(localStorage.getItem(k))}catch(e){d=null}
+    if(!d||typeof d!=='object')d={};
+    t.forEach(function(x){if(!Array.isArray(d[x]))d[x]=[]});
+    localStorage.setItem(k,JSON.stringify(d))})();
+    </script>
+
     {{-- Webpack bundles --}}
     @if($themeData['vendorJsBundle'] ?? null)
       <script defer src="{{ $themeData['vendorJsBundle'] }}"></script>
@@ -96,7 +105,8 @@
     {{-- Base JS --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/display-mode.js') }}"></script>
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
-    <script src="{{ asset('vendor/ahg-core/js/clipboard.js') }}"></script>
+    {{-- Clipboard toggle handled by AtoM theme bundle; this adds server sync --}}
+    <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}"></script>
 
     {{-- Voice Commands --}}
     @include('theme::partials.voice-commands')

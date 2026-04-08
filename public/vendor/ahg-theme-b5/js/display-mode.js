@@ -4,7 +4,7 @@
  * Handles client-side display mode toggling with localStorage cache
  * and server sync for authenticated users.
  */
-const DisplayMode = (function() {
+if (typeof window.DisplayMode === 'undefined') window.DisplayMode = (function() {
     'use strict';
 
     const STORAGE_KEY = 'atom_display_prefs';
