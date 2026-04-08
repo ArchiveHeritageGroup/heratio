@@ -33,7 +33,7 @@
               @foreach($savedSearches as $search)
                 <tr>
                   <td>{{ e($search->name) }}</td>
-                  <td><code>{{ e(\Illuminate\Support\Str::limit($search->query ?? '', 60)) }}</code></td>
+                  <td><code>{{ e(\Illuminate\Support\Str::limit($search->search_query ?? '', 60)) }}</code></td>
                   <td>{{ $search->created_at ? \Carbon\Carbon::parse($search->created_at)->format('Y-m-d') : '-' }}</td>
                   <td>
                     <a href="{{ route('research.savedSearches.run', $search->id) }}" class="btn btn-sm atom-btn-white" title="Run Search">
@@ -78,7 +78,7 @@
           </div>
           <div class="col-md-6 mb-3">
             <label for="ss_query" class="form-label">Search Query <span class="text-danger">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-            <input type="text" name="query" id="ss_query" class="form-control" required placeholder="Enter a search query or URL">
+            <input type="text" name="search_query" id="ss_query" class="form-control" required placeholder="Enter a search query or URL">
           </div>
           <div class="col-md-2 mb-3 d-flex align-items-end">
             <button type="submit" class="btn atom-btn-outline-success w-100">
