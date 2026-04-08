@@ -48,19 +48,39 @@ class ResearchController extends Controller
             ? DB::table('research_researcher')->where('user_id', auth()->id())->first()
             : null;
 
-        if ($request->isMethod('post') && $researcher) {
-            DB::table('research_source_assessment')->updateOrInsert(
-                ['object_id' => $io->id, 'researcher_id' => $researcher->id],
-                [
-                    'source_type' => $request->input('source_type', 'primary'),
-                    'source_form' => $request->input('source_form', 'original'),
-                    'completeness' => $request->input('completeness', 'complete'),
-                    'rationale' => $request->input('rationale') ?: null,
-                    'bias_context' => $request->input('bias_context') ?: null,
-                    'assessed_at' => now(),
-                ]
-            );
-            return redirect()->route('io.research.assessment', $slug)->with('success', 'Assessment saved.');
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if ($action === 'add_metric') {
+                DB::table('research_quality_metric')->insert([
+                    'object_id' => $io->id,
+                    'metric_type' => $request->input('metric_type'),
+                    'metric_value' => (float) $request->input('metric_value'),
+                    'source_service' => $request->input('source_service') ?: null,
+                    'created_at' => now(),
+                ]);
+                return redirect()->route('io.research.assessment', $slug)->with('success', 'Metric added.');
+            }
+
+            if ($action === 'delete_metric') {
+                DB::table('research_quality_metric')->where('id', (int) $request->input('metric_id'))->where('object_id', $io->id)->delete();
+                return redirect()->route('io.research.assessment', $slug)->with('success', 'Metric deleted.');
+            }
+
+            if ($researcher) {
+                DB::table('research_source_assessment')->updateOrInsert(
+                    ['object_id' => $io->id, 'researcher_id' => $researcher->id],
+                    [
+                        'source_type' => $request->input('source_type', 'primary'),
+                        'source_form' => $request->input('source_form', 'original'),
+                        'completeness' => $request->input('completeness', 'complete'),
+                        'rationale' => $request->input('rationale') ?: null,
+                        'bias_context' => $request->input('bias_context') ?: null,
+                        'assessed_at' => now(),
+                    ]
+                );
+                return redirect()->route('io.research.assessment', $slug)->with('success', 'Assessment saved.');
+            }
         }
 
         $assessment = $researcher
