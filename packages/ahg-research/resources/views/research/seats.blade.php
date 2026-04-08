@@ -3,6 +3,11 @@
 @section('title', 'Reading Room Seats')
 
 @section('content')
+@php
+    $seatTypes = \Illuminate\Support\Facades\DB::table('ahg_dropdown')
+        ->where('taxonomy', 'seat_type')->where('is_active', 1)
+        ->orderBy('sort_order')->get();
+@endphp
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show">{!! session('success') !!}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
@@ -120,13 +125,9 @@
                     <div class="mb-3">
                         <label class="form-label">Seat Type</label>
                         <select name="seat_type" class="form-select">
-                            <option value="standard">Standard</option>
-                            <option value="accessible">Accessible</option>
-                            <option value="computer">Computer</option>
-                            <option value="microfilm">Microfilm Reader</option>
-                            <option value="oversize">Oversize</option>
-                            <option value="quiet">Quiet Zone</option>
-                            <option value="group">Group Table</option>
+                            @foreach($seatTypes as $st)
+                                <option value="{{ $st->code }}">{{ $st->label }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
@@ -141,14 +142,11 @@
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Seat Types</h6></div>
             <div class="card-body">
                 <ul class="list-unstyled mb-0 small">
-                    <li class="mb-1"><span class="badge bg-secondary">standard</span> Regular desk/table</li>
-                    <li class="mb-1"><span class="badge bg-info">accessible</span> Wheelchair accessible</li>
-                    <li class="mb-1"><span class="badge bg-primary">computer</span> With workstation</li>
-                    <li class="mb-1"><span class="badge bg-warning text-dark">microfilm</span> Microfilm reader</li>
-                    <li class="mb-1"><span class="badge bg-success">oversize</span> Large format materials</li>
-                    <li class="mb-1"><span class="badge bg-dark">quiet</span> Silent study zone</li>
-                    <li><span class="badge bg-secondary">group</span> Group/collaborative</li>
+                    @foreach($seatTypes as $st)
+                        <li class="mb-1"><span class="badge bg-secondary">{{ $st->code }}</span> {{ $st->label }}</li>
+                    @endforeach
                 </ul>
+                <a href="{{ route('dropdown.index') }}?taxonomy=seat_type" class="btn btn-sm btn-outline-secondary mt-2 w-100"><i class="fas fa-cog me-1"></i>Manage in Dropdown Manager</a>
             </div>
         </div>
     </div>
@@ -173,7 +171,7 @@
                 <div class="col-6"><div class="mb-3"><label class="form-label">Label</label><input type="text" name="seat_label" id="seatLabel" class="form-control"></div></div>
             </div>
             <div class="row">
-                <div class="col-6"><div class="mb-3"><label class="form-label">Type</label><select name="seat_type" id="seatType" class="form-select"><option value="standard">Standard</option><option value="accessible">Accessible</option><option value="computer">Computer</option><option value="microfilm">Microfilm</option><option value="oversize">Oversize</option><option value="quiet">Quiet Zone</option><option value="group">Group</option></select></div></div>
+                <div class="col-6"><div class="mb-3"><label class="form-label">Type</label><select name="seat_type" id="seatType" class="form-select">@foreach($seatTypes as $st)<option value="{{ $st->code }}">{{ $st->label }}</option>@endforeach</select></div></div>
                 <div class="col-6"><div class="mb-3"><label class="form-label">Zone</label><input type="text" name="zone" id="seatZone" class="form-control"></div></div>
             </div>
             <div class="mb-3">
