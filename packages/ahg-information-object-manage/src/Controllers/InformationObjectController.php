@@ -1620,9 +1620,9 @@ class InformationObjectController extends Controller
             ->where('id', $id)->where('culture', $culture)->first();
         $title = $io->title ?? 'Untitled';
 
-        // Check for digital object
+        // Check for digital object (any usage — master=140, external=166, etc.)
         $master = DB::table('digital_object')
-            ->where('object_id', $id)->where('usage_id', 140)->first();
+            ->where('object_id', $id)->orderBy('usage_id')->first();
 
         // External embed — not describable by AI
         if ($master && $master->path && (str_contains($master->path, 'http://') || str_contains($master->path, 'https://'))) {
