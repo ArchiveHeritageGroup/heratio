@@ -95,12 +95,19 @@
                     </form>
                 </div>
             </div>
+            @if(!empty($ann->thumbnail_path) && !empty($ann->object_id))
+            <div class="text-center bg-light p-2">
+                <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}" title="{{ e($ann->object_title ?? '') }}">
+                    <img src="{{ $ann->thumbnail_path }}" alt="{{ e($ann->object_title ?? '') }}" class="img-fluid rounded" style="max-height:120px;">
+                </a>
+            </div>
+            @endif
             <div class="card-body">
                 <div class="card-text">
                     @if(($ann->content_format ?? 'text') === 'html')
-                        {!! \Illuminate\Support\Str::limit(strip_tags($ann->content ?? ''), 200) !!}
+                        {!! $ann->content !!}
                     @else
-                        {{ \Illuminate\Support\Str::limit($ann->content ?? '', 200) }}
+                        {!! nl2br(e($ann->content ?? '')) !!}
                     @endif
                 </div>
                 @if(!empty($ann->tags))
@@ -112,14 +119,28 @@
                 @endif
             </div>
             <div class="card-footer bg-transparent small text-muted">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
+                        @if(!empty($ann->collection_id) && !empty($ann->collection_name))
+                            <a href="{{ route('research.viewCollection') }}?id={{ $ann->collection_id }}"><i class="fas fa-folder me-1"></i>{{ e($ann->collection_name) }}</a><br>
+                        @endif
                         @if($ann->object_id ?? null)
-                            <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}"><i class="fas fa-archive me-1"></i>{{ e(\Illuminate\Support\Str::limit($ann->object_title ?? 'View', 30)) }}</a><br>
+                            @php
+                                $entityIcon = 'archive';
+                                $et = $ann->entity_type ?? 'information_object';
+                                if ($et === 'actor') $entityIcon = 'user-tie';
+                                elseif ($et === 'repository') $entityIcon = 'building';
+                                elseif ($et === 'accession') $entityIcon = 'inbox';
+                            @endphp
+                            <a href="{{ url('/' . ($ann->object_slug ?? $ann->object_id)) }}"><i class="fas fa-{{ $entityIcon }} me-1"></i>{{ e(\Illuminate\Support\Str::limit($ann->object_title ?? 'View Entity', 30)) }}</a><br>
                         @endif
                         <i class="fas fa-clock me-1"></i>{{ date('M j, Y H:i', strtotime($ann->created_at)) }}
                     </div>
-                    <a href="#note-{{ $ann->id }}" class="text-muted" title="Permalink"><i class="fas fa-hashtag"></i></a>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ url('/research/exportNotes?format=pdf&ids=' . $ann->id) }}" class="text-danger" title="Export PDF"><i class="fas fa-file-pdf"></i></a>
+                        <a href="{{ url('/research/exportNotes?format=csv&ids=' . $ann->id) }}" class="text-success" title="Export CSV"><i class="fas fa-file-csv"></i></a>
+                        <a href="#note-{{ $ann->id }}" class="text-muted" title="Permalink"><i class="fas fa-hashtag"></i></a>
+                    </div>
                 </div>
             </div>
         </div>

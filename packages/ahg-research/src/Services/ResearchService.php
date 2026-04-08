@@ -394,8 +394,15 @@ class ResearchService
             ->leftJoin('information_object_i18n as i18n', function ($j) {
                 $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
+            ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
+            ->leftJoin('digital_object as thumb', function ($j) {
+                $j->on('a.object_id', '=', 'thumb.object_id')
+                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
+            })
             ->where('a.researcher_id', $researcherId)
-            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title')
+            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
+                'rc.name as collection_name',
+                DB::raw("CONCAT(RTRIM(thumb.path, '/'), '/', thumb.name) as thumbnail_path"))
             ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
@@ -407,13 +414,20 @@ class ResearchService
             ->leftJoin('information_object_i18n as i18n', function ($j) {
                 $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
+            ->leftJoin('research_collection as rc', 'a.collection_id', '=', 'rc.id')
+            ->leftJoin('digital_object as thumb', function ($j) {
+                $j->on('a.object_id', '=', 'thumb.object_id')
+                  ->where('thumb.usage_id', '=', 142); // thumbnail usage
+            })
             ->where('a.researcher_id', $researcherId)
             ->where(function ($q) use ($query) {
                 $q->where('a.title', 'LIKE', '%' . $query . '%')
                   ->orWhere('a.content', 'LIKE', '%' . $query . '%')
                   ->orWhere('a.tags', 'LIKE', '%' . $query . '%');
             })
-            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title')
+            ->select('a.*', 's.slug as object_slug', 'i18n.title as object_title',
+                'rc.name as collection_name',
+                DB::raw("CONCAT(RTRIM(thumb.path, '/'), '/', thumb.name) as thumbnail_path"))
             ->orderBy('a.created_at', 'desc')
             ->get()->toArray();
     }
