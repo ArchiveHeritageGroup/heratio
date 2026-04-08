@@ -318,6 +318,39 @@
                 @endif
             </div>
         </div>
+        {{-- Reports --}}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Reports</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal"><i class="fas fa-plus me-1"></i>New Report</button>
+            </div>
+            <div class="card-body p-0">
+                @if(!empty($reports))
+                <ul class="list-group list-group-flush">
+                    @foreach($reports as $rpt)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ route('research.viewReport', $rpt->id) }}" class="text-decoration-none fw-semibold">{{ e($rpt->title) }}</a>
+                            @if($rpt->template_type ?? null)
+                                <br><small class="text-muted">{{ ucwords(str_replace('_', ' ', $rpt->template_type)) }}</small>
+                            @endif
+                        </div>
+                        <div>
+                            @php $sc = ['draft' => 'secondary', 'in_progress' => 'primary', 'review' => 'warning', 'completed' => 'success']; @endphp
+                            <span class="badge bg-{{ $sc[$rpt->status ?? 'draft'] ?? 'dark' }}">{{ ucwords(str_replace('_', ' ', $rpt->status ?? 'draft')) }}</span>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+                @else
+                <div class="card-body text-center text-muted py-4">
+                    <i class="fas fa-file-alt fa-2x mb-2 opacity-50"></i>
+                    <p class="mb-2">No reports yet</p>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal">Create first report</button>
+                </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <div class="col-md-4">
@@ -348,6 +381,7 @@
         <div class="card mb-4">
             <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>Research Output</h6></div>
             <div class="list-group list-group-flush">
+                <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>Reports ({{ count($reports ?? []) }})</a>
                 <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>RO-Crate Package</a>
                 <a href="{{ url('/research/reproducibility/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-redo me-2 text-info"></i>Reproducibility Pack</a>
                 <a href="{{ url('/research/doi/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-link me-2 text-success"></i>DOI Minting</a>
@@ -419,5 +453,37 @@
             @endif
         </div>
     </div>
+</div>
+
+{{-- New Report Modal (project-linked) --}}
+<div class="modal fade" id="newProjectReportModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+    <form method="POST" action="{{ route('research.reports') }}">
+        @csrf
+        <input type="hidden" name="form_action" value="create">
+        <input type="hidden" name="project_id" value="{{ $project->id }}">
+        <input type="hidden" name="template_type" id="projectReportTemplate" value="custom">
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>New Report for {{ e($project->title) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" required placeholder="Report title..."></div>
+            <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
+            <div class="mb-3">
+                <label class="form-label">Template</label>
+                <select name="template_type" class="form-select">
+                    <option value="custom">Custom (blank)</option>
+                    <option value="research_summary">Research Summary</option>
+                    <option value="genealogical">Genealogical Report</option>
+                    <option value="historical">Historical Analysis</option>
+                    <option value="source_analysis">Source Analysis</option>
+                    <option value="finding_aid">Finding Aid</option>
+                </select>
+                <small class="text-muted">Template sections will be auto-created.</small>
+            </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Create Report</button></div>
+    </form>
+</div>
+</div>
 </div>
 @endsection

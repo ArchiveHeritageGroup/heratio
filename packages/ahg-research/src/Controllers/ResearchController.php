@@ -1151,9 +1151,14 @@ class ResearchController extends Controller
             ->limit(20)
             ->get()->toArray();
 
+        $reports = DB::table('research_report')
+            ->where('project_id', $id)
+            ->orderBy('updated_at', 'desc')
+            ->get()->toArray();
+
         return view('research::research.view-project', array_merge(
             $this->getSidebarData('projects'),
-            compact('researcher', 'project', 'collaborators', 'resources', 'milestones', 'activities')
+            compact('researcher', 'project', 'collaborators', 'resources', 'milestones', 'activities', 'reports')
         ));
     }
 
