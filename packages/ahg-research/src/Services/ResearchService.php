@@ -665,7 +665,7 @@ class ResearchService
             ->where('pc.researcher_id', $researcherId)
             ->where('pc.status', 'invited')
             ->select('pc.*', 'p.title as project_title')
-            ->orderBy('pc.created_at', 'desc')
+            ->orderBy('pc.invited_at', 'desc')
             ->limit(5)
             ->get()->toArray();
 

@@ -2980,7 +2980,7 @@ class InformationObjectController extends Controller
      * Shows per-record report options (box labels, file lists, item lists, storage locations).
      * Migrated from AtoM informationobject/reportsSuccess.php.
      */
-    public function reports(string $slug)
+    public function reports(Request $request, string $slug)
     {
         $culture = app()->getLocale();
 
@@ -2996,6 +2996,57 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // Determine which report types are available (mirroring AtoM logic)
+        $reportTypes = [];
+
+        // Check for File-level children
+        $hasFiles = DB::table('information_object as child')
+            ->join('term_i18n as ti', function ($j) use ($culture) {
+                $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
+            })
+            ->where('child.parent_id', $io->id)
+            ->where('ti.name', 'File')
+            ->exists();
+        if ($hasFiles) {
+            $reportTypes['fileList'] = 'File list';
+        }
+
+        // Check for Item-level children
+        $hasItems = DB::table('information_object as child')
+            ->join('term_i18n as ti', function ($j) use ($culture) {
+                $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
+            })
+            ->where('child.parent_id', $io->id)
+            ->where('ti.name', 'Item')
+            ->exists();
+        if ($hasItems) {
+            $reportTypes['itemList'] = 'Item list';
+        }
+
+        // Storage locations and box labels (auth required, must have physical objects)
+        if (auth()->check()) {
+            $hasPhysical = DB::table('relation')
+                ->where('subject_id', $io->id)
+                ->where('type_id', 167) // HAS_PHYSICAL_OBJECT
+                ->exists();
+            if ($hasPhysical) {
+                $reportTypes['storageLocations'] = 'Physical storage locations';
+                $reportTypes['boxLabel'] = 'Box label';
+            }
+        }
+
+        // Handle POST — redirect to report generation
+        if ($request->isMethod('post')) {
+            $reportKey = $request->input('report');
+            if ($reportKey && array_key_exists($reportKey, $reportTypes)) {
+                return redirect()->route('informationobject.generateReport', [
+                    'slug' => $slug,
+                    'type' => $reportKey,
+                ]);
+            }
+            return redirect()->route('informationobject.reports', $slug)->with('error', 'Please select a report type.');
+        }
+
         // Check for existing reports (job-generated report files)
         $existingReports = [];
         $reportsDir = storage_path('app/reports/' . $io->id);
@@ -3008,24 +3059,102 @@ class InformationObjectController extends Controller
                 $existingReports[] = [
                     'type' => ucfirst($type),
                     'format' => strtoupper($format),
-                    'path' => route('informationobject.show', $slug) . '/reports/download/' . $basename,
+                    'path' => route('informationobject.reports', $slug) . '/download/' . $basename,
                 ];
             }
         }
-
-        // Report types available for this record
-        $reportTypes = [
-            'fileList' => 'File list',
-            'itemList' => 'Item list',
-            'storageLocations' => 'Physical storage locations',
-            'boxLabel' => 'Box label',
-        ];
 
         return view('ahg-io-manage::reports', [
             'io' => $io,
             'existingReports' => $existingReports,
             'reportTypes' => $reportTypes,
             'reportsAvailable' => !empty($reportTypes),
+        ]);
+    }
+
+    /**
+     * Generate a report (file list, item list, storage locations, box label).
+     * Migrated from AtoM informationobject/itemOrFileList, storageLocations, boxLabel actions.
+     */
+    public function generateReport(string $slug, string $type)
+    {
+        $culture = app()->getLocale();
+
+        $io = DB::table('information_object')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->first();
+
+        if (!$io) {
+            abort(404);
+        }
+
+        $validTypes = ['fileList', 'itemList', 'storageLocations', 'boxLabel'];
+        if (!in_array($type, $validTypes)) {
+            abort(404);
+        }
+
+        // Build report data based on type
+        $reportTitle = match($type) {
+            'fileList' => 'File list',
+            'itemList' => 'Item list',
+            'storageLocations' => 'Physical storage locations',
+            'boxLabel' => 'Box label',
+        };
+
+        $levelName = match($type) {
+            'fileList' => 'File',
+            'itemList' => 'Item',
+            default => null,
+        };
+
+        $items = [];
+
+        if ($type === 'fileList' || $type === 'itemList') {
+            $query = DB::table('information_object as child')
+                ->join('information_object_i18n as ci', function ($j) use ($culture) {
+                    $j->on('ci.id', '=', 'child.id')->where('ci.culture', $culture);
+                })
+                ->join('term_i18n as ti', function ($j) use ($culture) {
+                    $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
+                })
+                ->leftJoin('slug as cs', 'cs.object_id', '=', 'child.id')
+                ->where('child.parent_id', $io->id)
+                ->where('ti.name', $levelName)
+                ->select('child.id', 'child.identifier', 'ci.title', 'cs.slug', 'ci.scope_and_content')
+                ->orderBy('child.lft');
+
+            $items = $query->get()->toArray();
+        } elseif ($type === 'storageLocations') {
+            $items = DB::table('relation as rel')
+                ->join('physical_object as po', 'po.id', '=', 'rel.object_id')
+                ->join('physical_object_i18n as poi', function ($j) use ($culture) {
+                    $j->on('poi.id', '=', 'po.id')->where('poi.culture', $culture);
+                })
+                ->where('rel.subject_id', $io->id)
+                ->where('rel.type_id', 167)
+                ->select('po.id', 'poi.name', 'poi.location', 'poi.type')
+                ->get()->toArray();
+        } elseif ($type === 'boxLabel') {
+            $items = DB::table('relation as rel')
+                ->join('physical_object as po', 'po.id', '=', 'rel.object_id')
+                ->join('physical_object_i18n as poi', function ($j) use ($culture) {
+                    $j->on('poi.id', '=', 'po.id')->where('poi.culture', $culture);
+                })
+                ->where('rel.subject_id', $io->id)
+                ->where('rel.type_id', 167)
+                ->select('po.id', 'poi.name', 'poi.location', 'poi.type')
+                ->get()->toArray();
+        }
+
+        return view('ahg-io-manage::report-detail', [
+            'io' => $io,
+            'reportTitle' => $reportTitle,
+            'type' => $type,
+            'items' => $items,
         ]);
     }
 

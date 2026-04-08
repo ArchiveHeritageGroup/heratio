@@ -212,9 +212,6 @@
         <a href="{{ route('io.research.dashboard') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-graduation-cap me-1"></i> Research Dashboard
         </a>
-        <a href="{{ route('io.research.citation', $io->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-quote-left me-1"></i> Generate citation
-        </a>
       </div>
     </div>
     @endif {{-- end Research Tools package check --}}

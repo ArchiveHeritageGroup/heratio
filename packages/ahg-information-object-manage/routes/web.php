@@ -44,7 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/fix-missing-slug', [InformationObjectController::class, 'fixMissingSlug'])->name('admin.fix-missing-slug');
     Route::get('/informationobject/add', [InformationObjectController::class, 'create'])->name('informationobject.create');
     Route::post('/informationobject/store', [InformationObjectController::class, 'store'])->name('informationobject.store')->middleware('acl:create');
-    Route::get('/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
+    Route::match(['get', 'post'], '/informationobject/{slug}/reports', [InformationObjectController::class, 'reports'])->name('informationobject.reports');
+    Route::get('/informationobject/{slug}/reports/{type}', [InformationObjectController::class, 'generateReport'])->name('informationobject.generateReport');
     Route::get('/informationobject/{slug}/rename', [InformationObjectController::class, 'rename'])->name('informationobject.rename');
     Route::put('/informationobject/{slug}/rename', [InformationObjectController::class, 'renameUpdate'])->name('informationobject.renameUpdate')->middleware('acl:update');
     Route::get('/informationobject/{slug}/move', [InformationObjectController::class, 'move'])->name('informationobject.move');
