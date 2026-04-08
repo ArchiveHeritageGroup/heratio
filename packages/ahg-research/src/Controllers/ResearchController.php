@@ -2134,6 +2134,29 @@ class ResearchController extends Controller
     public function retrievalQueue(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+
+            if (in_array($action, ['mark_in_transit', 'mark_delivered', 'mark_returned'])) {
+                $newStatus = match($action) { 'mark_in_transit' => 'in_transit', 'mark_delivered' => 'delivered', 'mark_returned' => 'returned' };
+                DB::table('research_material_request')
+                    ->where('id', (int) $request->input('request_id'))
+                    ->update(['status' => $newStatus, 'updated_at' => now()]);
+                return redirect()->route('research.retrievalQueue', ['status' => $request->input('current_status')])->with('success', 'Status updated.');
+            }
+
+            if ($action === 'batch_update' && $request->input('new_status')) {
+                $ids = $request->input('request_ids', []);
+                if (!empty($ids)) {
+                    DB::table('research_material_request')
+                        ->whereIn('id', array_map('intval', $ids))
+                        ->update(['status' => $request->input('new_status'), 'updated_at' => now()]);
+                    return redirect()->route('research.retrievalQueue')->with('success', count($ids) . ' request(s) updated.');
+                }
+            }
+        }
+
         $rooms = $this->service->getReadingRooms();
         $requests = DB::table('research_material_request as m')
             ->join('research_booking as b', 'm.booking_id', '=', 'b.id')
@@ -2141,8 +2164,7 @@ class ResearchController extends Controller
             ->leftJoin('information_object_i18n as i18n', function ($join) {
                 $join->on('m.object_id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
-            ->whereIn('m.status', ['requested', 'in_transit'])
-            ->select('m.*', 'b.booking_date', 'b.start_time', 'r.first_name', 'r.last_name', 'i18n.title as object_title')
+            ->select('m.*', 'b.booking_date', 'b.start_time', 'b.end_time', 'r.first_name', 'r.last_name', 'i18n.title as object_title')
             ->orderBy('b.booking_date')
             ->get()->toArray();
 
