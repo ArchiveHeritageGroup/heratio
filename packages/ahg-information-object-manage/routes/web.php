@@ -146,6 +146,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/privacy/scan/{id}', [PrivacyController::class, 'scan'])->name('io.privacy.scan')->where('id', '[0-9]+');
     Route::get('/privacy/redaction/{slug}', [PrivacyController::class, 'redaction'])->name('io.privacy.redaction');
     Route::get('/privacy/dashboard', [PrivacyController::class, 'dashboard'])->name('io.privacy.dashboard');
+    Route::get('/privacy/dsar-request', fn () => redirect('/admin/privacy/dsar-request'));
+    Route::get('/privacy/dsar-status', fn () => redirect('/admin/privacy/dsar-status'));
+    Route::get('/privacy/complaint', fn () => redirect('/admin/privacy/dsar-add'));
 
     // Unified Rights Management (combined PREMIS + Extended + Embargo)
     Route::get('/rights/manage/{slug}', [ExtendedRightsController::class, 'manage'])->name('io.rights.manage');
