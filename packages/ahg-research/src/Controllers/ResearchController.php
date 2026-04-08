@@ -3316,7 +3316,8 @@ class ResearchController extends Controller
         }
 
         $odrlPolicies = DB::table('research_rights_policy')
-            ->where('project_id', $id)
+            ->where('target_type', 'project')
+            ->where('target_id', $id)
             ->orderBy('created_at', 'desc')
             ->get()->toArray();
         $odrlPolicyCount = count($odrlPolicies);
