@@ -77,6 +77,8 @@ Heratio has its own ES indices, separate from any other application.
 │   ├── ahg-cart/                 ← Shopping cart & e-commerce
 │   ├── ahg-ai-services/         ← AI tools (HTR, NER, condition scan)
 │   ├── ahg-api/                  ← REST API v1/v2 with key auth
+│   ├── ahg-ingest/               ← Data ingest wizard (CSV/file batch import)
+│   ├── ahg-reports/              ← Central dashboards, report builder
 │   └── ... (88 total)
 ├── docs/                          ← User guides, technical docs, ADRs
 ├── bin/release                    ← Version bump + git tag + push + GH release
@@ -93,7 +95,9 @@ Heratio has its own ES indices, separate from any other application.
 | `ahg-spectrum` | Spectrum 5.1 museum procedures, condition photos, privacy/POPIA |
 | `ahg-settings` | AHG Settings, Dropdown Manager (all enumerated values) |
 | `ahg-search` | Elasticsearch service, `ahg:es-reindex` command |
-| `ahg-display` | GLAM browse, advanced search with save |
+| `ahg-display` | GLAM browse (card/grid/table/full views), advanced search, ancestor filter (lft/rgt) |
+| `ahg-ingest` | Data ingest wizard: configure → upload → map → validate → preview → commit. CSV templates, AI processing (OCR, NER, virus scan, summarize, spell check, format ID, face detect, translate) |
+| `ahg-reports` | Central dashboards with links to all admin modules |
 | `ahg-help` | 221+ help articles, searchable |
 
 ## Database Rules
@@ -134,6 +138,18 @@ Packages with DB tables include:
 
 ### BrowseService Pattern
 `AhgCore\Services\BrowseService` is the base for all browse pages. Subclasses override `getTable()`, `getI18nTable()`, `getI18nNameColumn()`.
+
+### Browse Routing
+`/informationobject/browse` redirects to `/glam/browse` (GLAM display package) with param translation: `collection` → `ancestor`, `topLod` → `topLevel`, `onlyMedia` → `hasDigital`. There is only ONE browse page — the GLAM browse in `ahg-display`. The IO package does NOT have its own browse view.
+
+### Ancestor/Collection Filter
+The GLAM browse `ancestor` parameter uses MPTT `lft/rgt` range (`io.lft >= ancestor.lft AND io.rgt <= ancestor.rgt`) to include the record itself and all descendants. NOT `parent_id` (direct children only).
+
+### Clipboard
+Clipboard is handled entirely by the AtoM theme bundle JS (`ahgThemeB5Plugin.bundle.js`). It uses localStorage key `"clipboard"`. An inline normalizer script in `<head>` ensures all required type keys exist (`informationObject`, `actor`, `repository`, `accession`, `informationobject`, `library`, `dam`) to prevent `indexOf` crashes. Do NOT load standalone `display-mode.js` or `voiceCommands.js` — they are already in the bundle and double-loading causes `Identifier already declared` errors that kill all JS.
+
+### Slug Catch-All Route
+`/{slug}` route in `ahg-information-object-manage` is a catch-all for IO show pages. It has a regex exclusion list for all known path prefixes (`ingest`, `admin`, `research`, `glam`, etc.). When adding new top-level routes, **add the prefix to this exclusion list** or the slug resolver will intercept the URL.
 
 ## Reserved Words
 MySQL 8 reserved words that need backtick escaping: `groups`, `rank`, `row_number`, `function`.
