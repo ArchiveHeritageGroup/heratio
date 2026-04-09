@@ -33,6 +33,7 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -181,9 +182,84 @@ class UserController extends Controller
 
         $this->service->update($user->id, $data);
 
+        // Handle API key actions (REST + OAI-PMH)
+        $this->handleApiKeyAction($user->id, 'RestApiKey', $request->input('restApiKey'));
+        $this->handleApiKeyAction($user->id, 'OaiApiKey', $request->input('oaiApiKey'));
+
         return redirect()
             ->route('user.show', $slug)
             ->with('success', 'User updated successfully.');
+    }
+
+    /**
+     * Generate or delete a user API key stored in the property table.
+     * Mirrors AtoM's editAction processField('restApiKey'/'oaiApiKey') logic.
+     */
+    private function handleApiKeyAction(int $userId, string $propertyName, ?string $action): void
+    {
+        if ($action !== 'generate' && $action !== 'delete') {
+            return;
+        }
+
+        $culture = app()->getLocale();
+        $existing = DB::table('property')
+            ->where('object_id', $userId)
+            ->where('name', $propertyName)
+            ->first();
+
+        if ($action === 'delete') {
+            if ($existing) {
+                DB::table('property_i18n')->where('id', $existing->id)->delete();
+                DB::table('property')->where('id', $existing->id)->delete();
+                DB::table('object')->where('id', $existing->id)->delete();
+            }
+            return;
+        }
+
+        // generate
+        $newKey = bin2hex(random_bytes(8));
+
+        if ($existing) {
+            // Update existing key value
+            DB::table('property_i18n')
+                ->where('id', $existing->id)
+                ->where('culture', $culture)
+                ->update(['value' => $newKey]);
+            // Insert i18n row if missing for this culture
+            $hasI18n = DB::table('property_i18n')
+                ->where('id', $existing->id)
+                ->where('culture', $culture)
+                ->exists();
+            if (!$hasI18n) {
+                DB::table('property_i18n')->insert([
+                    'id' => $existing->id,
+                    'culture' => $culture,
+                    'value' => $newKey,
+                ]);
+            }
+            return;
+        }
+
+        // Create new property row (class table inheritance: object → property → property_i18n)
+        DB::transaction(function () use ($userId, $propertyName, $culture, $newKey) {
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitProperty',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('property')->insert([
+                'id' => $objectId,
+                'object_id' => $userId,
+                'name' => $propertyName,
+                'source_culture' => $culture,
+                'serial_number' => 0,
+            ]);
+            DB::table('property_i18n')->insert([
+                'id' => $objectId,
+                'culture' => $culture,
+                'value' => $newKey,
+            ]);
+        });
     }
 
     public function confirmDelete(string $slug)

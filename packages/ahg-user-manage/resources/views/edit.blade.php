@@ -240,15 +240,18 @@
         <div id="apiKeys-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
             @php
+              // AtoM stores these properties with camelized names (sfInflector::camelize)
               $restApiKey = \Illuminate\Support\Facades\DB::table('property')
                   ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
                   ->where('property.object_id', $user->id)
-                  ->where('property.name', 'restApiKey')
+                  ->where('property.name', 'RestApiKey')
+                  ->where('property_i18n.culture', app()->getLocale())
                   ->value('property_i18n.value');
               $oaiApiKey = \Illuminate\Support\Facades\DB::table('property')
                   ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
                   ->where('property.object_id', $user->id)
-                  ->where('property.name', 'oaiApiKey')
+                  ->where('property.name', 'OaiApiKey')
+                  ->where('property_i18n.culture', app()->getLocale())
                   ->value('property_i18n.value');
             @endphp
 
