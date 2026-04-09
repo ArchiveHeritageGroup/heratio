@@ -278,7 +278,11 @@
       "Bash(sudo service:*)",
       "Bash([ -f \"packages/ahg-research/resources/views/research/$f.blade.php\" ])",
       "Bash(sed -n '62p' /usr/share/nginx/heratio/packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php)",
-      "Bash(sed -n '700p' /usr/share/nginx/heratio/packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php)"
+      "Bash(sed -n '700p' /usr/share/nginx/heratio/packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php)",
+      "Bash(java -version)",
+      "Bash(apt list:*)",
+      "Read(//opt/**)",
+      "Read(//usr/local/**)"
     ]
   }
 }

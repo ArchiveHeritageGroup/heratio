@@ -9,6 +9,17 @@ function initIiifViewer(viewerId, imageUrl, title) {
     var osdViewer = null;
     var miradorLoaded = false;
 
+    // Build IIIF tile source for formats that need Cantaloupe (TIFF, JP2, etc.)
+    var needsIiif = /\.(tiff?|jp2|jpx)$/i.test(imageUrl);
+    var iiifTileSource = null;
+    if (needsIiif) {
+        // Convert URL path to Cantaloupe identifier: strip origin, replace / with _SL_
+        var urlObj = new URL(imageUrl, window.location.origin);
+        var relPath = urlObj.pathname.replace(/^\//, '');
+        var iiifId = relPath.replace(/\//g, '_SL_');
+        iiifTileSource = window.location.origin + '/iiif/3/' + iiifId + '/info.json';
+    }
+
     function showOSD() {
         osdEl.style.display = 'block';
         mirEl.style.display = 'none';
@@ -20,7 +31,7 @@ function initIiifViewer(viewerId, imageUrl, title) {
         if (!osdViewer && typeof OpenSeadragon !== 'undefined') {
             osdViewer = OpenSeadragon({
                 id: 'osd-' + vid,
-                tileSources: {
+                tileSources: iiifTileSource || {
                     type: 'image',
                     url: imageUrl,
                     buildPyramid: false
