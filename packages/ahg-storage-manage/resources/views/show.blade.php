@@ -25,33 +25,57 @@
     @include('ahg-core::_translation-links')
   @endif
 
-  <div class="row">
+  {{-- ===== Physical storage (AtoM-style) ===== --}}
+  <section class="section border-bottom" id="physicalStorage">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('physicalobject.edit', $storage->slug) }}#edit-collapse" class="text-primary text-decoration-none">{{ config('app.ui_label_physicalobject', 'Physical storage') }}</a>@else {{ config('app.ui_label_physicalobject', 'Physical storage') }} @endauth</div></h2>
+    <div>
+      @if($typeName)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Type</h3>
+          <div class="col-9 p-2">{{ $typeName }}</div>
+        </div>
+      @endif
+
+      @if($storage->location ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Location</h3>
+          <div class="col-9 p-2">{{ $storage->location }}</div>
+        </div>
+      @endif
+
+      @if($storage->description ?? null)
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Description</h3>
+          <div class="col-9 p-2">{!! nl2br(e($storage->description)) !!}</div>
+        </div>
+      @endif
+
+      @if(isset($descriptions) && $descriptions->isNotEmpty())
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related resources</h3>
+          <div class="col-9 p-2">
+            @foreach($descriptions as $desc)
+              <div><a href="{{ url('/' . $desc->slug) }}">{{ $desc->title ?: '[Untitled]' }}</a></div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
+      @if(isset($accessions) && $accessions->isNotEmpty())
+        <div class="field row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related accessions</h3>
+          <div class="col-9 p-2">
+            @foreach($accessions as $acc)
+              <div><a href="{{ route('accession.show', $acc->slug) }}">{{ $acc->title ?: $acc->identifier ?: '[Untitled]' }}</a></div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+    </div>
+  </section>
+
+  <div class="row mt-3">
     <div class="col-md-8">
-
-      {{-- Basic Information --}}
-      <div class="card mb-4">
-        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>Physical Storage</h5>
-        </div>
-        <div class="card-body">
-          <dl class="row mb-0">
-            @if($typeName)
-              <dt class="col-sm-4">Type</dt>
-              <dd class="col-sm-8">{{ $typeName }}</dd>
-            @endif
-
-            @if($storage->location)
-              <dt class="col-sm-4">Location</dt>
-              <dd class="col-sm-8">{{ $storage->location }}</dd>
-            @endif
-
-            @if($storage->description)
-              <dt class="col-sm-4">Description</dt>
-              <dd class="col-sm-8">{!! nl2br(e($storage->description)) !!}</dd>
-            @endif
-          </dl>
-        </div>
-      </div>
 
       @if(!empty($extendedData))
         {{-- Extended Location --}}
@@ -251,46 +275,6 @@
           </div>
         </div>
         @endif
-      @endif
-
-      {{-- Related descriptions --}}
-      @if($descriptions->isNotEmpty())
-      <div class="card mb-4">
-        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related Resources</h5>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            @foreach($descriptions as $desc)
-              <li class="mb-2">
-                <a href="{{ route('informationobject.show', $desc->slug) }}">
-                  <i class="fas fa-file me-1"></i>{{ $desc->title ?: '[Untitled]' }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
-        </div>
-      </div>
-      @endif
-
-      {{-- Related accessions --}}
-      @if(isset($accessions) && $accessions->isNotEmpty())
-      <div class="card mb-4">
-        <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-          <h5 class="mb-0"><i class="fas fa-link me-2"></i>Related Accessions</h5>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            @foreach($accessions as $acc)
-              <li class="mb-2">
-                <a href="{{ route('accession.show', $acc->slug) }}">
-                  <i class="fas fa-file-alt me-1"></i>{{ $acc->title ?: $acc->identifier ?: '[Untitled]' }}
-                </a>
-              </li>
-            @endforeach
-          </ul>
-        </div>
-      </div>
       @endif
 
     </div>
