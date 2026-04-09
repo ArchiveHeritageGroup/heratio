@@ -79,10 +79,26 @@ class UserController extends Controller
             abort(404);
         }
 
-        return view('ahg-user-manage::show', [
+        $culture = app()->getLocale();
+        $apiKeys = DB::table('property')
+            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->where('property.object_id', $user->id)
+            ->whereIn('property.name', ['RestApiKey', 'OaiApiKey'])
+            ->where('property_i18n.culture', $culture)
+            ->pluck('property_i18n.value', 'property.name');
+
+        $viewData = [
             'user' => $user,
             'groups' => collect($user->groups),
-        ]);
+        ];
+        if (isset($apiKeys['RestApiKey'])) {
+            $viewData['restApiKey'] = $apiKeys['RestApiKey'];
+        }
+        if (isset($apiKeys['OaiApiKey'])) {
+            $viewData['oaiApiKey'] = $apiKeys['OaiApiKey'];
+        }
+
+        return view('ahg-user-manage::show', $viewData);
     }
 
     public function create()
