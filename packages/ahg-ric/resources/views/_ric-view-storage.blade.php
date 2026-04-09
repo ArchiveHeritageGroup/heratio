@@ -21,36 +21,43 @@
 <div class="ric-view">
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-      <div><i class="fas fa-archive me-2"></i><strong>{{ $storage->name }}</strong></div>
-      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:Instantiation (Physical Carrier)</span>
+      <div><i class="fas fa-archive me-2"></i><strong>{{ $storage->name ?: '[Untitled]' }}</strong></div>
+      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">Physical Carrier (Storage Location)</span>
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">RiC Concept</th><td>Physical storage location / Carrier</td></tr>
-        @if($storage->type ?? null)<tr><th class="text-muted">Type</th><td>{{ $storage->type }}</td></tr>@endif
+        <tr><th class="text-muted" style="width:35%">RiC Concept</th><td>rico:Instantiation (Physical Carrier)</td></tr>
+        @if($typeName ?? null)<tr><th class="text-muted">Type</th><td>{{ $typeName }}</td></tr>@endif
         @if($storage->location ?? null)<tr><th class="text-muted">Location</th><td>{{ $storage->location }}</td></tr>@endif
       </table>
     </div>
   </div>
 
-  @if($storedDescriptions->count())
-  <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-      <i class="fas fa-file-alt me-1"></i> Stored Descriptions
-      <span class="badge bg-light text-dark float-end">{{ $storedDescriptions->count() }}</span>
+  <div class="row">
+    <div class="col-md-8">
+      @if($storedDescriptions->count())
+      <div class="card mb-3">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+          <i class="fas fa-file-alt me-1"></i> Stored Descriptions
+          <span class="badge bg-light text-dark float-end">{{ $storedDescriptions->count() }}</span>
+        </div>
+        <div class="list-group list-group-flush">
+          @foreach($storedDescriptions as $desc)
+            <a href="{{ url('/' . $desc->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt text-info me-1"></i>{{ $desc->title }}</a>
+          @endforeach
+        </div>
+      </div>
+      @endif
     </div>
-    <div class="list-group list-group-flush">
-      @foreach($storedDescriptions as $desc)
-        <a href="{{ url('/' . $desc->slug) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt text-info me-1"></i>{{ $desc->title }}</a>
-      @endforeach
-    </div>
-  </div>
-  @endif
 
-  <div class="card mb-3">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
-    <div class="card-body">
-      <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>Open in Graph Explorer</a>
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Actions</div>
+        <div class="card-body">
+          <a href="/explorer" class="btn btn-sm btn-outline-success w-100 mb-2"><i class="fas fa-project-diagram me-1"></i>Open in Graph Explorer</a>
+          <a href="/ric-api/relations/{{ $storage->id }}" class="btn btn-sm btn-outline-info w-100" target="_blank"><i class="fas fa-code me-1"></i>View Relations JSON</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
