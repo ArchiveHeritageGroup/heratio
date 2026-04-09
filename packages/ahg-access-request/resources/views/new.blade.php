@@ -57,6 +57,17 @@
                             <textarea class="form-control" id="justification" name="justification" rows="3">{{ old('justification') }}</textarea>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="urgency" class="form-label">Urgency <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <select class="form-select" id="urgency" name="urgency">
+                                <option value="low" {{ old('urgency') === 'low' ? 'selected' : '' }}>Low — no fixed deadline</option>
+                                <option value="normal" {{ (old('urgency') ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal — within standard turnaround</option>
+                                <option value="high" {{ old('urgency') === 'high' ? 'selected' : '' }}>High — needed soon</option>
+                                <option value="urgent" {{ old('urgency') === 'urgent' ? 'selected' : '' }}>Urgent — needed ASAP</option>
+                            </select>
+                            <div class="form-text">Helps reviewers prioritise the queue.</div>
+                        </div>
+
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('accessRequest.myRequests') }}" class="atom-btn-white">Cancel</a>
                             <button type="submit" class="atom-btn-white">

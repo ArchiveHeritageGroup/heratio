@@ -106,16 +106,26 @@ class AccessRequestController extends Controller
     }
 
     /**
-     * Store a new access request.
+     * Store a new (general) access request submitted from the new.blade.php form.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'object_id' => 'required|integer',
-            'reason' => 'required|string|max:2000',
+            'subject'       => 'required|string|max:255',
+            'request_type'  => 'required|string|max:64',
+            'description'   => 'required|string|max:2000',
+            'justification' => 'nullable|string|max:2000',
+            'urgency'       => 'nullable|in:low,normal,high,urgent',
         ]);
 
-        $this->service->createRequest(auth()->id(), $validated);
+        $this->service->createRequest(auth()->id(), [
+            'subject'       => $validated['subject'],
+            'request_type'  => $validated['request_type'],
+            // Map form 'description' to DB 'reason' column, prefixed with the subject
+            'reason'        => 'Subject: ' . $validated['subject'] . "\n\n" . $validated['description'],
+            'justification' => $validated['justification'] ?? null,
+            'urgency'       => $validated['urgency'] ?? 'normal',
+        ]);
 
         return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request submitted.');
     }

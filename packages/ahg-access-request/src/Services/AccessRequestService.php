@@ -124,12 +124,15 @@ class AccessRequestService
     public function createRequest(int $userId, array $data): int
     {
         return DB::table('access_request')->insertGetId([
-            'user_id'                    => $userId,
-            'requested_classification_id' => $data['object_id'] ?? 0,
-            'reason'                     => $data['reason'],
-            'status'                     => 'pending',
-            'created_at'                 => now(),
-            'updated_at'                 => now(),
+            'user_id'                     => $userId,
+            'request_type'                => $data['request_type'] ?? 'clearance',
+            'requested_classification_id' => (int) ($data['object_id'] ?? 0),
+            'reason'                      => $data['reason'],
+            'justification'               => $data['justification'] ?? null,
+            'urgency'                     => $data['urgency'] ?? 'normal',
+            'status'                      => 'pending',
+            'created_at'                  => now(),
+            'updated_at'                  => now(),
         ]);
     }
 
