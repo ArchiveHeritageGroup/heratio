@@ -171,16 +171,42 @@ class AclController extends Controller
      */
     public function setClearance(Request $request)
     {
-        $request->validate([
-            'user_id'           => 'required|integer',
-            'classification_id' => 'required|integer',
+        // Revoke = delete the user_security_clearance row entirely.
+        // The form posts classification_id=0 + _revoke=1, which is invalid for a normal update.
+        if ($request->boolean('_revoke')) {
+            $request->validate([
+                'user_id' => 'required|integer|min:1|exists:user,id',
+            ]);
+
+            $userId = (int) $request->input('user_id');
+            $revokedBy = auth()->id() ?? 1;
+
+            DB::table('user_security_clearance')->where('user_id', $userId)->delete();
+
+            if (Schema::hasTable('user_security_clearance_log')) {
+                DB::table('user_security_clearance_log')->insert([
+                    'user_id'    => $userId,
+                    'action'     => 'clearance_revoked',
+                    'changed_by' => $revokedBy,
+                    'notes'      => null,
+                    'created_at' => now(),
+                ]);
+            }
+
+            return redirect()->route('acl.clearances')
+                ->with('success', 'User clearance revoked.');
+        }
+
+        $validated = $request->validate([
+            'user_id'           => 'required|integer|min:1|exists:user,id',
+            'classification_id' => 'required|integer|min:1|exists:security_classification,id',
         ]);
 
         $grantedBy = auth()->id() ?? 1;
 
         $this->service->setUserClearance(
-            (int) $request->input('user_id'),
-            (int) $request->input('classification_id'),
+            (int) $validated['user_id'],
+            (int) $validated['classification_id'],
             $grantedBy
         );
 
