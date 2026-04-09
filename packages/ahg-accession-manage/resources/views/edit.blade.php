@@ -39,7 +39,7 @@
               <input type="text" name="identifier" id="identifier" class="form-control @error('identifier') is-invalid @enderror"
                      value="{{ old('identifier', $accession->identifier ?? '') }}">
               @error('identifier') <div class="invalid-feedback">{{ $message }}</div> @enderror
-              <div class="form-text text-muted small">Accession number should be a combination of values recorded in the field and should be a unique accession number for the repository</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Accession number should be a combination of values recorded in the field and should be a unique accession number for the repository"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <!-- Alternative identifier(s) -->
@@ -109,7 +109,7 @@
               <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror"
                      value="{{ old('date', $accession->date ?? '') }}">
               @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
-              <div class="form-text text-muted small">Accession date represents the date of receipt of the materials and is added during the donation process.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Accession date represents the date of receipt of the materials and is added during the donation process."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -117,7 +117,7 @@
                 Immediate source of acquisition
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="source_of_acquisition" id="source_of_acquisition" class="form-control" rows="3">{{ old('source_of_acquisition', $accession->source_of_acquisition ?? '') }}</textarea>
-              <div class="form-text text-muted small">Identify immediate source of acquisition or transfer, and date and method of acquisition IF the information is NOT confidential.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Identify immediate source of acquisition or transfer, and date and method of acquisition IF the information is NOT confidential."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -125,7 +125,7 @@
                 Location information
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <textarea name="location_information" id="location_information" class="form-control" rows="3">{{ old('location_information', $accession->location_information ?? '') }}</textarea>
-              <div class="form-text text-muted small">A description of the physical location in the repository where the accession can be found.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="A description of the physical location in the repository where the accession can be found."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -197,7 +197,7 @@
                       <div class="mb-3">
                         <label for="donor_name" class="form-label">Name <span class="badge bg-secondary ms-1">Optional</span></label>
                         <input type="text" name="donor_name" id="donor_name" class="form-control" value="{{ old('donor_name', $donor->name ?? '') }}" placeholder="Type to search donors..." autocomplete="off">
-                        <div class="form-text text-muted small">This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form.</div>
+                        <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="This is the legal entity field and provides the contact information for the person(s) or the institution that donated or transferred the materials. It has the option of multiple instances and provides the option of creating more than one contact record using the same form."><i class="fas fa-question-circle"></i></button>
                       </div>
 
                       <h5>Primary contact information</h5>
@@ -312,7 +312,7 @@
                   <option value="{{ $type->id }}" @selected(old('acquisition_type_id', $accession->acquisition_type_id ?? '') == $type->id)>{{ $type->name }}</option>
                 @endforeach
               </select>
-              <div class="form-text text-muted small">Term describing the type of accession transaction and referring to the way in which the accession was acquired.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Term describing the type of accession transaction and referring to the way in which the accession was acquired."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -323,19 +323,19 @@
                   <option value="{{ $type->id }}" @selected(old('resource_type_id', $accession->resource_type_id ?? '') == $type->id)>{{ $type->name }}</option>
                 @endforeach
               </select>
-              <div class="form-text text-muted small">Select the type of resource represented in the accession, either public or private.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the type of resource represented in the accession, either public or private."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $accession->title ?? '') }}">
-              <div class="form-text text-muted small">The title of the accession, usually the creator name and term describing the format of the accession materials.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The title of the accession, usually the creator name and term describing the format of the accession materials."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="creators" class="form-label">Creators <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="creators" id="creators" class="form-control" value="{{ old('creators', $accession->creators ?? '') }}" placeholder="Type to search authority records..." autocomplete="off">
-              <div class="form-text text-muted small">The name of the creator of the accession or the name of the department that created the accession.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The name of the creator of the accession or the name of the department that created the accession."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <!-- ISAD Date(s) multi-row table -->
@@ -457,31 +457,31 @@
             <div class="mb-3">
               <label for="archival_history" class="form-label">Archival/Custodial history <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="archival_history" id="archival_history" class="form-control" rows="3">{{ old('archival_history', $accession->archival_history ?? '') }}</textarea>
-              <div class="form-text text-muted small">Information on the history of the accession. When the accession is acquired directly from the creator, do not record an archival history but record the information as the Immediate Source of Acquisition.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Information on the history of the accession. When the accession is acquired directly from the creator, do not record an archival history but record the information as the Immediate Source of Acquisition."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="scope_and_content" class="form-label">Scope and content <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="scope_and_content" id="scope_and_content" class="form-control" rows="4">{{ old('scope_and_content', $accession->scope_and_content ?? '') }}</textarea>
-              <div class="form-text text-muted small">A description of the intellectual content and document types represented in the accession.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="A description of the intellectual content and document types represented in the accession."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="appraisal" class="form-label">Appraisal, destruction and scheduling <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="appraisal" id="appraisal" class="form-control" rows="3">{{ old('appraisal', $accession->appraisal ?? '') }}</textarea>
-              <div class="form-text text-muted small">Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record appraisal, destruction and scheduling actions taken on or planned for the unit of description, especially if they may affect the interpretation of the material."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="physical_characteristics" class="form-label">Physical condition <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="physical_characteristics" id="physical_characteristics" class="form-control" rows="3">{{ old('physical_characteristics', $accession->physical_characteristics ?? '') }}</textarea>
-              <div class="form-text text-muted small">A description of the physical condition of the accession and if any preservation or special handling is required.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="A description of the physical condition of the accession and if any preservation or special handling is required."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="received_extent_units" class="form-label">Received extent units <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="received_extent_units" id="received_extent_units" class="form-control" rows="2">{{ old('received_extent_units', $accession->received_extent_units ?? '') }}</textarea>
-              <div class="form-text text-muted small">The number of units as a whole number and the measurement of the received volume of records in the accession.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The number of units as a whole number and the measurement of the received volume of records in the accession."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -492,7 +492,7 @@
                   <option value="{{ $status->id }}" @selected(old('processing_status_id', $accession->processing_status_id ?? '') == $status->id)>{{ $status->name }}</option>
                 @endforeach
               </select>
-              <div class="form-text text-muted small">An indicator of the accessioning process.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="An indicator of the accessioning process."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -503,13 +503,13 @@
                   <option value="{{ $priority->id }}" @selected(old('processing_priority_id', $accession->processing_priority_id ?? '') == $priority->id)>{{ $priority->name }}</option>
                 @endforeach
               </select>
-              <div class="form-text text-muted small">Indicates the priority the repository assigns to completing the processing of the accession.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Indicates the priority the repository assigns to completing the processing of the accession."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="processing_notes" class="form-label">Processing notes <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="processing_notes" id="processing_notes" class="form-control" rows="3">{{ old('processing_notes', $accession->processing_notes ?? '') }}</textarea>
-              <div class="form-text text-muted small">Notes about the processing plan, describing what needs to be done for the accession to be processed completely.</div>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Notes about the processing plan, describing what needs to be done for the accession to be processed completely."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -566,6 +566,27 @@
 .accordion-button:focus {
   box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
 }
+.ahg-field-help { cursor: pointer; font-size: 0.9em; }
+.ahg-field-help:hover { color: var(--ahg-primary, #005837) !important; }
+.ahg-help-popup {
+  position: absolute; z-index: 1060; bottom: 100%; left: 0; right: 0;
+  background: #fff; border: 1px solid #dee2e6; border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 0; margin-bottom: 6px;
+  max-width: 400px; animation: ahgHelpIn 0.15s ease-out;
+}
+.ahg-help-popup-body { padding: 10px 14px; font-size: 0.85rem; line-height: 1.5; color: #333; }
+.ahg-help-popup-close {
+  position: absolute; top: 4px; right: 6px; background: none; border: none;
+  font-size: 1.1rem; color: #999; cursor: pointer; line-height: 1;
+}
+.ahg-help-popup-close:hover { color: #333; }
+.ahg-help-popup-arrow {
+  position: absolute; bottom: -6px; left: 20px;
+  width: 12px; height: 12px; background: #fff;
+  border-right: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6;
+  transform: rotate(45deg);
+}
+@keyframes ahgHelpIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 </style>
 @endpush
 @push('js')
@@ -636,6 +657,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (el) el.value = '';
       });
     }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.ahg-field-help').forEach(function(btn, i) { btn.dataset.helpId = 'help-' + i; });
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.ahg-field-help');
+    document.querySelectorAll('.ahg-help-popup').forEach(function(p) {
+      if (!btn || p.dataset.owner !== btn.dataset.helpId) p.remove();
+    });
+    if (!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    var existing = document.querySelector('.ahg-help-popup[data-owner="' + btn.dataset.helpId + '"]');
+    if (existing) { existing.remove(); return; }
+    var text = btn.getAttribute('data-bs-content') || '';
+    if (!text) return;
+    var tmp = document.createElement('textarea'); tmp.innerHTML = text; text = tmp.value;
+    var popup = document.createElement('div');
+    popup.className = 'ahg-help-popup'; popup.dataset.owner = btn.dataset.helpId;
+    popup.innerHTML = '<div class="ahg-help-popup-arrow"></div><div class="ahg-help-popup-body">' +
+      text.replace(/&/g,'&amp;').replace(/</g,'&lt;') +
+      '</div><button type="button" class="ahg-help-popup-close">&times;</button>';
+    popup.querySelector('.ahg-help-popup-close').addEventListener('click', function() { popup.remove(); });
+    btn.parentElement.style.position = 'relative';
+    btn.parentElement.appendChild(popup);
   });
 });
 </script>
