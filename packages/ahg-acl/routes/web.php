@@ -11,6 +11,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/acl/classifications', [AclController::class, 'classifications'])->name('acl.classifications');
     Route::get('/admin/acl/clearances', [AclController::class, 'clearances'])->name('acl.clearances');
     Route::post('/admin/acl/clearances', [AclController::class, 'setClearance'])->name('acl.set-clearance');
+    Route::post('/admin/acl/clearances/bulk-grant', [AclController::class, 'bulkGrantClearance'])->name('acl.bulk-grant-clearance');
     Route::get('/admin/acl/access-requests', [AclController::class, 'accessRequests'])->name('acl.access-requests');
     Route::post('/admin/acl/access-requests/{id}/review', [AclController::class, 'reviewRequest'])->name('acl.review-request')->where('id', '[0-9]+');
     Route::get('/admin/acl/audit-log', [AclController::class, 'auditLog'])->name('acl.audit-log');

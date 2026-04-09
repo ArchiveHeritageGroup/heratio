@@ -208,6 +208,58 @@
       </a>
     </div>
 
+    {{-- Heritage Platform (matches AtoM) --}}
+    @if(\Route::has('heritage.admin'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('heritage.admin') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-warning">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-landmark fa-3x text-warning"></i></div>
+            <h5 class="card-title text-dark">Heritage Platform</h5>
+            <p class="card-text text-muted small">Access control, analytics, branding, custodian tools, and community features</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-warning"><i class="fas fa-tools"></i> Admin</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Integrity Assurance (matches AtoM dedicated card) --}}
+    @if(\Route::has('integrity.index'))
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('integrity.index') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-danger">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-shield-alt fa-3x text-danger"></i></div>
+            <h5 class="card-title text-dark">Integrity Assurance</h5>
+            <p class="card-text text-muted small">Fixity verification, retention policies, legal holds, disposition review, and alerting</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-danger"><i class="fas fa-tachometer-alt"></i> Dashboard</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    @endif
+
+    {{-- Preservation & Backup (matches AtoM) --}}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.section', 'preservation') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile border-success">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-cloud-upload-alt fa-3x text-success"></i></div>
+            <h5 class="card-title text-dark">Preservation &amp; Backup</h5>
+            <p class="card-text text-muted small">Configure backup replication targets, verify integrity, and manage preservation</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-outline-success"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
     <div class="col-lg-4 col-md-6 mb-4">
       <a href="{{ route('settings.plugins') }}" class="text-decoration-none">
         <div class="card h-100 shadow-sm settings-tile">
@@ -223,6 +275,39 @@
       </a>
     </div>
   </div>
+
+  {{-- Quick Access: TIFF to PDF Merge (matches AtoM dam-enabled section) --}}
+  @php
+    $damEnabled = false;
+    try {
+      $damEnabled = (bool) \DB::table('ahg_settings')
+        ->where('setting_key', 'dam_tools_enabled')
+        ->where('setting_group', 'general')
+        ->value('setting_value');
+    } catch (\Throwable $e) {}
+  @endphp
+  @if($damEnabled && \Route::has('tiffpdfmerge.index'))
+  <div class="card mt-4 border-primary">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Quick Access: TIFF to PDF Merge</h5>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <p class="mb-0">
+            <strong>Create multi-page PDF documents from images</strong><br>
+            <small class="text-muted">Upload multiple TIFF, JPEG, or PNG files and merge them into a single PDF/A archival document. Jobs run in the background and can be attached directly to archival records.</small>
+          </p>
+        </div>
+        <div class="col-md-4 text-end">
+          <a href="{{ route('tiffpdfmerge.index') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-file-pdf me-1"></i> Create PDF
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  @endif
 
   <style>
     .settings-tile { transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; }

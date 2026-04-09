@@ -152,23 +152,73 @@ class AclController extends Controller
         $users = $this->service->getAllUsers();
         $classifications = $this->service->getClassificationLevels();
 
-        // Get clearance for each user
-        $clearances = collect();
+        // Build a row per user (with-or-without clearance) so the table matches AtoM
+        $rows = collect();
+        $stats = ['total_users' => 0, 'with_clearance' => 0, 'top_secret' => 0];
+
         foreach ($users as $user) {
+            $stats['total_users']++;
             $clearance = $this->service->getUserClearance($user->id);
+
+            $row = (object) [
+                'user_id'             => $user->id,
+                'username'            => $user->username,
+                'email'               => $user->email ?? '',
+                'user_display_name'   => $user->display_name ?? $user->username,
+                'active'              => $user->active ?? 1,
+                'classification_id'   => $clearance->id ?? null,
+                'classification_name' => $clearance->classification_name ?? $clearance->name ?? null,
+                'classification_code' => $clearance->code ?? null,
+                'classification_level' => $clearance->level ?? null,
+                'classification_color' => $clearance->color ?? null,
+                'granted_at'          => $clearance->granted_at ?? null,
+                'granted_by_name'     => $clearance->granted_by_name ?? null,
+                'expires_at'          => $clearance->expires_at ?? null,
+                'two_factor_verified' => $clearance->two_factor_verified ?? false,
+                'renewal_status'      => $clearance->renewal_status ?? null,
+            ];
+
             if ($clearance) {
-                $clearance->username = $user->username;
-                $clearance->user_display_name = $user->display_name ?? $user->username;
-                $clearances->push($clearance);
+                $stats['with_clearance']++;
+                if (($clearance->level ?? 0) >= 4) {
+                    $stats['top_secret']++;
+                }
             }
+            $rows->push($row);
         }
 
-        return view('ahg-acl::clearances', compact('clearances', 'users', 'classifications'));
+        // Backwards-compat alias for any code/templates still expecting $clearances
+        $clearances = $rows;
+
+        return view('ahg-acl::clearances', compact('rows', 'clearances', 'users', 'classifications', 'stats'));
     }
 
     /**
      * POST: Set a user's security clearance.
      */
+    /**
+     * POST: Bulk grant a clearance level to multiple users at once.
+     */
+    public function bulkGrantClearance(Request $request)
+    {
+        $validated = $request->validate([
+            'user_ids'          => 'required|array|min:1',
+            'user_ids.*'        => 'integer|min:1|exists:user,id',
+            'classification_id' => 'required|integer|min:1|exists:security_classification,id',
+            'notes'             => 'nullable|string|max:1000',
+        ]);
+
+        $grantedBy = auth()->id() ?? 1;
+        $count = 0;
+        foreach ($validated['user_ids'] as $userId) {
+            $this->service->setUserClearance((int) $userId, (int) $validated['classification_id'], $grantedBy);
+            $count++;
+        }
+
+        return redirect()->route('acl.clearances')
+            ->with('success', "Granted clearance to {$count} user(s).");
+    }
+
     public function setClearance(Request $request)
     {
         // Revoke = delete the user_security_clearance row entirely.
@@ -326,10 +376,100 @@ class AclController extends Controller
      */
     public function auditLog(Request $request)
     {
-        $limit = (int) ($request->input('limit', 50));
-        $entries = $this->service->getSecurityAuditLog($limit);
+        $filters = [
+            'action'      => $request->string('filter_action')->trim()->toString(),
+            'object_type' => $request->string('entity_type')->trim()->toString(),
+            'username'    => $request->string('username')->trim()->toString(),
+            'from_date'   => $request->string('from_date')->trim()->toString(),
+            'to_date'     => $request->string('to_date')->trim()->toString(),
+        ];
+        $page  = max(1, (int) $request->input('page', 1));
+        $limit = (int) $request->input('limit', 50);
+        $limit = in_array($limit, [25, 50, 100, 250]) ? $limit : 50;
+        $format = $request->string('format')->lower()->toString();
 
-        return view('ahg-acl::audit-log', compact('entries', 'limit'));
+        // Base query — same joins as getSecurityAuditLog but filterable & paginatable
+        $query = DB::table('security_audit_log as sal')
+            ->leftJoin('user as u', 'u.id', '=', 'sal.user_id')
+            ->leftJoin('actor_i18n as ai', function ($j) {
+                $j->on('ai.id', '=', 'u.id')->where('ai.culture', '=', 'en');
+            })
+            ->select(
+                'sal.id', 'sal.object_id', 'sal.object_type', 'sal.user_id', 'sal.user_name',
+                'sal.action', 'sal.action_category', 'sal.details', 'sal.ip_address',
+                'sal.user_agent', 'sal.created_at',
+                'ai.authorized_form_of_name as display_name'
+            );
+
+        if ($filters['action']      !== '') $query->where('sal.action', $filters['action']);
+        if ($filters['object_type'] !== '') $query->where('sal.object_type', $filters['object_type']);
+        if ($filters['username']    !== '') $query->where('sal.user_name', $filters['username']);
+        if ($filters['from_date']   !== '') $query->where('sal.created_at', '>=', $filters['from_date'] . ' 00:00:00');
+        if ($filters['to_date']     !== '') $query->where('sal.created_at', '<=', $filters['to_date'] . ' 23:59:59');
+
+        // CSV / JSON export — return all rows matching the filters (no pagination cap)
+        if ($format === 'csv' || $format === 'json') {
+            $rows = $query->orderByDesc('sal.created_at')->limit(50000)->get();
+            return $this->exportAuditLog($rows, $format);
+        }
+
+        $total = (clone $query)->count();
+        $entries = $query->orderByDesc('sal.created_at')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        // Filter dropdown options
+        $actionTypes = DB::table('security_audit_log')
+            ->select('action')->distinct()->orderBy('action')->pluck('action')->filter()->values();
+        $entityTypes = DB::table('security_audit_log')
+            ->select('object_type')->distinct()->orderBy('object_type')->pluck('object_type')->filter()->values();
+        $usernames = DB::table('security_audit_log')
+            ->select('user_name')->distinct()->whereNotNull('user_name')->orderBy('user_name')->pluck('user_name')->filter()->values();
+
+        $pager = [
+            'total'        => $total,
+            'current_page' => $page,
+            'last_page'    => max(1, (int) ceil($total / $limit)),
+            'from'         => $total > 0 ? (($page - 1) * $limit) + 1 : 0,
+            'to'           => min($total, $page * $limit),
+        ];
+
+        return view('ahg-acl::audit-log', compact('entries', 'limit', 'filters', 'actionTypes', 'entityTypes', 'usernames', 'pager'));
+    }
+
+    private function exportAuditLog($rows, string $format)
+    {
+        $stamp = now()->format('Ymd-His');
+        if ($format === 'json') {
+            return response()->json($rows)
+                ->header('Content-Disposition', 'attachment; filename="audit-log-' . $stamp . '.json"');
+        }
+
+        // CSV
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="audit-log-' . $stamp . '.csv"',
+        ];
+        $callback = function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['ID', 'Date', 'User', 'Action', 'Category', 'Object Type', 'Object ID', 'IP Address', 'User Agent']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r->id,
+                    $r->created_at,
+                    $r->display_name ?? $r->user_name ?? '',
+                    $r->action,
+                    $r->action_category,
+                    $r->object_type,
+                    $r->object_id,
+                    $r->ip_address,
+                    $r->user_agent,
+                ]);
+            }
+            fclose($out);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     /**

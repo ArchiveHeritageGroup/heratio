@@ -3,6 +3,17 @@
   <a class="btn atom-btn-outline-light btn-sm" href="#main-column">Skip to main content</a>
 </div>
 
+{{-- Tighten vertical spacing when the navbar wraps onto multiple rows --}}
+<style>
+  @media (min-width: 992px) {
+    header#top-bar .navbar-nav { row-gap: 0; }
+    header#top-bar .nav-item { margin-top: 0 !important; margin-bottom: 0 !important; }
+    header#top-bar .nav-link i.fa-2x { padding-top: 0 !important; padding-bottom: 0 !important; }
+    header#top-bar .nav-link.p-0 i.fa-2x { padding-top: 0 !important; padding-bottom: 0 !important; }
+    header#top-bar .navbar-collapse > .d-flex { row-gap: 0 !important; }
+  }
+</style>
+
 <header id="top-bar" class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main navigation" style="background-color: var(--ahg-header-bg, #212529) !important; color: var(--ahg-header-text, #fff) !important;">
   <div class="container-fluid">
     {{-- Brand / Logo --}}

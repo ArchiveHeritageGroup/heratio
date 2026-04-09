@@ -19,6 +19,34 @@
   </div>
 </div>
 
+{{-- Stats cards (matches AtoM) --}}
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card bg-primary text-white">
+      <div class="card-body text-center">
+        <h2 class="mb-0">{{ $stats['total_users'] }}</h2>
+        <small>Total Users</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-success text-white">
+      <div class="card-body text-center">
+        <h2 class="mb-0">{{ $stats['with_clearance'] }}</h2>
+        <small>With Clearance</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-danger text-white">
+      <div class="card-body text-center">
+        <h2 class="mb-0">{{ $stats['top_secret'] }}</h2>
+        <small>Secret+ Level</small>
+      </div>
+    </div>
+  </div>
+</div>
+
 @if($errors->any())
   <div class="alert alert-danger alert-dismissible fade show">
     <ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
@@ -28,13 +56,21 @@
 
 {{-- Clearances Table --}}
 <div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>User Security Clearances</h5>
+    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#bulkGrantModal">
+      <i class="fas fa-users me-1"></i> Bulk Grant
+    </button>
+  </div>
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-bordered table-striped table-hover mb-0">
-        <thead>
+      <table class="table table-hover mb-0" id="clearanceTable">
+        <thead class="table-light">
           <tr>
+            <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
             <th>User</th>
             <th>Clearance Level</th>
+            <th>Granted By</th>
             <th>Granted</th>
             <th>Expires</th>
             <th class="text-center">2FA</th>
@@ -43,19 +79,30 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($clearances as $clr)
+          @forelse($rows as $clr)
             <tr>
+              <td>
+                <input type="checkbox" class="form-check-input user-select" value="{{ $clr->user_id }}">
+              </td>
               <td>
                 <strong>{{ $clr->user_display_name ?? $clr->username ?? '—' }}</strong><br>
                 <small class="text-muted">{{ $clr->email ?? '' }}</small>
+                @if(!$clr->active)
+                  <span class="badge bg-secondary ms-1">Inactive</span>
+                @endif
               </td>
               <td>
-                <span class="badge" style="background-color:{{ $clr->classification_color ?? '#6c757d' }};">
-                  {{ $clr->classification_name ?? '—' }}
-                </span>
-                <br><small>Level {{ $clr->classification_level ?? $clr->classification_code ?? '' }}</small>
+                @if($clr->classification_name)
+                  <span class="badge fs-6" style="background-color:{{ $clr->classification_color ?? '#6c757d' }};">
+                    {{ $clr->classification_name }}
+                  </span>
+                  <br><small class="text-muted">Level {{ $clr->classification_level ?? '' }}</small>
+                @else
+                  <span class="badge bg-secondary">No Clearance</span>
+                @endif
               </td>
-              <td>{{ $clr->granted_at ?? '—' }}</td>
+              <td>{{ $clr->granted_by_name ?? '—' }}</td>
+              <td>{{ $clr->granted_at ? \Carbon\Carbon::parse($clr->granted_at)->format('M j, Y') : '—' }}</td>
               <td>
                 @if($clr->expires_at)
                   @php
@@ -63,45 +110,62 @@
                     $expiryClass = $daysLeft <= 7 ? 'text-danger fw-bold' : ($daysLeft <= 30 ? 'text-warning' : '');
                   @endphp
                   <span class="{{ $expiryClass }}">
-                    {{ $clr->expires_at }}
+                    {{ \Carbon\Carbon::parse($clr->expires_at)->format('M j, Y') }}
                     @if($daysLeft <= 0)
                       <i class="fas fa-exclamation-triangle ms-1" title="Expired"></i>
                     @endif
                   </span>
                 @else
-                  <span class="text-muted">No expiry</span>
+                  <span class="text-muted">Never</span>
                 @endif
               </td>
               <td class="text-center">
-                @if($clr->two_factor_verified ?? false)
+                @if($clr->two_factor_verified)
                   <span class="badge bg-success"><i class="fas fa-check"></i></span>
                 @else
                   <span class="badge bg-secondary"><i class="fas fa-times"></i></span>
                 @endif
               </td>
               <td class="text-center">
-                @if(($clr->renewal_status ?? '') === 'pending')
+                @if(!$clr->classification_id)
+                  <span class="badge bg-secondary">—</span>
+                @elseif(($clr->renewal_status ?? '') === 'pending')
                   <span class="badge bg-warning">Renewal Pending</span>
                 @else
                   <span class="badge bg-success">Active</span>
                 @endif
               </td>
               <td class="text-end">
-                <form action="{{ route('acl.set-clearance') }}" method="POST" class="d-inline"
-                      onsubmit="return confirm('Revoke clearance for {{ $clr->user_display_name ?? $clr->username }}?');">
-                  @csrf
-                  <input type="hidden" name="user_id" value="{{ $clr->user_id ?? '' }}">
-                  <input type="hidden" name="classification_id" value="0">
-                  <input type="hidden" name="_revoke" value="1">
-                  <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Revoke">
-                    <i class="fas fa-ban"></i>
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ route('security-clearance.user', $clr->username) }}" class="btn btn-outline-primary" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <button type="button" class="btn btn-outline-success btn-row-grant"
+                          data-bs-toggle="modal" data-bs-target="#grantModal"
+                          data-user-id="{{ $clr->user_id }}"
+                          data-username="{{ $clr->user_display_name ?? $clr->username }}"
+                          data-current="{{ $clr->classification_id ?? 0 }}"
+                          title="Grant/Change Clearance">
+                    <i class="fas fa-key"></i>
                   </button>
-                </form>
+                  @if($clr->classification_id)
+                    <form action="{{ route('acl.set-clearance') }}" method="POST" class="d-inline"
+                          onsubmit="return confirm('Revoke clearance for {{ $clr->user_display_name ?? $clr->username }}?');">
+                      @csrf
+                      <input type="hidden" name="user_id" value="{{ $clr->user_id }}">
+                      <input type="hidden" name="classification_id" value="0">
+                      <input type="hidden" name="_revoke" value="1">
+                      <button type="submit" class="btn btn-outline-danger" title="Revoke Clearance">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                    </form>
+                  @endif
+                </div>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">No user clearances assigned.</td>
+              <td colspan="9" class="text-center text-muted py-4">No users found.</td>
             </tr>
           @endforelse
         </tbody>
@@ -109,6 +173,89 @@
     </div>
   </div>
 </div>
+
+{{-- Bulk Grant Modal --}}
+<div class="modal fade" id="bulkGrantModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{{ route('acl.bulk-grant-clearance') }}" id="bulkGrantForm">
+        @csrf
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="fas fa-users me-2"></i>Bulk Grant Clearance</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-1"></i>
+            Select users in the table, then choose a clearance level to grant to all selected users.
+          </div>
+          <p><strong id="selectedCount">0</strong> users selected</p>
+          <div id="selectedUsersContainer"></div>
+
+          <div class="mb-3">
+            <label for="bulkClassification" class="form-label">Clearance Level</label>
+            <select class="form-select" name="classification_id" id="bulkClassification" required>
+              @foreach($classifications as $c)
+                <option value="{{ $c->id }}">{{ $c->name }} (Level {{ $c->level ?? '' }})</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="Reason for bulk grant..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="bulkGrantBtn" disabled>
+            <i class="fas fa-check me-1"></i> Grant to Selected
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Per-row Grant button — pre-populates the existing grantModal user/classification
+  document.getElementById('grantModal').addEventListener('show.bs.modal', function(event) {
+    var btn = event.relatedTarget;
+    if (!btn || !btn.classList.contains('btn-row-grant')) return;
+    var userSelect = this.querySelector('select[name="user_id"]');
+    var classSelect = this.querySelector('select[name="classification_id"]');
+    if (userSelect) userSelect.value = btn.dataset.userId;
+    if (classSelect) classSelect.value = btn.dataset.current || '';
+  });
+
+  // Select all
+  var selectAll = document.getElementById('selectAll');
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      document.querySelectorAll('.user-select').forEach(function(cb) { cb.checked = selectAll.checked; });
+      updateSelectedCount();
+    });
+  }
+  document.querySelectorAll('.user-select').forEach(function(cb) {
+    cb.addEventListener('change', updateSelectedCount);
+  });
+
+  function updateSelectedCount() {
+    var selected = document.querySelectorAll('.user-select:checked');
+    document.getElementById('selectedCount').textContent = selected.length;
+    document.getElementById('bulkGrantBtn').disabled = selected.length === 0;
+    var container = document.getElementById('selectedUsersContainer');
+    container.innerHTML = '';
+    selected.forEach(function(cb) {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'user_ids[]';
+      input.value = cb.value;
+      container.appendChild(input);
+    });
+  }
+});
+</script>
 
 {{-- Grant Modal --}}
 <div class="modal fade" id="grantModal" tabindex="-1">
