@@ -164,6 +164,21 @@
 
     {{-- Standalone settings pages --}}
     <div class="col-lg-4 col-md-6 mb-4">
+      <a href="{{ route('settings.page-elements') }}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm settings-tile">
+          <div class="card-body text-center py-4">
+            <div class="mb-3"><i class="fas fa-th-large fa-3x text-primary"></i></div>
+            <h5 class="card-title text-dark">Default page elements</h5>
+            <p class="card-text text-muted small">Toggle logo, title, description, language menu, digital object carousel and map, copyright and material filters</p>
+          </div>
+          <div class="card-footer bg-white border-0 text-center pb-4">
+            <span class="btn atom-btn-white"><i class="fas fa-cog"></i> Configure</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-lg-4 col-md-6 mb-4">
       <a href="{{ route('settings.cron-jobs') }}" class="text-decoration-none">
         <div class="card h-100 shadow-sm settings-tile">
           <div class="card-body text-center py-4">

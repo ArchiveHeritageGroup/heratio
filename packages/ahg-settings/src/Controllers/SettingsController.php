@@ -2054,9 +2054,99 @@ class SettingsController extends Controller
     }
 
     // ─── Page Elements ─────────────────────────────────────────────────
+    /**
+     * Default page elements settings — clones AtoM SettingsPageElementsAction.
+     * Toggles for logo, title, description, language menu, IO carousel,
+     * digital object map, copyright/material filters. Stored in `setting`
+     * table by name (no scope), not in element_visibility.
+     */
     public function pageElements(Request $request)
     {
-        return $this->visibleElements($request);
+        $culture = app()->getLocale();
+        $menu = $this->buildMenu('page-elements');
+
+        $names = [
+            'toggleLogo',
+            'toggleTitle',
+            'toggleDescription',
+            'toggleLanguageMenu',
+            'toggleIoSlider',
+            'toggleDigitalObjectMap',
+            'toggleCopyrightFilter',
+            'toggleMaterialFilter',
+        ];
+
+        $labels = [
+            'toggleLogo' => 'Logo',
+            'toggleTitle' => 'Title',
+            'toggleDescription' => 'Description',
+            'toggleLanguageMenu' => 'Language menu',
+            'toggleIoSlider' => 'Digital object carousel',
+            'toggleDigitalObjectMap' => 'Digital object map',
+            'toggleCopyrightFilter' => 'Copyright status filter',
+            'toggleMaterialFilter' => 'General material designation filter',
+        ];
+
+        // Has a Google Maps API key been set? (controls digital object map enable)
+        $googleMapsApiKeySet = (bool) DB::table('setting')
+            ->leftJoin('setting_i18n', function ($j) use ($culture) {
+                $j->on('setting.id', '=', 'setting_i18n.id')
+                    ->where('setting_i18n.culture', '=', $culture);
+            })
+            ->where('setting.name', 'google_maps_api_key')
+            ->value('setting_i18n.value');
+
+        if ($request->isMethod('post')) {
+            foreach ($names as $name) {
+                $value = $request->has($name) ? '1' : '0';
+                $existing = DB::table('setting')->where('name', $name)->first();
+                if ($existing) {
+                    DB::table('setting_i18n')->updateOrInsert(
+                        ['id' => $existing->id, 'culture' => $culture],
+                        ['value' => $value]
+                    );
+                } else {
+                    $id = DB::table('setting')->insertGetId([
+                        'name' => $name,
+                        'editable' => 1,
+                        'deleteable' => 0,
+                        'source_culture' => $culture,
+                        'serial_number' => 0,
+                    ]);
+                    DB::table('setting_i18n')->insert([
+                        'id' => $id,
+                        'culture' => $culture,
+                        'value' => $value,
+                    ]);
+                }
+            }
+            return redirect()->route('settings.page-elements')
+                ->with('success', 'Default page elements saved.');
+        }
+
+        // Build settings map for the view: name => ['id', 'value', 'label']
+        $rows = DB::table('setting')
+            ->leftJoin('setting_i18n', function ($j) use ($culture) {
+                $j->on('setting.id', '=', 'setting_i18n.id')
+                    ->where('setting_i18n.culture', '=', $culture);
+            })
+            ->whereIn('setting.name', $names)
+            ->select('setting.id', 'setting.name', 'setting_i18n.value')
+            ->get()
+            ->keyBy('name');
+
+        $settings = [];
+        foreach ($names as $name) {
+            $row = $rows[$name] ?? null;
+            $settings[$name] = (object) [
+                'id' => $row->id ?? null,
+                'name' => $name,
+                'value' => $row->value ?? '0',
+                'label' => $labels[$name],
+            ];
+        }
+
+        return view('ahg-settings::page-elements', compact('settings', 'menu', 'googleMapsApiKeySet'));
     }
 
     // ─── Dropdown Manager ──────────────────────────────────────────────

@@ -4,9 +4,13 @@
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
+  <div class="col-md-3">@include('ahg-settings::_menu', ['menu' => $menu ?? []])</div>
   <div class="col-md-9">
     <h1>Default page elements</h1>
+
+    @if(session('success'))
+      <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
     <form method="post" action="{{ route('settings.page-elements') }}">
       @csrf
@@ -22,31 +26,28 @@
             <div class="accordion-body">
               <p>Enable or disable the display of certain page elements. Unless they have been overridden by a specific theme, these settings will be used site wide.</p>
 
-              @php
-                $elementLabels = [
-                  'toggleLogo' => 'Logo',
-                  'toggleTitle' => 'Title',
-                  'toggleDescription' => 'Description',
-                  'toggleLanguageMenu' => 'Language menu',
-                  'toggleIoSlider' => 'Digital object carousel',
-                  'toggleDigitalObjectMap' => 'Digital object map',
-                  'toggleCopyrightFilter' => 'Copyright status filter',
-                  'toggleMaterialFilter' => 'General material designation filter',
-                ];
-              @endphp
-
               @foreach($settings as $name => $setting)
-                @php $label = $elementLabels[$name] ?? ucfirst(str_replace('_', ' ', $name)); @endphp
+                @php
+                  $disabled = ($name === 'toggleDigitalObjectMap' && $setting->value !== '1' && !$googleMapsApiKeySet);
+                @endphp
                 <div class="form-check mb-2">
-                  <input type="hidden" name="settings.{{ $setting->id }}" value="0">
-                  <input class="form-check-input" type="checkbox" name="settings.{{ $setting->id }}" id="ve-{{ $setting->id }}" value="1" {{ ($setting->value ?? '0') == '1' ? 'checked' : '' }}>
-                  <label class="form-check-label" for="ve-{{ $setting->id }}">{{ $label }}</label>
+                  <input type="hidden" name="{{ $name }}_present" value="1">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         name="{{ $name }}"
+                         id="pe-{{ $name }}"
+                         value="1"
+                         {{ $setting->value === '1' ? 'checked' : '' }}
+                         {{ $disabled ? 'disabled' : '' }}>
+                  <label class="form-check-label" for="pe-{{ $name }}">{{ $setting->label }}</label>
+                  @if($disabled)
+                    <div class="form-text text-muted small">
+                      This feature will not work until a Google Maps API key is specified on the
+                      <a href="{{ route('settings.global') }}">global</a> settings page.
+                    </div>
+                  @endif
                 </div>
               @endforeach
-
-              @if(empty($settings['toggleDigitalObjectMap']) || !($googleMapsApiKeySet ?? false))
-                <small class="text-muted d-block mt-2">Note: The Digital object map feature will not work until a Google Maps API key is specified on the <a href="{{ route('settings.global') }}">global</a> settings page.</small>
-              @endif
             </div>
           </div>
         </div>
