@@ -102,7 +102,7 @@
         <i class="fas fa-project-diagram me-2"></i>
         <strong>{{ $io->title }}</strong>
       </div>
-      <span class="badge bg-light text-success">rico:{{ $ricType }}</span>
+      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:{{ $ricType }}</span>
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">

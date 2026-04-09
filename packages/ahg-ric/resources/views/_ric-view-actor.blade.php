@@ -79,7 +79,7 @@
         <i class="fas fa-{{ $ricAgentType === 'Person' ? 'user' : ($ricAgentType === 'Family' ? 'users' : 'building') }} me-2"></i>
         <strong>{{ $actor->authorized_form_of_name }}</strong>
       </div>
-      <span class="badge bg-light text-success">rico:{{ $ricAgentType }}</span>
+      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">rico:{{ $ricAgentType }}</span>
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">

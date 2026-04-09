@@ -89,26 +89,40 @@
     <span class="visually-hidden">Add</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="add-menu">
-    <li><h6 class="dropdown-header">Add</h6></li>
+    {{-- Sector Items --}}
+    <li><h6 class="dropdown-header">Sector items</h6></li>
     @foreach($addItems as $item)
       @if(in_array($item->name, $adminOnly) && !$isAdmin)
         @continue
       @endif
-      <li>
-        <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-          <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>{{ $item->label }}
-        </a>
-      </li>
+      @if($item->name === 'informationObject')
+        <li>
+          <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
+            <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>Archival description
+          </a>
+        </li>
+      @endif
     @endforeach
-    {{-- Sector Items (matching AtoM) --}}
-    @if($hasLibrary || $hasMuseum || $hasGallery || $hasDam)
-      <li><hr class="dropdown-divider"></li>
-      <li><h6 class="dropdown-header">Sector Items</h6></li>
-      @if($hasMuseum)<li><a class="dropdown-item" href="{{ url('/museum/add') }}"><i class="fas fa-university fa-fw me-2"></i>Museum object</a></li>@endif
-      @if($hasGallery)<li><a class="dropdown-item" href="{{ url('/gallery/add') }}"><i class="fas fa-images fa-fw me-2"></i>Gallery item</a></li>@endif
-      @if($hasLibrary)<li><a class="dropdown-item" href="{{ url('/library/add') }}"><i class="fas fa-book fa-fw me-2"></i>Library item</a></li>@endif
-      @if($hasDam)<li><a class="dropdown-item" href="{{ url('/dam/create') }}"><i class="fas fa-photo-video fa-fw me-2"></i>Photo/DAM asset</a></li>@endif
-    @endif
+    @if($hasMuseum)<li><a class="dropdown-item" href="{{ url('/museum/add') }}"><i class="fas fa-university fa-fw me-2"></i>Museum object</a></li>@endif
+    @if($hasGallery)<li><a class="dropdown-item" href="{{ url('/gallery/add') }}"><i class="fas fa-images fa-fw me-2"></i>Gallery item</a></li>@endif
+    @if($hasLibrary)<li><a class="dropdown-item" href="{{ url('/library/add') }}"><i class="fas fa-book fa-fw me-2"></i>Library item</a></li>@endif
+    @if($hasDam)<li><a class="dropdown-item" href="{{ url('/dam/create') }}"><i class="fas fa-photo-video fa-fw me-2"></i>Photo/DAM asset</a></li>@endif
+
+    {{-- Other entity types --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">Other</h6></li>
+    @foreach($addItems as $item)
+      @if(in_array($item->name, $adminOnly) && !$isAdmin)
+        @continue
+      @endif
+      @if($item->name !== 'informationObject')
+        <li>
+          <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
+            <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>{{ $item->label }}
+          </a>
+        </li>
+      @endif
+    @endforeach
   </ul>
 </li>
 @endif

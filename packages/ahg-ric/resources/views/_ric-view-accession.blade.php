@@ -28,7 +28,7 @@
   <div class="card mb-3 border-success">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
       <div><i class="fas fa-inbox me-2"></i><strong>{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</strong></div>
-      <span class="badge bg-light text-success">Accession (Transfer Activity)</span>
+      <span style="background:#fff !important;color:#198754 !important;border:2px solid #198754;padding:.25em .6em;border-radius:.375em;font-size:.85em;font-weight:600;display:inline-block;">Accession (Transfer Activity)</span>
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
