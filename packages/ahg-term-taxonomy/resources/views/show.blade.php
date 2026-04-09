@@ -51,24 +51,53 @@
 
         <div class="tab-content mb-3" id="treeview-content">
 
-          {{-- TAB 1: Treeview --}}
+          {{-- TAB 1: Treeview — full ancestor chain + siblings + current + children --}}
           <div class="tab-pane fade show active" id="treeview-pane" role="tabpanel">
-            <ul class="list-group rounded-0" style="max-height:400px;overflow-y:auto;">
-              @if($broaderTerm)
-                <a href="{{ route('term.show', $broaderTerm->slug) }}" class="list-group-item list-group-item-action py-2 ps-2" style="white-space:normal;">
-                  <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $broaderTerm->name }}
-                </a>
-              @endif
-              <div class="list-group-item active ps-4">
-                <i class="fas fa-caret-down me-1"></i><strong>{{ $term->name }}</strong>
-              </div>
-              @foreach($narrowerTerms->take(30) as $nt)
-                <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action py-2 ps-5" style="white-space:normal;">
-                  <i class="fas fa-chevron-right text-muted me-1" style="font-size:.6em;"></i>{{ $nt->name }}
+            <ul class="list-group rounded-0" style="max-height:500px;overflow-y:auto;">
+              {{-- Ancestor chain (excluding root) --}}
+              @foreach($breadcrumb as $i => $ancestor)
+                <a href="{{ route('term.show', $ancestor->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;padding-left:{{ ($i * 16) + 8 }}px;">
+                  <i class="fas fa-caret-down text-muted me-1"></i>{{ $ancestor->name }}
                 </a>
               @endforeach
-              @if($narrowerTerms->count() > 30)
-                <a href="#" class="list-group-item list-group-item-action text-muted small ps-5" onclick="event.preventDefault();document.getElementById('list-tab').click();">... and {{ $narrowerTerms->count() - 30 }} more</a>
+
+              @php $depth = $breadcrumb->count(); @endphp
+
+              {{-- Siblings (other children of the same parent) --}}
+              @foreach($siblings as $sib)
+                <a href="{{ route('term.show', $sib->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;padding-left:{{ ($depth * 16) + 8 }}px;">
+                  @if($sib->child_count > 0)
+                    <i class="fas fa-caret-right text-muted me-1"></i>
+                  @else
+                    <i class="fas fa-circle text-muted me-1" style="font-size:.4em;vertical-align:middle;"></i>
+                  @endif
+                  {{ $sib->name }}
+                </a>
+              @endforeach
+
+              {{-- Current term (active) --}}
+              <div class="list-group-item active py-2" style="padding-left:{{ ($depth * 16) + 8 }}px;">
+                @if($narrowerTerms->count() > 0)
+                  <i class="fas fa-caret-down me-1"></i>
+                @else
+                  <i class="fas fa-circle me-1" style="font-size:.4em;vertical-align:middle;"></i>
+                @endif
+                <strong>{{ $term->name }}</strong>
+              </div>
+
+              {{-- Children of current --}}
+              @foreach($narrowerTerms->take(50) as $nt)
+                <a href="{{ route('term.show', $nt->slug) }}" class="list-group-item list-group-item-action py-2" style="white-space:normal;padding-left:{{ (($depth + 1) * 16) + 8 }}px;">
+                  @if($nt->child_count > 0)
+                    <i class="fas fa-caret-right text-muted me-1"></i>
+                  @else
+                    <i class="fas fa-circle text-muted me-1" style="font-size:.4em;vertical-align:middle;"></i>
+                  @endif
+                  {{ $nt->name }}
+                </a>
+              @endforeach
+              @if($narrowerTerms->count() > 50)
+                <a href="#" class="list-group-item list-group-item-action text-muted small" style="padding-left:{{ (($depth + 1) * 16) + 8 }}px;" onclick="event.preventDefault();document.getElementById('list-tab').click();">... and {{ $narrowerTerms->count() - 50 }} more in List tab</a>
               @endif
             </ul>
           </div>

@@ -331,14 +331,29 @@ class TermController extends Controller
             ->where('note.object_id', $term->id)->where('note.type_id', 123)
             ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
 
-        // Narrower terms (children) with names and slugs
+        // Narrower terms (children) with names, slugs, and child count for expand indicator
         $narrowerTerms = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.parent_id', $term->id)
             ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->select('term.id', 'term_i18n.name', 'slug.slug',
+                DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
             ->orderBy('term_i18n.name')->get();
+
+        // Sibling terms (other children of the same parent) for treeview navigation
+        $siblings = collect();
+        if ($parentId) {
+            $siblings = DB::table('term')
+                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->join('slug', 'term.id', '=', 'slug.object_id')
+                ->where('term.parent_id', $parentId)
+                ->where('term.id', '!=', $term->id)
+                ->where('term_i18n.culture', $culture)
+                ->select('term.id', 'term_i18n.name', 'slug.slug',
+                    DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
+                ->orderBy('term_i18n.name')->get();
+        }
 
         // List tab: paginated alphabetical list of terms
         // For normal terms: list all in same taxonomy
@@ -462,6 +477,7 @@ class TermController extends Controller
             'broaderTerm' => $broaderTerm,
             'narrowerCount' => $narrowerCount,
             'narrowerTerms' => $narrowerTerms,
+            'siblings' => $siblings ?? collect(),
             'listTerms' => $listTerms,
             'listTotal' => $listTotal,
             'listPage' => $listPage,
