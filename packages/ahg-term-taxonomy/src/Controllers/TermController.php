@@ -501,6 +501,156 @@ class TermController extends Controller
     }
 
     /**
+     * Export taxonomy terms as SKOS RDF/XML.
+     * Migrated from AtoM sfSkosPlugin export action.
+     */
+    public function exportSkos(Request $request)
+    {
+        $taxonomyId = (int) $request->input('taxonomy');
+        if (!$taxonomyId) {
+            abort(400, 'taxonomy parameter is required');
+        }
+
+        $culture = app()->getLocale();
+        $taxonomyName = $this->termService->getTaxonomyName($taxonomyId, $culture);
+
+        $terms = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $taxonomyId)
+            ->where('term_i18n.culture', $culture)
+            ->select('term.id', 'term.parent_id', 'term_i18n.name', 'slug.slug', 'term.code')
+            ->orderBy('term_i18n.name')
+            ->get();
+
+        $baseUri = url('/term') . '/';
+        $schemeUri = url('/taxonomy/' . $taxonomyId);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"' . "\n";
+        $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"' . "\n";
+        $xml .= '         xmlns:dct="http://purl.org/dc/terms/">' . "\n\n";
+
+        // Concept scheme
+        $xml .= '  <skos:ConceptScheme rdf:about="' . htmlspecialchars($schemeUri) . '">' . "\n";
+        $xml .= '    <dct:title>' . htmlspecialchars($taxonomyName ?? 'Taxonomy') . '</dct:title>' . "\n";
+        $xml .= '  </skos:ConceptScheme>' . "\n\n";
+
+        // Concepts
+        foreach ($terms as $t) {
+            $uri = $baseUri . ($t->slug ?: $t->id);
+            $xml .= '  <skos:Concept rdf:about="' . htmlspecialchars($uri) . '">' . "\n";
+            $xml .= '    <skos:prefLabel xml:lang="' . $culture . '">' . htmlspecialchars($t->name) . '</skos:prefLabel>' . "\n";
+            $xml .= '    <skos:inScheme rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
+
+            if ($t->parent_id) {
+                $parent = $terms->firstWhere('id', $t->parent_id);
+                if ($parent) {
+                    $parentUri = $baseUri . ($parent->slug ?: $parent->id);
+                    $xml .= '    <skos:broader rdf:resource="' . htmlspecialchars($parentUri) . '"/>' . "\n";
+                }
+            } else {
+                $xml .= '    <skos:topConceptOf rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
+            }
+
+            if ($t->code) {
+                $xml .= '    <skos:notation>' . htmlspecialchars($t->code) . '</skos:notation>' . "\n";
+            }
+
+            $xml .= '  </skos:Concept>' . "\n";
+        }
+
+        $xml .= '</rdf:RDF>' . "\n";
+
+        $filename = 'skos-taxonomy-' . $taxonomyId . '.rdf';
+        return response($xml, 200, [
+            'Content-Type' => 'application/rdf+xml; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    /**
+     * Import SKOS RDF/XML into a taxonomy.
+     */
+    public function importSkos(Request $request)
+    {
+        $culture = app()->getLocale();
+
+        if ($request->isMethod('post') && $request->hasFile('skos_file')) {
+            $taxonomyId = (int) $request->input('taxonomy_id');
+            if (!$taxonomyId) {
+                return back()->with('error', 'Please select a taxonomy.');
+            }
+
+            $file = $request->file('skos_file');
+            $xml = simplexml_load_string(file_get_contents($file->getPathname()));
+            if (!$xml) {
+                return back()->with('error', 'Invalid XML file.');
+            }
+
+            $xml->registerXPathNamespace('skos', 'http://www.w3.org/2004/02/skos/core#');
+            $xml->registerXPathNamespace('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+
+            $concepts = $xml->xpath('//skos:Concept');
+            $imported = 0;
+
+            foreach ($concepts as $c) {
+                $label = (string) $c->children('skos', true)->prefLabel;
+                if (!$label) continue;
+
+                // Check if exists
+                $existing = DB::table('term')
+                    ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                    ->where('term.taxonomy_id', $taxonomyId)
+                    ->where('term_i18n.culture', $culture)
+                    ->where('term_i18n.name', $label)
+                    ->value('term.id');
+
+                if ($existing) continue;
+
+                // Create object + term + i18n + slug
+                $objectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitTerm',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                DB::table('term')->insert([
+                    'id' => $objectId,
+                    'taxonomy_id' => $taxonomyId,
+                    'source_culture' => $culture,
+                ]);
+
+                DB::table('term_i18n')->insert([
+                    'id' => $objectId,
+                    'culture' => $culture,
+                    'name' => $label,
+                ]);
+
+                $slug = \Illuminate\Support\Str::slug($label) . '-' . $objectId;
+                DB::table('slug')->insert([
+                    'object_id' => $objectId,
+                    'slug' => $slug,
+                ]);
+
+                $imported++;
+            }
+
+            return redirect()->route('taxonomy.show', $taxonomyId)
+                ->with('success', "Imported $imported terms from SKOS file.");
+        }
+
+        // GET — show upload form
+        $taxonomyId = (int) $request->input('taxonomy');
+        $taxonomies = $this->termService->getTaxonomies($culture);
+
+        return view('ahg-term-taxonomy::import-skos', [
+            'taxonomies' => $taxonomies,
+            'preselectedTaxonomyId' => $taxonomyId,
+        ]);
+    }
+
+    /**
      * Show the create form for a new term.
      */
     public function create(Request $request)

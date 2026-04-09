@@ -24,4 +24,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/term/autocomplete', [TermController::class, 'autocomplete'])->name('term.autocomplete');
+
+// SKOS import/export — must be registered BEFORE the {slug} catch-all
+Route::middleware('auth')->group(function () {
+    Route::match(['get', 'post'], '/term/import/skos', [TermController::class, 'importSkos'])->name('term.import.skos');
+});
+Route::get('/term/export/skos', [TermController::class, 'exportSkos'])->name('term.export.skos');
+
 Route::get('/term/{slug}', [TermController::class, 'show'])->name('term.show');

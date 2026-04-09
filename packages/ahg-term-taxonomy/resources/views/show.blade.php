@@ -396,12 +396,12 @@
       @auth
         <h4 class="h5 mb-2">Import</h4>
         <ul class="list-unstyled">
-          <li><a href="{{ url('/term/import/skos?taxonomy=' . $term->taxonomy_id) }}"><i class="fas fa-download me-1"></i>SKOS</a></li>
+          <li><a href="{{ route('term.import.skos', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-download me-1"></i>SKOS</a></li>
         </ul>
       @endauth
       <h4 class="h5 mb-2">Export</h4>
       <ul class="list-unstyled">
-        <li><a href="{{ url('/term/export/skos?taxonomy=' . $term->taxonomy_id) }}"><i class="fas fa-upload me-1"></i>SKOS</a></li>
+        <li><a href="{{ route('term.export.skos', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-upload me-1"></i>SKOS</a></li>
       </ul>
 
       <h4 class="h5 mb-2">Results</h4>
