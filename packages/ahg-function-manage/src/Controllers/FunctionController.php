@@ -91,6 +91,10 @@ class FunctionController extends Controller
         $relatedFunctions = $this->service->getRelatedFunctions($function->id);
         $relatedResources = $this->service->getRelatedResources($function->id);
 
+        $canUpdate = auth()->check();
+        $canDelete = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
+        $canCreate = auth()->check();
+
         return view('ahg-function-manage::show', [
             'function' => $function,
             'typeName' => $typeName,
@@ -98,6 +102,9 @@ class FunctionController extends Controller
             'descriptionDetail' => $descriptionDetail,
             'relatedFunctions' => $relatedFunctions,
             'relatedResources' => $relatedResources,
+            'canUpdate' => $canUpdate,
+            'canDelete' => $canDelete,
+            'canCreate' => $canCreate,
         ]);
     }
 
