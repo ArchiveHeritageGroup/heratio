@@ -98,6 +98,18 @@ class UserController extends Controller
             $viewData['oaiApiKey'] = $apiKeys['OaiApiKey'];
         }
 
+        // Security clearance — only when the package + table are present.
+        $viewData['clearance'] = null;
+        if (class_exists(\AhgSecurityClearance\Services\SecurityClearanceService::class)
+            && \Illuminate\Support\Facades\Schema::hasTable('user_security_clearance')) {
+            try {
+                $svc = app(\AhgSecurityClearance\Services\SecurityClearanceService::class);
+                $viewData['clearance'] = $svc->getUserClearanceRecord($user->id);
+            } catch (\Throwable $e) {
+                $viewData['clearance'] = null;
+            }
+        }
+
         return view('ahg-user-manage::show', $viewData);
     }
 
