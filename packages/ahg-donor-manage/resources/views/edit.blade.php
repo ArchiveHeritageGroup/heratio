@@ -159,6 +159,30 @@
           </div>
         </div>
       </div>
+
+      {{-- ===== Archival descriptions area ===== --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="io-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#io-collapse" aria-expanded="false" aria-controls="io-collapse">
+            Archival description area
+          </button>
+        </h2>
+        <div id="io-collapse" class="accordion-collapse collapse" aria-labelledby="io-heading">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="information_objects" class="form-label">Linked archival descriptions <span class="badge bg-secondary ms-1">Optional</span></label>
+              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="Type to search archival descriptions...">
+                @if(isset($linkedInformationObjects) && $linkedInformationObjects->isNotEmpty())
+                  @foreach($linkedInformationObjects as $io)
+                    <option value="{{ $io->id }}" selected>{{ $io->title ?: $io->identifier ?: '[Untitled]' }}</option>
+                  @endforeach
+                @endif
+              </select>
+              <div class="form-text text-muted small">Link this donor to archival description records. Type at least 2 characters to search.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ul class="actions mb-3 nav gap-2">
@@ -173,6 +197,7 @@
   </form>
 
 @push('css')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
 .accordion-button {
   background-color: var(--ahg-primary) !important;
@@ -198,5 +223,40 @@
   font-weight: bold;
 }
 </style>
+@endpush
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var ioSelect = document.getElementById('information_objects');
+  if (ioSelect && typeof TomSelect !== 'undefined') {
+    new TomSelect(ioSelect, {
+      valueField: 'id',
+      labelField: 'name',
+      searchField: ['name'],
+      maxItems: 50,
+      plugins: ['remove_button'],
+      load: function(query, callback) {
+        if (query.length < 2) return callback();
+        fetch('{{ url("informationobject/autocomplete") }}?query=' + encodeURIComponent(query) + '&limit=15')
+          .then(function(r) { return r.json(); })
+          .then(function(data) { callback(data); })
+          .catch(function() { callback(); });
+      },
+      render: {
+        option: function(item, escape) {
+          return '<div class="d-flex justify-content-between align-items-center">'
+            + '<span><i class="fas fa-archive me-1"></i>' + escape(item.name) + '</span>'
+            + (item.identifier ? '<small class="text-muted ms-2">' + escape(item.identifier) + '</small>' : '')
+            + '</div>';
+        },
+        item: function(item, escape) {
+          return '<div><i class="fas fa-archive me-1"></i>' + escape(item.name) + '</div>';
+        }
+      }
+    });
+  }
+});
+</script>
 @endpush
 @endsection

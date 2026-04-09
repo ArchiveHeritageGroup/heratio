@@ -75,6 +75,7 @@ class DonorController extends Controller
             'donor' => $donor,
             'contacts' => $this->service->getContacts($donor->id),
             'accessions' => $this->service->getRelatedAccessions($donor->id),
+            'informationObjects' => $this->service->getInformationObjects($donor->id),
         ]);
     }
 
@@ -83,6 +84,7 @@ class DonorController extends Controller
         return view('ahg-donor-manage::edit', [
             'donor' => null,
             'contacts' => collect([$this->emptyContact()]),
+            'linkedInformationObjects' => collect(),
         ]);
     }
 
@@ -99,6 +101,7 @@ class DonorController extends Controller
         return view('ahg-donor-manage::edit', [
             'donor' => $donor,
             'contacts' => $contacts,
+            'linkedInformationObjects' => $this->service->getInformationObjects($donor->id),
         ]);
     }
 
@@ -106,6 +109,9 @@ class DonorController extends Controller
     {
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->fields()));
+        if ($request->has('information_objects')) {
+            $this->service->syncInformationObjects($id, (array) $request->input('information_objects', []));
+        }
         return redirect()->route('donor.show', $this->service->getSlug($id))->with('success', 'Donor created successfully.');
     }
 
@@ -115,6 +121,9 @@ class DonorController extends Controller
         if (!$donor) abort(404);
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $this->service->update($donor->id, $request->only($this->fields()));
+        if ($request->has('information_objects')) {
+            $this->service->syncInformationObjects($donor->id, (array) $request->input('information_objects', []));
+        }
         return redirect()->route('donor.show', $slug)->with('success', 'Donor updated successfully.');
     }
 

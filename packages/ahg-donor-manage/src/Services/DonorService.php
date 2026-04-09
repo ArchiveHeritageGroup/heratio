@@ -109,16 +109,83 @@ class DonorService
             ->get();
     }
 
-    public function getRelatedAccessions(int $donorId): \Illuminate\Support\Collection
+    /**
+     * Get archival description (information_object) records linked to this donor.
+     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = 169 (DONOR_ID).
+     */
+    public function getInformationObjects(int $donorId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('accession', 'relation.object_id', '=', 'accession.id')
+            ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $donorId)
+            ->where('relation.type_id', 169)
+            ->select([
+                'information_object.id',
+                'information_object.identifier',
+                'information_object_i18n.title',
+                'slug.slug',
+            ])
+            ->get();
+    }
+
+    /**
+     * Replace the donor↔IO relations with the given list of IO ids.
+     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = 169 (DONOR_ID).
+     */
+    public function syncInformationObjects(int $donorId, array $ioIds): void
+    {
+        $ioIds = array_values(array_unique(array_filter(array_map('intval', $ioIds))));
+
+        DB::transaction(function () use ($donorId, $ioIds) {
+            // Remove existing donor↔IO relations and their parent object rows
+            $oldRelationIds = DB::table('relation')
+                ->where('object_id', $donorId)
+                ->where('type_id', 169)
+                ->whereIn('subject_id', function ($q) {
+                    $q->select('id')->from('information_object');
+                })
+                ->pluck('id')
+                ->toArray();
+            if (!empty($oldRelationIds)) {
+                DB::table('relation')->whereIn('id', $oldRelationIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelationIds)->delete();
+            }
+
+            foreach ($ioIds as $ioId) {
+                $relObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('relation')->insert([
+                    'id' => $relObjectId,
+                    'subject_id' => $ioId,
+                    'object_id' => $donorId,
+                    'type_id' => 169,
+                    'source_culture' => $this->culture,
+                ]);
+            }
+        });
+    }
+
+    public function getRelatedAccessions(int $donorId): \Illuminate\Support\Collection
+    {
+        // AtoM: QubitRelation::getRelationsByObjectId($donorId, ['typeId' => QubitTerm::DONOR_ID])
+        // relation.object_id = donor.id, relation.subject_id = accession.id, type_id = 169 (DONOR_ID)
+        return DB::table('relation')
+            ->join('accession', 'relation.subject_id', '=', 'accession.id')
             ->leftJoin('accession_i18n', function ($j) {
                 $j->on('accession.id', '=', 'accession_i18n.id')
                     ->where('accession_i18n.culture', '=', $this->culture);
             })
-            ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->where('relation.subject_id', $donorId)
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('relation.object_id', $donorId)
+            ->where('relation.type_id', 169)
             ->select('accession.id', 'accession.identifier', 'accession_i18n.title', 'slug.slug')
             ->get();
     }

@@ -263,22 +263,39 @@
     </div>
   </section>
 
+  {{-- ===== Archival descriptions area ===== --}}
+  <section class="section border-bottom" id="ioArea">
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#io-collapse" class="text-primary text-decoration-none">Archival description area</a>@else Archival description area @endauth</div></h2>
+    <div>
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Linked archival descriptions</h3>
+        <div class="col-9 p-2">
+          @if(isset($informationObjects) && $informationObjects->isNotEmpty())
+            @foreach($informationObjects as $io)
+              <a href="{{ url('/' . ($io->slug ?: $io->id)) }}">{{ $io->title ?: $io->identifier ?: '[Untitled]' }}</a>@if(!$loop->last), @endif
+            @endforeach
+          @endif
+        </div>
+      </div>
+    </div>
+  </section>
+
   {{-- ===== Accession area ===== --}}
   <section class="section" id="accessionArea">
     <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Accession area</div></h2>
     {{-- Accession area has no edit link in AtoM --}}
     <div>
 
-      @if(isset($accessions) && $accessions->isNotEmpty())
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related accession(s)</h3>
-          <div class="col-9 p-2">
+      <div class="field row g-0">
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related accession(s)</h3>
+        <div class="col-9 p-2">
+          @if(isset($accessions) && $accessions->isNotEmpty())
             @foreach($accessions as $accession)
-              <a href="{{ route('accession.show', $accession->slug) }}">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</a>@if(!$loop->last), @endif
+              <a href="{{ route('accession.show', $accession->slug ?: $accession->id) }}">{{ $accession->title ?: $accession->identifier ?: '[Untitled]' }}</a>@if(!$loop->last), @endif
             @endforeach
-          </div>
+          @endif
         </div>
-      @endif
+      </div>
 
     </div>
   </section>
