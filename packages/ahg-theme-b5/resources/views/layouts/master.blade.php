@@ -15,13 +15,28 @@
 
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
-    {{-- Normalize clipboard localStorage before bundle loads (prevents indexOf crash) --}}
+    {{-- Normalize clipboard localStorage before bundle loads (prevents indexOf crash + stale phantom badge) --}}
     <script>
-    (function(){var k='clipboard',t=['informationObject','actor','repository','accession','informationobject','library','dam'],d;
-    try{d=JSON.parse(localStorage.getItem(k))}catch(e){d=null}
-    if(!d||typeof d!=='object')d={};
-    t.forEach(function(x){if(!Array.isArray(d[x]))d[x]=[]});
-    localStorage.setItem(k,JSON.stringify(d))})();
+    (function(){
+      var k='clipboard';
+      var t=['informationObject','actor','repository','accession','informationobject','library','dam'];
+      var d;
+      try{d=JSON.parse(localStorage.getItem(k))}catch(e){d=null}
+      if(!d||typeof d!=='object')d={};
+      // Ensure each type is an array, AND strip falsy/empty entries that would
+      // falsely inflate the bundle's clipboard-count badge.
+      t.forEach(function(x){
+        if(!Array.isArray(d[x])){d[x]=[];return}
+        d[x]=d[x].filter(function(v){
+          if(v===null||v===undefined||v===false||v===0||v==='')return false;
+          if(typeof v==='string'&&v.trim()==='')return false;
+          return true;
+        });
+      });
+      // Strip any extra junk keys that aren't in our known type list
+      Object.keys(d).forEach(function(k2){if(t.indexOf(k2)===-1)delete d[k2]});
+      localStorage.setItem(k,JSON.stringify(d));
+    })();
     </script>
 
     {{-- Webpack bundles --}}

@@ -69,6 +69,18 @@
       if (!Array.isArray(items[t])) {
         items[t] = [];
         changed = true;
+      } else {
+        // Strip falsy/empty/non-id entries that would falsely inflate the badge.
+        // Valid entries are non-empty strings (slugs) or positive integers.
+        var cleaned = items[t].filter(function (v) {
+          if (v === null || v === undefined || v === '' || v === 0 || v === false) return false;
+          if (typeof v === 'string' && v.trim() === '') return false;
+          return true;
+        });
+        if (cleaned.length !== items[t].length) {
+          items[t] = cleaned;
+          changed = true;
+        }
       }
     });
 
@@ -106,6 +118,21 @@
       syncToServer(items);
     }
   }
+
+  // Expose a manual nuke for diagnostics: window.heratioClipboardClear()
+  window.heratioClipboardClear = function () {
+    var fresh = {};
+    TYPES.forEach(function (t) { fresh[t] = []; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+    var menuBtn = document.getElementById('clipboard-menu');
+    if (menuBtn) {
+      var badge = menuBtn.querySelector('.clipboard-count');
+      if (badge) badge.remove();
+    }
+    // Sync the cleared state to the server too
+    syncToServer(fresh);
+    return fresh;
+  };
 
   // Run immediately
   init();
