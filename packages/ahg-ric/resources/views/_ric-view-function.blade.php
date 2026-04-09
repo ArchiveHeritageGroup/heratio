@@ -32,14 +32,8 @@
       ->limit(20)
       ->get();
 
-  // Sub-functions
-  $subFunctions = \Illuminate\Support\Facades\DB::table('function_object')
-      ->join('function_object_i18n', 'function_object.id', '=', 'function_object_i18n.id')
-      ->leftJoin('slug', 'function_object.id', '=', 'slug.object_id')
-      ->where('function_object.parent_id', $function->id)
-      ->where('function_object_i18n.culture', $culture)
-      ->select('function_object.id', 'function_object_i18n.authorized_form_of_name as name', 'slug.slug')
-      ->get();
+  // Sub-functions — function_object has no parent_id column in Heratio; return empty
+  $subFunctions = collect();
 @endphp
 
 <div class="ric-view">
