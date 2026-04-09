@@ -1,8 +1,4 @@
-@if(isset($pager) && $pager->getNbResults())
-  @extends('theme::layouts.2col')
-@else
-  @extends('theme::layouts.1col')
-@endif
+@extends('theme::layouts.2col')
 
 @section('title', config('app.ui_label_actor', 'Authority record') . 's')
 @section('body-class', 'browse actor')
