@@ -36,13 +36,19 @@
 
             {{-- Taxonomy --}}
             <div class="mb-3">
-              @if($term)
-                <label class="form-label">Taxonomy <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" class="form-control" value="{{ $taxonomyName }}" disabled>
+              <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-danger ms-1">Required</span></label>
+              @if($term || $selectedTaxonomyId)
+                {{-- Pre-selected taxonomy: show name, keep ID hidden --}}
+                <input type="text" class="form-control" value="{{ $taxonomyName ?? '' }}" disabled>
+                <input type="hidden" name="taxonomy_id" value="{{ old('taxonomy_id', $selectedTaxonomyId ?? ($term->taxonomy_id ?? '')) }}">
               @else
-                <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-secondary ms-1">Optional</span></label>
-                <input type="text" name="taxonomy_id" id="taxonomy_id" class="form-control"
-                       value="{{ old('taxonomy_id', $selectedTaxonomyId ?? '') }}" placeholder="Type to search taxonomies..." autocomplete="off">
+                {{-- Fresh create: show dropdown of all taxonomies --}}
+                <select name="taxonomy_id" id="taxonomy_id" class="form-select" required>
+                  <option value="">— Select taxonomy —</option>
+                  @foreach($taxonomies as $tax)
+                    <option value="{{ $tax->id }}" @selected(old('taxonomy_id') == $tax->id)>{{ $tax->name }}</option>
+                  @endforeach
+                </select>
               @endif
             </div>
 
