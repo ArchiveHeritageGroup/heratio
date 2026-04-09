@@ -182,12 +182,12 @@ class SearchController extends Controller
             abort(403, 'Insufficient permissions');
         }
 
-        $className       = $request->input('className', '');
-        $dateStart       = $request->input('dateStart', '');
-        $dateEnd         = $request->input('dateEnd', '');
-        $dateOf          = $request->input('dateOf', 'updated'); // created or updated
-        $publicationStatus = $request->input('publicationStatus', '');
-        $userName        = $request->input('user', '');
+        $className         = (string) $request->input('className', '');
+        $dateStart         = (string) $request->input('dateStart', '');
+        $dateEnd           = (string) $request->input('dateEnd', '');
+        $dateOf            = (string) $request->input('dateOf', 'updated'); // created or updated
+        $publicationStatus = (string) $request->input('publicationStatus', '');
+        $userName          = (string) $request->input('user', '');
         $page            = max(1, (int) $request->input('page', 1));
         $limit           = SettingHelper::hitsPerPage();
 
@@ -223,12 +223,23 @@ class SearchController extends Controller
             );
         }
 
-        // Get users for the filter dropdown
+        // Get users for the filter dropdown — fall back to username when actor_i18n
+        // has no authorized_form_of_name, and skip blank entries entirely.
         $users = DB::table('user')
-            ->join('actor_i18n', 'actor_i18n.id', '=', 'user.id')
-            ->where('actor_i18n.culture', 'en')
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->pluck('actor_i18n.authorized_form_of_name', 'user.id')
+            ->leftJoin('actor_i18n', function ($j) {
+                $j->on('actor_i18n.id', '=', 'user.id')
+                    ->where('actor_i18n.culture', '=', 'en');
+            })
+            ->select(
+                'user.id',
+                DB::raw('COALESCE(NULLIF(TRIM(actor_i18n.authorized_form_of_name), ""), user.username) AS display_name')
+            )
+            ->whereNotNull('user.username')
+            ->where('user.username', '!=', '')
+            ->orderBy('display_name')
+            ->get()
+            ->filter(fn ($u) => !empty(trim((string) $u->display_name)))
+            ->pluck('display_name', 'id')
             ->toArray();
 
         return view('ahg-search::description-updates', [
