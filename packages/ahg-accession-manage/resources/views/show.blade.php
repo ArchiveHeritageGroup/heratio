@@ -18,12 +18,11 @@
     </nav>
   @endif
 
-  {{-- Print + Clipboard --}}
+  {{-- Print --}}
   <div class="d-flex gap-1 mb-3">
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
-      <i class="fas fa-print"></i>
+      <i class="fas fa-print me-1"></i>Print
     </button>
-    @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'accession'])
   </div>
 
   {{-- Linked Information Objects --}}
@@ -66,17 +65,6 @@
     </div>
   @endif
 
-  {{-- Export --}}
-  <div class="card mb-3">
-    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-file-export me-1"></i> Export
-    </div>
-    <div class="list-group list-group-flush">
-      @if(\Illuminate\Support\Facades\Route::has('accession.export.csv'))
-        <a href="{{ route('accession.export.csv', $accession->slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-csv me-1"></i> CSV</a>
-      @endif
-    </div>
-  </div>
 @endsection
 
 @section('content')
