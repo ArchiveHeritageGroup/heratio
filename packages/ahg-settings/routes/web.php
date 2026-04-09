@@ -19,7 +19,8 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/digital-objects', [SettingsController::class, 'digitalObjects'])->name('settings.digital-objects');
     Route::match(['get', 'post'], '/admin/settings/dip-upload', [SettingsController::class, 'dipUpload'])->name('settings.dip-upload');
     Route::match(['get', 'post'], '/admin/settings/email', [SettingsController::class, 'email'])->name('settings.email');
-    Route::match(['get', 'post'], '/admin/settings/finding-aid', [SettingsController::class, 'findingAid'])->name('settings.finding-aid');
+    Route::match(['get', 'post'], '/settings/findingAid', [SettingsController::class, 'findingAid'])->name('settings.finding-aid');
+    Route::match(['get', 'post'], '/admin/settings/finding-aid', [SettingsController::class, 'findingAid']); // legacy alias
     Route::match(['get', 'post'], '/admin/settings/global', [SettingsController::class, 'global'])->name('settings.global');
     Route::match(['get', 'post'], '/admin/settings/header-customizations', [SettingsController::class, 'headerCustomizations'])->name('settings.header-customizations');
     Route::match(['get', 'post'], '/admin/settings/identifier', [SettingsController::class, 'identifier'])->name('settings.identifier');

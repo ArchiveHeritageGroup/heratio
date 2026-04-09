@@ -41,7 +41,7 @@ class SettingsController extends Controller
         '_global' => 'Global settings',
         'default_template' => 'Default templates',
         'ui_label' => 'User interface labels',
-        'element_visibility' => 'Default page elements',
+        'element_visibility' => 'Visible elements',
         'i18n_languages' => 'Languages',
         'oai' => 'OAI repository',
         'federation' => 'Federation',
@@ -63,7 +63,7 @@ class SettingsController extends Controller
         '_global' => 'Site title, base URL, search, identifiers, digital object derivatives, and other global options.',
         'default_template' => 'Default display templates for information objects, actors, and repositories.',
         'ui_label' => 'Customize labels used throughout the user interface.',
-        'element_visibility' => 'Control visibility of page elements for descriptive standards.',
+        'element_visibility' => 'Control which descriptive-standard fields are shown or hidden in ISAD, RAD, MODS, etc.',
         'i18n_languages' => 'Enabled languages for internationalization.',
         'oai' => 'OAI-PMH repository settings for metadata harvesting.',
         'federation' => 'Federated search and repository federation settings.',
@@ -75,7 +75,7 @@ class SettingsController extends Controller
         ['action' => 'index', 'label' => 'AHG Settings', 'icon' => 'fa-home'],
         ['action' => 'clipboard', 'label' => 'Clipboard', 'icon' => 'fa-paperclip'],
         ['action' => 'csv-validator', 'label' => 'CSV Validator', 'icon' => 'fa-check-circle'],
-        ['action' => 'visible-elements', 'label' => 'Default page elements', 'icon' => 'fa-eye'],
+        ['action' => 'visible-elements', 'label' => 'Visible elements', 'icon' => 'fa-eye'],
         ['action' => 'default-template', 'label' => 'Default template', 'icon' => 'fa-file-alt'],
         ['action' => 'diacritics', 'label' => 'Diacritics', 'icon' => 'fa-font'],
         ['action' => 'digital-objects', 'label' => 'Digital object derivatives', 'icon' => 'fa-photo-video'],
@@ -112,7 +112,7 @@ class SettingsController extends Controller
         ['action' => 'ai-services', 'label' => 'AI services', 'icon' => 'fa-brain'],
         ['action' => 'ahg-import', 'label' => 'Import settings', 'icon' => 'fa-upload'],
         ['action' => 'ahg-integration', 'label' => 'AHG Central', 'icon' => 'fa-cloud'],
-        ['action' => 'page-elements', 'label' => 'Page elements', 'icon' => 'fa-th-large'],
+        ['action' => 'page-elements', 'label' => 'Default page elements', 'icon' => 'fa-th-large'],
         // Heratio extras
         ['action' => 'system-info', 'label' => 'System information', 'icon' => 'fa-server'],
         ['action' => 'services', 'label' => 'Services monitor', 'icon' => 'fa-heartbeat'],
@@ -1572,10 +1572,18 @@ class SettingsController extends Controller
 
     private function buildMenu(string $active): array
     {
-        return collect($this->menuNodes)->map(function ($node) use ($active) {
+        // Sort alphabetically by label, but pin the index ('AHG Settings') to the top.
+        $nodes = collect($this->menuNodes)->map(function ($node) use ($active) {
             $node['active'] = ($node['action'] === $active);
             return $node;
-        })->toArray();
+        });
+
+        $home = $nodes->firstWhere('action', 'index');
+        $rest = $nodes->reject(fn ($n) => $n['action'] === 'index')
+            ->sortBy(fn ($n) => strtolower($n['label']))
+            ->values();
+
+        return $home ? array_merge([$home], $rest->all()) : $rest->all();
     }
 
     /**
