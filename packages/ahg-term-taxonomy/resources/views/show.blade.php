@@ -252,20 +252,6 @@
         @endif
       @endauth
 
-      {{-- Action buttons --}}
-      @auth
-        @php $isAdmin = auth()->user()->is_admin; @endphp
-        <ul class="actions mb-3 nav gap-2">
-          {{-- Edit: any authenticated user --}}
-          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-          {{-- Delete: admin only --}}
-          @if($isAdmin)
-          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-          @endif
-          {{-- Add new: any authenticated user --}}
-          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
-        </ul>
-      @endauth
 
       {{-- ===== Related archival descriptions ===== --}}
       <h1>{{ number_format($totalRelated) }} {{ config('app.ui_label_informationobject', 'Archival description') }} results for {{ $term->name }}</h1>
@@ -420,6 +406,20 @@
   </div>
 
   @endif {{-- end heratio/ric view mode --}}
+
+  {{-- Action buttons — shown in both views --}}
+  @auth
+  @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  <section class="actions">
+    <ul class="nav gap-2">
+      <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      @if($isAdmin)
+      <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      @endif
+      <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+    </ul>
+  </section>
+  @endauth
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $term->id])
