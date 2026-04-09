@@ -576,16 +576,33 @@ class TermController extends Controller
     {
         $culture = app()->getLocale();
 
-        if ($request->isMethod('post') && $request->hasFile('skos_file')) {
+        if ($request->isMethod('post')) {
             $taxonomyId = (int) $request->input('taxonomy_id');
             if (!$taxonomyId) {
                 return back()->with('error', 'Please select a taxonomy.');
             }
 
-            $file = $request->file('skos_file');
-            $xml = simplexml_load_string(file_get_contents($file->getPathname()));
+            $xmlContent = null;
+
+            if ($request->hasFile('skos_file')) {
+                $xmlContent = file_get_contents($request->file('skos_file')->getPathname());
+            } elseif ($request->filled('skos_url')) {
+                $url = $request->input('skos_url');
+                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    return back()->with('error', 'Invalid URL.');
+                }
+                $ctx = stream_context_create(['http' => ['timeout' => 30, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
+                $xmlContent = @file_get_contents($url, false, $ctx);
+                if ($xmlContent === false) {
+                    return back()->with('error', 'Failed to fetch SKOS file from URL: ' . $url);
+                }
+            } else {
+                return back()->with('error', 'Please upload a file or provide a URL.');
+            }
+
+            $xml = simplexml_load_string($xmlContent);
             if (!$xml) {
-                return back()->with('error', 'Invalid XML file.');
+                return back()->with('error', 'Invalid XML content.');
             }
 
             $xml->registerXPathNamespace('skos', 'http://www.w3.org/2004/02/skos/core#');

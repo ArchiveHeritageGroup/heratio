@@ -46,9 +46,17 @@
         </div>
 
         <div class="mb-3">
-            <label for="skos_file" class="form-label">SKOS RDF/XML file <span class="text-danger">*</span></label>
-            <input type="file" class="form-control" name="skos_file" id="skos_file" accept=".rdf,.xml,.skos" required>
+            <label for="skos_file" class="form-label">SKOS RDF/XML file</label>
+            <input type="file" class="form-control" name="skos_file" id="skos_file" accept=".rdf,.xml,.skos">
             <div class="form-text">Standard SKOS RDF/XML format (.rdf or .xml)</div>
+        </div>
+
+        <div class="mb-3 text-center text-muted small">— OR —</div>
+
+        <div class="mb-3">
+            <label for="skos_url" class="form-label">Remote resource URL</label>
+            <input type="url" class="form-control" name="skos_url" id="skos_url" placeholder="https://example.org/scheme.rdf">
+            <div class="form-text">Fetch SKOS RDF/XML directly from a URL (e.g. published vocabularies)</div>
         </div>
     </div>
     <div class="card-footer text-end">
