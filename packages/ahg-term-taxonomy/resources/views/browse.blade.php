@@ -86,7 +86,10 @@
       </form>
 
       <div class="d-flex flex-wrap gap-2 ms-auto">
-        @php $activeSort = request('sort', 'alphabetic'); @endphp
+        @php
+          $activeSort = request('sort', 'alphabetic');
+          $activeDir = request('sortDir', 'asc');
+        @endphp
         <div class="dropdown d-inline-block">
           <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
             Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
@@ -97,6 +100,15 @@
             @endforeach
           </ul>
         </div>
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortdir-button" data-bs-toggle="dropdown" aria-expanded="false">
+            Direction: {{ $activeDir === 'desc' ? 'Descending' : 'Ascending' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortdir-button">
+            <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-down me-1"></i>Ascending</a></li>
+            <li><a class="dropdown-item {{ $activeDir === 'desc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'desc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-up me-1"></i>Descending</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 @endsection
@@ -104,22 +116,14 @@
 @section('content')
 
     @if($pager->getNbResults())
-      @php
-        $hasAnyIoCount = collect($enrichedResults)->contains(fn($d) => ($d['ioCount'] ?? 0) > 0);
-        $hasAnyActorCount = collect($enrichedResults)->contains(fn($d) => ($d['actorCount'] ?? 0) > 0);
-      @endphp
       <div class="table-responsive mb-3">
         <table class="table table-bordered mb-0">
           <thead>
             <tr>
               <th>{{ $taxonomyName ?? 'Term' }} term</th>
               <th>Scope note</th>
-              @if($hasAnyIoCount)
-                <th>{{ config('app.ui_label_informationobject', 'Archival description') }} count</th>
-              @endif
-              @if($hasAnyActorCount)
-                <th>{{ config('app.ui_label_actor', 'Authority record') }} count</th>
-              @endif
+              <th class="text-end">{{ config('app.ui_label_informationobject', 'Archival description') }} count</th>
+              <th class="text-end">{{ config('app.ui_label_actor', 'Authority record') }} count</th>
             </tr>
           </thead>
           <tbody>
@@ -154,12 +158,8 @@
                     @endif
                   @endif
                 </td>
-                @if($hasAnyIoCount)
-                  <td>{{ $doc['ioCount'] ?? 0 }}</td>
-                @endif
-                @if($hasAnyActorCount)
-                  <td>{{ $doc['actorCount'] ?? 0 }}</td>
-                @endif
+                <td class="text-end">{{ number_format($doc['ioCount'] ?? 0) }}</td>
+                <td class="text-end">{{ number_format($doc['actorCount'] ?? 0) }}</td>
               </tr>
             @endforeach
           </tbody>
