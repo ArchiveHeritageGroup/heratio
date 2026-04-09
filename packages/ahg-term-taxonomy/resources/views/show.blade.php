@@ -8,6 +8,20 @@
 
   @if(session('ric_view_mode') === 'ric')
     @include('ahg-ric::_ric-view-term', ['term' => $term])
+
+    {{-- Action buttons for RiC view --}}
+    @auth
+    @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+    <section class="actions mt-3">
+      <ul class="nav gap-2">
+        <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+        @if($isAdmin)
+        <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+        @endif
+        <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+      </ul>
+    </section>
+    @endauth
   @else
 
   <div class="row">
@@ -331,6 +345,20 @@
       @else
         <p class="text-muted">No related archival descriptions.</p>
       @endif
+
+      {{-- Action buttons — inside middle column, below content --}}
+      @auth
+      @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+      <section class="actions mt-3">
+        <ul class="nav gap-2">
+          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+          @if($isAdmin)
+          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+          @endif
+          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+        </ul>
+      </section>
+      @endauth
     </div>
 
     {{-- RIGHT SIDEBAR --}}
@@ -406,24 +434,6 @@
   </div>
 
   @endif {{-- end heratio/ric view mode --}}
-
-  {{-- Action buttons — shown in both views, full width below content --}}
-  @auth
-  @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
-  <div class="row mt-3">
-    <div class="col-12">
-      <section class="actions">
-        <ul class="nav gap-2">
-          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-          @if($isAdmin)
-          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-          @endif
-          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
-        </ul>
-      </section>
-    </div>
-  </div>
-  @endauth
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $term->id])
