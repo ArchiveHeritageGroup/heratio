@@ -52,7 +52,14 @@ class AccessRequestController extends Controller
      */
     public function create()
     {
-        return view('ahg-access-request::new');
+        $classifications = \Illuminate\Support\Facades\Schema::hasTable('security_classification')
+            ? \Illuminate\Support\Facades\DB::table('security_classification')
+                ->orderBy('level')
+                ->select('id', 'code', 'name', 'level')
+                ->get()
+            : collect();
+
+        return view('ahg-access-request::new', compact('classifications'));
     }
 
     /**
@@ -111,16 +118,26 @@ class AccessRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subject'       => 'required|string|max:255',
-            'request_type'  => 'required|string|max:64',
-            'description'   => 'required|string|max:2000',
-            'justification' => 'nullable|string|max:2000',
-            'urgency'       => 'nullable|in:low,normal,high,urgent',
+            'subject'                     => 'required|string|max:255',
+            'request_type'                => 'required|string|max:64',
+            'description'                 => 'required|string|max:2000',
+            'justification'               => 'nullable|string|max:2000',
+            'urgency'                     => 'nullable|in:low,normal,high,urgent',
+            'requested_classification_id' => 'nullable|integer|exists:security_classification,id',
         ]);
+
+        // Default to the lowest-level classification (PUBLIC) if none picked,
+        // because the access_request.requested_classification_id column is NOT NULL
+        // with a foreign-key constraint into security_classification.
+        $classificationId = $validated['requested_classification_id']
+            ?? \Illuminate\Support\Facades\DB::table('security_classification')
+                ->orderBy('level')
+                ->value('id');
 
         $this->service->createRequest(auth()->id(), [
             'subject'       => $validated['subject'],
             'request_type'  => $validated['request_type'],
+            'object_id'     => $classificationId,  // becomes requested_classification_id
             // Map form 'description' to DB 'reason' column, prefixed with the subject
             'reason'        => 'Subject: ' . $validated['subject'] . "\n\n" . $validated['description'],
             'justification' => $validated['justification'] ?? null,

@@ -68,6 +68,21 @@
                             <div class="form-text">Helps reviewers prioritise the queue.</div>
                         </div>
 
+                        @if(isset($classifications) && $classifications->isNotEmpty())
+                        <div class="mb-3">
+                            <label for="requested_classification_id" class="form-label">Requested classification level <span class="badge bg-secondary ms-1">Optional</span></label>
+                            <select class="form-select" id="requested_classification_id" name="requested_classification_id">
+                                <option value="">-- Default (lowest level) --</option>
+                                @foreach($classifications as $cls)
+                                    <option value="{{ $cls->id }}" {{ (int) old('requested_classification_id') === (int) $cls->id ? 'selected' : '' }}>
+                                        {{ $cls->name }} (level {{ $cls->level }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">The security classification level you need access to.</div>
+                        </div>
+                        @endif
+
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('accessRequest.myRequests') }}" class="atom-btn-white">Cancel</a>
                             <button type="submit" class="atom-btn-white">
