@@ -266,6 +266,19 @@
         @endif
       @endauth
 
+      {{-- Action buttons — between term details and related results --}}
+      @auth
+      @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+      <section class="actions mt-3 mb-3">
+        <ul class="nav gap-2">
+          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+          @if($isAdmin)
+          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+          @endif
+          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
+        </ul>
+      </section>
+      @endauth
 
       {{-- ===== Related archival descriptions ===== --}}
       <h1>{{ number_format($totalRelated) }} {{ config('app.ui_label_informationobject', 'Archival description') }} results for {{ $term->name }}</h1>
@@ -346,19 +359,6 @@
         <p class="text-muted">No related archival descriptions.</p>
       @endif
 
-      {{-- Action buttons — inside middle column, below content --}}
-      @auth
-      @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
-      <section class="actions mt-3">
-        <ul class="nav gap-2">
-          <li><a href="{{ route('term.edit', $term->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
-          @if($isAdmin)
-          <li><a href="{{ route('term.confirmDelete', $term->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
-          @endif
-          <li><a href="{{ route('term.create', ['taxonomy' => $term->taxonomy_id, 'parent' => $term->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
-        </ul>
-      </section>
-      @endauth
     </div>
 
     {{-- RIGHT SIDEBAR --}}
