@@ -51,7 +51,7 @@
               <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="name" id="name" class="form-control" required
                      value="{{ old('name', $term->name ?? '') }}"
-                     @if($term && $term->is_protected) disabled @endif>
+                     @if($term && ($term->is_protected ?? false)) disabled @endif>
             </div>
 
             {{-- Use for --}}
