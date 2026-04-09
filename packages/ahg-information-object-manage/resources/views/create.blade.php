@@ -119,7 +119,7 @@
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">
                 Level of description
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="badge bg-warning text-dark ms-1">Recommended</span></label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
                 <option value="">- Select -</option>
                 @foreach($levels as $level)
@@ -132,7 +132,7 @@
             <div class="mb-3">
               <label for="extent_and_medium" class="form-label">
                 Extent and medium
-                <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="badge bg-warning text-dark ms-1">Recommended</span></label>
               <textarea class="form-control" id="extent_and_medium" name="extent_and_medium" rows="3">{{ old('extent_and_medium') }}</textarea>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the extent of the unit of description by giving the number of physical or logical units in arabic numerals and the unit of measurement. Give the specific medium (media) of the unit of description. Separate multiple extents with a linebreak. (ISAD 3.1.5)"><i class="fas fa-question-circle"></i></button>
             </div>
@@ -155,7 +155,7 @@
             <div class="mb-3">
               <label class="form-label">
                 Name of creator(s)
-                <span class="form-required" title="This archival description, or one of its higher levels, requires at least one creator.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
+                <span class="badge bg-warning text-dark ms-1">Recommended</span></label>
               <div id="creator-list"></div>
               <div class="input-group input-group-sm mt-1">
                 <input type="text" class="form-control" id="creator-autocomplete-add" data-target="creator-list" data-field="creators" placeholder="Type to add creator..." autocomplete="off">
@@ -269,7 +269,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="physical_characteristics" class="form-label">Physical characteristics and technical requirements <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea class="form-control" id="physical_characteristics" name="physical_characteristics" rows="3">{{ old('physical_characteristics') }}</textarea>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Indicate any important physical conditions, such as preservation requirements, that affect the use of the unit of description. Note any software and/or hardware required to access the unit of description."><i class="fas fa-question-circle"></i></button>
             </div>
