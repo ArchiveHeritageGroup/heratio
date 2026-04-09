@@ -29,13 +29,20 @@
     @csrf
     <div class="card-body">
         <div class="mb-3">
-            <label for="taxonomy_id" class="form-label">Target taxonomy <span class="text-danger">*</span></label>
-            <select class="form-select" name="taxonomy_id" id="taxonomy_id" required>
-                <option value="">— Select taxonomy —</option>
-                @foreach($taxonomies as $tax)
-                    <option value="{{ $tax->id }}" @selected($preselectedTaxonomyId == $tax->id)>{{ $tax->name }}</option>
-                @endforeach
-            </select>
+            <label class="form-label">Target taxonomy <span class="text-danger">*</span></label>
+            @if($preselectedTaxonomyId)
+                @php $preselectedName = $taxonomies->firstWhere('id', $preselectedTaxonomyId)->name ?? 'Taxonomy #' . $preselectedTaxonomyId; @endphp
+                <input type="text" class="form-control" value="{{ $preselectedName }}" disabled>
+                <input type="hidden" name="taxonomy_id" value="{{ $preselectedTaxonomyId }}">
+                <div class="form-text">Importing into the taxonomy of the term you came from. <a href="{{ route('term.import.skos') }}">Choose a different taxonomy</a></div>
+            @else
+                <select class="form-select" name="taxonomy_id" id="taxonomy_id" required>
+                    <option value="">— Select taxonomy —</option>
+                    @foreach($taxonomies as $tax)
+                        <option value="{{ $tax->id }}">{{ $tax->name }}</option>
+                    @endforeach
+                </select>
+            @endif
         </div>
 
         <div class="mb-3">
