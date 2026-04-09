@@ -55,6 +55,24 @@ Heratio has its own ES indices, separate from any other application.
 
 **Reindex:** `php artisan ahg:es-reindex` (options: `--clone-from=archive_`, `--drop`, `--index=informationobject`, `--batch=500`)
 
+### IIIF Image Server (Cantaloupe)
+
+Deep-zoom viewer for TIFF/JP2 files via [Cantaloupe](https://cantaloupe-project.github.io/) IIIF Image API 3.0.
+
+| Setting | Value |
+|---|---|
+| Install path | `/opt/cantaloupe-5.0.6/` |
+| Port | `8182` |
+| Config | `/opt/cantaloupe-5.0.6/cantaloupe.properties` |
+| Delegates | `/opt/cantaloupe-5.0.6/delegates.rb` |
+| Nginx proxy | `location ^~ /iiif/` → `http://127.0.0.1:8182/iiif/` |
+
+- Path resolution is hostname-based via `delegates.rb` `INSTANCE_PATHS`
+- IIIF identifiers use `_SL_` as path separator (e.g. `uploads_SL_r_SL_repo_SL_hash_SL_image.tiff`)
+- `ahg-iiif-viewer.js` auto-detects TIFF/JP2 and routes to Cantaloupe
+- Nginx `^~` prefix is required to prevent static file regex from intercepting `.jpg` tile requests
+- Full setup: `docs/cantaloupe-iiif-setup.md`
+
 ## Architecture
 
 ```
