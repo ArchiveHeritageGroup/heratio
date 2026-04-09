@@ -526,7 +526,13 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="information_objects" class="form-label">{{ config('app.ui_label_informationobject', 'Archival description') }} <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="text" name="information_objects" id="information_objects" class="form-control" value="{{ old('information_objects') }}" placeholder="Type to search archival descriptions..." autocomplete="off">
+              <select name="information_objects[]" id="information_objects" class="form-select" multiple placeholder="Type to search archival descriptions...">
+                @if(isset($linkedInformationObjects) && $linkedInformationObjects->isNotEmpty())
+                  @foreach($linkedInformationObjects as $io)
+                    <option value="{{ $io->id }}" selected>{{ $io->title ?: '[Untitled]' }}</option>
+                  @endforeach
+                @endif
+              </select>
             </div>
           </div>
         </div>
@@ -588,8 +594,10 @@
 }
 @keyframes ahgHelpIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 </style>
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 @endpush
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Alternative identifiers multi-row
@@ -683,6 +691,36 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.parentElement.style.position = 'relative';
     btn.parentElement.appendChild(popup);
   });
+
+  // TomSelect for Archival description autocomplete
+  var ioSelect = document.getElementById('information_objects');
+  if (ioSelect && typeof TomSelect !== 'undefined') {
+    new TomSelect(ioSelect, {
+      valueField: 'id',
+      labelField: 'name',
+      searchField: ['name'],
+      maxItems: 50,
+      plugins: ['remove_button'],
+      load: function(query, callback) {
+        if (query.length < 2) return callback();
+        fetch('{{ url("informationobject/autocomplete") }}?query=' + encodeURIComponent(query) + '&limit=15')
+          .then(function(r) { return r.json(); })
+          .then(function(data) { callback(data); })
+          .catch(function() { callback(); });
+      },
+      render: {
+        option: function(item, escape) {
+          return '<div class="d-flex justify-content-between align-items-center">'
+            + '<span><i class="fas fa-archive me-1"></i>' + escape(item.name) + '</span>'
+            + (item.identifier ? '<small class="text-muted ms-2">' + escape(item.identifier) + '</small>' : '')
+            + '</div>';
+        },
+        item: function(item, escape) {
+          return '<div><i class="fas fa-archive me-1"></i>' + escape(item.name) + '</div>';
+        }
+      }
+    });
+  }
 });
 </script>
 @endpush
