@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', $sectionLabel)
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>{{ $sectionLabel }}</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>{{ $sectionLabel }}</h1>
+@endsection
+
+@section('content')
     @if($settings->isEmpty())
       <div class="alert alert-info">No editable settings found in this section.</div>
     @else
@@ -72,6 +75,4 @@
         </section>
       </form>
     @endif
-  </div>
-</div>
 @endsection

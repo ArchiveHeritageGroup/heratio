@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'DIP upload settings')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>DIP upload settings</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>DIP upload settings</h1>
+@endsection
+
+@section('content')
     <form method="post" action="{{ route('settings.dip-upload') }}">
       @csrf
 
@@ -43,6 +46,4 @@
       </section>
 
     </form>
-  </div>
-</div>
 @endsection

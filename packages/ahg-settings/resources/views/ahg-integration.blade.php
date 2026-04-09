@@ -1,15 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'AHG Central Integration')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-cloud me-2"></i>AHG Central Integration</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-cloud me-2"></i>AHG Central Integration</h1>
+@endsection
+
+@section('content')
     @if(isset($testResult))
       <div class="alert alert-{{ $testResult['success'] ? 'success' : 'danger' }} alert-dismissible fade show">
         <strong>{{ $testResult['success'] ? 'Success!' : 'Error:' }}</strong> {{ $testResult['message'] }}
@@ -61,6 +62,4 @@
         <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Cancel</a>
       </div>
     </form>
-  </div>
-</div>
 @endsection

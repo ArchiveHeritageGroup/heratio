@@ -1,12 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Diacritics settings')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
+@section('title-block')
+  <h1>Diacritics settings</h1>
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>Diacritics settings</h1>
 <div class="alert alert-info">
       <p>Please rebuild the search index after uploading diacritics mappings.</p>
       <pre>$ php artisan search:populate</pre>
@@ -71,6 +75,4 @@ mappings:
       </section>
 
     </form>
-  </div>
-</div>
 @endsection

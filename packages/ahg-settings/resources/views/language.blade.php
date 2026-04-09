@@ -1,15 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'I18n languages')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1>I18n language</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>I18n language</h1>
+@endsection
+
+@section('content')
     <div class="alert alert-info">
       <p>Please rebuild the search index if you are adding new languages.</p>
       <pre class="mb-0">$ php symfony search:populate</pre>
@@ -54,6 +55,4 @@
       </div>
       <input type="hidden" name="delete_id" id="delete_id" value="">
     </form>
-  </div>
-</div>
 @endsection

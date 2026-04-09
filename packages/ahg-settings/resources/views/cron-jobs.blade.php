@@ -1,30 +1,34 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 
 @section('title', 'Cron Jobs')
 @section('body-class', 'admin settings cron-jobs')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="mb-0"><i class="fas fa-clock me-2"></i>Cron Jobs</h1>
-      <div>
-        <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-sm atom-btn-white" title="Add missing default entries">
-            <i class="fas fa-seedling me-1"></i>Seed Defaults
-          </button>
-        </form>
-        <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline ms-1">
-          @csrf
-          <input type="hidden" name="reset" value="1">
-          <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="Overwrite all to defaults">
-            <i class="fas fa-undo me-1"></i>Reset All
-          </button>
-        </form>
-      </div>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
+@section('title-block')
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0"><i class="fas fa-clock me-2"></i>Cron Jobs</h1>
+    <div>
+      <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="btn btn-sm atom-btn-white" title="Add missing default entries">
+          <i class="fas fa-seedling me-1"></i>Seed Defaults
+        </button>
+      </form>
+      <form action="{{ route('settings.cron-seed') }}" method="POST" class="d-inline ms-1">
+        @csrf
+        <input type="hidden" name="reset" value="1">
+        <button type="submit" class="btn btn-sm atom-btn-white" onclick="return confirm('Reset ALL schedules to defaults? Custom changes will be overwritten.')" title="Overwrite all to defaults">
+          <i class="fas fa-undo me-1"></i>Reset All
+        </button>
+      </form>
     </div>
+  </div>
+@endsection
+
+@section('content')
 
 
     {{-- Stats Bar --}}
@@ -311,9 +315,6 @@
         </div>
       </div>
     </div>
-
-  </div>
-</div>
 
 <script>
 // Category filter

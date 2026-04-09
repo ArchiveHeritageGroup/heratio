@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Default page elements')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu', ['menu' => $menu ?? []])</div>
-  <div class="col-md-9">
-    <h1>Default page elements</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>Default page elements</h1>
+@endsection
+
+@section('content')
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -58,6 +61,4 @@
       </section>
 
     </form>
-  </div>
-</div>
 @endsection

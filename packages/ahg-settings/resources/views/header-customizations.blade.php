@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Header customizations')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>Header customizations</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>Header customizations</h1>
+@endsection
+
+@section('content')
     <form method="post" action="{{ route('settings.header-customizations') }}" enctype="multipart/form-data">
       @csrf
 
@@ -91,6 +94,4 @@
       </section>
 
     </form>
-  </div>
-</div>
 @endsection

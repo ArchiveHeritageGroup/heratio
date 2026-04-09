@@ -1,15 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Sector Numbering Schemes')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-hashtag me-2"></i>Sector Numbering Schemes</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-hashtag me-2"></i>Sector Numbering Schemes</h1>
+@endsection
+
+@section('content')
     <div class="alert alert-info" role="alert">
       <i class="fas fa-info-circle me-2"></i>
       Configure unique identifier numbering schemes per GLAM/DAM sector. Leave fields blank to inherit the global settings.
@@ -79,6 +80,4 @@
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
-  </div>
-</div>
 @endsection

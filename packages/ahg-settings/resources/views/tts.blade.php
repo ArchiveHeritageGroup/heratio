@@ -1,14 +1,13 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Text-to-Speech Settings')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h2><i class="fas fa-volume-up me-2"></i>Text-to-Speech Settings</h2>
+<h2><i class="fas fa-volume-up me-2"></i>Text-to-Speech Settings</h2>
     <p class="text-muted">Configure the read-aloud accessibility feature for record detail pages.</p>
 
     <form method="post" action="{{ route('settings.tts') }}">
@@ -62,6 +61,4 @@
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
-  </div>
-</div>
 @endsection

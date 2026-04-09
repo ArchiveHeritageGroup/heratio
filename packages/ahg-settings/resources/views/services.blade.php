@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Services Monitor')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-heartbeat me-2"></i>Services Monitor</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-heartbeat me-2"></i>Services Monitor</h1>
+@endsection
+
+@section('content')
     <div class="row g-3">
       @foreach($serviceChecks as $name => $check)
         <div class="col-md-6">
@@ -31,6 +34,4 @@
         </div>
       @endforeach
     </div>
-  </div>
-</div>
 @endsection

@@ -1,14 +1,13 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'AI Services Settings')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="mb-0"><i class="fas fa-brain text-primary"></i> AI Services Settings</h1>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>Back to AHG Settings</a>
     </div>
@@ -82,6 +81,4 @@
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
-  </div>
-</div>
 @endsection

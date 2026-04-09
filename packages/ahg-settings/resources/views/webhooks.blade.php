@@ -1,15 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Webhooks')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-broadcast-tower me-2"></i>Webhooks</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-broadcast-tower me-2"></i>Webhooks</h1>
+@endsection
+
+@section('content')
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-broadcast-tower me-2"></i>Webhook Management</h5>
@@ -93,6 +94,4 @@
         </div>
       </form>
     </div>
-  </div>
-</div>
 @endsection

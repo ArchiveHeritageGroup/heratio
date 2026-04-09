@@ -1,14 +1,13 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Digital Asset Management Tools')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <div class="mb-3">
+<div class="mb-3">
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-arrow-left me-1"></i>Back to AHG Settings</a>
     </div>
 
@@ -49,6 +48,4 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
 @endsection

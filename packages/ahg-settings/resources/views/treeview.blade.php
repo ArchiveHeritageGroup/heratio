@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Treeview Settings')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>Treeview settings</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>Treeview settings</h1>
+@endsection
+
+@section('content')
     <form method="post" action="{{ route('settings.treeview') }}">
       @csrf
       <div class="accordion" id="settingsAccordion">
@@ -111,6 +114,4 @@
         <input class="btn atom-btn-outline-success" type="submit" value="Save">
       </section>
     </form>
-  </div>
-</div>
 @endsection

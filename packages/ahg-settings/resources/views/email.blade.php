@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Email Settings')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-envelope me-2"></i>Email Settings</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-envelope me-2"></i>Email Settings</h1>
+@endsection
+
+@section('content')
     <form method="post" action="{{ route('settings.email') }}">
       @csrf
       <div class="row">
@@ -161,8 +164,6 @@
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
-  </div>
-</div>
 
 @push('js')
 <script>

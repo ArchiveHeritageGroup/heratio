@@ -1,14 +1,13 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Levels of Description')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="mb-0"><i class="fas fa-layer-group me-2"></i>Levels of Description</h1>
       <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}" class="btn atom-btn-outline-success" target="_blank">
         <i class="fas fa-plus me-1"></i>Add new term in Taxonomy
@@ -49,6 +48,4 @@
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>Save</button>
       <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
     </form>
-  </div>
-</div>
 @endsection

@@ -1,10 +1,10 @@
-@extends('theme::layout_2col')
+@extends('theme::layouts.2col')
 
 @section('sidebar')
-  @include('ahg-settings::_menu')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
 @endsection
 
-@section('title')
+@section('title-block')
   <h1>{{ __('Web analytics') }}</h1>
 @endsection
 

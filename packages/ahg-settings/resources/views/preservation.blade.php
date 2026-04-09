@@ -1,14 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Preservation & Backup Settings')
 @section('body-class', 'admin settings')
 
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
+
+@section('title-block')
+  <h1><i class="fas fa-cloud-upload-alt me-2"></i>Preservation & Backup Settings</h1>
+@endsection
+
 @section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-cloud-upload-alt me-2"></i>Preservation & Backup Settings</h1>
     <p class="text-muted">Configure backup replication targets for digital preservation</p>
 
     <div class="row mb-4">
@@ -74,6 +76,4 @@
     </div>
 
     <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back to Settings</a>
-  </div>
-</div>
 @endsection

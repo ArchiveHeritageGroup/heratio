@@ -1,15 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Numbering Schemes')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">
-    @include('ahg-settings::_menu')
-  </div>
-  <div class="col-md-9">
-    <h1><i class="fas fa-hashtag me-2"></i>Numbering Schemes</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1><i class="fas fa-hashtag me-2"></i>Numbering Schemes</h1>
+@endsection
+
+@section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <form method="get" class="d-inline-flex gap-2">
@@ -56,6 +57,4 @@
         </table>
       </div>
     @endif
-  </div>
-</div>
 @endsection

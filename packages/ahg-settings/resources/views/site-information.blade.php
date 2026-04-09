@@ -1,13 +1,16 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
 @section('title', 'Site information')
 @section('body-class', 'admin settings')
 
-@section('content')
-<div class="row">
-  <div class="col-md-3">@include('ahg-settings::_menu')</div>
-  <div class="col-md-9">
-    <h1>Site information</h1>
+@section('sidebar')
+  @include('ahg-settings::_menu', ['menu' => $menu ?? []])
+@endsection
 
+@section('title-block')
+  <h1>Site information</h1>
+@endsection
+
+@section('content')
     <form method="post" action="{{ route('settings.site-information') }}">
       @csrf
 
@@ -44,6 +47,4 @@
         <input class="btn atom-btn-outline-success" type="submit" value="Save">
       </section>
     </form>
-  </div>
-</div>
 @endsection
