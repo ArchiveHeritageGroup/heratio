@@ -220,10 +220,11 @@
             <div class="mb-3">
               <label for="description_identifier" class="form-label">
                 Description identifier
-                <span class="badge bg-warning text-dark ms-1">Recommended</span></label>
+                <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $function->description_identifier ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&quot;Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code.&quot; (ISDF 5.4.1)"><i class="fas fa-question-circle"></i></button>
+              <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>This field is marked as mandatory in the relevant descriptive standard.</em></div>
             </div>
 
             <div class="mb-3">
