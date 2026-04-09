@@ -53,7 +53,7 @@
                   </option>
                 @endforeach
               </select>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Specify the type of entity that is being described in this authority record.&amp;ldquo; (ISAAR 5.1.1) Select Corporate body, Family or Person from the drop-down menu." title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Specify the type of entity that is being described in this authority record.&ldquo; (ISAAR 5.1.1) Select Corporate body, Family or Person from the drop-down menu."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -62,7 +62,7 @@
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control" required
                      value="{{ old('authorized_form_of_name', $actor->authorized_form_of_name ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names.&amp;ldquo; (ISAAR 5.1.2)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the standardized form of name for the entity being described in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record. Use dates, place, jurisdiction, occupation, epithet and other qualifiers as appropriate to distinguish the authorized form of name from those of other entities with similar names.&ldquo; (ISAAR 5.1.2)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             @php
@@ -95,7 +95,7 @@
               <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="parallel-names-container" data-type-id="148" data-prefix="parallel">
                 <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
               </button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules.&amp;ldquo; (ISAAR 5.1.3)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Purpose: To indicate the various forms in which the Authorized form of name occurs in other languages or script form(s). Rule: record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the authority record, including any necessary sub elements and/or qualifiers required by those conventions or rules.&ldquo; (ISAAR 5.1.3)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Standardized form(s) of name (repeatable) --}}
@@ -122,7 +122,7 @@
               <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="standardized-names-container" data-type-id="165" data-prefix="standardized">
                 <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
               </button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed.&amp;ldquo; (ISAAR 5.1.4)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the standardized form of name for the entity being described in accordance with other conventions or rules. Specify the rules and/or if appropriate the name of the agency by which these standardized forms of name have been constructed.&ldquo; (ISAAR 5.1.4)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             {{-- Other form(s) of name (repeatable) --}}
@@ -149,14 +149,14 @@
               <button type="button" class="btn btn-sm atom-btn-white add-other-name-row" data-container="other-names-container" data-type-id="149" data-prefix="other">
                 <i class="fas fa-plus me-1" aria-hidden="true"></i>Add new
               </button>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="The purpose of this field is to &amp;ldquo;indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area.&amp;ldquo; Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The purpose of this field is to &ldquo;indicate any other name(s) for the corporate body, person or family not used elsewhere in the Identity Area.&ldquo; Examples are acronyms, previous names, pseudonyms, maiden names and titles of nobility or honour. (ISAAR 5.1.5)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="corporate_body_identifiers" class="form-label">Identifiers for corporate bodies <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="corporate_body_identifiers" id="corporate_body_identifiers" class="form-control"
                      value="{{ old('corporate_body_identifiers', $actor->corporate_body_identifiers ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record where possible any official number or other identifier (e.g. a company registration number) for the corporate body and reference the jurisdiction and scheme under which it has been allocated.&amp;ldquo; (ISAAR 5.1.6)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record where possible any official number or other identifier (e.g. a company registration number) for the corporate body and reference the jurisdiction and scheme under which it has been allocated.&ldquo; (ISAAR 5.1.6)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -165,7 +165,7 @@
                      value="{{ old('parent_actor_name', $parentActorName ?? '') }}" placeholder="Type to search parent actor..." autocomplete="off">
               <input type="hidden" name="parent_id" id="parent_id"
                      value="{{ old('parent_id', $actor->parent_id ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="Select the parent authority record to create a hierarchical relationship. Type to search for an existing authority record." title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select the parent authority record to create a hierarchical relationship. Type to search for an existing authority record."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -186,49 +186,49 @@
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="dates_of_existence" id="dates_of_existence" class="form-control"
                      value="{{ old('dates_of_existence', $actor->dates_of_existence ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the dates of existence of the entity being described. For corporate bodies include the date of establishment/foundation/enabling legislation and dissolution. For persons include the dates or approximate dates of birth and death or, when these dates are not known, floruit dates. Where parallel systems of dating are used, equivalences may be recorded according to relevant conventions or rules. Specify in the Rules and/or conventions element (5.4.3) the system(s) of dating used, e.g. ISO 8601.&amp;ldquo; (ISAAR 5.2.1)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the dates of existence of the entity being described. For corporate bodies include the date of establishment/foundation/enabling legislation and dissolution. For persons include the dates or approximate dates of birth and death or, when these dates are not known, floruit dates. Where parallel systems of dating are used, equivalences may be recorded according to relevant conventions or rules. Specify in the Rules and/or conventions element (5.4.3) the system(s) of dating used, e.g. ISO 8601.&ldquo; (ISAAR 5.2.1)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="history" class="form-label">History <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="history" id="history" class="form-control" rows="6">{{ old('history', $actor->history ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record in narrative form or as a chronology the main life events, activities, achievements and/or roles of the entity being described. This may include information on gender, nationality, family and religious or political affiliations. Wherever possible, supply dates as an integral component of the narrative description.&amp;ldquo; (ISAAR 5.2.2)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record in narrative form or as a chronology the main life events, activities, achievements and/or roles of the entity being described. This may include information on gender, nationality, family and religious or political affiliations. Wherever possible, supply dates as an integral component of the narrative description.&ldquo; (ISAAR 5.2.2)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="places" class="form-label">Places <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="places" id="places" class="form-control" rows="4">{{ old('places', $actor->places ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Purpose: to indicate the predominant places and/or jurisdictions where the corporate body, person or family was based, lived or resided or had some other connection. Rule: record the name of the predominant place(s)/jurisdiction(s), together with the nature and covering dates of the relationship with the entity.&amp;ldquo; (ISAAR 5.2.3)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Purpose: to indicate the predominant places and/or jurisdictions where the corporate body, person or family was based, lived or resided or had some other connection. Rule: record the name of the predominant place(s)/jurisdiction(s), together with the nature and covering dates of the relationship with the entity.&ldquo; (ISAAR 5.2.3)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="legal_status" class="form-label">Legal status <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="legal_status" id="legal_status" class="form-control" rows="4">{{ old('legal_status', $actor->legal_status ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the legal status and where appropriate the type of corporate body together with the covering dates when this status applied.&amp;ldquo; (ISAAR 5.2.4)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the legal status and where appropriate the type of corporate body together with the covering dates when this status applied.&ldquo; (ISAAR 5.2.4)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="functions" class="form-label">Functions, occupations and activities <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="functions" id="functions" class="form-control" rows="4">{{ old('functions', $actor->functions ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the functions, occupations and activities performed by the entity being described, together with the covering dates when useful. If necessary, describe the nature of the function, occupation or activity.&amp;ldquo; (ISAAR 5.2.5)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the functions, occupations and activities performed by the entity being described, together with the covering dates when useful. If necessary, describe the nature of the function, occupation or activity.&ldquo; (ISAAR 5.2.5)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="mandates" class="form-label">Mandates/sources of authority <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="mandates" id="mandates" class="form-control" rows="4">{{ old('mandates', $actor->mandates ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record any document, law, directive or charter which acts as a source of authority for the powers, functions and responsibilities of the entity being described, together with information on the jurisdiction(s) and covering dates when the mandate(s) applied or were changed.&amp;ldquo; (ISAAR 5.2.6)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record any document, law, directive or charter which acts as a source of authority for the powers, functions and responsibilities of the entity being described, together with information on the jurisdiction(s) and covering dates when the mandate(s) applied or were changed.&ldquo; (ISAAR 5.2.6)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="internal_structures" class="form-label">Internal structures/genealogy <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="internal_structures" id="internal_structures" class="form-control" rows="4">{{ old('internal_structures', $actor->internal_structures ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Describe the internal structure of a corporate body and the dates of any changes to that structure that are significant to the understanding of the way that corporate body conducted its affairs (e.g. by means of dated organization charts). Describe the genealogy of a family (e.g. by means of a family tree) in a way that demonstrates the inter-relationships of its members with covering dates.&amp;ldquo; (ISAAR 5.2.7)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Describe the internal structure of a corporate body and the dates of any changes to that structure that are significant to the understanding of the way that corporate body conducted its affairs (e.g. by means of dated organization charts). Describe the genealogy of a family (e.g. by means of a family tree) in a way that demonstrates the inter-relationships of its members with covering dates.&ldquo; (ISAAR 5.2.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="general_context" class="form-label">General context <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="general_context" id="general_context" class="form-control" rows="4">{{ old('general_context', $actor->general_context ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Provide any significant information on the social, cultural, economic, political and/or historical context in which the entity being described operated.&amp;ldquo; (ISAAR 5.2.8)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Provide any significant information on the social, cultural, economic, political and/or historical context in which the entity being described operated.&ldquo; (ISAAR 5.2.8)"><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -452,7 +452,7 @@
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $actor->description_identifier ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record a unique authority record identifier in accordance with local and/or national conventions. If the authority record is to be used internationally, record the country code of the country in which the authority record was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the authority record is an international organization, give the organizational identifier in place of the country code.&amp;ldquo; (ISAAR 5.4.1)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record a unique authority record identifier in accordance with local and/or national conventions. If the authority record is to be used internationally, record the country code of the country in which the authority record was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the authority record is an international organization, give the organizational identifier in place of the country code.&ldquo; (ISAAR 5.4.1)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             @include('ahg-core::components.autocomplete', [
@@ -472,13 +472,13 @@
               <label for="institution_responsible_identifier" class="form-label">Institution identifier <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="institution_responsible_identifier" id="institution_responsible_identifier" class="form-control"
                      value="{{ old('institution_responsible_identifier', $actor->institution_responsible_identifier ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511).&amp;ldquo; (ISAAR 5.4.2)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the full authorized form of name(s) of the agency(ies) responsible for creating, modifying or disseminating the authority record or, alternatively, record a code for the agency in accordance with the national or international agency code standard. Include reference to any systems of identification used to identify the institutions (e.g. ISO 15511).&ldquo; (ISAAR 5.4.2)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="rules" class="form-label">Rules and/or conventions used <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="rules" id="rules" class="form-control" rows="4">{{ old('rules', $actor->rules ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Purpose: To identify the national or international conventions or rules applied in creating the archival authority record. Rule: Record the names and where useful the editions or publication dates of the conventions or rules applied. Specify separately which rules have been applied for creating the Authorized form of name. Include reference to any system(s) of dating used to identify dates in this authority record (e.g. ISO 8601).&amp;ldquo; (ISAAR 5.4.3)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Purpose: To identify the national or international conventions or rules applied in creating the archival authority record. Rule: Record the names and where useful the editions or publication dates of the conventions or rules applied. Specify separately which rules have been applied for creating the Authorized form of name. Include reference to any system(s) of dating used to identify dates in this authority record (e.g. ISO 8601).&ldquo; (ISAAR 5.4.3)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -491,7 +491,7 @@
                   </option>
                 @endforeach
               </select>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="The purpose of this field is &amp;ldquo;[t]o indicate the drafting status of the authority record so that users can understand the current status of the authority record.&amp;ldquo; (ISAAR 5.4.4). Select Final, Revised or Draft from the drop-down menu." title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="The purpose of this field is &ldquo;[t]o indicate the drafting status of the authority record so that users can understand the current status of the authority record.&ldquo; (ISAAR 5.4.4). Select Final, Revised or Draft from the drop-down menu."><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -504,13 +504,13 @@
                   </option>
                 @endforeach
               </select>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="Select Full, Partial or Minimal from the drop-down menu. &amp;ldquo;In the absence of national guidelines or rules, minimal records are those that consist only of the four essential elements of an ISAAR(CPF) compliant authority record (see 4.8), while full records are those that convey information for all relevant ISAAR(CPF) elements of description.&amp;ldquo; (ISAAR 5.4.5)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Select Full, Partial or Minimal from the drop-down menu. &ldquo;In the absence of national guidelines or rules, minimal records are those that consist only of the four essential elements of an ISAAR(CPF) compliant authority record (see 4.8), while full records are those that convey information for all relevant ISAAR(CPF) elements of description.&ldquo; (ISAAR 5.4.5)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="revision_history" class="form-label">Dates of creation, revision and deletion <span class="badge bg-secondary ms-1">Optional</span></label>
               <textarea name="revision_history" id="revision_history" class="form-control" rows="4">{{ old('revision_history', $actor->revision_history ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the date the authority record was created and the dates of any revisions to the record.&amp;ldquo; (ISAAR 5.4.6)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the date the authority record was created and the dates of any revisions to the record.&ldquo; (ISAAR 5.4.6)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             @if($actor && $actor->updated_at)
@@ -555,7 +555,7 @@
                   <option value="{{ $code }}" @selected(in_array($code, $langCodes))>{{ $name }}</option>
                 @endforeach
               </select>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
@@ -578,26 +578,26 @@
                   <option value="{{ $code }}" @selected(in_array($code, $scriptCodes))>{{ $name }} ({{ $code }})</option>
                 @endforeach
               </select>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Hold Ctrl/Cmd to select multiple. (ISAAR 5.4.7)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="sources" class="form-label">Sources <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="sources" id="sources" class="form-control" rows="4">{{ old('sources', $actor->sources ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record the sources consulted in establishing the authority record.&amp;ldquo; (ISAAR 5.4.8)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record the sources consulted in establishing the authority record.&ldquo; (ISAAR 5.4.8)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="maintenance_notes" class="form-label">Maintenance notes <span class="badge bg-warning ms-1">Recommended</span></label>
               <textarea name="maintenance_notes" id="maintenance_notes" class="form-control" rows="4">{{ old('maintenance_notes', $maintenanceNotes ?? '') }}</textarea>
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="&amp;ldquo;Record notes pertinent to the creation and maintenance of the authority record. The names of persons responsible for creating the authority record may be recorded here.&amp;ldquo; (ISAAR 5.4.9)" title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="&ldquo;Record notes pertinent to the creation and maintenance of the authority record. The names of persons responsible for creating the authority record may be recorded here.&ldquo; (ISAAR 5.4.9)"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
               <label for="source_standard" class="form-label">Source standard <span class="badge bg-secondary ms-1">Optional</span></label>
               <input type="text" name="source_standard" id="source_standard" class="form-control"
                      value="{{ old('source_standard', $actor->source_standard ?? '') }}">
-              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="auto" data-bs-content="Record the standard used when entering the authority record description (e.g. ISAAR(CPF))." title="Field help"><i class="fas fa-question-circle"></i></button>
+              <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Record the standard used when entering the authority record description (e.g. ISAAR(CPF))."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
         </div>
@@ -636,6 +636,27 @@
 .accordion-button:focus {
   box-shadow: 0 0 0 0.25rem var(--ahg-input-focus, rgba(0,88,55,0.25));
 }
+.ahg-field-help { cursor: pointer; font-size: 0.9em; }
+.ahg-field-help:hover { color: var(--ahg-primary, #005837) !important; }
+.ahg-help-popup {
+  position: absolute; z-index: 1060; bottom: 100%; left: 0; right: 0;
+  background: #fff; border: 1px solid #dee2e6; border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 0; margin-bottom: 6px;
+  max-width: 400px; animation: ahgHelpIn 0.15s ease-out;
+}
+.ahg-help-popup-body { padding: 10px 14px; font-size: 0.85rem; line-height: 1.5; color: #333; }
+.ahg-help-popup-close {
+  position: absolute; top: 4px; right: 6px; background: none; border: none;
+  font-size: 1.1rem; color: #999; cursor: pointer; line-height: 1;
+}
+.ahg-help-popup-close:hover { color: #333; }
+.ahg-help-popup-arrow {
+  position: absolute; bottom: -6px; left: 20px;
+  width: 12px; height: 12px; background: #fff;
+  border-right: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6;
+  transform: rotate(45deg);
+}
+@keyframes ahgHelpIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 </style>
 @endpush
 @push('js')
@@ -722,9 +743,43 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-  // Initialize Bootstrap popovers for field help buttons
-  document.querySelectorAll('.ahg-field-help[data-bs-toggle="popover"]').forEach(function(el) {
-    new bootstrap.Popover(el, { html: false, sanitize: true });
+  // Field help popups — simple custom implementation
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.ahg-field-help');
+    // Close any open popup when clicking elsewhere
+    document.querySelectorAll('.ahg-help-popup').forEach(function(p) {
+      if (!btn || p.dataset.owner !== btn.dataset.helpId) p.remove();
+    });
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var existing = document.querySelector('.ahg-help-popup[data-owner="' + btn.dataset.helpId + '"]');
+    if (existing) { existing.remove(); return; }
+
+    var text = btn.getAttribute('data-bs-content') || '';
+    if (!text) return;
+
+    // Decode HTML entities
+    var tmp = document.createElement('textarea');
+    tmp.innerHTML = text;
+    text = tmp.value;
+
+    var popup = document.createElement('div');
+    popup.className = 'ahg-help-popup';
+    popup.dataset.owner = btn.dataset.helpId;
+    popup.innerHTML = '<div class="ahg-help-popup-arrow"></div><div class="ahg-help-popup-body">' +
+      text.replace(/&/g,'&amp;').replace(/</g,'&lt;') +
+      '</div><button type="button" class="ahg-help-popup-close">&times;</button>';
+    popup.querySelector('.ahg-help-popup-close').addEventListener('click', function() { popup.remove(); });
+
+    btn.parentElement.style.position = 'relative';
+    btn.parentElement.appendChild(popup);
+  });
+
+  // Assign unique IDs
+  document.querySelectorAll('.ahg-field-help').forEach(function(btn, i) {
+    btn.dataset.helpId = 'help-' + i;
   });
 </script>
 @endpush

@@ -407,24 +407,23 @@
     </div>
   </section>
 
-  {{-- Action buttons (bottom bar, matching AtoM) --}}
-  @auth
-  @php $isAdmin = auth()->user()->is_admin; @endphp
-  <ul class="actions mb-3 nav gap-2">
-    {{-- Edit: any authenticated user --}}
-    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
-    {{-- Delete: admin only --}}
-    @if($isAdmin)
-    <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
-    @endif
-    {{-- Add new: any authenticated user --}}
-    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
-  </ul>
-  @endauth
-
   @endif {{-- end heratio/ric view mode --}}
+
+  {{-- Action buttons (bottom bar, matching AtoM) — shown in both views --}}
+  @auth
+  @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  <section class="actions">
+    <ul class="nav gap-2">
+      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}">Edit</a></li>
+      @if($isAdmin)
+      <li><a class="btn atom-btn-outline-danger" href="{{ route('repository.confirmDelete', $repository->slug) }}">Delete</a></li>
+      @endif
+      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.create') }}">Add new</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('informationobject.create', ['repository' => $repository->id]) }}">Add description</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('repository.edit', $repository->slug) }}?theme=1">Edit theme</a></li>
+    </ul>
+  </section>
+  @endauth
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $repository->id])

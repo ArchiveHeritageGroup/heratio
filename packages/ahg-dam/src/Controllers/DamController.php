@@ -84,7 +84,7 @@ class DamController extends Controller
             abort(404);
         }
 
-        $digitalObjects = $this->service->getDigitalObjects($asset->id);
+        $digitalObjects = \AhgCore\Services\DigitalObjectService::getForObject($asset->id);
         $relatedItems = $this->service->getRelatedItems($asset->id);
 
         return view('ahg-dam::dam.show', [

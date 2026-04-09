@@ -619,37 +619,36 @@
     </section>
   @endif
 
-  {{-- Action buttons (bottom bar, matching AtoM) --}}
-  @auth
-  @php $isAdmin = auth()->user()->is_admin; @endphp
-  <ul class="actions mb-3 nav gap-2">
-    {{-- Edit: any authenticated user --}}
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
-    {{-- Delete: admin only --}}
-    @if($isAdmin)
-    <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
-    @endif
-    {{-- Add new: any authenticated user --}}
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
-    <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
-    <li>
-      <div class="dropup">
-        <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          More
-        </button>
-        <ul class="dropdown-menu mb-2">
-          @if(isset($digitalObject) && $digitalObject)
-            <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
-          @else
-            <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
-          @endif
-        </ul>
-      </div>
-    </li>
-  </ul>
-  @endauth
-
   @endif {{-- end heratio/ric view mode --}}
+
+  {{-- Action buttons (bottom bar) — shown in both views --}}
+  @auth
+  @php $isAdmin = \AhgCore\Services\AclService::canAdmin(auth()->id()); @endphp
+  <section class="actions">
+    <ul class="nav gap-2">
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}">Edit</a></li>
+      @if($isAdmin)
+      <li><a class="btn atom-btn-outline-danger" href="{{ route('actor.confirmDelete', $actor->slug) }}">Delete</a></li>
+      @endif
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.add') }}">Add new</a></li>
+      <li><a class="btn atom-btn-outline-light" href="{{ route('actor.edit', $actor->slug) }}?rename=1"><i class="fas fa-i-cursor me-1"></i>Rename</a></li>
+      <li>
+        <div class="dropup">
+          <button type="button" class="btn atom-btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            More
+          </button>
+          <ul class="dropdown-menu mb-2">
+            @if(isset($digitalObject) && $digitalObject)
+              <li><a href="{{ url('/' . $actor->slug . '/editDigitalObject') }}" class="dropdown-item">Edit digital object</a></li>
+            @else
+              <li><a href="{{ url('/' . $actor->slug . '/linkDigitalObject') }}" class="dropdown-item">Link digital object</a></li>
+            @endif
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </section>
+  @endauth
 
   {{-- RiC Context Sidebar --}}
   @include('ahg-ric::_context-sidebar', ['resourceId' => $actor->id])

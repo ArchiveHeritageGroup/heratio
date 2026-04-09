@@ -64,7 +64,7 @@
 
   {{-- Identification area --}}
   <section id="identificationArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identification (ISAD)</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Identification</div></h2>
     @if($asset->identifier)
       <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Identifier</h3><div class="col-9 p-2">{{ $asset->identifier }}</div></div>
     @endif
