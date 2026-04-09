@@ -23,11 +23,10 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgPortableExport\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -38,96 +37,231 @@ class PortableExportController extends Controller
     {
         $culture = app()->getLocale();
 
-        // Get repositories for scope dropdown
+        // Repositories for the Step 1 dropdown — name comes from actor_i18n
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
+            ->join('actor_i18n', function ($j) use ($culture) {
+                $j->on('repository.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', $culture);
             })
-            ->select([
-                'repository.id',
-                'actor_i18n.authorized_form_of_name as name',
-            ])
+            ->select(['repository.id', 'actor_i18n.authorized_form_of_name as name'])
             ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
 
-        // Get available languages/cultures
-        $cultures = DB::table('setting_i18n')
-            ->join('setting', 'setting_i18n.id', '=', 'setting.id')
-            ->where('setting.name', 'siteLanguages')
-            ->select('setting_i18n.value', 'setting_i18n.culture')
-            ->get();
-
-        // Get available languages from cultures actually used in the database
-        $languages = DB::table('information_object_i18n')
-            ->select('culture as code')
-            ->distinct()
-            ->orderBy('culture')
-            ->get()
-            ->map(function ($row) {
-                $row->name = locale_get_display_language($row->code, app()->getLocale()) ?: $row->code;
-                return $row;
-            });
-
-        // Get past exports if table exists
+        // Past exports for the bottom table (only when the table exists)
         $exports = collect();
-        $hasTable = Schema::hasTable('portable_export');
-
-        if ($hasTable) {
+        if (Schema::hasTable('portable_export')) {
             $exports = DB::table('portable_export')
-                ->orderBy('created_at', 'desc')
+                ->orderByDesc('created_at')
                 ->limit(25)
                 ->get();
         }
 
         return view('ahg-portable-export::index', [
             'repositories' => $repositories,
-            'languages' => $languages,
             'exports' => $exports,
-            'hasTable' => $hasTable,
         ]);
     }
 
     public function export(Request $request)
     {
-        $validated = $request->validate([
-            'scope' => 'required|in:all,repository,fonds',
-            'repository_id' => 'nullable|integer|exists:repository,id',
-            'mode' => 'required|in:read_only,archive',
-            'culture' => 'nullable|string|max:10',
-            'include_digital_objects' => 'nullable|boolean',
-            'include_thumbnails' => 'nullable|boolean',
-            'include_references' => 'nullable|boolean',
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
-            'footer_text' => 'nullable|string|max:500',
+        // Legacy POST handler kept for backward compatibility with the old form.
+        // The new wizard hits apiStart() instead.
+        return $this->apiStart($request);
+    }
+
+    public function import(Request $request)
+    {
+        return view('ahg-portable-export::import');
+    }
+
+    public function download(Request $request)
+    {
+        $id = (int) $request->query('id');
+        if (!$id || !Schema::hasTable('portable_export')) {
+            abort(404);
+        }
+        $export = DB::table('portable_export')->where('id', $id)->first();
+        if (!$export || empty($export->output_path) || !file_exists($export->output_path)) {
+            abort(404, 'Export file not found');
+        }
+        return response()->download($export->output_path);
+    }
+
+    // ── API endpoints used by the wizard JS ─────────────────────────
+
+    public function apiStart(Request $request): JsonResponse
+    {
+        $data = $request->all();
+        $title = $data['title'] ?? 'Untitled Export';
+        $scope = $data['scope_type'] ?? $data['scope'] ?? 'all';
+        $mode  = $data['mode'] ?? 'read_only';
+
+        if (!Schema::hasTable('portable_export')) {
+            return response()->json([
+                'success' => false,
+                'error' => 'portable_export table does not exist — install the package schema first.',
+            ], 500);
+        }
+
+        $id = DB::table('portable_export')->insertGetId([
+            'user_id' => auth()->id() ?? 0,
+            'title' => $title,
+            'scope_type' => $scope,
+            'scope_repository_id' => $data['repository_id'] ?? null,
+            'scope_slug' => $data['scope_slug'] ?? null,
+            'mode' => $mode,
+            'culture' => $data['culture'] ?? app()->getLocale(),
+            'include_masters' => !empty($data['include_masters']),
+            'include_thumbnails' => !empty($data['include_thumbnails']),
+            'include_references' => !empty($data['include_references']),
+            'branding' => json_encode([
+                'title' => $data['branding_title'] ?? null,
+                'subtitle' => $data['branding_subtitle'] ?? null,
+                'footer' => $data['branding_footer'] ?? null,
+            ]),
+            'entity_types' => $data['entity_types'] ?? null,
+            'status' => 'pending',
+            'progress' => 0,
+            'created_at' => now(),
         ]);
 
-        // Create job record if table exists
-        if (Schema::hasTable('portable_export')) {
-            DB::table('portable_export')->insert([
-                'user_id' => auth()->id() ?? 0,
-                'title' => $validated['title'] ?? 'Untitled Export',
-                'scope_type' => $validated['scope'],
-                'scope_repository_id' => $validated['repository_id'] ?? null,
-                'mode' => $validated['mode'],
-                'culture' => $validated['culture'] ?? app()->getLocale(),
-                'include_masters' => !empty($validated['include_digital_objects']),
-                'include_thumbnails' => !empty($validated['include_thumbnails']),
-                'include_references' => !empty($validated['include_references']),
-                'branding' => json_encode([
-                    'subtitle' => $validated['subtitle'] ?? null,
-                    'footer_text' => $validated['footer_text'] ?? null,
-                ]),
-                'status' => 'pending',
+        return response()->json([
+            'success' => true,
+            'export_id' => $id,
+            'message' => 'Export queued.',
+        ]);
+    }
+
+    public function apiProgress(Request $request): JsonResponse
+    {
+        $id = (int) $request->query('id');
+        if (!$id || !Schema::hasTable('portable_export')) {
+            return response()->json(['status' => 'unknown']);
+        }
+        $row = DB::table('portable_export')->where('id', $id)->first();
+        if (!$row) {
+            return response()->json(['status' => 'unknown']);
+        }
+        return response()->json([
+            'status' => $row->status,
+            'progress' => (int) ($row->progress ?? 0),
+            'output_size' => (int) ($row->output_size ?? 0),
+            'total_descriptions' => (int) ($row->total_descriptions ?? 0),
+            'total_objects' => (int) ($row->total_objects ?? 0),
+            'error_message' => $row->error_message ?? null,
+        ]);
+    }
+
+    public function apiEstimate(Request $request): JsonResponse
+    {
+        $scope = $request->query('scope_type', 'all');
+        $repoId = (int) $request->query('repository_id');
+        $slug = $request->query('scope_slug');
+
+        $ioQuery = DB::table('information_object')->where('id', '!=', 1);
+        if ($scope === 'repository' && $repoId) {
+            $ioQuery->where('repository_id', $repoId);
+        }
+        if ($scope === 'fonds' && $slug) {
+            $ancestor = DB::table('information_object as io')
+                ->join('slug', 'io.id', '=', 'slug.object_id')
+                ->where('slug.slug', $slug)
+                ->select('io.lft', 'io.rgt')
+                ->first();
+            if ($ancestor) {
+                $ioQuery->whereBetween('lft', [$ancestor->lft, $ancestor->rgt]);
+            }
+        }
+
+        $descriptions = (clone $ioQuery)->count();
+        $authorities = DB::table('actor')->count();
+        $taxonomies = DB::table('taxonomy')->count();
+        $accessions = DB::table('accession')->count();
+        $physicalObjects = DB::table('physical_object')->count();
+        $digitalObjects = DB::table('digital_object')->count();
+        $repositories = DB::table('repository')->count();
+
+        $estBytes = $descriptions * 5_000 + $digitalObjects * 250_000;
+        $estMb = $estBytes / 1048576;
+        $estSize = $estMb >= 1024 ? round($estMb / 1024, 1) . ' GB' : round($estMb, 1) . ' MB';
+        $estDuration = max(1, (int) round($descriptions / 200 + $digitalObjects / 100));
+
+        return response()->json([
+            'descriptions' => $descriptions,
+            'authorities' => $authorities,
+            'taxonomies' => $taxonomies,
+            'accessions' => $accessions,
+            'physical_objects' => $physicalObjects,
+            'repositories' => $repositories,
+            'digital_objects' => ['count' => $digitalObjects],
+            'estimated_package_size' => $estSize,
+            'estimated_duration_minutes' => $estDuration,
+        ]);
+    }
+
+    public function apiFondsSearch(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query('q'));
+        if (strlen($q) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $culture = app()->getLocale();
+        $results = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+            ->where('io.parent_id', 1) // top-level fonds/collections
+            ->where(function ($w) use ($q) {
+                $w->where('ioi.title', 'LIKE', '%' . $q . '%')
+                  ->orWhere('io.identifier', 'LIKE', '%' . $q . '%');
+            })
+            ->select(['ioi.title', 'io.identifier', 'slug.slug'])
+            ->limit(15)
+            ->get();
+
+        return response()->json(['results' => $results]);
+    }
+
+    public function apiDelete(Request $request): JsonResponse
+    {
+        $id = (int) $request->input('id');
+        if (!$id || !Schema::hasTable('portable_export')) {
+            return response()->json(['success' => false, 'error' => 'Not found'], 404);
+        }
+        $row = DB::table('portable_export')->where('id', $id)->first();
+        if ($row && !empty($row->output_path) && file_exists($row->output_path)) {
+            @unlink($row->output_path);
+        }
+        DB::table('portable_export')->where('id', $id)->delete();
+        return response()->json(['success' => true]);
+    }
+
+    public function apiToken(Request $request): JsonResponse
+    {
+        $id = (int) $request->input('id');
+        if (!$id) {
+            return response()->json(['success' => false, 'error' => 'Missing id'], 400);
+        }
+        $token = bin2hex(random_bytes(16));
+        $expiresHours = (int) $request->input('expires_hours', 168);
+        $maxDownloads = $request->input('max_downloads');
+
+        if (Schema::hasTable('portable_export_share_token')) {
+            DB::table('portable_export_share_token')->insert([
+                'export_id' => $id,
+                'token' => $token,
+                'expires_at' => now()->addHours($expiresHours),
+                'max_downloads' => $maxDownloads ?: null,
+                'download_count' => 0,
                 'created_at' => now(),
             ]);
         }
 
-        return redirect()
-            ->route('portable-export.index')
-            ->with('success', 'Portable export has been queued. You will be notified when it is ready for download.');
+        return response()->json([
+            'success' => true,
+            'download_url' => url('/portable-export/share/' . $token),
+        ]);
     }
-
-    public function import(Request $request) { return view('ahg-portable-export::import'); }
 }
