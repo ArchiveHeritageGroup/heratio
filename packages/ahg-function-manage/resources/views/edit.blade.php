@@ -46,8 +46,8 @@
               <label for="type_id" class="form-label">
                 Type
                 <span class="form-required" title="This is a mandatory element.">*</span> <span class="badge bg-danger ms-1">Required</span></label>
-              <select name="type_id" id="type_id" class="form-select">
-                <option value="">-- Select --</option>
+              <select name="type_id" id="type_id" class="form-select" required>
+                <option value="" disabled @selected(empty(old('type_id', $function->type_id ?? '')))>-- Select --</option>
                 @foreach($formChoices['functionTypes'] as $type)
                   <option value="{{ $type->id }}" @selected(old('type_id', $function->type_id ?? '') == $type->id)>
                     {{ $type->name }}

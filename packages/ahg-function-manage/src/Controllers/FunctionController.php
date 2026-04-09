@@ -137,7 +137,7 @@ class FunctionController extends Controller
     {
         $request->validate([
             'authorized_form_of_name' => 'required|string|max:1024',
-            'type_id' => 'nullable|integer',
+            'type_id' => 'required|integer',
             'classification' => 'nullable|string|max:1024',
             'dates' => 'nullable|string|max:1024',
             'description' => 'nullable|string',
@@ -181,7 +181,7 @@ class FunctionController extends Controller
 
         $request->validate([
             'authorized_form_of_name' => 'required|string|max:1024',
-            'type_id' => 'nullable|integer',
+            'type_id' => 'required|integer',
             'classification' => 'nullable|string|max:1024',
             'dates' => 'nullable|string|max:1024',
             'description' => 'nullable|string',
