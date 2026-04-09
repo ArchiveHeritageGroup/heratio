@@ -73,35 +73,46 @@ class StorageService
             ->first();
     }
 
+    /**
+     * Linked archival descriptions.
+     * AtoM relation: subject_id = physical_object.id, object_id = information_object.id, type_id = 147 (HAS_PHYSICAL_OBJECT_ID).
+     */
     public function getLinkedDescriptions(int $physicalObjectId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('information_object_i18n', 'relation.subject_id', '=', 'information_object_i18n.id')
-            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
-            ->where('relation.object_id', $physicalObjectId)
-            ->where('relation.type_id', 151)
-            ->where('information_object_i18n.culture', $this->culture)
+            ->join('information_object', 'relation.object_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n', function ($j) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                    ->where('information_object_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $physicalObjectId)
+            ->where('relation.type_id', 147)
             ->select([
-                'relation.subject_id as id',
+                'information_object.id',
                 'information_object_i18n.title',
                 'slug.slug',
             ])
             ->get();
     }
 
+    /**
+     * Linked accessions.
+     * AtoM relation: subject_id = physical_object.id, object_id = accession.id, type_id = 147 (HAS_PHYSICAL_OBJECT_ID).
+     */
     public function getLinkedAccessions(int $physicalObjectId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('accession', 'relation.subject_id', '=', 'accession.id')
+            ->join('accession', 'relation.object_id', '=', 'accession.id')
             ->leftJoin('accession_i18n', function ($j) {
                 $j->on('accession.id', '=', 'accession_i18n.id')
                     ->where('accession_i18n.culture', '=', $this->culture);
             })
-            ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->where('relation.object_id', $physicalObjectId)
-            ->where('relation.type_id', 151)
+            ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $physicalObjectId)
+            ->where('relation.type_id', 147)
             ->select([
-                'relation.subject_id as id',
+                'accession.id',
                 'accession_i18n.title',
                 'accession.identifier',
                 'slug.slug',
