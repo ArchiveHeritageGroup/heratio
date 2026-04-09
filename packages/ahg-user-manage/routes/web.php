@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('admin')->group(function () {
     Route::get('/admin/users', [UserController::class, 'browse'])->name('user.browse');
     Route::get('/user/list', [UserController::class, 'browse'])->name('user.list'); // AtoM menu alias
+    Route::get('/user/browse', [UserController::class, 'browse']); // Heratio alias
 
     Route::get('/user/add', [UserController::class, 'create'])->name('user.add');
     Route::post('/user/add', [UserController::class, 'store'])->name('user.store')->middleware('acl:create');
@@ -41,6 +42,8 @@ Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user
 
 // Authenticated user self-service routes
 Route::middleware('auth')->group(function () {
+    Route::get('/user/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::get('/user/profile/edit', [UserController::class, 'profileEdit'])->name('user.profile.edit');
     Route::get('/user/passwordEdit', [UserController::class, 'passwordEdit'])->name('user.passwordEdit');
     Route::match(['get', 'post'], '/user/passwordReset', [UserController::class, 'passwordReset'])->name('user.passwordReset');
     Route::get('/user/clipboard', [UserController::class, 'clipboard'])->name('user.clipboard');

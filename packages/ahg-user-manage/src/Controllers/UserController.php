@@ -507,10 +507,20 @@ class UserController extends Controller
             abort(404);
         }
 
-        return view('ahg-user-manage::show', [
-            'user' => $user,
-            'groups' => collect($user->groups ?? []),
-        ]);
+        // Reuse the standard show() pipeline so API keys + clearance are populated
+        return $this->show(request(), $user->slug);
+    }
+
+    /**
+     * Self-service edit — redirect to the authenticated user's edit page.
+     */
+    public function profileEdit()
+    {
+        $user = $this->service->getById(auth()->id());
+        if (!$user || empty($user->slug)) {
+            abort(404);
+        }
+        return redirect()->route('user.edit', $user->slug);
     }
 
     /**
