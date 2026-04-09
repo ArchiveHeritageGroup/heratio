@@ -365,7 +365,7 @@
         <tbody>
           @foreach($objects as $obj)
             @php
-              $objType = $obj->glam_type ?? $obj->type ?? 'archive';
+              $objType = $obj->glam_type ?? $obj->object_type ?? $obj->type ?? 'archive';
               $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
               $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
               $objSlug = $obj->slug ?? '';
@@ -440,7 +440,7 @@
     <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
       @foreach($objects as $obj)
         @php
-          $objType = $obj->glam_type ?? $obj->type ?? 'archive';
+          $objType = $obj->glam_type ?? $obj->object_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
@@ -469,7 +469,7 @@
     <div class="mb-3">
       @foreach($objects as $obj)
         @php
-          $objType = $obj->glam_type ?? $obj->type ?? 'archive';
+          $objType = $obj->glam_type ?? $obj->object_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';
@@ -561,7 +561,7 @@
     <div class="mb-3">
       @foreach($objects as $obj)
         @php
-          $objType = $obj->glam_type ?? $obj->type ?? 'archive';
+          $objType = $obj->glam_type ?? $obj->object_type ?? $obj->type ?? 'archive';
           $otc = $typeConfig[$objType] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($objType)];
           $objTitle = $obj->title ?? $obj->name ?? '[Untitled]';
           $objSlug = $obj->slug ?? '';

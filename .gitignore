@@ -23,3 +23,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 FamilySearch/
+/uploads/
+/public/downloads/*.xml
+/public/downloads/*.pdf
+/public/downloads/*.html

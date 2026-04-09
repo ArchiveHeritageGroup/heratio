@@ -63,6 +63,19 @@ function initIiifViewer(viewerId, imageUrl, title) {
         // Always recreate Mirador to avoid stale state
         mirEl.innerHTML = '';
 
+        // For IIIF-served images (TIFF etc.), use the IIIF image service in the manifest
+        var miradorImageUrl = imageUrl;
+        var miradorService = null;
+        if (iiifTileSource) {
+            var serviceId = iiifTileSource.replace('/info.json', '');
+            miradorImageUrl = serviceId + '/full/max/0/default.jpg';
+            miradorService = {
+                '@id': serviceId,
+                '@type': 'ImageService2',
+                profile: 'http://iiif.io/api/image/2/level2.json'
+            };
+        }
+
         var manifest = {
             '@context': 'http://iiif.io/api/presentation/2/context.json',
             '@type': 'sc:Manifest',
@@ -79,13 +92,13 @@ function initIiifViewer(viewerId, imageUrl, title) {
                     images: [{
                         '@type': 'oa:Annotation',
                         motivation: 'sc:painting',
-                        resource: {
-                            '@id': imageUrl,
+                        resource: Object.assign({
+                            '@id': miradorImageUrl,
                             '@type': 'dctypes:Image',
                             format: 'image/jpeg',
                             width: 4000,
                             height: 3000
-                        },
+                        }, miradorService ? { service: miradorService } : {}),
                         on: imageUrl + '/canvas/1'
                     }]
                 }]

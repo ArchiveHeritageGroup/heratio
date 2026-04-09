@@ -700,7 +700,7 @@
         @php $viewerId = 'iiif-viewer-' . $io->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
 
         {{-- Viewer toggle --}}
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
             <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
               <i class="fas fa-search-plus me-1"></i>Deep Zoom
