@@ -420,13 +420,13 @@ class SettingsController extends Controller
         $culture = app()->getLocale();
         $menu = $this->buildMenu('visible-elements');
 
+        // AtoM uses QubitSetting::getByScope('element_visibility') with no editable filter.
         $settings = DB::table('setting')
             ->leftJoin('setting_i18n', function ($join) use ($culture) {
                 $join->on('setting.id', '=', 'setting_i18n.id')
                     ->where('setting_i18n.culture', '=', $culture);
             })
             ->where('setting.scope', 'element_visibility')
-            ->where('setting.editable', 1)
             ->select('setting.id', 'setting.name', 'setting_i18n.value')
             ->orderBy('setting.name')
             ->get()
@@ -1057,8 +1057,9 @@ class SettingsController extends Controller
         ];
 
         if ($request->isMethod('post')) {
+            // AtoM SettingsFindingAidForm uses setNameFormat('finding_aid[%s]')
             foreach ($settingMap as $formKey => $dbName) {
-                $value = $request->input("settings.{$formKey}", '');
+                $value = $request->input("finding_aid.{$formKey}", $request->input("settings.{$formKey}", ''));
                 $this->service->saveSetting($dbName, null, $value, $culture);
             }
             return redirect()->route('settings.finding-aid')->with('success', 'Finding aid settings saved.');
