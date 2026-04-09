@@ -120,19 +120,37 @@ class AccessRequestService
 
     /**
      * Create a new access request.
+     *
+     * Writes to `security_access_request` (the table the /security/my-requests
+     * page reads from). Older callers used `access_request` — that table is now
+     * legacy and should not be written to from new code.
      */
     public function createRequest(int $userId, array $data): int
     {
-        return DB::table('access_request')->insertGetId([
-            'user_id'                     => $userId,
-            'request_type'                => $data['request_type'] ?? 'clearance',
-            'requested_classification_id' => (int) ($data['object_id'] ?? 0),
-            'reason'                      => $data['reason'],
-            'justification'               => $data['justification'] ?? null,
-            'urgency'                     => $data['urgency'] ?? 'normal',
-            'status'                      => 'pending',
-            'created_at'                  => now(),
-            'updated_at'                  => now(),
+        // Combine subject + reason + justification into the single justification
+        // column (the security_access_request schema is flatter than access_request).
+        $justificationParts = [];
+        if (!empty($data['reason'])) {
+            $justificationParts[] = $data['reason'];
+        }
+        if (!empty($data['justification'])) {
+            $justificationParts[] = "Justification: " . $data['justification'];
+        }
+        $justification = implode("\n\n", $justificationParts) ?: '(no details provided)';
+
+        // Map urgency → priority
+        $priority = $data['urgency'] ?? 'normal';
+
+        return DB::table('security_access_request')->insertGetId([
+            'user_id'           => $userId,
+            'request_type'      => $data['request_type'] ?? 'clearance',
+            'classification_id' => $data['object_id'] ?? null,
+            'object_id'         => $data['target_object_id'] ?? null,
+            'justification'     => $justification,
+            'priority'          => $priority,
+            'status'            => 'pending',
+            'created_at'        => now(),
+            'updated_at'        => now(),
         ]);
     }
 

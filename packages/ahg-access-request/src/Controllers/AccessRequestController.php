@@ -126,19 +126,12 @@ class AccessRequestController extends Controller
             'requested_classification_id' => 'nullable|integer|exists:security_classification,id',
         ]);
 
-        // Default to the lowest-level classification (PUBLIC) if none picked,
-        // because the access_request.requested_classification_id column is NOT NULL
-        // with a foreign-key constraint into security_classification.
-        $classificationId = $validated['requested_classification_id']
-            ?? \Illuminate\Support\Facades\DB::table('security_classification')
-                ->orderBy('level')
-                ->value('id');
-
         $this->service->createRequest(auth()->id(), [
             'subject'       => $validated['subject'],
             'request_type'  => $validated['request_type'],
-            'object_id'     => $classificationId,  // becomes requested_classification_id
-            // Map form 'description' to DB 'reason' column, prefixed with the subject
+            // Maps to security_access_request.classification_id (nullable)
+            'object_id'     => $validated['requested_classification_id'] ?? null,
+            // Subject + description go into the single justification text column
             'reason'        => 'Subject: ' . $validated['subject'] . "\n\n" . $validated['description'],
             'justification' => $validated['justification'] ?? null,
             'urgency'       => $validated['urgency'] ?? 'normal',
