@@ -11,20 +11,72 @@
 @endsection
 
 @section('right')
+  {{-- Physical storage --}}
   @if(config('atom.app_element_visibility_physical_storage', true))
     <nav>
       @include('ahg-accession-manage::partials._physical-storage-context-menu', ['resource' => $accession])
     </nav>
   @endif
 
+  {{-- Print + Clipboard --}}
   <div class="d-flex gap-1 mb-3">
     <button class="btn btn-sm atom-btn-white" onclick="window.print()" title="Print">
       <i class="fas fa-print"></i>
     </button>
-    @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'informationObject'])
+    @include('ahg-core::clipboard._button', ['slug' => $accession->slug, 'type' => 'accession'])
   </div>
 
-  @include('ahg-core::partials._record-sidebar-extras', ['objectId' => $accession->id, 'slug' => $accession->slug, 'title' => $accession->title])
+  {{-- Linked Information Objects --}}
+  @if(\Illuminate\Support\Facades\Schema::hasTable('relation'))
+    @php
+      $linkedIos = \Illuminate\Support\Facades\DB::table('relation')
+          ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
+          ->join('information_object_i18n', function ($j) { $j->on('information_object.id', '=', 'information_object_i18n.id')->where('information_object_i18n.culture', '=', 'en'); })
+          ->join('slug', 'information_object.id', '=', 'slug.object_id')
+          ->where('relation.object_id', $accession->id)
+          ->where('relation.type_id', 116)
+          ->select('information_object_i18n.title', 'slug.slug')
+          ->limit(20)
+          ->get();
+    @endphp
+    @if($linkedIos->isNotEmpty())
+      <div class="card mb-3">
+        <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+          <i class="fas fa-link me-1"></i> Linked descriptions
+        </div>
+        <div class="list-group list-group-flush">
+          @foreach($linkedIos as $io)
+            <a href="{{ url('/' . $io->slug) }}" class="list-group-item list-group-item-action small">{{ $io->title ?: '[Untitled]' }}</a>
+          @endforeach
+        </div>
+      </div>
+    @endif
+  @endif
+
+  {{-- Donor info --}}
+  @if(isset($donor) && $donor)
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+        <i class="fas fa-user me-1"></i> Donor
+      </div>
+      <div class="card-body py-2">
+        <strong>{{ $donor->authorized_form_of_name ?? '' }}</strong>
+        @if($donor->email ?? null)<br><small><i class="fas fa-envelope me-1"></i>{{ $donor->email }}</small>@endif
+      </div>
+    </div>
+  @endif
+
+  {{-- Export --}}
+  <div class="card mb-3">
+    <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
+      <i class="fas fa-file-export me-1"></i> Export
+    </div>
+    <div class="list-group list-group-flush">
+      @if(\Illuminate\Support\Facades\Route::has('accession.export.csv'))
+        <a href="{{ route('accession.export.csv', $accession->slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-csv me-1"></i> CSV</a>
+      @endif
+    </div>
+  </div>
 @endsection
 
 @section('content')

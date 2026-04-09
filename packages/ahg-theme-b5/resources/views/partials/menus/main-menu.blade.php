@@ -91,18 +91,16 @@
   <ul class="dropdown-menu dropdown-menu-end mb-2" aria-labelledby="add-menu">
     {{-- Sector Items --}}
     <li><h6 class="dropdown-header">Sector items</h6></li>
-    @foreach($addItems as $item)
-      @if(in_array($item->name, $adminOnly) && !$isAdmin)
-        @continue
-      @endif
-      @if($item->name === 'informationObject')
-        <li>
-          <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
-            <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>Archival description
-          </a>
-        </li>
-      @endif
-    @endforeach
+    @php
+      $infoObjectItem = collect($addItems)->firstWhere('name', 'addInformationObject');
+    @endphp
+    @if($infoObjectItem)
+      <li>
+        <a class="dropdown-item" href="{{ MenuService::resolvePath($infoObjectItem->path) }}">
+          <i class="{{ $iconMap[$infoObjectItem->name] ?? 'fas fa-plus' }} me-2"></i>Archival description
+        </a>
+      </li>
+    @endif
     @if($hasMuseum)<li><a class="dropdown-item" href="{{ url('/museum/add') }}"><i class="fas fa-university fa-fw me-2"></i>Museum object</a></li>@endif
     @if($hasGallery)<li><a class="dropdown-item" href="{{ url('/gallery/add') }}"><i class="fas fa-images fa-fw me-2"></i>Gallery item</a></li>@endif
     @if($hasLibrary)<li><a class="dropdown-item" href="{{ url('/library/add') }}"><i class="fas fa-book fa-fw me-2"></i>Library item</a></li>@endif
@@ -115,7 +113,7 @@
       @if(in_array($item->name, $adminOnly) && !$isAdmin)
         @continue
       @endif
-      @if($item->name !== 'informationObject')
+      @if($item->name !== 'addInformationObject')
         <li>
           <a class="dropdown-item" href="{{ MenuService::resolvePath($item->path) }}">
             <i class="{{ $iconMap[$item->name] ?? 'fas fa-plus' }} me-2"></i>{{ $item->label }}
