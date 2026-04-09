@@ -501,8 +501,9 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="upload_limit" class="form-label">Upload limit (MB) <span class="badge bg-secondary ms-1">Optional</span></label>
-              <input type="number" name="upload_limit" id="upload_limit" class="form-control" min="0" step="1"
-                     value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="0 = disabled">
+              <input type="number" name="upload_limit" id="upload_limit" class="form-control" min="-1" step="1"
+                     value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="-1 = unlimited, 0 = disabled">
+              <div class="form-text"><strong>-1</strong> = unlimited, <strong>0</strong> = disabled, any positive number = limit in MB</div>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Set the maximum upload size in megabytes for digital objects associated with this repository. Set to 0 or leave blank to use the global default."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>
