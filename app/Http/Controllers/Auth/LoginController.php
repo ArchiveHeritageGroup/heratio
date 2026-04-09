@@ -250,53 +250,17 @@ class LoginController extends Controller
      */
     public function showProfile(Request $request)
     {
+        // Redirect to the canonical user show page so the cloned AtoM-style layout
+        // (Basic info / Profile / Contact / Access control / Translate / API keys /
+        // Security clearance) is rendered consistently for both /user/profile and
+        // /user/{slug}.
         $user = Auth::user();
-
-        // Get groups with i18n names
-        $groups = DB::table('acl_user_group')
-            ->join('acl_group', 'acl_user_group.group_id', '=', 'acl_group.id')
-            ->leftJoin('acl_group_i18n', function ($join) {
-                $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                    ->where('acl_group_i18n.culture', '=', 'en');
-            })
-            ->where('acl_user_group.user_id', $user->id)
-            ->select('acl_group.id as group_id', 'acl_group_i18n.name as group_name')
-            ->get();
-
-        // Get repository affiliation (actor's relation to repository)
-        $repository = DB::table('relation')
-            ->join('repository', 'relation.object_id', '=', 'repository.id')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', 'en');
-            })
-            ->leftJoin('slug', function ($join) {
-                $join->on('repository.id', '=', 'slug.object_id');
-            })
-            ->where('relation.subject_id', $user->id)
-            ->where('relation.type_id', 161) // isOccupationOf
-            ->select('actor_i18n.authorized_form_of_name', 'slug.slug')
-            ->first();
-
-        // Get security clearance if tables exist
-        $securityClearance = null;
-        try {
-            $securityClearance = DB::table('user_security_clearance')
-                ->leftJoin('term_i18n', function ($join) {
-                    $join->on('user_security_clearance.classification_id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', 'en');
-                })
-                ->where('user_security_clearance.user_id', $user->id)
-                ->select(
-                    'user_security_clearance.*',
-                    'term_i18n.name as classification_name'
-                )
-                ->first();
-        } catch (\Exception $e) {
-            // Tables don't exist — ignore
+        $slug = DB::table('slug')->where('object_id', $user->id)->value('slug');
+        if ($slug) {
+            return redirect('/user/' . $slug);
         }
-
-        return view('auth.profile', compact('user', 'groups', 'repository', 'securityClearance'));
+        // Fallback: render the legacy auth.profile view if the user has no slug yet
+        return view('auth.profile', compact('user'));
     }
 
     /**
@@ -304,28 +268,13 @@ class LoginController extends Controller
      */
     public function showProfileEdit()
     {
+        // Redirect to the canonical user edit page so the cloned layout is used.
         $user = Auth::user();
-
-        // Get current user groups
-        $userGroupIds = DB::table('acl_user_group')
-            ->where('user_id', $user->id)
-            ->pluck('group_id')
-            ->toArray();
-
-        // Get all available groups (exclude system groups: 1=root, 98=anonymous, 99=authenticated)
-        $allGroups = DB::table('acl_group')
-            ->leftJoin('acl_group_i18n', function ($join) {
-                $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                    ->where('acl_group_i18n.culture', '=', 'en');
-            })
-            ->whereNotIn('acl_group.id', [1, 98, 99])
-            ->select('acl_group.id', 'acl_group_i18n.name')
-            ->orderBy('acl_group_i18n.name')
-            ->get();
-
-        $isAdmin = $user->isAdministrator();
-
-        return view('auth.profile-edit', compact('user', 'userGroupIds', 'allGroups', 'isAdmin'));
+        $slug = DB::table('slug')->where('object_id', $user->id)->value('slug');
+        if ($slug) {
+            return redirect('/user/' . $slug . '/edit');
+        }
+        abort(404);
     }
 
     /**

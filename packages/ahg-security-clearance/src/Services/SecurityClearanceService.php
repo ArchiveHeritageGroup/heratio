@@ -248,21 +248,34 @@ class SecurityClearanceService
 
     /**
      * Get clearance history for a user.
+     * Schema-tolerant: previous_classification_id is optional (older installs lack it).
      */
     public function getClearanceHistory(int $userId): array
     {
-        return DB::table('user_security_clearance_log as log')
+        if (!Schema::hasTable('user_security_clearance_log')) {
+            return [];
+        }
+
+        $hasPrevCol = Schema::hasColumn('user_security_clearance_log', 'previous_classification_id');
+
+        $query = DB::table('user_security_clearance_log as log')
             ->leftJoin('security_classification as sc', 'log.classification_id', '=', 'sc.id')
-            ->leftJoin('security_classification as prev_sc', 'log.previous_classification_id', '=', 'prev_sc.id')
             ->leftJoin('user as actor', 'log.changed_by', '=', 'actor.id')
-            ->where('log.user_id', $userId)
-            ->select(
-                'log.*',
-                'sc.name as classification_name',
-                'sc.code as classification_code',
-                'prev_sc.name as previous_name',
-                'actor.username as changed_by_name'
-            )
+            ->where('log.user_id', $userId);
+
+        $select = [
+            'log.*',
+            'sc.name as classification_name',
+            'sc.code as classification_code',
+            'actor.username as changed_by_name',
+        ];
+
+        if ($hasPrevCol) {
+            $query->leftJoin('security_classification as prev_sc', 'log.previous_classification_id', '=', 'prev_sc.id');
+            $select[] = 'prev_sc.name as previous_name';
+        }
+
+        return $query->select($select)
             ->orderByDesc('log.created_at')
             ->get()
             ->toArray();
@@ -270,17 +283,25 @@ class SecurityClearanceService
 
     private function logClearanceChange(int $userId, string $action, ?int $previousClassificationId, ?int $classificationId, int $changedBy, ?string $notes): void
     {
-        if (Schema::hasTable('user_security_clearance_log')) {
-            DB::table('user_security_clearance_log')->insert([
-                'user_id'                      => $userId,
-                'action'                       => $action,
-                'previous_classification_id'   => $previousClassificationId,
-                'classification_id'            => $classificationId,
-                'changed_by'                   => $changedBy,
-                'notes'                        => $notes,
-                'created_at'                   => now(),
-            ]);
+        if (!Schema::hasTable('user_security_clearance_log')) {
+            return;
         }
+
+        $row = [
+            'user_id'           => $userId,
+            'action'            => $action,
+            'classification_id' => $classificationId,
+            'changed_by'        => $changedBy,
+            'notes'             => $notes,
+            'created_at'        => now(),
+        ];
+
+        // Only include previous_classification_id if the column exists
+        if (Schema::hasColumn('user_security_clearance_log', 'previous_classification_id')) {
+            $row['previous_classification_id'] = $previousClassificationId;
+        }
+
+        DB::table('user_security_clearance_log')->insert($row);
     }
 
     // =========================================================================
