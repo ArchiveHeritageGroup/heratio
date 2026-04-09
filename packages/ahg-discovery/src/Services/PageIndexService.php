@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AhgDiscovery\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -466,7 +467,7 @@ class PageIndexService
                      ->where('ai.culture', $culture);
             })
             ->where('e.object_id', $objectId)
-            ->where('e.type_id', 111) // creation event
+            ->where('e.type_id', TermId::EVENT_TYPE_CREATION)
             ->select('ai.authorized_form_of_name as name')
             ->get();
 

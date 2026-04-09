@@ -27,6 +27,7 @@
 
 namespace AhgGallery\Controllers;
 
+use AhgCore\Constants\TermId;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
 use AhgCore\Services\SettingHelper;
@@ -134,13 +135,13 @@ class GalleryController extends Controller
             )
             ->get();
 
-        // Creators (events where type_id = 111 = creation)
+        // Creators (creation events)
         $creators = DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
             ->join('slug', 'event.actor_id', '=', 'slug.object_id')
             ->where('event.object_id', $artwork->id)
-            ->where('event.type_id', 111)
+            ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
             ->select(
@@ -205,7 +206,7 @@ class GalleryController extends Controller
         $publicationStatusId = null;
         $statusRow = DB::table('status')
             ->where('object_id', $artwork->id)
-            ->where('type_id', 158)
+            ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
             ->first();
         if ($statusRow && $statusRow->status_id) {
             $publicationStatusId = (int) $statusRow->status_id;
@@ -216,11 +217,12 @@ class GalleryController extends Controller
         }
 
         // Physical storage
+        // AtoM: subject=physical_object, object=artwork(IO), type=RELATION_HAS_PHYSICAL_OBJECT.
         $physicalObjects = DB::table('relation')
-            ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
+            ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
             ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
-            ->where('relation.subject_id', $artwork->id)
-            ->where('relation.type_id', 151)
+            ->where('relation.object_id', $artwork->id)
+            ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->where('physical_object_i18n.culture', $culture)
             ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id')
             ->get();

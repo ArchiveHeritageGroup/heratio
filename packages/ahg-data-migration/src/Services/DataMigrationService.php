@@ -27,6 +27,7 @@
 
 namespace AhgDataMigration\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -633,11 +634,11 @@ class DataMigrationService
             'serial_number' => 0,
         ]);
 
-        // Create default publication status (draft = 159)
+        // Create default publication status (draft)
         DB::table('status')->insert([
             'object_id'      => $objectId,
-            'type_id'        => 158,
-            'status_id'      => 159,
+            'type_id'        => TermId::STATUS_TYPE_PUBLICATION,
+            'status_id'      => TermId::PUBLICATION_STATUS_DRAFT,
             'serial_number'  => 0,
         ]);
 

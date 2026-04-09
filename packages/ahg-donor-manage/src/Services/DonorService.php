@@ -27,6 +27,7 @@
 
 namespace AhgDonorManage\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -111,7 +112,7 @@ class DonorService
 
     /**
      * Get archival description (information_object) records linked to this donor.
-     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = 169 (DONOR_ID).
+     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = TermId::RELATION_DONOR.
      */
     public function getInformationObjects(int $donorId): \Illuminate\Support\Collection
     {
@@ -123,7 +124,7 @@ class DonorService
             })
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $donorId)
-            ->where('relation.type_id', 169)
+            ->where('relation.type_id', TermId::RELATION_DONOR)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -135,7 +136,7 @@ class DonorService
 
     /**
      * Replace the donor↔IO relations with the given list of IO ids.
-     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = 169 (DONOR_ID).
+     * Relation: object_id = donor.id, subject_id = information_object.id, type_id = TermId::RELATION_DONOR.
      */
     public function syncInformationObjects(int $donorId, array $ioIds): void
     {
@@ -145,7 +146,7 @@ class DonorService
             // Remove existing donor↔IO relations and their parent object rows
             $oldRelationIds = DB::table('relation')
                 ->where('object_id', $donorId)
-                ->where('type_id', 169)
+                ->where('type_id', TermId::RELATION_DONOR)
                 ->whereIn('subject_id', function ($q) {
                     $q->select('id')->from('information_object');
                 })
@@ -166,7 +167,7 @@ class DonorService
                     'id' => $relObjectId,
                     'subject_id' => $ioId,
                     'object_id' => $donorId,
-                    'type_id' => 169,
+                    'type_id' => TermId::RELATION_DONOR,
                     'source_culture' => $this->culture,
                 ]);
             }
@@ -176,7 +177,7 @@ class DonorService
     public function getRelatedAccessions(int $donorId): \Illuminate\Support\Collection
     {
         // AtoM: QubitRelation::getRelationsByObjectId($donorId, ['typeId' => QubitTerm::DONOR_ID])
-        // relation.object_id = donor.id, relation.subject_id = accession.id, type_id = 169 (DONOR_ID)
+        // relation.object_id = donor.id, relation.subject_id = accession.id, type_id = TermId::RELATION_DONOR
         return DB::table('relation')
             ->join('accession', 'relation.subject_id', '=', 'accession.id')
             ->leftJoin('accession_i18n', function ($j) {
@@ -185,7 +186,7 @@ class DonorService
             })
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.object_id', $donorId)
-            ->where('relation.type_id', 169)
+            ->where('relation.type_id', TermId::RELATION_DONOR)
             ->select('accession.id', 'accession.identifier', 'accession_i18n.title', 'slug.slug')
             ->get();
     }

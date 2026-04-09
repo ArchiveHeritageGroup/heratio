@@ -27,6 +27,7 @@
 
 namespace AhgCore\Services;
 
+use AhgCore\Constants\TermId;
 use AhgCore\Models\AclGroup;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -219,7 +220,7 @@ class AclService
                 $sub->select(DB::raw(1))
                     ->from('status')
                     ->whereColumn('status.object_id', 'i.id')
-                    ->where('status.type_id', 158)
+                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
                     ->where('status.status_id', 160);
             });
 
@@ -239,7 +240,7 @@ class AclService
                 $sub->select(DB::raw(1))
                     ->from('status')
                     ->whereColumn('status.object_id', 'i.id')
-                    ->where('status.type_id', 158)
+                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
                     ->where('status.status_id', 160);
             });
             if ($user->id ?? null) {

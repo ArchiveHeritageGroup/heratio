@@ -27,6 +27,7 @@
 
 namespace AhgRepositoryManage\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -460,7 +461,7 @@ class RepositoryService
             // 3. Create actor record (class table inheritance)
             DB::table('actor')->insert([
                 'id' => $id,
-                'entity_type_id' => 131, // Corporate body (repositories are always corporate bodies)
+                'entity_type_id' => TermId::ACTOR_ENTITY_CORPORATE_BODY, // repositories are always corporate bodies
                 'parent_id' => 3, // Actor::ROOT_ID
                 'source_culture' => $this->culture,
             ]);

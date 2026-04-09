@@ -27,6 +27,7 @@
 
 namespace AhgActorManage\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -464,7 +465,7 @@ class ActorService
 
     /**
      * Get information objects where this actor is a name access point ("Subject of").
-     * Uses the relation table with type_id = 161 (name access points),
+     * Uses the relation table with type_id = TermId::RELATION_NAME_ACCESS_POINT,
      * where relation.object_id = actor.id and relation.subject_id = information_object.id.
      */
     public function getSubjectOfResources(int $actorId): \Illuminate\Support\Collection
@@ -477,7 +478,7 @@ class ActorService
             })
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $actorId)
-            ->where('relation.type_id', 161) // name access points
+            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('information_object.id', '!=', 1) // exclude root
             ->select(
                 'information_object.id',
@@ -503,7 +504,7 @@ class ActorService
             })
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $actorId)
-            ->where('relation.type_id', 161)
+            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('information_object.id', '!=', 1)
             ->select(
                 'information_object.id',

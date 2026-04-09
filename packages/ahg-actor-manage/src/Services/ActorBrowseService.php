@@ -27,6 +27,7 @@
 
 namespace AhgActorManage\Services;
 
+use AhgCore\Constants\TermId;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 
@@ -178,7 +179,7 @@ class ActorBrowseService extends BrowseService
                 $j->on('relation.object_id', '=', 'repo_name.id')
                   ->where('repo_name.culture', '=', $this->culture);
             })
-            ->where('relation.type_id', 161) // isMaintenanceAgencyOf
+            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT) // isMaintenanceAgencyOf
             ->select('relation.object_id as id', 'repo_name.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
             ->groupBy('relation.object_id', 'repo_name.authorized_form_of_name')
             ->orderBy('repo_name.authorized_form_of_name')

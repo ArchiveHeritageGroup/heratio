@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V2;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,11 +33,11 @@ class SearchController extends BaseApiController
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
-                $j->on('io.id', '=', 'status.object_id')->where('status.type_id', 158);
+                $j->on('io.id', '=', 'status.object_id')->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION);
             })
             ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
-            ->where('status.status_id', 160)
+            ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED)
             ->where(function ($q) use ($searchTerm) {
                 $q->where('ioi.title', 'LIKE', $searchTerm)
                     ->orWhere('io.identifier', 'LIKE', $searchTerm)

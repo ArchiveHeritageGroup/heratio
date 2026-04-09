@@ -38,6 +38,7 @@ use AhgActorManage\Services\AuthorityLookupService;
 use AhgActorManage\Services\AuthorityMergeService;
 use AhgActorManage\Services\AuthorityNerPipelineService;
 use AhgActorManage\Services\AuthorityOccupationService;
+use AhgCore\Constants\TermId;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -658,7 +659,7 @@ class ActorController extends Controller
                     'id'             => $relObjectId,
                     'subject_id'     => $actor->id,
                     'object_id'      => $repoId,
-                    'type_id'        => 160, // Maintaining repository relation type
+                    'type_id'        => TermId::RELATION_MAINTAINING_REPOSITORY,
                     'source_culture' => $culture,
                 ]);
             }

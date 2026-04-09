@@ -50,27 +50,6 @@
         </div>
       @endif
 
-      @if(isset($descriptions) && $descriptions->isNotEmpty())
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related resources</h3>
-          <div class="col-9 p-2">
-            @foreach($descriptions as $desc)
-              <div><a href="{{ url('/' . $desc->slug) }}">{{ $desc->title ?: '[Untitled]' }}</a></div>
-            @endforeach
-          </div>
-        </div>
-      @endif
-
-      @if(isset($accessions) && $accessions->isNotEmpty())
-        <div class="field row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related accessions</h3>
-          <div class="col-9 p-2">
-            @foreach($accessions as $acc)
-              <div><a href="{{ route('accession.show', $acc->slug) }}">{{ $acc->title ?: $acc->identifier ?: '[Untitled]' }}</a></div>
-            @endforeach
-          </div>
-        </div>
-      @endif
     </div>
   </section>
 
@@ -353,6 +332,54 @@
       </section>
     @endif
   @endauth
+
+  {{-- ===== Related resources / accessions (collapsible, at bottom) ===== --}}
+  @php
+    $relatedTotal = (isset($descriptions) ? $descriptions->count() : 0)
+      + (isset($accessions) ? $accessions->count() : 0);
+  @endphp
+  @if($relatedTotal > 0)
+    <div class="accordion mb-3" id="relatedResourcesAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="relatedResourcesHeading">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#relatedResourcesCollapse" aria-expanded="true"
+                  aria-controls="relatedResourcesCollapse">
+            <i class="fas fa-link me-2"></i>Related resources
+            <span class="badge bg-light text-dark ms-2">{{ $relatedTotal }}</span>
+          </button>
+        </h2>
+        <div id="relatedResourcesCollapse" class="accordion-collapse collapse show"
+             aria-labelledby="relatedResourcesHeading">
+          <div class="accordion-body">
+            @if(isset($descriptions) && $descriptions->isNotEmpty())
+              <h3 class="h6 text-muted">Archival descriptions</h3>
+              <ul class="list-unstyled mb-3">
+                @foreach($descriptions as $desc)
+                  <li class="mb-1">
+                    <i class="fas fa-file-alt text-info me-1"></i>
+                    <a href="{{ url('/' . $desc->slug) }}">{{ $desc->title ?: '[Untitled]' }}</a>
+                  </li>
+                @endforeach
+              </ul>
+            @endif
+
+            @if(isset($accessions) && $accessions->isNotEmpty())
+              <h3 class="h6 text-muted">Accessions</h3>
+              <ul class="list-unstyled mb-0">
+                @foreach($accessions as $acc)
+                  <li class="mb-1">
+                    <i class="fas fa-inbox text-warning me-1"></i>
+                    <a href="{{ route('accession.show', $acc->slug) }}">{{ $acc->title ?: $acc->identifier ?: '[Untitled]' }}</a>
+                  </li>
+                @endforeach
+              </ul>
+            @endif
+          </div>
+        </div>
+      </div>
+    </div>
+  @endif
 
   {{-- Bottom action bar --}}
   @auth

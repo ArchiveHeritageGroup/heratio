@@ -27,6 +27,7 @@
 
 namespace AhgRepositoryManage\Controllers;
 
+use AhgCore\Constants\TermId;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use AhgRepositoryManage\Services\RepositoryBrowseService;
@@ -292,9 +293,8 @@ class RepositoryController extends Controller
         $formChoices = $this->service->getFormChoices();
         $maintenanceNotes = $this->service->getMaintenanceNotes($repository->id);
         $otherNamesAll = $this->service->getOtherNames($repository->id);
-        // type_id 148 = Parallel form, type_id 149 = Other form
-        $parallelNames = $otherNamesAll->where('type_id', 148);
-        $otherNames = $otherNamesAll->where('type_id', 149);
+        $parallelNames = $otherNamesAll->where('type_id', TermId::OTHER_NAME_PARALLEL);
+        $otherNames = $otherNamesAll->where('type_id', TermId::OTHER_NAME_OTHER_FORM);
 
         return view('ahg-repository-manage::edit', [
             'repository' => $repository,

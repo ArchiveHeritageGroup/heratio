@@ -3,6 +3,7 @@
 namespace AhgApi\Controllers\V2;
 
 use AhgApi\Services\WebhookService;
+use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -45,8 +46,8 @@ class PublishController extends BaseApiController
         }
 
         // Check current status
-        $status = DB::table('status')->where('object_id', $id)->where('type_id', 158)->first();
-        $isPublished = $status && $status->status_id == 160;
+        $status = DB::table('status')->where('object_id', $id)->where('type_id', TermId::STATUS_TYPE_PUBLICATION)->first();
+        $isPublished = $status && $status->status_id == TermId::PUBLICATION_STATUS_PUBLISHED;
 
         return $this->success([
             'slug' => $slug,
@@ -96,11 +97,11 @@ class PublishController extends BaseApiController
             }
         }
 
-        // Set publication status to published (160)
+        // Set publication status to published
         DB::table('status')
             ->where('object_id', $id)
-            ->where('type_id', 158)
-            ->update(['status_id' => 160]);
+            ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
+            ->update(['status_id' => TermId::PUBLICATION_STATUS_PUBLISHED]);
 
         DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
 

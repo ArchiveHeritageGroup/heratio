@@ -27,6 +27,7 @@
 
 namespace AhgResearch\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use SimpleXMLElement;
 use DOMDocument;
@@ -230,7 +231,7 @@ class BibliographyService
                 $join->on('e.actor_id', '=', 'ai.id')->where('ai.culture', '=', 'en');
             })
             ->where('e.object_id', $objectId)
-            ->where('e.type_id', 111) // Creation event
+            ->where('e.type_id', TermId::EVENT_TYPE_CREATION)
             ->pluck('ai.authorized_form_of_name')
             ->toArray();
 

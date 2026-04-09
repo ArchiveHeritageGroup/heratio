@@ -27,6 +27,7 @@
 
 namespace AhgGallery\Services;
 
+use AhgCore\Constants\TermId;
 use AhgCore\Services\SettingHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -412,11 +413,11 @@ class GalleryService
                 'slug' => $slug,
             ]);
 
-            // Set publication status (draft by default: 159)
+            // Set publication status (draft by default)
             DB::table('status')->insert([
                 'object_id' => $objectId,
-                'type_id' => 158,
-                'status_id' => 159,
+                'type_id' => TermId::STATUS_TYPE_PUBLICATION,
+                'status_id' => TermId::PUBLICATION_STATUS_DRAFT,
             ]);
 
             return $slug;

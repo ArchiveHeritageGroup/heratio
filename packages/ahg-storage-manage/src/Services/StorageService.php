@@ -27,6 +27,7 @@
 
 namespace AhgStorageManage\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -75,7 +76,7 @@ class StorageService
 
     /**
      * Linked archival descriptions.
-     * AtoM relation: subject_id = physical_object.id, object_id = information_object.id, type_id = 147 (HAS_PHYSICAL_OBJECT_ID).
+     * AtoM relation: subject_id = physical_object.id, object_id = information_object.id, type_id = TermId::RELATION_HAS_PHYSICAL_OBJECT.
      */
     public function getLinkedDescriptions(int $physicalObjectId): \Illuminate\Support\Collection
     {
@@ -87,7 +88,7 @@ class StorageService
             })
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $physicalObjectId)
-            ->where('relation.type_id', 147)
+            ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->select([
                 'information_object.id',
                 'information_object_i18n.title',
@@ -98,7 +99,7 @@ class StorageService
 
     /**
      * Linked accessions.
-     * AtoM relation: subject_id = physical_object.id, object_id = accession.id, type_id = 147 (HAS_PHYSICAL_OBJECT_ID).
+     * AtoM relation: subject_id = physical_object.id, object_id = accession.id, type_id = TermId::RELATION_HAS_PHYSICAL_OBJECT.
      */
     public function getLinkedAccessions(int $physicalObjectId): \Illuminate\Support\Collection
     {
@@ -110,7 +111,7 @@ class StorageService
             })
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $physicalObjectId)
-            ->where('relation.type_id', 147)
+            ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->select([
                 'accession.id',
                 'accession_i18n.title',

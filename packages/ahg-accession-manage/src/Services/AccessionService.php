@@ -27,6 +27,7 @@
 
 namespace AhgAccessionManage\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -91,18 +92,19 @@ class AccessionService
     }
 
     /**
-     * Get donors linked to an accession via relation table (type_id = 167).
+     * Get donors linked to an accession via relation table.
+     * AtoM: subject=accession, object=donor, type=RELATION_DONOR.
      */
     public function getDonors(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('actor_i18n', 'relation.subject_id', '=', 'actor_i18n.id')
-            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
-            ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', 167)
+            ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->join('slug', 'relation.object_id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $accessionId)
+            ->where('relation.type_id', TermId::RELATION_DONOR)
             ->where('actor_i18n.culture', $this->culture)
             ->select([
-                'relation.subject_id as id',
+                'relation.object_id as id',
                 'actor_i18n.authorized_form_of_name as name',
                 'slug.slug',
             ])
@@ -363,7 +365,7 @@ class AccessionService
     }
 
     /**
-     * Get accruals for an accession (accessions related to this one via ACCRUAL_ID = 173).
+     * Get accruals for an accession (accessions related to this one via RELATION_ACCRUAL).
      */
     public function getAccruals(int $accessionId): \Illuminate\Support\Collection
     {
@@ -375,7 +377,7 @@ class AccessionService
             })
             ->join('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', 173)
+            ->where('relation.type_id', TermId::RELATION_ACCRUAL)
             ->select([
                 'accession.id',
                 'accession.identifier',
@@ -398,7 +400,7 @@ class AccessionService
             })
             ->join('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $accessionId)
-            ->where('relation.type_id', 173)
+            ->where('relation.type_id', TermId::RELATION_ACCRUAL)
             ->select([
                 'accession.id',
                 'accession.identifier',
@@ -409,7 +411,9 @@ class AccessionService
     }
 
     /**
-     * Get creators linked to an accession via relation table (type_id = 168 CREATION_ID).
+     * Get creators linked to an accession via relation table.
+     * AtoM: subject=actor, object=accession, type=RELATION_CREATION (111)
+     * — see qtAccessionPlugin/modules/accession/actions/editAction.class.php.
      */
     public function getCreators(int $accessionId): \Illuminate\Support\Collection
     {
@@ -417,7 +421,7 @@ class AccessionService
             ->join('actor_i18n', 'relation.subject_id', '=', 'actor_i18n.id')
             ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', 168)
+            ->where('relation.type_id', TermId::RELATION_CREATION)
             ->where('actor_i18n.culture', $this->culture)
             ->select([
                 'relation.subject_id as id',
@@ -510,7 +514,9 @@ class AccessionService
     }
 
     /**
-     * Get information objects linked to an accession via relation (type_id = 174 ACCESSION_ID).
+     * Get information objects linked to an accession via relation table.
+     * AtoM: subject=information_object, object=accession, type=RELATION_ACCESSION (167)
+     * — see qtAccessionPlugin/modules/accession/actions/addInformationObjectAction.class.php.
      */
     public function getInformationObjects(int $accessionId): \Illuminate\Support\Collection
     {
@@ -521,7 +527,7 @@ class AccessionService
             })
             ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', 174)
+            ->where('relation.type_id', TermId::RELATION_ACCESSION)
             ->select([
                 'relation.subject_id as id',
                 'information_object_i18n.title',
@@ -546,7 +552,7 @@ class AccessionService
                     ->where('term_i18n.culture', '=', $this->culture);
             })
             ->where('relation.subject_id', $accessionId)
-            ->where('relation.type_id', 168)
+            ->where('relation.type_id', TermId::RELATION_RIGHT)
             ->select([
                 'rights.id',
                 'rights.start_date',
@@ -558,7 +564,8 @@ class AccessionService
     }
 
     /**
-     * Get physical objects linked to an accession via relation (type_id = 179 HAS_PHYSICAL_OBJECT_ID).
+     * Get physical objects linked to an accession via relation table.
+     * AtoM: subject=physical_object, object=accession, type=RELATION_HAS_PHYSICAL_OBJECT.
      */
     public function getPhysicalObjects(int $accessionId): \Illuminate\Support\Collection
     {
@@ -574,7 +581,7 @@ class AccessionService
             })
             ->join('slug', 'physical_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
-            ->where('relation.type_id', 179)
+            ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->select([
                 'physical_object.id',
                 'physical_object_i18n.name',

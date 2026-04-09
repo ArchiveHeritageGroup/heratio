@@ -27,6 +27,7 @@
 
 namespace AhgReports\Services;
 
+use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -46,9 +47,11 @@ class ReportService
 
         // Publication status counts
         $stats['published'] = DB::table('status')
-            ->where('type_id', 158)->where('status_id', 160)->count();
+            ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
+            ->where('status_id', TermId::PUBLICATION_STATUS_PUBLISHED)->count();
         $stats['draft'] = DB::table('status')
-            ->where('type_id', 158)->where('status_id', 159)->count();
+            ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
+            ->where('status_id', TermId::PUBLICATION_STATUS_DRAFT)->count();
 
         // Recent updates (7 days)
         $stats['recent_updates'] = DB::table('object')
@@ -118,7 +121,7 @@ class ReportService
             })
             ->leftJoin('status', function ($join) {
                 $join->on('io.id', '=', 'status.object_id')
-                    ->where('status.type_id', '=', 158);
+                    ->where('status.type_id', '=', TermId::STATUS_TYPE_PUBLICATION);
             })
             ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
                 $join->on('io.level_of_description_id', '=', 'level_term.id')

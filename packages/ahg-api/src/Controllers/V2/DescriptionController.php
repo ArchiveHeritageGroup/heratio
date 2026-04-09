@@ -3,6 +3,7 @@
 namespace AhgApi\Controllers\V2;
 
 use AhgApi\Services\WebhookService;
+use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,11 +28,11 @@ class DescriptionController extends BaseApiController
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
-                $j->on('io.id', '=', 'status.object_id')->where('status.type_id', 158);
+                $j->on('io.id', '=', 'status.object_id')->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION);
             })
             ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
-            ->where('status.status_id', 160);
+            ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
 
         if ($repo = $request->get('repository')) {
             $repoId = is_numeric($repo) ? $repo : $this->slugToId($repo);
@@ -205,11 +206,13 @@ class DescriptionController extends BaseApiController
             $slug = $this->generateSlug($input['title']);
             DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
 
-            // Set publication status (default draft=159)
-            $statusId = ($input['publication_status'] ?? 'draft') === 'published' ? 160 : 159;
+            // Set publication status (default draft)
+            $statusId = ($input['publication_status'] ?? 'draft') === 'published'
+                ? TermId::PUBLICATION_STATUS_PUBLISHED
+                : TermId::PUBLICATION_STATUS_DRAFT;
             DB::table('status')->insert([
                 'object_id' => $objectId,
-                'type_id' => 158,
+                'type_id' => TermId::STATUS_TYPE_PUBLICATION,
                 'status_id' => $statusId,
             ]);
 
@@ -287,10 +290,12 @@ class DescriptionController extends BaseApiController
 
             // Update publication status
             if (isset($input['publication_status'])) {
-                $statusId = $input['publication_status'] === 'published' ? 160 : 159;
+                $statusId = $input['publication_status'] === 'published'
+                    ? TermId::PUBLICATION_STATUS_PUBLISHED
+                    : TermId::PUBLICATION_STATUS_DRAFT;
                 DB::table('status')
                     ->where('object_id', $id)
-                    ->where('type_id', 158)
+                    ->where('type_id', TermId::STATUS_TYPE_PUBLICATION)
                     ->update(['status_id' => $statusId]);
             }
 
@@ -373,7 +378,7 @@ class DescriptionController extends BaseApiController
         }
 
         $pubStatus = null;
-        $statusRow = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->first();
+        $statusRow = DB::table('status')->where('object_id', $io->id)->where('type_id', TermId::STATUS_TYPE_PUBLICATION)->first();
         if ($statusRow) {
             $pubStatus = $this->termName($statusRow->status_id);
         }
@@ -445,7 +450,7 @@ class DescriptionController extends BaseApiController
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
             ->join('slug as cs', 'event.actor_id', '=', 'cs.object_id')
             ->where('event.object_id', $objectId)
-            ->where('event.type_id', 111)
+            ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->where('actor_i18n.culture', $this->culture)
             ->whereNotNull('event.actor_id')
             ->select('event.actor_id as id', 'actor_i18n.authorized_form_of_name as name',
@@ -470,7 +475,7 @@ class DescriptionController extends BaseApiController
         $names = DB::table('relation')
             ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
             ->where('relation.subject_id', $objectId)
-            ->where('relation.type_id', 161)
+            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('actor_i18n.culture', $this->culture)
             ->pluck('actor_i18n.authorized_form_of_name')->values()->toArray();
 

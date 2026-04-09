@@ -25,9 +25,10 @@
 
 namespace AhgRic\Services;
 
+use AhgCore\Constants\TermId;
+use AhgCore\Services\SettingHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use AhgCore\Services\SettingHelper;
 
 /**
  * Service for serializing AtoM entities to RiC-O JSON-LD format.
@@ -561,7 +562,7 @@ class RicSerializationService
                 $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
             ->where('event.object_id', $ioId)
-            ->where('event.type_id', 111) // Creation event
+            ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->whereNotNull('event.actor_id')
             ->select('a.id', 'i18n.authorized_form_of_name', 'a.entity_type_id')
             ->distinct()

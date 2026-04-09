@@ -27,7 +27,7 @@
   @endif
 
   @if(($otherNames ?? collect())->isNotEmpty())
-    @php $parallelNames = $otherNames->where('type_id', 148); @endphp
+    @php $parallelNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_PARALLEL); @endphp
     @if($parallelNames->isNotEmpty())
       <div class="field-row">
         <div class="field-label">Parallel form(s) of name</div>
@@ -39,7 +39,7 @@
       </div>
     @endif
 
-    @php $otherFormNames = $otherNames->where('type_id', 149); @endphp
+    @php $otherFormNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_OTHER_FORM); @endphp
     @if($otherFormNames->isNotEmpty())
       <div class="field-row">
         <div class="field-label">Other form(s) of name</div>

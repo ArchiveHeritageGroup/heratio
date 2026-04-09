@@ -27,6 +27,7 @@
 
 namespace AhgDiscovery\Controllers;
 
+use AhgCore\Constants\TermId;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1074,13 +1075,13 @@ class DiscoveryController extends Controller
 
         $dates = DB::table('event')
             ->select('object_id', 'start_date', 'end_date')
-            ->whereIn('object_id', $ids)->where('type_id', 111)
+            ->whereIn('object_id', $ids)->where('type_id', TermId::EVENT_TYPE_CREATION)
             ->get()->keyBy('object_id');
 
         $creators = DB::table('event')
             ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
             ->select('event.object_id', 'actor_i18n.authorized_form_of_name as creator')
-            ->whereIn('event.object_id', $ids)->where('event.type_id', 111)
+            ->whereIn('event.object_id', $ids)->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->where('actor_i18n.culture', $culture)
             ->get()->pluck('creator', 'object_id');
 

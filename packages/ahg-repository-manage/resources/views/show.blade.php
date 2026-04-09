@@ -159,7 +159,7 @@
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Authorized form of name</h3><div class="col-9 p-2">{{ $repository->authorized_form_of_name ?? '' }}</div></div>
 
     @if($otherNames->isNotEmpty())
-      @php $parallelNames = $otherNames->where('type_id', 148); @endphp
+      @php $parallelNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_PARALLEL); @endphp
       @if($parallelNames->isNotEmpty())
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Parallel form(s) of name</h3>
@@ -173,7 +173,7 @@
         </div>
       @endif
 
-      @php $otherFormNames = $otherNames->where('type_id', 149); @endphp
+      @php $otherFormNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_OTHER_FORM); @endphp
       @if($otherFormNames->isNotEmpty())
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Other form(s) of name</h3>
