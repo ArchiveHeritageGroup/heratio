@@ -132,7 +132,7 @@
     $addTile('Watermark Settings',    'fa-stamp',              'Configure default watermarks for images and downloads', 'acl.watermark-settings', 'warning');
     $addTile('Library Settings',      'fa-book',               'Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers', 'settings.library');
     $addTile('Levels of Description', 'fa-layer-group',        'Assign levels to sectors (Archive, Museum, Library, Gallery, DAM)', 'settings.levels');
-    $addTile('Carousel Settings',     'fa-images',             'Homepage carousel and slideshow configuration', 'settings.carousel', 'info');
+    $addTile('Carousel Settings',     'fa-images',             'Homepage carousel and slideshow configuration', 'iiif.settings', 'info');
     $addTile('Privacy Compliance',    'fa-user-shield',        'POPIA, NDPA, GDPR compliance - DSARs, Breaches, ROPA, PAIA', 'ahgspectrum.privacy-compliance', 'warning');
     $addTile('Authority Records',     'fa-id-card',            'External linking, completeness, NER pipeline, merge/dedup, occupations, functions', 'settings.authority');
     $addTile('Semantic Search',       'fa-brain',              'Thesaurus, synonyms, query expansion and search enhancement settings', 'ric.semantic-search', 'info');

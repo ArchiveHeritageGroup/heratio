@@ -337,12 +337,36 @@ class IiifCollectionController extends Controller
     /** Update IIIF Settings. */
     public function settingsUpdate(Request $request)
     {
-        if (Schema::hasTable('iiif_viewer_settings')) {
-            foreach ($request->except(['_token']) as $key => $value) {
-                DB::table('iiif_viewer_settings')->updateOrInsert(['setting_key' => $key], ['setting_value' => $value ?? '']);
+        if (!Schema::hasTable('iiif_viewer_settings')) {
+            return redirect()->route('iiif.settings')->with('error', 'Settings table not found.');
+        }
+
+        // Checkboxes: unchecked won't be in POST, so explicitly set them to '0'
+        $checkboxKeys = [
+            'homepage_collection_enabled', 'homepage_carousel_autoplay', 'homepage_show_captions',
+            'carousel_autoplay', 'carousel_show_thumbnails', 'carousel_show_controls',
+            'enable_fullscreen', 'show_zoom_controls', 'show_on_view', 'show_on_browse',
+        ];
+
+        // Save all posted values
+        foreach ($request->except(['_token']) as $key => $value) {
+            DB::table('iiif_viewer_settings')->updateOrInsert(
+                ['setting_key' => $key],
+                ['setting_value' => $value ?? '', 'updated_at' => now()]
+            );
+        }
+
+        // Explicitly set unchecked checkboxes to '0'
+        foreach ($checkboxKeys as $key) {
+            if (!$request->has($key)) {
+                DB::table('iiif_viewer_settings')->updateOrInsert(
+                    ['setting_key' => $key],
+                    ['setting_value' => '0', 'updated_at' => now()]
+                );
             }
         }
-        return redirect()->route('iiif.settings')->with('success', 'Settings saved.');
+
+        return redirect()->route('iiif.settings')->with('success', 'Carousel settings saved.');
     }
 
     /** IIIF Validation Dashboard. */

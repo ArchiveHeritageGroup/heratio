@@ -18,6 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/actor/{slug}/rename', [ActorController::class, 'processRename'])->name('actor.processRename')->middleware('acl:update');
 
     // =========================================================================
+    // External Authority Reconciliation
+    // =========================================================================
+    Route::get('/actor/{slug}/reconcile', [ActorController::class, 'reconcile'])->name('actor.reconcile');
+    Route::post('/actor/{slug}/reconcile/link', [ActorController::class, 'reconcileLink'])->name('actor.reconcile.link');
+
+    // =========================================================================
     // Authority Dashboard & Workqueue
     // =========================================================================
     Route::get('/actor/authority/dashboard', [ActorController::class, 'dashboard'])->name('actor.dashboard');

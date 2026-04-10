@@ -2800,8 +2800,8 @@ class SettingsController extends Controller
      */
     public function carousel(Request $request)
     {
-        $menu = $this->buildMenu('carousel');
-        return view('ahg-settings::carousel', compact('menu'));
+        // Redirect to the real IIIF/Carousel settings page
+        return redirect()->route('iiif.settings');
     }
 
     /**

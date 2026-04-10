@@ -792,6 +792,59 @@ class ActorController extends Controller
             ->with('success', 'Authority record deleted successfully.');
     }
 
+    // ── External Authority Reconciliation ────────────────────────────
+
+    /**
+     * GET /actor/{slug}/reconcile — show reconciliation results for an actor.
+     */
+    public function reconcile(string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) abort(404);
+
+        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService();
+        $enabledSources = $reconciler->getEnabledSources();
+        $results = [];
+        $existingIds = (new \AhgActorManage\Services\AuthorityIdentifierService())->getIdentifiers($actor->id);
+
+        if (!empty($enabledSources) && !empty($actor->authorized_form_of_name)) {
+            $results = $reconciler->searchAll($actor->authorized_form_of_name);
+        }
+
+        return response()->json([
+            'actor_id'   => $actor->id,
+            'name'       => $actor->authorized_form_of_name,
+            'sources'    => array_keys($enabledSources),
+            'results'    => $results,
+            'existing'   => $existingIds,
+        ]);
+    }
+
+    /**
+     * POST /actor/{slug}/reconcile/link — link an actor to an external ID.
+     */
+    public function reconcileLink(Request $request, string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (!$actor) abort(404);
+
+        $request->validate([
+            'source'           => 'required|string|in:wikidata,viaf,ulan,lcnaf,isni',
+            'identifier_value' => 'required|string|max:500',
+            'label'            => 'nullable|string|max:500',
+        ]);
+
+        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService();
+        $id = $reconciler->linkActor(
+            $actor->id,
+            $request->input('source'),
+            $request->input('identifier_value'),
+            $request->input('label', '')
+        );
+
+        return response()->json(['success' => true, 'identifier_id' => $id]);
+    }
+
     public function autocomplete(Request $request)
     {
         $query = $request->get('query', '');

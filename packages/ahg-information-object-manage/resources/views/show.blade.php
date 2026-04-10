@@ -697,18 +697,33 @@
 
       @elseif($refUrl || $thumbUrl)
         {{-- Image: OpenSeadragon + Mirador viewer (matching AtoM) --}}
-        @php $viewerId = 'iiif-viewer-' . $io->id; $imgSrc = $masterUrl ?: $refUrl; @endphp
+        @php
+          $viewerId = 'iiif-viewer-' . $io->id;
+          $imgSrc = $masterUrl ?: $refUrl;
+          // Load viewer settings from iiif_viewer_settings
+          static $__vSettings = null;
+          if ($__vSettings === null) {
+              try {
+                  $__vSettings = \Illuminate\Support\Facades\Schema::hasTable('iiif_viewer_settings')
+                      ? \DB::table('iiif_viewer_settings')->pluck('setting_value', 'setting_key')->toArray()
+                      : [];
+              } catch (\Throwable $e) { $__vSettings = []; }
+          }
+          $vType = $__vSettings['viewer_type'] ?? 'openseadragon';
+          $vHeight = $__vSettings['viewer_height'] ?? '500px';
+          $vBg = $__vSettings['background_color'] ?? '#1a1a1a';
+        @endphp
 
         {{-- Viewer toggle --}}
         <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
-            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white active" title="OpenSeadragon Deep Zoom">
+            <button id="btn-osd-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'openseadragon' ? 'active' : '' }}" title="OpenSeadragon Deep Zoom">
               <i class="fas fa-search-plus me-1"></i>Deep Zoom
             </button>
-            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white" title="Mirador IIIF Viewer">
+            <button id="btn-mirador-{{ $viewerId }}" class="btn atom-btn-white {{ $vType === 'mirador' ? 'active' : '' }}" title="Mirador IIIF Viewer">
               <i class="fas fa-columns me-1"></i>Mirador
             </button>
-            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white" title="Simple image">
+            <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white {{ in_array($vType, ['single', 'carousel']) ? 'active' : '' }}" title="Simple image">
               <i class="fas fa-image me-1"></i>Image
             </button>
           </div>
@@ -723,15 +738,15 @@
         </div>
 
         {{-- OSD container --}}
-        <div id="osd-{{ $viewerId }}" style="width:100%;height:500px;background:#1a1a1a;border-radius:8px;"></div>
+        <div id="osd-{{ $viewerId }}" style="width:100%;height:{{ $vHeight }};background:{{ $vBg }};border-radius:8px;{{ $vType !== 'openseadragon' ? 'display:none;' : '' }}"></div>
 
-        {{-- Mirador container (hidden) --}}
-        <div id="mirador-{{ $viewerId }}" style="width:100%;height:500px;border-radius:8px;display:none;"></div>
+        {{-- Mirador container --}}
+        <div id="mirador-{{ $viewerId }}" style="width:100%;height:{{ $vHeight }};border-radius:8px;{{ $vType !== 'mirador' ? 'display:none;' : '' }}"></div>
 
-        {{-- Simple image (hidden) --}}
-        <div id="img-{{ $viewerId }}" style="display:none;" class="text-center">
+        {{-- Simple image --}}
+        <div id="img-{{ $viewerId }}" style="{{ !in_array($vType, ['single', 'carousel']) ? 'display:none;' : '' }}" class="text-center">
           <a href="{{ $imgSrc }}" target="_blank">
-            <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:500px;">
+            <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};">
           </a>
         </div>
 

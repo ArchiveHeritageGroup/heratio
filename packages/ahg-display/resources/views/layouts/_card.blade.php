@@ -1,7 +1,18 @@
 {{-- Card layout - compact card view for search results --}}
+@php
+    // Check show_on_browse setting from iiif_viewer_settings
+    static $__showOnBrowse = null;
+    if ($__showOnBrowse === null) {
+        try {
+            $__showOnBrowse = \Illuminate\Support\Facades\Schema::hasTable('iiif_viewer_settings')
+                ? (\DB::table('iiif_viewer_settings')->where('setting_key', 'show_on_browse')->value('setting_value') ?? '1') === '1'
+                : true;
+        } catch (\Throwable $e) { $__showOnBrowse = true; }
+    }
+@endphp
 <div class="card h-100 shadow-sm">
     <div class="row g-0">
-        @if($digitalObject && ($data['thumbnail_size'] ?? '') !== 'none')
+        @if($__showOnBrowse && $digitalObject && ($data['thumbnail_size'] ?? '') !== 'none')
         <div class="col-4">
             <img src="{{ $digitalObject->path }}"
                  class="img-fluid rounded-start h-100"
@@ -9,7 +20,7 @@
                  alt="{{ $object->title ?? '' }}">
         </div>
         @endif
-        <div class="col-{{ $digitalObject && ($data['thumbnail_size'] ?? '') !== 'none' ? '8' : '12' }}">
+        <div class="col-{{ $__showOnBrowse && $digitalObject && ($data['thumbnail_size'] ?? '') !== 'none' ? '8' : '12' }}">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <span class="badge bg-{{ get_type_color($objectType) }} bg-opacity-75">
