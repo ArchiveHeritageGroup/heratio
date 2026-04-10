@@ -78,7 +78,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/settings/visibleElements', [SettingsController::class, 'visibleElements']);
     Route::match(['get', 'post'], '/sfPluginAdminPlugin/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');
 
-    // AHG group route must come before the catch-all {section} route
+    // Dedicated AHG pages that have their own controller methods (must come BEFORE the catch-all)
+    Route::match(['get', 'post'], '/admin/settings/ahg/ai_condition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
+    Route::match(['get', 'post'], '/admin/settings/ahg/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
+
+    // AHG group route — catch-all for generic key-value settings
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');
     Route::match(['get', 'post'], '/admin/settings/{section}', [SettingsController::class, 'section'])->name('settings.section');
     Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');

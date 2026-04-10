@@ -1481,6 +1481,60 @@ class SettingsController extends Controller
         ));
     }
 
+    // ─── Accession Management ──────────────────────────────────────────
+    public function accessionSettings(Request $request)
+    {
+        $menu = $this->buildMenu('accession');
+
+        // ── Load settings from ahg_settings (accession group) ──
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'accession')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        // ── Handle POST ──
+        if ($request->isMethod('post')) {
+            $keys = [
+                'accession_numbering_mask',
+                'accession_default_priority',
+                'accession_auto_assign_enabled',
+                'accession_require_donor_agreement',
+                'accession_require_appraisal',
+                'accession_allow_container_barcodes',
+                'accession_rights_inheritance_enabled',
+            ];
+            $checkboxes = [
+                'accession_auto_assign_enabled',
+                'accession_require_donor_agreement',
+                'accession_require_appraisal',
+                'accession_allow_container_barcodes',
+                'accession_rights_inheritance_enabled',
+            ];
+
+            foreach ($keys as $key) {
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'accession'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.accession')
+                ->with('notice', 'Accession settings saved.');
+        }
+
+        return view('ahg-settings::accession-settings', compact('menu', 'settings'));
+    }
+
     // ─── 14. Storage Service ────────────────────────────────────────────
     public function storageService(Request $request)
     {
@@ -2089,27 +2143,346 @@ class SettingsController extends Controller
     {
         $menu = $this->buildMenu('ai-services');
 
+        // Read from ahg_ner_settings (matches AtoM)
         $settings = [];
-        if (Schema::hasTable('ahg_settings')) {
-            $settings = DB::table('ahg_settings')
-                ->where('setting_group', 'ai_services')
+        if (Schema::hasTable('ahg_ner_settings')) {
+            $settings = DB::table('ahg_ner_settings')
                 ->pluck('setting_value', 'setting_key')
                 ->toArray();
         }
 
+        // Defaults (matching AtoM aiServicesAction)
+        $defaults = [
+            'ner_enabled' => '1',
+            'summarizer_enabled' => '1',
+            'spellcheck_enabled' => '0',
+            'translation_enabled' => '1',
+            'processing_mode' => 'job',
+            'summary_field' => 'scopeAndContent',
+            'api_url' => 'http://192.168.0.112:5004/ai/v1',
+            'api_key' => 'ahg_ai_demo_internal_2026',
+            'api_timeout' => '60',
+            'auto_extract_on_upload' => '0',
+            'ner_entity_types' => '["PERSON","ORG","GPE","DATE"]',
+            'summarizer_max_length' => '500',
+            'summarizer_min_length' => '100',
+            'spellcheck_language' => 'en_ZA',
+            'spellcheck_fields' => '["title","scopeAndContent"]',
+            'mt_endpoint' => 'http://127.0.0.1:5100/translate',
+            'mt_timeout' => '30',
+            'translation_source_lang' => 'en',
+            'translation_target_lang' => 'af',
+            'translation_fields' => '["title","scope_and_content"]',
+            'translation_mode' => 'review',
+            'translation_overwrite' => '0',
+            'translation_sector' => 'archives',
+            'translation_save_culture' => '1',
+            'translation_field_mappings' => '{}',
+            'qdrant_enabled' => '1',
+            'qdrant_url' => 'http://localhost:6333',
+            'qdrant_collection' => '',
+            'qdrant_model' => 'all-MiniLM-L6-v2',
+            'qdrant_min_score' => '0.25',
+        ];
+        foreach ($defaults as $k => $v) {
+            if (!isset($settings[$k])) {
+                $settings[$k] = $v;
+            }
+        }
+
+        // Summary target fields
+        $summaryFields = [
+            'scopeAndContent' => 'Scope and Content',
+            'abstract' => 'Abstract',
+            'archivalHistory' => 'Archival History',
+            'acquisition' => 'Immediate Source of Acquisition',
+            'appraisal' => 'Appraisal, Destruction and Scheduling',
+            'arrangement' => 'System of Arrangement',
+            'physicalCharacteristics' => 'Physical Characteristics',
+            'relatedUnitsOfDescription' => 'Related Units of Description',
+            'locationOfOriginals' => 'Location of Originals',
+            'locationOfCopies' => 'Location of Copies',
+            'findingAids' => 'Finding Aids',
+            'generalNote' => 'General Note',
+        ];
+
+        // Spellcheck languages
+        $spellcheckLanguages = [
+            'en_US' => 'English (US)',
+            'en_GB' => 'English (UK)',
+            'en_ZA' => 'English (South Africa)',
+            'af_ZA' => 'Afrikaans',
+            'zu_ZA' => 'Zulu',
+            'xh_ZA' => 'Xhosa',
+            'de_DE' => 'German',
+            'fr_FR' => 'French',
+            'es_ES' => 'Spanish',
+            'pt_PT' => 'Portuguese',
+            'nl_NL' => 'Dutch',
+        ];
+
+        // Spellcheck fields
+        $spellcheckFields = [
+            'title' => 'Title',
+            'scopeAndContent' => 'Scope and Content',
+            'abstract' => 'Abstract',
+            'archivalHistory' => 'Archival History',
+            'acquisition' => 'Immediate Source of Acquisition',
+        ];
+
+        // Translation languages (OPUS-MT supported) with culture codes
+        $translationLanguages = [
+            'en' => ['name' => 'English', 'culture' => app()->getLocale()],
+            'af' => ['name' => 'Afrikaans', 'culture' => 'af'],
+            'zu' => ['name' => 'Zulu', 'culture' => 'zu'],
+            'xh' => ['name' => 'Xhosa', 'culture' => 'xh'],
+            'st' => ['name' => 'Sotho', 'culture' => 'st'],
+            'tn' => ['name' => 'Tswana', 'culture' => 'tn'],
+            'nso' => ['name' => 'Northern Sotho (Sepedi)', 'culture' => 'nso'],
+            'ss' => ['name' => 'Swati', 'culture' => 'ss'],
+            've' => ['name' => 'Venda', 'culture' => 've'],
+            'ts' => ['name' => 'Tsonga', 'culture' => 'ts'],
+            'nr' => ['name' => 'Ndebele', 'culture' => 'nr'],
+            'sw' => ['name' => 'Swahili', 'culture' => 'sw'],
+            'yo' => ['name' => 'Yoruba', 'culture' => 'yo'],
+            'ig' => ['name' => 'Igbo', 'culture' => 'ig'],
+            'ha' => ['name' => 'Hausa', 'culture' => 'ha'],
+            'am' => ['name' => 'Amharic', 'culture' => 'am'],
+            'nl' => ['name' => 'Dutch', 'culture' => 'nl'],
+            'fr' => ['name' => 'French', 'culture' => 'fr'],
+            'de' => ['name' => 'German', 'culture' => 'de'],
+            'es' => ['name' => 'Spanish', 'culture' => 'es'],
+            'pt' => ['name' => 'Portuguese', 'culture' => 'pt'],
+            'it' => ['name' => 'Italian', 'culture' => 'it'],
+            'ar' => ['name' => 'Arabic', 'culture' => 'ar'],
+            'ru' => ['name' => 'Russian', 'culture' => 'ru'],
+            'zh' => ['name' => 'Chinese', 'culture' => 'zh'],
+        ];
+
+        // Translatable fields by sector
+        $translationFieldsBySector = [
+            'archives' => [
+                'title' => 'Title', 'scope_and_content' => 'Scope and Content',
+                'archival_history' => 'Archival History', 'acquisition' => 'Source of Acquisition',
+                'arrangement' => 'Arrangement', 'access_conditions' => 'Access Conditions',
+                'reproduction_conditions' => 'Reproduction Conditions', 'finding_aids' => 'Finding Aids',
+                'related_units_of_description' => 'Related Units', 'appraisal' => 'Appraisal',
+                'accruals' => 'Accruals', 'physical_characteristics' => 'Physical Characteristics',
+                'location_of_originals' => 'Location of Originals', 'location_of_copies' => 'Location of Copies',
+            ],
+            'library' => [
+                'title' => 'Title', 'alternate_title' => 'Alternate Title', 'edition' => 'Edition',
+                'extent_and_medium' => 'Extent and Medium', 'scope_and_content' => 'Abstract/Summary',
+                'access_conditions' => 'Access Conditions', 'reproduction_conditions' => 'Reproduction Conditions',
+                'physical_characteristics' => 'Physical Description', 'sources' => 'Sources',
+            ],
+            'museum' => [
+                'title' => 'Object Name/Title', 'alternate_title' => 'Other Names',
+                'scope_and_content' => 'Description', 'archival_history' => 'Provenance',
+                'acquisition' => 'Acquisition Method', 'physical_characteristics' => 'Physical Description',
+                'access_conditions' => 'Display Conditions', 'location_of_originals' => 'Current Location',
+                'related_units_of_description' => 'Related Objects',
+            ],
+            'gallery' => [
+                'title' => 'Artwork Title', 'alternate_title' => 'Alternative Titles',
+                'scope_and_content' => 'Description/Statement', 'archival_history' => 'Provenance',
+                'acquisition' => 'Acquisition', 'physical_characteristics' => 'Medium and Dimensions',
+                'access_conditions' => 'Exhibition Conditions', 'reproduction_conditions' => 'Copyright/Reproduction',
+                'location_of_originals' => 'Current Location',
+            ],
+            'dam' => [
+                'title' => 'Asset Title', 'alternate_title' => 'Alt Text',
+                'scope_and_content' => 'Description', 'access_conditions' => 'Usage Rights',
+                'reproduction_conditions' => 'License Terms', 'sources' => 'Source/Credits',
+                'finding_aids' => 'Keywords/Tags',
+            ],
+        ];
+
+        // All target fields for i18n mapping
+        $targetFields = [
+            'title' => 'Title', 'alternate_title' => 'Alternate Title', 'edition' => 'Edition',
+            'extent_and_medium' => 'Extent and Medium', 'archival_history' => 'Archival History',
+            'acquisition' => 'Acquisition', 'scope_and_content' => 'Scope and Content',
+            'appraisal' => 'Appraisal', 'accruals' => 'Accruals', 'arrangement' => 'Arrangement',
+            'access_conditions' => 'Access Conditions', 'reproduction_conditions' => 'Reproduction Conditions',
+            'physical_characteristics' => 'Physical Characteristics', 'finding_aids' => 'Finding Aids',
+            'location_of_originals' => 'Location of Originals', 'location_of_copies' => 'Location of Copies',
+            'related_units_of_description' => 'Related Units of Description', 'rules' => 'Rules',
+            'sources' => 'Sources', 'revision_history' => 'Revision History',
+        ];
+
+        // Qdrant status check
+        $qdrantStatus = $this->checkQdrantStatus(
+            $settings['qdrant_url'] ?? 'http://localhost:6333',
+            $settings['qdrant_collection'] ?? ''
+        );
+
         if ($request->isMethod('post')) {
-            $fields = ['processing_mode', 'api_url', 'ner_enabled', 'ner_confidence', 'translation_enabled', 'spellcheck_enabled'];
-            foreach ($fields as $key) {
-                $value = $request->input($key, '');
-                DB::table('ahg_settings')->updateOrInsert(
-                    ['setting_key' => $key, 'setting_group' => 'ai_services'],
-                    ['setting_value' => $value]
+            $fieldsToSave = [
+                'ner_enabled', 'summarizer_enabled', 'spellcheck_enabled', 'translation_enabled',
+                'processing_mode', 'summary_field', 'api_url', 'api_key', 'api_timeout',
+                'auto_extract_on_upload', 'summarizer_max_length', 'summarizer_min_length',
+                'spellcheck_language', 'mt_endpoint', 'mt_timeout',
+                'translation_source_lang', 'translation_target_lang', 'translation_mode',
+                'translation_overwrite', 'translation_sector', 'translation_save_culture',
+                'qdrant_url', 'qdrant_collection', 'qdrant_model', 'qdrant_min_score',
+            ];
+
+            $checkboxFields = [
+                'ner_enabled', 'summarizer_enabled', 'spellcheck_enabled', 'translation_enabled',
+                'auto_extract_on_upload', 'translation_overwrite', 'translation_save_culture',
+            ];
+
+            foreach ($fieldsToSave as $field) {
+                $value = $request->input($field, '');
+                if (in_array($field, $checkboxFields)) {
+                    $value = $request->has($field) && $request->input($field) ? '1' : '0';
+                }
+                DB::table('ahg_ner_settings')->updateOrInsert(
+                    ['setting_key' => $field],
+                    ['setting_value' => $value, 'updated_at' => now()]
                 );
             }
+
+            // Entity types (checkboxes to JSON)
+            $entityTypes = [];
+            foreach (['PERSON', 'ORG', 'GPE', 'DATE'] as $type) {
+                if ($request->input('entity_' . $type)) {
+                    $entityTypes[] = $type;
+                }
+            }
+            DB::table('ahg_ner_settings')->updateOrInsert(
+                ['setting_key' => 'ner_entity_types'],
+                ['setting_value' => json_encode($entityTypes), 'updated_at' => now()]
+            );
+
+            // Spellcheck fields (checkboxes to JSON)
+            $spellFields = [];
+            foreach (['title', 'scopeAndContent', 'abstract', 'archivalHistory', 'acquisition'] as $f) {
+                if ($request->input('spellcheck_field_' . $f)) {
+                    $spellFields[] = $f;
+                }
+            }
+            DB::table('ahg_ner_settings')->updateOrInsert(
+                ['setting_key' => 'spellcheck_fields'],
+                ['setting_value' => json_encode($spellFields), 'updated_at' => now()]
+            );
+
+            // Translation fields (checkboxes to JSON)
+            $allTranslateFields = [
+                'title', 'alternate_title', 'edition', 'extent_and_medium',
+                'archival_history', 'acquisition', 'scope_and_content',
+                'appraisal', 'accruals', 'arrangement', 'access_conditions',
+                'reproduction_conditions', 'physical_characteristics', 'finding_aids',
+                'location_of_originals', 'location_of_copies', 'related_units_of_description',
+                'rules', 'sources', 'revision_history',
+            ];
+            $translateFields = [];
+            $fieldMappings = [];
+            foreach ($allTranslateFields as $f) {
+                if ($request->input('translate_field_' . $f)) {
+                    $translateFields[] = $f;
+                }
+                $target = $request->input('translate_target_' . $f, $f);
+                if ($target !== $f) {
+                    $fieldMappings[$f] = $target;
+                }
+            }
+            DB::table('ahg_ner_settings')->updateOrInsert(
+                ['setting_key' => 'translation_fields'],
+                ['setting_value' => json_encode($translateFields), 'updated_at' => now()]
+            );
+            DB::table('ahg_ner_settings')->updateOrInsert(
+                ['setting_key' => 'translation_field_mappings'],
+                ['setting_value' => json_encode($fieldMappings), 'updated_at' => now()]
+            );
+
+            // Sync to ahg_translation_settings if table exists
+            if (Schema::hasTable('ahg_translation_settings')) {
+                try {
+                    DB::table('ahg_translation_settings')->updateOrInsert(
+                        ['setting_key' => 'mt.endpoint'],
+                        ['setting_value' => $request->input('mt_endpoint', 'http://127.0.0.1:5100/translate')]
+                    );
+                    DB::table('ahg_translation_settings')->updateOrInsert(
+                        ['setting_key' => 'mt.timeout_seconds'],
+                        ['setting_value' => $request->input('mt_timeout', '30')]
+                    );
+                    DB::table('ahg_translation_settings')->updateOrInsert(
+                        ['setting_key' => 'mt.target_culture'],
+                        ['setting_value' => $request->input('translation_target_lang', 'af')]
+                    );
+                } catch (\Throwable $e) {
+                    // Table might not exist yet
+                }
+            }
+
             return redirect()->route('settings.ai-services')->with('success', 'AI Services settings saved.');
         }
 
-        return view('ahg-settings::ai-services', compact('menu', 'settings'));
+        return view('ahg-settings::ai-services', compact(
+            'menu', 'settings', 'summaryFields', 'spellcheckLanguages', 'spellcheckFields',
+            'translationLanguages', 'translationFieldsBySector', 'targetFields', 'qdrantStatus'
+        ));
+    }
+
+    /**
+     * Check Qdrant service and collection health.
+     */
+    protected function checkQdrantStatus(string $url, string $collection): array
+    {
+        $status = ['service' => false, 'version' => '', 'collections' => [], 'collection_status' => ''];
+
+        try {
+            $ch = curl_init(rtrim($url, '/') . '/healthz');
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 2,
+                CURLOPT_CONNECTTIMEOUT => 1,
+            ]);
+            $resp = curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            $status['service'] = ($code === 200);
+
+            if (!$status['service']) {
+                return $status;
+            }
+
+            // Get version
+            $ch = curl_init(rtrim($url, '/') . '/');
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
+            $resp = curl_exec($ch);
+            curl_close($ch);
+            $data = json_decode($resp, true);
+            $status['version'] = $data['version'] ?? '';
+
+            // List collections
+            $ch = curl_init(rtrim($url, '/') . '/collections');
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
+            $resp = curl_exec($ch);
+            curl_close($ch);
+            $data = json_decode($resp, true);
+            if (isset($data['result']['collections'])) {
+                foreach ($data['result']['collections'] as $col) {
+                    $colName = $col['name'];
+                    $ch2 = curl_init(rtrim($url, '/') . '/collections/' . $colName);
+                    curl_setopt_array($ch2, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
+                    $resp2 = curl_exec($ch2);
+                    curl_close($ch2);
+                    $colData = json_decode($resp2, true);
+                    $status['collections'][] = [
+                        'name' => $colName,
+                        'points' => $colData['result']['points_count'] ?? 0,
+                        'status' => $colData['result']['status'] ?? 'unknown',
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Qdrant not available
+        }
+
+        return $status;
     }
 
     // ─── AHG Import Settings ───────────────────────────────────────────

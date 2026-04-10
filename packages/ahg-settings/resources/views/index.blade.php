@@ -104,8 +104,8 @@
     $ahgGroupsByKey = ($ahgGroups ?? collect())->keyBy('key');
     foreach ($ahgGroupsByKey as $gKey => $gData) {
         $label = $ahgLabels[$gKey] ?? $gData->label;
-        // Skip 'general' — we have a dedicated Theme Configuration tile
-        if ($gKey === 'general') continue;
+        // Skip groups that have dedicated tile entries with custom routes
+        if (in_array($gKey, ['general', 'ai_condition', 'accession'])) continue;
         $allTiles[$label] = [
             'label' => $label,
             'icon'  => $ahgIcons[$gKey] ?? 'fa-puzzle-piece',
@@ -141,6 +141,8 @@
     $addTile('Preservation & Backup', 'fa-cloud-upload-alt',   'Configure backup replication targets, verify integrity, and manage preservation', 'settings.section', 'success', 'Configure', 'fa-cog', 'preservation');
 
     // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
+    $addTile('Accession Management',   'fa-inbox',              'Intake workflow, numbering, appraisal, container and rights settings', 'settings.ahg.accession');
+    $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ahg.ai-condition', 'info');
     $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration');
     $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
     $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
