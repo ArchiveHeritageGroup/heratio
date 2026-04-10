@@ -1016,6 +1016,39 @@ class HeritageController extends Controller
                 ->count();
         }
 
+        // Trends: daily search and click counts from audit log
+        $trendSearches = [];
+        $trendClicks = [];
+        if (Schema::hasTable('ahg_audit_log')) {
+            $searchTrends = DB::table('ahg_audit_log')
+                ->select(DB::raw('DATE(created_at) as day'), DB::raw('COUNT(*) as cnt'))
+                ->where('created_at', '>=', $since)
+                ->where('action', 'search')
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy('day')
+                ->pluck('cnt', 'day')
+                ->toArray();
+
+            $clickTrends = DB::table('ahg_audit_log')
+                ->select(DB::raw('DATE(created_at) as day'), DB::raw('COUNT(*) as cnt'))
+                ->where('created_at', '>=', $since)
+                ->where('action', 'view')
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy('day')
+                ->pluck('cnt', 'day')
+                ->toArray();
+
+            // Fill all dates in range so chart has continuous x-axis
+            $current = $since->copy();
+            $end = now();
+            while ($current->lte($end)) {
+                $dateStr = $current->toDateString();
+                $trendSearches[$dateStr] = $searchTrends[$dateStr] ?? 0;
+                $trendClicks[$dateStr] = $clickTrends[$dateStr] ?? 0;
+                $current->addDay();
+            }
+        }
+
         // Heritage analytics daily metrics (supplement audit-log-based stats)
         $dailyMetrics = collect();
         $metricTotals = [];

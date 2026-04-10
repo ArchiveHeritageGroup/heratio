@@ -23,52 +23,54 @@
   {{-- Import result --}}
   @if($result)
     <div class="card border-success mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-check-circle me-1"></i> Import Successful
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Import Complete</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">
-          Submission <strong>"{{ $result['title'] }}"</strong> created as draft
-          (ID: {{ $result['submission_id'] }}).
-        </p>
-        <div class="row g-3">
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['notes']) }}</div>
-              <div class="small text-muted">Notes</div>
+        <p>Your exchange file has been imported as a <strong>draft submission</strong>. Review the items and submit for archivist approval.</p>
+
+        <div class="row g-3 mb-3">
+          @if(($result['notes'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['notes']) }}</h4>
+              <small class="text-muted">Notes</small>
             </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['files']) }}</div>
-              <div class="small text-muted">Files</div>
+          @endif
+          @if(($result['files'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['files']) }}</h4>
+              <small class="text-muted">File Items</small>
             </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['items']) }}</div>
-              <div class="small text-muted">Items</div>
+          @endif
+          @if(($result['items'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['items']) }}</h4>
+              <small class="text-muted">New Items</small>
             </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['creators']) }}</div>
-              <div class="small text-muted">Creators</div>
+          @endif
+          @if(($result['creators'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['creators']) }}</h4>
+              <small class="text-muted">Creators</small>
             </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['repos']) }}</div>
-              <div class="small text-muted">Repositories</div>
+          @endif
+          @if(($result['repos'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['repos']) }}</h4>
+              <small class="text-muted">Repositories</small>
             </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-2">
-            <div class="text-center">
-              <div class="fs-4 fw-bold">{{ number_format($result['collections']) }}</div>
-              <div class="small text-muted">Collections</div>
+          @endif
+          @if(($result['collections'] ?? 0) > 0)
+            <div class="col-4 col-md-2 text-center">
+              <h4 class="mb-0">{{ number_format($result['collections']) }}</h4>
+              <small class="text-muted">Collections</small>
             </div>
-          </div>
+          @endif
         </div>
+
+        <a href="{{ route('researcher.submission.view', $result['submission_id']) }}" class="btn btn-success">
+          <i class="fas fa-eye me-1"></i>View Submission
+        </a>
       </div>
     </div>
   @endif
@@ -91,40 +93,43 @@
         </div>
         <div class="card-body">
           <div class="alert alert-info mb-3">
-            <i class="fas fa-info-circle me-1"></i>
-            Upload a JSON exchange file to create a new draft submission. The file will be parsed
-            and its contents will be used to populate the submission. You can review and edit the
-            submission before finalising it.
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>What is this?</strong> When you use the Portable Export viewer in edit mode (offline),
+            you can add notes, import files, create new items, creators, and repositories.
+            The viewer exports a <code>researcher-exchange.json</code> file that you upload here.
+            It becomes a draft submission for archivist review.
           </div>
 
           <form method="POST" action="{{ route('researcher.import.store') }}" enctype="multipart/form-data" id="importForm">
             @csrf
 
             <div class="mb-3">
-              <label for="exchange_file" class="form-label">Exchange File (.json) <span class="badge bg-danger ms-1">Required</span></label>
+              <label for="exchange_file" class="form-label fw-bold">Exchange File <span class="text-danger">*</span></label>
               <input type="file"
                      class="form-control @error('exchange_file') is-invalid @enderror"
                      id="exchange_file"
                      name="exchange_file"
                      accept=".json"
                      required>
+              <small class="text-muted">Select a <code>researcher-exchange.json</code> file exported from the Portable Viewer.</small>
               @error('exchange_file')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Target Repository <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label for="repository_id" class="form-label fw-bold">Target Repository (optional)</label>
               <select class="form-select @error('repository_id') is-invalid @enderror"
                       id="repository_id"
                       name="repository_id">
-                <option value="">-- Select a repository (optional) --</option>
+                <option value="">-- Auto-detect or leave unset --</option>
                 @foreach($repositories as $repo)
                   <option value="{{ $repo['id'] }}" {{ old('repository_id') == $repo['id'] ? 'selected' : '' }}>
                     {{ $repo['name'] ?: '[Unnamed repository #' . $repo['id'] . ']' }}
                   </option>
                 @endforeach
               </select>
+              <small class="text-muted">Override the target repository for all imported items.</small>
               @error('repository_id')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -132,7 +137,7 @@
 
             {{-- JSON preview area --}}
             <div id="jsonPreview" class="mb-3" style="display: none;">
-              <label class="form-label">File Preview <span class="badge bg-secondary ms-1">Optional</span></label>
+              <label class="form-label"><i class="fas fa-eye me-2"></i>File Preview</label>
               <div class="card bg-light">
                 <div class="card-body py-2">
                   <dl class="row mb-0" id="jsonPreviewContent">
@@ -141,10 +146,14 @@
               </div>
             </div>
 
-            <div class="d-flex gap-2">
-              <a href="{{ route('researcher.dashboard') }}" class="btn atom-btn-white">Cancel</a>
-              <button type="submit" class="btn atom-btn-outline-success" id="importBtn">
-                <i class="fas fa-file-import me-1"></i> Import
+            <hr>
+
+            <div class="d-flex justify-content-between">
+              <a href="{{ route('researcher.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Cancel
+              </a>
+              <button type="submit" class="btn btn-primary" id="importBtn">
+                <i class="fas fa-upload me-1"></i>Import
               </button>
             </div>
           </form>
@@ -154,40 +163,25 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0">Supported Types</h5>
+        <div class="card-header">
+          <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>Supported Collection Types</h6>
         </div>
-        <div class="card-body">
-          <dl class="mb-0">
-            <dt>
-              <span class="badge bg-info me-1">notes</span>
-              Research Notes
-            </dt>
-            <dd class="text-muted small mb-2">Transcriptions, annotations, and research notes attached to archival descriptions.</dd>
+        <div class="card-body small">
+          <dl class="row mb-0">
+            <dt class="col-4"><span class="badge bg-info">notes</span></dt>
+            <dd class="col-8">Research notes attached to existing records</dd>
 
-            <dt>
-              <span class="badge bg-success me-1">files</span>
-              Digital Files
-            </dt>
-            <dd class="text-muted small mb-2">File references and metadata for digital objects (images, documents, audio, video).</dd>
+            <dt class="col-4"><span class="badge bg-secondary">files</span></dt>
+            <dd class="col-8">Imported files with captions and metadata</dd>
 
-            <dt>
-              <span class="badge bg-primary me-1">new_items</span>
-              New Items
-            </dt>
-            <dd class="text-muted small mb-2">New information objects (archival descriptions) to be created in the repository.</dd>
+            <dt class="col-4"><span class="badge bg-success">new_items</span></dt>
+            <dd class="col-8">New descriptive records with hierarchy, access points (subjects, places, genre, creators), extent and media</dd>
 
-            <dt>
-              <span class="badge bg-warning text-dark me-1">new_creators</span>
-              New Creators
-            </dt>
-            <dd class="text-muted small mb-2">New authority records (persons, families, corporate bodies) referenced in the data.</dd>
+            <dt class="col-4"><span class="badge bg-primary">new_creators</span></dt>
+            <dd class="col-8">New creator/actor records (persons, organizations, families)</dd>
 
-            <dt>
-              <span class="badge bg-danger me-1">new_repositories</span>
-              New Repositories
-            </dt>
-            <dd class="text-muted small mb-2">New archival institutions referenced in the exchange data.</dd>
+            <dt class="col-4"><span class="badge bg-warning text-dark">new_repositories</span></dt>
+            <dd class="col-8">New repository/institution records</dd>
           </dl>
         </div>
       </div>
@@ -227,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.exported_at) {
                         html += '<dt class="col-sm-5">Exported At</dt>';
                         html += '<dd class="col-sm-7">' + escapeHtml(String(data.exported_at)) + '</dd>';
+                    }
+                    if (data.export_options) {
+                        html += '<dt class="col-sm-5">Images Included</dt>';
+                        html += '<dd class="col-sm-7">' + (data.export_options.include_images ? 'Yes' : 'No (data only)') + '</dd>';
                     }
                     if (data.title) {
                         html += '<dt class="col-sm-5">Title</dt>';

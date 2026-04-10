@@ -430,6 +430,7 @@ class ResearchController extends Controller
             'approved' => DB::table('research_researcher')->where('status', 'approved')->count(),
             'suspended' => DB::table('research_researcher')->where('status', 'suspended')->count(),
             'expired' => DB::table('research_researcher')->where('status', 'expired')->count(),
+            'rejected' => DB::table('research_researcher')->where('status', 'rejected')->count(),
         ];
 
         return view('research::research.researchers', array_merge(

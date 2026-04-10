@@ -48,7 +48,7 @@
               <div class="mb-3"><i class="fas fa-layer-group fa-2x text-primary"></i></div>
               <h6 class="card-title">Batch Operations</h6>
               <p class="card-text text-muted small">Run bulk updates, imports, and exports across collections</p>
-              <a href="{{ route('heritage.custodian') }}" class="btn btn-sm atom-btn-white">
+              <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-sm atom-btn-white">
                 <i class="fas fa-play me-1"></i> Launch
               </a>
             </div>
@@ -113,6 +113,11 @@
                 </span>
               @endforeach
             </div>
+            <hr class="my-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>Total Actions</strong>
+              <span class="badge bg-primary fs-6 py-2 px-3">{{ number_format($activityByCategory->sum('total')) }}</span>
+            </div>
           @else
             <p class="text-muted mb-0">No activity recorded in the last 30 days.</p>
           @endif
@@ -171,7 +176,7 @@
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-stream"></i> Recent Activity</h5>
-          <span class="badge bg-secondary">Last 20 entries</span>
+          <a href="{{ route('heritage.custodian-history') }}" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
         <div class="card-body p-0">
           @if($recentActivity->isNotEmpty())

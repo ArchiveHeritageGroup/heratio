@@ -11,225 +11,228 @@
   </div>
 </div>
 
-{{-- Info Cards --}}
-<div class="row g-3 mb-4">
-  {{-- Database Info --}}
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-server me-1"></i> Database Info</div>
-      <div class="card-body">
-        <table class="table table-bordered table-sm table-borderless mb-2">
-          <tr>
-            <td class="text-muted" style="width:90px;">Host</td>
-            <td><code>{{ $dbConfig['host'] ?? $dbConfig['unix_socket'] ?? 'localhost' }}</code></td>
-          </tr>
-          <tr>
-            <td class="text-muted">Database</td>
-            <td><code>{{ $dbConfig['database'] ?? 'N/A' }}</code></td>
-          </tr>
-          <tr>
-            <td class="text-muted">User</td>
-            <td><code>{{ $dbConfig['username'] ?? 'N/A' }}</code></td>
-          </tr>
-          <tr>
-            <td class="text-muted">Status</td>
-            <td>
-              @if($dbConnected)
-                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Connected</span>
-              @else
-                <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Disconnected</span>
-              @endif
-            </td>
-          </tr>
-        </table>
-        <button type="button" class="btn btn-sm atom-btn-white" id="btn-test-connection" onclick="testConnection()">
-          <i class="fas fa-plug me-1"></i> Test Connection
-        </button>
-      </div>
-    </div>
+{{-- Action buttons --}}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{{ route('backup.settings') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-cog me-1"></i>Settings
+    </a>
   </div>
-
-  {{-- Storage Info --}}
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-hdd me-1"></i> Storage Info</div>
-      <div class="card-body">
-        <table class="table table-bordered table-sm table-borderless mb-0">
-          <tr>
-            <td class="text-muted" style="width:90px;">Path</td>
-            <td><code class="small">{{ $backupPath }}</code></td>
-          </tr>
-          <tr>
-            <td class="text-muted">Backups</td>
-            <td><strong>{{ $backupCount }}</strong></td>
-          </tr>
-          <tr>
-            <td class="text-muted">Total Size</td>
-            <td><strong>{{ $totalSize }}</strong></td>
-          </tr>
-          <tr>
-            <td class="text-muted">Max Keep</td>
-            <td>{{ $maxBackups }}</td>
-          </tr>
-          <tr>
-            <td class="text-muted">Retention</td>
-            <td>{{ $retentionDays }} days</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  {{-- Quick Actions --}}
-  <div class="col-md-4">
-    <div class="card h-100">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-bolt me-1"></i> Quick Actions</div>
-      <div class="card-body d-flex flex-column gap-2">
-        <button type="button" class="btn atom-btn-white" onclick="quickBackup('database')">
-          <i class="fas fa-database me-1"></i> Database Backup
-        </button>
-        <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createBackupModal">
-          <i class="fas fa-archive me-1"></i> Full Backup
-        </button>
-        <a href="{{ route('backup.restore') }}" class="btn atom-btn-white">
-          <i class="fas fa-undo me-1"></i> Restore
-        </a>
-        <a href="{{ route('backup.settings') }}" class="btn atom-btn-white">
-          <i class="fas fa-cog me-1"></i> Settings
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-{{-- Backups Table --}}
-<div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-    <span><i class="fas fa-list me-1"></i> Existing Backups</span>
-    <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#createBackupModal">
-      <i class="fas fa-plus me-1"></i> Create Backup
+  <div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBackupModal">
+      <i class="fas fa-plus me-1"></i>Create Backup
     </button>
   </div>
-  <div class="card-body p-0">
-    @if(count($backups) > 0)
-      <div class="table-responsive">
-        <table class="table table-bordered table-hover table-striped mb-0">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Components</th>
-              <th>Size</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($backups as $backup)
-              <tr id="backup-row-{{ $backup['id'] }}">
-                <td>
-                  <i class="fas fa-clock text-muted me-1"></i>
-                  {{ $backup['date'] }}
-                </td>
-                <td>
-                  @switch($backup['type'])
-                    @case('full')
-                      <span class="badge bg-success">Full</span>
-                      @break
-                    @case('database')
-                      <span class="badge bg-primary">Database</span>
-                      @break
-                    @case('uploads')
-                      <span class="badge bg-info">Uploads</span>
-                      @break
-                    @case('plugins')
-                      <span class="badge bg-warning text-dark">Plugins</span>
-                      @break
-                    @case('framework')
-                      <span class="badge bg-secondary">Framework</span>
-                      @break
-                    @default
-                      <span class="badge bg-dark">Unknown</span>
-                  @endswitch
-                </td>
-                <td>
-                  @foreach($backup['components'] as $comp)
-                    @switch($comp)
-                      @case('database')
-                        <span class="badge bg-primary bg-opacity-25 text-primary" title="Database"><i class="fas fa-database"></i> DB</span>
-                        @break
-                      @case('uploads')
-                        <span class="badge bg-info bg-opacity-25 text-info" title="Uploads"><i class="fas fa-upload"></i> Uploads</span>
-                        @break
-                      @case('plugins')
-                        <span class="badge bg-warning bg-opacity-25 text-warning" title="Plugins"><i class="fas fa-puzzle-piece"></i> Plugins</span>
-                        @break
-                      @case('framework')
-                        <span class="badge bg-secondary bg-opacity-25 text-secondary" title="Framework"><i class="fas fa-code"></i> Framework</span>
-                        @break
-                    @endswitch
-                  @endforeach
-                </td>
-                <td>{{ $backup['size_human'] }}</td>
-                <td class="text-end">
-                  <div class="btn-group btn-group-sm">
-                    <a href="{{ route('backup.download', $backup['id']) }}" class="btn atom-btn-white" title="Download">
-                      <i class="fas fa-download"></i>
-                    </a>
-                    <button type="button" class="btn atom-btn-outline-danger" title="Delete" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-    @else
-      <div class="text-center py-5 text-muted">
-        <i class="fas fa-3x fa-box-open mb-3 d-block"></i>
-        <p class="mb-0">No backups found. Create your first backup using the button above.</p>
-      </div>
-    @endif
-  </div>
 </div>
 
-{{-- Scheduled Backups --}}
-<div class="card mb-4">
-  <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-calendar-alt me-1"></i> Scheduled Backups
+<div class="row">
+  {{-- Left Column: Info Cards --}}
+  <div class="col-md-4">
+    {{-- Database Info --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Info</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li><strong>Host:</strong> {{ $dbConfig['host'] ?? $dbConfig['unix_socket'] ?? 'localhost' }}</li>
+          <li><strong>Database:</strong> {{ $dbConfig['database'] ?? 'N/A' }}</li>
+          <li><strong>User:</strong> {{ $dbConfig['username'] ?? 'N/A' }}</li>
+          <li><strong>Port:</strong> {{ $dbConfig['port'] ?? 3306 }}</li>
+        </ul>
+        <hr>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-test-connection" onclick="testConnection()">
+          <i class="fas fa-plug me-1"></i>Test Connection
+        </button>
+        <span id="connection-status" class="ms-2">
+          @if($dbConnected)
+            <span class="text-success"><i class="fas fa-check"></i> Connected</span>
+          @else
+            <span class="text-danger"><i class="fas fa-times"></i> Disconnected</span>
+          @endif
+        </span>
+      </div>
+    </div>
+
+    {{-- Storage Info --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Storage</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li><strong>Path:</strong> <code class="small">{{ $backupPath }}</code></li>
+          <li><strong>Backups:</strong> {{ $backupCount }}</li>
+          <li><strong>Total Size:</strong> {{ $totalSize }}</li>
+          <li><strong>Max Backups:</strong> {{ $maxBackups }}</li>
+          <li><strong>Retention:</strong> {{ $retentionDays }} days</li>
+        </ul>
+      </div>
+    </div>
+
+    {{-- Quick Actions --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dbBackupModal">
+            <i class="fas fa-database me-1"></i>Database Only
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#fullBackupModal">
+            <i class="fas fa-archive me-1"></i>Full Backup
+          </button>
+          <button type="button" class="btn btn-outline-info btn-sm" id="btn-incremental-backup">
+            <i class="fas fa-layer-group me-1"></i>Incremental Backup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {{-- Scheduled Backups --}}
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedules</h5>
+        <button type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#createScheduleModal">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="card-body p-0">
+        @if(count($schedules) > 0)
+          <ul class="list-group list-group-flush">
+            @foreach($schedules as $schedule)
+              <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                <div>
+                  <strong>{{ $schedule['name'] ?? 'Unnamed' }}</strong>
+                  <br><small class="text-muted">
+                    {{ ucfirst($schedule['frequency'] ?? 'daily') }}
+                    @if(($schedule['frequency'] ?? '') === 'weekly' && isset($schedule['day_of_week']))
+                      &mdash; {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][(int)$schedule['day_of_week']] ?? '' }}
+                    @elseif(($schedule['frequency'] ?? '') === 'monthly' && isset($schedule['day_of_month']))
+                      &mdash; Day {{ (int)$schedule['day_of_month'] }}
+                    @endif
+                    @ {{ substr($schedule['time'] ?? '02:00', 0, 5) }}
+                    &middot; {{ (int)($schedule['retention_days'] ?? 30) }}d retention
+                  </small>
+                  @if(!empty($schedule['last_run']))
+                    <br><small class="text-muted">Last: {{ $schedule['last_run'] }}</small>
+                  @endif
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <span class="btn btn-sm {{ !empty($schedule['enabled']) ? 'btn-success' : 'btn-outline-secondary' }}" title="{{ !empty($schedule['enabled']) ? 'Active' : 'Paused' }}">
+                    <i class="fas {{ !empty($schedule['enabled']) ? 'fa-check' : 'fa-pause' }}"></i>
+                  </span>
+                </div>
+              </li>
+            @endforeach
+          </ul>
+        @else
+          <p class="text-muted text-center py-3 mb-0">No schedules configured</p>
+        @endif
+      </div>
+      <div class="card-footer small text-muted">
+        <i class="fas fa-info-circle me-1"></i>Cron: <code>0 * * * * cd {{ base_path() }} && php artisan backup:run-scheduled</code>
+      </div>
+    </div>
   </div>
-  <div class="card-body">
-    @if(count($schedules) > 0)
-      <table class="table table-bordered table-sm mb-0">
-        <thead>
-          <tr>
-            <th>Frequency</th>
-            <th>Time</th>
-            <th>Components</th>
-            <th>Enabled</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($schedules as $schedule)
-            <tr>
-              <td>{{ $schedule['frequency'] ?? 'N/A' }}</td>
-              <td>{{ $schedule['time'] ?? 'N/A' }}</td>
-              <td>{{ implode(', ', $schedule['components'] ?? []) }}</td>
-              <td>
-                @if(!empty($schedule['enabled']))
-                  <span class="badge bg-success">Enabled</span>
-                @else
-                  <span class="badge bg-secondary">Disabled</span>
-                @endif
-              </td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    @else
-      <p class="text-muted mb-0">No scheduled backups configured. Use the <a href="{{ route('backup.settings') }}">settings</a> page to configure scheduled backups.</p>
-    @endif
+
+  {{-- Right Column: Backups List --}}
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Backups</h5>
+        <span class="badge bg-secondary">{{ $backupCount }}</span>
+      </div>
+      <div class="card-body p-0">
+        @if(count($backups) > 0)
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Components</th>
+                  <th>Size</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($backups as $backup)
+                  <tr id="backup-row-{{ $backup['id'] }}">
+                    <td>
+                      <i class="fas fa-clock text-muted me-1"></i>
+                      {{ $backup['date'] }}
+                    </td>
+                    <td>
+                      @switch($backup['type'])
+                        @case('full')
+                          <span class="badge bg-success">Full</span>
+                          @break
+                        @case('database')
+                          <span class="badge bg-primary">Database</span>
+                          @break
+                        @case('uploads')
+                          <span class="badge bg-info">Uploads</span>
+                          @break
+                        @case('plugins')
+                          <span class="badge bg-warning text-dark">Plugins</span>
+                          @break
+                        @case('framework')
+                          <span class="badge bg-secondary">Framework</span>
+                          @break
+                        @default
+                          <span class="badge bg-dark">Unknown</span>
+                      @endswitch
+                    </td>
+                    <td>
+                      @foreach($backup['components'] as $comp)
+                        @switch($comp)
+                          @case('database')
+                            <span class="badge bg-success me-1" title="Database"><i class="fas fa-database"></i></span>
+                            @break
+                          @case('uploads')
+                            <span class="badge bg-warning text-dark me-1" title="Uploads"><i class="fas fa-images"></i></span>
+                            @break
+                          @case('plugins')
+                            <span class="badge bg-info me-1" title="Plugins"><i class="fas fa-puzzle-piece"></i></span>
+                            @break
+                          @case('framework')
+                            <span class="badge bg-secondary me-1" title="Framework"><i class="fas fa-code"></i></span>
+                            @break
+                        @endswitch
+                      @endforeach
+                    </td>
+                    <td>{{ $backup['size_human'] }}</td>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-sm">
+                        <a href="{{ route('backup.restore') }}?backup_id={{ $backup['id'] }}" class="btn btn-outline-success" title="Restore">
+                          <i class="fas fa-undo"></i>
+                        </a>
+                        <a href="{{ route('backup.download', $backup['id']) }}" class="btn btn-outline-primary" title="Download">
+                          <i class="fas fa-download"></i>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" title="Delete" onclick="deleteBackup('{{ $backup['id'] }}', '{{ $backup['filename'] }}')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        @else
+          <div class="text-center text-muted py-5">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <p>No backups found</p>
+            <button type="button" class="btn btn-primary btn-quick-backup" onclick="quickBackup('database')">
+              <i class="fas fa-plus me-1"></i>Create First Backup
+            </button>
+          </div>
+        @endif
+      </div>
+    </div>
   </div>
 </div>
 
@@ -238,56 +241,236 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="createBackupModalLabel"><i class="fas fa-archive me-1"></i> Create Backup</h5>
+        <h5 class="modal-title" id="createBackupModalLabel"><i class="fas fa-plus me-2"></i>Create Backup</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted mb-3">Select the components to include in the backup:</p>
-        <div class="mb-3">
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="comp-database" value="database" checked disabled>
-            <label class="form-check-label" for="comp-database">
-              <i class="fas fa-database text-primary me-1"></i> Database <span class="badge bg-secondary">Required</span>
-            </label>
-            <div class="form-text">MySQL database dump (compressed)</div>
-          </div>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="comp-uploads" value="uploads">
-            <label class="form-check-label" for="comp-uploads">
-              <i class="fas fa-upload text-info me-1"></i> Uploads
-             <span class="badge bg-secondary ms-1">Optional</span></label>
-            <div class="form-text">Digital object files and uploads</div>
-          </div>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="comp-plugins" value="plugins">
-            <label class="form-check-label" for="comp-plugins">
-              <i class="fas fa-puzzle-piece text-warning me-1"></i> Plugins
-             <span class="badge bg-secondary ms-1">Optional</span></label>
-            <div class="form-text">All packages in the packages/ directory</div>
-          </div>
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="comp-framework" value="framework">
-            <label class="form-check-label" for="comp-framework">
-              <i class="fas fa-code text-secondary me-1"></i> Framework
-             <span class="badge bg-secondary ms-1">Optional</span></label>
-            <div class="form-text">Application framework files (excludes vendor, node_modules)</div>
-          </div>
+        <p class="text-muted">Select components to include in this backup:</p>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="backup-database" checked>
+          <label class="form-check-label" for="backup-database">
+            <i class="fas fa-database me-1 text-success"></i>Database
+            <small class="text-muted">(Required)</small>
+          </label>
         </div>
-        {{-- Progress --}}
-        <div id="backup-progress" class="d-none">
-          <div class="progress mb-2">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="backup-progress-bar">0%</div>
-          </div>
-          <div id="backup-status" class="small text-muted"></div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="backup-uploads">
+          <label class="form-check-label" for="backup-uploads">
+            <i class="fas fa-images me-1 text-warning"></i>Uploads
+            <small class="text-muted">(Digital objects)</small>
+          </label>
         </div>
-        {{-- Result --}}
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="backup-plugins">
+          <label class="form-check-label" for="backup-plugins">
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="backup-framework">
+          <label class="form-check-label" for="backup-framework">
+            <i class="fas fa-code me-1 text-secondary"></i>Framework
+          </label>
+        </div>
+        <div id="backup-progress" class="mt-3 d-none">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="backup-progress-bar" style="width: 100%"></div>
+          </div>
+          <small class="text-muted mt-1 d-block" id="backup-status">Creating backup...</small>
+        </div>
         <div id="backup-result" class="d-none"></div>
       </div>
-      <div class="modal-footer" id="backup-modal-footer">
-        <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn atom-btn-white" id="btn-start-backup" onclick="startBackup()">
-          <i class="fas fa-play me-1"></i> Start Backup
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-start-backup">
+          <i class="fas fa-play me-1"></i>Start Backup
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- Database Only Backup Modal --}}
+<div class="modal fade" id="dbBackupModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fas fa-database me-2"></i>Database Backup</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">Select components to include:</p>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="db-opt-database" checked disabled>
+          <label class="form-check-label" for="db-opt-database">
+            <i class="fas fa-database me-1 text-success"></i>Database
+            <small class="text-muted">(Required)</small>
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="db-opt-uploads">
+          <label class="form-check-label" for="db-opt-uploads">
+            <i class="fas fa-images me-1 text-warning"></i>Uploads / Digital Objects
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="db-opt-plugins">
+          <label class="form-check-label" for="db-opt-plugins">
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="db-opt-framework">
+          <label class="form-check-label" for="db-opt-framework">
+            <i class="fas fa-code me-1 text-secondary"></i>Framework
+          </label>
+        </div>
+        <div id="db-backup-progress" class="mt-3 d-none">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%"></div>
+          </div>
+          <small class="text-muted mt-1 d-block">Creating backup...</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-db-backup">
+          <i class="fas fa-play me-1"></i>Start Backup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- Full Backup Modal --}}
+<div class="modal fade" id="fullBackupModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title"><i class="fas fa-archive me-2"></i>Full Backup</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">Select components to include:</p>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="full-opt-database" checked disabled>
+          <label class="form-check-label" for="full-opt-database">
+            <i class="fas fa-database me-1 text-success"></i>Database
+            <small class="text-muted">(Required)</small>
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="full-opt-uploads" checked>
+          <label class="form-check-label" for="full-opt-uploads">
+            <i class="fas fa-images me-1 text-warning"></i>Uploads / Digital Objects
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="full-opt-plugins" checked>
+          <label class="form-check-label" for="full-opt-plugins">
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="full-opt-framework" checked>
+          <label class="form-check-label" for="full-opt-framework">
+            <i class="fas fa-code me-1 text-secondary"></i>Framework
+          </label>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-all">Select All</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="full-select-none">Deselect All</button>
+        </div>
+        <div id="full-backup-progress" class="mt-3 d-none">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" style="width: 100%"></div>
+          </div>
+          <small class="text-muted mt-1 d-block">Creating backup...</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-dark" id="btn-full-backup">
+          <i class="fas fa-play me-1"></i>Start Backup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- Create Schedule Modal --}}
+<div class="modal fade" id="createScheduleModal" tabindex="-1" aria-labelledby="createScheduleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createScheduleModalLabel"><i class="fas fa-clock me-2"></i>Create Backup Schedule</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="sched-name">Name</label>
+          <input type="text" class="form-control" id="sched-name" value="Daily Database Backup" required>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6">
+            <label class="form-label" for="sched-frequency">Frequency</label>
+            <select class="form-select" id="sched-frequency">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="hourly">Hourly</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label" for="sched-time">Time</label>
+            <input type="time" class="form-control" id="sched-time" value="02:00">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-6" id="sched-dow-group" style="display:none">
+            <label class="form-label" for="sched-dow">Day of Week</label>
+            <select class="form-select" id="sched-dow">
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+            </select>
+          </div>
+          <div class="col-6" id="sched-dom-group" style="display:none">
+            <label class="form-label" for="sched-dom">Day of Month</label>
+            <input type="number" class="form-control" id="sched-dom" min="1" max="28" value="1">
+          </div>
+          <div class="col-6">
+            <label class="form-label" for="sched-retention">Retention (days)</label>
+            <input type="number" class="form-control" id="sched-retention" min="1" max="365" value="30">
+          </div>
+        </div>
+        <hr>
+        <p class="text-muted small mb-2">Components to include:</p>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="sched-db" value="1" checked>
+          <label class="form-check-label" for="sched-db"><i class="fas fa-database text-success"></i> DB</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="sched-uploads" value="1">
+          <label class="form-check-label" for="sched-uploads"><i class="fas fa-images text-warning"></i> Uploads</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="sched-plugins" value="1" checked>
+          <label class="form-check-label" for="sched-plugins"><i class="fas fa-puzzle-piece text-info"></i> Plugins</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="sched-fw" value="1" checked>
+          <label class="form-check-label" for="sched-fw"><i class="fas fa-code text-secondary"></i> Framework</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary"><i class="fas fa-save me-1"></i>Create Schedule</button>
       </div>
     </div>
   </div>
@@ -299,8 +482,9 @@
 <script>
 function testConnection() {
   var btn = document.getElementById('btn-test-connection');
+  var status = document.getElementById('connection-status');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Testing...';
+  status.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
   fetch('{{ route("backup.create") }}', {
     method: 'POST',
@@ -312,32 +496,16 @@ function testConnection() {
     body: JSON.stringify({ components: [], _test_connection: true }),
   })
   .then(function() {
-    btn.innerHTML = '<i class="fas fa-check text-success me-1"></i> Connected';
-    setTimeout(function() {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plug me-1"></i> Test Connection';
-    }, 2000);
+    status.innerHTML = '<span class="text-success"><i class="fas fa-check"></i> Connected</span>';
   })
   .catch(function() {
-    btn.innerHTML = '<i class="fas fa-times text-danger me-1"></i> Failed';
-    setTimeout(function() {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plug me-1"></i> Test Connection';
-    }, 2000);
-  });
+    status.innerHTML = '<span class="text-danger"><i class="fas fa-times"></i> Error</span>';
+  })
+  .finally(function() { btn.disabled = false; });
 }
 
 function quickBackup(component) {
   var components = [component];
-  runBackup(components);
-}
-
-function startBackup() {
-  var components = ['database']; // Always included
-  if (document.getElementById('comp-uploads').checked) components.push('uploads');
-  if (document.getElementById('comp-plugins').checked) components.push('plugins');
-  if (document.getElementById('comp-framework').checked) components.push('framework');
-
   runBackup(components);
 }
 
@@ -466,5 +634,121 @@ function deleteBackup(id, filename) {
     alert('An error occurred while deleting the backup.');
   });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Create backup modal - start button
+  document.getElementById('btn-start-backup')?.addEventListener('click', function() {
+    var components = ['database']; // Always included
+    if (document.getElementById('backup-uploads')?.checked) components.push('uploads');
+    if (document.getElementById('backup-plugins')?.checked) components.push('plugins');
+    if (document.getElementById('backup-framework')?.checked) components.push('framework');
+    runBackup(components);
+  });
+
+  // Database backup from modal
+  document.getElementById('btn-db-backup')?.addEventListener('click', function() {
+    var components = ['database'];
+    if (document.getElementById('db-opt-uploads')?.checked) components.push('uploads');
+    if (document.getElementById('db-opt-plugins')?.checked) components.push('plugins');
+    if (document.getElementById('db-opt-framework')?.checked) components.push('framework');
+    document.getElementById('db-backup-progress').classList.remove('d-none');
+    this.disabled = true;
+    var btn = this;
+    var originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
+
+    fetch('{{ route("backup.create") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ components: components }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) { location.reload(); }
+      else { alert(data.message || 'Backup failed'); }
+    })
+    .catch(function(e) { alert('Error: ' + e.message); })
+    .finally(function() { btn.innerHTML = originalText; btn.disabled = false; });
+  });
+
+  // Full backup from modal
+  document.getElementById('btn-full-backup')?.addEventListener('click', function() {
+    var components = ['database'];
+    if (document.getElementById('full-opt-uploads')?.checked) components.push('uploads');
+    if (document.getElementById('full-opt-plugins')?.checked) components.push('plugins');
+    if (document.getElementById('full-opt-framework')?.checked) components.push('framework');
+    document.getElementById('full-backup-progress').classList.remove('d-none');
+    this.disabled = true;
+    var btn = this;
+    var originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
+
+    fetch('{{ route("backup.create") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ components: components }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) { location.reload(); }
+      else { alert(data.message || 'Backup failed'); }
+    })
+    .catch(function(e) { alert('Error: ' + e.message); })
+    .finally(function() { btn.innerHTML = originalText; btn.disabled = false; });
+  });
+
+  // Full backup select all/none
+  document.getElementById('full-select-all')?.addEventListener('click', function() {
+    ['full-opt-uploads', 'full-opt-plugins', 'full-opt-framework'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.checked = true;
+    });
+  });
+  document.getElementById('full-select-none')?.addEventListener('click', function() {
+    ['full-opt-uploads', 'full-opt-plugins', 'full-opt-framework'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.checked = false;
+    });
+  });
+
+  // Incremental backup
+  document.getElementById('btn-incremental-backup')?.addEventListener('click', function() {
+    if (!confirm('Create an incremental backup? This includes only changes since the last full backup.')) return;
+    var btn = this;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
+    btn.disabled = true;
+
+    fetch('{{ route("backup.create") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ components: ['database', 'uploads', 'plugins', 'framework'] }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) { location.reload(); }
+      else { alert(data.message || 'Backup failed'); }
+    })
+    .catch(function(e) { alert('Error: ' + e.message); })
+    .finally(function() { btn.innerHTML = '<i class="fas fa-layer-group me-1"></i>Incremental Backup'; btn.disabled = false; });
+  });
+
+  // Schedule frequency toggle
+  document.getElementById('sched-frequency')?.addEventListener('change', function() {
+    document.getElementById('sched-dow-group').style.display = this.value === 'weekly' ? '' : 'none';
+    document.getElementById('sched-dom-group').style.display = this.value === 'monthly' ? '' : 'none';
+  });
+});
 </script>
 @endpush

@@ -208,10 +208,28 @@ class FormService
 
     public function getStatistics(): array
     {
+        $templatesByType = DB::table('ahg_form_template')
+            ->select('form_type', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('form_type')
+            ->pluck('cnt', 'form_type')
+            ->toArray();
+
+        $activeAssignments = DB::table('ahg_form_assignment')->count();
+
+        $pendingDrafts = DB::table('ahg_form_draft')->count();
+
+        $submissions30Days = DB::table('ahg_form_submission_log')
+            ->where('submitted_at', '>=', now()->subDays(30))
+            ->count();
+
         return [
             'templates' => DB::table('ahg_form_template')->count(),
+            'templates_by_type' => $templatesByType,
             'fields' => DB::table('ahg_form_field')->count(),
             'assignments' => DB::table('ahg_form_assignment')->count(),
+            'active_assignments' => $activeAssignments,
+            'pending_drafts' => $pendingDrafts,
+            'submissions_30_days' => $submissions30Days,
         ];
     }
 }

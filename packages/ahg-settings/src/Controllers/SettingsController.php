@@ -1507,6 +1507,7 @@ class SettingsController extends Controller
         } elseif ($statusFilter === 'resolved') {
             $query->whereNotNull('resolved_at');
         }
+        // 'all' shows both open and resolved — no filter needed
 
         if ($levelFilter) {
             $query->where('level', $levelFilter);
@@ -1516,7 +1517,8 @@ class SettingsController extends Controller
             $query->where(function ($q) use ($searchFilter) {
                 $q->where('message', 'like', "%{$searchFilter}%")
                   ->orWhere('url', 'like', "%{$searchFilter}%")
-                  ->orWhere('file', 'like', "%{$searchFilter}%");
+                  ->orWhere('file', 'like', "%{$searchFilter}%")
+                  ->orWhere('exception_class', 'like', "%{$searchFilter}%");
             });
         }
 

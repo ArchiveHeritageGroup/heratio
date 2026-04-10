@@ -51,6 +51,7 @@ class DoiController extends Controller
         $findableCount = DB::table('ahg_doi')->where('status', 'findable')->count();
         $registeredCount = DB::table('ahg_doi')->where('status', 'registered')->count();
         $draftCount    = DB::table('ahg_doi')->where('status', 'draft')->count();
+        $doiFailedCount = DB::table('ahg_doi')->where('status', 'failed')->count();
 
         $queuePending = 0;
         $queueFailed  = 0;
@@ -86,7 +87,7 @@ class DoiController extends Controller
                 'registered' => $registeredCount,
                 'draft'      => $draftCount,
                 'pending'    => $queuePending,
-                'failed'     => $queueFailed,
+                'failed'     => $doiFailedCount + $queueFailed,
             ],
             'recentDois' => $recentDois,
         ]);

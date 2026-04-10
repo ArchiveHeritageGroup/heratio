@@ -11,6 +11,14 @@
   </div>
 </div>
 
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('backup.index') }}">Backup &amp; Restore</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Restore</li>
+  </ol>
+</nav>
+
 <div class="mb-3">
   <a href="{{ route('backup.index') }}" class="btn btn-sm atom-btn-white">
     <i class="fas fa-arrow-left me-1"></i> Back to Backups

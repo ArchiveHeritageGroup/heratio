@@ -129,10 +129,13 @@ class RicController extends Controller
             return view('ahg-ric::not-configured');
         }
 
-        // Fuseki settings from ahg_settings
-        $fusekiSettings = [];
+        // Fuseki live status check
+        $fusekiStatus = $this->checkFusekiStatusQuick();
+
+        // Config settings (sync_enabled etc.)
+        $configSettings = [];
         if (Schema::hasTable('ahg_settings')) {
-            $fusekiSettings = DB::table('ahg_settings')
+            $configSettings = DB::table('ahg_settings')
                 ->where('setting_group', 'fuseki')
                 ->pluck('setting_value', 'setting_key')
                 ->toArray();
@@ -183,7 +186,8 @@ class RicController extends Controller
             ->get();
 
         return view('ahg-ric::index', compact(
-            'fusekiSettings',
+            'fusekiStatus',
+            'configSettings',
             'syncSummary',
             'queueStatus',
             'orphanCount',

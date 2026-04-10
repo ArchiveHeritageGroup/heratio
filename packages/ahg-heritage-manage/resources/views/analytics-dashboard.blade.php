@@ -99,6 +99,10 @@
               </div>
             </div>
           </div>
+          <hr>
+          <a href="{{ route('heritage.analytics-search') }}" class="btn btn-outline-primary w-100">
+            View Search Insights
+          </a>
         </div>
       </div>
 
@@ -149,6 +153,61 @@
               </div>
             </div>
           </div>
+          <hr>
+          <div class="d-flex gap-2">
+            <a href="{{ route('heritage.admin-access-requests') }}" class="btn btn-outline-primary flex-fill">
+              Requests
+            </a>
+            <a href="{{ route('heritage.admin-popia') }}" class="btn btn-outline-primary flex-fill">
+              POPIA Flags
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {{-- Trends Chart --}}
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="fas fa-chart-area"></i> Search & Click Trends</h5>
+        </div>
+        <div class="card-body">
+          @if(!empty($trendSearches) && count($trendSearches) > 0)
+          <div style="height: 250px;">
+            <canvas id="trendsChart"></canvas>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+          new Chart(document.getElementById('trendsChart'), {
+              type: 'line',
+              data: {
+                  labels: {!! json_encode(array_keys($trendSearches)) !!},
+                  datasets: [{
+                      label: 'Searches',
+                      data: {!! json_encode(array_values($trendSearches)) !!},
+                      borderColor: 'rgb(13, 110, 253)',
+                      backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                      tension: 0.3,
+                      fill: true
+                  }, {
+                      label: 'Clicks',
+                      data: {!! json_encode(array_values($trendClicks)) !!},
+                      borderColor: 'rgb(25, 135, 84)',
+                      backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                      tension: 0.3,
+                      fill: true
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: 'top' } },
+                  scales: { y: { beginAtZero: true } }
+              }
+          });
+          </script>
+          @else
+          <p class="text-muted text-center py-4">No trend data available for this period.</p>
+          @endif
         </div>
       </div>
     </div>

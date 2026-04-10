@@ -16,15 +16,15 @@
   <div class="mb-4">
     <div class="btn-group" role="group" aria-label="Time period">
       <a href="{{ route('audit.statistics', ['days' => 7]) }}"
-         class="btn btn-sm {{ $days === 7 ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 7 ? 'btn-primary' : 'atom-btn-white' }}">
         7 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 30]) }}"
-         class="btn btn-sm {{ $days === 30 ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 30 ? 'btn-primary' : 'atom-btn-white' }}">
         30 days
       </a>
       <a href="{{ route('audit.statistics', ['days' => 90]) }}"
-         class="btn btn-sm {{ $days === 90 ? 'atom-btn-white' : 'atom-btn-white' }}">
+         class="btn btn-sm {{ $days === 90 ? 'btn-primary' : 'atom-btn-white' }}">
         90 days
       </a>
     </div>
@@ -84,7 +84,13 @@
             <tbody>
               @foreach($mostActiveUsers as $user)
                 <tr>
-                  <td>{{ $user->username }}</td>
+                  <td>
+                    @if(!empty($user->user_id))
+                      <a href="{{ route('audit.user-activity-by-id', ['user_id' => $user->user_id]) }}">{{ $user->username }}</a>
+                    @else
+                      {{ $user->username }}
+                    @endif
+                  </td>
                   <td class="text-end">{{ number_format($user->action_count) }}</td>
                 </tr>
               @endforeach

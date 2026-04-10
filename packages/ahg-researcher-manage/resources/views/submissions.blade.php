@@ -25,43 +25,23 @@
       <a href="{{ route('researcher.import') }}" class="btn atom-btn-white">
         <i class="fas fa-file-import me-1"></i> Import Exchange
       </a>
+      <a href="{{ route('researcher.new-submission') }}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i> New Submission
+      </a>
     </div>
   </div>
 
   {{-- Status filter buttons --}}
-  <div class="d-flex flex-wrap gap-2 mb-3">
-    <a href="{{ route('researcher.submissions') }}"
-       class="btn btn-sm {{ $currentStatus === '' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      All
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'draft']) }}"
-       class="btn btn-sm {{ $currentStatus === 'draft' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Draft
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'submitted']) }}"
-       class="btn btn-sm {{ $currentStatus === 'submitted' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
-      Submitted
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'under_review']) }}"
-       class="btn btn-sm {{ $currentStatus === 'under_review' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Under Review
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'approved']) }}"
-       class="btn btn-sm {{ $currentStatus === 'approved' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
-      Approved
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'published']) }}"
-       class="btn btn-sm {{ $currentStatus === 'published' ? 'atom-btn-outline-success' : 'atom-btn-white' }}">
-      Published
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'returned']) }}"
-       class="btn btn-sm {{ $currentStatus === 'returned' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Returned
-    </a>
-    <a href="{{ route('researcher.submissions', ['status' => 'rejected']) }}"
-       class="btn btn-sm {{ $currentStatus === 'rejected' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Rejected
-    </a>
+  <div class="btn-group mb-3" role="group">
+    @php
+      $statuses = ['' => 'All', 'draft' => 'Draft', 'submitted' => 'Submitted', 'under_review' => 'Under Review', 'approved' => 'Approved', 'published' => 'Published', 'returned' => 'Returned', 'rejected' => 'Rejected'];
+    @endphp
+    @foreach($statuses as $val => $label)
+      <a href="{{ route('researcher.submissions', $val !== '' ? ['status' => $val] : []) }}"
+         class="btn btn-sm {{ $currentStatus === $val ? 'btn-primary' : 'btn-outline-primary' }}">
+        {{ $label }}
+      </a>
+    @endforeach
   </div>
 
   @if($pager->getNbResults())
@@ -84,7 +64,7 @@
         </thead>
         <tbody>
           @foreach($pager->getResults() as $sub)
-            <tr>
+            <tr class="cursor-pointer" onclick="window.location='{{ route('researcher.submission.view', ['id' => $sub['id']]) }}'" style="cursor:pointer;">
               <td>{{ $sub['id'] }}</td>
               <td>{{ $sub['title'] ?: '[Untitled]' }}</td>
               @if($isAdmin)

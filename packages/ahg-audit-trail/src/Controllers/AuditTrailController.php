@@ -317,10 +317,15 @@ class AuditTrailController extends Controller
 
         // Most active users
         $usernameCol = Schema::hasColumn($table, 'username') ? 'username' : 'username';
+        $hasUserId = Schema::hasColumn($table, 'user_id');
+        $selectCols = $hasUserId
+            ? [$usernameCol, 'user_id', DB::raw('COUNT(*) as action_count')]
+            : [$usernameCol, DB::raw('COUNT(*) as action_count')];
+        $groupCols = $hasUserId ? [$usernameCol, 'user_id'] : [$usernameCol];
         $mostActiveUsers = (clone $baseQuery)
-            ->select($usernameCol, DB::raw('COUNT(*) as action_count'))
+            ->select($selectCols)
             ->whereNotNull($usernameCol)
-            ->groupBy($usernameCol)
+            ->groupBy($groupCols)
             ->orderByDesc('action_count')
             ->limit(10)
             ->get();

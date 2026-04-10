@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->prefix('forms')->group(function () {
     Route::get('/', [FormsController::class, 'index'])->name('forms.index');
+    Route::post('/', [FormsController::class, 'post'])->name('forms.post');
     Route::get('/browse', [FormsController::class, 'browse'])->name('forms.browse');
     Route::get('/templates', [FormsController::class, 'templates'])->name('forms.templates');
     Route::match(['get', 'post'], '/template/create', [FormsController::class, 'templateCreate'])->name('forms.template.create');
@@ -19,6 +20,15 @@ Route::middleware(['auth', 'admin'])->prefix('forms')->group(function () {
     Route::post('/field/update', [FormsController::class, 'fieldUpdate'])->name('forms.field.update');
     Route::post('/field/delete', [FormsController::class, 'fieldDelete'])->name('forms.field.delete');
     Route::post('/field/reorder', [FormsController::class, 'fieldReorder'])->name('forms.field.reorder');
+});
+
+// Aliases for /admin/formTemplates (menu + reports links)
+Route::middleware(['auth', 'admin'])->prefix('admin/formTemplates')->group(function () {
+    Route::get('/', [FormsController::class, 'index']);
+    Route::post('/', [FormsController::class, 'post']);
+    Route::get('/browse', [FormsController::class, 'browse']);
+    Route::match(['get', 'post'], '/create', [FormsController::class, 'templateCreate']);
+    Route::get('/assignments', [FormsController::class, 'assignments']);
 });
 
 // API: Forms autosave + template resolution (AJAX, used by JS widgets)

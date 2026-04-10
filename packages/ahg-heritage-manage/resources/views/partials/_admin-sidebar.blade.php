@@ -95,6 +95,16 @@
     Audit Trail
   </a>
 
+  {{-- Content --}}
+  <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
+    <i class="fas fa-file-alt me-1"></i> Content
+  </div>
+  <a href="{{ route('heritage.graph') }}"
+     class="list-group-item list-group-item-action d-flex align-items-center{{ request()->routeIs('heritage.graph') ? ' active' : '' }}">
+    <i class="fas fa-project-diagram me-2" style="width:18px;text-align:center;"></i>
+    Knowledge Graph
+  </a>
+
   {{-- Analytics --}}
   <div class="list-group-item list-group-item-light fw-bold small text-uppercase mt-2">
     <i class="fas fa-chart-bar me-1"></i> Analytics

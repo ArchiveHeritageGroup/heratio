@@ -33,6 +33,7 @@ use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ResearcherSubmissionController extends Controller
 {
@@ -55,14 +56,17 @@ class ResearcherSubmissionController extends Controller
             'pending'  => (clone $baseQuery)->whereIn('status', ['submitted', 'under_review'])->count(),
             'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
             'published' => (clone $baseQuery)->where('status', 'published')->count(),
-            'returned_rejected' => (clone $baseQuery)->whereIn('status', ['returned', 'rejected'])->count(),
+            'returned' => (clone $baseQuery)->where('status', 'returned')->count(),
+            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
         ];
+
+        $culture = app()->getLocale();
 
         $recentQuery = DB::table('researcher_submission')
             ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) {
+            ->leftJoin('actor_i18n', function ($join) use ($culture) {
                 $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', app()->getLocale());
+                    ->where('actor_i18n.culture', '=', $culture);
             })
             ->select([
                 'researcher_submission.id',
@@ -72,7 +76,7 @@ class ResearcherSubmissionController extends Controller
                 'researcher_submission.total_items',
                 'researcher_submission.total_files',
                 'researcher_submission.updated_at',
-                'actor_i18n.authorized_form_of_name as researcher_name',
+                'actor_i18n.authorized_form_of_name as user_name',
                 'user.username',
             ])
             ->orderBy('researcher_submission.updated_at', 'desc')
@@ -82,13 +86,29 @@ class ResearcherSubmissionController extends Controller
             $recentQuery->where('researcher_submission.user_id', $user->id);
         }
 
-        $recentSubmissions = $recentQuery->get()->map(fn($row) => (array) $row)->toArray();
+        $recent = $recentQuery->get()->toArray();
 
-        return view('ahg-researcher-manage::dashboard', [
-            'stats' => $stats,
-            'recentSubmissions' => $recentSubmissions,
-            'isAdmin' => $isAdmin,
-        ]);
+        // Research integration — load projects, collections, annotations
+        $hasResearch = Schema::hasTable('research_researcher');
+        $researcherProfile = null;
+        $projects = [];
+        $collections = [];
+        $annotations = [];
+
+        if ($hasResearch) {
+            $researcherProfile = $this->getResearcherProfile($user->id);
+            if ($researcherProfile) {
+                $rid = (int) $researcherProfile->id;
+                $projects = $this->getResearchProjects($rid, 5);
+                $collections = $this->getResearchCollections($rid, 5);
+                $annotations = $this->getResearchAnnotations($rid, 5);
+            }
+        }
+
+        return view('ahg-researcher-manage::dashboard', compact(
+            'stats', 'recent', 'isAdmin', 'hasResearch',
+            'researcherProfile', 'projects', 'collections', 'annotations'
+        ));
     }
 
     /**
@@ -153,12 +173,68 @@ class ResearcherSubmissionController extends Controller
     }
 
     /**
-     * Alias: pending submissions (status=submitted).
+     * Alias: pending submissions (status=submitted + under_review).
      */
     public function pending(Request $request)
     {
-        $request->merge(['status' => 'submitted']);
-        return $this->submissions($request);
+        $user = auth()->user();
+        $isAdmin = AclService::isAdministrator($user);
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
+
+        $query = DB::table('researcher_submission')
+            ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')
+            ->leftJoin('actor_i18n', function ($join) {
+                $join->on('user.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', app()->getLocale());
+            })
+            ->whereIn('researcher_submission.status', ['submitted', 'under_review']);
+
+        if (!$isAdmin) {
+            $query->where('researcher_submission.user_id', $user->id);
+        }
+
+        $total = (clone $query)->count();
+
+        $submissions = $query->select([
+            'researcher_submission.id',
+            'researcher_submission.title',
+            'researcher_submission.source_type',
+            'researcher_submission.status',
+            'researcher_submission.total_items',
+            'researcher_submission.total_files',
+            'researcher_submission.created_at',
+            'researcher_submission.updated_at',
+            'actor_i18n.authorized_form_of_name as researcher_name',
+            'user.username',
+        ])
+            ->orderBy('researcher_submission.updated_at', 'desc')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get()
+            ->map(fn($row) => (array) $row)
+            ->toArray();
+
+        $pager = new SimplePager([
+            'hits'  => $submissions,
+            'total' => $total,
+            'page'  => $page,
+            'limit' => $limit,
+        ]);
+
+        return view('ahg-researcher-manage::submissions', [
+            'pager' => $pager,
+            'currentStatus' => 'pending',
+            'isAdmin' => $isAdmin,
+        ]);
+    }
+
+    /**
+     * GET: Show new submission form.
+     */
+    public function newSubmission()
+    {
+        return view('ahg-researcher-manage::new-submission');
     }
 
     /**
@@ -262,6 +338,89 @@ class ResearcherSubmissionController extends Controller
         return redirect()->route('researcher.import')
             ->with('import_result', $result)
             ->with('success', 'Exchange file imported successfully. A draft submission has been created.');
+    }
+
+    // =========================================================================
+    // RESEARCH INTEGRATION HELPERS
+    // =========================================================================
+
+    /**
+     * Get researcher profile for a user.
+     */
+    protected function getResearcherProfile(int $userId): ?object
+    {
+        try {
+            return DB::table('research_researcher')
+                ->where('user_id', $userId)
+                ->first();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get research projects for a researcher.
+     */
+    protected function getResearchProjects(int $researcherId, int $limit = 5): array
+    {
+        try {
+            return DB::table('research_project')
+                ->where('owner_id', $researcherId)
+                ->whereIn('status', ['planning', 'active', 'on_hold', 'completed'])
+                ->orderByRaw("FIELD(status, 'active', 'planning', 'on_hold', 'completed')")
+                ->orderBy('updated_at', 'desc')
+                ->limit($limit)
+                ->get()
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get research collections for a researcher with item counts.
+     */
+    protected function getResearchCollections(int $researcherId, int $limit = 5): array
+    {
+        try {
+            $collections = DB::table('research_collection')
+                ->where('researcher_id', $researcherId)
+                ->orderBy('updated_at', 'desc')
+                ->limit($limit)
+                ->get()
+                ->toArray();
+
+            foreach ($collections as &$col) {
+                $col->item_count = DB::table('research_collection_item')
+                    ->where('collection_id', $col->id)
+                    ->count();
+            }
+
+            return $collections;
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get recent research annotations for a researcher.
+     */
+    protected function getResearchAnnotations(int $researcherId, int $limit = 5): array
+    {
+        try {
+            return DB::table('research_annotation as a')
+                ->leftJoin('information_object_i18n as io', function ($j) {
+                    $j->on('a.object_id', '=', 'io.id')->where('io.culture', '=', app()->getLocale());
+                })
+                ->where('a.researcher_id', $researcherId)
+                ->select('a.*', 'io.title as object_title')
+                ->orderBy('a.created_at', 'desc')
+                ->limit($limit)
+                ->get()
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     public function researcherBrowse(Request $request) { return view('ahg-researcher-manage::researcher-browse', ['rows' => collect()]); }

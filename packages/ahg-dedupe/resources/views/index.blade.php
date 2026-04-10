@@ -111,12 +111,12 @@
                       </td>
                       <td>
                         <a href="{{ route('informationobject.show', $dup->record_a_id) }}">
-                          {{ $dup->record_a_title ?: '[Untitled]' }}
+                          {{ Str::limit($dup->record_a_title ?: '[Untitled]', 40) }}
                         </a>
                       </td>
                       <td>
                         <a href="{{ route('informationobject.show', $dup->record_b_id) }}">
-                          {{ $dup->record_b_title ?: '[Untitled]' }}
+                          {{ Str::limit($dup->record_b_title ?: '[Untitled]', 40) }}
                         </a>
                       </td>
                       <td><span class="badge bg-light text-dark">{{ $dup->detection_method }}</span></td>
@@ -124,6 +124,9 @@
                         <div class="btn-group btn-group-sm">
                           <a href="{{ route('dedupe.compare', $dup->id) }}" class="btn atom-btn-white" title="Compare">
                             <i class="fas fa-columns"></i>
+                          </a>
+                          <a href="{{ route('dedupe.merge', $dup->id) }}" class="btn atom-btn-white" title="Merge">
+                            <i class="fas fa-compress-arrows-alt"></i>
                           </a>
                           <button type="button" class="btn atom-btn-white btn-dismiss" data-id="{{ $dup->id }}" title="Dismiss">
                             <i class="fas fa-times"></i>
@@ -184,7 +187,10 @@
               </small>
             </li>
           @empty
-            <li class="list-group-item text-muted">No scans yet.</li>
+            <li class="list-group-item text-muted">
+              No scans yet.
+              <a href="{{ route('dedupe.scan') }}" class="btn btn-sm atom-btn-outline-success mt-2 d-block">Run First Scan</a>
+            </li>
           @endforelse
         </ul>
       </div>

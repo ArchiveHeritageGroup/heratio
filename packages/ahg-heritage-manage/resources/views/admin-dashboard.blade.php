@@ -47,9 +47,9 @@
           </div>
         </div>
         <div class="col-sm-6 col-lg-3 mb-3">
-          <div class="card shadow-sm border-warning h-100">
+          <div class="card shadow-sm border-{{ $activeAlerts > 0 ? 'danger' : 'secondary' }} h-100">
             <div class="card-body text-center">
-              <div class="mb-2"><i class="fas fa-exclamation-triangle fa-2x text-warning"></i></div>
+              <div class="mb-2"><i class="fas fa-bell fa-2x text-{{ $activeAlerts > 0 ? 'danger' : 'secondary' }}"></i></div>
               <h3 class="mb-1">{{ number_format($activeAlerts) }}</h3>
               <small class="text-muted">Active Alerts</small>
             </div>
@@ -140,27 +140,47 @@
       </div>
       @endif
 
-      {{-- Quick Links --}}
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-link"></i> Quick Links</h5>
+      {{-- Quick Actions + Trust Level Distribution --}}
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent">
+              <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{{ route('heritage.admin-access-requests') }}" class="btn btn-outline-primary text-start">
+                  <i class="fas fa-key me-2"></i>Review Access Requests
+                </a>
+                <a href="{{ route('heritage.custodian-batch') }}" class="btn btn-outline-primary text-start">
+                  <i class="fas fa-layer-group me-2"></i>Create Batch Operation
+                </a>
+                <a href="{{ route('heritage.analytics-alerts') }}" class="btn btn-outline-primary text-start">
+                  <i class="fas fa-bell me-2"></i>View System Alerts
+                </a>
+                <a href="{{ route('heritage.landing') }}" class="btn btn-outline-secondary text-start" target="_blank">
+                  <i class="fas fa-eye me-2"></i>Preview Landing Page
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 mb-2">
-              <a href="{{ route('acl.access-requests') }}" class="btn atom-btn-white w-100">
-                <i class="fas fa-key me-1"></i> Review Access Requests
-              </a>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent">
+              <h5 class="mb-0"><i class="fas fa-users me-2"></i>Trust Level Distribution</h5>
             </div>
-            <div class="col-md-4 mb-2">
-              <a href="{{ route('heritage.admin') }}" class="btn atom-btn-white w-100">
-                <i class="fas fa-bell me-1"></i> View System Alerts
-              </a>
-            </div>
-            <div class="col-md-4 mb-2">
-              <a href="/" class="btn atom-btn-white w-100" target="_blank">
-                <i class="fas fa-eye me-1"></i> Preview Landing Page
-              </a>
+            <div class="card-body">
+              @if(!empty($trustDistribution) && count($trustDistribution) > 0)
+                @foreach($trustDistribution as $trust)
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>{{ e($trust->name ?? 'Unknown') }}</span>
+                  <span class="badge bg-secondary">{{ $trust->count ?? 0 }}</span>
+                </div>
+                @endforeach
+              @else
+                <p class="text-muted mb-0">No trust level assignments yet.</p>
+              @endif
             </div>
           </div>
         </div>

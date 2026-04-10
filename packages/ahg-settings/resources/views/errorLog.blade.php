@@ -1,259 +1,249 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Error log')
+@section('title', 'System Error Log')
 @section('body-class', 'admin settings error-log')
 
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3">
-    <i class="fas fa-3x fa-exclamation-circle me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column">
-      <h1 class="mb-0">Error log</h1>
-      <span class="small text-muted">Showing {{ number_format($total) }} entries</span>
+  <h1><i class="fas fa-exclamation-triangle text-danger me-2"></i>System Error Log</h1>
+
+  {{-- Stats Row --}}
+  <div class="row mb-3">
+    <div class="col-md-2">
+      <div class="card border-danger">
+        <div class="card-body text-center py-2">
+          <div class="h4 mb-0 text-danger">{{ number_format($openCount) }}</div>
+          <small class="text-muted">Open</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-success">
+        <div class="card-body text-center py-2">
+          <div class="h4 mb-0 text-success">{{ number_format($resolvedCount) }}</div>
+          <small class="text-muted">Resolved</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-warning">
+        <div class="card-body text-center py-2">
+          <div class="h4 mb-0 text-warning">{{ number_format($unreadCount) }}</div>
+          <small class="text-muted">Unread</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card">
+        <div class="card-body text-center py-2">
+          <div class="h4 mb-0">{{ number_format($todayCount) }}</div>
+          <small class="text-muted">Today</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 d-flex align-items-center justify-content-end gap-2">
+      <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
+        @csrf
+        <input type="hidden" name="mark_read" value="1">
+        <button type="submit" class="btn btn-sm btn-outline-secondary" {{ $unreadCount === 0 ? 'disabled' : '' }}>
+          <i class="fas fa-eye me-1"></i>Mark All Read
+        </button>
+      </form>
+      <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
+        @csrf
+        <input type="hidden" name="resolve_all" value="1">
+        <button type="submit" class="btn btn-sm btn-outline-success" {{ $openCount === 0 ? 'disabled' : '' }} onclick="return confirm('Resolve all open errors?')">
+          <i class="fas fa-check-double me-1"></i>Resolve All
+        </button>
+      </form>
+      <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
+        @csrf
+        <input type="hidden" name="clear_old" value="1">
+        <input type="hidden" name="clear_days" value="30">
+        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete logs older than 30 days?')">
+          <i class="fas fa-trash me-1"></i>Clear 30d+
+        </button>
+      </form>
     </div>
   </div>
 
-
-  {{-- Stats cards --}}
-  <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card border-danger h-100">
-        <div class="card-body text-center">
-          <h6 class="card-title text-danger mb-1">Open</h6>
-          <p class="display-6 fw-bold mb-0">{{ number_format($openCount) }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card border-success h-100">
-        <div class="card-body text-center">
-          <h6 class="card-title text-success mb-1">Resolved</h6>
-          <p class="display-6 fw-bold mb-0">{{ number_format($resolvedCount) }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card border-warning h-100">
-        <div class="card-body text-center">
-          <h6 class="card-title text-warning mb-1">Unread</h6>
-          <p class="display-6 fw-bold mb-0">{{ number_format($unreadCount) }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-3">
-      <div class="card border-info h-100">
-        <div class="card-body text-center">
-          <h6 class="card-title text-info mb-1">Today</h6>
-          <p class="display-6 fw-bold mb-0">{{ number_format($todayCount) }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {{-- Bulk actions --}}
-  <div class="d-flex gap-2 mb-3">
-    <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
-      @csrf
-      <button type="submit" name="mark_read" value="1" class="btn btn-sm atom-btn-white">
-        <i class="fas fa-check-double me-1"></i> Mark All Read
-      </button>
-    </form>
-    <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
-      @csrf
-      <button type="submit" name="resolve_all" value="1" class="btn btn-sm atom-btn-outline-success">
-        <i class="fas fa-check-circle me-1"></i> Resolve All
-      </button>
-    </form>
-    <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
-      @csrf
-      <input type="hidden" name="clear_days" value="30">
-      <button type="submit" name="clear_old" value="1" class="btn btn-sm atom-btn-outline-danger">
-        <i class="fas fa-trash me-1"></i> Clear Older Than 30 Days
-      </button>
-    </form>
-  </div>
-
-  {{-- Filter bar --}}
-  <form method="GET" action="{{ route('settings.error-log') }}" class="card mb-4">
-    <div class="card-body">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-3">
-          <label for="status" class="form-label small">Status <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="status" id="status" class="form-select form-select-sm">
-            <option value="">All</option>
+  {{-- Filters --}}
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <form method="GET" action="{{ route('settings.error-log') }}" class="row g-2 align-items-center">
+        <div class="col-auto">
+          <select name="status" class="form-select form-select-sm">
             <option value="open" @selected($filters['status'] === 'open')>Open</option>
             <option value="resolved" @selected($filters['status'] === 'resolved')>Resolved</option>
+            <option value="all" @selected($filters['status'] === 'all')>All</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <label for="level" class="form-label small">Level <span class="badge bg-secondary ms-1">Optional</span></label>
-          <select name="level" id="level" class="form-select form-select-sm">
+        <div class="col-auto">
+          <select name="level" class="form-select form-select-sm">
             <option value="">All levels</option>
             <option value="fatal" @selected($filters['level'] === 'fatal')>Fatal</option>
             <option value="error" @selected($filters['level'] === 'error')>Error</option>
             <option value="warning" @selected($filters['level'] === 'warning')>Warning</option>
           </select>
         </div>
-        <div class="col-md-4">
-          <label for="search" class="form-label small">Search <span class="badge bg-secondary ms-1">Optional</span></label>
-          <input type="text" name="search" id="search" class="form-control form-control-sm"
-                 value="{{ $filters['search'] }}" placeholder="Message, URL, or file...">
+        <div class="col">
+          <input type="text" name="search" class="form-control form-control-sm"
+                 placeholder="Search message, URL, file, exception..."
+                 value="{{ $filters['search'] }}">
         </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn atom-btn-outline-light btn-sm w-100">
-            <i class="fas fa-filter me-1"></i> Filter
+        <div class="col-auto">
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i class="fas fa-search me-1"></i>Filter
           </button>
+          <a href="{{ route('settings.error-log') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
         </div>
-      </div>
+      </form>
     </div>
-  </form>
+  </div>
 
-  {{-- Error log table --}}
-  @if($entries->count())
-    <div class="table-responsive mb-3">
-      <table class="table table-bordered table-striped mb-0">
-        <thead>
+  {{-- Error Log Table --}}
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-dark">
           <tr>
-            <th style="width:140px">Date</th>
-            <th style="width:80px">Level</th>
-            <th style="width:60px">Code</th>
-            <th>Message</th>
-            <th style="width:80px">Status</th>
-            <th style="width:160px">Actions</th>
+            <th style="width:40px">#</th>
+            <th style="width:140px">Time</th>
+            <th style="width:70px">Level</th>
+            <th>Error</th>
+            <th style="width:160px">Location</th>
+            <th style="width:120px">Client</th>
+            <th style="width:100px">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @foreach($entries as $entry)
-            <tr class="{{ !$entry->is_read ? 'fw-bold' : '' }}" style="cursor:pointer;" onclick="var d=document.getElementById('detail-{{ $entry->id }}');d.style.display=d.style.display==='none'?'table-row':'none';">
-              <td class="small">{{ \Carbon\Carbon::parse($entry->created_at)->format('Y-m-d H:i') }}</td>
-              <td>
-                @php
-                  $levelClass = match($entry->level) {
-                    'fatal' => 'bg-dark',
-                    'error' => 'bg-danger',
-                    'warning' => 'bg-warning text-dark',
-                    default => 'bg-secondary',
-                  };
-                @endphp
-                <span class="badge {{ $levelClass }}">{{ $entry->level }}</span>
-              </td>
-              <td>{{ $entry->status_code ?? '' }}</td>
-              <td>
-                <div class="text-truncate" style="max-width:400px" title="{{ $entry->message }}">
-                  {{ Str::limit($entry->message, 120) }}
-                </div>
-                @if($entry->file)
-                  <small class="text-muted">{{ Str::limit($entry->file, 80) }}:{{ $entry->line }}</small>
+          @forelse($entries as $entry)
+            <tr class="{{ $entry->resolved_at ? 'table-light text-muted' : (!$entry->is_read ? 'table-warning' : '') }}">
+              <td class="small text-muted">{{ $entry->id }}</td>
+              <td class="small text-nowrap">
+                {{ $entry->created_at }}
+                @if($entry->request_id ?? null)
+                  <br><code class="small">{{ substr($entry->request_id, 0, 12) }}...</code>
                 @endif
               </td>
               <td>
                 @if($entry->resolved_at)
-                  <span class="badge bg-success">Resolved</span>
+                  <span class="badge bg-success">FIXED</span>
+                @elseif($entry->level === 'fatal')
+                  <span class="badge bg-danger">FATAL</span>
+                @elseif($entry->level === 'error')
+                  <span class="badge bg-warning text-dark">ERROR</span>
                 @else
-                  <span class="badge bg-danger">Open</span>
+                  <span class="badge bg-secondary">{{ strtoupper($entry->level) }}</span>
+                @endif
+                @if($entry->status_code)
+                  <span class="badge bg-dark">{{ $entry->status_code }}</span>
                 @endif
               </td>
               <td>
-                <div class="btn-group btn-group-sm">
-                  @if($entry->resolved_at)
-                    <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
-                      @csrf
-                      <input type="hidden" name="reopen_id" value="{{ $entry->id }}">
-                      <button type="submit" class="btn btn-sm atom-btn-white" title="Reopen">
-                        <i class="fas fa-undo"></i>
-                      </button>
-                    </form>
-                  @else
-                    <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
-                      @csrf
-                      <input type="hidden" name="resolve_id" value="{{ $entry->id }}">
-                      <button type="submit" class="btn btn-sm atom-btn-outline-success" title="Resolve">
-                        <i class="fas fa-check"></i>
-                      </button>
-                    </form>
-                  @endif
+                <div class="fw-bold small">{{ e($entry->exception_class ?? '') }}</div>
+                <div class="small" style="word-break:break-word">{{ e($entry->message) }}</div>
+                @if($entry->url ?? ($entry->request_url ?? null))
+                  <div class="small text-muted" style="word-break:break-all">
+                    <span class="badge bg-light text-dark">{{ $entry->request_method ?? ($entry->http_method ?? ($entry->method ?? 'GET')) }}</span>
+                    {{ e($entry->url ?? $entry->request_url) }}
+                  </div>
+                @endif
+                @if($entry->resolved_at)
+                  <div class="small text-success"><i class="fas fa-check me-1"></i>Resolved {{ $entry->resolved_at }}</div>
+                @endif
+              </td>
+              <td class="small text-truncate" style="max-width:160px" title="{{ e($entry->file ?? '') }}">
+                {{ $entry->file ? basename($entry->file) . ':' . $entry->line : '-' }}
+              </td>
+              <td class="small">
+                {{ $entry->ip_address ?? ($entry->client_ip ?? ($entry->ip ?? '-')) }}
+                @if($entry->user_id ?? null)
+                  <br><span class="badge bg-info">user:{{ $entry->user_id }}</span>
+                @endif
+              </td>
+              <td class="text-nowrap">
+                @if($entry->resolved_at)
                   <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
                     @csrf
-                    <input type="hidden" name="delete_id" value="{{ $entry->id }}">
-                    <button type="submit" class="btn btn-sm atom-btn-outline-danger" title="Delete"
-                            onclick="return confirm('Delete this error entry?')">
-                      <i class="fas fa-trash"></i>
+                    <input type="hidden" name="reopen_id" value="{{ $entry->id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reopen">
+                      <i class="fas fa-undo"></i>
                     </button>
                   </form>
-                </div>
+                @else
+                  <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
+                    @csrf
+                    <input type="hidden" name="resolve_id" value="{{ $entry->id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                @endif
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-bs-toggle="collapse" data-bs-target="#trace-{{ $entry->id }}" title="Details">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <form method="POST" action="{{ route('settings.error-log') }}" class="d-inline">
+                  @csrf
+                  <input type="hidden" name="delete_id" value="{{ $entry->id }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"
+                          onclick="return confirm('Delete this entry?')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </form>
               </td>
             </tr>
-            {{-- Expandable detail row --}}
-            <tr id="detail-{{ $entry->id }}" style="display:none;">
-              <td colspan="6" class="bg-light p-3">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <strong>Message</strong>
-                    <pre class="bg-white border rounded p-2 small mb-2" style="white-space:pre-wrap;max-height:200px;overflow:auto;">{{ $entry->message }}</pre>
-                  </div>
-                  <div class="col-md-6">
-                    <strong>Stack trace</strong>
-                    <pre class="bg-white border rounded p-2 small mb-2" style="white-space:pre-wrap;max-height:200px;overflow:auto;">{{ $entry->stack_trace ?? $entry->trace ?? 'No stack trace' }}</pre>
-                  </div>
-                  <div class="col-md-4">
-                    <table class="table table-sm table-borderless mb-0 small">
-                      <tr><th class="text-muted" style="width:100px">File</th><td>{{ $entry->file ?? '-' }}:{{ $entry->line ?? '' }}</td></tr>
-                      <tr><th class="text-muted">URL</th><td>{{ $entry->url ?? $entry->request_url ?? '-' }}</td></tr>
-                      <tr><th class="text-muted">Method</th><td>{{ $entry->request_method ?? $entry->method ?? '-' }}</td></tr>
-                    </table>
-                  </div>
-                  <div class="col-md-4">
-                    <table class="table table-sm table-borderless mb-0 small">
-                      <tr><th class="text-muted" style="width:100px">IP</th><td>{{ $entry->ip_address ?? $entry->ip ?? '-' }}</td></tr>
-                      <tr><th class="text-muted">User</th><td>{{ $entry->user_id ?? '-' }}</td></tr>
-                      <tr><th class="text-muted">Hostname</th><td>{{ $entry->hostname ?? '-' }}</td></tr>
-                    </table>
-                  </div>
-                  <div class="col-md-4">
-                    <table class="table table-sm table-borderless mb-0 small">
-                      <tr><th class="text-muted" style="width:100px">UA</th><td class="text-truncate" style="max-width:250px">{{ $entry->user_agent ?? $entry->ua ?? '-' }}</td></tr>
-                      <tr><th class="text-muted">Created</th><td>{{ $entry->created_at }}</td></tr>
-                      @if($entry->resolved_at)
-                        <tr><th class="text-muted">Resolved</th><td>{{ $entry->resolved_at }}</td></tr>
-                      @endif
-                    </table>
-                  </div>
-                </div>
+            @if($entry->trace ?? ($entry->stack_trace ?? null))
+              <tr class="collapse" id="trace-{{ $entry->id }}">
+                <td colspan="7">
+                  <pre class="bg-dark text-light p-2 rounded small mb-0" style="max-height:300px;overflow:auto">{{ e($entry->trace ?? $entry->stack_trace) }}</pre>
+                  @if($entry->user_agent ?? ($entry->ua ?? null))
+                    <small class="text-muted">UA: {{ e(substr($entry->user_agent ?? $entry->ua, 0, 150)) }}</small>
+                  @endif
+                </td>
+              </tr>
+            @endif
+          @empty
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-2 d-block text-success"></i>
+                No errors logged.
               </td>
             </tr>
-          @endforeach
+          @endforelse
         </tbody>
       </table>
     </div>
 
-    {{-- Pagination --}}
     @if($totalPages > 1)
-      <nav aria-label="Error log pagination">
-        <ul class="pagination justify-content-center">
-          <li class="page-item @if($page <= 1) disabled @endif">
-            <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $page - 1])) }}">
-              Previous
-            </a>
-          </li>
-          @for($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
-            <li class="page-item @if($i === $page) active @endif">
-              <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $i])) }}">
-                {{ $i }}
-              </a>
-            </li>
-          @endfor
-          <li class="page-item @if($page >= $totalPages) disabled @endif">
-            <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $page + 1])) }}">
-              Next
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">Page {{ $page }} / {{ $totalPages }} ({{ number_format($total) }} total)</small>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            @if($page > 1)
+              <li class="page-item">
+                <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $page - 1])) }}">&laquo;</a>
+              </li>
+            @endif
+            @for($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
+              <li class="page-item @if($i === $page) active @endif">
+                <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $i])) }}">{{ $i }}</a>
+              </li>
+            @endfor
+            @if($page < $totalPages)
+              <li class="page-item">
+                <a class="page-link" href="{{ route('settings.error-log', array_merge($filters, ['page' => $page + 1])) }}">&raquo;</a>
+              </li>
+            @endif
+          </ul>
+        </nav>
+      </div>
     @endif
-  @else
-    <div class="alert alert-info">No error log entries found.</div>
-  @endif
+  </div>
 
-  <a href="{{ route('settings.index') }}" class="btn atom-btn-white">
-    <i class="fas fa-arrow-left me-1"></i> Back to Settings
-  </a>
+  <div class="mt-3">
+    <a href="{{ route('settings.index') }}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i>Back to Settings
+    </a>
+  </div>
 @endsection

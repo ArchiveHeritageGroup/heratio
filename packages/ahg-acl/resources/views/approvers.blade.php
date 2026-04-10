@@ -20,6 +20,13 @@
     </a>
   </div>
 
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  @endif
+
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       {{ session('error') }}
@@ -127,22 +134,23 @@
               </select>
             </div>
 
-            <div class="mb-3">
-              <label for="min_classification_level" class="form-label">Min Classification Level <span class="badge bg-danger ms-1">Required</span></label>
-              <select name="min_classification_level" id="min_classification_level" class="form-select" required>
-                @foreach($classifications as $cls)
-                  <option value="{{ $cls->level }}">{{ $cls->name }} (Level {{ $cls->level }})</option>
-                @endforeach
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="max_classification_level" class="form-label">Max Classification Level <span class="badge bg-danger ms-1">Required</span></label>
-              <select name="max_classification_level" id="max_classification_level" class="form-select" required>
-                @foreach($classifications as $cls)
-                  <option value="{{ $cls->level }}" @if($loop->last) selected @endif>{{ $cls->name }} (Level {{ $cls->level }})</option>
-                @endforeach
-              </select>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label for="min_classification_level" class="form-label">Min Level <span class="badge bg-danger ms-1">Required</span></label>
+                <select name="min_classification_level" id="min_classification_level" class="form-select" required>
+                  @foreach($classifications as $cls)
+                    <option value="{{ $cls->level }}">{{ $cls->level }} - {{ $cls->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="max_classification_level" class="form-label">Max Level <span class="badge bg-danger ms-1">Required</span></label>
+                <select name="max_classification_level" id="max_classification_level" class="form-select" required>
+                  @foreach($classifications as $cls)
+                    <option value="{{ $cls->level }}" @if($loop->last) selected @endif>{{ $cls->level }} - {{ $cls->name }}</option>
+                  @endforeach
+                </select>
+              </div>
             </div>
 
             <div class="mb-3 form-check">

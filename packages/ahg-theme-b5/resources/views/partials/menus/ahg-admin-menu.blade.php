@@ -1,5 +1,37 @@
 @php
   $plugins = $themeData['enabledPluginMap'] ?? [];
+
+  // Pending-count badges for menu items
+  $pendingResearchers = 0;
+  $pendingBookings = 0;
+  $pendingReview = 0;
+  $pendingDuplicates = 0;
+  $pendingDoi = 0;
+  try {
+      if (\Illuminate\Support\Facades\Schema::hasTable('research_researcher')) {
+          $pendingResearchers = \Illuminate\Support\Facades\DB::table('research_researcher')->where('status', 'pending')->count();
+      }
+  } catch (\Throwable $e) {}
+  try {
+      if (\Illuminate\Support\Facades\Schema::hasTable('research_booking')) {
+          $pendingBookings = \Illuminate\Support\Facades\DB::table('research_booking')->where('status', 'pending')->count();
+      }
+  } catch (\Throwable $e) {}
+  try {
+      if (\Illuminate\Support\Facades\Schema::hasTable('researcher_submission')) {
+          $pendingReview = \Illuminate\Support\Facades\DB::table('researcher_submission')->whereIn('status', ['submitted', 'under_review'])->count();
+      }
+  } catch (\Throwable $e) {}
+  try {
+      if (\Illuminate\Support\Facades\Schema::hasTable('ahg_duplicate_detection')) {
+          $pendingDuplicates = \Illuminate\Support\Facades\DB::table('ahg_duplicate_detection')->where('status', 'pending')->count();
+      }
+  } catch (\Throwable $e) {}
+  try {
+      if (\Illuminate\Support\Facades\Schema::hasTable('ahg_doi_queue')) {
+          $pendingDoi = \Illuminate\Support\Facades\DB::table('ahg_doi_queue')->where('status', 'pending')->count();
+      }
+  } catch (\Throwable $e) {}
 @endphp
 
 {{-- AHG Plugins menu (admin only) --}}
@@ -25,15 +57,30 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Research</h6></li>
     <li><a class="dropdown-item" href="{{ url('/research/dashboard') }}"><i class="fas fa-book-reader me-2"></i>Dashboard</a></li>
-    <li><a class="dropdown-item" href="{{ url('/research/researchers') }}"><i class="fas fa-user-graduate me-2"></i>Researchers</a></li>
-    <li><a class="dropdown-item" href="{{ url('/research/bookings') }}"><i class="fas fa-calendar-check me-2"></i>Bookings</a></li>
+    <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/researchers') }}">
+      <span><i class="fas fa-user-graduate me-2"></i>Researchers</span>
+      @if($pendingResearchers > 0)
+        <span class="badge bg-warning text-dark rounded-pill">{{ $pendingResearchers }}</span>
+      @endif
+    </a></li>
+    <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/bookings') }}">
+      <span><i class="fas fa-calendar-check me-2"></i>Bookings</span>
+      @if($pendingBookings > 0)
+        <span class="badge bg-danger rounded-pill">{{ $pendingBookings }}</span>
+      @endif
+    </a></li>
     <li><a class="dropdown-item" href="{{ url('/research/rooms') }}"><i class="fas fa-book-reader me-2"></i>Rooms</a></li>
 
     {{-- Researcher Submissions --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Researcher Submissions</h6></li>
     <li><a class="dropdown-item" href="{{ route('researcher.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-    <li><a class="dropdown-item" href="{{ route('researcher.pending') }}"><i class="fas fa-clock me-2"></i>Pending Review</a></li>
+    <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('researcher.pending') }}">
+      <span><i class="fas fa-clock me-2"></i>Pending Review</span>
+      @if($pendingReview > 0)
+        <span class="badge bg-warning text-dark rounded-pill">{{ $pendingReview }}</span>
+      @endif
+    </a></li>
     <li><a class="dropdown-item" href="{{ route('researcher.import') }}"><i class="fas fa-file-import me-2"></i>Import Exchange</a></li>
 
     {{-- Access --}}

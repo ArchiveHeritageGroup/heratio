@@ -168,6 +168,8 @@
                     <span class="badge bg-success">Findable</span>
                   @elseif($doi['status'] === 'registered')
                     <span class="badge bg-info">Registered</span>
+                  @elseif($doi['status'] === 'failed')
+                    <span class="badge bg-danger">Failed</span>
                   @elseif($doi['status'] === 'deleted')
                     <span class="badge bg-danger">Deleted</span>
                   @else

@@ -6,12 +6,9 @@
 @section('content')
   {{-- Title bar with RIC Explorer button --}}
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center">
-      <i class="fas fa-3x fa-project-diagram me-3" aria-hidden="true"></i>
-      <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
-    </div>
-    <a href="/explorer" class="btn btn-outline-info btn-sm">
-      <i class="fas fa-project-diagram"></i> RiC Explorer
+    <h1 class="mb-0"><i class="fas fa-project-diagram me-1"></i> RiC Sync Dashboard</h1>
+    <a href="{{ route('ric.explorer') }}" target="_blank" class="btn btn-outline-info btn-sm">
+      <i class="fas fa-external-link-alt"></i> RiC Explorer
     </a>
   </div>
 
@@ -24,17 +21,23 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle text-muted mb-1">Fuseki Status</h6>
-              <h3 class="mb-0 {{ !empty($fusekiSettings) ? 'text-success' : 'text-danger' }}">
-                {{ !empty($fusekiSettings) ? 'Online' : 'Offline' }}
+              <h3 class="mb-0 {{ ($fusekiStatus['online'] ?? false) ? 'text-success' : 'text-danger' }}">
+                {{ ($fusekiStatus['online'] ?? false) ? 'Online' : 'Offline' }}
               </h3>
             </div>
-            <div class="fs-1 {{ !empty($fusekiSettings) ? 'text-success' : 'text-danger' }}">
-              <i class="fas fa-{{ !empty($fusekiSettings) ? 'check-circle' : 'times-circle' }}"></i>
+            <div class="fs-1 {{ ($fusekiStatus['online'] ?? false) ? 'text-success' : 'text-danger' }}">
+              <i class="fas fa-{{ ($fusekiStatus['online'] ?? false) ? 'check-circle' : 'times-circle' }}"></i>
             </div>
           </div>
-          @if(!empty($fusekiSettings))
+          @if($fusekiStatus['online'] ?? false)
             <p class="mb-0 mt-2 text-muted small">
-              <i class="fas fa-check"></i> Connected
+              @if(isset($fusekiStatus['triple_count']))
+                <i class="fas fa-database"></i> {{ number_format($fusekiStatus['triple_count']) }} triples
+              @elseif(!empty($fusekiStatus['has_data']))
+                <i class="fas fa-check"></i> Connected with data
+              @else
+                <i class="fas fa-check"></i> Connected
+              @endif
             </p>
           @endif
         </div>
