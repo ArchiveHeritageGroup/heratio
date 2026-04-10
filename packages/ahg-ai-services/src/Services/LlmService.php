@@ -426,10 +426,22 @@ class LlmService
     // ─── AI Settings Helpers ────────────────────────────────────────
 
     /**
-     * Get an AI setting value from ahg_ai_settings.
+     * Get an AI setting value. Checks ahg_ner_settings first (user-facing
+     * AI Services settings page), then falls back to ahg_ai_settings (legacy).
      */
     public function getAiSetting(string $feature, string $key, ?string $default = null): ?string
     {
+        try {
+            // Primary: ahg_ner_settings (flat key-value from the settings UI)
+            $value = DB::table('ahg_ner_settings')
+                ->where('setting_key', $key)
+                ->value('setting_value');
+            if ($value !== null && $value !== '') {
+                return $value;
+            }
+        } catch (\Exception $e) {}
+
+        // Fallback: ahg_ai_settings (legacy feature-scoped table)
         $value = DB::table('ahg_ai_settings')
             ->where('feature', $feature)
             ->where('setting_key', $key)

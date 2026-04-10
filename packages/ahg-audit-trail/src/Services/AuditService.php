@@ -50,21 +50,103 @@ class AuditService
     /**
      * Log an audit event
      */
-    public function log(string $action, int $objectId, ?int $userId = null, array $details = []): int
+    /**
+     * Log an audit event to security_audit_log.
+     * Respects the audit_enabled setting — returns 0 if disabled.
+     */
+    public function log(string $action, ?int $objectId = null, ?int $userId = null, array $details = []): int
     {
-        return DB::table('audit_log')->insertGetId([
-            'action' => $action,
-            'object_id' => $objectId,
-            'object_type' => $details['object_type'] ?? null,
-            'user_id' => $userId ?? auth()->id(),
-            'ip_address' => $details['ip_address'] ?? request()->ip(),
-            'user_agent' => $details['user_agent'] ?? request()->userAgent(),
-            'old_values' => isset($details['old_values']) ? json_encode($details['old_values']) : null,
-            'new_values' => isset($details['new_values']) ? json_encode($details['new_values']) : null,
-            'description' => $details['description'] ?? null,
-            'created_at' => now(),
-            'updated_at' => now(),
+        // Check if audit logging is globally enabled
+        if (!$this->isEnabled()) {
+            return 0;
+        }
+
+        $userName = null;
+        try {
+            $uid = $userId ?? auth()->id();
+            if ($uid) {
+                $userName = DB::table('user')->where('id', $uid)->value('username');
+            }
+        } catch (\Exception $e) {}
+
+        $ip = $details['ip_address'] ?? request()->ip();
+
+        // Anonymize IP if setting is enabled
+        if ($this->getSetting('audit_ip_anonymize', '1') === '1' && $ip) {
+            $ip = preg_replace('/\.\d+$/', '.0', $ip); // mask last octet
+        }
+
+        return DB::table('security_audit_log')->insertGetId([
+            'action'          => $action,
+            'action_category' => $details['action_category'] ?? $this->categorize($action),
+            'object_id'       => $objectId,
+            'object_type'     => $details['object_type'] ?? null,
+            'user_id'         => $userId ?? auth()->id(),
+            'user_name'       => $userName,
+            'details'         => !empty($details['details']) ? json_encode($details['details']) : null,
+            'ip_address'      => $ip,
+            'user_agent'      => $details['user_agent'] ?? request()->userAgent(),
+            'created_at'      => now(),
         ]);
+    }
+
+    /**
+     * Check if audit logging is globally enabled.
+     */
+    public function isEnabled(): bool
+    {
+        return $this->getSetting('audit_enabled', '1') === '1';
+    }
+
+    /**
+     * Check if a specific audit category is enabled.
+     */
+    public function isCategoryEnabled(string $category): bool
+    {
+        if (!$this->isEnabled()) return false;
+        $map = [
+            'view'    => 'audit_views',
+            'search'  => 'audit_searches',
+            'download'=> 'audit_downloads',
+            'api'     => 'audit_api_requests',
+            'auth'    => 'audit_authentication',
+            'access'  => 'audit_sensitive_access',
+        ];
+        $key = $map[$category] ?? null;
+        return $key ? $this->getSetting($key, '0') === '1' : true;
+    }
+
+    /**
+     * Read an audit setting from ahg_settings.
+     */
+    private function getSetting(string $key, string $default): string
+    {
+        static $cache = null;
+        if ($cache === null) {
+            try {
+                $cache = DB::table('ahg_settings')
+                    ->where('setting_group', 'audit')
+                    ->pluck('setting_value', 'setting_key')
+                    ->toArray();
+            } catch (\Exception $e) {
+                $cache = [];
+            }
+        }
+        return $cache[$key] ?? $default;
+    }
+
+    /**
+     * Categorize an action for the action_category column.
+     */
+    private function categorize(string $action): string
+    {
+        if (in_array($action, ['login', 'logout', 'login_failed'])) return 'auth';
+        if (in_array($action, ['view', 'browse', 'search'])) return 'access';
+        if (in_array($action, ['create', 'update', 'delete', 'publish', 'unpublish'])) return 'admin';
+        if (in_array($action, ['download', 'export'])) return 'access';
+        if (str_starts_with($action, 'api_')) return 'api';
+        if (in_array($action, ['clearance_grant', 'clearance_revoke', 'access_request'])) return 'security';
+        return 'access';
     }
 
     /**
@@ -72,7 +154,7 @@ class AuditService
      */
     public function browse(array $filters = []): array
     {
-        $query = DB::table('audit_log')
+        $query = DB::table('security_audit_log')
             ->select('audit_log.*')
             ->orderBy('created_at', 'desc');
 
@@ -128,7 +210,7 @@ class AuditService
      */
     public function getForObject(int $objectId, ?string $objectType = null, int $limit = 100): array
     {
-        $query = DB::table('audit_log')
+        $query = DB::table('security_audit_log')
             ->where('object_id', $objectId);
 
         if ($objectType) {
@@ -147,7 +229,7 @@ class AuditService
      */
     public function getForUser(int $userId, int $limit = 100): array
     {
-        return DB::table('audit_log')
+        return DB::table('security_audit_log')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit($limit)
@@ -161,7 +243,7 @@ class AuditService
      */
     public function getStats(array $filters = []): array
     {
-        $query = DB::table('audit_log');
+        $query = DB::table('security_audit_log');
 
         if (!empty($filters['from_date'])) {
             $query->where('created_at', '>=', $filters['from_date']);
@@ -171,14 +253,14 @@ class AuditService
         }
 
         // Count by action
-        $byAction = DB::table('audit_log')
+        $byAction = DB::table('security_audit_log')
             ->select('action', DB::raw('count(*) as count'))
             ->groupBy('action')
             ->pluck('count', 'action')
             ->toArray();
 
         // Count by user
-        $byUser = DB::table('audit_log')
+        $byUser = DB::table('security_audit_log')
             ->select('user_id', DB::raw('count(*) as count'))
             ->groupBy('user_id')
             ->orderBy('count', 'desc')
@@ -187,15 +269,15 @@ class AuditService
             ->toArray();
 
         // Recent activity (last 24h, 7d, 30d)
-        $last24h = DB::table('audit_log')
+        $last24h = DB::table('security_audit_log')
             ->where('created_at', '>=', Carbon::now()->subHours(24))
             ->count();
 
-        $last7d = DB::table('audit_log')
+        $last7d = DB::table('security_audit_log')
             ->where('created_at', '>=', Carbon::now()->subDays(7))
             ->count();
 
-        $last30d = DB::table('audit_log')
+        $last30d = DB::table('security_audit_log')
             ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->count();
 
@@ -216,12 +298,12 @@ class AuditService
     {
         $cutoff = Carbon::now()->subDays($daysOld);
 
-        $count = DB::table('audit_log')
+        $count = DB::table('security_audit_log')
             ->where('created_at', '<', $cutoff)
             ->count();
 
         if ($count > 0) {
-            DB::table('audit_log')
+            DB::table('security_audit_log')
                 ->where('created_at', '<', $cutoff)
                 ->delete();
         }

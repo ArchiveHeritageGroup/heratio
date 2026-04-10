@@ -74,6 +74,11 @@ class NerService
     {
         $default = ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []];
 
+        // Gate: check if NER is enabled in AI Services settings
+        if ($this->loadSetting('ner_enabled', '1') !== '1') {
+            return $default;
+        }
+
         if (empty(trim($text))) {
             return $default;
         }
@@ -436,11 +441,19 @@ class NerService
     private function loadSetting(string $key, string $default): string
     {
         try {
+            // Primary: ahg_ner_settings (user-facing AI Services settings page)
+            $value = DB::table('ahg_ner_settings')
+                ->where('setting_key', $key)
+                ->value('setting_value');
+            if ($value !== null && $value !== '') {
+                return $value;
+            }
+
+            // Fallback: ahg_ai_settings (legacy AtoM migration)
             $value = DB::table('ahg_ai_settings')
                 ->where('feature', 'general')
                 ->where('setting_key', $key)
                 ->value('setting_value');
-
             if ($value !== null && $value !== '') {
                 return $value;
             }
