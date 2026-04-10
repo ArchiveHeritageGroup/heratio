@@ -2766,11 +2766,51 @@ class SettingsController extends Controller
     }
 
     /**
-     * Authority records settings stub.
+     * Authority Records Settings — structured card view cloned from AtoM @case('authority').
      */
     public function authority(Request $request)
     {
         $menu = $this->buildMenu('authority');
-        return view('ahg-settings::authority', compact('menu'));
+
+        $allKeys = [
+            'authority_wikidata_enabled', 'authority_viaf_enabled', 'authority_ulan_enabled',
+            'authority_lcnaf_enabled', 'authority_isni_enabled', 'authority_auto_verify_wikidata',
+            'authority_completeness_auto_recalc', 'authority_hide_stubs_from_public',
+            'authority_ner_auto_stub_enabled', 'authority_ner_auto_stub_threshold',
+            'authority_merge_require_approval', 'authority_dedup_threshold',
+            'authority_function_linking_enabled',
+        ];
+        $checkboxKeys = [
+            'authority_wikidata_enabled', 'authority_viaf_enabled', 'authority_ulan_enabled',
+            'authority_lcnaf_enabled', 'authority_isni_enabled', 'authority_auto_verify_wikidata',
+            'authority_completeness_auto_recalc', 'authority_hide_stubs_from_public',
+            'authority_ner_auto_stub_enabled',
+            'authority_merge_require_approval',
+            'authority_function_linking_enabled',
+        ];
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            foreach (DB::table('ahg_settings')->where('setting_group', 'authority')->get() as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post') && Schema::hasTable('ahg_settings')) {
+            $posted = $request->input('settings', []);
+            foreach ($allKeys as $key) {
+                $value = in_array($key, $checkboxKeys)
+                    ? (isset($posted[$key]) ? 'true' : 'false')
+                    : ($posted[$key] ?? '');
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'authority'],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route('settings.authority')
+                ->with('success', 'Authority Records settings saved.');
+        }
+
+        return view('ahg-settings::authority', compact('menu', 'settings'));
     }
 }

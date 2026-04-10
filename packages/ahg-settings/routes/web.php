@@ -59,7 +59,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg-integration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
     Route::get('/admin/settings/library', [SettingsController::class, 'library'])->name('settings.library');
     Route::get('/admin/settings/carousel', [SettingsController::class, 'carousel'])->name('settings.carousel');
-    Route::get('/admin/settings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
+    Route::match(['get', 'post'], '/admin/settings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
     Route::match(['get', 'post'], '/settings/pageElements', [SettingsController::class, 'pageElements'])->name('settings.page-elements');
     Route::match(['get', 'post'], '/admin/settings/page-elements', [SettingsController::class, 'pageElements']); // legacy alias
     // Dropdown manager
