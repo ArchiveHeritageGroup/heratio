@@ -59,7 +59,7 @@
         'accession' => 'Accession Management', 'encryption' => 'Encryption', 'voice_ai' => 'Voice & AI',
         'integrity' => 'Integrity', 'multi_tenant' => 'Multi-Tenancy', 'portable_export' => 'Portable Export',
         'security' => 'Security', 'features' => 'Features', 'compliance' => 'Compliance',
-        'ftp' => 'FTP / SFTP', 'ai_condition' => 'AI Condition',
+        'ftp' => 'FTP / SFTP', 'ai_condition' => 'AI Condition Assessment',
     ];
     $ahgDescriptions = [
         'general' => 'Customize appearance, colours, logo, branding, and custom CSS',

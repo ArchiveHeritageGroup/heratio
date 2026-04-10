@@ -95,7 +95,7 @@ class SettingsController extends Controller
         ['action' => 'treeview', 'label' => 'Treeview', 'icon' => 'fa-sitemap'],
         ['action' => 'uploads', 'label' => 'Uploads', 'icon' => 'fa-cloud-upload-alt'],
         ['action' => 'interface-labels', 'label' => 'User interface labels', 'icon' => 'fa-tags'],
-        ['action' => 'ai-condition', 'label' => 'AI Condition', 'icon' => 'fa-robot'],
+        ['action' => 'ai-condition', 'label' => 'AI Condition Assessment', 'icon' => 'fa-robot'],
         ['action' => 'header-customizations', 'label' => 'Header customizations', 'icon' => 'fa-heading'],
         ['action' => 'storage-service', 'label' => 'Storage service', 'icon' => 'fa-hdd'],
         ['action' => 'web-analytics', 'label' => 'Web analytics', 'icon' => 'fa-chart-bar'],
@@ -918,7 +918,7 @@ class SettingsController extends Controller
             'features' => 'Features',
             'compliance' => 'Compliance',
             'ftp' => 'FTP / SFTP',
-            'ai_condition' => 'AI Condition',
+            'ai_condition' => 'AI Condition Assessment',
         ];
         $groupLabel = $ahgGroupLabels[$group] ?? ucfirst(str_replace('_', ' ', $group));
 
@@ -1388,23 +1388,97 @@ class SettingsController extends Controller
         return view('ahg-settings::web-analytics', compact('settings', 'menu'));
     }
 
-    // ─── 13. AI Condition ───────────────────────────────────────────────
+    // ─── 13. AI Condition Assessment ──────────────────────────────────
     public function aiCondition(Request $request)
     {
         $menu = $this->buildMenu('ai-condition');
 
-        // Check if ahg_settings table has ai_condition group
-        $hasAhgTable = Schema::hasTable('ahg_settings');
-        $hasGroup = false;
-        if ($hasAhgTable) {
-            $hasGroup = DB::table('ahg_settings')->where('setting_group', 'ai_condition')->exists();
+        // ── Load settings from ahg_settings (ai_condition group) ──
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')
+                ->where('setting_group', 'ai_condition')
+                ->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
         }
 
-        if ($hasGroup) {
-            return redirect()->route('settings.ahg', 'ai_condition');
+        // ── Statistics from ahg_ai_condition_assessment ──
+        $stats = ['total' => 0, 'confirmed' => 0, 'pending' => 0, 'avg_score' => '--'];
+        if (Schema::hasTable('ahg_ai_condition_assessment')) {
+            try {
+                $stats['total'] = DB::table('ahg_ai_condition_assessment')->count();
+                $stats['confirmed'] = DB::table('ahg_ai_condition_assessment')
+                    ->where('status', 'confirmed')->count();
+                $stats['pending'] = DB::table('ahg_ai_condition_assessment')
+                    ->where('status', 'pending')->count();
+                $avg = DB::table('ahg_ai_condition_assessment')->avg('score');
+                $stats['avg_score'] = $avg !== null ? number_format($avg, 1) : '--';
+            } catch (\Throwable $e) {
+                // Table may exist but columns differ — keep defaults
+            }
         }
 
-        return view('ahg-settings::ai-condition', compact('menu'));
+        // ── API Clients ──
+        $clients = collect();
+        if (Schema::hasTable('ahg_ai_condition_client')) {
+            try {
+                $clients = DB::table('ahg_ai_condition_client')->get();
+            } catch (\Throwable $e) {
+                // graceful fallback
+            }
+        }
+
+        // ── Training contributions per client ──
+        $trainingContributions = [];
+        if (Schema::hasTable('ahg_ai_condition_training')) {
+            try {
+                $contribs = DB::table('ahg_ai_condition_training')
+                    ->select(
+                        'client_id',
+                        DB::raw('COUNT(*) as total'),
+                        DB::raw("SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending"),
+                        DB::raw("SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved")
+                    )
+                    ->groupBy('client_id')
+                    ->get();
+                foreach ($contribs as $row) {
+                    $trainingContributions[$row->client_id] = $row;
+                }
+            } catch (\Throwable $e) {
+                // graceful fallback
+            }
+        }
+
+        // ── Handle settings POST ──
+        if ($request->isMethod('post') && $request->input('form_action') === 'save_settings') {
+            $keys = [
+                'ai_condition_service_url', 'ai_condition_api_key',
+                'ai_condition_min_confidence', 'ai_condition_overlay_enabled',
+                'ai_condition_auto_scan', 'ai_condition_notify_grade',
+            ];
+            $checkboxes = ['ai_condition_overlay_enabled', 'ai_condition_auto_scan'];
+
+            foreach ($keys as $key) {
+                $value = in_array($key, $checkboxes)
+                    ? ($request->has($key) ? '1' : '0')
+                    : ($request->input($key, '') ?? '');
+
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'ai_condition'],
+                    ['setting_value' => $value, 'updated_at' => now()]
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ai-condition')
+                ->with('notice', 'AI Condition settings saved.');
+        }
+
+        return view('ahg-settings::ai-condition', compact(
+            'menu', 'settings', 'stats', 'clients', 'trainingContributions'
+        ));
     }
 
     // ─── 14. Storage Service ────────────────────────────────────────────
