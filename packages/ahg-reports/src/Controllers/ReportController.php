@@ -58,7 +58,29 @@ class ReportController extends Controller
         }
         $hasPlugin = fn($name) => isset($enabledPlugins[$name]);
 
-        return view('ahg-reports::dashboard', compact('stats', 'enabledPlugins', 'hasPlugin'));
+        // AI Condition stats
+        $aiConditionStats = null;
+        if ($hasPlugin('ahgAiConditionPlugin')) {
+            try {
+                if (Schema::hasTable('ahg_ai_condition_assessment')) {
+                    $aiConditionStats = [
+                        'total' => DB::table('ahg_ai_condition_assessment')->count(),
+                        'confirmed' => DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count(),
+                        'avg_score' => round(DB::table('ahg_ai_condition_assessment')->avg('overall_score') ?? 0, 1),
+                        'by_grade' => DB::table('ahg_ai_condition_assessment')
+                            ->select('condition_grade', DB::raw('COUNT(*) as cnt'))
+                            ->groupBy('condition_grade')
+                            ->pluck('cnt', 'condition_grade')
+                            ->all(),
+                    ];
+                    $aiConditionStats['pending'] = $aiConditionStats['total'] - $aiConditionStats['confirmed'];
+                }
+            } catch (\Exception $e) {
+                $aiConditionStats = ['total' => 0, 'confirmed' => 0, 'pending' => 0, 'avg_score' => 0, 'by_grade' => []];
+            }
+        }
+
+        return view('ahg-reports::dashboard', compact('stats', 'enabledPlugins', 'hasPlugin', 'aiConditionStats'));
     }
 
     public function accessions(Request $request)
