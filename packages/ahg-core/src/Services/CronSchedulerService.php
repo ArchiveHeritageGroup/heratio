@@ -61,11 +61,23 @@ class CronSchedulerService
      */
     public function runDueSchedules(): array
     {
+        // Gate: check if background jobs are enabled
+        if (!$this->isJobsEnabled()) {
+            return [['status' => 'skipped', 'reason' => 'jobs_enabled is false']];
+        }
+
         $results = [];
         $due = $this->getDueSchedules();
+        $maxConcurrent = $this->getJobsSetting('jobs_max_concurrent', 2);
+        $running = 0;
 
         foreach ($due as $schedule) {
+            if ($running >= $maxConcurrent) {
+                $results[] = ['id' => $schedule->id, 'slug' => $schedule->slug, 'status' => 'deferred', 'reason' => 'max_concurrent reached'];
+                continue;
+            }
             $results[] = $this->runSingle($schedule);
+            $running++;
         }
 
         return $results;
@@ -118,6 +130,9 @@ class CronSchedulerService
 
         if ($status === 'failed') {
             $updateData['total_failures'] = DB::raw('total_failures + 1');
+
+            // Notify on failure if enabled in jobs settings
+            $this->notifyJobFailure($schedule, $output);
         }
 
         DB::table($this->table)->where('id', $schedule->id)->update($updateData);
@@ -430,5 +445,81 @@ class CronSchedulerService
         }
 
         return $schedules;
+    }
+
+    // ─── Jobs Settings Helpers ──────────────────────────────────────
+
+    /**
+     * Check if background jobs are globally enabled.
+     */
+    public function isJobsEnabled(): bool
+    {
+        return $this->getJobsSetting('jobs_enabled', 'true') === 'true';
+    }
+
+    /**
+     * Read a job setting from ahg_settings (jobs group).
+     */
+    public function getJobsSetting(string $key, $default = null)
+    {
+        static $cache = null;
+        if ($cache === null) {
+            try {
+                $cache = DB::table('ahg_settings')
+                    ->where('setting_group', 'jobs')
+                    ->pluck('setting_value', 'setting_key')
+                    ->toArray();
+            } catch (\Throwable $e) {
+                $cache = [];
+            }
+        }
+        return $cache[$key] ?? $default;
+    }
+
+    /**
+     * Get configured job timeout in seconds.
+     */
+    public function getJobTimeout(): int
+    {
+        return (int) $this->getJobsSetting('jobs_timeout', 3600);
+    }
+
+    /**
+     * Get configured retry attempts.
+     */
+    public function getRetryAttempts(): int
+    {
+        return (int) $this->getJobsSetting('jobs_retry_attempts', 3);
+    }
+
+    /**
+     * Notify admin when a job fails (if enabled).
+     */
+    private function notifyJobFailure(object $schedule, string $output): void
+    {
+        if ($this->getJobsSetting('jobs_notify_on_failure', 'true') !== 'true') {
+            return;
+        }
+
+        $email = $this->getJobsSetting('jobs_notify_email', '');
+        if (empty($email)) {
+            return;
+        }
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                "Job failed: {$schedule->name} ({$schedule->slug})\n\n"
+                . "Command: {$schedule->artisan_command}\n"
+                . "Time: " . now()->toDateTimeString() . "\n\n"
+                . "Output:\n{$output}",
+                function ($message) use ($email, $schedule) {
+                    $message->to($email)
+                        ->subject("[Heratio] Job Failed: {$schedule->name}");
+                }
+            );
+        } catch (\Throwable $e) {
+            // Don't let notification failure break the scheduler
+            \Log::warning("Failed to send job failure notification: " . $e->getMessage());
+        }
     }
 }

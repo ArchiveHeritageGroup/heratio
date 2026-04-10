@@ -1573,6 +1573,45 @@ class SettingsController extends Controller
         return view('ahg-settings::audit-settings', compact('menu', 'settings'));
     }
 
+    /**
+     * Background Jobs Settings — structured card view cloned from AtoM @case('jobs').
+     */
+    public function jobsSettings(Request $request)
+    {
+        $menu = $this->buildMenu('jobs');
+
+        $allKeys = [
+            'jobs_enabled', 'jobs_max_concurrent', 'jobs_timeout',
+            'jobs_retry_attempts', 'jobs_cleanup_days',
+            'jobs_notify_on_failure', 'jobs_notify_email',
+        ];
+        $checkboxKeys = ['jobs_enabled', 'jobs_notify_on_failure'];
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            foreach (DB::table('ahg_settings')->where('setting_group', 'jobs')->get() as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post') && Schema::hasTable('ahg_settings')) {
+            $posted = $request->input('settings', []);
+            foreach ($allKeys as $key) {
+                $value = in_array($key, $checkboxKeys)
+                    ? (isset($posted[$key]) ? 'true' : 'false')
+                    : ($posted[$key] ?? '');
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'jobs'],
+                    ['setting_value' => $value]
+                );
+            }
+            return redirect()->route('settings.ahg.jobs')
+                ->with('success', 'Background Jobs settings saved.');
+        }
+
+        return view('ahg-settings::jobs-settings', compact('menu', 'settings'));
+    }
+
     // ─── 14. Storage Service ────────────────────────────────────────────
     public function storageService(Request $request)
     {

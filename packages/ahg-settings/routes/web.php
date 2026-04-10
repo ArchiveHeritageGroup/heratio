@@ -82,6 +82,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg/ai_condition', [SettingsController::class, 'aiCondition'])->name('settings.ahg.ai-condition');
     Route::match(['get', 'post'], '/admin/settings/ahg/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/settings/ahg/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
+    Route::match(['get', 'post'], '/admin/settings/ahg/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');
 
     // AHG group route — catch-all for generic key-value settings
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');
