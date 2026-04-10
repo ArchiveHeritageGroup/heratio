@@ -27,6 +27,7 @@
 
 namespace AhgInformationObjectManage\Controllers;
 
+use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\DigitalObjectService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -66,6 +67,12 @@ class DigitalObjectController extends Controller
 
         try {
             $masterId = DigitalObjectService::upload($io->id, $request->file('digital_object'));
+
+            // Auto-scan for condition if enabled
+            if (AhgSettingsService::getBool('ai_condition_auto_scan', false)) {
+                // TODO: wire ai_condition_auto_scan — dispatch condition scan job when AI condition service is built
+                \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
+            }
 
             return redirect()->route('informationobject.edit', $slug)
                 ->with('success', 'Digital object uploaded successfully.');

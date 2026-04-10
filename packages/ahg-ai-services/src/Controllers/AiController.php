@@ -2269,6 +2269,12 @@ class AiController extends Controller
         }
     }
 
+    // TODO: wire ai_condition_service_url setting — use AhgSettingsService::get('ai_condition_service_url', 'http://192.168.0.78:5000') when condition API call is built
+    // TODO: wire ai_condition_api_key setting — use AhgSettingsService::get('ai_condition_api_key', '') when condition API call is built
+    // TODO: wire ai_condition_min_confidence setting — use (float) AhgSettingsService::get('ai_condition_min_confidence', '0.5') when condition result filtering is built
+    // TODO: wire ai_condition_overlay_enabled setting — use AhgSettingsService::getBool('ai_condition_overlay_enabled', true) when overlay generation is built
+    // TODO: wire ai_condition_notify_grade setting — use AhgSettingsService::get('ai_condition_notify_grade', 'poor') when grade notification is built
+
     public function conditionAssess(Request $request) { return view('ahg-ai-services::condition-assess', ['rows' => collect()]); }
 
     public function conditionBrowse(Request $request) { return view('ahg-ai-services::condition-browse', ['rows' => collect()]); }

@@ -28,6 +28,7 @@
 namespace AhgActorManage\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 
@@ -77,6 +78,18 @@ class ActorBrowseService extends BrowseService
                 $q->whereNotNull('actor_i18n.authorized_form_of_name')
                   ->where('actor_i18n.authorized_form_of_name', '!=', '');
             });
+
+        // Hide stub actors from public (unauthenticated) users
+        if (AhgSettingsService::getBool('authority_hide_stubs_from_public', true) && !auth()->check()) {
+            $query->whereNotExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('ahg_actor_completeness')
+                    ->whereColumn('ahg_actor_completeness.actor_id', 'actor.id')
+                    ->where('ahg_actor_completeness.completeness_score', '<', 20);
+            });
+        }
+
+        return $query;
     }
 
     public function browse(array $params): array

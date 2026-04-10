@@ -27,6 +27,7 @@
 
 namespace AhgActorManage\Services;
 
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -136,11 +137,22 @@ class AuthorityNerPipelineService
      */
     public function createStub(int $nerEntityId, int $userId): ?int
     {
+        // Gate: auto-stub creation must be enabled
+        if (!AhgSettingsService::getBool('authority_ner_auto_stub_enabled', false)) {
+            return null;
+        }
+
         $entity = DB::table('ahg_ner_entity')
             ->where('id', $nerEntityId)
             ->first();
 
         if (!$entity) {
+            return null;
+        }
+
+        // Check confidence against configurable threshold
+        $threshold = (float) AhgSettingsService::get('authority_ner_auto_stub_threshold', '0.85');
+        if (($entity->confidence ?? 0) < $threshold) {
             return null;
         }
 

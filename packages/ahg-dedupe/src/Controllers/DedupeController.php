@@ -28,6 +28,7 @@
 namespace AhgDedupe\Controllers;
 
 use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -504,9 +505,12 @@ class DedupeController extends Controller
             ->orderBy('actor_i18n.authorized_form_of_name')
             ->get();
 
+        $defaultThreshold = (float) AhgSettingsService::get('authority_dedup_threshold', '0.80');
+
         return view('ahg-dedupe::rule-create', [
-            'ruleTypes'    => $this->getRuleTypes(),
-            'repositories' => $repositories,
+            'ruleTypes'        => $this->getRuleTypes(),
+            'repositories'     => $repositories,
+            'defaultThreshold' => $defaultThreshold,
         ]);
     }
 

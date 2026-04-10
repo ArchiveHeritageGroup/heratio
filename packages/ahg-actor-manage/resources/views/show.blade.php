@@ -112,7 +112,7 @@
     </div>
   @endif
 
-  @if($relatedFunctions->isNotEmpty())
+  @if($relatedFunctions->isNotEmpty() && \AhgCore\Services\AhgSettingsService::getBool('authority_function_linking_enabled', true))
     <div class="card mb-3">
       <div class="card-header">
         <h5 class="mb-0">Related functions</h5>
@@ -297,6 +297,7 @@
     @endforeach
 
     {{-- Related functions (matching AtoM) --}}
+    @if(\AhgCore\Services\AhgSettingsService::getBool('authority_function_linking_enabled', true))
     @foreach($relatedFunctions ?? [] as $fn)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">Related function</h3>
@@ -305,6 +306,7 @@
         </div>
       </div>
     @endforeach
+    @endif
   </section>
 
   {{-- Contact information --}}

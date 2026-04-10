@@ -27,6 +27,7 @@
 
 namespace AhgActorManage\Services;
 
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -127,7 +128,7 @@ class AuthorityMergeService
         int $userId,
         ?string $notes = null
     ): int {
-        $requireApproval = $this->getConfig('merge_require_approval', '0') === '1';
+        $requireApproval = AhgSettingsService::getBool('authority_merge_require_approval', false);
 
         $status = $requireApproval ? 'pending' : 'approved';
 

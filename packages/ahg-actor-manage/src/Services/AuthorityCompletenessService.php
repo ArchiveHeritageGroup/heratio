@@ -27,6 +27,7 @@
 
 namespace AhgActorManage\Services;
 
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -76,6 +77,10 @@ class AuthorityCompletenessService
      */
     public function calculateScore(int $actorId): array
     {
+        if (!AhgSettingsService::getBool('authority_completeness_auto_recalc', true)) {
+            return ['score' => 0, 'level' => 'stub', 'field_scores' => []];
+        }
+
         $fieldScores = [];
         $totalWeight = array_sum(self::FIELD_WEIGHTS);
         $earnedWeight = 0;
