@@ -140,6 +140,17 @@
     $addTile('Order Management',      'fa-shopping-bag',       'View and manage customer orders', 'cart.admin.orders', 'success', 'Manage');
     $addTile('Preservation & Backup', 'fa-cloud-upload-alt',   'Configure backup replication targets, verify integrity, and manage preservation', 'settings.section', 'success', 'Configure', 'fa-cog', 'preservation');
 
+    // 9 tiles missing from AtoM parity (all have existing routes — were sidebar-only)
+    $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration');
+    $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
+    $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
+    $addTile('Marketplace',           'fa-store-alt',          'Commission rates, listing fees, currencies, payout rules, and platform configuration', 'ahgmarketplace.admin-settings', 'success');
+    $addTile('Sector Numbering',      'fa-hashtag',            'Configure unique numbering schemes per GLAM/DAM sector', 'settings.sector-numbering');
+    $addTile('Services Monitor',      'fa-heartbeat',          'Monitor system services health and configure notifications', 'settings.services', 'success');
+    $addTile('System Information',    'fa-server',             'Installed software versions, PHP extensions, disk usage, and system health', 'settings.system-info');
+    $addTile('Text-to-Speech',        'fa-volume-up',          'Configure read-aloud accessibility feature for record pages', 'settings.tts');
+    $addTile('Webhooks',              'fa-broadcast-tower',    'Configure event-based webhooks for external system integration', 'settings.webhooks');
+
     // Sort alphabetically by label (matching AtoM ksort)
     ksort($allTiles, SORT_NATURAL | SORT_FLAG_CASE);
   @endphp

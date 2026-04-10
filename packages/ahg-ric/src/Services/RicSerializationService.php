@@ -525,10 +525,13 @@ class RicSerializationService
     private function getRepositoryForRecord(int $ioId): ?object
     {
         return DB::table('repository as r')
-            ->leftJoin('actor_i18n as i18n', 'r.id', '=', 'i18n.id')
+            ->leftJoin('actor_i18n as i18n', function ($j) {
+                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
+            })
+            ->leftJoin('slug', 'r.id', '=', 'slug.object_id')
             ->join('information_object', 'information_object.repository_id', '=', 'r.id')
             ->where('information_object.id', $ioId)
-            ->select('r.*', 'i18n.authorized_form_of_name')
+            ->select('r.*', 'i18n.authorized_form_of_name', 'slug.slug')
             ->first();
     }
 
